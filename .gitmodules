@@ -1,0 +1,3 @@
+[submodule "script"]
+	path = script
+	url = https://github.com/MustardOS/script

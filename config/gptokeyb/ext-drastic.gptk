@@ -1,0 +1,54 @@
+#i assigned F15 if i did not want the button to be mapped to a key
+back = 6
+start = 5
+guide = f15
+a = 1
+b = 2
+x = 3
+y = 4
+l1 = r
+l3 = f15
+r1 = y
+r3 = f15
+up = t
+down = g
+left = f
+right = h
+left_analog_up = f15
+left_analog_down = f15
+left_analog_left = f15
+left_analog_right = f15
+right_analog_up = f15
+right_analog_down = f15
+right_analog_left = f15
+right_analog_right = f15
+
+#select + x -> move cursor up (i is assigned in drastic config)
+x_hk = i
+
+#select + b -> move cursor down (k is assigned in drastic config)
+b_hk = k
+
+#select + y -> move cursor left (j is assigned in drastric config)
+y_hk = j
+
+#select + a -> move cursor right (l is assigned in drastic config)
+a_hk = l
+
+#select + r1 -> click cursor (n is assigned in drastic config)
+r1_hk = n
+
+#select + l1 -> switch screens (s is assigned in drastic config)
+l1_hk = s
+
+#select + r2 -> load state (f7 is assigned in drastic config)
+r2_hk = f7
+
+#select + l2 -> save state (f5 is assigned in drastic config)
+l2_hk = f5
+
+#l2 -> swap orientation 2 (a is assigned in drastric config)
+l2 = a
+
+#r2 -> swap orientation 1 (d is assigned in drastic config)
+r2 = d

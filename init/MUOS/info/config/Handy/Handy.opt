@@ -1,0 +1,5 @@
+handy_frameskip = "disabled"
+handy_frameskip_threshold = "33"
+handy_lcd_ghosting = "disabled"
+handy_refresh_rate = "60"
+handy_rot = "None"

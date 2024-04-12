@@ -1,6 +1,0 @@
-SRV_SHELL=true
-SRV_BROWSER=true
-SRV_TERMINAL=false
-SRV_SYNCTHING=false
-SRV_NTP=true
-

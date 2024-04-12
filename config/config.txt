@@ -1,3 +1,6 @@
+[boot]
+factory_reset=1
+
 [clock]
 notation=0
 pool=pool.ntp.org
@@ -12,22 +15,26 @@ gateway=192.168.0.1
 subnet=24
 dns=1.1.1.1
 
-[tweak]
-theme=muOS
-startup=launcher
-gamepad=0
+[settings.general]
+hidden=0
 sound=0
-thermal=0
-offset=50
-volume_low=0
-verbose=1
-font=1
-night=0
-brightness=49
-sleep=0
-shutdown=0
+startup=launcher
+power=0
 low_battery=0
-factory_reset=1
+colour=9
+brightness=49
+hdmi=0
+
+[settings.advanced]
+swap=0
+thermal=0
+font=1
+verbose=1
+volume_low=0
+offset=50
+
+[theme]
+name=muOS
 
 [visual]
 battery=1

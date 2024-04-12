@@ -1,3 +1,0 @@
-NTP_NOTATION=0
-NTP_POOL=pool.ntp.org
-

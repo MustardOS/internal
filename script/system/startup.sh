@@ -9,6 +9,7 @@ fi
 
 # This right here is important for various reasons!
 insmod /lib/modules/mali_kbase.ko &
+insmod /lib/modules/squashfs.ko &
 
 echo performance > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 

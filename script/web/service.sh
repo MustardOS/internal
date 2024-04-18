@@ -23,12 +23,12 @@ fi
 
 SRV_TERMINAL=$(parse_ini "$CONFIG" "web" "terminal")
 if [ "$SRV_TERMINAL" -eq 1 ]; then
-	nice -2 /opt/muos/app/gotty --config /opt/muos/app/gotty-config --width 0 --height 0 /bin/sh > /dev/null &
+	nice -2 /opt/muos/bin/gotty --config /opt/muos/config/gotty --width 0 --height 0 /bin/sh > /dev/null &
 fi
 
 SRV_SYNCTHING=$(parse_ini "$CONFIG" "web" "syncthing")
 if [ "$SRV_SYNCTHING" -eq 1 ]; then
-	nice -2 /opt/muos/app/syncthing serve --home="/mnt/mmc/MUOS/syncthing" --skip-port-probing --gui-address="$NETADDR:7070" --no-browser --no-default-folder > /dev/null &
+	nice -2 /opt/muos/bin/syncthing serve --home="/mnt/mmc/MUOS/syncthing" --skip-port-probing --gui-address="$NETADDR:7070" --no-browser --no-default-folder > /dev/null &
 fi
 
 SRV_NTP=$(parse_ini "$CONFIG" "web" "ntp")

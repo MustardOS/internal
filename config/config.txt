@@ -44,7 +44,7 @@ clock=1
 boxart=1
 
 [web]
-shell=0
+shell=1
 browser=0
 terminal=0
 syncthing=0

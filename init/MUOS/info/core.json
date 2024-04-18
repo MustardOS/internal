@@ -1,22 +1,17 @@
 {
     "Amstrad": [
         {
-            "name": "CPC/GX4000",
+            "name": "CPC (CrocoDS)",
+            "core": "crocods_libretro.so",
+            "default": "0"
+        },
+        {
+            "name": "CPC/GX4000 (Caprice)",
             "core": "cap32_libretro.so",
             "default": "1"
         }
     ],
     "Arcade": [
-        {
-            "name": "FB Alpha",
-            "core": "fbalpha_libretro.so",
-            "default": "0"
-        },
-        {
-            "name": "FB Alpha 2012",
-            "core": "fbalpha2012_libretro.so",
-            "default": "0"
-        },
         {
             "name": "FB Alpha 2012 CPS-1",
             "core": "fbalpha2012_cps1_libretro.so",
@@ -35,6 +30,11 @@
         {
             "name": "FB Alpha 2012 Neo Geo",
             "core": "fbalpha2012_neogeo_libretro.so",
+            "default": "0"
+        },
+        {
+            "name": "FB Alpha 2012",
+            "core": "fbalpha2012_libretro.so",
             "default": "0"
         },
         {
@@ -58,16 +58,34 @@
             "default": "0"
         },
         {
-            "name": "MAME 2003-Xtreme",
-            "core": "mame2003_xtreme_libretro.so",
+            "name": "MAME 2010",
+            "core": "mame2010_libretro.so",
+            "default": "1"
+        },
+        {
+            "name": "MAME",
+            "core": "mame_libretro.so",
             "default": "1"
         }
     ],
+    "Arduboy": [
+        {
+            "name": "Arduos",
+            "core": "arduos_libretro.so",
+            "default": "1"
+        }
+
+    ],
     "Atari 2600": [
         {
-            "name": "Atari 2600",
+            "name": "Stella",
             "core": "stella2014_libretro.so",
             "default": "1"
+        },
+        {
+            "name": "Stella 2014",
+            "core": "stella2014_libretro.so",
+            "default": "0"
         }
     ],
     "Atari 5200": [
@@ -86,6 +104,13 @@
         {
             "name": "ProSystem",
             "core": "prosystem_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Atari Jaguar": [
+        {
+            "name": "Virtual Jaguar",
+            "core": "virtualjaguar_libretro.so",
             "default": "1"
         }
     ],
@@ -110,9 +135,30 @@
     ],
     "Bandai WonderSwan-Color": [
         {
-            "name": "Beetle WonderSwan",
+            "name": "Beetle Cygne",
             "core": "mednafen_wswan_libretro.so"
             ,
+            "default": "1"
+        }
+    ],
+    "Cannonball": [
+        {
+            "name": "Cannonball",
+            "core": "cannonball_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Cave Story": [
+        {
+            "name": "NXEngine",
+            "core": "nxengine_libretro.so",
+            "default": "1"
+        }
+    ],
+    "ChaiLove": [
+        {
+            "name": "ChaiLove",
+            "core": "chailove_libretro.so",
             "default": "1"
         }
     ],
@@ -145,10 +191,67 @@
             "default": "0"
         }
     ],
+    "Commodore C128": [
+        {
+            "name": "VICE x128",
+            "core": "vice_x128_libretro.so",
+            "default": "1"
+        }
+    ],
     "Commodore C64": [
         {
-            "name": "VICE x64",
+            "name": "VICE x64, fast",
             "core": "vice_x64_libretro.so",
+            "default": "1"
+        },
+        {
+            "name": "VICE x64sc, accurate",
+            "core": "vice_x64sc_libretro.so",
+            "default": "0"
+        },
+        {
+            "name": "VICE xscpu64",
+            "core": "vice_xscpu64_libretro.so",
+            "default": "0"
+        }
+    ],
+    "Commodore CBM-II": [
+        {
+            "name": "VICE xcmb5x0",
+            "core": "vice_xcbm5x0_libretro.so",
+            "default": "1"
+        },
+        {
+            "name": "VICE xcbm2",
+            "core": "vice_xcbm2_libretro.so",
+            "default": "0"
+        }
+    ],
+    "Commodore PET": [
+        {
+            "name": "VICE xpet",
+            "core": "vice_xpet_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Commodore PLUS/4": [
+        {
+            "name": "VICE xplus4",
+            "core": "vice_xplus4_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Commodore VIC-20": [
+        {
+            "name": "VICE xvic",
+            "core": "vice_xvic_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Dinothawr": [
+        {
+            "name": "Dinothawr",
+            "core": "dinothawr_libretro.so",
             "default": "1"
         }
     ],
@@ -164,12 +267,52 @@
             "name": "DOSBox-Pure",
             "core": "dosbox_pure_libretro.so",
             "default": "1"
+        },
+        {
+            "name": "DOSBox-SVN",
+            "core": "dosbox_svn_libretro.so",
+            "default": "0"
+        }
+    ],
+    "Enterprise 64/128": [
+        {
+            "name": "ep128emu",
+            "core": "ep128emu_core_libretro.so",
+            "default": "0"
         }
     ],
     "External - Ports": [
         {
             "name": "External",
             "core": "external",
+            "default": "1"
+        }
+    ],
+    "Fairchild ChannelF": [
+        {
+            "name": "FreeChaF",
+            "core": "freechaf_libretro.so",
+            "default": "0"
+        }
+    ],
+    "Flashback": [
+        {
+            "name": "REminiscence",
+            "core": "reminiscence_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Game Music Emu": [
+        {
+            "name": "Game Music Emu",
+            "core": "gme_libretro.so",
+            "default": "1"
+        }
+    ],
+    "GCE - Vectrex": [
+        {
+            "name": "vecx",
+            "core": "vecx_libretro.so",
             "default": "1"
         }
     ],
@@ -180,13 +323,6 @@
             "default": "1"
         }
     ],
-    "Infocom Z-Machine": [
-        {
-            "name": "MojoZork",
-            "core": "mojozork_libretro.so",
-            "default": "1"
-        }
-    ],
     "LowRes NX": [
         {
             "name": "LowRes NX",
@@ -194,10 +330,59 @@
             "default": "1"
         }
     ],
-    "Mobile - J2ME": [
+    "Lua Engine": [
         {
-            "name": "FreeJ2ME",
-            "core": "freej2me_libretro.so",
+            "name": "Lutro",
+            "core": "lutro_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Magnavox - Odyssey2 / Philips Videopac+": [
+        {
+            "name": "O2EM",
+            "core": "02em_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Mattel - Intellivision": [
+        {
+            "name": "FreeIntv",
+            "core": "freeintv_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Mega Duck / Cougar Boy": [
+        {
+            "name": "SameDuck",
+            "core": "sameduck_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Microsoft - MSX": [
+        {
+            "name": "fMSX",
+            "core": "fmsx_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Minecraft": [
+        {
+            "name": "Craft",
+            "core": "craft_libretro",
+            "default": "1"
+        }
+    ],
+    "MPV": [
+        {
+            "name": "MPV",
+            "core": "mpv_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Mr. Boom": [
+        {
+            "name": "Bomberman",
+            "core": "mrboom_libretro.so",
             "default": "1"
         }
     ],
@@ -205,6 +390,13 @@
         {
             "name": "blueMSX",
             "core": "bluemsx_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Multi": [
+        {
+            "name": "MESS 2015",
+            "core": "mess2015_libretro.so",
             "default": "1"
         }
     ],
@@ -222,7 +414,7 @@
             "default": "1"
         }
     ],
-    "NEC PC-8000 - PC-8800": [
+    "NEC PC-8000 - PC-8800 series": [
         {
             "name": "QUASI8800",
             "core": "quasi88_libretro.so",
@@ -234,6 +426,11 @@
             "name": "Neko Project II Kai",
             "core": "np2kai_libretro.so",
             "default": "1"
+        },
+        {
+            "name": "Neko Project II",
+            "core": "nekop2_libretro.so",
+            "default": "0"
         }
     ],
     "NEC PC-FX": [
@@ -337,17 +534,37 @@
     ],
     "Nintendo NES-Famicom": [
         {
+            "name": "bnes",
+            "core": "bnes_libretro.so",
+            "default": "0"
+        },
+        {
             "name": "FCEUmm",
             "core": "fceumm_libretro.so",
             "default": "1"
         },
         {
+            "name": "Mesen",
+            "core": "mesen_libretro.so",
+            "default": "0"
+        },
+        {
             "name": "Nestopia",
             "core": "nestopia_libretro.so",
+            "default": "0"
+        },
+        {
+            "name": "QuickNES",
+            "core": "quicknes_libretro.so",
             "default": "0"
         }
     ],
     "Nintendo N64": [
+        {
+            "name": "Mupen64Plus (External)",
+            "core": "ext-mupen64plus",
+            "default": "0"
+        },
         {
             "name": "Mupen64Plus-Next",
             "core": "mupen64plus_next_libretro.so",
@@ -373,7 +590,7 @@
             "default": "1"
         },
         {
-            "name": "Snes9x Current",
+            "name": "Snes9x",
             "core": "snes9x_libretro.so",
             "default": "0"
         },
@@ -405,6 +622,27 @@
             "default": "1"
         }
     ],
+    "ONScripter": [
+        {
+            "name": "ONScripter",
+            "core": "onscripter_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Palm OS": [
+        {
+            "name": "Mu",
+            "core": "mu_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Philips CDi": [
+        {
+            "name": "SAME CDi",
+            "core": "same_cdi_libretro.so",
+            "default": "1"
+        }
+    ],
     "PICO-8": [
         {
             "name": "PICO-8 (External)",
@@ -422,17 +660,17 @@
             "default": "0"
         }
     ],
-    "PocketCDG": [
-        {
-            "name": "PocketCDG",
-            "core": "pocketcdg_libretro.so",
-            "default": "1"
-        }
-    ],
     "Quake": [
         {
             "name": "TyrQuake",
             "core": "tyrquake_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Rick Dangerous": [
+        {
+            "name": "XRick",
+            "core": "xrick_libretro.so",
             "default": "1"
         }
     ],
@@ -459,11 +697,6 @@
         {
             "name": "Flycast",
             "core": "flycast_libretro.so",
-            "default": "0"
-        },
-        {
-            "name": "Flycast Xtreme",
-            "core": "flycast_xtreme_libretro.so",
             "default": "1"
         }
     ],
@@ -482,13 +715,7 @@
             "name": "PicoDrive",
             "core": "picodrive_libretro.so",
             "default": "1"
-        },
-        {
-            "name": "SMS Plus GX",
-            "core": "smsplus_libretro.so",
-            "default": "0"
-        }
-        
+        }        
     ],
     "Sega Master System": [
         {
@@ -505,17 +732,17 @@
             "name": "PicoDrive",
             "core": "picodrive_libretro.so",
             "default": "1"
-        },
-        {
-            "name": "SMS Plus GX",
-            "core": "smsplus_libretro.so",
-            "default": "0"
         }
     ],
     "Sega Mega Drive - Genesis": [
         {
             "name": "Genesis Plus GX",
             "core": "genesis_plus_gx_libretro.so",
+            "default": "0"
+        },
+        {
+            "name": "Genesis Plus GX Wide",
+            "core": "genesis_plus_gx_wide_libretro.so",
             "default": "0"
         },
         {
@@ -531,6 +758,11 @@
             "default": "0"
         },
         {
+            "name": "Genesis Plus GX Wide",
+            "core": "genesis_plus_gx_wide_libretro.so",
+            "default": "0"
+        },
+        {
             "name": "PicoDrive",
             "core": "picodrive_libretro.so",
             "default": "1"
@@ -543,6 +775,18 @@
             "default": "1"
         }
     ],
+    "Sega Saturn": [
+        {
+            "name": "YabaSanshiro",
+            "core": "yabasanshiro_libretro.so",
+            "default": "1"
+        },
+        {
+            "name": "Yabause",
+            "core": "yabause_libretro.so",
+            "default": "1"
+        }
+    ],
     "Sharp X68000": [
         {
             "name": "PX68k",
@@ -550,11 +794,23 @@
             "default": "1"
         }
     ],
-    "Sinclair ZX Spectrum": [
+    "Sharp X1": [
+        {
+            "name": "X Millennium",
+            "core": "x1_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Sinclair ZX 81": [
+        {
+            "name": "EightyOne",
+            "core": "81_libretro.so",
+            "default": "1"
+        },
         {
             "name": "Fuse",
             "core": "fuse_libretro.so",
-            "default": "1"
+            "default": "0"
         }
     ],
     "SNK Neo Geo": [
@@ -595,6 +851,11 @@
     ],
     "Sony PlayStation": [
         {
+            "name": "DuckStation",
+            "core": "duckstation_libretro.so",
+            "default": "0"
+        },
+        {
             "name": "PCSX ReARMed",
             "core": "pcsx_rearmed_libretro.so",
             "default": "1"
@@ -610,6 +871,48 @@
             "name": "PPSSPP",
             "core": "ppsspp_libretro.so",
             "default": "0"
+        }
+    ],
+    "Texas Instruments TI-83": [
+        {
+            "name": "Numero",
+            "core": "numero_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Thomson MO/TO": [
+        {
+            "name": "Theodore",
+            "core": "theodore_libretro.so",
+            "default": "1"
+        }
+    ],
+    "TIC-80": [
+        {
+            "name": "TIC-80",
+            "core": "tic80_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Uzebox": [
+        {
+            "name": "Uzem",
+            "core": "uzem_libretro.so",
+            "default": "1"
+        }
+    ],
+    "VeMUlator": [
+        {
+            "name": "VeMUlator",
+            "core": "vemulator_libretro.so",
+            "default": "1"
+        }
+    ],
+    "Watara Supervision": [
+        {
+            "name": "Potator",
+            "core": "potator_libretro.so",
+            "default": "1"
         }
     ],
     "Wolfenstein 3D": [

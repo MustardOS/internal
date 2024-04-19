@@ -6,8 +6,8 @@
 DATE=$(date +%Y-%m-%d)
 
 # Determine RetroArch Save Directory
-RA_SAVEFILE_DIR=$(grep 'savefile_dir' /mnt/mmc/MUOS/.retroarch/retroarch.cfg | cut -d '"' -f 2)
-RA_SAVESTATE_DIR=$(grep 'savestate_dir' /mnt/mmc/MUOS/.retroarch/retroarch.cfg | cut -d '"' -f 2)
+RA_SAVEFILE_DIR=$(grep 'savefile_dir' /mnt/mmc/MUOS/retroarch/retroarch.cfg | cut -d '"' -f 2)
+RA_SAVESTATE_DIR=$(grep 'savestate_dir' /mnt/mmc/MUOS/retroarch/retroarch.cfg | cut -d '"' -f 2)
 
 # Remove ~ from modified RA save paths
 RA_SAVEFILE_DIR=$(echo "$RA_SAVEFILE_DIR" | sed 's/~//')

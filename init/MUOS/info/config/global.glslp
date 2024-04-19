@@ -1,1 +1,1 @@
-#reference ":/.retroarch/shaders/interpolation/sharp-bilinear-simple.glslp"
+#reference "../../retroarch/shaders/interpolation/sharp-bilinear-simple.glslp"

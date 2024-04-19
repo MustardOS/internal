@@ -49,7 +49,9 @@ fi
 
 LOGGER "BOOTING" "Starting..."
 
-/opt/muos/script/system/hdmi.sh &
+if [ "$HDMI" -eq 1 ]; then
+	/opt/muos/script/system/hdmi.sh &
+fi
 
 echo noop > /sys/devices/platform/soc/sdc0/mmc_host/mmc0/mmc0:59b4/block/mmcblk0/queue/scheduler
 echo on > /sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control

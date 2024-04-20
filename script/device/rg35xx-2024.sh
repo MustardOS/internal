@@ -1,4 +1,41 @@
 #!/bin/sh
 
-# Nothing :)
+RMP_LOG="/mnt/mmc/MUOS/log/device.log"
+LOG_DATE="$(date +'[%Y-%m-%d]')"
 
+# Define Nintendo 64 remap paths
+MP64_RMP="/mnt/mmc/MUOS/info/config/remaps/Mupen64Plus-Next/Mupen64Plus-Next.rmp"
+
+# Check for Mupen64Plus remap
+MP64_DIR=$(dirname "$MP64_RMP")
+if [ ! -d "$MP64_DIR" ]; then
+    mkdir -p "$MP64_DIR"
+fi
+
+if [ ! -e "$MP64_RMP" ]; then
+    cat <<EOF > "$MP64_RMP"
+input_libretro_device_p1 = "1"
+input_libretro_device_p2 = "1"
+input_libretro_device_p3 = "1"
+input_libretro_device_p4 = "1"
+input_player1_analog_dpad_mode = "0"
+input_player1_btn_down = "18"
+input_player1_btn_left = "17"
+input_player1_btn_right = "16"
+input_player1_btn_up = "19"
+input_player1_stk_l_x+ = "7"
+input_player1_stk_l_x- = "6"
+input_player1_stk_l_y+ = "5"
+input_player1_stk_l_y- = "4"
+input_player2_analog_dpad_mode = "0"
+input_player3_analog_dpad_mode = "0"
+input_player4_analog_dpad_mode = "0"
+input_remap_port_p1 = "0"
+input_remap_port_p2 = "1"
+input_remap_port_p3 = "2"
+input_remap_port_p4 = "3"
+EOF
+echo "$LOG_DATE File $MP64_RMP created. Set Mupen64Plus-Next controls for dpad only." >> "$RMP_LOG"
+else
+    echo "$LOG_DATE No file created. Remap existed at $MP64_RMP" >> "$RMP_LOG"
+fi

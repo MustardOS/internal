@@ -1,4 +1,11 @@
 {
+    "amiga 500": [
+        {
+            "name": "Amiberry (External)",
+            "core": "ext-amiberry",
+            "default": "1"
+        }
+    ],
     "Amstrad": [
         {
             "name": "CPC (CrocoDS)",
@@ -74,7 +81,6 @@
             "core": "arduos_libretro.so",
             "default": "1"
         }
-
     ],
     "Atari 2600": [
         {
@@ -136,8 +142,7 @@
     "Bandai WonderSwan-Color": [
         {
             "name": "Beetle Cygne",
-            "core": "mednafen_wswan_libretro.so"
-            ,
+            "core": "mednafen_wswan_libretro.so",
             "default": "1"
         }
     ],
@@ -695,6 +700,11 @@
     ],
     "Sega Dreamcast - Naomi": [
         {
+            "name": "Flycast (External)",
+            "core": "ext-flycast",
+            "default": "1"
+        },
+        {
             "name": "Flycast",
             "core": "flycast_libretro.so",
             "default": "1"
@@ -715,7 +725,7 @@
             "name": "PicoDrive",
             "core": "picodrive_libretro.so",
             "default": "1"
-        }        
+        }
     ],
     "Sega Master System": [
         {
@@ -753,7 +763,7 @@
     ],
     "Sega Mega CD - Sega CD": [
         {
-            "name":"Genesis Plus GX",
+            "name": "Genesis Plus GX",
             "core": "genesis_plus_gx_libretro.so",
             "default": "0"
         },
@@ -867,6 +877,11 @@
         }
     ],
     "Sony Playstation Portable": [
+        {
+            "name": "PPSSPP (External)",
+            "core": "ext-ppsspp",
+            "default": "1"
+        },
         {
             "name": "PPSSPP",
             "core": "ppsspp_libretro.so",

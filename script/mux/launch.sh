@@ -68,6 +68,15 @@ if [ -s "$ROM_GO" ]; then
 	# External Script
 	if [ "$CORE" = external ]; then
 		/opt/muos/script/launch/ext-general.sh "$NAME" "$CORE" "$ROM"
+    	# Amiberry External
+    	elif [ "$CORE" = ext-amiberry ]; then
+    	    	/opt/muos/script/mux/launch/ext-amiberry.sh "$NAME" "$CORE" "$ROM"
+    	# Flycast External
+    	elif [ "$CORE" = ext-flycast ]; then
+    	    	/opt/muos/script/mux/launch/ext-flycast.sh "$NAME" "$CORE" "$ROM"
+    	# PPSSPP External
+    	elif [ "$CORE" = ext-ppsspp ]; then
+    	    	/opt/muos/script/mux/launch/ext-ppsspp.sh "$NAME" "$CORE" "$ROM"
 	# PICO-8 External
 	elif [ "$CORE" = ext-pico8 ]; then
 		/opt/muos/script/launch/ext-pico8.sh "$NAME" "$CORE" "$ROM"
@@ -106,6 +115,8 @@ if [ -s "$ROM_GO" ]; then
 
 	killall "$GPTOKEYB_BIN"
 	killall "$EVSIEVE_BIN"
+
+	fbset -fb /dev/fb0 -g 640 480 640 480 32
 
 	pkill -CONT "$SUSPEND_APP"
 fi

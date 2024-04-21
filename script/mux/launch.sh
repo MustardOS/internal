@@ -70,13 +70,13 @@ if [ -s "$ROM_GO" ]; then
 		/opt/muos/script/launch/ext-general.sh "$NAME" "$CORE" "$ROM"
     	# Amiberry External
     	elif [ "$CORE" = ext-amiberry ]; then
-    	    	/opt/muos/script/mux/launch/ext-amiberry.sh "$NAME" "$CORE" "$ROM"
+    	    	/opt/muos/script/launch/ext-amiberry.sh "$NAME" "$CORE" "$ROM"
     	# Flycast External
     	elif [ "$CORE" = ext-flycast ]; then
-    	    	/opt/muos/script/mux/launch/ext-flycast.sh "$NAME" "$CORE" "$ROM"
+    	    	/opt/muos/script/launch/ext-flycast.sh "$NAME" "$CORE" "$ROM"
     	# PPSSPP External
     	elif [ "$CORE" = ext-ppsspp ]; then
-    	    	/opt/muos/script/mux/launch/ext-ppsspp.sh "$NAME" "$CORE" "$ROM"
+    	    	/opt/muos/script/launch/ext-ppsspp.sh "$NAME" "$CORE" "$ROM"
 	# PICO-8 External
 	elif [ "$CORE" = ext-pico8 ]; then
 		/opt/muos/script/launch/ext-pico8.sh "$NAME" "$CORE" "$ROM"
@@ -84,7 +84,7 @@ if [ -s "$ROM_GO" ]; then
 	elif [ "$CORE" = ext-drastic ]; then
 		/opt/muos/script/launch/ext-drastic.sh "$NAME" "$CORE" "$ROM"
 	# Mupen64Plus External
-	elif [ "$CORE" = ext-mupen64plus ]; then
+	elif [[ "$CORE" == ext-mupen64plus* ]]; then
 		/opt/muos/script/launch/ext-mupen64plus.sh "$NAME" "$CORE" "$ROM"
 	# ScummVM External
 	elif [ "$CORE" = ext-scummvm ]; then

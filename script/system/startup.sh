@@ -96,6 +96,9 @@ if [ "$FACTORYRESET" -eq 1 ]; then
 	LOGGER "FACTORY RESET" "Generating SSH Host Keys"
 	/opt/openssh/bin/ssh-keygen -A
 
+	LOGGER "FACTORY RESET" "Caching Shared Libraries"
+	ldconfig
+
 	TEMP_CONFIG=/tmp/temp_cfg
 
 	awk -F "=" '/factory_reset/ {sub(/1/, "0", $2)} 1' OFS="=" $CONFIG > $TEMP_CONFIG

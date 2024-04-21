@@ -1,5 +1,5 @@
 {
-    "amiga 500": [
+    "Amiga 500": [
         {
             "name": "Amiberry (External)",
             "core": "ext-amiberry",
@@ -566,8 +566,13 @@
     ],
     "Nintendo N64": [
         {
-            "name": "Mupen64Plus (External)",
-            "core": "ext-mupen64plus",
+            "name": "Mupen64Plus (External) [GLideN64]",
+            "core": "ext-mupen64plus-gliden64",
+            "default": "0"
+        },
+        {
+            "name": "Mupen64Plus (External) [Rice4]",
+            "core": "ext-mupen64plus-rice",
             "default": "0"
         },
         {
@@ -702,11 +707,16 @@
         {
             "name": "Flycast (External)",
             "core": "ext-flycast",
-            "default": "1"
+            "default": "0"
         },
         {
             "name": "Flycast",
             "core": "flycast_libretro.so",
+            "default": "0"
+        },
+        {
+            "name": "Flycast VL",
+            "core": "flycastvl_libretro.so",
             "default": "1"
         }
     ],

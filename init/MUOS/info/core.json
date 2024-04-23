@@ -571,7 +571,7 @@
             "default": "0"
         },
         {
-            "name": "Mupen64Plus (External) [Rice4]",
+            "name": "Mupen64Plus (External) [Rice]",
             "core": "ext-mupen64plus-rice",
             "default": "0"
         },
@@ -718,6 +718,11 @@
             "name": "Flycast VL",
             "core": "flycastvl_libretro.so",
             "default": "1"
+        },
+        {
+        	"name": "Flycast Xtreme (armhf)",
+            "core": "flycast_xtreme_libretro.so",
+            "default": "0"
         }
     ],
     "Sega Game Gear": [
@@ -751,6 +756,11 @@
         {
             "name": "PicoDrive",
             "core": "picodrive_libretro.so",
+            "default": "0"
+        },
+        {
+        	"name": "SMS Plus GX",
+            "core": "smsplus_libretro.so",
             "default": "1"
         }
     ],

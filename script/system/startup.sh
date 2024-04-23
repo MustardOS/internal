@@ -128,6 +128,10 @@ LOGGER "BOOTING" "Starting muX Services"
 LOGGER "BOOTING" "Cleaning Dotfiles"
 /opt/muos/script/system/dotclean.sh &
 
+LOGGER "BOOTING" "Deploying PortMaster Fix"
+ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
+ldconfig
+
 LOGGER "BOOTING" "Exporting Diagnostic Messages"
 dmesg > "/mnt/mmc/MUOS/log/dmesg__${CURRENT_DATE}.log" &
 

@@ -89,6 +89,9 @@ if [ -s "$ROM_GO" ]; then
 	# ScummVM External
 	elif [ "$CORE" = ext-scummvm ]; then
 		/opt/muos/script/launch/ext-scummvm.sh "$NAME" "$CORE" "$ROM"
+    # Flycast Extreme armhf LibRetro
+	elif [ "$CORE" = flycast_xtreme_libretro.so ]; then
+    	/opt/muos/script/launch/lr-flycastx.sh "$NAME" "$CORE" "$ROM"
 	# ScummVM LibRetro
 	elif [ "$CORE" = scummvm_libretro.so ]; then
 		/opt/muos/script/launch/lr-scummvm.sh "$NAME" "$CORE" "$ROM"

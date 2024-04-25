@@ -49,55 +49,54 @@ LOGGER "FACTORY RESET" "$RSRF"
 mv /opt/muos/init/* /mnt/mmc/ &
 
 while true; do
-    IS_WORKING=$(ps aux | grep '[m]v' | awk '{print $1}')
-    RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
+	IS_WORKING=$(ps aux | grep '[m]v' | awk '{print $1}')
+	RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
 
-    LOGGER "$RSRF" "$RANDOM_LINE"
+	LOGGER "$RSRF" "$RANDOM_LINE"
 
-    if [ "$IS_WORKING" = "" ]; then
-        break
-    fi
+	if [ "$IS_WORKING" = "" ]; then
+		break
+	fi
 
-    sleep 5
+	sleep 5
 done
 
 rm -rf /opt/muos/init &
 
-RSRF="Restoring Libretro Cores"
-LOGGER "FACTORY RESET" "$RSRF"
+EXTRACT_ARCHIVE() {
+	ARCHIVE="$1"
+	DESTINATION="$2"
+	WHAT="$3"
 
-unzip -o /opt/muos/backup/libretro-core.zip -d "/mnt/mmc/MUOS/core/" &
+	RSRF="Merging $WHAT Archive"
+	LOGGER "FACTORY RESET" "$RSRF"
 
-while true; do
-    IS_WORKING=$(ps aux | grep '[u]nzip' | awk '{print $1}')
-    RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
+	zip -s0 "$ARCHIVE" --out /tmp/mux_archive.zip
 
-    LOGGER "$RSRF" "$RANDOM_LINE"
+	RSRF="Restoring $WHAT"
+	LOGGER "FACTORY RESET" "$RSRF"
 
-    if [ "$IS_WORKING" = "" ]; then
-        break
-    fi
+	unzip -o /tmp/mux_archive.zip -d "$DESTINATION" &
 
-    sleep 5
-done
+	while true; do
+		IS_WORKING=$(ps aux | grep '[u]nzip' | awk '{print $1}')
+		RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
 
-RSRF="Restoring PortMaster"
-LOGGER "FACTORY RESET" "$RSRF"
+		LOGGER "$RSRF" "$RANDOM_LINE"
 
-unzip -o /opt/muos/backup/portmaster.zip -d "/mnt/mmc/MUOS/PortMaster/" &
+		if [ -z "$IS_WORKING" ]; then
+			break
+		fi
 
-while true; do
-    IS_WORKING=$(ps aux | grep '[u]nzip' | awk '{print $1}')
-    RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
+		sleep 5
+	done
 
-    LOGGER "$RSRF" "$RANDOM_LINE"
+	rm /tmp/mux_archive.zip
+}
 
-    if [ "$IS_WORKING" = "" ]; then
-        break
-    fi
-
-    sleep 5
-done
+EXTRACT_ARCHIVE "/opt/muos/archive/libretro/libretro.zip" "/mnt/mmc/MUOS/core/" "Libretro Cores"
+EXTRACT_ARCHIVE "/opt/muos/archive/portmaster/portmaster.zip" "/mnt/mmc/MUOS/PortMaster/" "PortMaster"
+EXTRACT_ARCHIVE "/opt/muos/archive/soundfont/soundfont.zip" "/usr/share/soundfonts/" "Soundfonts"
 
 LOGGER "FACTORY RESET" "Syncing Partitions"
 sync

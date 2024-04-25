@@ -96,9 +96,6 @@ if [ "$FACTORYRESET" -eq 1 ]; then
 	LOGGER "FACTORY RESET" "Generating SSH Host Keys"
 	/opt/openssh/bin/ssh-keygen -A
 
-	LOGGER "FACTORY RESET" "Caching Shared Libraries"
-	ldconfig
-
 	TEMP_CONFIG=/tmp/temp_cfg
 
 	awk -F "=" '/factory_reset/ {sub(/1/, "0", $2)} 1' OFS="=" $CONFIG > $TEMP_CONFIG
@@ -135,9 +132,9 @@ ldconfig
 LOGGER "BOOTING" "Exporting Diagnostic Messages"
 dmesg > "/mnt/mmc/MUOS/log/dmesg__${CURRENT_DATE}.log" &
 
-LOGGER "BOOTING" "Fix for Multi-arch PortMaster"
+LOGGER "BOOTING" "Caching Shared Libraries"
 ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
-ldconfig
+ldconfig &
 
 LOGGER "BOOTING" "Reset /opt to Root Ownership"
 chown -R root:root /opt

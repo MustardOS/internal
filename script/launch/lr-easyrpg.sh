@@ -4,6 +4,8 @@ NAME=$1
 CORE=$2
 ROM=$3
 
+export HOME=/root
+
 ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')
 
 if [ "$(echo $ROM | awk -F. '{print $NF}')" == "zip" ]; then

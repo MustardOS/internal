@@ -4,7 +4,8 @@ NAME=$1
 CORE=$2
 ROM=$3
 
-# Define message block
+export HOME=/root
+
 MESSAGE() {
     _TITLE=$1
     _MESSAGE=$2
@@ -36,8 +37,8 @@ else
 		## Is this thing on(line)?
 		check_internet() {
 			echo "Pinging github.com" >> "$LOGPATH"
-    		ping -c 1 github.com > /dev/null 2>&1
-    		return $?
+			ping -c 1 github.com > /dev/null 2>&1
+			return $?
 		}
 		if check_internet; then
 			echo "Downloading from $CAVE_URL" >> "$LOGPATH"
@@ -47,7 +48,7 @@ else
     		echo "Unable to download $CZ_NAME" >> "$LOGPATH"
 			TITLE="Missing File"
 			CONTENT="Cave Story (En).zip not found in /MUOS/bios
-			Please see https://muos.dev for more information."
+			Please see https://muos.dev for more information!"
     		MESSAGE "$TITLE" "$CONTENT" 5
 		fi
 	fi

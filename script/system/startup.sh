@@ -125,10 +125,6 @@ LOGGER "BOOTING" "Starting muX Services"
 LOGGER "BOOTING" "Cleaning Dotfiles"
 /opt/muos/script/system/dotclean.sh &
 
-LOGGER "BOOTING" "Deploying PortMaster Fix"
-ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
-ldconfig
-
 LOGGER "BOOTING" "Exporting Diagnostic Messages"
 dmesg > "/mnt/mmc/MUOS/log/dmesg__${CURRENT_DATE}.log" &
 
@@ -137,11 +133,8 @@ ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
 ldconfig &
 
 LOGGER "BOOTING" "Reset /opt to Root Ownership"
-chown -R root:root /opt
-chmod -R 755 /opt
-# Special directories that should not be world editable!
-chmod -R 700 /opt/openssh/var
-chmod -R 700 /opt/openssh/etc
+chown -R root:root /opt &
+chmod -R 755 /opt &
 
 VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")
 if [ "$VERBOSE" -eq 1 ]; then

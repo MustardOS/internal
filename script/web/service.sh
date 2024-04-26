@@ -13,6 +13,8 @@ killall syncthing
 
 SRV_SHELL=$(parse_ini "$CONFIG" "web" "shell")
 if [ "$SRV_SHELL" -eq 1 ]; then
+	# Special directories that should not be world editable!
+	chmod -R 700 /opt/openssh/var /opt/openssh/etc
 	nice -2 /opt/openssh/sbin/sshd > /dev/null &
 fi
 

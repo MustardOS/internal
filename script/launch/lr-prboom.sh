@@ -15,5 +15,5 @@ cp -f "$ROMPATH/$NAME.doom" "$PRBC"
 cp -f /mnt/mmc/MUOS/bios/prboom.wad "$ROMPATH/.$NAME/prboom.wad"
 cp -f "$ROMPATH/.IWAD/$IWAD" "$ROMPATH/.$NAME/$IWAD"
 
-/opt/muos/script/mux/track.sh "$NAME" retroarch -f -c \""/mnt/mmc/MUOS/retroarch/retroarch.cfg"\" -L \""/mnt/mmc/MUOS/core/prboom_libretro.so"\" \""$ROMPATH/.$NAME/$IWAD"\"
+/opt/muos/script/mux/track.sh "$NAME" retroarch -v -f -c \""/mnt/mmc/MUOS/retroarch/retroarch.cfg"\" -L \""/mnt/mmc/MUOS/core/prboom_libretro.so"\" \""$ROMPATH/.$NAME/$IWAD"\"
 

@@ -16,5 +16,5 @@ SCVM="$ROMPATH/$SUBFOLDER/$NAME.scummvm"
 
 cp "$ROMPATH/$NAME.scummvm" "$SCVM"
 
-/opt/muos/script/mux/track.sh "$NAME" retroarch -f -c \""/mnt/mmc/MUOS/retroarch/retroarch.cfg"\" -L \""/mnt/mmc/MUOS/core/scummvm_libretro.so"\" \""$SCVM"\"
+/opt/muos/script/mux/track.sh "$NAME" retroarch -v -f -c \""/mnt/mmc/MUOS/retroarch/retroarch.cfg"\" -L \""/mnt/mmc/MUOS/core/scummvm_libretro.so"\" \""$SCVM"\"
 

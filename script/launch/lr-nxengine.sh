@@ -23,7 +23,7 @@ DOUK="$ROMPATH/.Cave Story (En)/Doukutsu.exe"
 LOGPATH="/mnt/mmc/MUOS/log/nxe.log"
 
 if [ -e "$DOUK" ]; then
-	/opt/muos/script/mux/track.sh "$NAME" retroarch -c \""/mnt/mmc/MUOS/retroarch/retroarch.cfg"\" -L \""/mnt/mmc/MUOS/core/$CORE"\" \""$DOUK"\"
+	/opt/muos/script/mux/track.sh "$NAME" retroarch -v -c \""/mnt/mmc/MUOS/retroarch/retroarch.cfg"\" -L \""/mnt/mmc/MUOS/core/$CORE"\" \""$DOUK"\"
 else
 	CZ_NAME="Cave Story (En).zip"
 	CAVE_URL="https://bot.libretro.com/assets/cores/Cave Story/$CZ_NAME"
@@ -64,5 +64,5 @@ else
 	else
 		echo "Did extraction fail?" >> "$LOGPATH"
 	fi
-	/opt/muos/script/mux/track.sh "$NAME" retroarch -c \""/mnt/mmc/MUOS/retroarch/retroarch.cfg"\" -L \""/mnt/mmc/MUOS/core/$CORE"\" \""$DOUK"\"
+	/opt/muos/script/mux/track.sh "$NAME" retroarch -v -c \""/mnt/mmc/MUOS/retroarch/retroarch.cfg"\" -L \""/mnt/mmc/MUOS/core/$CORE"\" \""$DOUK"\"
 fi

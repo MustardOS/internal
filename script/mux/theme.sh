@@ -3,12 +3,18 @@
 . /opt/muos/script/system/parse.sh
 CONFIG=/opt/muos/config/config.txt
 
+if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
+	BLBMP=bootlogo
+else
+	BLBMP=bootlogo-alt
+fi
+
 THEME=$(parse_ini "$CONFIG" "theme" "name")
 
 THEMEDIR="/opt/muos/theme"
-BOOTLOGO="$THEMEDIR/image/bootlogo.bmp"
+BOOTLOGO="$THEMEDIR/image/$BLBMP.bmp"
 
-cp "/opt/muos/backup/bootlogo.bmp" "/mnt/boot/bootlogo.bmp"
+cp "/opt/muos/backup/$BLBMP.bmp" "/mnt/boot/bootlogo.bmp"
 
 rm -rf "$THEMEDIR"
 unzip "/mnt/mmc/MUOS/theme/$THEME" -d "$THEMEDIR"

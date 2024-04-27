@@ -96,14 +96,6 @@ if [ "$FACTORYRESET" -eq 1 ]; then
 	LOGGER "FACTORY RESET" "Generating SSH Host Keys"
 	/opt/openssh/bin/ssh-keygen -A
 
-	TEMP_CONFIG=/tmp/temp_cfg
-
-	awk -F "=" '/factory_reset/ {sub(/1/, "0", $2)} 1' OFS="=" $CONFIG > $TEMP_CONFIG
-	mv $TEMP_CONFIG $CONFIG
-
-	awk -F "=" '/verbose/ {sub(/1/, "0", $2)} 1' OFS="=" $CONFIG > $TEMP_CONFIG
-	mv $TEMP_CONFIG $CONFIG
-
 	hwclock -s
 	
 	killall "mp3play"
@@ -126,7 +118,7 @@ LOGGER "BOOTING" "Cleaning Dotfiles"
 /opt/muos/script/system/dotclean.sh &
 
 LOGGER "BOOTING" "Exporting Diagnostic Messages"
-dmesg > "/mnt/mmc/MUOS/log/dmesg__${CURRENT_DATE}.log" &
+dmesg > "/mnt/mmc/MUOS/log/dmesg/dmesg__${CURRENT_DATE}.log" &
 
 LOGGER "BOOTING" "Caching Shared Libraries"
 ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
@@ -139,6 +131,17 @@ chmod -R 755 /opt &
 VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")
 if [ "$VERBOSE" -eq 1 ]; then
 	cp "$MUOSBOOT_LOG" /mnt/mmc/MUOS/log/boot/.
+fi
+
+FACTORYRESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
+if [ "$FACTORYRESET" -eq 1 ]; then
+	TEMP_CONFIG=/tmp/temp_cfg
+
+	awk -F "=" '/factory_reset/ {sub(/1/, "0", $2)} 1' OFS="=" $CONFIG > $TEMP_CONFIG
+	mv $TEMP_CONFIG $CONFIG
+
+	awk -F "=" '/verbose/ {sub(/1/, "0", $2)} 1' OFS="=" $CONFIG > $TEMP_CONFIG
+	mv $TEMP_CONFIG $CONFIG
 fi
 
 LOGGER "BOOTING" "Running Device Specific Script"

@@ -46,6 +46,10 @@ mount -t exfat /dev/mmcblk0p"$ROM_PARTITION" /mnt/mmc
 RSRF="Restoring SD1 ROM Filesystem"
 LOGGER "FACTORY RESET" "$RSRF"
 
+if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
+	rm -rf /opt/muos/init/MUOS/PortMaster
+fi
+
 mv /opt/muos/init/* /mnt/mmc/ &
 
 while true; do
@@ -95,7 +99,9 @@ EXTRACT_ARCHIVE() {
 }
 
 EXTRACT_ARCHIVE "/opt/muos/archive/libretro/libretro.zip" "/mnt/mmc/MUOS/core/" "Libretro Cores"
-EXTRACT_ARCHIVE "/opt/muos/archive/portmaster/portmaster.zip" "/mnt/mmc/MUOS/PortMaster/" "PortMaster"
+if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ]; then
+	EXTRACT_ARCHIVE "/opt/muos/archive/portmaster/portmaster.zip" "/mnt/mmc/MUOS/PortMaster/" "PortMaster"
+fi
 EXTRACT_ARCHIVE "/opt/muos/archive/soundfont/soundfont.zip" "/usr/share/soundfonts/" "Soundfonts"
 
 LOGGER "FACTORY RESET" "Syncing Partitions"

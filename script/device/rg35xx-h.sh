@@ -3,6 +3,10 @@
 RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 
+# Move RetroArch configurations to their rightful place
+cp /opt/muos/backup/retroarch/rg35xx-plush-retroarch.cfg /mnt/mmc/MUOS/retroarch/retroarch.cfg
+cp /opt/muos/backup/retroarch/rg35xx-plush-retroarch32.cfg /mnt/mmc/MUOS/retroarch/retroarch32.cfg
+
 # Define Playstation remap paths
 DUCK_RMP="/mnt/mmc/MUOS/info/config/remaps/DuckStation/DuckStation.rmp"
 PCSX_RMP="/mnt/mmc/MUOS/info/config/remaps/PCSX-ReARMed/PCSX-ReARMed.rmp"
@@ -85,3 +89,4 @@ EOF
 else
     echo "$LOG_DATE No file created. Remap existed at $SWAN_RMP" >> "$RMP_LOG"
 fi
+

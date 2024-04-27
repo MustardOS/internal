@@ -3,6 +3,10 @@
 RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 
+# Move RetroArch configurations to their rightful place
+cp /opt/muos/backup/retroarch/rg35xx-plush-retroarch.cfg /mnt/mmc/MUOS/retroarch/retroarch.cfg
+cp /opt/muos/backup/retroarch/rg35xx-plush-retroarch32.cfg /mnt/mmc/MUOS/retroarch/retroarch32.cfg
+
 # Define Nintendo 64 remap paths
 MP64_RMP="/mnt/mmc/MUOS/info/config/remaps/Mupen64Plus-Next/Mupen64Plus-Next.rmp"
 
@@ -39,3 +43,4 @@ echo "$LOG_DATE File $MP64_RMP created. Set Mupen64Plus-Next controls for dpad o
 else
     echo "$LOG_DATE No file created. Remap existed at $MP64_RMP" >> "$RMP_LOG"
 fi
+

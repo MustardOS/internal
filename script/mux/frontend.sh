@@ -110,6 +110,10 @@ while true; do
 	# Kill PortMaster GPTOKEYB just in case!
 	killall gptokeyb.armhf &
 
+	if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
+		export SDL_HQ_SCALER=1
+	fi
+
 	# muX Programs
 	if [ -s "$ACT_GO" ]; then
 		case "$(cat $ACT_GO)" in

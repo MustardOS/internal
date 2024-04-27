@@ -4,6 +4,10 @@ NAME=$1
 CORE=$2
 ROM=$3
 
+if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
+	export SDL_HQ_SCALER=1
+fi
+
 EMUDIR="/mnt/mmc/MUOS/emulator/mupen64plus"
 MP64_CFG="$EMUDIR/mupen64plus.cfg"
 

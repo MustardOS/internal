@@ -89,9 +89,9 @@ if [ -s "$ROM_GO" ]; then
 	# ScummVM External
 	elif [ "$CORE" = ext-scummvm ]; then
 		/opt/muos/script/launch/ext-scummvm.sh "$NAME" "$CORE" "$ROM"
-    # Flycast Extreme armhf LibRetro
+	# Flycast Extreme armhf LibRetro
 	elif [ "$CORE" = flycast_xtreme_libretro.so ]; then
-    	/opt/muos/script/launch/lr-flycastx.sh "$NAME" "$CORE" "$ROM"
+		/opt/muos/script/launch/lr-flycastx.sh "$NAME" "$CORE" "$ROM"
 	# ScummVM LibRetro
 	elif [ "$CORE" = scummvm_libretro.so ]; then
 		/opt/muos/script/launch/lr-scummvm.sh "$NAME" "$CORE" "$ROM"
@@ -119,7 +119,9 @@ if [ -s "$ROM_GO" ]; then
 	killall "$GPTOKEYB_BIN"
 	killall "$EVSIEVE_BIN"
 
-	fbset -fb /dev/fb0 -g 640 480 640 480 32
+	if [ "$(cat "/opt/muos/config/device.txt")" != "RG28XX" ]; then
+		fbset -fb /dev/fb0 -g 640 480 640 480 32
+	fi
 
 	pkill -CONT "$SUSPEND_APP"
 fi

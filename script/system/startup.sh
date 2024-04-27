@@ -95,15 +95,10 @@ if [ "$FACTORYRESET" -eq 1 ]; then
 	
 	LOGGER "FACTORY RESET" "Generating SSH Host Keys"
 	/opt/openssh/bin/ssh-keygen -A
-
-	hwclock -s
-	
-	killall "mp3play"
-	
-	/opt/muos/extra/muxkofi
-else
-	hwclock -s
 fi
+
+LOGGER "BOOTING" "Setting System Time"
+hwclock -s &
 
 NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
 if [ "$NET_ENABLED" -eq 1 ]; then
@@ -133,8 +128,14 @@ if [ "$VERBOSE" -eq 1 ]; then
 	cp "$MUOSBOOT_LOG" /mnt/mmc/MUOS/log/boot/.
 fi
 
+LOGGER "BOOTING" "Running Device Specific Script"
+DEVICE=$(cat "/opt/muos/config/device.txt" | tr '[:upper:]' '[:lower:]')
+/opt/muos/script/device/"$DEVICE".sh &
+
 FACTORYRESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
 if [ "$FACTORYRESET" -eq 1 ]; then
+	killall "mp3play"
+
 	TEMP_CONFIG=/tmp/temp_cfg
 
 	awk -F "=" '/factory_reset/ {sub(/1/, "0", $2)} 1' OFS="=" $CONFIG > $TEMP_CONFIG
@@ -142,11 +143,9 @@ if [ "$FACTORYRESET" -eq 1 ]; then
 
 	awk -F "=" '/verbose/ {sub(/1/, "0", $2)} 1' OFS="=" $CONFIG > $TEMP_CONFIG
 	mv $TEMP_CONFIG $CONFIG
-fi
 
-LOGGER "BOOTING" "Running Device Specific Script"
-DEVICE=$(cat "/opt/muos/config/device.txt" | tr '[:upper:]' '[:lower:]')
-/opt/muos/script/device/"$DEVICE".sh &
+	/opt/muos/extra/muxkofi
+fi
 
 echo 2 > /proc/sys/abi/cp15_barrier &
 

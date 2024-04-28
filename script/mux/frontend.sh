@@ -264,6 +264,7 @@ while true; do
 					sleep 1
 				fi
 				echo apps > $ACT_GO
+				export HOME=/root
 				nice --20 /mnt/mmc/MUOS/PortMaster/PortMaster.sh
 				;;
 			"retro")
@@ -278,6 +279,7 @@ while true; do
 					sleep 1
 				fi
 				echo apps > $ACT_GO
+				export HOME=/root
 				nice --20 retroarch -c "/mnt/mmc/MUOS/retroarch/retroarch.cfg"
 				;;
 			"dingux")
@@ -292,6 +294,7 @@ while true; do
 					sleep 1
 				fi
 				echo apps > $ACT_GO
+				export HOME=/root
 				nice --20 /opt/muos/app/dingux.sh
 				;;
 			"gmu")
@@ -306,6 +309,7 @@ while true; do
 					sleep 1
 				fi
 				echo apps > $ACT_GO
+				export HOME=/root
 				nice --20 /opt/muos/app/gmu.sh
 				;;
 			"shuffle")

@@ -35,15 +35,11 @@ RA_SAVEFILE_DIR=$(echo "$RA_SAVEFILE_DIR" | sed 's/~//')
 RA_SAVESTATE_DIR=$(echo "$RA_SAVESTATE_DIR" | sed 's/~//')
 
 # Set RetroArch save source directories
-if [ "$RA_SAVEFILE_DIR" = "~/mnt/mmc/MUOS/save/file" ]; then
-    MUOS_SAVEFILE_DIR="/mnt/mmc/MUOS/save/file"
-else
+if [ "$RA_SAVEFILE_DIR" = "/mnt/mmc/MUOS/save/file" ]; then
     MUOS_SAVEFILE_DIR="$RA_SAVEFILE_DIR"
 fi
 
-if [ "$RA_SAVESTATE_DIR" = "~/mnt/mmc/MUOS/save/state" ]; then
-    MUOS_SAVESTATE_DIR="/mnt/mmc/MUOS/save/state"
-else
+if [ "$RA_SAVESTATE_DIR" = "/mnt/mmc/MUOS/save/state" ]; then
     MUOS_SAVESTATE_DIR="$RA_SAVESTATE_DIR"
 fi
 

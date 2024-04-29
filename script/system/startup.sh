@@ -116,6 +116,7 @@ LOGGER "BOOTING" "Exporting Diagnostic Messages"
 dmesg > "/mnt/mmc/MUOS/log/dmesg/dmesg__${CURRENT_DATE}.log" &
 
 LOGGER "BOOTING" "Caching Shared Libraries"
+rm -f /etc/ld.so.cache
 ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
 ldconfig &
 

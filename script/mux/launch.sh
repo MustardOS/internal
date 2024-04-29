@@ -38,6 +38,8 @@ KILL_SND() {
 
 if [ -s "$ROM_GO" ]; then
 	pkill -STOP "$SUSPEND_APP"
+	
+	sed -i '4 d' "$ROM_GO"
 	cat "$ROM_GO" > "$ROM_LAST"
 
 	NAME=$(sed -n '1p' "$ROM_GO")

@@ -4,8 +4,15 @@ RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 
 # Move RetroArch configurations to their rightful place
-cp /opt/muos/backup/retroarch/rg35xx-plush-retroarch.cfg /mnt/mmc/MUOS/retroarch/retroarch.cfg
-cp /opt/muos/backup/retroarch/rg35xx-plush-retroarch32.cfg /mnt/mmc/MUOS/retroarch/retroarch32.cfg
+RA_CONF = "/mnt/mmc/MUOS/retroarch/retroarch.cfg"
+if [ ! -f "$RA_CONF" ]; then
+    cp /opt/muos/backup/retroarch/rg35xx-plush-retroarch.cfg "$RA_CONF"
+fi
+
+RA32_CONF = "/mnt/mmc/MUOS/retroarch/retroarch32.cfg"
+if [ ! -f "$RA32_CONF" ]; then
+    cp /opt/muos/backup/retroarch/rg35xx-plush-retroarch32.cfg "$RA32_CONF"
+fi
 
 # Define Nintendo 64 remap paths
 MP64_RMP="/mnt/mmc/MUOS/info/config/remaps/Mupen64Plus-Next/Mupen64Plus-Next.rmp"

@@ -4,9 +4,9 @@
 CONFIG=/opt/muos/config/config.txt
 
 if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
-	BLBMP=bootlogo
-else
 	BLBMP=bootlogo-alt
+else
+	BLBMP=bootlogo
 fi
 
 THEME=$(parse_ini "$CONFIG" "theme" "name")

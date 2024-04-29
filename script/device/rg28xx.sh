@@ -4,12 +4,12 @@ RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 
 # Move RetroArch configurations to their rightful place
-RA_CONF = "/mnt/mmc/MUOS/retroarch/retroarch.cfg"
+RA_CONF="/mnt/mmc/MUOS/retroarch/retroarch.cfg"
 if [ ! -f "$RA_CONF" ]; then
     cp /opt/muos/backup/retroarch/rg28xx-retroarch.cfg "$RA_CONF"
 fi
 
-RA32_CONF = "/mnt/mmc/MUOS/retroarch/retroarch32.cfg"
+RA32_CONF="/mnt/mmc/MUOS/retroarch/retroarch32.cfg"
 if [ ! -f "$RA32_CONF" ]; then
     cp /opt/muos/backup/retroarch/rg28xx-retroarch32.cfg "$RA32_CONF"
 fi

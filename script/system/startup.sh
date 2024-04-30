@@ -49,6 +49,7 @@ fi
 
 LOGGER "BOOTING" "Starting..."
 
+HDMI=$(parse_ini "$CONFIG" "settings.general" "hdmi")
 if [ "$HDMI" -eq 1 ]; then
 	/opt/muos/script/system/hdmi.sh &
 fi
@@ -117,7 +118,9 @@ dmesg > "/mnt/mmc/MUOS/log/dmesg/dmesg__${CURRENT_DATE}.log" &
 
 LOGGER "BOOTING" "Caching Shared Libraries"
 rm -f /etc/ld.so.cache
-ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
+until [ -e "/lib/ld-linux-armhf.so.3" ]; do
+        ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
+done
 ldconfig &
 
 LOGGER "BOOTING" "Reset /opt to Root Ownership"

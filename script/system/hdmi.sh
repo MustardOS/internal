@@ -8,7 +8,7 @@ RESET_DISP=0
 SWITCHED_ON=0
 SWITCHED_OFF=0
 
-# Enable VSYNC to remove
+# Enable VSYNC
 echo disp0 > $DISPLAY/name
 echo vsync_enable > $DISPLAY/command
 echo 1 > $DISPLAY/param
@@ -27,6 +27,7 @@ while true; do
 			echo 1 > $DISPLAY/param
 			echo 1 > $DISPLAY/start;
 
+			# Switch on HDMI
 			echo disp0 > $DISPLAY/name
 			echo switch1 > $DISPLAY/command
 			echo 4 10 0 0 0x4 0x101 0 0 0 8 > $DISPLAY/param
@@ -61,6 +62,7 @@ while true; do
 			echo 1 > $DISPLAY/param
 			echo 1 > $DISPLAY/start;
 
+			# Switch off HDMI
 			echo disp0 > $DISPLAY/name
 			echo switch > $DISPLAY/command
 			echo 1 0 > $DISPLAY/param

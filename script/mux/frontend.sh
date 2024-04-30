@@ -33,18 +33,22 @@ fi
 }
 
 KILL_BGM() {
-	if [ -n "$(cat "$BGM_PID")" ]; then
-		kill "$(cat "$BGM_PID")"
-		echo "" > "$BGM_PID"
+	if pgrep -f "playbgm.sh" > /dev/null; then
+		if [ -n "$(cat "$BGM_PID")" ]; then
+			kill "$(cat "$BGM_PID")"
+			echo "" > "$BGM_PID"
+		fi
+		killall "mp3play"
+		killall "playbgm.sh"
 	fi
-	killall "mp3play"
-	killall "playbgm.sh"
 }
 
 KILL_SND() {
-	echo "quit" > "$SND_PIPE"
-	killall -f "muplay"
-	rm "$SND_PIPE"
+	if pgrep -f "muplay" > /dev/null; then
+		echo "quit" > "$SND_PIPE"
+		killall -f "muplay"
+		rm "$SND_PIPE"
+	fi
 }
 
 LAST_PLAY="/opt/muos/config/lastplay.txt"
@@ -108,7 +112,8 @@ while true; do
 	fi
 
 	# Kill PortMaster GPTOKEYB just in case!
-	killall gptokeyb.armhf &
+	killall -q gptokeyb.armhf
+	killall -q gptokeyb.aarch64
 
 	if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
 		export SDL_HQ_SCALER=1

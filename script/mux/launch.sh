@@ -30,15 +30,15 @@ KILL_BGM() {
                         kill "$(cat "$BGM_PID")"
                         echo "" > "$BGM_PID"
                 fi
-                killall "mp3play"
-                killall "playbgm.sh"
+                killall -q "mp3play"
+                killall -q "playbgm.sh"
         fi
 }
 
 KILL_SND() {
         if pgrep -f "muplay" > /dev/null; then
                 echo "quit" > "$SND_PIPE"
-                killall -f "muplay"
+                killall -q "muplay"
                 rm "$SND_PIPE"
         fi
 }
@@ -126,8 +126,8 @@ if [ -s "$ROM_GO" ]; then
 	cat "$ROM_LAST" > "$LAST_PLAY"
 	[ "$(cat "$ACT_GO")" = last ] && echo launcher > "$ACT_GO"
 
-	killall "$GPTOKEYB_BIN"
-	killall "$EVSIEVE_BIN"
+	killall -q "$GPTOKEYB_BIN"
+	killall -q "$EVSIEVE_BIN"
 
 	if [ "$(cat "/opt/muos/config/device.txt")" != "RG28XX" ]; then
 		fbset -fb /dev/fb0 -g 640 480 640 480 32

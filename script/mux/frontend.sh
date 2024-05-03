@@ -38,15 +38,15 @@ KILL_BGM() {
 			kill "$(cat "$BGM_PID")"
 			echo "" > "$BGM_PID"
 		fi
-		killall "mp3play"
-		killall "playbgm.sh"
+		killall -q "mp3play"
+		killall -q "playbgm.sh"
 	fi
 }
 
 KILL_SND() {
 	if pgrep -f "muplay" > /dev/null; then
 		echo "quit" > "$SND_PIPE"
-		killall -f "muplay"
+		killall -q "muplay"
 		rm "$SND_PIPE"
 	fi
 }

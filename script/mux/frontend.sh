@@ -62,7 +62,7 @@ while true; do
 	# Background Music
 	MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
 	if [ "$MSOUND" -eq 1 ]; then
-		if ! $(ps aux | grep '[p]laybgm.sh') > /dev/null; then
+		if ! pgrep -f "playbgm.sh" > /dev/null; then
 			/opt/muos/script/mux/playbgm.sh
 			echo $! > /tmp/playbgm.pid
 		fi
@@ -73,7 +73,7 @@ while true; do
 	# Navigation Sounds
 	MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
 	if [ "$MSOUND" -eq 2 ]; then
-		if ! $(ps aux | grep '[m]uplay') > /dev/null; then
+		if ! pgrep -f "muplay" > /dev/null; then
 			mkfifo "$SND_PIPE"
 			/opt/muos/bin/muplay "$SND_PIPE" &
 		fi

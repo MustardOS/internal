@@ -1,6 +1,9 @@
 #!/bin/sh
 # shellcheck disable=1090,2002
 
+. /opt/muos/script/system/parse.sh
+CONFIG=/opt/muos/config/config.txt
+
 ACT_GO=/tmp/act_go
 ROM_GO=/tmp/rom_go
 
@@ -22,18 +25,22 @@ BGM_PID=/tmp/playbgm.pid
 SND_PIPE=/tmp/muplay_pipe
 
 KILL_BGM() {
-	if [ -n "$(cat "$BGM_PID")" ]; then
-		kill "$(cat "$BGM_PID")"
-		echo "" > "$BGM_PID"
-	fi
-	pkill -f "mp3play"
-	pkill -f "playbgm.sh"
+        if pgrep -f "playbgm.sh" > /dev/null; then
+                if [ -n "$(cat "$BGM_PID")" ]; then
+                        kill "$(cat "$BGM_PID")"
+                        echo "" > "$BGM_PID"
+                fi
+                killall "mp3play"
+                killall "playbgm.sh"
+        fi
 }
 
 KILL_SND() {
-	echo "quit" > "$SND_PIPE"
-	pkill -f "muplay"
-	rm "$SND_PIPE"
+        if pgrep -f "muplay" > /dev/null; then
+                echo "quit" > "$SND_PIPE"
+                killall -f "muplay"
+                rm "$SND_PIPE"
+        fi
 }
 
 if [ -s "$ROM_GO" ]; then
@@ -58,6 +65,7 @@ if [ -s "$ROM_GO" ]; then
 		"$EVSIEVE_CONFDIR/$CORE.evs.sh"
 	fi
 
+	MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
 	if [ "$MSOUND" -eq 1 ]; then
 		KILL_BGM
 	fi

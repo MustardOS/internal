@@ -14,6 +14,21 @@ if [ ! -f "$RA32_CONF" ]; then
     cp /opt/muos/backup/retroarch/rg35xx-plush-retroarch32.cfg "$RA32_CONF"
 fi
 
+# Move Mupen configuration to their rightful place
+MUP_DEF="/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus.cfg"
+MUP_RICE="/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus-rice.cfg"
+if [ ! -f "$MUP_RICE" ]; then
+    cp "/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus-rice-h.cfg" "$MUP_RICE"
+    # Set as initial default core
+    cp "$MUP_RICE" "$MUP_DEF"
+fi
+
+MUP_GL64="/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus-gl64.cfg"
+if [ ! -f "$MUP_GL64" ]; then
+    cp "/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus-gl64-h.cfg" "$MUP_GL64"
+fi
+
+
 # Define Playstation remap paths
 DUCK_RMP="/mnt/mmc/MUOS/info/config/remaps/DuckStation/DuckStation.rmp"
 PCSX_RMP="/mnt/mmc/MUOS/info/config/remaps/PCSX-ReARMed/PCSX-ReARMed.rmp"

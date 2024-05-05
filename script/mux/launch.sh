@@ -7,7 +7,7 @@ CONFIG=/opt/muos/config/config.txt
 ACT_GO=/tmp/act_go
 ROM_GO=/tmp/rom_go
 
-GPTOKEYB_BIN=gptokeyb
+GPTOKEYB_BIN=gptokeyb2
 GPTOKEYB_DIR=/mnt/mmc/MUOS/emulator/gptokeyb
 GPTOKEYB_CONTROLLERCONFIG="$GPTOKEYB_DIR/gamecontrollerdb.txt"
 GPTOKEYB_CONFDIR=/opt/muos/config/gptokeyb

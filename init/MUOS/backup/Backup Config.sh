@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Backup script created for muOS 2405 Beans +
-# This grabs all save files and save states and adds them to a .zip archive for easy restoration later using the muOS Backup Manager.
+# This should backup all core overrides, core assignments, favourites, and RA global config
 
 # Suspend the muxbackup program
 pkill -STOP muxbackup
@@ -19,29 +19,18 @@ rm -rf "$TMP_FILE"
 # Grab current date
 DATE=$(date +%Y-%m-%d)
 
-# Determine RetroArch Save Directory
-RA_SAVEFILE_DIR=$(grep 'savefile_dir' /mnt/mmc/MUOS/retroarch/retroarch.cfg | cut -d '"' -f 2)
-RA_SAVESTATE_DIR=$(grep 'savestate_dir' /mnt/mmc/MUOS/retroarch/retroarch.cfg | cut -d '"' -f 2)
+# Core Overrides
+RA_OVERRIDES="/mnt/mmc/MUOS/info/config"
 
-# Remove ~ from modified RA save paths
-RA_SAVEFILE_DIR=$(echo "$RA_SAVEFILE_DIR" | sed 's/~//')
-RA_SAVESTATE_DIR=$(echo "$RA_SAVESTATE_DIR" | sed 's/~//')
+# Global Configs
+RA64_CONFIG="/mnt/mmc/MUOS/retroarch/retroarch.cfg"
+RA32_CONFIG="/mnt/mmc/MUOS/retroarch/retroarch32.cfg"
 
-# Set RetroArch save source directories
-if [ "$RA_SAVEFILE_DIR" = "/mnt/mmc/MUOS/save/file" ]; then
-    MUOS_SAVEFILE_DIR="$RA_SAVEFILE_DIR"
-fi
+# Core Assignments
+MU_ASSIGN="/mnt/mmc/MUOS/info/core"
 
-if [ "$RA_SAVESTATE_DIR" = "/mnt/mmc/MUOS/save/state" ]; then
-    MUOS_SAVESTATE_DIR="$RA_SAVESTATE_DIR"
-fi
-
-# Define additional source directories
-if [ -d "/mnt/mmc/.config" ]; then
-    PPSSPP_SAVE_DIR="/mnt/mmc/.config"
-else
-    PPSSPP_SAVE_DIR=""
-fi
+# Favourites
+MU_FAVES="/mnt/mmc/MUOS/info/favourite"
 
 # Set destination file based on priority
 # USB -> SD2 -> SD1
@@ -58,14 +47,15 @@ else
     DEST_DIR="/mnt/mmc/BACKUP"
 fi
 
-DEST_FILE="$DEST_DIR/RetroArch-Save-$DATE.zip"
+# Set Destination File
+DEST_FILE="$DEST_DIR/Config-$DATE.zip"
 
 # Change to root so we capture full path in .zip
 cd /
 
 # Create the backup
-echo "Archiving Saves" > /tmp/muxlog_info
-zip -ru9 "$DEST_FILE" "$MUOS_SAVEFILE_DIR" "$MUOS_SAVESTATE_DIR" "$PPSSPP_SAVE_DIR" > "$TMP_FILE" 2>&1 &
+echo "Archiving Config" > /tmp/muxlog_info
+zip -ru9 "$DEST_FILE" "$RA_OVERRIDES" "$RA64_CONFIG" "$RA32_CONFIG" "$MU_ASSIGN" "$MU_FAVES" > "$TMP_FILE" 2>&1 &
 
 # Tail zip process and push to muxlog
 C_LINE=""
@@ -100,5 +90,4 @@ rm -rf "$MUX_TEMP" /tmp/muxlog_*
 
 # Resume the muxbackup program
 pkill -CONT muxbackup
-killall -q "Backup RetroArch Saves.sh"
-
+killall -q "Backup Config.sh"

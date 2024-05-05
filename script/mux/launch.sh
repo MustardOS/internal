@@ -9,7 +9,7 @@ ROM_GO=/tmp/rom_go
 
 SUSPEND_APP=muxplore
 
-GPTOKEYB_BIN=gptokeyb
+GPTOKEYB_BIN=gptokeyb2
 GPTOKEYB_DIR=/mnt/mmc/MUOS/emulator/gptokeyb
 GPTOKEYB_CONTROLLERCONFIG="$GPTOKEYB_DIR/gamecontrollerdb.txt"
 GPTOKEYB_CONFDIR=/opt/muos/config/gptokeyb

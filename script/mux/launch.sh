@@ -7,8 +7,6 @@ CONFIG=/opt/muos/config/config.txt
 ACT_GO=/tmp/act_go
 ROM_GO=/tmp/rom_go
 
-SUSPEND_APP=muxplore
-
 GPTOKEYB_BIN=gptokeyb
 GPTOKEYB_DIR=/mnt/mmc/MUOS/emulator/gptokeyb
 GPTOKEYB_CONTROLLERCONFIG="$GPTOKEYB_DIR/gamecontrollerdb.txt"
@@ -44,8 +42,6 @@ KILL_SND() {
 }
 
 if [ -s "$ROM_GO" ]; then
-	pkill -STOP "$SUSPEND_APP"
-	
 	sed -i '4 d' "$ROM_GO"
 	cat "$ROM_GO" > "$ROM_LAST"
 
@@ -123,16 +119,13 @@ if [ -s "$ROM_GO" ]; then
 
 	echo explore > "$ACT_GO"
 
+	# Do it twice, it's just as nice!
+	cat /dev/zero > /dev/fb0 2>/dev/null
+	cat /dev/zero > /dev/mali0 2>/dev/null
+
 	cat "$ROM_LAST" > "$LAST_PLAY"
 	[ "$(cat "$ACT_GO")" = last ] && echo launcher > "$ACT_GO"
 
 	killall -q "$GPTOKEYB_BIN"
 	killall -q "$EVSIEVE_BIN"
-
-	if [ "$(cat "/opt/muos/config/device.txt")" != "RG28XX" ]; then
-		fbset -fb /dev/fb0 -g 640 480 640 480 32
-	fi
-
-	pkill -CONT "$SUSPEND_APP"
 fi
-

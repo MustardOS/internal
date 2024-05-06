@@ -7,6 +7,8 @@ CONFIG=/opt/muos/config/config.txt
 ACT_GO=/tmp/act_go
 ROM_GO=/tmp/rom_go
 
+SUSPEND_APP=muxplore
+
 GPTOKEYB_BIN=gptokeyb2
 GPTOKEYB_DIR=/mnt/mmc/MUOS/emulator/gptokeyb
 GPTOKEYB_CONTROLLERCONFIG="$GPTOKEYB_DIR/gamecontrollerdb.txt"
@@ -42,6 +44,8 @@ KILL_SND() {
 }
 
 if [ -s "$ROM_GO" ]; then
+	pkill -STOP "$SUSPEND_APP"
+
 	sed -i '4 d' "$ROM_GO"
 	cat "$ROM_GO" > "$ROM_LAST"
 
@@ -128,4 +132,7 @@ if [ -s "$ROM_GO" ]; then
 
 	killall -q "$GPTOKEYB_BIN"
 	killall -q "$EVSIEVE_BIN"
+
+	pkill -CONT "$SUSPEND_APP"
 fi
+

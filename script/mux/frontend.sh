@@ -54,8 +54,12 @@ KILL_SND() {
 LAST_PLAY="/opt/muos/config/lastplay.txt"
 STARTUP=$(parse_ini "$CONFIG" "settings.general" "startup")
 if [ "$STARTUP" = last ]; then
-	cat $LAST_PLAY > $ROM_GO
-	/opt/muos/script/mux/launch.sh
+	if [ -s "$LAST_PLAY" ]; then
+		cat "$LAST_PLAY" > "$ROM_GO"
+		/opt/muos/script/mux/launch.sh
+	else
+		echo launcher > $ACT_GO
+	fi
 fi
 
 while true; do

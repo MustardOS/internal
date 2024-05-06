@@ -31,6 +31,8 @@ font=1
 verbose=1
 volume_low=0
 offset=50
+lock=0
+led=0
 
 [theme]
 name=muOS

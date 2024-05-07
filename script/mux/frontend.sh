@@ -133,12 +133,13 @@ while true; do
 			"assign")
 				echo explore > $ACT_GO
 				echo "$LAST_INDEX_SYS" > /tmp/lisys
-				nice --20 /opt/muos/extra/muxassign -d "$ROM_DIR" -s "$ROM_SYS"
+				nice --20 /opt/muos/extra/muxassign -a 0 -d "$ROM_DIR" -s "$ROM_SYS"
 				;;
 			"explore")
 				MODULE=$(cat "$EX_CARD" | sed -n '1p')
 				echo launcher > $ACT_GO
 				echo "$LAST_INDEX_SYS" > /tmp/lisys
+				nice --20 /opt/muos/extra/muxassign -a 1 -d "$(cat /tmp/explore_dir)" -s none
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m "$MODULE"
 				;;
 			"apps")

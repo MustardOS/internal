@@ -134,7 +134,7 @@ if [ -s "$ROM_GO" ]; then
 	killall -q "$EVSIEVE_BIN"
 
 	if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ]; then
-		fbset -fb /dev/fb0 -g 640 480 640 480 32
+		fbset -fb /dev/fb0 -g 640 480 640 960 32
 	fi
 
 	pkill -CONT "$SUSPEND_APP"

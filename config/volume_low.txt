@@ -72,7 +72,7 @@ state.audiocodec {
 	control.7 {
 		iface MIXER
 		name 'OutputL Mixer DACR Switch'
-		value true
+		value false
 		comment {
 			access 'read write'
 			type BOOLEAN
@@ -82,7 +82,7 @@ state.audiocodec {
 	control.8 {
 		iface MIXER
 		name 'OutputR Mixer DACL Switch'
-		value true
+		value false
 		comment {
 			access 'read write'
 			type BOOLEAN

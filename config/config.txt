@@ -35,7 +35,7 @@ lock=0
 led=0
 
 [theme]
-name=muOS
+name=muOS - Beans
 
 [visual]
 battery=1

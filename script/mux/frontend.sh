@@ -263,7 +263,6 @@ while true; do
 				fi
 				;;
 			"portmaster")
-				/opt/muos/extra/muxstart "Starting PortMaster" && sleep 0.5
 				MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
 				if [ "$MSOUND" -eq 1 ]; then
 					KILL_BGM
@@ -278,7 +277,6 @@ while true; do
 				nice --20 /mnt/mmc/MUOS/PortMaster/PortMaster.sh
 				;;
 			"retro")
-				/opt/muos/extra/muxstart "Starting RetroArch" && sleep 0.5
 				MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
 				if [ "$MSOUND" -eq 1 ]; then
 					KILL_BGM
@@ -293,7 +291,6 @@ while true; do
 				nice --20 retroarch -c "/mnt/mmc/MUOS/retroarch/retroarch.cfg"
 				;;
 			"dingux")
-				/opt/muos/extra/muxstart "Starting Dingux Commander" && sleep 0.5
 				MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
 				if [ "$MSOUND" -eq 1 ]; then
 					KILL_BGM
@@ -308,7 +305,6 @@ while true; do
 				nice --20 /opt/muos/app/dingux.sh
 				;;
 			"gmu")
-				/opt/muos/extra/muxstart "Starting Gmu Music Player" && sleep 0.5
 				MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
 				if [ "$MSOUND" -eq 1 ]; then
 					KILL_BGM

@@ -20,6 +20,11 @@ while true; do
 				echo noop > /sys/devices/platform/soc/sdc2/mmc_host/mmc1/mmc1:0001/block/mmcblk1/queue/scheduler
 				echo on > /sys/devices/platform/soc/sdc2/mmc_host/mmc1/power/control
 				MOUNTED=true
+			elif [ "$FS_TYPE" = "ext4" ]; then
+				mount -t ext4 -o defaults,noatime,nofail "/dev/$STORE_DEVICE" "$MOUNT_POINT"
+				echo noop > /sys/devices/platform/soc/sdc2/mmc_host/mmc1/mmc1:aaaa/block/mmcblk1/queue/scheduler
+				echo on > /sys/devices/platform/soc/sdc2/mmc_host/mmc1/power/control
+				MOUNTED=true
 			fi
 		fi
 	elif $MOUNTED; then

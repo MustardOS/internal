@@ -20,7 +20,7 @@ mount -t exfat -o rw,utf8,noatime,nofail /dev/mmcblk0p7 /mnt/mmc
 CONFIG=/opt/muos/config/config.txt
 
 COLOUR=$(parse_ini "$CONFIG" "settings.general" "colour")
-echo $COLOUR > /sys/class/disp/disp/attr/color_temperature
+echo "$COLOUR" > /sys/class/disp/disp/attr/color_temperature
 
 CURRENT_DATE=$(date +"%Y_%m_%d__%H_%M_%S")
 
@@ -48,6 +48,15 @@ fi
 }
 
 LOGGER "BOOTING" "Starting..."
+
+HAS_UNLOCK=0
+LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
+if [ "$LOCK" -eq 1 ]; then
+	while [ "$HAS_UNLOCK" != 1 ]; do
+		/opt/muos/extra/muxpass -t boot
+		HAS_UNLOCK="$?"
+	done
+fi
 
 HDMI=$(parse_ini "$CONFIG" "settings.general" "hdmi")
 if [ "$HDMI" -eq 1 ]; then

@@ -44,6 +44,16 @@ KILL_SND() {
 }
 
 if [ -s "$ROM_GO" ]; then
+	LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
+	if [ "$LOCK" -eq 1 ]; then
+		/opt/muos/extra/muxpass -t launch
+		if [ "$?" = 2 ]; then
+			rm "$ROM_GO"
+			echo explore > "$ACT_GO"
+			exit
+		fi
+	fi
+
 	pkill -STOP "$SUSPEND_APP"
 
 	sed -i '4 d' "$ROM_GO"

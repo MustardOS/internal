@@ -13,6 +13,9 @@ EX_CARD=/tmp/explore_card
 BGM_PID=/tmp/playbgm.pid
 SND_PIPE=/tmp/muplay_pipe
 
+MUX_RELOAD=/tmp/mux_reload
+MUX_AUTH=/tmp/mux_auth
+
 STARTUP=$(parse_ini "$CONFIG" "settings.general" "startup")
 echo "$STARTUP" > $ACT_GO
 echo "root" > $EX_CARD
@@ -128,6 +131,7 @@ while true; do
 		case "$(cat $ACT_GO)" in
 			"launcher")
 				echo launcher > $ACT_GO
+				rm "$MUX_AUTH"
 				nice --20 /opt/muos/extra/muxlaunch
 				;;
 			"assign")
@@ -144,11 +148,30 @@ while true; do
 				;;
 			"apps")
 				echo launcher > $ACT_GO
-				nice --20 /opt/muos/extra/muxapps
+				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
+				if [ "$LOCK" -eq 1 ]; then
+				        /opt/muos/extra/muxpass -t launch
+					if [ "$?" = 1 ]; then
+						nice --20 /opt/muos/extra/muxapps
+					fi
+				fi
 				;;
 			"config")
 				echo launcher > $ACT_GO
-				nice --20 /opt/muos/extra/muxconfig
+				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
+				if [ "$LOCK" -eq 1 ]; then
+					if [ -e "$MUX_AUTH" ]; then
+						nice --20 /opt/muos/extra/muxconfig
+					else
+						/opt/muos/extra/muxpass -t setting
+						if [ "$?" = 1 ]; then
+							nice --20 /opt/muos/extra/muxconfig
+							touch "$MUX_AUTH"
+						fi
+					fi
+				else
+					nice --20 /opt/muos/extra/muxconfig
+				fi
 				;;
 			"info")
 				echo launcher > $ACT_GO
@@ -201,11 +224,11 @@ while true; do
 			"tracker")
 				echo info > $ACT_GO
 				nice --20 /opt/muos/extra/muxtracker -m "$MSG_SUPPRESS"
-				if [ -s "/tmp/mux_reload" ]; then
-					if [ "$(cat /tmp/mux_reload)" -eq 1 ]; then
+				if [ -s "$MUX_RELOAD" ]; then
+					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
 						echo tracker > $ACT_GO
 					fi
-					rm "/tmp/mux_reload"
+					rm "$MUX_RELOAD"
 				fi
 				;;
 			"sdcard")
@@ -244,22 +267,22 @@ while true; do
 				find /mnt/mmc/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m favourite
-				if [ -s "/tmp/mux_reload" ]; then
-					if [ "$(cat /tmp/mux_reload)" -eq 1 ]; then
+				if [ -s "$MUX_RELOAD" ]; then
+					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
 						echo favourite > $ACT_GO
 					fi
-					rm "/tmp/mux_reload"
+					rm "$MUX_RELOAD"
 				fi
 				;;
 			"history")
 				find /mnt/mmc/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
 				nice --20 /opt/muos/extra/muxplore -i 0 -m history
-				if [ -s "/tmp/mux_reload" ]; then
-					if [ "$(cat /tmp/mux_reload)" -eq 1 ]; then
+				if [ -s "$MUX_RELOAD" ]; then
+					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
 						echo history > $ACT_GO
 					fi
-					rm "/tmp/mux_reload"
+					rm "$MUX_RELOAD"
 				fi
 				;;
 			"portmaster")

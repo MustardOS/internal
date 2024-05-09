@@ -53,7 +53,7 @@ HAS_UNLOCK=0
 LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
 if [ "$LOCK" -eq 1 ]; then
 	while [ "$HAS_UNLOCK" != 1 ]; do
-		/opt/muos/extra/muxpass -t boot
+		nice --20 /opt/muos/extra/muxpass -t boot
 		HAS_UNLOCK="$?"
 	done
 fi

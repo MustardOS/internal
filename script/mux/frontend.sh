@@ -150,10 +150,12 @@ while true; do
 				echo launcher > $ACT_GO
 				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
 				if [ "$LOCK" -eq 1 ]; then
-				        /opt/muos/extra/muxpass -t launch
+				        nice --20 /opt/muos/extra/muxpass -t launch
 					if [ "$?" = 1 ]; then
 						nice --20 /opt/muos/extra/muxapps
 					fi
+				else
+					nice --20 /opt/muos/extra/muxapps
 				fi
 				;;
 			"config")
@@ -163,7 +165,7 @@ while true; do
 					if [ -e "$MUX_AUTH" ]; then
 						nice --20 /opt/muos/extra/muxconfig
 					else
-						/opt/muos/extra/muxpass -t setting
+						nice --20 /opt/muos/extra/muxpass -t setting
 						if [ "$?" = 1 ]; then
 							nice --20 /opt/muos/extra/muxconfig
 							touch "$MUX_AUTH"

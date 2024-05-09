@@ -86,7 +86,7 @@ fi
 
 FACTORYRESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
 if [ "$FACTORYRESET" -eq 1 ]; then
-	date 010100002024
+	date 051000002024
 	hwclock -w
 
 	/opt/muos/extra/muxtimezone

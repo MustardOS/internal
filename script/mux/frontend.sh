@@ -10,8 +10,10 @@ ROM_GO=/tmp/rom_go
 
 EX_CARD=/tmp/explore_card
 
-BGM_PID=/tmp/playbgm.pid
 SND_PIPE=/tmp/muplay_pipe
+
+MUX_RELOAD=/tmp/mux_reload
+MUX_AUTH=/tmp/mux_auth
 
 STARTUP=$(parse_ini "$CONFIG" "settings.general" "startup")
 echo "$STARTUP" > $ACT_GO
@@ -34,19 +36,14 @@ fi
 
 KILL_BGM() {
 	if pgrep -f "playbgm.sh" > /dev/null; then
-		if [ -n "$(cat "$BGM_PID")" ]; then
-			kill "$(cat "$BGM_PID")"
-			echo "" > "$BGM_PID"
-		fi
-		killall -q "mp3play"
 		killall -q "playbgm.sh"
+		killall -q "mp3play"
 	fi
 }
 
 KILL_SND() {
 	if pgrep -f "muplay" > /dev/null; then
-		echo "quit" > "$SND_PIPE"
-		killall -q "muplay"
+		kill -9 "muplay"
 		rm "$SND_PIPE"
 	fi
 }
@@ -64,19 +61,18 @@ fi
 
 while true; do
 	# Background Music
-	MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-	if [ "$MSOUND" -eq 1 ]; then
+	BGM_SOUND=$(parse_ini "$CONFIG" "settings.general" "bgm")
+	if [ "$BGM_SOUND" -eq 1 ]; then
 		if ! pgrep -f "playbgm.sh" > /dev/null; then
 			/opt/muos/script/mux/playbgm.sh
-			echo $! > /tmp/playbgm.pid
 		fi
 	else
 		KILL_BGM
 	fi
 
 	# Navigation Sounds
-	MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-	if [ "$MSOUND" -eq 2 ]; then
+	NAV_SOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
+	if [ "$NAV_SOUND" -eq 1 ]; then
 		if ! pgrep -f "muplay" > /dev/null; then
 			mkfifo "$SND_PIPE"
 			/opt/muos/bin/muplay "$SND_PIPE" &
@@ -96,14 +92,6 @@ while true; do
 
 	# Content Loader
 	/opt/muos/script/mux/launch.sh
-
-	# Message Suppression
-	if [ -s "/tmp/mux_suppress" ]; then
-		MSG_SUPPRESS=$(cat "/tmp/mux_suppress")
-		rm "/tmp/mux_suppress"
-	else
-		MSG_SUPPRESS=0
-	fi
 
 	# Get Last ROM Index
 	if [ "$(cat $ACT_GO)" = explore ] || [ "$(cat $ACT_GO)" = favourite ] || [ "$(cat $ACT_GO)" = history ]; then
@@ -128,6 +116,7 @@ while true; do
 		case "$(cat $ACT_GO)" in
 			"launcher")
 				echo launcher > $ACT_GO
+				rm "$MUX_AUTH"
 				nice --20 /opt/muos/extra/muxlaunch
 				;;
 			"assign")
@@ -144,11 +133,32 @@ while true; do
 				;;
 			"apps")
 				echo launcher > $ACT_GO
-				nice --20 /opt/muos/extra/muxapps
+				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
+				if [ "$LOCK" -eq 1 ]; then
+				        nice --20 /opt/muos/extra/muxpass -t launch
+					if [ "$?" = 1 ]; then
+						nice --20 /opt/muos/extra/muxapps
+					fi
+				else
+					nice --20 /opt/muos/extra/muxapps
+				fi
 				;;
 			"config")
 				echo launcher > $ACT_GO
-				nice --20 /opt/muos/extra/muxconfig
+				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
+				if [ "$LOCK" -eq 1 ]; then
+					if [ -e "$MUX_AUTH" ]; then
+						nice --20 /opt/muos/extra/muxconfig
+					else
+						nice --20 /opt/muos/extra/muxpass -t setting
+						if [ "$?" = 1 ]; then
+							nice --20 /opt/muos/extra/muxconfig
+							touch "$MUX_AUTH"
+						fi
+					fi
+				else
+					nice --20 /opt/muos/extra/muxconfig
+				fi
 				;;
 			"info")
 				echo launcher > $ACT_GO
@@ -201,11 +211,11 @@ while true; do
 			"tracker")
 				echo info > $ACT_GO
 				nice --20 /opt/muos/extra/muxtracker -m "$MSG_SUPPRESS"
-				if [ -s "/tmp/mux_reload" ]; then
-					if [ "$(cat /tmp/mux_reload)" -eq 1 ]; then
+				if [ -s "$MUX_RELOAD" ]; then
+					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
 						echo tracker > $ACT_GO
 					fi
-					rm "/tmp/mux_reload"
+					rm "$MUX_RELOAD"
 				fi
 				;;
 			"sdcard")
@@ -244,80 +254,48 @@ while true; do
 				find /mnt/mmc/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m favourite
-				if [ -s "/tmp/mux_reload" ]; then
-					if [ "$(cat /tmp/mux_reload)" -eq 1 ]; then
+				if [ -s "$MUX_RELOAD" ]; then
+					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
 						echo favourite > $ACT_GO
 					fi
-					rm "/tmp/mux_reload"
+					rm "$MUX_RELOAD"
 				fi
 				;;
 			"history")
 				find /mnt/mmc/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
 				nice --20 /opt/muos/extra/muxplore -i 0 -m history
-				if [ -s "/tmp/mux_reload" ]; then
-					if [ "$(cat /tmp/mux_reload)" -eq 1 ]; then
+				if [ -s "$MUX_RELOAD" ]; then
+					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
 						echo history > $ACT_GO
 					fi
-					rm "/tmp/mux_reload"
+					rm "$MUX_RELOAD"
 				fi
 				;;
 			"portmaster")
-				/opt/muos/extra/muxstart "Starting PortMaster" && sleep 0.5
-				MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-				if [ "$MSOUND" -eq 1 ]; then
-					KILL_BGM
-					sleep 1
-				fi
-				if [ "$MSOUND" -eq 2 ]; then
-					KILL_SND
-					sleep 1
-				fi
+				KILL_BGM
+				KILL_SND
 				echo apps > $ACT_GO
 				export HOME=/root
 				nice --20 /mnt/mmc/MUOS/PortMaster/PortMaster.sh
 				;;
 			"retro")
-				/opt/muos/extra/muxstart "Starting RetroArch" && sleep 0.5
-				MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-				if [ "$MSOUND" -eq 1 ]; then
-					KILL_BGM
-					sleep 1
-				fi
-				if [ "$MSOUND" -eq 2 ]; then
-					KILL_SND
-					sleep 1
-				fi
+				KILL_BGM
+				KILL_SND
 				echo apps > $ACT_GO
 				export HOME=/root
 				nice --20 retroarch -c "/mnt/mmc/MUOS/retroarch/retroarch.cfg"
 				;;
 			"dingux")
-				/opt/muos/extra/muxstart "Starting Dingux Commander" && sleep 0.5
-				MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-				if [ "$MSOUND" -eq 1 ]; then
-					KILL_BGM
-					sleep 1
-				fi
-				if [ "$MSOUND" -eq 2 ]; then
-					KILL_SND
-					sleep 1
-				fi
+				KILL_BGM
+				KILL_SND
 				echo apps > $ACT_GO
 				export HOME=/root
 				nice --20 /opt/muos/app/dingux.sh
 				;;
 			"gmu")
-				/opt/muos/extra/muxstart "Starting Gmu Music Player" && sleep 0.5
-				MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-				if [ "$MSOUND" -eq 1 ]; then
-					KILL_BGM
-					sleep 1
-				fi
-				if [ "$MSOUND" -eq 2 ]; then
-					KILL_SND
-					sleep 1
-				fi
+				KILL_BGM
+				KILL_SND
 				echo apps > $ACT_GO
 				export HOME=/root
 				nice --20 /opt/muos/app/gmu.sh

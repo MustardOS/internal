@@ -4,6 +4,8 @@ NAME=$1
 CORE=$2
 ROM=$3
 
+export HOME=/root
+
 if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
 	export SDL_HQ_SCALER=1
 fi
@@ -26,5 +28,5 @@ cd $EMUDIR || continue
 
 fbset -fb /dev/fb0 -g 320 240 320 240 32
 
-HOME="$EMUDIR" SDL_ASSERT=always_ignore nice --20 ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$ROM"
+HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$ROM"
 

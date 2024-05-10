@@ -10,4 +10,5 @@ if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
 	export SDL_HQ_SCALER=1
 fi
 
-/opt/muos/script/mux/track.sh "$NAME" retroarch -v -f -c \""/mnt/mmc/MUOS/retroarch/retroarch.cfg"\" -L \""/mnt/mmc/MUOS/core/$CORE"\" \""$ROM"\"
+retroarch -v -f -c "/mnt/mmc/MUOS/retroarch/retroarch.cfg" -L "/mnt/mmc/MUOS/core/$CORE" "$ROM"
+

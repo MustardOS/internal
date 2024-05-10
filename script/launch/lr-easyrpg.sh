@@ -13,7 +13,7 @@ fi
 ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')
 
 if [ "$(echo $ROM | awk -F. '{print $NF}')" == "zip" ]; then
-	/opt/muos/script/mux/track.sh "$NAME" retroarch -v -f -c \""/mnt/mmc/MUOS/retroarch/retroarch.cfg"\" -L \""/mnt/mmc/MUOS/core/$CORE"\" \""$ROM"\"
+	retroarch -v -f -c "/mnt/mmc/MUOS/retroarch/retroarch.cfg" -L "/mnt/mmc/MUOS/core/$CORE" "$ROM"
 	rm -Rf "$ROM.save"
 else
 	ERPC=$(<"$ROM.cfg" sed 's/[[:space:]]*$//')
@@ -23,5 +23,7 @@ else
 	else
 		SUBFOLDER="$NAME"
 	fi
-	/opt/muos/script/mux/track.sh "$NAME" retroarch -v -f -c \""/mnt/mmc/MUOS/retroarch/retroarch.cfg"\" -L \""/mnt/mmc/MUOS/core/easyrpg_libretro.so"\" \""$ROMPATH/$SUBFOLDER/$ERPC"\"
+
+	retroarch -v -f -c "/mnt/mmc/MUOS/retroarch/retroarch.cfg" -L "/mnt/mmc/MUOS/core/easyrpg_libretro.so" "$ROMPATH/$SUBFOLDER/$ERPC"
 fi
+

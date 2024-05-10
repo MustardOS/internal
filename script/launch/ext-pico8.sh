@@ -4,6 +4,8 @@ NAME=$1
 CORE=$2
 ROM=$3
 
+export HOME=/root
+
 if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
 	export SDL_HQ_SCALER=1
 fi
@@ -35,11 +37,11 @@ chmod +x $EMUDIR/pico8_64
 
 cd $EMUDIR || continue
 
-if [ "$NAME" = Splore ]; then
-	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" SDL_ASSERT=always_ignore nice --20 ./pico8_64 -windowed 0 -splore
-elif [ "$NAME" = BackupFaves ]; then
-	/opt/muos/script/mux/track.sh "$NAME" \""/$ROM"\"
+if [ "$NAME" = "Splore" ]; then
+	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" SDL_ASSERT=always_ignore ./pico8_64 -windowed 0 -splore
+elif [ "$NAME" = "Backup Favourites" ]; then
+	./"$ROM"
 else
-	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" SDL_ASSERT=always_ignore nice --20 ./pico8_64 -windowed 0 -run "$ROM"
+	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" SDL_ASSERT=always_ignore ./pico8_64 -windowed 0 -run "$ROM"
 fi
 

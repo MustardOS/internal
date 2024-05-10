@@ -17,6 +17,7 @@ dns=1.1.1.1
 
 [settings.general]
 hidden=0
+bgm=0
 sound=0
 startup=launcher
 power=0

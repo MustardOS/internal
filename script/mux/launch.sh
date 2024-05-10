@@ -25,22 +25,17 @@ BGM_PID=/tmp/playbgm.pid
 SND_PIPE=/tmp/muplay_pipe
 
 KILL_BGM() {
-        if pgrep -f "playbgm.sh" > /dev/null; then
-                if [ -n "$(cat "$BGM_PID")" ]; then
-                        kill "$(cat "$BGM_PID")"
-                        echo "" > "$BGM_PID"
-                fi
-                killall -q "mp3play"
-                killall -q "playbgm.sh"
-        fi
+	if pgrep -f "playbgm.sh" > /dev/null; then
+		killall -q "playbgm.sh"
+		killall -q "mp3play"
+	fi
 }
 
 KILL_SND() {
-        if pgrep -f "muplay" > /dev/null; then
-                echo "quit" > "$SND_PIPE"
-                killall -q "muplay"
-                rm "$SND_PIPE"
-        fi
+	if pgrep -f "muplay" > /dev/null; then
+		kill -9 "muplay"
+		rm "$SND_PIPE"
+	fi
 }
 
 if [ -s "$ROM_GO" ]; then
@@ -56,13 +51,12 @@ if [ -s "$ROM_GO" ]; then
 
 	pkill -STOP "$SUSPEND_APP"
 
-	sed -i '4 d' "$ROM_GO"
 	cat "$ROM_GO" > "$ROM_LAST"
 
 	NAME=$(sed -n '1p' "$ROM_GO")
 	CORE=$(sed -n '2p' "$ROM_GO" | tr -d '\n')
-	R_DIR=$(sed -n '4p' "$ROM_GO")$(sed -n '5p' "$ROM_GO")
-	ROM="$R_DIR"/$(sed -n '6p' "$ROM_GO")
+	R_DIR=$(sed -n '5p' "$ROM_GO")$(sed -n '6p' "$ROM_GO")
+	ROM="$R_DIR"/$(sed -n '7p' "$ROM_GO")
 
 	rm "$ROM_GO"
 
@@ -75,13 +69,8 @@ if [ -s "$ROM_GO" ]; then
 		"$EVSIEVE_CONFDIR/$CORE.evs.sh"
 	fi
 
-	MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-	if [ "$MSOUND" -eq 1 ]; then
-		KILL_BGM
-	fi
-	if [ "$MSOUND" -eq 2 ]; then
-		KILL_SND
-	fi
+	KILL_BGM
+	KILL_SND
 
 	echo 0 > /sys/class/power_supply/axp2202-battery/work_led
 
@@ -138,6 +127,7 @@ if [ -s "$ROM_GO" ]; then
 	cat /dev/zero > /dev/mali0 2>/dev/null
 
 	cat "$ROM_LAST" > "$LAST_PLAY"
+
 	[ "$(cat "$ACT_GO")" = last ] && echo launcher > "$ACT_GO"
 
 	killall -q "$GPTOKEYB_BIN"

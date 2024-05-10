@@ -10,7 +10,6 @@ ROM_GO=/tmp/rom_go
 
 EX_CARD=/tmp/explore_card
 
-BGM_PID=/tmp/playbgm.pid
 SND_PIPE=/tmp/muplay_pipe
 
 MUX_RELOAD=/tmp/mux_reload
@@ -37,19 +36,14 @@ fi
 
 KILL_BGM() {
 	if pgrep -f "playbgm.sh" > /dev/null; then
-		if [ -n "$(cat "$BGM_PID")" ]; then
-			kill "$(cat "$BGM_PID")"
-			echo "" > "$BGM_PID"
-		fi
-		killall -q "mp3play"
 		killall -q "playbgm.sh"
+		killall -q "mp3play"
 	fi
 }
 
 KILL_SND() {
 	if pgrep -f "muplay" > /dev/null; then
-		echo "quit" > "$SND_PIPE"
-		killall -q "muplay"
+		kill -9 "muplay"
 		rm "$SND_PIPE"
 	fi
 }
@@ -67,19 +61,18 @@ fi
 
 while true; do
 	# Background Music
-	MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-	if [ "$MSOUND" -eq 1 ]; then
+	BGM_SOUND=$(parse_ini "$CONFIG" "settings.general" "bgm")
+	if [ "$BGM_SOUND" -eq 1 ]; then
 		if ! pgrep -f "playbgm.sh" > /dev/null; then
 			/opt/muos/script/mux/playbgm.sh
-			echo $! > /tmp/playbgm.pid
 		fi
 	else
 		KILL_BGM
 	fi
 
 	# Navigation Sounds
-	MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-	if [ "$MSOUND" -eq 2 ]; then
+	NAV_SOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
+	if [ "$NAV_SOUND" -eq 1 ]; then
 		if ! pgrep -f "muplay" > /dev/null; then
 			mkfifo "$SND_PIPE"
 			/opt/muos/bin/muplay "$SND_PIPE" &
@@ -99,14 +92,6 @@ while true; do
 
 	# Content Loader
 	/opt/muos/script/mux/launch.sh
-
-	# Message Suppression
-	if [ -s "/tmp/mux_suppress" ]; then
-		MSG_SUPPRESS=$(cat "/tmp/mux_suppress")
-		rm "/tmp/mux_suppress"
-	else
-		MSG_SUPPRESS=0
-	fi
 
 	# Get Last ROM Index
 	if [ "$(cat $ACT_GO)" = explore ] || [ "$(cat $ACT_GO)" = favourite ] || [ "$(cat $ACT_GO)" = history ]; then
@@ -288,57 +273,29 @@ while true; do
 				fi
 				;;
 			"portmaster")
-				MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-				if [ "$MSOUND" -eq 1 ]; then
-					KILL_BGM
-					sleep 1
-				fi
-				if [ "$MSOUND" -eq 2 ]; then
-					KILL_SND
-					sleep 1
-				fi
+				KILL_BGM
+				KILL_SND
 				echo apps > $ACT_GO
 				export HOME=/root
 				nice --20 /mnt/mmc/MUOS/PortMaster/PortMaster.sh
 				;;
 			"retro")
-				MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-				if [ "$MSOUND" -eq 1 ]; then
-					KILL_BGM
-					sleep 1
-				fi
-				if [ "$MSOUND" -eq 2 ]; then
-					KILL_SND
-					sleep 1
-				fi
+				KILL_BGM
+				KILL_SND
 				echo apps > $ACT_GO
 				export HOME=/root
 				nice --20 retroarch -c "/mnt/mmc/MUOS/retroarch/retroarch.cfg"
 				;;
 			"dingux")
-				MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-				if [ "$MSOUND" -eq 1 ]; then
-					KILL_BGM
-					sleep 1
-				fi
-				if [ "$MSOUND" -eq 2 ]; then
-					KILL_SND
-					sleep 1
-				fi
+				KILL_BGM
+				KILL_SND
 				echo apps > $ACT_GO
 				export HOME=/root
 				nice --20 /opt/muos/app/dingux.sh
 				;;
 			"gmu")
-				MSOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-				if [ "$MSOUND" -eq 1 ]; then
-					KILL_BGM
-					sleep 1
-				fi
-				if [ "$MSOUND" -eq 2 ]; then
-					KILL_SND
-					sleep 1
-				fi
+				KILL_BGM
+				KILL_SND
 				echo apps > $ACT_GO
 				export HOME=/root
 				nice --20 /opt/muos/app/gmu.sh

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-MP3_DIR="/opt/muos/theme/music"
+MP3_DIR="/mnt/mmc/MUOS/music"
 
 while true; do
 	cd "$MP3_DIR" || exit 1

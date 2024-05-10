@@ -22,6 +22,15 @@ CONFIG=/opt/muos/config/config.txt
 COLOUR=$(parse_ini "$CONFIG" "settings.general" "colour")
 echo "$COLOUR" > /sys/class/disp/disp/attr/color_temperature
 
+THERMAL=$(parse_ini "$CONFIG" "settings.advanced" "thermal")
+if [ "$THERMAL" -eq 1 ]; then
+	for ZONE in /sys/class/thermal/thermal_zone*; do
+		if [ -e "$ZONE/mode" ]; then
+			echo "disabled" > "ZONE/mode"
+		fi
+	done
+fi
+
 CURRENT_DATE=$(date +"%Y_%m_%d__%H_%M_%S")
 
 FACTORYRESET=$(parse_ini "$CONFIG" "boot" "factory_reset")

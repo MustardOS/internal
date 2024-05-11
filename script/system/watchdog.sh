@@ -1,12 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.txt
-
-NET_DNS=$(parse_ini "$CONFIG" "network" "dns")
-NET_PORT="53"
-
-WATCH="muaudio mubright muping mushot musleep"
+WATCH="muaudio mubright mushot musleep"
 
 IS_RUNNING() {
 	pgrep "$1" > /dev/null
@@ -16,9 +10,6 @@ START_PROCESS() {
 	PROG_PATH="/opt/muos/bin/$1"
 	ARGS=""
 	case "$1" in
-		"muping")
-			ARGS="-a $NET_DNS -p $NET_PORT"
-			;;
 		"mushot")
 			ARGS="mmc"
 			;;

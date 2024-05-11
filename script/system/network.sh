@@ -32,7 +32,7 @@ killall dhcpcd
 ip link set "$NET_INTERFACE" down
 
 LOGGER "Killing running web services"
-killall dropbear
+killall sshd
 killall sftpgo
 killall gotty
 killall syncthing
@@ -92,6 +92,9 @@ done
 if [ "$(cat "$CIP")" = "0.0.0.0" ]; then
 	exit
 fi
+
+LOGGER "Starting DNS Ping"
+/opt/muos/script/web/ping.sh
 
 LOGGER "Running Web Service Script"
 /opt/muos/script/web/service.sh

@@ -49,7 +49,14 @@ while true; do
 done
 
 echo "Moving Files" > /tmp/muxlog_info
-find . -mindepth 1 -type f -exec sh -c 'echo "Moving {} to /$(dirname "{}")"; mkdir -p "/$(dirname "{}")" && mv "{}" "/$(dirname "{}")"' \;
+find "$MUX_TEMP" -mindepth 1 -type f -exec sh -c '
+    for SOURCE; do
+        DIR_NAME=$(dirname "$SOURCE")
+        DEST="${DIR_NAME#'"$MUX_TEMP"'}"
+        echo "Moving $SOURCE to $DEST"
+        mkdir -p "$DEST" && mv "$SOURCE" "$DEST"
+    done
+' sh {} +
 
 echo "Correcting Permissions" > /tmp/muxlog_info
 chmod -R 755 /opt/muos

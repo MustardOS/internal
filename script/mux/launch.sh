@@ -72,7 +72,8 @@ if [ -s "$ROM_GO" ]; then
 	KILL_BGM
 	KILL_SND
 
-	echo 0 > /sys/class/power_supply/axp2202-battery/work_led
+	LED=$(parse_ini "$CONFIG" "settings.advanced" "led")
+	echo "$LED" > /sys/class/power_supply/axp2202-battery/work_led
 
 	# External Script
 	if [ "$CORE" = external ]; then

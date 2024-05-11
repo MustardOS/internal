@@ -13,10 +13,10 @@ fi
 pkill -STOP muxarchive
 
 /opt/muos/extra/muxlog &
-sleep 1
+sleep 0.5
 
 echo "Waiting..." > /tmp/muxlog_info
-sleep 1
+sleep 0.5
 
 ARCHIVE_NAME="${1##*/}"
 
@@ -48,8 +48,8 @@ while true; do
 	sleep 0.25
 done
 
-echo "Copying Files" > /tmp/muxlog_info
-cp -rf "$MUX_TEMP"/* /
+echo "Moving Files" > /tmp/muxlog_info
+find . -mindepth 1 -type f -exec sh -c 'echo "Moving {} to /$(dirname "{}")"; mkdir -p "/$(dirname "{}")" && mv "{}" "/$(dirname "{}")"' \;
 
 echo "Correcting Permissions" > /tmp/muxlog_info
 chmod -R 755 /opt/muos
@@ -67,7 +67,7 @@ sync
 
 echo "All Done!" > /tmp/muxlog_info
 touch "/mnt/mmc/MUOS/update/installed/$ARCHIVE_NAME.done"
-sleep 1
+sleep 0.5
 
 killall -q muxlog
 rm -rf "$MUX_TEMP" /tmp/muxlog_*

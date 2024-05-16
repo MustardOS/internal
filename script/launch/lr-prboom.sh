@@ -15,6 +15,10 @@ ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')
 mkdir -p "$ROMPATH/.$NAME"
 
 PRBC="$ROMPATH/.$NAME/prboom.cfg"
+
+# Compensate for Windows wild cuntery
+dos2unix -n "$ROMPATH/$NAME.doom" "$ROMPATH/$NAME.doom"
+
 IWAD=$(awk -F'"' '/parentwad/ {print $2}' "$ROMPATH/$NAME.doom")
 
 cp -f "$ROMPATH/$NAME.doom" "$PRBC"

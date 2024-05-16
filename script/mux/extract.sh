@@ -26,37 +26,47 @@ rm -rf "$TMP_FILE"
 MUX_TEMP="/opt/muxtmp"
 mkdir "$MUX_TEMP"
 
-unzip -o "$1" -d "$MUX_TEMP/" > "$TMP_FILE" 2>&1 &
+# Check if archive is an Installable theme
+SCHEME_FOLDER="scheme"
+SCHEME_FILE="default.txt"
+echo "Inspecting archive..." > /tmp/muxlog_info
+if unzip -l "$1" | awk '$NF ~ /^'"$SCHEME_FOLDER"'\// && $NF ~ /\/'"$SCHEME_FILE"'$/ {print $NF}' | grep -q ""; then
+	echo "Archive contents indicate it is NOT an installable theme file." > /tmp/muxlog_info
+    echo "Copying unextracted archive to theme folder." > /tmp/muxlog_info
+	cp -f "$1" "/mnt/mmc/MUOS/theme/"
+else
+	unzip -o "$1" -d "$MUX_TEMP/" > "$TMP_FILE" 2>&1 &
 
-C_LINE=""
-while true; do
-	IS_WORKING=$(ps aux | grep '[u]nzip' | awk '{print $1}')
+	C_LINE=""
+	while true; do
+		IS_WORKING=$(ps aux | grep '[u]nzip' | awk '{print $1}')
 
-	if [ -s "$TMP_FILE" ]; then
-		N_LINE=$(tail -n 1 "$TMP_FILE" | sed 's/^[[:space:]]*//')
-		if [ "$N_LINE" != "$C_LINE" ]; then
-			echo "$N_LINE"
-			echo "$N_LINE" > /tmp/muxlog_info
-			C_LINE="$N_LINE"
+		if [ -s "$TMP_FILE" ]; then
+			N_LINE=$(tail -n 1 "$TMP_FILE" | sed 's/^[[:space:]]*//')
+			if [ "$N_LINE" != "$C_LINE" ]; then
+				echo "$N_LINE"
+				echo "$N_LINE" > /tmp/muxlog_info
+				C_LINE="$N_LINE"
+			fi
 		fi
-	fi
 
-	if [ -z "$IS_WORKING" ]; then
-		break
-	fi
-	
-	sleep 0.25
-done
+		if [ -z "$IS_WORKING" ]; then
+			break
+		fi
+		
+		sleep 0.25
+	done
 
-echo "Moving Files" > /tmp/muxlog_info
-find "$MUX_TEMP" -mindepth 1 -type f -exec sh -c '
-    for SOURCE; do
-        DIR_NAME=$(dirname "$SOURCE")
-        DEST="${DIR_NAME#'"$MUX_TEMP"'}"
-        echo "Moving $SOURCE to $DEST"
-        mkdir -p "$DEST" && mv "$SOURCE" "$DEST"
-    done
-' sh {} +
+	echo "Moving Files" > /tmp/muxlog_info
+	find "$MUX_TEMP" -mindepth 1 -type f -exec sh -c '
+		for SOURCE; do
+			DIR_NAME=$(dirname "$SOURCE")
+			DEST="${DIR_NAME#'"$MUX_TEMP"'}"
+			echo "Moving $SOURCE to $DEST"
+			mkdir -p "$DEST" && mv "$SOURCE" "$DEST"
+		done
+	' sh {} +
+fi
 
 echo "Correcting Permissions" > /tmp/muxlog_info
 chmod -R 755 /opt/muos
@@ -81,4 +91,3 @@ rm -rf "$MUX_TEMP" /tmp/muxlog_*
 
 pkill -CONT muxarchive
 killall -q extract.sh
-

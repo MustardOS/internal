@@ -93,6 +93,8 @@ if [ -s "$ROM_GO" ]; then
 	# DraStic External
 	elif [ "$CORE" = ext-drastic ]; then
 		/opt/muos/script/launch/ext-drastic.sh "$NAME" "$CORE" "$ROM"
+        elif [ "$CORE" = ext-drastic-steward ]; then
+                /opt/muos/script/launch/ext-drastic-steward.sh "$NAME" "$CORE" "$ROM"
 	# Mupen64Plus External
 	elif [[ "$CORE" == ext-mupen64plus* ]]; then
 		/opt/muos/script/launch/ext-mupen64plus.sh "$NAME" "$CORE" "$ROM"

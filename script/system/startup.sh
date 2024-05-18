@@ -85,8 +85,7 @@ fi
 
 FIRMWARE_DONE=$(parse_ini "$CONFIG" "boot" "firmware_done")
 if [ "$FIRMWARE_DONE" -eq 0 ]; then
-	DEVICE=$(cat "/opt/muos/config/device.txt" | tr '[:upper:]' '[:lower:]')
-	if [ "$DEVICE" = "rg35xx-sp" ]; then
+	if [ $(cat "/opt/muos/config/device.txt") = "RG35XX-SP" ]; then
 		LOGGER "FIRMWARE UPDATE" "Updating to required firmware for device!"
 
 		dd if=/opt/muos/firmware/rg35xxsp/boot.bin of=/dev/mmcblk0 seek=176128 conv=notrunc

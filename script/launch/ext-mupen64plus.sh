@@ -10,6 +10,7 @@ echo "mupen64plus" > /tmp/fg_proc
 
 if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
 	export SDL_HQ_SCALER=1
+	export SDL_ROTATION=1
 fi
 
 EMUDIR="/mnt/mmc/MUOS/emulator/mupen64plus"

@@ -15,6 +15,7 @@ echo performance > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
 mount -t vfat -o rw,utf8,noatime,nofail /dev/mmcblk0p2 /mnt/boot
 mount -t exfat -o rw,utf8,noatime,nofail /dev/mmcblk0p7 /mnt/mmc
+mount -t debugfs debugfs /sys/kernel/debug
 
 . /opt/muos/script/system/parse.sh
 CONFIG=/opt/muos/config/config.txt

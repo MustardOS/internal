@@ -386,4 +386,5 @@ trap CLEAN_UP INT
 			fi
 			;;
 	esac
-done
+done &
+

@@ -138,6 +138,8 @@ if [ -s "$ROM_GO" ]; then
 
 	if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ]; then
 		fbset -fb /dev/fb0 -g 640 480 640 960 32
+	else
+		fbset -fb /dev/fb0 -g 480 640 480 1280 32
 	fi
 
 	pkill -CONT "$SUSPEND_APP"

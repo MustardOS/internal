@@ -117,29 +117,36 @@ while true; do
 			"launcher")
 				echo launcher > $ACT_GO
 				rm "$MUX_AUTH"
+				echo "muxlaunch" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxlaunch
 				;;
 			"assign")
 				echo explore > $ACT_GO
 				echo "$LAST_INDEX_SYS" > /tmp/lisys
+				echo "muxassign" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxassign -a 0 -d "$ROM_DIR" -s "$ROM_SYS"
 				;;
 			"explore")
 				MODULE=$(cat "$EX_CARD" | sed -n '1p')
 				echo launcher > $ACT_GO
 				echo "$LAST_INDEX_SYS" > /tmp/lisys
+				echo "muxassign" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxassign -a 1 -d "$(cat /tmp/explore_dir)" -s none
+				echo "muxplore" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m "$MODULE"
 				;;
 			"apps")
 				echo launcher > $ACT_GO
 				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
 				if [ "$LOCK" -eq 1 ]; then
+					echo "muxpass" > /tmp/fg_proc
 				        nice --20 /opt/muos/extra/muxpass -t launch
 					if [ "$?" = 1 ]; then
+						echo "muxapps" > /tmp/fg_proc
 						nice --20 /opt/muos/extra/muxapps
 					fi
 				else
+					echo "muxapps" > /tmp/fg_proc
 					nice --20 /opt/muos/extra/muxapps
 				fi
 				;;
@@ -148,68 +155,85 @@ while true; do
 				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
 				if [ "$LOCK" -eq 1 ]; then
 					if [ -e "$MUX_AUTH" ]; then
+						echo "muxconfig" > /tmp/fg_proc
 						nice --20 /opt/muos/extra/muxconfig
 					else
+						echo "muxpass" > /tmp/fg_proc
 						nice --20 /opt/muos/extra/muxpass -t setting
 						if [ "$?" = 1 ]; then
+							echo "muxconfig" > /tmp/fg_proc
 							nice --20 /opt/muos/extra/muxconfig
 							touch "$MUX_AUTH"
 						fi
 					fi
 				else
+					echo "muxconfig" > /tmp/fg_proc
 					nice --20 /opt/muos/extra/muxconfig
 				fi
 				;;
 			"info")
 				echo launcher > $ACT_GO
+				echo "muxinfo" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxinfo
 				;;
 			"tweakgen")
 				echo config > $ACT_GO
+				echo "muxtweakgen" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxtweakgen
 				;;
 			"tweakadv")
 				echo tweakgen > $ACT_GO
+				echo "muxtweakadv" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxtweakadv
 				;;
 			"archive")
 				echo apps > $ACT_GO
+				echo "muxarchive" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxarchive
 				;;
 			"theme")
 				echo config > $ACT_GO
+				echo "muxtheme" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxtheme
 				;;
 			"visual")
 				echo tweakgen > $ACT_GO
+				echo "muxvisual" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxvisual
 				;;
 			"net_scan")
 				echo network > $ACT_GO
+				echo "muxnetscan" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxnetscan
 				;;
 			"network")
 				echo config > $ACT_GO
+				echo "muxnetwork" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxnetwork
 				;;
 			"webserv")
 				echo config > $ACT_GO
+				echo "muxwebserv" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxwebserv
 				;;
 			"rtc")
 				echo config > $ACT_GO
+				echo "muxrtc" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxrtc
 				;;
 			"timezone")
 				echo rtc > $ACT_GO
+				echo "muxtimezone" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxtimezone
 				;;
 			"import")
 				echo config > $ACT_GO
+				echo "muximport" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muximport
 				;;
 			"tracker")
 				echo info > $ACT_GO
+				echo "muxtracker" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxtracker -m "$MSG_SUPPRESS"
 				if [ -s "$MUX_RELOAD" ]; then
 					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
@@ -220,39 +244,48 @@ while true; do
 				;;
 			"sdcard")
 				echo config > $ACT_GO
+				echo "muxsdtool" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxsdtool
 				;;
 			"tester")
 				echo info > $ACT_GO
+				echo "muxtester" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxtester
 				;;
 			"bios")
 				echo config > $ACT_GO
+				echo "muxbioscheck" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxbioscheck
 				;;
 			"backup")
 				echo apps > $ACT_GO
+				echo "muxbackup" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxbackup
 				;;
 			"reset")
 				echo config > $ACT_GO
+				echo "muxreset" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxreset
 				;;
 			"device")
 				echo config > $ACT_GO
+				echo "muxdevice" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxdevice
 				;;
 			"system")
 				echo info > $ACT_GO
+				echo "muxsysinfo" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxsysinfo
 				;;
 			"profile")
 				echo launcher > $ACT_GO
+				echo "muxprofile" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxprofile
 				;;
 			"favourite")
 				find /mnt/mmc/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
+				echo "muxplore" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m favourite
 				if [ -s "$MUX_RELOAD" ]; then
 					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
@@ -264,6 +297,7 @@ while true; do
 			"history")
 				find /mnt/mmc/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
+				echo "muxplore" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i 0 -m history
 				if [ -s "$MUX_RELOAD" ]; then
 					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
@@ -277,6 +311,7 @@ while true; do
 				KILL_SND
 				echo apps > $ACT_GO
 				export HOME=/root
+				echo "python3" > /tmp/fg_proc
 				nice --20 /mnt/mmc/MUOS/PortMaster/PortMaster.sh
 				;;
 			"retro")
@@ -284,6 +319,7 @@ while true; do
 				KILL_SND
 				echo apps > $ACT_GO
 				export HOME=/root
+				echo "retroarch" > /tmp/fg_proc
 				nice --20 retroarch -c "/mnt/mmc/MUOS/retroarch/retroarch.cfg"
 				;;
 			"dingux")
@@ -291,6 +327,7 @@ while true; do
 				KILL_SND
 				echo apps > $ACT_GO
 				export HOME=/root
+				echo "dingux" > /tmp/fg_proc
 				nice --20 /opt/muos/app/dingux.sh
 				;;
 			"gmu")
@@ -298,14 +335,17 @@ while true; do
 				KILL_SND
 				echo apps > $ACT_GO
 				export HOME=/root
+				echo "gmu" > /tmp/fg_proc
 				nice --20 /opt/muos/app/gmu.sh
 				;;
 			"shuffle")
 				echo launcher > $ACT_GO
+				echo "muxshuffle" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxshuffle
 				;;
 			"credits")
 				echo info > $ACT_GO
+				echo "muxcredits" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxcredits
 				;;
 		esac

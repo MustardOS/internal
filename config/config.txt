@@ -1,5 +1,6 @@
 [boot]
 factory_reset=1
+firmware_done=0
 
 [clock]
 notation=0

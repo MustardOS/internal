@@ -157,13 +157,16 @@ trap CLEAN_UP INT
         fi
 
         if [ $COUNT_POWER_LONG -eq 1 ]; then
-        	COUNT_POWER_LONG=0
         	TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
-        	if [ "$(cat $TMP_POWER_LONG)" = "off" ]; then
-        		echo on > $TMP_POWER_LONG
-        	else
-        		echo off > $TMP_POWER_LONG
-        	fi
+		HALL_KEY=/sys/devices/platform/soc/twi5/i2c-5/5-0034/axp2202-bat-power-supply.0/power_supply/axp2202-battery/hallkey
+		if [ "$(cat $HALL_KEY)" = "1" ]; then
+        		if [ "$(cat $TMP_POWER_LONG)" = "off" ]; then
+	        		echo on > $TMP_POWER_LONG
+	        	else
+	        		echo off > $TMP_POWER_LONG
+	        	fi
+		fi
+		COUNT_POWER_LONG=0
         fi
 
 	case $EVENT in
@@ -369,20 +372,19 @@ trap CLEAN_UP INT
 			echo "BTN_POWER_SHORT pressed - $COUNT_POWER_SHORT"
 			;;
 		$RELEASE_POWER_SHORT)
-			if [ $STATE_POWER_SHORT -eq 1 ]; then
+			if [ $STATE_POWER_LONG -eq 1 ]; then
+				STATE_POWER_LONG=0
+				echo "BTN_POWER_LONG released"
+			else
 				STATE_POWER_SHORT=0
 				echo "BTN_POWER_SHORT released"
 			fi
 			;;
 		$PRESS_POWER_LONG)
-			STATE_POWER_LONG=1
-			COUNT_POWER_LONG=$((COUNT_POWER_LONG+1))
-			echo "BTN_POWER_LONG pressed - $COUNT_POWER_LONG"
-			;;
-		$RELEASE_POWER_LONG)
-			if [ $STATE_POWER_LONG -eq 1 ]; then
-				STATE_POWER_LONG=0
-				echo "BTN_POWER_LONG released"
+			if [ $STATE_POWER_LONG -eq 0 ]; then
+				STATE_POWER_LONG=1
+				COUNT_POWER_LONG=$((COUNT_POWER_LONG+1))
+				echo "BTN_POWER_LONG pressed - $COUNT_POWER_LONG"
 			fi
 			;;
 	esac

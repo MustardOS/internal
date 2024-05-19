@@ -6,12 +6,12 @@ LOG_DATE="$(date +'[%Y-%m-%d]')"
 # Move RetroArch configurations to their rightful place
 RA_CONF="/mnt/mmc/MUOS/retroarch/retroarch.cfg"
 if [ ! -f "$RA_CONF" ]; then
-    cp /opt/muos/backup/retroarch/rg35xx-plush-retroarch.cfg "$RA_CONF"
+    cp /opt/muos/backup/retroarch/rg35xx-sp-retroarch.cfg "$RA_CONF"
 fi
 
 RA32_CONF="/mnt/mmc/MUOS/retroarch/retroarch32.cfg"
 if [ ! -f "$RA32_CONF" ]; then
-    cp /opt/muos/backup/retroarch/rg35xx-plush-retroarch32.cfg "$RA32_CONF"
+    cp /opt/muos/backup/retroarch/rg35xx-sp-retroarch32.cfg "$RA32_CONF"
 fi
 
 # Move Mupen configuration to their rightful place

@@ -74,6 +74,7 @@ if [ -s "$ROM_GO" ]; then
 
 	LED=$(parse_ini "$CONFIG" "settings.advanced" "led")
 	echo "$LED" > /sys/class/power_supply/axp2202-battery/work_led
+	echo "$LED" > /tmp/work_led_state
 
 	# External Script
 	if [ "$CORE" = external ]; then
@@ -93,6 +94,7 @@ if [ -s "$ROM_GO" ]; then
 	# DraStic External
 	elif [ "$CORE" = ext-drastic ]; then
 		/opt/muos/script/launch/ext-drastic.sh "$NAME" "$CORE" "$ROM"
+	# DraStic External - Steward
         elif [ "$CORE" = ext-drastic-steward ]; then
                 /opt/muos/script/launch/ext-drastic-steward.sh "$NAME" "$CORE" "$ROM"
 	# Mupen64Plus External
@@ -122,6 +124,7 @@ if [ -s "$ROM_GO" ]; then
 	fi
 
 	echo 1 > /sys/class/power_supply/axp2202-battery/work_led
+	echo 1 > /tmp/work_led_state
 
 	echo explore > "$ACT_GO"
 

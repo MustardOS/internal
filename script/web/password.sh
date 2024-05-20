@@ -10,7 +10,11 @@ PASS="$2"
 
 WPA_CONFIG=/etc/wpa_supplicant.conf
 
-/usr/sbin/wpa_passphrase "$SSID" "$PASS" > "$WPA_CONFIG"
+(
+/usr/sbin/wpa_passphrase "$SSID" << EOF
+$PASS
+EOF
+) > "$WPA_CONFIG"
 
 sed -i '3d' "$WPA_CONFIG"
 

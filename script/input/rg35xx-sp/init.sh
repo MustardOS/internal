@@ -9,14 +9,14 @@ START_SCRIPTS() {
 	if [ -d "$_SCR_DIR" ]; then
 		for SCR in "$_SCR_DIR"/*; do
 			if [ -x "$SCR" ] && [ ! -d "$SCR" ]; then
-				"$SCR" &
+				"/opt/muos/script/input/rg35xx-sp/$SCR" &
 			fi
 		done
 	fi
 }
 
-START_SCRIPTS "./combo"
-START_SCRIPTS "./trigger"
+START_SCRIPTS "combo"
+START_SCRIPTS "trigger"
 
 killall -q "evtest"
 
@@ -159,6 +159,9 @@ trap CLEAN_UP INT
         if [ $COUNT_POWER_LONG -eq 1 ]; then
         	TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
 		HALL_KEY=/sys/devices/platform/soc/twi5/i2c-5/5-0034/axp2202-bat-power-supply.0/power_supply/axp2202-battery/hallkey
+		if [ ! -e $TMP_POWER_LONG ]; then
+			echo off > $TMP_POWER_LONG
+		fi
 		if [ "$(cat $HALL_KEY)" = "1" ]; then
         		if [ "$(cat $TMP_POWER_LONG)" = "off" ]; then
 	        		echo on > $TMP_POWER_LONG

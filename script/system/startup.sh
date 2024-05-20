@@ -76,7 +76,7 @@ fi
 echo noop > /sys/devices/platform/soc/sdc0/mmc_host/mmc0/mmc0:59b4/block/mmcblk0/queue/scheduler
 echo on > /sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
 
-echo 0xF > /sys/devices/system/cpu/autoplug/plug_mask
+echo 1 > /tmp/work_led_state
 
 if [ -e "/opt/muos/flag/DeviceSetup" ]; then
 	/opt/muos/extra/muxdevice
@@ -131,6 +131,8 @@ if [ "$FACTORYRESET" -eq 1 ]; then
 	
 	LOGGER "FACTORY RESET" "Generating SSH Host Keys"
 	/opt/openssh/bin/ssh-keygen -A
+else
+	/opt/muos/script/mux/frontend.sh &
 fi
 
 LOGGER "BOOTING" "Setting System Time"
@@ -185,9 +187,8 @@ if [ "$FACTORYRESET" -eq 1 ]; then
 	mv $TEMP_CONFIG $CONFIG
 
 	/opt/muos/extra/muxkofi
+
+	/opt/muos/script/mux/frontend.sh &
 fi
 
 echo 2 > /proc/sys/abi/cp15_barrier &
-
-/opt/muos/script/mux/frontend.sh &
-

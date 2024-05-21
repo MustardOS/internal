@@ -1,22 +1,8 @@
 #!/bin/sh
 # shellcheck disable=SC2034,2254
 
-START_SCRIPTS() {
-	_SCR_DIR="$1"
-	
-	mkdir "/tmp/$_SCR_DIR"
-	
-	if [ -d "$_SCR_DIR" ]; then
-		for SCR in "$_SCR_DIR"/*; do
-			if [ -x "$SCR" ] && [ ! -d "$SCR" ]; then
-				"/opt/muos/script/input/rg35xx-sp/$SCR" &
-			fi
-		done
-	fi
-}
-
-START_SCRIPTS "combo"
-START_SCRIPTS "trigger"
+mkdir -p /tmp/combo
+mkdir -p /tmp/trigger
 
 killall -q "evtest"
 
@@ -125,11 +111,12 @@ RELEASE_POWER_LONG='*code 116 * value 0*'
 
 KEY_COMBO=0
 
-CLEAN_UP() {
-	killall -q "evtest"
-	exit 0
-}
-trap CLEAN_UP INT
+
+# Place combo and trigger scripts here because fuck knows why for loops won't work...
+# Make sure to put them in order of how you want them to work too!
+/opt/muos/script/input/rg35xx-sp/trigger/power.sh &
+/opt/muos/script/input/rg35xx-sp/trigger/sleep.sh &
+
 
 {
 	evtest "$INPUT_DEVICE_1" &
@@ -160,7 +147,7 @@ trap CLEAN_UP INT
         	TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
 		HALL_KEY=/sys/devices/platform/soc/twi5/i2c-5/5-0034/axp2202-bat-power-supply.0/power_supply/axp2202-battery/hallkey
 		if [ ! -e $TMP_POWER_LONG ]; then
-			echo off > $TMP_POWER_LONG
+			echo on > $TMP_POWER_LONG
 		fi
 		if [ "$(cat $HALL_KEY)" = "1" ]; then
         		if [ "$(cat $TMP_POWER_LONG)" = "off" ]; then

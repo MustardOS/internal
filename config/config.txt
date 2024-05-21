@@ -25,6 +25,7 @@ power=0
 low_battery=0
 colour=9
 hdmi=0
+sleep=30
 
 [settings.advanced]
 swap=0

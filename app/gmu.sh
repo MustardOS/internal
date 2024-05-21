@@ -1,10 +1,5 @@
 #!/bin/sh
 
-# Check for RG28XX and rotate screen if found
-if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
-	export SDL_HQ_SCALER=1
-fi
-
 GMU_DIR="/opt/muos/app/gmu"
 GPTOKEYB="/mnt/mmc/MUOS/emulator/gptokeyb/gptokeyb2"
 cd "$GMU_DIR" || exit

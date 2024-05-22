@@ -91,9 +91,7 @@ if [ "$FIRMWARE_DONE" -eq 0 ]; then
 		dd if=/opt/muos/firmware/rg35xxsp/boot.bin of=/dev/mmcblk0 seek=176128 conv=notrunc
 		dd if=/opt/muos/firmware/rg35xxsp/package.bin of=/dev/mmcblk0 bs=1024 seek=16400 conv=notrunc
 
-		TEMP_CONFIG=/tmp/temp_cfg
-		awk -F "=" '/firmware_done/ {sub(/0/, "1", $2)} 1' OFS="=" $CONFIG > $TEMP_CONFIG
-		mv $TEMP_CONFIG $CONFIG
+		modify_ini "$CONFIG" "boot" "firmware_done" "1"
 
 		reboot
 	fi
@@ -171,8 +169,8 @@ fi
 
 LOGGER "BOOTING" "Running Device Specific Script"
 DEVICE=$(cat "/opt/muos/config/device.txt" | tr '[:upper:]' '[:lower:]')
-/opt/muos/script/device/"$DEVICE".sh &
-/opt/muos/script/input/"$DEVICE"/init.sh &
+/opt/muos/script/device/"$DEVICE".sh
+/opt/muos/script/input/"$DEVICE"/init.sh
 
 FACTORYRESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
 if [ "$FACTORYRESET" -eq 1 ]; then
@@ -180,11 +178,8 @@ if [ "$FACTORYRESET" -eq 1 ]; then
 
 	TEMP_CONFIG=/tmp/temp_cfg
 
-	awk -F "=" '/factory_reset/ {sub(/1/, "0", $2)} 1' OFS="=" $CONFIG > $TEMP_CONFIG
-	mv $TEMP_CONFIG $CONFIG
-
-	awk -F "=" '/verbose/ {sub(/1/, "0", $2)} 1' OFS="=" $CONFIG > $TEMP_CONFIG
-	mv $TEMP_CONFIG $CONFIG
+	modify_ini "$CONFIG" "boot" "factory_reset" "0"
+	modify_ini "$CONFIG" "settings.advanced" "verbose" "0"
 
 	/opt/muos/extra/muxkofi
 
@@ -192,3 +187,4 @@ if [ "$FACTORYRESET" -eq 1 ]; then
 fi
 
 echo 2 > /proc/sys/abi/cp15_barrier &
+

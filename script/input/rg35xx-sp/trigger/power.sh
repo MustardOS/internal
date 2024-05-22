@@ -84,4 +84,5 @@ while true; do
 
 	# what a pain in the arse this script was
 	sleep 0.25
-done &
+done
+

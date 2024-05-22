@@ -14,6 +14,10 @@ if [ ! -f "$RA32_CONF" ]; then
     cp /opt/muos/backup/retroarch/rg35xx-plush-retroarch32.cfg "$RA32_CONF"
 fi
 
+# Move DraStic configuration
+DRA_CONF="/mnt/mmc/MUOS/emulator/drastic/config/drastic.cfg"
+cp -f "/mnt/mmc/MUOS/emulator/drastic/config/drastic_35xx.cfg" "$DRA_CONF"
+
 # Move Mupen configuration to their rightful place
 MUP_DEF="/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus.cfg"
 MUP_RICE="/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus-rice.cfg"

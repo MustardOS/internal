@@ -6,7 +6,7 @@ LOG_DATE="$(date +'[%Y-%m-%d]')"
 # Restore device specific gamecontrollerdb.txt
 GCDB_ARMHF="/usr/lib32/gamecontrollerdb.txt"
 GCDB_AARCH64="/usr/lib/gamecontrollerdb.txt"
-GCDB_28XX="/opt/muos/backup/gamecontroller/gamecontrollerdb_28xx.txt"
+GCDB_28XX="/opt/muos/backup/gamecontrollerdb/gamecontrollerdb_28xx.txt"
 cp -f "GCDB_28XX" "GCDB_ARMHF"
 cp -f "GCDB_28XX" "GCDB_AARCH64"
 

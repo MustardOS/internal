@@ -3,6 +3,13 @@
 RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 
+# Restore device specific gamecontrollerdb.txt
+GCDB_ARMHF="/usr/lib32/gamecontrollerdb.txt"
+GCDB_AARCH64="/usr/lib/gamecontrollerdb.txt"
+GCDB_35XX="/opt/muos/backup/gamecontrollerdb/gamecontrollerdb_35xx.txt"
+cp -f "GCDB_35XX" "GCDB_ARMHF"
+cp -f "GCDB_35XX" "GCDB_AARCH64"
+
 # Move RetroArch configurations to their rightful place
 RA_CONF="/mnt/mmc/MUOS/retroarch/retroarch.cfg"
 if [ ! -f "$RA_CONF" ]; then
@@ -13,6 +20,10 @@ RA32_CONF="/mnt/mmc/MUOS/retroarch/retroarch32.cfg"
 if [ ! -f "$RA32_CONF" ]; then
     cp /opt/muos/backup/retroarch/rg35xx-sp-retroarch32.cfg "$RA32_CONF"
 fi
+
+# Move DraStic configuration
+DRA_CONF="/mnt/mmc/MUOS/emulator/drastic/config/drastic.cfg"
+cp -f "/mnt/mmc/MUOS/emulator/drastic/config/drastic_35xx.cfg" "$DRA_CONF"
 
 # Move Mupen configuration to their rightful place
 MUP_DEF="/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus.cfg"

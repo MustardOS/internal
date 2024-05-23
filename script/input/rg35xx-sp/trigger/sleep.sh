@@ -11,7 +11,7 @@ MUSHUTDOWN_CMD="/opt/muos/bin/mushutdown"
 echo "0" > "$SLEEP_TIMER"
 
 while true; do
-	MUX_SLEEP=$(parse_ini "$CONFIG" "settings.general" "sleep")
+	MUX_SLEEP=$(parse_ini "$CONFIG" "settings.general" "shutdown")
 
 	SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 	SLEEP_TIMER_VAL=$(cat "$SLEEP_TIMER")

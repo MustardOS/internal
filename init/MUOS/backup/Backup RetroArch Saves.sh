@@ -37,10 +37,12 @@ if [ "$RA_SAVESTATE_DIR" = "/mnt/mmc/MUOS/save/state" ]; then
 fi
 
 # Define additional source directories
-if [ -d "/mnt/mmc/.config" ]; then
-    PPSSPP_SAVE_DIR="/mnt/mmc/.config"
+if [ -d "/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP" ]; then
+    PPSSPP_SAVE_DIR="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA"
+    PPSSPP_SAVESTATE_DIR="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE"
 else
     PPSSPP_SAVE_DIR=""
+    PPSSPP_SAVESTATE_DIR=""
 fi
 
 # Set destination file based on priority
@@ -63,9 +65,9 @@ DEST_FILE="$DEST_DIR/RetroArch-Save-$DATE.zip"
 # Change to root so we capture full path in .zip
 cd /
 
-# Create the backup
+## Create the backup
 echo "Archiving Saves" > /tmp/muxlog_info
-zip -ru9 "$DEST_FILE" "$MUOS_SAVEFILE_DIR" "$MUOS_SAVESTATE_DIR" "$PPSSPP_SAVE_DIR" > "$TMP_FILE" 2>&1 &
+zip -ru9 "$DEST_FILE" "$MUOS_SAVEFILE_DIR" "$MUOS_SAVESTATE_DIR" "$PPSSPP_SAVE_DIR" "$PPSSPP_SAVESTATE_DIR" > "$TMP_FILE" 2>&1 &
 
 # Tail zip process and push to muxlog
 C_LINE=""

@@ -11,7 +11,11 @@ SUSPEND_APP=muxplore
 
 GPTOKEYB_BIN=gptokeyb2
 GPTOKEYB_DIR=/mnt/mmc/MUOS/emulator/gptokeyb
-GPTOKEYB_CONTROLLERCONFIG="$GPTOKEYB_DIR/gamecontrollerdb.txt"
+if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
+	GPTOKEYB_CONTROLLERCONFIG="$GPTOKEYB_DIR/gamecontrollerdb_rg28xx.txt"
+else
+	GPTOKEYB_CONTROLLERCONFIG="$GPTOKEYB_DIR/gamecontrollerdb.txt"
+fi
 GPTOKEYB_CONFDIR=/opt/muos/config/gptokeyb
 
 export EVSIEVE_BIN=evsieve

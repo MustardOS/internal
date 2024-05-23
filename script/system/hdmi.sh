@@ -1,6 +1,5 @@
 #!/bin/sh
 
-mount -t debugfs debugfs /sys/kernel/debug
 DISPLAY="/sys/kernel/debug/dispdbg"
 
 RESET_DISP=0

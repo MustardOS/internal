@@ -1,5 +1,6 @@
 [boot]
 factory_reset=1
+firmware_done=0
 
 [clock]
 notation=0
@@ -24,6 +25,7 @@ power=0
 low_battery=0
 colour=9
 hdmi=0
+shutdown=500
 
 [settings.advanced]
 swap=0

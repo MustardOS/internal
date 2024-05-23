@@ -19,7 +19,6 @@ rm -rf "$TMP_FILE"
 # Grab current date
 DATE=$(date +%Y-%m-%d)
 
-
 # Define additional source directories
 if [ -d "/mnt/mmc/MUOS/emulator/" ]; then
     PPSSPP_SAVE_DIR="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA"
@@ -86,5 +85,5 @@ rm -rf "$MUX_TEMP" /tmp/muxlog_*
 
 # Resume the muxbackup program
 pkill -CONT muxbackup
-killall -q "Backup RetroArch Saves.sh"
+killall -q "Backup PPSSPP Saves.sh"
 

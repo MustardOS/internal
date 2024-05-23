@@ -37,7 +37,7 @@ if [ "$RA_SAVESTATE_DIR" = "/mnt/mmc/MUOS/save/state" ]; then
 fi
 
 # Define additional source directories
-if [ -d "/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP" ]; then
+if [ -d "/mnt/mmc/MUOS/emulator/" ]; then
     PPSSPP_SAVE_DIR="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA"
     PPSSPP_SAVESTATE_DIR="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE"
 else

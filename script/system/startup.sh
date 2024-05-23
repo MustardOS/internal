@@ -127,8 +127,10 @@ if [ "$FACTORYRESET" -eq 1 ]; then
 	LOGGER "FACTORY RESET" "Initialising Factory Reset Script"
 	/opt/muos/script/system/reset.sh "$MUOSBOOT_LOG"
 	
-	LOGGER "FACTORY RESET" "Generating SSH Host Keys"
-	/opt/openssh/bin/ssh-keygen -A
+	if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ] || [ "$(cat /opt/muos/config/device.txt)" != "RG35XX-PLUS" ]; then
+		LOGGER "FACTORY RESET" "Generating SSH Host Keys"
+		/opt/openssh/bin/ssh-keygen -A
+	fi
 else
 	/opt/muos/script/mux/frontend.sh &
 fi
@@ -136,10 +138,12 @@ fi
 LOGGER "BOOTING" "Setting System Time"
 hwclock -s &
 
-NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
-if [ "$NET_ENABLED" -eq 1 ]; then
-	LOGGER "BOOTING" "Starting Network Services"
-	/opt/muos/script/system/network.sh "$MUOSBOOT_LOG" &
+if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ] || [ "$(cat /opt/muos/config/device.txt)" != "RG35XX-PLUS" ]; then
+	NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
+	if [ "$NET_ENABLED" -eq 1 ]; then
+		LOGGER "BOOTING" "Starting Network Services"
+		/opt/muos/script/system/network.sh "$MUOSBOOT_LOG" &
+	fi
 fi
 
 LOGGER "BOOTING" "Starting muX Services"

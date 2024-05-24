@@ -1,126 +1,30 @@
 #!/bin/sh
-# shellcheck disable=SC2034,2254
+
+. /opt/muos/script/system/parse.sh
+
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 
 mkdir -p /tmp/combo
 mkdir -p /tmp/trigger
 
 killall -q "evtest"
 
-INPUT_DEVICE_1='/dev/input/event0' # Power buttons
-INPUT_DEVICE_2='/dev/input/event1' # Everything else!
+INPUT_DEVICE_0="$(parse_ini "$DEVICE_CONFIG" "input" "ev0")" # Power buttons
+INPUT_DEVICE_1="$(parse_ini "$DEVICE_CONFIG" "input" "ev1")" # Everything else!
 
-COUNT_UP=0
-STATE_UP=0
-PRESS_UP='*code 17 * value -1*'
-RELEASE_UP='*code 17 * value 0*'
-
-COUNT_DOWN=0
-STATE_DOWN=0
-PRESS_DOWN='*code 17 * value 1*'
-RELEASE_DOWN='*code 17 * value 0*'
-
-COUNT_LEFT=0
-STATE_LEFT=0
-PRESS_LEFT='*code 16 * value -1*'
-RELEASE_LEFT='*code 16 * value 0*'
-
-COUNT_RIGHT=0
-STATE_RIGHT=0
-PRESS_RIGHT='*code 16 * value 1*'
-RELEASE_RIGHT='*code 16 * value 0*'
-
-COUNT_A=0
-STATE_A=0
-PRESS_A='*code 304 * value 1*'
-RELEASE_A='*code 304 * value 0*'
-
-COUNT_B=0
-STATE_B=0
-PRESS_B='*code 305 * value 1*'
-RELEASE_B='*code 305 * value 0*'
-
-COUNT_X=0
-STATE_X=0
-PRESS_X='*code 307 * value 1*'
-RELEASE_X='*code 307 * value 0*'
-
-COUNT_Y=0
-STATE_Y=0
-PRESS_Y='*code 306 * value 1*'
-RELEASE_Y='*code 306 * value 0*'
-
-COUNT_SELECT=0
-STATE_SELECT=0
-PRESS_SELECT='*code 310 * value 1*'
-RELEASE_SELECT='*code 310 * value 0*'
-
-COUNT_START=0
-STATE_START=0
-PRESS_START='*code 311 * value 1*'
-RELEASE_START='*code 311 * value 0*'
-
-COUNT_MENU_SHORT=0
-STATE_MENU_SHORT=0
-PRESS_MENU_SHORT='*code 354 * value 1*'
-RELEASE_MENU_SHORT='*code 354 * value 0*'
-
-COUNT_MENU_LONG=0
-STATE_MENU_LONG=0
-PRESS_MENU_LONG='*code 312 * value 1*'
-RELEASE_MENU_LONG='*code 312 * value 0*'
-
-COUNT_L1=0
-STATE_L1=0
-PRESS_L1='*code 308 * value 1*'
-RELEASE_L1='*code 308 * value 0*'
-
-COUNT_R1=0
-STATE_R1=0
-PRESS_R1='*code 309 * value 1*'
-RELEASE_R1='*code 309 * value 0*'
-
-COUNT_L2=0
-STATE_L2=0
-PRESS_L2='*code 314 * value 1*'
-RELEASE_L2='*code 314 * value 0*'
-
-COUNT_R2=0
-STATE_R2=0
-PRESS_R2='*code 315 * value 1*'
-RELEASE_R2='*code 315 * value 0*'
-
-COUNT_VOL_UP=0
-STATE_VOL_UP=0
-PRESS_VOL_UP='*code 115 * value 1*'
-RELEASE_VOL_UP='*code 115 * value 0*'
-
-COUNT_VOL_DOWN=0
-STATE_VOL_DOWN=0
-PRESS_VOL_DOWN='*code 114 * value 1*'
-RELEASE_VOL_DOWN='*code 114 * value 0*'
-
-COUNT_POWER_SHORT=0
-STATE_POWER_SHORT=0
-PRESS_POWER_SHORT='*code 116 * value 1*'
-RELEASE_POWER_SHORT='*code 116 * value 0*'
-
-COUNT_POWER_LONG=0
-STATE_POWER_LONG=0
-PRESS_POWER_LONG='*code 116 * value 2*'
-RELEASE_POWER_LONG='*code 116 * value 0*'
+. /opt/muos/device/"$DEVICE"/input/map.sh
 
 KEY_COMBO=0
 
-
 # Place combo and trigger scripts here because fuck knows why for loops won't work...
 # Make sure to put them in order of how you want them to work too!
-/opt/muos/script/input/rg35xx-sp/trigger/power.sh &
-/opt/muos/script/input/rg35xx-sp/trigger/sleep.sh &
-
+/opt/muos/device/"$DEVICE"/input/trigger/power.sh &
+/opt/muos/device/"$DEVICE"/input/trigger/sleep.sh &
 
 {
+	evtest "$INPUT_DEVICE_0" &
 	evtest "$INPUT_DEVICE_1" &
-	evtest "$INPUT_DEVICE_2" &
 	wait
 } | while read -r EVENT; do
 

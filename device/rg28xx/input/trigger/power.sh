@@ -60,7 +60,7 @@ while true; do
 	# power button OR lid closed
 	if { [ "$TMP_POWER_LONG_VAL" = "off" ] || [ "$HALL_KEY_VAL" = "0" ]; } && [ "$SLEEP_STATE_VAL" = "awake" ]; then
 		if [ "$FG_PROC_VAL" = "retroarch" ] && pidof "$FG_PROC_VAL" > /dev/null; then
-			evemu-play /dev/input/event1 < /opt/muos/script/input/rg35xx-sp/emu/ra-savestate
+			evemu-play /dev/input/event1 < /opt/muos/device/rg35xx-sp/input/emu/ra-savestate
 			sleep 0.5
 		fi
 		DEV_SLEEP

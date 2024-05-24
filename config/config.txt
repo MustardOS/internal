@@ -1,5 +1,7 @@
 [boot]
 factory_reset=1
+device_setup=1
+clock_setup=1
 firmware_done=0
 
 [clock]

@@ -57,8 +57,6 @@ else
 	MUOSBOOT_LOG="/mnt/mmc/MUOS/log/boot/muosboot__${CURRENT_DATE}.log"
 fi
 
-LOGGER "BOOTING" "Starting..."
-
 HAS_UNLOCK=0
 LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
 if [ "$LOCK" -eq 1 ]; then
@@ -78,23 +76,44 @@ echo on > /sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
 
 echo 1 > /tmp/work_led_state
 
-if [ -e "/opt/muos/flag/DeviceSetup" ]; then
+if [ $(parse_ini "$CONFIG" "boot" "device_setup") == "1" ]; then
 	/opt/muos/extra/muxdevice
-	rm /opt/muos/flag/DeviceSetup
+	modify_ini "$CONFIG" "boot" "device_setup" "0"
 fi
 
 FIRMWARE_DONE=$(parse_ini "$CONFIG" "boot" "firmware_done")
 if [ "$FIRMWARE_DONE" -eq 0 ]; then
-	if [ $(cat "/opt/muos/config/device.txt") = "RG35XX-SP" ]; then
-		LOGGER "FIRMWARE UPDATE" "Updating to required firmware for device!"
+	LOGGER "FIRMWARE UPDATE" "Updating to required firmware for device!"
 
-		dd if=/opt/muos/firmware/rg35xxsp/boot.bin of=/dev/mmcblk0 seek=176128 conv=notrunc
-		dd if=/opt/muos/firmware/rg35xxsp/package.bin of=/dev/mmcblk0 bs=1024 seek=16400 conv=notrunc
+	DEVICE=$(cat "/opt/muos/config/device.txt" | tr '[:upper:]' '[:lower:]')
+	case "$DEVICE" in
+		rg28xx)
+			dd if=/opt/muos/firmware/rg28xx/boot.bin of=/dev/mmcblk0 seek=176128 conv=notrunc
+			dd if=/opt/muos/firmware/rg28xx/package.bin of=/dev/mmcblk0 bs=1024 seek=16400 conv=notrunc
+			;;
+		rg35xx-2024)
+			dd if=/opt/muos/firmware/rg35xx-2024/boot.bin of=/dev/mmcblk0 seek=176128 conv=notrunc
+			dd if=/opt/muos/firmware/rg35xx-2024/package.bin of=/dev/mmcblk0 bs=1024 seek=16400 conv=notrunc
+			;;
+		rg35xx-h)
+			dd if=/opt/muos/firmware/rg35xx-h/boot.bin of=/dev/mmcblk0 seek=176128 conv=notrunc
+			dd if=/opt/muos/firmware/rg35xx-h/package.bin of=/dev/mmcblk0 bs=1024 seek=16400 conv=notrunc
+			;;
+		rg35xx-plus)
+			dd if=/opt/muos/firmware/rg35xx-plus/boot.bin of=/dev/mmcblk0 seek=176128 conv=notrunc
+			dd if=/opt/muos/firmware/rg35xx-plus/package.bin of=/dev/mmcblk0 bs=1024 seek=16400 conv=notrunc
+			;;
+		rg35xx-sp)
+			dd if=/opt/muos/firmware/rg35xx-sp/boot.bin of=/dev/mmcblk0 seek=176128 conv=notrunc
+			dd if=/opt/muos/firmware/rg35xx-sp/package.bin of=/dev/mmcblk0 bs=1024 seek=16400 conv=notrunc
+			;;
+		*)
+			LOGGER "FIRMWARE UPDATE" "Unknown device: $DEVICE"
+			;;
+	esac
 
-		modify_ini "$CONFIG" "boot" "firmware_done" "1"
-
-		reboot
-	fi
+	modify_ini "$CONFIG" "boot" "firmware_done" "1"
+	reboot
 fi
 
 LOGGER "BOOTING" "Starting Storage Watchdog"
@@ -114,9 +133,9 @@ if [ "$FACTORYRESET" -eq 1 ]; then
 	hwclock -w
 
 	/opt/muos/extra/muxtimezone
-	while [ -e "/opt/muos/flag/ClockSetup" ]; do
+	while [ $(parse_ini "$CONFIG" "boot" "clock_setup") == "1" ]; do
 		/opt/muos/extra/muxrtc
-		if [ -e "/opt/muos/flag/ClockSetup" ]; then
+		if [ $(parse_ini "$CONFIG" "boot" "clock_setup") == "1" ]; then
 			/opt/muos/extra/muxtimezone
 		fi
 	done
@@ -158,7 +177,7 @@ dmesg > "/mnt/mmc/MUOS/log/dmesg/dmesg__${CURRENT_DATE}.log" &
 LOGGER "BOOTING" "Caching Shared Libraries"
 rm -f /etc/ld.so.cache
 until [ -e "/lib/ld-linux-armhf.so.3" ]; do
-        ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
+	ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
 done
 ldconfig &
 

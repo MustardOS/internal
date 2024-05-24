@@ -46,7 +46,7 @@ mount -t exfat /dev/mmcblk0p"$ROM_PARTITION" /mnt/mmc
 RSRF="Restoring SD1 ROM Filesystem"
 LOGGER "FACTORY RESET" "$RSRF"
 
-if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ] || [ "$(cat /opt/muos/config/device.txt)" != "RG35XX-PLUS" ]; then
+if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ] || [ "$(cat /opt/muos/config/device.txt)" != "RG35XX-2024" ]; then
 	rm -rf /opt/muos/init/MUOS/PortMaster
 fi
 
@@ -100,19 +100,19 @@ EXTRACT_ARCHIVE() {
 
 EXTRACT_ARCHIVE "/opt/muos/archive/libretro/libretro.zip" "/mnt/mmc/MUOS/core/" "Libretro Cores"
 
-if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ] || [ "$(cat /opt/muos/config/device.txt)" != "RG35XX-PLUS" ]; then
+if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ] || [ "$(cat /opt/muos/config/device.txt)" != "RG35XX-2024" ]; then
 	EXTRACT_ARCHIVE "/opt/muos/archive/portmaster/portmaster.zip" "/mnt/mmc/MUOS/PortMaster/" "PortMaster"
 fi
 
 EXTRACT_ARCHIVE "/opt/muos/archive/soundfont/soundfont.zip" "/usr/share/soundfonts/" "Soundfonts"
 
-if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ] || [ "$(cat /opt/muos/config/device.txt)" != "RG35XX-PLUS" ]; then
+if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ] || [ "$(cat /opt/muos/config/device.txt)" != "RG35XX-2024" ]; then
 	LOGGER "FACTORY RESET" "Changing Network MAC Address"
 	macchanger -r wlan0
 	macchanger -r wlan1
 fi
 
-if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ] || [ "$(cat /opt/muos/config/device.txt)" != "RG35XX-PLUS" ]; then
+if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ] || [ "$(cat /opt/muos/config/device.txt)" != "RG35XX-2024" ]; then
 	LOGGER "FACTORY RESET" "Setting Random Hostname"
 	hostname "$(hostname)-$(cat /proc/sys/kernel/random/uuid | head -c 5)"
 fi

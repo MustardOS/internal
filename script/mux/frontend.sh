@@ -1,8 +1,12 @@
 #!/bin/sh
-# shellcheck disable=1090,2002
 
 . /opt/muos/script/system/parse.sh
 CONFIG=/opt/muos/config/config.txt
+
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 
 ACT_GO=/tmp/act_go
 ASS_GO=/tmp/ass_go
@@ -83,8 +87,8 @@ while true; do
 
 	# Core Association
 	if [ -s "$ASS_GO" ]; then
-		ROM_DIR=$(cat "$ASS_GO" | sed -n '1p')
-		ROM_SYS=$(cat "$ASS_GO" | sed -n '2p')
+		ROM_DIR=$(sed -n '1p' "$ASS_GO")
+		ROM_SYS=$(sed -n '2p' "$ASS_GO")
 
 		rm "$ASS_GO"
 		echo "assign" > $ACT_GO
@@ -127,7 +131,7 @@ while true; do
 				nice --20 /opt/muos/extra/muxassign -a 0 -d "$ROM_DIR" -s "$ROM_SYS"
 				;;
 			"explore")
-				MODULE=$(cat "$EX_CARD" | sed -n '1p')
+				MODULE=$(sed -n '1p' "$EX_CARD")
 				echo launcher > $ACT_GO
 				echo "$LAST_INDEX_SYS" > /tmp/lisys
 				echo "muxassign" > /tmp/fg_proc
@@ -283,7 +287,7 @@ while true; do
 				nice --20 /opt/muos/extra/muxprofile
 				;;
 			"favourite")
-				find /mnt/mmc/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
+				find "$STORE_ROM"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
 				echo "muxplore" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m favourite
@@ -295,7 +299,7 @@ while true; do
 				fi
 				;;
 			"history")
-				find /mnt/mmc/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
+				find "$STORE_ROM"/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
 				echo "muxplore" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i 0 -m history
@@ -312,7 +316,7 @@ while true; do
 				echo apps > $ACT_GO
 				export HOME=/root
 				echo "python3" > /tmp/fg_proc
-				nice --20 /mnt/mmc/MUOS/PortMaster/PortMaster.sh
+				nice --20 "$STORE_ROM"/MUOS/PortMaster/PortMaster.sh
 				;;
 			"retro")
 				KILL_BGM
@@ -320,7 +324,7 @@ while true; do
 				echo apps > $ACT_GO
 				export HOME=/root
 				echo "retroarch" > /tmp/fg_proc
-				nice --20 retroarch -c "/mnt/mmc/MUOS/retroarch/retroarch.cfg"
+				nice --20 retroarch -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg"
 				;;
 			"dingux")
 				KILL_BGM

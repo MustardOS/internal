@@ -4,18 +4,19 @@
 . /opt/muos/script/system/parse.sh
 CONFIG=/opt/muos/config/config.txt
 
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+
 ACT_GO=/tmp/act_go
 ROM_GO=/tmp/rom_go
 
 SUSPEND_APP=muxplore
 
 GPTOKEYB_BIN=gptokeyb2
-GPTOKEYB_DIR=/mnt/mmc/MUOS/emulator/gptokeyb
-if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
-	GPTOKEYB_CONTROLLERCONFIG="$GPTOKEYB_DIR/gamecontrollerdb_rg28xx.txt"
-else
-	GPTOKEYB_CONTROLLERCONFIG="$GPTOKEYB_DIR/gamecontrollerdb.txt"
-fi
+GPTOKEYB_DIR="$STORE_ROM/MUOS/emulator/gptokeyb"
+GPTOKEYB_CONTROLLERCONFIG="/opt/muos/device/$DEVICE/gamecontrollerdb.txt"
 GPTOKEYB_CONFDIR=/opt/muos/config/gptokeyb
 
 export EVSIEVE_BIN=evsieve
@@ -24,9 +25,6 @@ export EVSIEVE_CONFDIR=/opt/muos/config/evsieve
 
 LAST_PLAY="/opt/muos/config/lastplay.txt"
 ROM_LAST=/tmp/rom_last
-
-BGM_PID=/tmp/playbgm.pid
-SND_PIPE=/tmp/muplay_pipe
 
 KILL_BGM() {
 	if pgrep -f "playbgm.sh" > /dev/null; then
@@ -38,7 +36,7 @@ KILL_BGM() {
 KILL_SND() {
 	if pgrep -f "muplay" > /dev/null; then
 		kill -9 "muplay"
-		rm "$SND_PIPE"
+		rm "/tmp/muplay_pipe"
 	fi
 }
 
@@ -77,7 +75,7 @@ if [ -s "$ROM_GO" ]; then
 	KILL_SND
 
 	LED=$(parse_ini "$CONFIG" "settings.advanced" "led")
-	echo "$LED" > /sys/class/power_supply/axp2202-battery/work_led
+	echo "$LED" > "$(parse_ini "$DEVICE_CONFIG" "device" "led")"
 	echo "$LED" > /tmp/work_led_state
 
 	# External Script
@@ -102,7 +100,7 @@ if [ -s "$ROM_GO" ]; then
         elif [ "$CORE" = ext-drastic-steward ]; then
                 /opt/muos/script/launch/ext-drastic-steward.sh "$NAME" "$CORE" "$ROM"
 	# Mupen64Plus External
-	elif [[ "$CORE" == ext-mupen64plus* ]]; then
+	elif [ "${CORE#ext-mupen64plus}" != "$CORE" ]; then
 		/opt/muos/script/launch/ext-mupen64plus.sh "$NAME" "$CORE" "$ROM"
 	# ScummVM External
 	elif [ "$CORE" = ext-scummvm ]; then
@@ -127,14 +125,14 @@ if [ -s "$ROM_GO" ]; then
 		/opt/muos/script/launch/lr-general.sh "$NAME" "$CORE" "$ROM"
 	fi
 
-	echo 1 > /sys/class/power_supply/axp2202-battery/work_led
+	echo 1 > "$(parse_ini "$DEVICE_CONFIG" "device" "led")"
 	echo 1 > /tmp/work_led_state
 
 	echo explore > "$ACT_GO"
 
 	# Do it twice, it's just as nice!
-	cat /dev/zero > /dev/fb0 2>/dev/null
-	cat /dev/zero > /dev/mali0 2>/dev/null
+	cat /dev/zero > "$(parse_ini "$DEVICE_CONFIG" "screen" "device") 2>/dev/null"
+	cat /dev/zero > "$(parse_ini "$DEVICE_CONFIG" "screen" "device") 2>/dev/null"
 
 	cat "$ROM_LAST" > "$LAST_PLAY"
 

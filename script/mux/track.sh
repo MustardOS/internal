@@ -1,12 +1,19 @@
 #!/bin/sh
 
-NAME="/mnt/mmc/MUOS/info/activity/$1.act"
+. /opt/muos/script/system/parse.sh
+
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+
+NAME="$STORE_ROM/MUOS/info/activity/$1.act"
 shift
 PROG="nice --20 $*"
 
-PREV_SYS=$(cat "$NAME" | sed -n '1p')
-PREV_TIME=$(cat "$NAME" | sed -n '2p')
-PREV_LAUNCH=$(cat "$NAME" | sed -n '3p')
+PREV_SYS=$(sed -n '1p' "$NAME")
+PREV_TIME=$(sed -n '2p' "$NAME")
+PREV_LAUNCH=$(sed -n '3p' "$NAME")
 
 START_TIME=$(date +%s)
 eval "$PROG"

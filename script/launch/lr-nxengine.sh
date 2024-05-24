@@ -1,16 +1,21 @@
 #!/bin/sh
 
+. /opt/muos/script/system/parse.sh
+
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+SDL_SCALER=$(parse_ini "$DEVICE_CONFIG" "sdl" "scaler")
+
 NAME=$1
 CORE=$2
 ROM=$3
 
 export HOME=/root
+export SDL_HQ_SCALER="$SDL_SCALER"
 
 echo "retroarch" > /tmp/fg_proc
-
-if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
-	export SDL_HQ_SCALER=1
-fi
 
 MESSAGE() {
     _TITLE=$1
@@ -27,14 +32,14 @@ EOF
 ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')
 DOUK="$ROMPATH/.Cave Story (En)/Doukutsu.exe"
 
-LOGPATH="/mnt/mmc/MUOS/log/nxe.log"
+LOGPATH="$STORE_ROM/MUOS/log/nxe.log"
 
 if [ -e "$DOUK" ]; then
-	retroarch -v -c "/mnt/mmc/MUOS/retroarch/retroarch.cfg" -L "/mnt/mmc/MUOS/core/$CORE" "$DOUK"
+	retroarch -v -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "$STORE_ROM/MUOS/core/$CORE" "$DOUK"
 else
 	CZ_NAME="Cave Story (En).zip"
 	CAVE_URL="https://bot.libretro.com/assets/cores/Cave Story/$CZ_NAME"
-	BIOS_FOLDER="/mnt/mmc/MUOS/bios/"
+	BIOS_FOLDER="$STORE_ROM/MUOS/bios/"
 
 	if [ -e "$BIOS_FOLDER$CZ_NAME" ]; then
 		echo "$CZ_NAME exists at $BIOS_FOLDER" >> "$LOGPATH"
@@ -72,6 +77,6 @@ else
 		echo "Did extraction fail?" >> "$LOGPATH"
 	fi
 
-	retroarch -v -c "/mnt/mmc/MUOS/retroarch/retroarch.cfg" -L "/mnt/mmc/MUOS/core/$CORE" "$DOUK"
+	retroarch -v -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "$STORE_ROM/MUOS/core/$CORE" "$DOUK"
 fi
 

@@ -1,21 +1,26 @@
 #!/bin/sh
 
+. /opt/muos/script/system/parse.sh
+
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+SDL_SCALER=$(parse_ini "$DEVICE_CONFIG" "sdl" "scaler")
+
 NAME=$1
 CORE=$2
 ROM=$3
 
 export HOME=/root
+export SDL_HQ_SCALER="$SDL_SCALER"
 
 echo "pico8_64" > /tmp/fg_proc
-
-if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
-	export SDL_HQ_SCALER=1
-fi
 
 _BACKUPFAV=$(cat <<EOF
 #!/bin/sh 
 
-P8_DIR="/mnt/mmc/MUOS/emulator/pico8/.lexaloffle/pico-8"
+P8_DIR="$STORE_ROM/MUOS/emulator/pico8/.lexaloffle/pico-8"
 FAVES="$P8_DIR/favourites.txt"
 CARTS="$P8_DIR/bbs/carts"
 
@@ -32,12 +37,12 @@ done < "$FAVES"
 EOF
 	) > "$R_DIR"/"Backup Favourites.sh"
 
-EMUDIR="/mnt/mmc/MUOS/emulator/pico8"
+EMUDIR="$STORE_ROM/MUOS/emulator/pico8"
 
-chmod +x $EMUDIR/wget
-chmod +x $EMUDIR/pico8_64
+chmod +x "$EMUDIR"/wget
+chmod +x "$EMUDIR"/pico8_64
 
-cd $EMUDIR || continue
+cd "$EMUDIR" || exit
 
 if [ "$NAME" = "Splore" ]; then
 	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" SDL_ASSERT=always_ignore ./pico8_64 -windowed 0 -splore

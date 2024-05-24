@@ -1,7 +1,12 @@
 #!/bin/sh
 
-STORE_DEVICE="mmcblk1p1"
-MOUNT_POINT="/mnt/sdcard"
+. /opt/muos/script/system/parse.sh
+
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+STORE_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "dev")p$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "num")
+MOUNT_POINT=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "mount")
 MOUNTED=false
 
 mkdir "$MOUNT_POINT"

@@ -17,6 +17,7 @@ CURRENT_DATE=$(date +"%Y_%m_%d__%H_%M_%S")
 ROM_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "dev")
 ROM_PARTITION=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "num")
 ROM_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+ROM_TYPE=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "type")
 
 LOGGER() {
 VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")
@@ -41,15 +42,22 @@ printf "w\nw\n" | fdisk /dev/"$ROM_DEVICE"
 parted ---pretend-input-tty /dev/"$ROM_DEVICE" resizepart "$ROM_PARTITION" 100%
 
 LOGGER "FACTORY RESET" "Formatting ROM Partition"
-mkfs.exfat /dev/"$ROM_DEVICE"p"$ROM_PARTITION"
-exfatlabel /dev/"$ROM_DEVICE"p"$ROM_PARTITION" ROMS
+mkfs."${ROM_TYPE}" /dev/"$ROM_DEVICE"p"$ROM_PARTITION"
+case "$ROM_TYPE" in
+	vfat | exfat)
+		exfatlabel /dev/"$ROM_DEVICE"p"$ROM_PARTITION" ROMS
+		;;
+	ext4)
+		e2label /dev/"$ROM_DEVICE"p"$ROM_PARTITION" ROMS
+		;;
+esac
 
 LOGGER "FACTORY RESET" "Setting ROM Partition Flags"
 parted ---pretend-input-tty /dev/"$ROM_DEVICE" set "$ROM_PARTITION" boot off
 parted ---pretend-input-tty /dev/"$ROM_DEVICE" set "$ROM_PARTITION" hidden off
 
 LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
-mount -t exfat /dev/"$ROM_DEVICE"p"$ROM_PARTITION" "$ROM_MOUNT"
+mount -t "$ROM_TYPE" /dev/"$ROM_DEVICE"p"$ROM_PARTITION" "$ROM_MOUNT"
 
 RSRF="Restoring ROM Filesystem"
 LOGGER "FACTORY RESET" "$RSRF"

@@ -19,7 +19,7 @@ rm -rf "$TMP_FILE"
 # Grab current date
 DATE=$(date +%Y-%m-%d)
 
-# Define additional source directories
+# Define PPSSPP source directories
 if [ -d "/mnt/mmc/MUOS/emulator/" ]; then
     PPSSPP_SAVE_DIR="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA"
     PPSSPP_SAVESTATE_DIR="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE"

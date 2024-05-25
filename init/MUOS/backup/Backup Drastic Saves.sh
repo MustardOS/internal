@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Backup script created for muOS 2405 Beans +
-# This should backup all core overrides, core assignments, favourites, and RA global config
+# This grabs all save files and save states and adds them to a .zip archive for easy restoration later using the muOS Backup Manager.
 
 # Suspend the muxbackup program
 pkill -STOP muxbackup
@@ -19,18 +19,23 @@ rm -rf "$TMP_FILE"
 # Grab current date
 DATE=$(date +%Y-%m-%d)
 
-# Core Overrides
-RA_OVERRIDES="/mnt/mmc/MUOS/info/config"
+# Define Drastic source directories
+if [ -d "/mnt/mmc/MUOS/emulator/" ]; then
+    Drastic_SAVE_DIR="/mnt/mmc/MUOS/emulator/drastic/backup"
+    Drastic_SAVESTATE_DIR="/mnt/mmc/MUOS/emulator/drastic/savestates"
+else
+    Drastic_SAVE_DIR=""
+    Drastic_SAVESTATE_DIR""
+fi
 
-# Global Configs
-RA64_CONFIG="/mnt/mmc/MUOS/retroarch/retroarch.cfg"
-RA32_CONFIG="/mnt/mmc/MUOS/retroarch/retroarch32.cfg"
-
-# Core Assignments
-MU_ASSIGN="/mnt/mmc/MUOS/info/core"
-
-# Favourites
-MU_FAVES="/mnt/mmc/MUOS/info/favourite"
+# Define additional source directories
+if [ -d "/mnt/mmc/MUOS/save/" ]; then
+    Drastic_Steward_SAVE_DIR="/mnt/mmc/MUOS/save/drastic/backup"
+    Drastic_Steward_SAVESTATE_DIR="/mnt/mmc/MUOS/save/drastic/savestates"
+else
+    Drastic_Steward_SAVE_DIR=""
+    Drastic_Steward_SAVESTATE_DIR=""
+fi
 
 # Set destination file based on priority
 # USB -> SD2 -> SD1
@@ -47,15 +52,14 @@ else
     DEST_DIR="/mnt/mmc/BACKUP"
 fi
 
-# Set Destination File
-DEST_FILE="$DEST_DIR/Config-$DATE.zip"
+DEST_FILE="$DEST_DIR/Drastic-Save-$DATE.zip"
 
 # Change to root so we capture full path in .zip
 cd /
 
-# Create the backup
-echo "Archiving Config" > /tmp/muxlog_info
-zip -ru9 "$DEST_FILE" "$RA_OVERRIDES" "$RA64_CONFIG" "$RA32_CONFIG" "$MU_ASSIGN" "$MU_FAVES" > "$TMP_FILE" 2>&1 &
+## Create the backup
+echo "Archiving Saves" > /tmp/muxlog_info
+zip -ru9 "$DEST_FILE" "$Drastic_SAVE_DIR" "$Drastic_SAVESTATE_DIR" "$Drastic_Steward_SAVE_DIR" "$Drastic_Steward_SAVESTATE_DIR" > "$TMP_FILE" 2>&1 &
 
 # Tail zip process and push to muxlog
 C_LINE=""
@@ -90,4 +94,5 @@ rm -rf "$MUX_TEMP" /tmp/muxlog_*
 
 # Resume the muxbackup program
 pkill -CONT muxbackup
-killall -q "Backup Config.sh"
+killall -q "Backup Drastic Saves.sh"
+

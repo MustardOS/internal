@@ -19,13 +19,22 @@ rm -rf "$TMP_FILE"
 # Grab current date
 DATE=$(date +%Y-%m-%d)
 
-# Define PPSSPP source directories
+# Define Drastic source directories
 if [ -d "/mnt/mmc/MUOS/emulator/" ]; then
-    PPSSPP_SAVE_DIR="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA"
-    PPSSPP_SAVESTATE_DIR="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE"
+    Drastic_SAVE_DIR="/mnt/mmc/MUOS/emulator/drastic/backup"
+    Drastic_SAVESTATE_DIR="/mnt/mmc/MUOS/emulator/drastic/savestates"
 else
-    PPSSPP_SAVE_DIR=""
-    PPSSPP_SAVESTATE_DIR=""
+    Drastic_SAVE_DIR=""
+    Drastic_SAVESTATE_DIR""
+fi
+
+# Define additional source directories
+if [ -d "/mnt/mmc/MUOS/save/" ]; then
+    Drastic_Steward_SAVE_DIR="/mnt/mmc/MUOS/save/drastic/backup"
+    Drastic_Steward_SAVESTATE_DIR="/mnt/mmc/MUOS/save/drastic/savestates"
+else
+    Drastic_Steward_SAVE_DIR=""
+    Drastic_Steward_SAVESTATE_DIR=""
 fi
 
 # Set destination file based on priority
@@ -43,14 +52,14 @@ else
     DEST_DIR="/mnt/mmc/BACKUP"
 fi
 
-DEST_FILE="$DEST_DIR/PPSSPP-Save-$DATE.zip"
+DEST_FILE="$DEST_DIR/Drastic-Save-$DATE.zip"
 
 # Change to root so we capture full path in .zip
 cd /
 
 ## Create the backup
 echo "Archiving Saves" > /tmp/muxlog_info
-zip -ru9 "$DEST_FILE" "$PPSSPP_SAVE_DIR" "$PPSSPP_SAVESTATE_DIR" > "$TMP_FILE" 2>&1 &
+zip -ru9 "$DEST_FILE" "$Drastic_SAVE_DIR" "$Drastic_SAVESTATE_DIR" "$Drastic_Steward_SAVE_DIR" "$Drastic_Steward_SAVESTATE_DIR" > "$TMP_FILE" 2>&1 &
 
 # Tail zip process and push to muxlog
 C_LINE=""
@@ -85,5 +94,5 @@ rm -rf "$MUX_TEMP" /tmp/muxlog_*
 
 # Resume the muxbackup program
 pkill -CONT muxbackup
-killall -q "Backup PPSSPP Saves.sh"
+killall -q "Backup Drastic Saves.sh"
 

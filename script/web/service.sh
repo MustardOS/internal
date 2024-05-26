@@ -41,5 +41,8 @@ SRV_NTP=$(parse_ini "$CONFIG" "web" "ntp")
 if [ "$SRV_NTP" -eq 1 ]; then
 	NTP_POOL=$(parse_ini "$CONFIG" "clock" "pool")
 	nice -2 ntpdate -b "$NTP_POOL" > /dev/null &
+	NTP_PID=$!
+	wait $NTP_PID
+	hwclock --systohc
 fi
 

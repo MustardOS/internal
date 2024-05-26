@@ -1,55 +1,56 @@
 #!/bin/sh
 
+. /opt/muos/script/system/parse.sh
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+CONTROL_DIR="/opt/muos/device/$DEVICE/control"
+$ROM_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+
 RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 
 # Restore device specific gamecontrollerdb.txt
-GCDB_ARMHF="/usr/lib32/gamecontrollerdb.txt"
-GCDB_AARCH64="/usr/lib/gamecontrollerdb.txt"
-GCDB_28XX="/opt/muos/backup/gamecontrollerdb/gamecontrollerdb_28xx.txt"
-cp -f "GCDB_28XX" "GCDB_ARMHF"
-cp -f "GCDB_28XX" "GCDB_AARCH64"
+for GCDB_DIR in "/usr/lib32 /usr/lib"; do
+	cp -f "$CONTROL_DIR/gamecontrollerdb.txt" "$GCDB_DIR/gamecontrollerdb.txt"
+done
 
-# Move RetroArch configurations to their rightful place
-RA_CONF="/mnt/mmc/MUOS/retroarch/retroarch.cfg"
-if [ ! -f "$RA_CONF" ]; then
-    cp /opt/muos/backup/retroarch/rg28xx-retroarch.cfg "$RA_CONF"
-fi
-
-RA32_CONF="/mnt/mmc/MUOS/retroarch/retroarch32.cfg"
-if [ ! -f "$RA32_CONF" ]; then
-    cp /opt/muos/backup/retroarch/rg28xx-retroarch32.cfg "$RA32_CONF"
-fi
+# Move RetroArch configurations
+for RA_CONF in "retroarch.cfg" "retroarch32.cfg"; do
+	DEST_CONF="$ROM_MOUNT/MUOS/retroarch/$CONF"
+	if [ ! -f "$DEST_CONF" ]; then
+		cp "$CONTROL_DIR/$RA_CONF" "$DEST_CONF"
+	fi
+done	
 
 # Move DraStic configuration
-DRA_CONF="/mnt/mmc/MUOS/emulator/drastic/config/drastic.cfg"
-cp -f "/mnt/mmc/MUOS/emulator/drastic/config/drastic_28xx.cfg" "$DRA_CONF"
+cp -f "$CONTROL_DIR/drastic.cfg" "$ROM_MOUNT/MUOS/emulator/drastic/config/drastic.cfg"
 
-# Move Mupen configuration to their rightful place
-MUP_DEF="/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus.cfg"
-MUP_RICE="/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus-rice.cfg"
+# Move Mupen configuration
+MUP_DEF="$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus.cfg"
+MUP_RICE="$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-rice.cfg"
 if [ ! -f "$MUP_RICE" ]; then
-    cp "/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus-rice-plus.cfg" "$MUP_RICE"
-    # Set as initial default core
-    cp "$MUP_RICE" "$MUP_DEF"
+	cp "$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-rice-plus.cfg" "$MUP_RICE"
+	# Set as initial default core
+	cp "$MUP_RICE" "$MUP_DEF"
 fi
 
-MUP_GL64="/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus-gl64.cfg"
+MUP_GL64="$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-gl64.cfg"
 if [ ! -f "$MUP_GL64" ]; then
-    cp "/mnt/mmc/MUOS/emulator/mupen64plus/mupen64plus-gl64-plus.cfg" "$MUP_GL64"
+	cp "$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-gl64-plus.cfg" "$MUP_GL64"
 fi
 
 # Define Nintendo 64 remap paths
-MP64_RMP="/mnt/mmc/MUOS/info/config/remaps/Mupen64Plus-Next/Mupen64Plus-Next.rmp"
+MP64_RMP="$ROM_MOUNT/MUOS/info/config/remaps/Mupen64Plus-Next/Mupen64Plus-Next.rmp"
 
 # Check for Mupen64Plus remap
 MP64_DIR=$(dirname "$MP64_RMP")
 if [ ! -d "$MP64_DIR" ]; then
-    mkdir -p "$MP64_DIR"
+	mkdir -p "$MP64_DIR"
 fi
 
 if [ ! -e "$MP64_RMP" ]; then
-    cat <<EOF > "$MP64_RMP"
+	cat <<EOF > "$MP64_RMP"
 input_libretro_device_p1 = "1"
 input_libretro_device_p2 = "1"
 input_libretro_device_p3 = "1"
@@ -73,6 +74,6 @@ input_remap_port_p4 = "3"
 EOF
 echo "$LOG_DATE File $MP64_RMP created. Set Mupen64Plus-Next controls for dpad only." >> "$RMP_LOG"
 else
-    echo "$LOG_DATE No file created. Remap existed at $MP64_RMP" >> "$RMP_LOG"
+	echo "$LOG_DATE No file created. Remap existed at $MP64_RMP" >> "$RMP_LOG"
 fi
 

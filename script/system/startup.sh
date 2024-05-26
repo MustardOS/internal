@@ -96,14 +96,10 @@ fi
 
 dmesg > "$STORE_ROM/MUOS/log/dmesg/dmesg__${CURRENT_DATE}.log" &
 
-rm -f /etc/ld.so.cache
-until [ -e "/lib/ld-linux-armhf.so.3" ]; do
-	ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
-done
-ldconfig &
-
 chown -R root:root /opt &
 chmod -R 755 /opt &
+
+echo 2 > /proc/sys/abi/cp15_barrier &
 
 VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")
 if [ "$VERBOSE" -eq 1 ]; then
@@ -112,6 +108,7 @@ fi
 
 FACTORY_RESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
 if [ "$FACTORY_RESET" -eq 1 ]; then
+	LOGGER "FACTORY RESET" "All Done!"
 	killall "mp3play"
 
 	modify_ini "$CONFIG" "boot" "factory_reset" "0"
@@ -121,6 +118,4 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 
 	/opt/muos/script/mux/frontend.sh &
 fi
-
-echo 2 > /proc/sys/abi/cp15_barrier &
 

@@ -20,30 +20,7 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 
 STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 
-HAS_UNLOCK=0
-LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
-if [ "$LOCK" -eq 1 ]; then
-	while [ "$HAS_UNLOCK" != 1 ]; do
-		nice --20 /opt/muos/extra/muxpass -t boot
-		HAS_UNLOCK="$?"
-	done
-fi
-
-# NOW WE RUN THROUGH SPECIFIC DEVICE SCRIPT
-LOGGER "BOOTING" "Running Device Specifics"
-/opt/muos/device/"$DEVICE"/script/start.sh
-
-SUPPORT_HDMI=$(parse_ini "$DEVICE_CONFIG" "device" "hdmi")
-HDMI=$(parse_ini "$CONFIG" "settings.general" "hdmi")
-if [ "$SUPPORT_HDMI" -eq 1 ] && [ "$HDMI" -eq 1 ]; then
-	/opt/muos/script/system/hdmi.sh &
-fi
-
 echo 1 > /tmp/work_led_state
-
-LOGGER "BOOTING" "Starting Storage Watchdog"
-/opt/muos/script/mount/sdcard.sh
-/opt/muos/script/mount/usb.sh
 
 LOGGER "BOOTING" "Restoring Volume"
 VOLUME_LOW=$(parse_ini "$CONFIG" "settings.advanced" "volume_low")
@@ -78,11 +55,31 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 		LOGGER "FACTORY RESET" "Generating SSH Host Keys"
 		/opt/openssh/bin/ssh-keygen -A
 	fi
-else
-	/opt/muos/script/mux/frontend.sh &
 fi
 
 hwclock -s &
+
+HAS_UNLOCK=0
+LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
+if [ "$LOCK" -eq 1 ]; then
+	while [ "$HAS_UNLOCK" != 1 ]; do
+		nice --20 /opt/muos/extra/muxpass -t boot
+		HAS_UNLOCK="$?"
+	done
+fi
+
+LOGGER "BOOTING" "Starting Storage Watchdog"
+/opt/muos/script/mount/sdcard.sh
+/opt/muos/script/mount/usb.sh
+
+LOGGER "BOOTING" "Running Device Specifics"
+/opt/muos/device/"$DEVICE"/script/start.sh
+
+SUPPORT_HDMI=$(parse_ini "$DEVICE_CONFIG" "device" "hdmi")
+HDMI=$(parse_ini "$CONFIG" "settings.general" "hdmi")
+if [ "$SUPPORT_HDMI" -eq 1 ] && [ "$HDMI" -eq 1 ]; then
+	/opt/muos/script/system/hdmi.sh &
+fi
 
 SUPPORT_NETWORK=$(parse_ini "$DEVICE_CONFIG" "device" "network")
 NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
@@ -115,7 +112,7 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 	modify_ini "$CONFIG" "settings.advanced" "verbose" "0"
 
 	/opt/muos/extra/muxkofi
-
-	/opt/muos/script/mux/frontend.sh &
 fi
+
+/opt/muos/script/mux/frontend.sh &
 

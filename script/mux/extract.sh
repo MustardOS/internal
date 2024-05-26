@@ -11,7 +11,6 @@ if [ ! -e "$1" ]; then
 fi
 
 . /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.txt
 
 DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
 DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"

@@ -69,7 +69,7 @@ ip link set "$NET_INTERFACE" up
 iw dev "$NET_INTERFACE" set power_save off
 
 LOGGER "Configuring WPA Supplicant"
-wpa_supplicant -dd -B -i"$NET_INTERFACE" -c /etc/wpa_supplicant.conf -D "$DEV_TYPE"
+wpa_supplicant -dd -B -i "$NET_INTERFACE" -c /etc/wpa_supplicant.conf -D "$DEV_TYPE"
 
 if [ "$NET_TYPE" -eq 0 ]; then
 	LOGGER "Clearing DHCP leases"

@@ -127,7 +127,9 @@ if [ "$SUPPORT_NETWORK" -eq 1 ]; then
 	macchanger -r "$NET_IFACE"
 
 	LOGGER "FACTORY RESET" "Setting Random Hostname"
-	hostname "$(hostname)-$(head -c 5 /proc/sys/kernel/random/uuid)"
+	HN=$(hostname)-$(head -c 5 /proc/sys/kernel/random/uuid)
+	hostname "$HN"
+	echo "$HN" > /etc/hostname
 fi
 
 LOGGER "FACTORY RESET" "Syncing Partitions"

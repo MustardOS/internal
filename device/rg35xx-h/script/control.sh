@@ -17,11 +17,10 @@ done
 
 # Move RetroArch configurations
 for RA_CONF in "retroarch.cfg" "retroarch32.cfg"; do
-	DEST_CONF="$ROM_MOUNT/MUOS/retroarch/$CONF"
 	if [ ! -f "$DEST_CONF" ]; then
-		cp "$CONTROL_DIR/$RA_CONF" "$DEST_CONF"
+		cp "$CONTROL_DIR/$RA_CONF" "$ROM_MOUNT/MUOS/retroarch/$RA_CONF"
 	fi
-done	
+done
 
 # Move DraStic configuration
 cp -f "$CONTROL_DIR/drastic.cfg" "$ROM_MOUNT/MUOS/emulator/drastic/config/drastic.cfg"

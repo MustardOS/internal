@@ -1,14 +1,12 @@
 #!/bin/sh
 
 . /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.txt
 
 DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
 DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 
 DEV_MODULE=$(parse_ini "$DEVICE_CONFIG" "network" "module")
 DEV_NAME=$(parse_ini "$DEVICE_CONFIG" "network" "name")
-DEV_TYPE=$(parse_ini "$DEVICE_CONFIG" "network" "type")
 
 NET_INTERFACE=$(parse_ini "$DEVICE_CONFIG" "network" "iface")
 

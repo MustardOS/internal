@@ -48,13 +48,13 @@ BOOT_DEV=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "dev")
 BOOT_NUM=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "num")
 BOOT_MNT=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "mount")
 BOOT_TYPE=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "type")
-mount -t "$BOOT_TYPE" -o rw,utf8,noatime,nofail "$BOOT_DEV"p"$BOOT_NUM" "$BOOT_MNT"
+mount -t "$BOOT_TYPE" -o rw,utf8,noatime,nofail /dev/"$BOOT_DEV"p"$BOOT_NUM" "$BOOT_MNT"
 
 ROM_DEV=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "dev")
 ROM_NUM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "num")
 ROM_MNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 ROM_TYPE=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "type")
-mount -t "$ROM_TYPE" -o rw,utf8,noatime,nofail "$ROM_DEV"p"$ROM_NUM" "$ROM_MNT"
+mount -t "$ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$ROM_DEV"p"$ROM_NUM" "$ROM_MNT"
 
 USE_DEBUGFS=$(parse_ini "$DEVICE_CONFIG" "partition" "debug")
 if [ "$USE_DEBUGFS" -eq 1 ]; then

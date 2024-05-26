@@ -5,13 +5,13 @@ DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
 DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 
 CONTROL_DIR="/opt/muos/device/$DEVICE/control"
-$ROM_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+ROM_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 
 RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 
 # Restore device specific gamecontrollerdb.txt
-for GCDB_DIR in "/usr/lib32 /usr/lib"; do
+for GCDB_DIR in "/usr/lib32" "/usr/lib"; do
 	cp -f "$CONTROL_DIR/gamecontrollerdb.txt" "$GCDB_DIR/gamecontrollerdb.txt"
 done
 

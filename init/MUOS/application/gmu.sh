@@ -1,6 +1,6 @@
 #!/bin/sh
 
-GMU_DIR="/opt/muos/app/gmu"
+GMU_DIR="$(pwd)/gmu"
 GPTOKEYB="/mnt/mmc/MUOS/emulator/gptokeyb/gptokeyb2"
 cd "$GMU_DIR" || exit
 

@@ -171,6 +171,9 @@ LOGGER "BOOTING" "Starting muX Services"
 LOGGER "BOOTING" "Cleaning Dotfiles"
 /opt/muos/script/system/dotclean.sh &
 
+LOGGER "BOOTING" "Creating Missing Catalogue Folders"
+/opt/muos/script/system/catalogue.sh &
+
 LOGGER "BOOTING" "Exporting Diagnostic Messages"
 dmesg > "/mnt/mmc/MUOS/log/dmesg/dmesg__${CURRENT_DATE}.log" &
 

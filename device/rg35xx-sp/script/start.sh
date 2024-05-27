@@ -56,7 +56,7 @@ ROM_MNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 ROM_TYPE=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "type")
 mount -t "$ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$ROM_DEV"p"$ROM_NUM" "$ROM_MNT"
 
-USE_DEBUGFS=$(parse_ini "$DEVICE_CONFIG" "partition" "debug")
+USE_DEBUGFS=$(parse_ini "$DEVICE_CONFIG" "device" "debug")
 if [ "$USE_DEBUGFS" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
 fi

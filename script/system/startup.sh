@@ -59,6 +59,9 @@ fi
 
 hwclock -s &
 
+LOGGER "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
+ldconfig -v > "$STORE_ROM/MUOS/log/ldconfig.log" &
+
 HAS_UNLOCK=0
 LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
 if [ "$LOCK" -eq 1 ]; then

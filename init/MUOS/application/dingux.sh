@@ -1,11 +1,15 @@
 #!/bin/sh
 
-# Check for RG28XX and rotate screen if found
-if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
-	export SDL_HQ_SCALER=1
-fi
+. /opt/muos/script/system/parse.sh
 
-DINGUX_DIR="/opt/muos/app/dingux"
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+SDL_SCALER=$(parse_ini "$DEVICE_CONFIG" "sdl" "scaler")
+
+export SDL_HQ_SCALER="$SDL_SCALER"
+
+DINGUX_DIR="$(pwd)/dingux"
 
 cd "$DINGUX_DIR" || exit
 

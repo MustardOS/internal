@@ -1,14 +1,18 @@
 #!/bin/sh
 
+. /opt/muos/script/system/parse.sh
+
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+SDL_SCALER=$(parse_ini "$DEVICE_CONFIG" "sdl" "scaler")
+
 NAME=$1
 CORE=$2
 ROM=$3
 
 export HOME=/root
-
-if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
-	export SDL_HQ_SCALER=1
-fi
+export SDL_HQ_SCALER="$SDL_SCALER"
 
 ./"$ROM"
 

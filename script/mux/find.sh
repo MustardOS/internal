@@ -1,14 +1,24 @@
-#!/bin/bash
+#!/bin/sh
 
-ROMPATH=/mnt/mmc/ROMS
+. /opt/muos/script/system/parse.sh
 
-if [ -d /mnt/sdcard/ROMS ]; then
-	ROMPATH="${ROMPATH} /mnt/sdcard/ROMS"
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+if [ -d "$STORE_ROM/ROMS" ]; then
+	ROMPATH="$STORE_ROM/ROMS"
 fi
 
-if [ -d /mnt/usb/ROMS ]; then
-	ROMPATH="${ROMPATH} /mnt/usb/ROMS"
+STORE_SDCARD=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "mount")
+if [ -d "$STORE_SDCARD/ROMS" ]; then
+	ROMPATH="${ROMPATH} $STORE_SDCARD/ROMS"
 fi
 
-/opt/muos/bin/rg --files ${ROMPATH} 2>&1 | /opt/muos/bin/rg --pcre2 -i "\/(?!.*\/).*$1"
+STORE_USB=$(parse_ini "$DEVICE_CONFIG" "storage.usb" "mount")
+if [ -d "$STORE_USB/ROMS" ]; then
+	ROMPATH="${ROMPATH} $STORE_USB/ROMS"
+fi
+
+/opt/muos/bin/rg --files "${ROMPATH}" 2>&1 | /opt/muos/bin/rg --pcre2 -i "\/(?!.*\/).*$1"
 

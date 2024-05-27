@@ -34,8 +34,8 @@ if [ "$FIRMWARE_DONE" -eq 0 ]; then
 	FW_PACK_OUT=$(parse_ini "$DEVICE_CONFIG" "firmware.package" "out")
 	FW_PACK_SEEK=$(parse_ini "$DEVICE_CONFIG" "firmware.package" "seek")
 
-	dd if=/opt/muos/"$DEVICE"/firmware/boot.bin of=/dev/"$FW_BOOT_OUT" seek="$FW_BOOT_SEEK" conv=notrunc
-	dd if=/opt/muos/"$DEVICE"/firmware/package.bin of=/dev/"$FW_PACK_OUT" seek="$FW_PACK_SEEK" conv=notrunc
+	dd if=/opt/muos/device/"$DEVICE"/firmware/boot.bin of=/dev/"$FW_BOOT_OUT" seek="$FW_BOOT_SEEK" conv=notrunc
+	dd if=/opt/muos/device/"$DEVICE"/firmware/package.bin of=/dev/"$FW_PACK_OUT" seek="$FW_PACK_SEEK" conv=notrunc
 
 	modify_ini "$CONFIG" "boot" "firmware_done" "1"
 	reboot

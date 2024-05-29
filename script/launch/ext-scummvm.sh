@@ -26,10 +26,10 @@ else
 	SUBFOLDER="$NAME"
 fi
 
-EMUDIR="$STORE_ROM/MUOS/emulator/scummvm"
+EMUDIR="/$STORE_ROM/MUOS/emulator/scummvm"
 EXTRA="$EMUDIR/Extra"
 THEME="$EMUDIR/Theme"
-SAVE="$STORE_ROM/MUOS/save/file/ScummVM-Ext"
+SAVE="/$STORE_ROM/MUOS/save/file/ScummVM-Ext"
 
 mkdir -p "$SAVE"
 chmod +x "$EMUDIR"/scummvm

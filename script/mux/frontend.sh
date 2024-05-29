@@ -287,7 +287,7 @@ while true; do
 				nice --20 /opt/muos/extra/muxprofile
 				;;
 			"favourite")
-				find "$STORE_ROM"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
+				find /"$STORE_ROM"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
 				echo "muxplore" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m favourite
@@ -299,7 +299,7 @@ while true; do
 				fi
 				;;
 			"history")
-				find "$STORE_ROM"/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
+				find /"$STORE_ROM"/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
 				echo "muxplore" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i 0 -m history
@@ -316,7 +316,7 @@ while true; do
 				echo apps > $ACT_GO
 				export HOME=/root
 				echo "python3" > /tmp/fg_proc
-				nice --20 "$STORE_ROM"/MUOS/PortMaster/PortMaster.sh
+				nice --20 /"$STORE_ROM"/MUOS/PortMaster/PortMaster.sh
 				;;
 			"retro")
 				KILL_BGM
@@ -324,7 +324,7 @@ while true; do
 				echo apps > $ACT_GO
 				export HOME=/root
 				echo "retroarch" > /tmp/fg_proc
-				nice --20 retroarch -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg"
+				nice --20 retroarch -c /"$STORE_ROM/MUOS/retroarch/retroarch.cfg"
 				;;
 			"dingux")
 				KILL_BGM
@@ -332,7 +332,7 @@ while true; do
 				echo apps > $ACT_GO
 				export HOME=/root
 				echo "dingux" > /tmp/fg_proc
-				nice --20 "$STORE_ROM/MUOS/application/dingux.sh"
+				nice --20 /"$STORE_ROM/MUOS/application/dingux.sh"
 				;;
 			"gmu")
 				KILL_BGM
@@ -340,7 +340,7 @@ while true; do
 				echo apps > $ACT_GO
 				export HOME=/root
 				echo "gmu" > /tmp/fg_proc
-				nice --20 "$STORE_ROM/MUOS/application/gmu.sh"
+				nice --20 /"$STORE_ROM/MUOS/application/gmu.sh"
 				;;
 			"terminal")
 				KILL_BGM
@@ -348,7 +348,7 @@ while true; do
 				echo apps > $ACT_GO
 				export HOME=/root
 				echo "terminal" > /tmp/fg_proc
-				nice --20 "$STORE_ROM/MUOS/application/terminal.sh"
+				nice --20 /"$STORE_ROM/MUOS/application/terminal.sh"
 				;;
 			"shuffle")
 				echo launcher > $ACT_GO

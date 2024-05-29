@@ -7,7 +7,7 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 
 STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 
-NAME="$STORE_ROM/MUOS/info/activity/$1.act"
+NAME="/$STORE_ROM/MUOS/info/activity/$1.act"
 shift
 PROG="nice --20 $*"
 

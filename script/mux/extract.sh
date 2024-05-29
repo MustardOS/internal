@@ -40,7 +40,7 @@ echo "Inspecting archive..." > /tmp/muxlog_info
 if unzip -l "$1" | awk '$NF ~ /^'"$SCHEME_FOLDER"'\// && $NF ~ /\/'"$SCHEME_FILE"'$/ {print $NF}' | grep -q ""; then
 	echo "Archive contents indicate it is NOT an installable theme file." > /tmp/muxlog_info
     echo "Copying unextracted archive to theme folder." > /tmp/muxlog_info
-	cp -f "$1" "$STORE_ROM/MUOS/theme/"
+	cp -f "$1" "/$STORE_ROM/MUOS/theme/"
 else
 	unzip -o "$1" -d "$MUX_TEMP/" > "$TMP_FILE" 2>&1 &
 
@@ -90,7 +90,7 @@ echo "Sync Filesystem" > /tmp/muxlog_info
 sync
 
 echo "All Done!" > /tmp/muxlog_info
-touch "$STORE_ROM/MUOS/update/installed/$ARCHIVE_NAME.done"
+touch "/$STORE_ROM/MUOS/update/installed/$ARCHIVE_NAME.done"
 sleep 0.5
 
 killall -q muxlog

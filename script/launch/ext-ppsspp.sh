@@ -17,7 +17,7 @@ export SDL_HQ_SCALER="$SDL_SCALER"
 
 echo "PPSSPP" > /tmp/fg_proc
 
-EMUDIR="$STORE_ROM/MUOS/emulator/ppsspp"
+EMUDIR="/$STORE_ROM/MUOS/emulator/ppsspp"
 
 chmod +x "$EMUDIR"/ppsspp
 cd "$EMUDIR" || exit

@@ -9,7 +9,7 @@ CRUFT="._* .DS_Store desktop.ini Thumbs.db .Trashes .Spotlight .fseventsd .DStor
 
 DELETE_CRUFT() {
     for C in $CRUFT; do
-        find "$1" -type f -name "$C" -exec rm -f {} +
+        find /"$1" -type f -name "$C" -exec rm -f {} +
     done
 }
 

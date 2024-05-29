@@ -7,7 +7,7 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 
 STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 
-MP3_DIR="$STORE_ROM/MUOS/music"
+MP3_DIR="/$STORE_ROM/MUOS/music"
 
 while true; do
 	cd "$MP3_DIR" || exit 1

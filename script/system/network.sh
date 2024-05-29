@@ -9,7 +9,7 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 
 CURRENT_DATE=$(date +"%Y_%m_%d__%H_%M_%S")
-MUOSBOOT_LOG="$STORE_ROM/MUOS/log/network.txt"
+MUOSBOOT_LOG="/$STORE_ROM/MUOS/log/network.txt"
 
 CURRENT_IP="/opt/muos/config/address.txt"
 

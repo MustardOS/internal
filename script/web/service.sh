@@ -34,7 +34,7 @@ fi
 
 SRV_SYNCTHING=$(parse_ini "$CONFIG" "web" "syncthing")
 if [ "$SRV_SYNCTHING" -eq 1 ]; then
-	nice -2 /opt/muos/bin/syncthing serve --home="$STORE_ROM/MUOS/syncthing" --skip-port-probing --gui-address="$CURRENT_IP:7070" --no-browser --no-default-folder > /dev/null &
+	nice -2 /opt/muos/bin/syncthing serve --home="/$STORE_ROM/MUOS/syncthing" --skip-port-probing --gui-address="$CURRENT_IP:7070" --no-browser --no-default-folder > /dev/null &
 fi
 
 SRV_NTP=$(parse_ini "$CONFIG" "web" "ntp")

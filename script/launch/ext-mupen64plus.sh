@@ -24,7 +24,7 @@ if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
 	export SDL_ROTATION=1
 fi
 
-EMUDIR="$STORE_ROM/MUOS/emulator/mupen64plus"
+EMUDIR="/$STORE_ROM/MUOS/emulator/mupen64plus"
 MP64_CFG="$EMUDIR/mupen64plus.cfg"
 
 RICE_CFG="$EMUDIR/mupen64plus-rice.cfg"

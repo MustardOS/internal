@@ -13,7 +13,7 @@ ROM=$3
 
 export HOME=/root
 
-EMUDIR="$STORE_ROM/MUOS/emulator/drastic-steward"
+EMUDIR="/$STORE_ROM/MUOS/emulator/drastic-steward"
 
 chmod +x "$EMUDIR"/launch.sh
 cd "$EMUDIR" || exit

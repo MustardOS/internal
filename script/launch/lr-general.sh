@@ -17,5 +17,5 @@ export SDL_HQ_SCALER="$SDL_SCALER"
 
 echo "retroarch" > /tmp/fg_proc
 
-retroarch -v -f -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "$STORE_ROM/MUOS/core/$CORE" "$ROM"
+retroarch -v -f -c "/$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "/$STORE_ROM/MUOS/core/$CORE" "$ROM"
 

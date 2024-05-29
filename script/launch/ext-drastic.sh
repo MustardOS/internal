@@ -17,7 +17,7 @@ export SDL_HQ_SCALER="$SDL_SCALER"
 
 echo "drastic" > /tmp/fg_proc
 
-EMUDIR="$STORE_ROM/MUOS/emulator/drastic"
+EMUDIR="/$STORE_ROM/MUOS/emulator/drastic"
 
 chmod +x "$EMUDIR"/drastic
 cd "$EMUDIR" || exit

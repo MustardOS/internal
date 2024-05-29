@@ -17,7 +17,7 @@ export SDL_HQ_SCALER="$SDL_SCALER"
 
 echo "amiberry" > /tmp/fg_proc
 
-EMUDIR="$STORE_ROM/MUOS/emulator/amiberry"
+EMUDIR="/$STORE_ROM/MUOS/emulator/amiberry"
 
 chmod +x "$EMUDIR"/amiberry
 cd "$EMUDIR" || exit

@@ -20,7 +20,7 @@ echo "pico8_64" > /tmp/fg_proc
 _BACKUPFAV=$(cat <<EOF
 #!/bin/sh 
 
-P8_DIR="$STORE_ROM/MUOS/emulator/pico8/.lexaloffle/pico-8"
+P8_DIR="/$STORE_ROM/MUOS/emulator/pico8/.lexaloffle/pico-8"
 FAVES="$P8_DIR/favourites.txt"
 CARTS="$P8_DIR/bbs/carts"
 
@@ -37,7 +37,7 @@ done < "$FAVES"
 EOF
 	) > "$R_DIR"/"Backup Favourites.sh"
 
-EMUDIR="$STORE_ROM/MUOS/emulator/pico8"
+EMUDIR="/$STORE_ROM/MUOS/emulator/pico8"
 
 chmod +x "$EMUDIR"/wget
 chmod +x "$EMUDIR"/pico8_64

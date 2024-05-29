@@ -29,5 +29,5 @@ SCVM="$ROMPATH/$SUBFOLDER/$NAME.scummvm"
 
 cp "$ROMPATH/$NAME.scummvm" "$SCVM"
 
-retroarch -v -f -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "$STORE_ROM/MUOS/core/scummvm_libretro.so" "$SCVM"
+retroarch -v -f -c "/$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "/$STORE_ROM/MUOS/core/scummvm_libretro.so" "$SCVM"
 

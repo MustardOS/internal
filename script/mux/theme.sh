@@ -13,16 +13,16 @@ BLBMP="/opt/muos/device/$DEVICE/bootlogo.bmp"
 
 THEME=$(parse_ini "$CONFIG" "theme" "name")
 
-THEMEDIR="/opt/muos/theme"
+THEMEDIR="/$STORE_ROM/MUOS/theme/active"
 BOOTLOGO="$THEMEDIR/image/$BLBMP.bmp"
 
-cp "$BLBMP" "$STORE_BOOT/bootlogo.bmp"
+cp "$BLBMP" "/$STORE_BOOT/bootlogo.bmp"
 
 rm -rf "$THEMEDIR"
-unzip "$STORE_ROM/MUOS/theme/$THEME" -d "$THEMEDIR"
+unzip "/$STORE_ROM/MUOS/theme/$THEME" -d "$THEMEDIR"
 
 if [ -f "$BOOTLOGO" ]; then
-	cp "$BOOTLOGO" "$STORE_BOOT/bootlogo.bmp"
+	cp "$BOOTLOGO" "/$STORE_BOOT/bootlogo.bmp"
 fi
 
 sync

@@ -17,7 +17,7 @@ export SDL_HQ_SCALER="$SDL_SCALER"
 
 echo "flycast" > /tmp/fg_proc
 
-EMUDIR="$STORE_ROM/MUOS/emulator/flycast"
+EMUDIR="/$STORE_ROM/MUOS/emulator/flycast"
 
 chmod +x "$EMUDIR"/flycast
 cd "$EMUDIR" || exit

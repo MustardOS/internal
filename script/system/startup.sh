@@ -60,7 +60,7 @@ fi
 hwclock -s &
 
 LOGGER "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
-ldconfig -v > "$STORE_ROM/MUOS/log/ldconfig.log" &
+ldconfig -v > "/$STORE_ROM/MUOS/log/ldconfig.log" &
 
 HAS_UNLOCK=0
 LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
@@ -95,7 +95,7 @@ fi
 /opt/muos/script/system/dotclean.sh &
 /opt/muos/script/system/catalogue.sh &
 
-dmesg > "$STORE_ROM/MUOS/log/dmesg/dmesg__${CURRENT_DATE}.log" &
+dmesg > "/$STORE_ROM/MUOS/log/dmesg/dmesg__${CURRENT_DATE}.log" &
 
 chown -R root:root /opt &
 chmod -R 755 /opt &
@@ -104,7 +104,7 @@ echo 2 > /proc/sys/abi/cp15_barrier &
 
 VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")
 if [ "$VERBOSE" -eq 1 ]; then
-	cp "$MUOSBOOT_LOG" "$STORE_ROM/MUOS/log/boot/."
+	cp "$MUOSBOOT_LOG" "/$STORE_ROM/MUOS/log/boot/."
 fi
 
 FACTORY_RESET=$(parse_ini "$CONFIG" "boot" "factory_reset")

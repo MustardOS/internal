@@ -29,8 +29,8 @@ dos2unix -n "$ROMPATH/$NAME.doom" "$ROMPATH/$NAME.doom"
 IWAD=$(awk -F'"' '/parentwad/ {print $2}' "$ROMPATH/$NAME.doom")
 
 cp -f "$ROMPATH/$NAME.doom" "$PRBC"
-cp -f "$STORE_ROM/MUOS/bios/prboom.wad" "$ROMPATH/.$NAME/prboom.wad"
+cp -f "/$STORE_ROM/MUOS/bios/prboom.wad" "$ROMPATH/.$NAME/prboom.wad"
 cp -f "$ROMPATH/.IWAD/$IWAD" "$ROMPATH/.$NAME/$IWAD"
 
-retroarch -v -f -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "$STORE_ROM/MUOS/core/prboom_libretro.so" "$ROMPATH/.$NAME/$IWAD"
+retroarch -v -f -c "/$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "/$STORE_ROM/MUOS/core/prboom_libretro.so" "$ROMPATH/.$NAME/$IWAD"
 

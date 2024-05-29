@@ -18,29 +18,29 @@ done
 # Move RetroArch configurations
 for RA_CONF in "retroarch.cfg" "retroarch32.cfg"; do
 	if [ ! -f "$DEST_CONF" ]; then
-		cp "$CONTROL_DIR/$RA_CONF" "$ROM_MOUNT/MUOS/retroarch/$RA_CONF"
+		cp "$CONTROL_DIR/$RA_CONF" "/$ROM_MOUNT/MUOS/retroarch/$RA_CONF"
 	fi
 done
 
 # Move DraStic configuration
-cp -f "$CONTROL_DIR/drastic.cfg" "$ROM_MOUNT/MUOS/emulator/drastic/config/drastic.cfg"
+cp -f "$CONTROL_DIR/drastic.cfg" "/$ROM_MOUNT/MUOS/emulator/drastic/config/drastic.cfg"
 
 # Move Mupen configuration
-MUP_DEF="$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus.cfg"
-MUP_RICE="$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-rice.cfg"
+MUP_DEF="/$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus.cfg"
+MUP_RICE="/$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-rice.cfg"
 if [ ! -f "$MUP_RICE" ]; then
-	cp "$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-rice-plus.cfg" "$MUP_RICE"
+	cp "/$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-rice-plus.cfg" "$MUP_RICE"
 	# Set as initial default core
 	cp "$MUP_RICE" "$MUP_DEF"
 fi
 
-MUP_GL64="$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-gl64.cfg"
+MUP_GL64="/$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-gl64.cfg"
 if [ ! -f "$MUP_GL64" ]; then
-	cp "$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-gl64-plus.cfg" "$MUP_GL64"
+	cp "/$ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-gl64-plus.cfg" "$MUP_GL64"
 fi
 
 # Define Nintendo 64 remap paths
-MP64_RMP="$ROM_MOUNT/MUOS/info/config/remaps/Mupen64Plus-Next/Mupen64Plus-Next.rmp"
+MP64_RMP="/$ROM_MOUNT/MUOS/info/config/remaps/Mupen64Plus-Next/Mupen64Plus-Next.rmp"
 
 # Check for Mupen64Plus remap
 MP64_DIR=$(dirname "$MP64_RMP")

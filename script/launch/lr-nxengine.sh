@@ -32,14 +32,14 @@ EOF
 ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')
 DOUK="$ROMPATH/.Cave Story (En)/Doukutsu.exe"
 
-LOGPATH="$STORE_ROM/MUOS/log/nxe.log"
+LOGPATH="/$STORE_ROM/MUOS/log/nxe.log"
 
 if [ -e "$DOUK" ]; then
-	retroarch -v -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "$STORE_ROM/MUOS/core/$CORE" "$DOUK"
+	retroarch -v -c "/$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "/$STORE_ROM/MUOS/core/$CORE" "$DOUK"
 else
 	CZ_NAME="Cave Story (En).zip"
 	CAVE_URL="https://bot.libretro.com/assets/cores/Cave Story/$CZ_NAME"
-	BIOS_FOLDER="$STORE_ROM/MUOS/bios/"
+	BIOS_FOLDER="/$STORE_ROM/MUOS/bios/"
 
 	if [ -e "$BIOS_FOLDER$CZ_NAME" ]; then
 		echo "$CZ_NAME exists at $BIOS_FOLDER" >> "$LOGPATH"
@@ -77,6 +77,6 @@ else
 		echo "Did extraction fail?" >> "$LOGPATH"
 	fi
 
-	retroarch -v -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "$STORE_ROM/MUOS/core/$CORE" "$DOUK"
+	retroarch -v -c "/$STORE_ROM/MUOS/retroarch/retroarch.cfg" -L "/$STORE_ROM/MUOS/core/$CORE" "$DOUK"
 fi
 

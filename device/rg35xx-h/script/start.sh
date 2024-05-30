@@ -3,7 +3,7 @@
 CURRENT_DATE=$(date +"%Y_%m_%d__%H_%M_%S")
 
 . /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.txt
+CONFIG=/opt/muos/config/config.ini
 
 LOGGER() {
 VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")

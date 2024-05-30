@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.txt
+CONFIG=/opt/muos/config/config.ini
 
 SLEEP_STATE="/tmp/sleep_state"
 SLEEP_TIMER="/tmp/sleep_timer"

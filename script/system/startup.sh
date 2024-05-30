@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.txt
+CONFIG=/opt/muos/config/config.ini
 
 # THIS REQUIRES SOMETHING TO PARSE `dmesg` FOR UNIQUE VALUES
 # SO THAT WE CAN ADJUST FOR UNIQUE DEVICES AUTOMATICALLY!

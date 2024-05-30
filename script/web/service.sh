@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.txt
+CONFIG=/opt/muos/config/config.ini
 
 DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
 DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"

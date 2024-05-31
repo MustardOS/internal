@@ -1,14 +1,17 @@
 #!/bin/sh
-# shellcheck disable=1090,2002
-
-MUOSBOOT_LOG=/mnt/mmc/MUOS/log/network.txt
 
 . /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.txt
+CONFIG=/opt/muos/config/config.ini
+
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 
 CURRENT_DATE=$(date +"%Y_%m_%d__%H_%M_%S")
+MUOSBOOT_LOG="/$STORE_ROM/MUOS/log/network.txt"
 
-CIP=/opt/muos/config/address.txt
+CURRENT_IP="/opt/muos/config/address.txt"
 
 LOGGER() {
 VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")
@@ -18,8 +21,12 @@ if [ "$VERBOSE" -eq 1 ]; then
 fi
 }
 
+DEV_MODULE=$(parse_ini "$DEVICE_CONFIG" "network" "module")
+DEV_NAME=$(parse_ini "$DEVICE_CONFIG" "network" "name")
+DEV_TYPE=$(parse_ini "$DEVICE_CONFIG" "network" "type")
+
 NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
-NET_INTERFACE=$(parse_ini "$CONFIG" "network" "interface")
+NET_INTERFACE=$(parse_ini "$DEVICE_CONFIG" "network" "iface")
 NET_TYPE=$(parse_ini "$CONFIG" "network" "type")
 NET_ADDRESS=$(parse_ini "$CONFIG" "network" "address")
 NET_SUBNET=$(parse_ini "$CONFIG" "network" "subnet")
@@ -37,19 +44,19 @@ killall sftpgo
 killall gotty
 killall syncthing
 
-echo "0.0.0.0" | tr -d '\n' > "$CIP"
+echo "0.0.0.0" | tr -d '\n' > "$CURRENT_IP"
 
 LOGGER "Fixing Nameserver"
 echo "nameserver $NET_DNS" > /etc/resolv.conf
 
 if [ "$NET_ENABLED" -eq 0 ]; then
-	rmmod /lib/modules/4.9.170/kernel/drivers/net/wireless/rtl8821cs/8821cs.ko
+	rmmod "$DEV_MODULE"
 	exit
 fi
 
-if ! lsmod | grep -wq 8821cs; then
-    LOGGER "Loading 'rtl8821cs' Kernel Module"
-    insmod /lib/modules/4.9.170/kernel/drivers/net/wireless/rtl8821cs/8821cs.ko
+if ! lsmod | grep -wq "$DEV_NAME"; then
+    LOGGER "Loading '$DEV_NAME' Kernel Module"
+    insmod "$DEV_MODULE"
     while ! dmesg | grep -wq "$NET_INTERFACE"; do
         sleep 1
     done
@@ -62,7 +69,7 @@ ip link set "$NET_INTERFACE" up
 iw dev "$NET_INTERFACE" set power_save off
 
 LOGGER "Configuring WPA Supplicant"
-wpa_supplicant -dd -B -i"$NET_INTERFACE" -c /etc/wpa_supplicant.conf -D nl80211
+wpa_supplicant -dd -B -i "$NET_INTERFACE" -c /etc/wpa_supplicant.conf -D "$DEV_TYPE"
 
 if [ "$NET_TYPE" -eq 0 ]; then
 	LOGGER "Clearing DHCP leases"
@@ -78,18 +85,18 @@ else
 fi
 
 OIP=0
-while [ "$(cat "$CIP")" = "0.0.0.0" ] || [ "$(cat "$CIP")" = "" ]; do
+while [ "$(cat "$CURRENT_IP")" = "0.0.0.0" ] || [ "$(cat "$CURRENT_IP")" = "" ]; do
 	LOGGER "Waiting for IP Address"
 	OIP=$((OIP + 1))
-	ip -4 a show dev "$NET_INTERFACE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p' | tr -d '\n' > "$CIP"
+	ip -4 a show dev "$NET_INTERFACE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p' | tr -d '\n' > "$CURRENT_IP"
 	sleep 1
 	if [ $OIP -eq 30 ]; then
-		echo "0.0.0.0" | tr -d '\n' > "$CIP"
+		echo "0.0.0.0" | tr -d '\n' > "$CURRENT_IP"
 		break
 	fi
 done
 
-if [ "$(cat "$CIP")" = "0.0.0.0" ]; then
+if [ "$(cat "$CURRENT_IP")" = "0.0.0.0" ]; then
 	exit
 fi
 

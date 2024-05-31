@@ -1,26 +1,28 @@
 #!/bin/sh
 
 . /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.txt
+CONFIG=/opt/muos/config/config.ini
 
-if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
-	BLBMP=bootlogo-alt
-else
-	BLBMP=bootlogo
-fi
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+STORE_BOOT=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "mount")
+STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+
+BLBMP="/opt/muos/device/$DEVICE/bootlogo.bmp"
 
 THEME=$(parse_ini "$CONFIG" "theme" "name")
 
-THEMEDIR="/opt/muos/theme"
+THEMEDIR="/$STORE_ROM/MUOS/theme/active"
 BOOTLOGO="$THEMEDIR/image/$BLBMP.bmp"
 
-cp "/opt/muos/backup/$BLBMP.bmp" "/mnt/boot/bootlogo.bmp"
+cp "$BLBMP" "/$STORE_BOOT/bootlogo.bmp"
 
 rm -rf "$THEMEDIR"
-unzip "/mnt/mmc/MUOS/theme/$THEME" -d "$THEMEDIR"
+unzip "/$STORE_ROM/MUOS/theme/$THEME" -d "$THEMEDIR"
 
 if [ -f "$BOOTLOGO" ]; then
-	cp "$BOOTLOGO" "/mnt/boot/bootlogo.bmp"
+	cp "$BOOTLOGO" "/$STORE_BOOT/bootlogo.bmp"
 fi
 
 sync

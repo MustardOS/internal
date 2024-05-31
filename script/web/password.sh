@@ -1,16 +1,13 @@
 #!/bin/sh
 
-if [ -z "$1" ]; then
-    echo "Usage: $0 <ssid> <password>"
-    exit 1
-fi
-
-SSID="$1"
-PASS="$2"
+SSID=$(cat "/tmp/net_ssid")
+PASS=$(cat "/tmp/net_pass")
 
 WPA_CONFIG=/etc/wpa_supplicant.conf
 
-/usr/sbin/wpa_passphrase "$SSID" "$PASS" > "$WPA_CONFIG"
+wpa_passphrase "$SSID" "$PASS" > "$WPA_CONFIG"
 
 sed -i '3d' "$WPA_CONFIG"
+
+rm /tmp/net_ssid /tmp/net_pass
 

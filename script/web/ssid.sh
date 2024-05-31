@@ -1,13 +1,18 @@
 #!/bin/sh
 
 . /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.txt
 
-NET_INTERFACE=$(parse_ini "$CONFIG" "network" "interface")
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 
-if ! lsmod | grep -wq 8821cs; then
-    LOGGER "Loading 'rtl8821cs' Kernel Module"
-    insmod /lib/modules/4.9.170/kernel/drivers/net/wireless/rtl8821cs/8821cs.ko
+DEV_MODULE=$(parse_ini "$DEVICE_CONFIG" "network" "module")
+DEV_NAME=$(parse_ini "$DEVICE_CONFIG" "network" "name")
+
+NET_INTERFACE=$(parse_ini "$DEVICE_CONFIG" "network" "iface")
+
+if ! lsmod | grep -wq "$DEV_NAME"; then
+    LOGGER "Loading '$DEV_NAME' Kernel Module"
+    insmod "$DEV_MODULE"
     while ! dmesg | grep -wq "$NET_INTERFACE"; do
         sleep 1
     done

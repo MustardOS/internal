@@ -10,6 +10,13 @@ if [ ! -e "$1" ]; then
 	exit 1
 fi
 
+. /opt/muos/script/system/parse.sh
+
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+
 pkill -STOP muxarchive
 
 /opt/muos/extra/muxlog &
@@ -33,13 +40,13 @@ echo "Inspecting archive..." > /tmp/muxlog_info
 if unzip -l "$1" | awk '$NF ~ /^'"$SCHEME_FOLDER"'\// && $NF ~ /\/'"$SCHEME_FILE"'$/ {print $NF}' | grep -q ""; then
 	echo "Archive contents indicate it is NOT an installable theme file." > /tmp/muxlog_info
     echo "Copying unextracted archive to theme folder." > /tmp/muxlog_info
-	cp -f "$1" "/mnt/mmc/MUOS/theme/"
+	cp -f "$1" "/$STORE_ROM/MUOS/theme/"
 else
 	unzip -o "$1" -d "$MUX_TEMP/" > "$TMP_FILE" 2>&1 &
 
 	C_LINE=""
 	while true; do
-		IS_WORKING=$(ps aux | grep '[u]nzip' | awk '{print $1}')
+		IS_WORKING=$(pgrep -f "unzip")
 
 		if [ -s "$TMP_FILE" ]; then
 			N_LINE=$(tail -n 1 "$TMP_FILE" | sed 's/^[[:space:]]*//')
@@ -83,7 +90,7 @@ echo "Sync Filesystem" > /tmp/muxlog_info
 sync
 
 echo "All Done!" > /tmp/muxlog_info
-touch "/mnt/mmc/MUOS/update/installed/$ARCHIVE_NAME.done"
+touch "/$STORE_ROM/MUOS/update/installed/$ARCHIVE_NAME.done"
 sleep 0.5
 
 killall -q muxlog
@@ -91,3 +98,4 @@ rm -rf "$MUX_TEMP" /tmp/muxlog_*
 
 pkill -CONT muxarchive
 killall -q extract.sh
+

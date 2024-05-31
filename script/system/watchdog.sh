@@ -1,6 +1,6 @@
 #!/bin/sh
 
-WATCH="muaudio mubright mushot musleep"
+WATCH="muaudio mubright mushot"
 
 IS_RUNNING() {
 	pgrep "$1" > /dev/null

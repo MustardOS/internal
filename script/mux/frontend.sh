@@ -52,6 +52,13 @@ KILL_SND() {
 	fi
 }
 
+while true; do
+	if mount | grep -q "/$STORE_ROM"; then
+		break
+	fi
+	sleep 0.25
+done
+
 LAST_PLAY="/opt/muos/config/lastplay.txt"
 STARTUP=$(parse_ini "$CONFIG" "settings.general" "startup")
 if [ "$STARTUP" = last ]; then
@@ -144,7 +151,7 @@ while true; do
 				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
 				if [ "$LOCK" -eq 1 ]; then
 					echo "muxpass" > /tmp/fg_proc
-				        nice --20 /opt/muos/extra/muxpass -t launch
+						nice --20 /opt/muos/extra/muxpass -t launch
 					if [ "$?" = 1 ]; then
 						echo "muxapps" > /tmp/fg_proc
 						nice --20 /opt/muos/extra/muxapps

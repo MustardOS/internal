@@ -72,11 +72,11 @@ if [ "$LOCK" -eq 1 ]; then
 fi
 
 LOGGER "BOOTING" "Starting Storage Watchdog"
-/opt/muos/script/mount/sdcard.sh
-/opt/muos/script/mount/usb.sh
+/opt/muos/script/mount/sdcard.sh &
+/opt/muos/script/mount/usb.sh &
 
 LOGGER "BOOTING" "Running Device Specifics"
-/opt/muos/device/"$DEVICE"/script/start.sh
+/opt/muos/device/"$DEVICE"/script/start.sh &
 
 SUPPORT_HDMI=$(parse_ini "$DEVICE_CONFIG" "device" "hdmi")
 HDMI=$(parse_ini "$CONFIG" "settings.general" "hdmi")

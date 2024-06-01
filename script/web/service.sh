@@ -14,6 +14,7 @@ killall sshd
 killall sftpgo
 killall gotty
 killall syncthing
+killall ntp.sh
 
 SRV_SHELL=$(parse_ini "$CONFIG" "web" "shell")
 if [ "$SRV_SHELL" -eq 1 ]; then
@@ -39,10 +40,6 @@ fi
 
 SRV_NTP=$(parse_ini "$CONFIG" "web" "ntp")
 if [ "$SRV_NTP" -eq 1 ]; then
-	NTP_POOL=$(parse_ini "$CONFIG" "clock" "pool")
-	nice -2 ntpdate -b "$NTP_POOL" > /dev/null &
-	NTP_PID=$!
-	wait $NTP_PID
-	hwclock --systohc
+	nice -2 /opt/muos/script/web/ntp.sh &
 fi
 

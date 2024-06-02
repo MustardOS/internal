@@ -53,13 +53,11 @@ KEY_COMBO=0
 		if [ ! -e $TMP_POWER_LONG ]; then
 			echo on > $TMP_POWER_LONG
 		fi
-		if [ "$(cat $HALL_KEY)" = "1" ]; then
-        		if [ "$(cat $TMP_POWER_LONG)" = "off" ]; then
-	        		echo on > $TMP_POWER_LONG
-	        	else
-	        		echo off > $TMP_POWER_LONG
-	        	fi
-		fi
+		if [ "$(cat $TMP_POWER_LONG)" = "off" ]; then
+        		echo on > $TMP_POWER_LONG
+        	else
+        		echo off > $TMP_POWER_LONG
+        	fi
 		COUNT_POWER_LONG=0
         fi
 

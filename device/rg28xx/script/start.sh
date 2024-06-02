@@ -31,13 +31,6 @@ fi
 DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
 DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 
-FACTORY_RESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
-CHARGER_ONLINE=$(cat /sys/class/power_supply/axp2202-usb/online)
-if [ "$CHARGER_ONLINE" -eq 1 ] && [ "$FACTORY_RESET" -eq 0 ]; then
-	echo powersave > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-	/opt/muos/extra/muxcharge
-fi
-
 insmod /lib/modules/mali_kbase.ko &
 insmod /lib/modules/squashfs.ko &
 

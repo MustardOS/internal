@@ -31,7 +31,7 @@ fi
 
 FACTORY_RESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
 if [ "$FACTORY_RESET" -eq 1 ]; then
-	date 051000002024
+	date 060200002024
 	hwclock -w
 
 	CLOCK_SETUP=$(parse_ini "$CONFIG" "boot" "clock_setup")
@@ -55,12 +55,13 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 		LOGGER "FACTORY RESET" "Generating SSH Host Keys"
 		/opt/openssh/bin/ssh-keygen -A
 	fi
+	
+	LOGGER "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
+	ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
+	ldconfig -v > "/$STORE_ROM/MUOS/log/ldconfig.log"
 fi
 
-hwclock -s &
-
-LOGGER "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
-ldconfig -v > "/$STORE_ROM/MUOS/log/ldconfig.log" &
+/opt/muos/device/"$DEVICE"/script/charge.sh
 
 HAS_UNLOCK=0
 LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")

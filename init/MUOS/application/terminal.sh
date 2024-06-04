@@ -14,8 +14,7 @@ fi
 
 export SDL_HQ_SCALER="$SDL_SCALER"
 
-TERM_DIR="$(pwd)/terminal"
+TERM_DIR="/mnt/mmc/MUOS/emulator/terminal"
 cd "$TERM_DIR"
 
 HOME="$TERM_DIR" SDL_ASSERT=always_ignore ./terminal
-

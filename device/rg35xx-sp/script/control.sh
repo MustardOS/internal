@@ -23,6 +23,13 @@ for RA_CONF in "retroarch.cfg" "retroarch32.cfg"; do
 	fi
 done
 
+# Move DraStic Steward config
+DRSTU_JSON="/$ROM_MOUNT/MUOS/emulator/drastic-steward/resources/settings.json"
+
+if [ ! -f "$DRSTU_JSON" ]; then
+	cp -f "$CONTROL_DIR/drastic-steward.json" "$DRSTU_JSON"
+fi
+
 # Move DraStic configuration
 cp -f "$CONTROL_DIR/drastic.cfg" "/$ROM_MOUNT/MUOS/emulator/drastic/config/drastic.cfg"
 

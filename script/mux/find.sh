@@ -7,7 +7,7 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 
 STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 if [ -d "$STORE_ROM/ROMS" ]; then
-	ROMPATH="/$STORE_ROM/ROMS"
+	ROMPATH="$STORE_ROM/ROMS"
 fi
 
 STORE_SDCARD=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "mount")

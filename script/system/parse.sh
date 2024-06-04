@@ -1,37 +1,11 @@
 #!/bin/sh
 
 parse_ini() {
+	# https://stackoverflow.com/a/40778047
 	INI_FILE="$1"
 	SECTION="$2"
 	KEY="$3"
-	IN_SECTION=0
-
-	while IFS= read -r LINE || [ -n "$LINE" ]; do
-		LINE=$(echo "$LINE" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-
-		[ -z "$LINE" ] && continue
-		FIRST_CHAR=$(echo "$LINE" | cut -c 1)
-		[ "$FIRST_CHAR" = ";" ] && continue
-		[ "$FIRST_CHAR" = "#" ] && continue
-
-		if echo "$LINE" | grep -q '^\['; then
-			CURRENT_SECTION=$(echo "$LINE" | sed 's/^\[\(.*\)\]$/\1/')
-			if [ "$CURRENT_SECTION" = "$SECTION" ]; then
-				IN_SECTION=1
-			else
-				IN_SECTION=0
-			fi
-		elif [ "$IN_SECTION" -eq 1 ]; then
-			LINE_KEY=$(echo "$LINE" | cut -d '=' -f 1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-			LINE_VALUE=$(echo "$LINE" | cut -d '=' -f 2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-			if [ "$LINE_KEY" = "$KEY" ]; then
-				echo "$LINE_VALUE"
-				return 0
-			fi
-		fi
-	done < "$INI_FILE"
-
-	return 1
+	sed -nr "/^\[$SECTION\]/ { :l /^$KEY[ ]*=/ { s/[^=]*=[ ]*//; p; q;}; n; b l;}" "$INI_FILE"
 }
 
 modify_ini() {

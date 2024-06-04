@@ -58,7 +58,7 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 	
 	LOGGER "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
 	ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
-	ldconfig -v > "/$STORE_ROM/MUOS/log/ldconfig.log"
+	ldconfig -v > "$STORE_ROM/MUOS/log/ldconfig.log"
 fi
 
 /opt/muos/device/"$DEVICE"/script/charge.sh
@@ -96,7 +96,7 @@ fi
 /opt/muos/script/system/dotclean.sh &
 /opt/muos/script/system/catalogue.sh &
 
-dmesg > "/$STORE_ROM/MUOS/log/dmesg/dmesg__${CURRENT_DATE}.log" &
+dmesg > "$STORE_ROM/MUOS/log/dmesg/dmesg__${CURRENT_DATE}.log" &
 
 chown -R root:root /opt &
 chmod -R 755 /opt &
@@ -105,7 +105,7 @@ echo 2 > /proc/sys/abi/cp15_barrier &
 
 VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")
 if [ "$VERBOSE" -eq 1 ]; then
-	cp "$MUOSBOOT_LOG" "/$STORE_ROM/MUOS/log/boot/."
+	cp "$MUOSBOOT_LOG" "$STORE_ROM/MUOS/log/boot/."
 fi
 
 FACTORY_RESET=$(parse_ini "$CONFIG" "boot" "factory_reset")

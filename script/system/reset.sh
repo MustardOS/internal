@@ -35,7 +35,7 @@ EOF
 fi
 }
 
-umount /"$ROM_MOUNT"
+umount "$ROM_MOUNT"
 
 LOGGER "FACTORY RESET" "Expanding ROM Partition"
 printf "w\nw\n" | fdisk /dev/"$ROM_DEVICE"
@@ -57,7 +57,7 @@ parted ---pretend-input-tty /dev/"$ROM_DEVICE" set "$ROM_PARTITION" boot off
 parted ---pretend-input-tty /dev/"$ROM_DEVICE" set "$ROM_PARTITION" hidden off
 
 LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
-mount -t "$ROM_TYPE" /dev/"$ROM_DEVICE"p"$ROM_PARTITION" /"$ROM_MOUNT"
+mount -t "$ROM_TYPE" /dev/"$ROM_DEVICE"p"$ROM_PARTITION" "$ROM_MOUNT"
 
 RSRF="Restoring ROM Filesystem"
 LOGGER "FACTORY RESET" "$RSRF"
@@ -66,7 +66,7 @@ if [ "$SUPPORT_PORTMASTER" -eq 0 ]; then
 	rm -rf /opt/muos/init/MUOS/PortMaster
 fi
 
-mv /opt/muos/init/* /"$ROM_MOUNT"/ &
+mv /opt/muos/init/* "$ROM_MOUNT"/ &
 
 while true; do
 	IS_WORKING=$(pgrep -f "mv")
@@ -114,10 +114,10 @@ EXTRACT_ARCHIVE() {
 	rm /tmp/mux_archive.zip
 }
 
-EXTRACT_ARCHIVE "/opt/muos/archive/libretro/libretro.zip" "/$ROM_MOUNT/MUOS/core/" "Libretro Cores"
+EXTRACT_ARCHIVE "/opt/muos/archive/libretro/libretro.zip" "$ROM_MOUNT/MUOS/core/" "Libretro Cores"
 
 if [ "$SUPPORT_PORTMASTER" -eq 1 ]; then
-	EXTRACT_ARCHIVE "/opt/muos/archive/portmaster/portmaster.zip" "/$ROM_MOUNT/MUOS/PortMaster/" "PortMaster"
+	EXTRACT_ARCHIVE "/opt/muos/archive/portmaster/portmaster.zip" "$ROM_MOUNT/MUOS/PortMaster/" "PortMaster"
 fi
 
 EXTRACT_ARCHIVE "/opt/muos/archive/soundfont/soundfont.zip" "/usr/share/soundfonts/" "Soundfonts"

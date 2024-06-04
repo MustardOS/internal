@@ -53,7 +53,7 @@ KILL_SND() {
 }
 
 while true; do
-	if mount | grep -q "/$STORE_ROM"; then
+	if mount | grep -q "$STORE_ROM"; then
 		break
 	fi
 	sleep 0.25
@@ -72,24 +72,26 @@ fi
 
 while true; do
 	# Background Music
-	BGM_SOUND=$(parse_ini "$CONFIG" "settings.general" "bgm")
-	if [ "$BGM_SOUND" -eq 1 ]; then
-		if ! pgrep -f "playbgm.sh" > /dev/null; then
-			/opt/muos/script/mux/playbgm.sh
+	if [ -s "/tmp/muos_snd_bgm" ]; then
+		if [ "$(cat /tmp/muos_snd_bgm)" -eq 1 ]; then
+			if ! pgrep -f "playbgm.sh" > /dev/null; then
+				/opt/muos/script/mux/playbgm.sh
+			fi
+		else
+			KILL_BGM
 		fi
-	else
-		KILL_BGM
 	fi
 
 	# Navigation Sounds
-	NAV_SOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-	if [ "$NAV_SOUND" -eq 1 ]; then
-		if ! pgrep -f "muplay" > /dev/null; then
-			mkfifo "$SND_PIPE"
-			/opt/muos/bin/muplay "$SND_PIPE" &
+	if [ -s "/tmp/muos_snd_nav" ]; then
+		if [ "$(cat /tmp/muos_snd_nav)" -eq 1 ]; then
+			if ! pgrep -f "muplay" > /dev/null; then
+				mkfifo "$SND_PIPE"
+				/opt/muos/bin/muplay "$SND_PIPE" &
+			fi
+		else
+			KILL_SND
 		fi
-	else
-		KILL_SND
 	fi
 
 	# Core Association
@@ -102,7 +104,9 @@ while true; do
 	fi
 
 	# Content Loader
-	/opt/muos/script/mux/launch.sh
+	if [ -s "$ROM_GO" ]; then
+		/opt/muos/script/mux/launch.sh
+	fi
 
 	# Get Last ROM Index
 	if [ "$(cat $ACT_GO)" = explore ] || [ "$(cat $ACT_GO)" = favourite ] || [ "$(cat $ACT_GO)" = history ]; then
@@ -118,18 +122,18 @@ while true; do
 	killall -q gptokeyb.armhf
 	killall -q gptokeyb.aarch64
 
-	if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
-		export SDL_HQ_SCALER=1
-	fi
-
 	# muX Programs
 	if [ -s "$ACT_GO" ]; then
 		case "$(cat $ACT_GO)" in
 			"launcher")
+				echo "muOS: muxlaunch start" > /dev/kmsg
 				echo launcher > $ACT_GO
-				rm "$MUX_AUTH"
+				if [ -s "$MUX_AUTH" ]; then
+					rm "$MUX_AUTH"
+				fi
 				echo "muxlaunch" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxlaunch
+				echo "muOS: muxlaunch end" > /dev/kmsg
 				;;
 			"assign")
 				echo explore > $ACT_GO
@@ -162,6 +166,7 @@ while true; do
 				fi
 				;;
 			"config")
+				echo "muOS: muxconfig start" > /dev/kmsg
 				echo launcher > $ACT_GO
 				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
 				if [ "$LOCK" -eq 1 ]; then
@@ -181,6 +186,7 @@ while true; do
 					echo "muxconfig" > /tmp/fg_proc
 					nice --20 /opt/muos/extra/muxconfig
 				fi
+				echo "muOS: muxconfig end" > /dev/kmsg
 				;;
 			"info")
 				echo launcher > $ACT_GO
@@ -294,7 +300,7 @@ while true; do
 				nice --20 /opt/muos/extra/muxprofile
 				;;
 			"favourite")
-				find /"$STORE_ROM"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
+				find "$STORE_ROM"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
 				echo "muxplore" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m favourite
@@ -306,7 +312,7 @@ while true; do
 				fi
 				;;
 			"history")
-				find /"$STORE_ROM"/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
+				find "$STORE_ROM"/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
 				echo "muxplore" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i 0 -m history
@@ -323,7 +329,7 @@ while true; do
 				echo apps > $ACT_GO
 				export HOME=/root
 				echo "python3" > /tmp/fg_proc
-				nice --20 /"$STORE_ROM"/MUOS/PortMaster/PortMaster.sh
+				nice --20 "$STORE_ROM"/MUOS/PortMaster/PortMaster.sh
 				;;
 			"retro")
 				KILL_BGM
@@ -331,7 +337,7 @@ while true; do
 				echo apps > $ACT_GO
 				export HOME=/root
 				echo "retroarch" > /tmp/fg_proc
-				nice --20 retroarch -c /"$STORE_ROM/MUOS/retroarch/retroarch.cfg"
+				nice --20 retroarch -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg"
 				;;
 			"dingux")
 				KILL_BGM
@@ -339,7 +345,7 @@ while true; do
 				echo apps > $ACT_GO
 				export HOME=/root
 				echo "dingux" > /tmp/fg_proc
-				nice --20 /"$STORE_ROM/MUOS/application/dingux.sh"
+				nice --20 "$STORE_ROM/MUOS/application/dingux.sh"
 				;;
 			"gmu")
 				KILL_BGM
@@ -347,7 +353,7 @@ while true; do
 				echo apps > $ACT_GO
 				export HOME=/root
 				echo "gmu" > /tmp/fg_proc
-				nice --20 /"$STORE_ROM/MUOS/application/gmu.sh"
+				nice --20 "$STORE_ROM/MUOS/application/gmu.sh"
 				;;
 			"terminal")
 				KILL_BGM
@@ -355,7 +361,7 @@ while true; do
 				echo apps > $ACT_GO
 				export HOME=/root
 				echo "terminal" > /tmp/fg_proc
-				nice --20 /"$STORE_ROM/MUOS/application/terminal.sh"
+				nice --20 "$STORE_ROM/MUOS/application/terminal.sh"
 				;;
 			"shuffle")
 				echo launcher > $ACT_GO

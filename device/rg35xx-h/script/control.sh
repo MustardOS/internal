@@ -27,7 +27,7 @@ done
 DRSTU_JSON="/$ROM_MOUNT/MUOS/emulator/drastic-steward/resources/settings.json"
 
 if [ ! -f "$DRSTU_JSON" ]; then
-	cp -f "$CONTROL_DIR/settings.json" "$DRSTU_JSON"
+	cp -f "$CONTROL_DIR/drastic-steward.json" "$DRSTU_JSON"
 fi
 
 # Move DraStic configuration

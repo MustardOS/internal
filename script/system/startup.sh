@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# We need to ensure that config.ini is readable before we continue
+if [ -s "/opt/muos/config/config.ini" ]; then
+	LOGGER "BOOTING" "Config Check Passed"
+else
+	LOGGER "BOOTING" "Config Check Failed: Restoring"
+	cp -f "/opt/muos/config/config.bak" "/opt/muos/config/config.ini"
+fi
+
 . /opt/muos/script/system/parse.sh
 CONFIG=/opt/muos/config/config.ini
 
@@ -55,10 +63,6 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 		LOGGER "FACTORY RESET" "Generating SSH Host Keys"
 		/opt/openssh/bin/ssh-keygen -A
 	fi
-	
-	LOGGER "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
-	ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
-	ldconfig -v > "$STORE_ROM/MUOS/log/ldconfig.log"
 fi
 
 /opt/muos/device/"$DEVICE"/script/charge.sh
@@ -70,6 +74,12 @@ if [ "$LOCK" -eq 1 ]; then
 		nice --20 /opt/muos/extra/muxpass -t boot
 		HAS_UNLOCK="$?"
 	done
+fi
+
+if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
+	LOGGER "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
+	ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
+	ldconfig -v > "$STORE_ROM/MUOS/log/ldconfig.log"
 fi
 
 LOGGER "BOOTING" "Starting Storage Watchdog"
@@ -118,6 +128,8 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 
 	/opt/muos/extra/muxkofi
 fi
+
+/opt/muos/script/mux/configbackup.sh &
 
 /opt/muos/script/mux/frontend.sh &
 

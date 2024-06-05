@@ -10,9 +10,6 @@ STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 MP3_DIR="$STORE_ROM/MUOS/music"
 
 while true; do
-	BGM_SOUND=$(parse_ini "$CONFIG" "settings.general" "bgm")
-	echo "$BGM_SOUND" > /tmp/muos_snd_bgm
-
 	cd "$MP3_DIR" || exit 1
 	MP3_FILES=$(find . -maxdepth 1 -type f -name "*.mp3")
 
@@ -24,6 +21,6 @@ while true; do
 		/opt/muos/bin/mp3play "$MP3_SELECT"
 	fi
 
-	sleep 3
+	sleep 2
 done &
 

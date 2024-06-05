@@ -72,26 +72,24 @@ fi
 
 while true; do
 	# Background Music
-	if [ -s "/tmp/muos_snd_bgm" ]; then
-		if [ "$(cat /tmp/muos_snd_bgm)" -eq 1 ]; then
-			if ! pgrep -f "playbgm.sh" > /dev/null; then
-				/opt/muos/script/mux/playbgm.sh
-			fi
-		else
-			KILL_BGM
+	BGM_SOUND=$(parse_ini "$CONFIG" "settings.general" "bgm")
+	if [ "$BGM_SOUND" -eq 1 ]; then
+		if ! pgrep -f "playbgm.sh" > /dev/null; then
+			/opt/muos/script/mux/playbgm.sh
 		fi
+	else
+		KILL_BGM
 	fi
 
 	# Navigation Sounds
-	if [ -s "/tmp/muos_snd_nav" ]; then
-		if [ "$(cat /tmp/muos_snd_nav)" -eq 1 ]; then
-			if ! pgrep -f "muplay" > /dev/null; then
-				mkfifo "$SND_PIPE"
-				/opt/muos/bin/muplay "$SND_PIPE" &
-			fi
-		else
-			KILL_SND
+	NAV_SOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
+	if [ "$NAV_SOUND" -eq 1 ]; then
+		if ! pgrep -f "muplay" > /dev/null; then
+			mkfifo "$SND_PIPE"
+			/opt/muos/bin/muplay "$SND_PIPE" &
 		fi
+	else
+		KILL_SND
 	fi
 
 	# Core Association

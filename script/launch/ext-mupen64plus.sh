@@ -26,6 +26,9 @@ echo "mupen64plus" > /tmp/fg_proc
 if [ "$(cat /opt/muos/config/device.txt)" = "RG28XX" ]; then
 	export SDL_HQ_SCALER=1
 	export SDL_ROTATION=1
+	fbset -fb /dev/fb0 -g 240 320 240 640 32
+else
+	fbset -fb /dev/fb0 -g 320 240 320 480 32
 fi
 
 EMUDIR="$STORE_ROM/MUOS/emulator/mupen64plus"
@@ -44,7 +47,7 @@ fi
 chmod +x "$EMUDIR"/mupen64plus
 cd "$EMUDIR" || exit
 
-fbset -fb /dev/fb0 -g 320 240 320 480 32
+
 
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$ROM"
 

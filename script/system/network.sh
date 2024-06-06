@@ -57,7 +57,7 @@ fi
 
 if ! lsmod | grep -wq "$DEV_NAME"; then
     LOGGER "Loading '$DEV_NAME' Kernel Module"
-    "${DEV_LOAD}" "$DEV_MODULE"
+    ${DEV_LOAD} "$DEV_MODULE"
     while ! dmesg | grep -wq "$NET_INTERFACE"; do
         sleep 1
     done

@@ -24,6 +24,7 @@ fi
 DEV_MODULE=$(parse_ini "$DEVICE_CONFIG" "network" "module")
 DEV_NAME=$(parse_ini "$DEVICE_CONFIG" "network" "name")
 DEV_TYPE=$(parse_ini "$DEVICE_CONFIG" "network" "type")
+DEV_LOAD=$(parse_ini "$DEVICE_CONFIG" "network" "modload")
 
 NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
 NET_INTERFACE=$(parse_ini "$DEVICE_CONFIG" "network" "iface")
@@ -56,7 +57,7 @@ fi
 
 if ! lsmod | grep -wq "$DEV_NAME"; then
     LOGGER "Loading '$DEV_NAME' Kernel Module"
-    insmod "$DEV_MODULE"
+    "${DEV_LOAD}" "$DEV_MODULE"
     while ! dmesg | grep -wq "$NET_INTERFACE"; do
         sleep 1
     done

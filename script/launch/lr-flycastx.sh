@@ -21,9 +21,9 @@ export SDL_HQ_SCALER="$SDL_SCALER"
 export SDL_ROTATION="$SDL_ROTATE"
 export SDL_BLITTER_DISABLED="$SDL_BLITTER"
 
-export LD_LIBRARY_PATH=/usr/lib32
-
 echo "retroarch32" > /tmp/fg_proc
 
-retroarch32 -v -f -c "$STORE_ROM/MUOS/retroarch/retroarch32.cfg" -L "$STORE_ROM/MUOS/core32/$CORE" "$ROM"
+ldconfig
+
+LD_LIBRARY_PATH=/usr/lib32 retroarch32 -v -f -c "$STORE_ROM/MUOS/retroarch/retroarch32.cfg" -L "$STORE_ROM/MUOS/core32/$CORE" "$ROM"
 

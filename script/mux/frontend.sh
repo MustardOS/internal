@@ -9,6 +9,7 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 
 ACT_GO=/tmp/act_go
+APP_GO=/tmp/app_go
 ASS_GO=/tmp/ass_go
 ROM_GO=/tmp/rom_go
 
@@ -106,6 +107,12 @@ while true; do
 		/opt/muos/script/mux/launch.sh
 	fi
 
+	# Application Loader
+	if [ -s "$APP_GO" ]; then
+		. "$(cat $APP_GO)"
+		rm "$APP_GO"
+	fi
+
 	# Get Last ROM Index
 	if [ "$(cat $ACT_GO)" = explore ] || [ "$(cat $ACT_GO)" = favourite ] || [ "$(cat $ACT_GO)" = history ]; then
 		if [ -s "/tmp/mux_lastindex_rom" ]; then
@@ -124,14 +131,12 @@ while true; do
 	if [ -s "$ACT_GO" ]; then
 		case "$(cat $ACT_GO)" in
 			"launcher")
-				echo "muOS: muxlaunch start" > /dev/kmsg
 				echo launcher > $ACT_GO
 				if [ -s "$MUX_AUTH" ]; then
 					rm "$MUX_AUTH"
 				fi
 				echo "muxlaunch" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxlaunch
-				echo "muOS: muxlaunch end" > /dev/kmsg
 				;;
 			"assign")
 				echo explore > $ACT_GO
@@ -148,23 +153,22 @@ while true; do
 				echo "muxplore" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m "$MODULE"
 				;;
-			"apps")
+			"app")
 				echo launcher > $ACT_GO
 				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
 				if [ "$LOCK" -eq 1 ]; then
 					echo "muxpass" > /tmp/fg_proc
 						nice --20 /opt/muos/extra/muxpass -t launch
 					if [ "$?" = 1 ]; then
-						echo "muxapps" > /tmp/fg_proc
-						nice --20 /opt/muos/extra/muxapps
+						echo "muxapp" > /tmp/fg_proc
+						nice --20 /opt/muos/extra/muxapp
 					fi
 				else
-					echo "muxapps" > /tmp/fg_proc
-					nice --20 /opt/muos/extra/muxapps
+					echo "muxapp" > /tmp/fg_proc
+					nice --20 /opt/muos/extra/muxapp
 				fi
 				;;
 			"config")
-				echo "muOS: muxconfig start" > /dev/kmsg
 				echo launcher > $ACT_GO
 				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
 				if [ "$LOCK" -eq 1 ]; then
@@ -184,7 +188,6 @@ while true; do
 					echo "muxconfig" > /tmp/fg_proc
 					nice --20 /opt/muos/extra/muxconfig
 				fi
-				echo "muOS: muxconfig end" > /dev/kmsg
 				;;
 			"info")
 				echo launcher > $ACT_GO
@@ -200,11 +203,6 @@ while true; do
 				echo tweakgen > $ACT_GO
 				echo "muxtweakadv" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxtweakadv
-				;;
-			"archive")
-				echo apps > $ACT_GO
-				echo "muxarchive" > /tmp/fg_proc
-				nice --20 /opt/muos/extra/muxarchive
 				;;
 			"theme")
 				echo config > $ACT_GO
@@ -241,41 +239,10 @@ while true; do
 				echo "muxtimezone" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxtimezone
 				;;
-			"import")
-				echo config > $ACT_GO
-				echo "muximport" > /tmp/fg_proc
-				nice --20 /opt/muos/extra/muximport
-				;;
-			"tracker")
-				echo info > $ACT_GO
-				echo "muxtracker" > /tmp/fg_proc
-				nice --20 /opt/muos/extra/muxtracker -m "$MSG_SUPPRESS"
-				if [ -s "$MUX_RELOAD" ]; then
-					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
-						echo tracker > $ACT_GO
-					fi
-					rm "$MUX_RELOAD"
-				fi
-				;;
-			"sdcard")
-				echo config > $ACT_GO
-				echo "muxsdtool" > /tmp/fg_proc
-				nice --20 /opt/muos/extra/muxsdtool
-				;;
 			"tester")
 				echo info > $ACT_GO
 				echo "muxtester" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxtester
-				;;
-			"bios")
-				echo config > $ACT_GO
-				echo "muxbioscheck" > /tmp/fg_proc
-				nice --20 /opt/muos/extra/muxbioscheck
-				;;
-			"backup")
-				echo apps > $ACT_GO
-				echo "muxbackup" > /tmp/fg_proc
-				nice --20 /opt/muos/extra/muxbackup
 				;;
 			"reset")
 				echo config > $ACT_GO
@@ -291,11 +258,6 @@ while true; do
 				echo info > $ACT_GO
 				echo "muxsysinfo" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxsysinfo
-				;;
-			"profile")
-				echo launcher > $ACT_GO
-				echo "muxprofile" > /tmp/fg_proc
-				nice --20 /opt/muos/extra/muxprofile
 				;;
 			"favourite")
 				find "$STORE_ROM"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
@@ -320,51 +282,6 @@ while true; do
 					fi
 					rm "$MUX_RELOAD"
 				fi
-				;;
-			"portmaster")
-				KILL_BGM
-				KILL_SND
-				echo apps > $ACT_GO
-				export HOME=/root
-				echo "python3" > /tmp/fg_proc
-				nice --20 "$STORE_ROM"/MUOS/PortMaster/PortMaster.sh
-				;;
-			"retro")
-				KILL_BGM
-				KILL_SND
-				echo apps > $ACT_GO
-				export HOME=/root
-				echo "retroarch" > /tmp/fg_proc
-				nice --20 retroarch -c "$STORE_ROM/MUOS/retroarch/retroarch.cfg"
-				;;
-			"dingux")
-				KILL_BGM
-				KILL_SND
-				echo apps > $ACT_GO
-				export HOME=/root
-				echo "dingux" > /tmp/fg_proc
-				nice --20 "$STORE_ROM/MUOS/application/dingux.sh"
-				;;
-			"gmu")
-				KILL_BGM
-				KILL_SND
-				echo apps > $ACT_GO
-				export HOME=/root
-				echo "gmu" > /tmp/fg_proc
-				nice --20 "$STORE_ROM/MUOS/application/gmu.sh"
-				;;
-			"terminal")
-				KILL_BGM
-				KILL_SND
-				echo apps > $ACT_GO
-				export HOME=/root
-				echo "terminal" > /tmp/fg_proc
-				nice --20 "$STORE_ROM/MUOS/application/terminal.sh"
-				;;
-			"shuffle")
-				echo launcher > $ACT_GO
-				echo "muxshuffle" > /tmp/fg_proc
-				nice --20 /opt/muos/extra/muxshuffle
 				;;
 			"credits")
 				echo info > $ACT_GO

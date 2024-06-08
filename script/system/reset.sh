@@ -116,8 +116,6 @@ EXTRACT_ARCHIVE() {
 
 EXTRACT_ARCHIVE "/opt/muos/archive/libretro/libretro.zip" "$ROM_MOUNT/MUOS/core/" "Libretro Cores"
 
-EXTRACT_ARCHIVE "/opt/muos/archive/cheats/cheats.zip" "$ROM_MOUNT/MUOS/retroarch/cheats/" "Libretro Cheats"
-
 if [ "$SUPPORT_PORTMASTER" -eq 1 ]; then
 	EXTRACT_ARCHIVE "/opt/muos/archive/portmaster/portmaster.zip" "$ROM_MOUNT/MUOS/PortMaster/" "PortMaster"
 fi

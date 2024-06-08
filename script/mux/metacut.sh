@@ -6,7 +6,12 @@ if [ "$#" -ne 1 ]; then
 fi
 
 . /opt/muos/script/system/parse.sh
-SCHEME=/opt/muos/theme/scheme/default.txt
+
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+SCHEME="$STORE_ROM/MUOS/theme/active/scheme/default.txt"
 
 METACUT=$(parse_ini "$SCHEME" "meta" "META_CUT")
 

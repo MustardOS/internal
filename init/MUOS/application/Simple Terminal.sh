@@ -28,7 +28,5 @@ cd "$TERM_DIR" || exit
 
 echo "terminal" > /tmp/fg_proc
 
-ldconfig
-
 LD_LIBRARY_PATH=/usr/lib32 HOME="$TERM_DIR" SDL_ASSERT=always_ignore ./terminal
 

@@ -1,5 +1,12 @@
 #!/bin/sh
 
+if [ "$#" -ne 1 ]; then
+	echo "Usage: $0 <theme>"
+	exit 1
+fi
+
+THEME="$1"
+
 . /opt/muos/script/system/parse.sh
 CONFIG=/opt/muos/config/config.ini
 
@@ -10,8 +17,6 @@ STORE_BOOT=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "mount")
 STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 
 BLBMP="/opt/muos/device/$DEVICE/bootlogo.bmp"
-
-THEME=$(parse_ini "$CONFIG" "theme" "name")
 
 THEMEDIR="$STORE_ROM/MUOS/theme/active"
 BOOTLOGO="$THEMEDIR/image/$BLBMP.bmp"

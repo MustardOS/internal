@@ -24,6 +24,6 @@ modify_ini() {
 		return 1
 	fi
 
-	sed -i "/^\[$SECTION\]/,/^\[/ s/^$KEY[ ]*=.*/$KEY=$NEW_VALUE/" "$INI_FILE"
+	sed -i "/^\[$SECTION\]/,/^\[/ s|^$KEY[ ]*=.*|$KEY=$NEW_VALUE|" "$INI_FILE"
 }
 

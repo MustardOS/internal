@@ -82,7 +82,7 @@ UPDATE_SCRIPT=/opt/update.sh
 if [ -s "$UPDATE_SCRIPT" ]; then
 	echo "Running Update Script" > /tmp/muxlog_info
 	chmod 755 "$UPDATE_SCRIPT"
-	."$UPDATE_SCRIPT"
+	${UPDATE_SCRIPT}
 	rm "$UPDATE_SCRIPT"
 fi
 

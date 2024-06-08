@@ -244,11 +244,6 @@ while true; do
 				echo "muxtester" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxtester
 				;;
-			"reset")
-				echo config > $ACT_GO
-				echo "muxreset" > /tmp/fg_proc
-				nice --20 /opt/muos/extra/muxreset
-				;;
 			"device")
 				echo config > $ACT_GO
 				echo "muxdevice" > /tmp/fg_proc

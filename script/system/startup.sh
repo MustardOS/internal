@@ -76,11 +76,12 @@ if [ "$LOCK" -eq 1 ]; then
 	done
 fi
 
+LOGGER "BOOTING" "Setting ARMhf Requirements"
 if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
 	LOGGER "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
 	ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
-	ldconfig -v > "$STORE_ROM/MUOS/log/ldconfig.log"
 fi
+ldconfig -v > "$STORE_ROM/MUOS/log/ldconfig.log"
 
 LOGGER "BOOTING" "Starting Storage Watchdog"
 /opt/muos/script/mount/sdcard.sh &

@@ -78,6 +78,9 @@ elif [ "$CORE" = ext-amiberry ]; then
 # Flycast External
 elif [ "$CORE" = ext-flycast ]; then
     	/opt/muos/script/launch/ext-flycast.sh "$NAME" "$CORE" "$ROM"
+# Video Player (ffplay)
+elif [ "$CORE" = ext-ffplay ]; then
+        /opt/muos/script/launch/ext-ffplay.sh "$NAME" "$CORE" "$ROM"
 # PPSSPP External
 elif [ "$CORE" = ext-ppsspp ]; then
     	/opt/muos/script/launch/ext-ppsspp.sh "$NAME" "$CORE" "$ROM"

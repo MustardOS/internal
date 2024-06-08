@@ -691,6 +691,8 @@
     "watara supervision": "watara supervision.ini",
     "supervision": "watara supervision.ini",
     "watara - supervision": "watara supervision.ini",
+    "wasm4": "wasm-4.ini",
+    "wasm-4": "wasm-4.ini",
     "ecwolf": "wolfenstein 3d.ini",
     "wolfenstein 3d": "wolfenstein 3d.ini",
     "wolfenstein": "wolfenstein 3d.ini"

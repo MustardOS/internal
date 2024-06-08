@@ -15,7 +15,9 @@ if [ "$CHARGER_ONLINE" -eq 1 ] && [ "$FACTORY_RESET" -eq 0 ]; then
 	ROM_TYPE=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "type")
 	mount -t "$ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$ROM_DEV"p"$ROM_NUM" /"$ROM_MNT"
 
-	echo powersave > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+	GOVERNOR=$(parse_ini "$DEVICE_CONFIG" "cpu" "governor")
+	echo powersave > "$GOVERNOR"
+
 	/opt/muos/extra/muxcharge
 
 	umount /"$ROM_MNT"

@@ -35,7 +35,7 @@ insmod /lib/modules/mali_kbase.ko &
 insmod /lib/modules/squashfs.ko &
 
 GOVERNOR=$(parse_ini "$DEVICE_CONFIG" "cpu" "governor")
-echo performance > "$GOVERNOR"
+echo schedutil > "$GOVERNOR"
 
 BOOT_DEV=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "dev")
 BOOT_NUM=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "num")

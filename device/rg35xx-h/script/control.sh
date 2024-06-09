@@ -16,7 +16,7 @@ for GCDB_DIR in "/usr/lib32" "/usr/lib"; do
 done
 
 # Move RetroArch configurations
-for RA_CONF in "retroarch.cfg" "retroarch32.cfg"; do
+for RA_CONF in "retroarch.cfg"; do
 	DEST_CONF="/$ROM_MOUNT/MUOS/retroarch/$RA_CONF"
 	if [ ! -f "$DEST_CONF" ]; then
 		cp "$CONTROL_DIR/$RA_CONF" "$DEST_CONF"

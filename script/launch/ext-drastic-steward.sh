@@ -21,6 +21,8 @@ export SDL_HQ_SCALER="$SDL_SCALER"
 export SDL_ROTATION="$SDL_ROTATE"
 export SDL_BLITTER_DISABLED="$SDL_BLITTER"
 
+echo "drastic" > /tmp/fg_proc
+
 EMUDIR="$STORE_ROM/MUOS/emulator/drastic-steward"
 
 chmod +x "$EMUDIR"/launch.sh

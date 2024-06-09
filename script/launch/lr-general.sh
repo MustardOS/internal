@@ -11,6 +11,10 @@ SDL_SCALER=$(parse_ini "$DEVICE_CONFIG" "sdl" "scaler")
 SDL_ROTATE=$(parse_ini "$DEVICE_CONFIG" "sdl" "rotation")
 SDL_BLITTER=$(parse_ini "$DEVICE_CONFIG" "sdl" "blitter_disabled")
 
+if echo "$CORE" | grep -q "flycast"; then
+    export SDL_NO_SIGNAL_HANDLERS=1
+fi
+
 NAME=$1
 CORE=$2
 ROM=$3

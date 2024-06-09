@@ -16,18 +16,21 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 STORE_BOOT=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "mount")
 STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 
-BLBMP="/opt/muos/device/$DEVICE/bootlogo.bmp"
-
 THEMEDIR="$STORE_ROM/MUOS/theme/active"
-BOOTLOGO="$THEMEDIR/image/$BLBMP.bmp"
 
-cp "$BLBMP" "$STORE_BOOT/bootlogo.bmp"
+BOOTLOGO_DEF="/opt/muos/device/$DEVICE/bootlogo.bmp"
+BOOTLOGO_NEW="$THEMEDIR/image/bootlogo.bmp"
+
+cp "$BOOTLOGO_DEF" "$STORE_BOOT/bootlogo.bmp"
 
 rm -rf "$THEMEDIR"
 unzip "$STORE_ROM/MUOS/theme/$THEME" -d "$THEMEDIR"
 
-if [ -f "$BOOTLOGO" ]; then
-	cp "$BOOTLOGO" "$STORE_BOOT/bootlogo.bmp"
+if [ -f "$BOOTLOGO_NEW" ]; then
+	cp "$BOOTLOGO_NEW" "$STORE_BOOT/bootlogo.bmp"
+	if [ "$DEVICE" = "rg28xx" ]; then
+		convert "$STORE_BOOT/bootlogo.bmp" -rotate 90
+	fi
 fi
 
 sync

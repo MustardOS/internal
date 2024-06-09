@@ -34,20 +34,21 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 insmod /lib/modules/mali_kbase.ko &
 insmod /lib/modules/squashfs.ko &
 
-GOVERNOR=$(parse_ini "$DEVICE_CONFIG" "cpu" "governor")
-echo schedutil > "$GOVERNOR"
+GOVERNOR_TYPE=$(parse_ini "$DEVICE_CONFIG" "cpu" "default")
+GOVERNOR_FILE=$(parse_ini "$DEVICE_CONFIG" "cpu" "governor")
+echo "$GOVERNOR_TYPE" > "$GOVERNOR_FILE"
 
 BOOT_DEV=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "dev")
 BOOT_NUM=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "num")
 BOOT_MNT=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "mount")
 BOOT_TYPE=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "type")
-mount -t "$BOOT_TYPE" -o rw,utf8,noatime,nofail /dev/"$BOOT_DEV"p"$BOOT_NUM" /"$BOOT_MNT"
+mount -t "$BOOT_TYPE" -o rw,utf8,noatime,nofail /dev/"$BOOT_DEV"p"$BOOT_NUM" "$BOOT_MNT"
 
 ROM_DEV=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "dev")
 ROM_NUM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "num")
 ROM_MNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 ROM_TYPE=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "type")
-mount -t "$ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$ROM_DEV"p"$ROM_NUM" /"$ROM_MNT"
+mount -t "$ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$ROM_DEV"p"$ROM_NUM" "$ROM_MNT"
 
 USE_DEBUGFS=$(parse_ini "$DEVICE_CONFIG" "device" "debugfs")
 if [ "$USE_DEBUGFS" -eq 1 ]; then

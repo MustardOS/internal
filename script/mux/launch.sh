@@ -135,10 +135,10 @@ cat /dev/zero > "$(parse_ini "$DEVICE_CONFIG" "screen" "device")" 2>/dev/null
 killall -q "$GPTOKEYB_BIN"
 killall -q "$EVSIEVE_BIN"
 
-if [ "$(cat /opt/muos/config/device.txt)" != "RG28XX" ]; then
-	fbset -fb /dev/fb0 -g 640 480 640 960 32
-else
+if [ "$DEVICE" = "rg28xx" ]; then
 	fbset -fb /dev/fb0 -g 480 640 480 1280 32
+else
+	fbset -fb /dev/fb0 -g 640 480 640 960 32
 fi
 
 pkill -CONT "$SUSPEND_APP"

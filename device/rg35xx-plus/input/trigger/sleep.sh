@@ -17,7 +17,7 @@ while true; do
 	SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 	SLEEP_TIMER_VAL=$(cat "$SLEEP_TIMER")
 
-	if [ "$SLEEP_STATE_VAL" = "sleep-open" ] || [ "$SLEEP_STATE_VAL" = "sleep-closed" ]; then
+	if [ "$SLEEP_STATE_VAL" = "sleep" ]; then
 		SLEEP_TIMER_VAL=$(($SLEEP_TIMER_VAL + 1))
 		echo "$SLEEP_TIMER_VAL" > "$SLEEP_TIMER"
 	else

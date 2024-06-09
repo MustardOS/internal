@@ -69,6 +69,8 @@ LED=$(parse_ini "$CONFIG" "settings.advanced" "led")
 echo "$LED" > "$(parse_ini "$DEVICE_CONFIG" "device" "led")"
 echo "$LED" > /tmp/work_led_state
 
+cat "$ROM_LAST" > "$LAST_PLAY"
+
 # External Script
 if [ "$CORE" = external ]; then
 	/opt/muos/script/launch/ext-general.sh "$NAME" "$CORE" "$ROM"
@@ -127,8 +129,6 @@ echo explore > "$ACT_GO"
 # Do it twice, it's just as nice!
 cat /dev/zero > "$(parse_ini "$DEVICE_CONFIG" "screen" "device")" 2>/dev/null
 cat /dev/zero > "$(parse_ini "$DEVICE_CONFIG" "screen" "device")" 2>/dev/null
-
-cat "$ROM_LAST" > "$LAST_PLAY"
 
 [ "$(cat "$ACT_GO")" = last ] && echo launcher > "$ACT_GO"
 

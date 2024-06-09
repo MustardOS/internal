@@ -33,7 +33,7 @@ while true; do
 			pkill -CONT "$FG_PROC_VAL"
 			if [ "$FG_PROC_VAL" = "retroarch" ]; then
 				pkill "$FG_PROC_VAL"
-                sleep 1  # leave some time for launch.sh to finish some tasks
+				sleep 1
 			fi
 		fi
 		$MUSHUTDOWN_CMD >> "$LOG_FILE" 2>&1

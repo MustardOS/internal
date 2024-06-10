@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/system/parse.sh
+. /opt/muos/script/mux/close_game.sh
 CONFIG=/opt/muos/config/config.ini
 
 FG_PROC="/tmp/fg_proc"
@@ -27,15 +28,8 @@ while true; do
 
 	if [ "$SLEEP_TIMER_VAL" -eq "$MUX_SLEEP" ]; then
 		echo "Attempting to shutdown at $(date)" >> "$LOG_FILE"
+		close_game
 		echo 1 > /sys/class/power_supply/axp2202-battery/moto && sleep 0.25 && echo 0 > /sys/class/power_supply/axp2202-battery/moto
-		FG_PROC_VAL=$(cat "$FG_PROC")
-		if pidof "$FG_PROC_VAL" > /dev/null; then
-			pkill -CONT "$FG_PROC_VAL"
-			if [ "$FG_PROC_VAL" = "retroarch" ]; then
-				pkill "$FG_PROC_VAL"
-				sleep 1
-			fi
-		fi
 		$MUSHUTDOWN_CMD >> "$LOG_FILE" 2>&1
 		if [ $? -ne 0 ]; then
 			echo "Shutdown failed at $(date)" >> "$LOG_FILE"

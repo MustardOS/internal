@@ -60,6 +60,11 @@ while true; do
 	sleep 0.25
 done
 
+RANDOM_THEME=$(parse_ini "$CONFIG" "settings.advanced" "random_theme")
+if [ "$RANDOM_THEME" -eq 1 ]; then
+	/opt/muos/script/mux/theme.sh "?R"
+fi
+
 LAST_PLAY="/opt/muos/config/lastplay.txt"
 STARTUP=$(parse_ini "$CONFIG" "settings.general" "startup")
 if [ "$STARTUP" = last ] || [ "$STARTUP" = resume ]; then

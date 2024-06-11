@@ -24,20 +24,41 @@ EOF
 fi
 }
 
+TRANSFER_FIRMWARE() {
+	PACKAGE="$1"
+	FW_OUT="$2"
+	FW_SEEK="$3"
+
+	LOGGER "FIRMWARE UPDATE" "Updating '$PACKAGE' for device!"
+	dd if=/opt/muos/device/"$DEVICE"/firmware/"$PACKAGE" of=/dev/"$FW_OUT" seek="$FW_SEEK" conv=notrunc,fsync
+}
+
 FIRMWARE_DONE=$(parse_ini "$CONFIG" "boot" "firmware_done")
+
+BOOT_BIN_PATH="/opt/muos/device/$DEVICE/firmware/boot.bin"
+PACK_BIN_PATH="/opt/muos/device/$DEVICE/firmware/package.bin"
+
 if [ "$FIRMWARE_DONE" -eq 0 ]; then
-	LOGGER "FIRMWARE UPDATE" "Updating to required firmware for device!"
+	FW_DONE=0
 
-	FW_BOOT_OUT=$(parse_ini "$DEVICE_CONFIG" "firmware.boot" "out")
-	FW_BOOT_SEEK=$(parse_ini "$DEVICE_CONFIG" "firmware.boot" "seek")
-
-	FW_PACK_OUT=$(parse_ini "$DEVICE_CONFIG" "firmware.package" "out")
-	FW_PACK_SEEK=$(parse_ini "$DEVICE_CONFIG" "firmware.package" "seek")
-
-	dd if=/opt/muos/device/"$DEVICE"/firmware/boot.bin of=/dev/"$FW_BOOT_OUT" seek="$FW_BOOT_SEEK" conv=notrunc
-	dd if=/opt/muos/device/"$DEVICE"/firmware/package.bin of=/dev/"$FW_PACK_OUT" seek="$FW_PACK_SEEK" conv=notrunc
+        if [ -f "$BOOT_BIN_PATH" ]; then
+        	FWO=$(parse_ini "$DEVICE_CONFIG" "firmware.boot" "out")
+		FWS=$(parse_ini "$DEVICE_CONFIG" "firmware.boot" "seek")
+		TRANSFER_FIRMWARE "boot.bin" "$FWO" "$FWS"
+		FW_DONE=1
+	fi
+	
+        if [ -f "$PACK_BIN_PATH" ]; then
+        	FWO=$(parse_ini "$DEVICE_CONFIG" "firmware.package" "out")
+		FWS=$(parse_ini "$DEVICE_CONFIG" "firmware.package" "seek")
+		TRANSFER_FIRMWARE "package.bin" "$FWO" "$FWS"
+		FW_DONE=1
+	fi
 
 	modify_ini "$CONFIG" "boot" "firmware_done" "1"
-	reboot
+	
+	if [ "$FW_DONE" -eq 1 ]; then
+		reboot
+	fi
 fi
 

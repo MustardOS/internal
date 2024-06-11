@@ -7,14 +7,15 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 
 DEV_MODULE=$(parse_ini "$DEVICE_CONFIG" "network" "module")
 DEV_NAME=$(parse_ini "$DEVICE_CONFIG" "network" "name")
-DEV_LOAD=$(parse_ini "$DEVICE_CONFIG" "network" "modload")
 
 NET_INTERFACE=$(parse_ini "$DEVICE_CONFIG" "network" "iface")
 
 if ! lsmod | grep -wq "$DEV_NAME"; then
+    rmmod "$DEV_MODULE"
+    sleep 1
     LOGGER "Loading '$DEV_NAME' Kernel Module"
-    ${DEV_LOAD} "$DEV_MODULE"
-    while ! dmesg | grep -wq "$NET_INTERFACE"; do
+    modprobe --force-modversion "$DEV_MODULE"
+    while [ ! -d "/sys/class/net/$NET_INTERFACE" ]; do
         sleep 1
     done
     LOGGER "Wi-Fi Module Loaded"

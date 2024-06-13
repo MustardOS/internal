@@ -114,8 +114,6 @@ EXTRACT_ARCHIVE() {
 	rm /tmp/mux_archive.zip
 }
 
-EXTRACT_ARCHIVE "/opt/muos/archive/libretro/libretro.zip" "$ROM_MOUNT/MUOS/core/" "Libretro Cores"
-
 if [ "$SUPPORT_PORTMASTER" -eq 1 ]; then
 	EXTRACT_ARCHIVE "/opt/muos/archive/portmaster/portmaster.zip" "$ROM_MOUNT/MUOS/PortMaster/" "PortMaster"
 fi

@@ -36,7 +36,7 @@ if [ "$RANDOM_THEME" -eq 0 ]; then
 	if [ -f "$BOOTLOGO_NEW" ]; then
 		cp "$BOOTLOGO_NEW" "$STORE_BOOT/bootlogo.bmp"
 		if [ "$DEVICE" = "rg28xx" ]; then
-			convert "$STORE_BOOT/bootlogo.bmp" -rotate 90
+			convert "$STORE_BOOT/bootlogo.bmp" -rotate 270 "$STORE_BOOT/bootlogo.bmp"
 		fi
 	fi
 fi

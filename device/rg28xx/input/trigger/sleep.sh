@@ -29,7 +29,11 @@ while true; do
 	if [ "$SLEEP_TIMER_VAL" -eq "$MUX_SLEEP" ]; then
 		echo "Attempting to shutdown at $(date)" >> "$LOG_FILE"
 		close_game
+		/opt/muos/script/system/volume.sh save
 		echo 1 > /sys/class/power_supply/axp2202-battery/moto && sleep 0.25 && echo 0 > /sys/class/power_supply/axp2202-battery/moto
+		if [ "$FG_PROC_VAL" != "retroarch" ]; then
+			echo "" > /opt/muos/config/lastplay.txt
+		fi
 		$MUSHUTDOWN_CMD >> "$LOG_FILE" 2>&1
 		if [ $? -ne 0 ]; then
 			echo "Shutdown failed at $(date)" >> "$LOG_FILE"

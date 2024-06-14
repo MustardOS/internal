@@ -69,8 +69,20 @@ LAST_PLAY="/opt/muos/config/lastplay.txt"
 STARTUP=$(parse_ini "$CONFIG" "settings.general" "startup")
 if [ "$STARTUP" = last ] || [ "$STARTUP" = resume ]; then
 	if [ -s "$LAST_PLAY" ]; then
-		cat "$LAST_PLAY" > "$ROM_GO"
-		/opt/muos/script/mux/launch.sh
+		RETROWAIT=$(parse_ini "$CONFIG" "settings.advanced" "retrowait")
+		if [ "$RETROWAIT" -eq 1 ]; then
+			CURRENT_IP="/opt/muos/config/address.txt"
+			while [ "$(cat "$CURRENT_IP")" = "" ]; do
+				sleep 0.5
+			done
+			if [ "$(cat "$CURRENT_IP")" != "0.0.0.0" ]; then
+				cat "$LAST_PLAY" > "$ROM_GO"
+				/opt/muos/script/mux/launch.sh
+			fi
+		else
+			cat "$LAST_PLAY" > "$ROM_GO"
+			/opt/muos/script/mux/launch.sh
+		fi
 	fi
 	echo launcher > $ACT_GO
 fi

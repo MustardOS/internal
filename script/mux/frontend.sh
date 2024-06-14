@@ -71,9 +71,8 @@ if [ "$STARTUP" = last ] || [ "$STARTUP" = resume ]; then
 	if [ -s "$LAST_PLAY" ]; then
 		cat "$LAST_PLAY" > "$ROM_GO"
 		/opt/muos/script/mux/launch.sh
-	else
-		echo launcher > $ACT_GO
 	fi
+	echo launcher > $ACT_GO
 fi
 
 while true; do
@@ -120,9 +119,9 @@ while true; do
 
 	# Get Last ROM Index
 	if [ "$(cat $ACT_GO)" = explore ] || [ "$(cat $ACT_GO)" = favourite ] || [ "$(cat $ACT_GO)" = history ]; then
-		if [ -s "/tmp/mux_lastindex_rom" ]; then
-			LAST_INDEX_ROM=$(cat "/tmp/mux_lastindex_rom")
-			rm "/tmp/mux_lastindex_rom"
+		if [ -s "/tmp/idx_go" ]; then
+			LAST_INDEX_ROM=$(cat "/tmp/idx_go")
+			rm "/tmp/idx_go"
 		else
 			LAST_INDEX_ROM=0
 		fi

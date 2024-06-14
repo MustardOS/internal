@@ -29,6 +29,7 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 
 echo 1 > /tmp/work_led_state
+echo 0 > /tmp/net_connected
 
 LOGGER "BOOTING" "Restoring Volume"
 VOLUME=$(parse_ini "$CONFIG" "settings.advanced" "volume")

@@ -69,13 +69,20 @@ LAST_PLAY="/opt/muos/config/lastplay.txt"
 STARTUP=$(parse_ini "$CONFIG" "settings.general" "startup")
 if [ "$STARTUP" = last ] || [ "$STARTUP" = resume ]; then
 	if [ -s "$LAST_PLAY" ]; then
+		NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
 		RETROWAIT=$(parse_ini "$CONFIG" "settings.advanced" "retrowait")
-		if [ "$RETROWAIT" -eq 1 ]; then
-			CURRENT_IP="/opt/muos/config/address.txt"
-			while [ "$(cat "$CURRENT_IP")" = "" ]; do
-				sleep 0.5
+		if [ "$NET_ENABLED" -eq 1 ] && [ "$RETROWAIT" -eq 1 ]; then
+			NET_CONNECTED="/tmp/net_connected"
+			OIP=0
+			while [ "$(cat "$NET_CONNECTED")" = "0" ]; do
+				OIP=$((OIP + 1))
+				LOGGER "NETWORK WAIT" "Waiting for network to connect..."
+				sleep 1
+				if [ $OIP -eq 10 ]; then
+					break
+				fi
 			done
-			if [ "$(cat "$CURRENT_IP")" != "0.0.0.0" ]; then
+			if [ "$(cat "$NET_CONNECTED")" = "1" ]; then
 				cat "$LAST_PLAY" > "$ROM_GO"
 				/opt/muos/script/mux/launch.sh
 			fi

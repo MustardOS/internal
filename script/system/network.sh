@@ -102,6 +102,8 @@ if [ "$(cat "$CURRENT_IP")" = "0.0.0.0" ]; then
 	exit
 fi
 
+echo 1 > /tmp/net_connected
+
 LOGGER "Starting DNS Ping"
 /opt/muos/script/web/ping.sh
 

@@ -33,8 +33,10 @@ NET_SUBNET=$(parse_ini "$CONFIG" "network" "subnet")
 NET_GATEWAY=$(parse_ini "$CONFIG" "network" "gateway")
 NET_DNS=$(parse_ini "$CONFIG" "network" "dns")
 
-LOGGER "Bringing Wi-Fi Interface Down"
-killall wpa_supplicant
+LOGGER "Bringing Network Interface Down"
+if [ $NET_INTERFACE = "wlan0" ]; then
+	killall wpa_supplicant
+fi
 killall dhcpcd
 ip link set "$NET_INTERFACE" down
 
@@ -49,29 +51,33 @@ echo "0.0.0.0" | tr -d '\n' > "$CURRENT_IP"
 LOGGER "Fixing Nameserver"
 echo "nameserver $NET_DNS" > /etc/resolv.conf
 
-if [ "$NET_ENABLED" -eq 0 ]; then
-	rmmod "$DEV_MODULE"
-	exit
+if [ $NET_INTERFACE = "wlan0" ]; then
+	if [ "$NET_ENABLED" -eq 0 ]; then
+		rmmod "$DEV_MODULE"
+		exit
+	fi
+
+	if ! lsmod | grep -wq "$DEV_NAME"; then
+		rmmod "$DEV_MODULE"
+		sleep 1
+		LOGGER "Loading '$DEV_NAME' Kernel Module"
+		modprobe --force-modversion "$DEV_MODULE"
+		while [ ! -d "/sys/class/net/$NET_INTERFACE" ]; do
+			sleep 1
+		done
+		LOGGER "Wi-Fi Module Loaded"
+	fi
 fi
 
-if ! lsmod | grep -wq "$DEV_NAME"; then
-    rmmod "$DEV_MODULE"
-    sleep 1
-    LOGGER "Loading '$DEV_NAME' Kernel Module"
-    modprobe --force-modversion "$DEV_MODULE"
-    while [ ! -d "/sys/class/net/$NET_INTERFACE" ]; do
-        sleep 1
-    done
-    LOGGER "Wi-Fi Module Loaded"
-fi
-
-LOGGER "Setting up Wi-Fi Interface"
+LOGGER "Setting up Network Interface"
 rfkill unblock all
 ip link set "$NET_INTERFACE" up
 iw dev "$NET_INTERFACE" set power_save off
 
-LOGGER "Configuring WPA Supplicant"
-wpa_supplicant -dd -B -i "$NET_INTERFACE" -c /etc/wpa_supplicant.conf -D "$DEV_TYPE"
+if [ $NET_INTERFACE = "wlan0" ]; then
+	LOGGER "Configuring WPA Supplicant"
+	wpa_supplicant -dd -B -i "$NET_INTERFACE" -c /etc/wpa_supplicant.conf -D "$DEV_TYPE"
+fi
 
 if [ "$NET_TYPE" -eq 0 ]; then
 	LOGGER "Clearing DHCP leases"
@@ -109,4 +115,3 @@ LOGGER "Starting DNS Ping"
 
 LOGGER "Running Web Service Script"
 /opt/muos/script/web/service.sh
-

@@ -14,7 +14,7 @@ state.audiocodec {
 	control.2 {
 		iface MIXER
 		name 'digital volume'
-		value 4121460
+		value 63
 		comment {
 			access 'read write'
 			type INTEGER
@@ -22,13 +22,13 @@ state.audiocodec {
 			range '0 - 63'
 			dbmin -9999999
 			dbmax 4121460
-			dbvalue.0 3074740
+			dbvalue.0 4121460
 		}
 	}
 	control.3 {
 		iface MIXER
 		name 'lineout volume'
-		value 150
+		value 22
 		comment {
 			access 'read write'
 			type INTEGER
@@ -36,7 +36,7 @@ state.audiocodec {
 			range '0 - 31'
 			dbmin -9999999
 			dbmax 150
-			dbvalue.0 150
+			dbvalue.0 -1200
 		}
 	}
 	control.4 {
@@ -399,4 +399,3 @@ state.ahubhdmi {
 		}
 	}
 }
-

@@ -31,10 +31,15 @@ STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 echo 1 > /tmp/work_led_state
 
 LOGGER "BOOTING" "Restoring Volume"
-VOLUME_LOW=$(parse_ini "$CONFIG" "settings.advanced" "volume_low")
-if [ "$VOLUME_LOW" -eq 1 ]; then
-	cp -f /opt/muos/config/volume_low.txt /opt/muos/config/volume.txt
-fi
+VOLUME=$(parse_ini "$CONFIG" "settings.advanced" "volume")
+case "$VOLUME" in
+	"loud")
+		cp -f /opt/muos/config/volume_high.txt /opt/muos/config/volume.txt
+		;;
+	"quiet")
+		cp -f /opt/muos/config/volume_low.txt /opt/muos/config/volume.txt
+		;;
+esac
 /opt/muos/script/system/volume.sh restore &
 
 FACTORY_RESET=$(parse_ini "$CONFIG" "boot" "factory_reset")

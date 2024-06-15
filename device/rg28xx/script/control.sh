@@ -15,6 +15,14 @@ for GCDB_DIR in "/usr/lib32" "/usr/lib"; do
 	cp -f "$CONTROL_DIR/gamecontrollerdb.txt" "$GCDB_DIR/gamecontrollerdb.txt"
 done
 
+# Move Moonlight configurations
+for ML_CONF in "moonlight.conf"; do
+	DEST_CONF="/$ROM_MOUNT/MUOS/application/.moonlight/$ML_CONF"
+	if [ ! -f "$DEST_CONF" ]; then
+		cp "$CONTROL_DIR/$ML_CONF" "$DEST_CONF"
+	fi
+done
+
 # Move RetroArch configurations
 for RA_CONF in "retroarch.cfg"; do
 	DEST_CONF="/$ROM_MOUNT/MUOS/retroarch/$RA_CONF"

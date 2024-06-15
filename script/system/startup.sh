@@ -138,5 +138,6 @@ fi
 
 /opt/muos/script/mux/configbackup.sh &
 
+touch /tmp/pdi_go
 /opt/muos/script/mux/frontend.sh &
 

@@ -133,7 +133,7 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 	modify_ini "$CONFIG" "boot" "factory_reset" "0"
 	modify_ini "$CONFIG" "settings.advanced" "verbose" "0"
 
-	/opt/muos/extra/muxkofi
+	/opt/muos/extra/muxcredits
 fi
 
 /opt/muos/script/mux/configbackup.sh &

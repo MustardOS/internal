@@ -55,6 +55,21 @@ if [ "$USE_DEBUGFS" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
 fi
 
+SET_BRIGHT=$(parse_ini "$CONFIG" "settings.advanced" "brightness")
+case "$SET_BRIGHT" in
+	"high")
+		MAX_BRIGHT=$(parse_ini "$DEVICE_CONFIG" "screen" "bright")
+		/opt/muos/device/"$DEVICE"/input/combo/bright.sh "$MAX_BRIGHT"
+		;;
+	"low")
+		/opt/muos/device/"$DEVICE"/input/combo/bright.sh 10
+		;;
+	*)
+		PREV_BRIGHT=$(cat "/opt/muos/config/brightness.txt")
+		/opt/muos/device/"$DEVICE"/input/combo/bright.sh "$PREV_BRIGHT"
+		;;
+esac
+
 COLOUR=$(parse_ini "$CONFIG" "settings.general" "colour")
 echo "$COLOUR" > /sys/class/disp/disp/attr/color_temperature
 
@@ -71,6 +86,5 @@ echo noop > /sys/devices/platform/soc/sdc0/mmc_host/mmc0/mmc0:59b4/block/mmcblk0
 echo on > /sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
 
 /opt/muos/device/"$DEVICE"/script/control.sh
-/opt/muos/device/"$DEVICE"/input/start.sh
-
+/opt/muos/device/"$DEVICE"/input/input.sh
 

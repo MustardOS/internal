@@ -31,17 +31,27 @@ STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 echo 1 > /tmp/work_led_state
 echo 0 > /tmp/net_connected
 
-LOGGER "BOOTING" "Restoring Volume"
+LOGGER "BOOTING" "Restoring Audio State"
+cp -f "/opt/muos/device/$DEVICE/control/asound.state" "/var/lib/alsa/asound.state"
+alsactl -U restore
+
+LOGGER "BOOTING" "Restoring Audio Volume"
 VOLUME=$(parse_ini "$CONFIG" "settings.advanced" "volume")
+AUDIO_CONTROL=$(parse_ini "$DEVICE_CONFIG" "audio" "control")
+AUDIO_VOL_MIN=$(parse_ini "$DEVICE_CONFIG" "audio" "min")
+AUDIO_VOL_MAX=$(parse_ini "$DEVICE_CONFIG" "audio" "max")
 case "$VOLUME" in
-	"loud")
-		cp -f /opt/muos/config/volume_high.txt /opt/muos/config/volume.txt
+	"loud")		
+		amixer sset "$AUDIO_CONTROL" "$AUDIO_VOL_MAX" > /dev/null
 		;;
 	"quiet")
-		cp -f /opt/muos/config/volume_low.txt /opt/muos/config/volume.txt
+		amixer sset "$AUDIO_CONTROL" "$AUDIO_VOL_MIN" > /dev/null
+		;;
+	*)
+		RESTORED=$(cat "/opt/muos/config/volume.txt")
+		amixer sset "$AUDIO_CONTROL" "$RESTORED" > /dev/null
 		;;
 esac
-/opt/muos/script/system/volume.sh restore &
 
 FACTORY_RESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
 if [ "$FACTORY_RESET" -eq 1 ]; then
@@ -109,7 +119,6 @@ if [ "$SUPPORT_NETWORK" -eq 1 ] && [ "$NET_ENABLED" -eq 1 ]; then
 	/opt/muos/script/system/network.sh "$MUOSBOOT_LOG" &
 fi
 
-/opt/muos/script/system/watchdog.sh &
 /opt/muos/script/system/dotclean.sh &
 /opt/muos/script/system/catalogue.sh &
 

@@ -50,10 +50,17 @@ while true; do
 			evemu-play /dev/input/event1 < /opt/muos/device/rg35xx-sp/input/emu/ra-savestate
 			sleep 0.5
 		fi
+		if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
+   			pkill -STOP "playbgm.sh"
+   			killall -q "mp3play"
+		fi
 		DEV_SLEEP
 	fi
 
 	if [ "$TMP_POWER_LONG_VAL" = "on" ] && [ "$SLEEP_STATE_VAL" != "awake" ]; then
+		if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
+   			pkill -CONT "playbgm.sh"
+		fi
 		DEV_WAKE
 	fi
 

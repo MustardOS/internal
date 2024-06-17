@@ -63,16 +63,26 @@ while true; do
 			evemu-play /dev/input/event1 < /opt/muos/script/input/rg35xx-sp/emu/ra-savestate
 			sleep 0.5
 		fi
+		if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
+   			pkill -STOP "playbgm.sh"
+   			killall -q "mp3play"
+		fi
 		DEV_SLEEP
 	fi
 
 	# power button with lid open
 	if [ "$TMP_POWER_LONG_VAL" = "on" ] && [ "$HALL_KEY_VAL" = "1" ] && [ "$SLEEP_STATE_VAL" != "awake" ]; then
+		if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
+   			pkill -CONT "playbgm.sh"
+		fi
 		DEV_WAKE
 	fi
 
 	# lid open after sleep-closed and the lid was previously closed
 	if [ "$HALL_KEY_VAL" = "1" ] && [ "$SLEEP_STATE_VAL" = "sleep-closed" ] && [ "$LID_CLOSED_FLAG_VAL" = "1" ]; then
+		if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
+   			pkill -CONT "playbgm.sh"
+		fi
 		DEV_WAKE
 	fi
 

@@ -34,12 +34,6 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 insmod /lib/modules/mali_kbase.ko &
 insmod /lib/modules/squashfs.ko &
 
-SUPPORT_HDMI=$(parse_ini "$DEVICE_CONFIG" "device" "hdmi")
-HDMI=$(parse_ini "$CONFIG" "settings.general" "hdmi")
-if [ "$SUPPORT_HDMI" -eq 1 ] && [ "$HDMI" -gt -1 ]; then
-	/opt/muos/device/"$DEVICE"/script/hdmi.sh &
-fi
-
 GOVERNOR_TYPE=$(parse_ini "$DEVICE_CONFIG" "cpu" "default")
 GOVERNOR_FILE=$(parse_ini "$DEVICE_CONFIG" "cpu" "governor")
 echo "$GOVERNOR_TYPE" > "$GOVERNOR_FILE"
@@ -59,6 +53,12 @@ mount -t "$ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$ROM_DEV"p"$ROM_NUM" "$ROM_
 USE_DEBUGFS=$(parse_ini "$DEVICE_CONFIG" "device" "debugfs")
 if [ "$USE_DEBUGFS" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
+fi
+
+SUPPORT_HDMI=$(parse_ini "$DEVICE_CONFIG" "device" "hdmi")
+HDMI=$(parse_ini "$CONFIG" "settings.general" "hdmi")
+if [ "$SUPPORT_HDMI" -eq 1 ] && [ "$HDMI" -gt -1 ]; then
+	/opt/muos/device/"$DEVICE"/script/hdmi_start.sh &
 fi
 
 SET_BRIGHT=$(parse_ini "$CONFIG" "settings.advanced" "brightness")

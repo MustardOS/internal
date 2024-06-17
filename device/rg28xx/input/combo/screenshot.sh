@@ -1,29 +1,34 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
+SLEEP_STATE="/tmp/sleep_state"
+SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 
-SS_LOCK=/tmp/screenshot.lock
+if [ "$SLEEP_STATE_VAL" = "awake" ]; then
+	. /opt/muos/script/system/parse.sh
 
-if [ ! -e "$SS_LOCK" ]; then
-	echo 1 > /sys/class/power_supply/axp2202-battery/moto && sleep 0.25 && echo 0 > /sys/class/power_supply/axp2202-battery/moto
+	SS_LOCK=/tmp/screenshot.lock
 
-	touch "$SS_LOCK"
+	if [ ! -e "$SS_LOCK" ]; then
+		echo 1 > /sys/class/power_supply/axp2202-battery/moto && sleep 0.25 && echo 0 > /sys/class/power_supply/axp2202-battery/moto
 
-	DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-	DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+		touch "$SS_LOCK"
 
-	STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+		DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+		DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 
-	BASE_DIR="$STORE_ROM/MUOS/screenshot"
-	CURRENT_DATE=$(date +"%Y%m%d_%H%M")
-	INDEX=0
+		STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 
-	while [ -f "${BASE_DIR}/muOS_${CURRENT_DATE}_${INDEX}.png" ]; do
-		INDEX=$((INDEX + 1))
-	done
+		BASE_DIR="$STORE_ROM/MUOS/screenshot"
+		CURRENT_DATE=$(date +"%Y%m%d_%H%M")
+		INDEX=0
 
-	fbgrab -a "${BASE_DIR}/muOS_${CURRENT_DATE}_${INDEX}.png"
+		while [ -f "${BASE_DIR}/muOS_${CURRENT_DATE}_${INDEX}.png" ]; do
+			INDEX=$((INDEX + 1))
+		done
 
-	rm "$SS_LOCK"
+		fbgrab -a "${BASE_DIR}/muOS_${CURRENT_DATE}_${INDEX}.png"
+
+		rm "$SS_LOCK"
+	fi
 fi
 

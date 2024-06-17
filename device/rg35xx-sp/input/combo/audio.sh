@@ -13,6 +13,8 @@ AUDIO_VOL_MAX=$(parse_ini "$DEVICE_CONFIG" "audio" "max")
 VOLUME_FILE="/opt/muos/config/volume.txt"
 VOLUME_FILE_PERCENT="/tmp/current_volume_percent"
 
+SLEEP_STATE="/tmp/sleep_state"
+
 GET_CURRENT() {
 	amixer sget "$AUDIO_CONTROL" | sed -n "s/.*$AUDIO_CHANNEL: 0*\([0-9]*\).*/\1/p" | tr -d '\n'
 }
@@ -47,14 +49,20 @@ case "$1" in
 		if [ "$NEW_VL" -gt "$AUDIO_VOL_MAX" ]; then
 			NEW_VL=$AUDIO_VOL_MAX
 		fi
-		SET_CURRENT "$NEW_VL"
+		SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
+		if [ "$SLEEP_STATE_VAL" != "sleep-closed" ] || [ "$SLEEP_STATE_VAL" != "sleep-open" ]; then
+			SET_CURRENT "$NEW_VL"
+		fi
 		;;
 	D)
 		NEW_VL=$((CURRENT_VL - 2))
 		if [ "$NEW_VL" -lt $AUDIO_VOL_MIN ]; then
 			NEW_VL=0
 		fi
-		SET_CURRENT "$NEW_VL"
+		SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
+		if [ "$SLEEP_STATE_VAL" != "sleep-closed" ] || [ "$SLEEP_STATE_VAL" != "sleep-open" ]; then
+			SET_CURRENT "$NEW_VL"
+		fi
 		;;
 	[0-9]*)
 		if [ "$1" -ge 0 ] && [ "$1" -le "$AUDIO_VOL_MAX" ]; then

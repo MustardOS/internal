@@ -12,6 +12,9 @@ DISPLAY="/sys/kernel/debug/dispdbg"
 BRIGHT_FILE="/opt/muos/config/brightness.txt"
 BRIGHT_FILE_PERCENT="/tmp/current_brightness_percent"
 
+SLEEP_STATE="/tmp/sleep_state"
+SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
+
 GET_CURRENT() {
 	echo getbl > $DISPLAY/command
 	echo lcd0 > $DISPLAY/name
@@ -64,7 +67,10 @@ case "$1" in
 		if [ "$NEW_BL" -gt "$MAX_BRIGHT" ]; then
 			NEW_BL=$MAX_BRIGHT
 		fi
-		SET_CURRENT "$NEW_BL"
+		SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
+		if [ "$SLEEP_STATE_VAL" = "awake" ]; then
+			SET_CURRENT "$NEW_BL"
+		fi
 		;;
 	D)
 		if [ "$CURRENT_BL" -le 15 ]; then
@@ -75,7 +81,10 @@ case "$1" in
 		if [ "$NEW_BL" -lt 0 ]; then
 			NEW_BL=0
 		fi
-		SET_CURRENT "$NEW_BL"
+		SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
+		if [ "$SLEEP_STATE_VAL" = "awake" ]; then
+			SET_CURRENT "$NEW_BL"
+		fi
 		;;
 	[0-9]*)
 		if [ "$1" -ge 0 ] && [ "$1" -le "$MAX_BRIGHT" ]; then

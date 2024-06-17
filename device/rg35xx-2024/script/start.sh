@@ -36,7 +36,7 @@ insmod /lib/modules/squashfs.ko &
 
 SUPPORT_HDMI=$(parse_ini "$DEVICE_CONFIG" "device" "hdmi")
 HDMI=$(parse_ini "$CONFIG" "settings.general" "hdmi")
-if [ "$SUPPORT_HDMI" -eq 1 ] && [ "$HDMI" -eq 1 ]; then
+if [ "$SUPPORT_HDMI" -eq 1 ] && [ "$HDMI" -gt -1 ]; then
 	/opt/muos/device/"$DEVICE"/script/hdmi.sh &
 fi
 

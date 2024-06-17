@@ -22,16 +22,30 @@ GET_CURRENT() {
 CURRENT_BL=$(GET_CURRENT)
 
 SET_CURRENT() {
-	PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($1/$MAX_BRIGHT)*100}")
-	printf "%d" "$PERCENTAGE" > "$BRIGHT_FILE_PERCENT"
+	if [ $1 -eq 0 ]; then
+		echo disp0 > $DISPLAY/name
+		echo suspend > $DISPLAY/command
+		echo 1 > $DISPLAY/start;
 
-	echo lcd0 > $DISPLAY/name
-	echo setbl > $DISPLAY/command
-	echo "$1" > $DISPLAY/param
-	echo 1 > $DISPLAY/start
+		printf "%d" "$1" > "$BRIGHT_FILE_PERCENT"
+		printf "%d" "$1" > "$BRIGHT_FILE"
+		echo "Brightness set to $1 ($1%)"
+	else
+		echo disp0 > $DISPLAY/name
+		echo resume > $DISPLAY/command
+		echo 1 > $DISPLAY/start;
 
-	printf "%d" "$1" > "$BRIGHT_FILE"
-	echo "Brightness set to $1 ($PERCENTAGE%)"
+		PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($1/$MAX_BRIGHT)*100}")
+		printf "%d" "$PERCENTAGE" > "$BRIGHT_FILE_PERCENT"
+
+		echo lcd0 > $DISPLAY/name
+		echo setbl > $DISPLAY/command
+		echo "$1" > $DISPLAY/param
+		echo 1 > $DISPLAY/start
+
+		printf "%d" "$1" > "$BRIGHT_FILE"
+		echo "Brightness set to $1 ($PERCENTAGE%)"
+	fi
 }
 
 if [ -z "$1" ]; then

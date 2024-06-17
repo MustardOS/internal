@@ -15,6 +15,11 @@ if [ "$CHARGER_ONLINE" -eq 1 ] && [ "$FACTORY_RESET" -eq 0 ]; then
 	ROM_TYPE=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "type")
 	mount -t "$ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$ROM_DEV"p"$ROM_NUM" /"$ROM_MNT"
 
+	USE_DEBUGFS=$(parse_ini "$DEVICE_CONFIG" "device" "debugfs")
+	if [ "$USE_DEBUGFS" -eq 1 ]; then
+		mount -t debugfs debugfs /sys/kernel/debug
+	fi
+
 	GOVERNOR=$(parse_ini "$DEVICE_CONFIG" "cpu" "governor")
 	echo powersave > "$GOVERNOR"
 

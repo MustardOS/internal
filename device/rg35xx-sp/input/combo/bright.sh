@@ -13,10 +13,10 @@ BRIGHT_FILE="/opt/muos/config/brightness.txt"
 BRIGHT_FILE_PERCENT="/tmp/current_brightness_percent"
 
 GET_CURRENT() {
-	echo smbl0 > $DISPLAY/name
-	echo getinfo > $DISPLAY/command
+	echo getbl > $DISPLAY/command
+	echo lcd0 > $DISPLAY/name
 	echo 1 > $DISPLAY/start
-	awk -F 'backlight=' '{split($2, a, ","); print a[1]}' $DISPLAY/info | tr -d '\n'
+	cat $DISPLAY/info
 }
 
 CURRENT_BL=$(GET_CURRENT)

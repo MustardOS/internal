@@ -34,6 +34,12 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 insmod /lib/modules/mali_kbase.ko &
 insmod /lib/modules/squashfs.ko &
 
+SUPPORT_HDMI=$(parse_ini "$DEVICE_CONFIG" "device" "hdmi")
+HDMI=$(parse_ini "$CONFIG" "settings.general" "hdmi")
+if [ "$SUPPORT_HDMI" -eq 1 ] && [ "$HDMI" -eq 1 ]; then
+	/opt/muos/device/"$DEVICE"/script/hdmi.sh &
+fi
+
 GOVERNOR_TYPE=$(parse_ini "$DEVICE_CONFIG" "cpu" "default")
 GOVERNOR_FILE=$(parse_ini "$DEVICE_CONFIG" "cpu" "governor")
 echo "$GOVERNOR_TYPE" > "$GOVERNOR_FILE"

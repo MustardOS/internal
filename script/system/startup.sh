@@ -106,12 +106,6 @@ LOGGER "BOOTING" "Starting Storage Watchdog"
 LOGGER "BOOTING" "Running Device Specifics"
 /opt/muos/device/"$DEVICE"/script/start.sh &
 
-SUPPORT_HDMI=$(parse_ini "$DEVICE_CONFIG" "device" "hdmi")
-HDMI=$(parse_ini "$CONFIG" "settings.general" "hdmi")
-if [ "$SUPPORT_HDMI" -eq 1 ] && [ "$HDMI" -eq 1 ]; then
-	/opt/muos/script/system/hdmi.sh &
-fi
-
 SUPPORT_NETWORK=$(parse_ini "$DEVICE_CONFIG" "device" "network")
 NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
 if [ "$SUPPORT_NETWORK" -eq 1 ] && [ "$NET_ENABLED" -eq 1 ]; then

@@ -1,5 +1,13 @@
 #!/bin/sh
 
+. /opt/muos/script/system/parse.sh
+CONFIG=/opt/muos/config/config.ini
+
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+HDMI_STATE=$(parse_ini "$DEVICE_CONFIG" "screen" "hdmi")
+
 DISPLAY="/sys/kernel/debug/dispdbg"
 
 RESET_DISP=0
@@ -14,7 +22,7 @@ echo 1 > $DISPLAY/param
 echo 1 > $DISPLAY/start
 
 while true; do
-	if [ "$(cat "/sys/devices/platform/soc/6000000.hdmi/extcon/hdmi/state")" = "HDMI=1" ]; then
+	if [ "$(cat "$HDMI_STATE")" = "HDMI=1" ]; then
 		SWITCHED_OFF=0
 
 		if [ $SWITCHED_ON -eq 0 ]; then
@@ -28,9 +36,20 @@ while true; do
 
 			# Switch on HDMI
 			echo disp0 > $DISPLAY/name
-			echo switch1 > $DISPLAY/command
-			echo 4 10 0 0 0x4 0x101 0 0 0 8 > $DISPLAY/param
+			echo switch > $DISPLAY/command
+			echo 4 10 > $DISPLAY/param
 			echo 1 > $DISPLAY/start
+
+			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
+   				pkill -STOP "playbgm.sh"
+   				killall -q "mp3play"
+			fi
+
+			sed -i -E 's/(defaults\.(ctl|pcm)\.card) 0/\1 2/g' /usr/share/alsa/alsa.conf
+
+			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
+   				pkill -CONT "playbgm.sh"
+			fi
 
 			# Reset the display
 			if [ $RESET_DISP -eq 0 ]; then
@@ -66,6 +85,17 @@ while true; do
 			echo switch > $DISPLAY/command
 			echo 1 0 > $DISPLAY/param
 			echo 1 > $DISPLAY/start
+
+			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
+   				pkill -STOP "playbgm.sh"
+   				killall -q "mp3play"
+			fi
+
+			sed -i -E 's/(defaults\.(ctl|pcm)\.card) 2/\1 0/g' /usr/share/alsa/alsa.conf
+
+			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
+   				pkill -CONT "playbgm.sh"
+			fi
 
 			# Reset the display
 			if [ $RESET_DISP -eq 0 ]; then

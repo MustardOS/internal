@@ -31,8 +31,11 @@ SET_CURRENT() {
 		echo 1 > $DISPLAY/start;
 
 		printf "%d" "$1" > "$BRIGHT_FILE_PERCENT"
-		printf "%d" "$1" > "$BRIGHT_FILE"
-		echo "Brightness set to $1 ($1%)"
+  		if ! pgrep -x "/opt/muos/extra/muxcharge" > /dev/null
+		then
+			printf "%d" "$1" > "$BRIGHT_FILE"
+   			echo "Brightness set to $1 ($1%)"
+   		fi
 	else
 		echo disp0 > $DISPLAY/name
 		echo resume > $DISPLAY/command
@@ -46,8 +49,11 @@ SET_CURRENT() {
 		echo "$1" > $DISPLAY/param
 		echo 1 > $DISPLAY/start
 
-		printf "%d" "$1" > "$BRIGHT_FILE"
-		echo "Brightness set to $1 ($PERCENTAGE%)"
+		if ! pgrep -x "/opt/muos/extra/muxcharge" > /dev/null
+		then
+			printf "%d" "$1" > "$BRIGHT_FILE"
+			echo "Brightness set to $1 ($PERCENTAGE%)"
+		fi
 	fi
 }
 

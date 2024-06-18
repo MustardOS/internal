@@ -96,7 +96,7 @@ fi
 GP_CFG="/$ROM_MOUNT/MUOS/info/config/gpSP/gpSP.cfg"
 if [ ! -f "$GP_CFG.bak" ]; then
 	cp "$GP_CFG" "$GP_CFG.bak"
-	cp -f "$CONTrOL_DIR/gpSP.cfg" "$GP_CFG"
+	cp -f "$CONTROL_DIR/gpSP.cfg" "$GP_CFG"
 fi
 
 MG_CFG="/$ROM_MOUNT/MUOS/info/config/mGBA/mGBA.cfg"

@@ -376,7 +376,7 @@ state.ahubhdmi {
 	control.2 {
 		iface MIXER
 		name 'audio data format'
-		value PCM
+		value NULL
 		comment {
 			access 'read write'
 			type ENUMERATED

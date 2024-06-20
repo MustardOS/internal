@@ -19,6 +19,10 @@ if echo "$CORE" | grep -q "flycast"; then
 	export SDL_NO_SIGNAL_HANDLERS=1
 fi
 
+if echo "$CORE" | grep -q "morpheuscast"; then
+	export SDL_NO_SIGNAL_HANDLERS=1
+fi
+
 export HOME=/root
 
 export SDL_HQ_SCALER="$SDL_SCALER"

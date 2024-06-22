@@ -13,8 +13,11 @@ ROM_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 SD_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "mount")
 USB_MOUNT=$(arse_ini "$DEVICE_CONFIG" "storage.usb" "mount")
 
-# Suspend the muxbackup program
-pkill -STOP muxbackup
+SD_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "dev")p$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "num")
+USB_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.usb" "dev")$(parse_ini "$DEVICE_CONFIG" "storage.usb" "num")
+
+# Suspend the muxtask program
+pkill -STOP muxtask
 
 # Fire up the logger!
 /opt/muos/extra/muxlog &
@@ -73,11 +76,11 @@ fi
 
 # Set destination file based on priority
 # USB -> SD2 -> SD1
-if grep -m 1 "sda1" /proc/partitions > /dev/null; then
+if grep -m 1 "$USB_DEVICE" /proc/partitions > /dev/null; then
     echo "USB mounted, archiving to USB" > /tmp/muxlog_info
     mkdir -p "$USB_MOUNT/BACKUP/"
     DEST_DIR="$USB_MOUNT/BACKUP"
-elif grep -m 1 "mmcblk1p1" /proc/partitions > /dev/null; then
+elif grep -m 1 "$SD_DEVICE" /proc/partitions > /dev/null; then
     echo "SD2 mounted, archiving to SD2" > /tmp/muxlog_info
     mkdir -p "$SD_MOUNT/BACKUP/"
     DEST_DIR="$SD_MOUNT/BACKUP"
@@ -126,6 +129,6 @@ sleep 1
 killall -q muxlog
 rm -rf "$MUX_TEMP" /tmp/muxlog_*
 
-# Resume the muxbackup program
-pkill -CONT muxbackup
+# Resume the muxtask program
+pkill -CONT muxtask
 killall -q "Backup Saves.sh"

@@ -4,6 +4,9 @@
 # This script will toggle the iface between eth0 and wlan0
 # Additionally it'll enable network and PortMaster, and generate SSH Keys if needed.
 
+# Suspend the muxtask program
+pkill -STOP muxtask
+
 # Fire up the logger!
 /opt/muos/extra/muxlog &
 sleep 1
@@ -39,4 +42,7 @@ sleep 1
 
 killall -q muxlog
 rm -rf "$MUX_TEMP" /tmp/muxlog_*
-killall -q "Toggle Ethernet.sh"
+
+# Resume the muxtask program
+pkill -CONT muxtask
+killall -q "Backup Wifi.sh"

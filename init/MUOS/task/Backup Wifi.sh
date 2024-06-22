@@ -4,8 +4,21 @@
 # Modified by Ali BEYAZ (aka symbuzzer) for backing up wifi credentials
 # This should backup wifi credentials
 
-# Suspend the muxbackup program
-pkill -STOP muxbackup
+# Grab device variables
+. /opt/muos/script/system/parse.sh
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+CONTROL_DIR="/opt/muos/device/$DEVICE/control"
+ROM_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+SD_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "mount")
+USB_MOUNT=$(arse_ini "$DEVICE_CONFIG" "storage.usb" "mount")
+
+SD_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "dev")p$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "num")
+USB_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.usb" "dev")$(parse_ini "$DEVICE_CONFIG" "storage.usb" "num")
+
+# Suspend the muxtask program
+pkill -STOP muxtask
 
 # Fire up the logger!
 /opt/muos/extra/muxlog &
@@ -25,17 +38,17 @@ MU_WIFI="/etc/wpa_supplicant.conf"
 
 # Set destination file based on priority
 # USB -> SD2 -> SD1
-if grep -m 1 "sda1" /proc/partitions > /dev/null; then
+if grep -m 1 "$USB_DEVICE" /proc/partitions > /dev/null; then
     echo "USB mounted, archiving to USB" > /tmp/muxlog_info
-    mkdir -p "/mnt/usb/BACKUP/"
-    DEST_DIR="/mnt/usb/BACKUP"
-elif grep -m 1 "mmcblk1p1" /proc/partitions > /dev/null; then
+    mkdir -p "$USB_MOUNT/BACKUP/"
+    DEST_DIR="$USB_MOUNT/BACKUP"
+elif grep -m 1 "$SD_DEVICE" /proc/partitions > /dev/null; then
     echo "SD2 mounted, archiving to SD2" > /tmp/muxlog_info
-    mkdir -p "/mnt/sdcard/BACKUP/"
-    DEST_DIR="/mnt/sdcard/BACKUP"
+    mkdir -p "$SD_MOUNT/BACKUP/"
+    DEST_DIR="$SD_MOUNT/BACKUP"
 else
     echo "Archiving to SD1" > /tmp/muxlog_info
-    DEST_DIR="/mnt/mmc/BACKUP"
+    DEST_DIR="$ROM_MOUNT/BACKUP"
 fi
 
 # Set Destination File
@@ -79,6 +92,6 @@ sleep 1
 killall -q muxlog
 rm -rf "$MUX_TEMP" /tmp/muxlog_*
 
-# Resume the muxbackup program
-pkill -CONT muxbackup
+# Resume the muxtask program
+pkill -CONT muxtask
 killall -q "Backup Wifi.sh"

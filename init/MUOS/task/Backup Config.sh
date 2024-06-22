@@ -3,8 +3,21 @@
 # Backup script created for muOS 2405 Beans +
 # This should backup all core overrides, core assignments, favourites, and RA global config
 
-# Suspend the muxbackup program
-pkill -STOP muxbackup
+# Grab device variables
+. /opt/muos/script/system/parse.sh
+DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
+DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+
+CONTROL_DIR="/opt/muos/device/$DEVICE/control"
+ROM_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+SD_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "mount")
+USB_MOUNT=$(arse_ini "$DEVICE_CONFIG" "storage.usb" "mount")
+
+SD_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "dev")p$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "num")
+USB_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.usb" "dev")$(parse_ini "$DEVICE_CONFIG" "storage.usb" "num")
+
+# Suspend the muxtask program
+pkill -STOP muxtask
 
 # Fire up the logger!
 /opt/muos/extra/muxlog &
@@ -20,31 +33,31 @@ rm -rf "$TMP_FILE"
 DATE=$(date +%Y-%m-%d)
 
 # Core Overrides
-RA_OVERRIDES="/mnt/mmc/MUOS/info/config"
+RA_OVERRIDES="$ROM_MOUNT/MUOS/info/config"
 
 # Global Configs
-RA64_CONFIG="/mnt/mmc/MUOS/retroarch/retroarch.cfg"
-RA32_CONFIG="/mnt/mmc/MUOS/retroarch/retroarch32.cfg"
+RA64_CONFIG="$ROM_MOUNT/MUOS/retroarch/retroarch.cfg"
+RA32_CONFIG="$ROM_MOUNT/MUOS/retroarch/retroarch32.cfg"
 
 # Core Assignments
-MU_ASSIGN="/mnt/mmc/MUOS/info/core"
+MU_ASSIGN="$ROM_MOUNT/MUOS/info/core"
 
 # Favourites
-MU_FAVES="/mnt/mmc/MUOS/info/favourite"
+MU_FAVES="$ROM_MOUNT/MUOS/info/favourite"
 
 # Set destination file based on priority
 # USB -> SD2 -> SD1
-if grep -m 1 "sda1" /proc/partitions > /dev/null; then
+if grep -m 1 "$USB_DEVICE" /proc/partitions > /dev/null; then
     echo "USB mounted, archiving to USB" > /tmp/muxlog_info
-    mkdir -p "/mnt/usb/BACKUP/"
-    DEST_DIR="/mnt/usb/BACKUP"
-elif grep -m 1 "mmcblk1p1" /proc/partitions > /dev/null; then
+    mkdir -p "$USB_MOUNT/BACKUP/"
+    DEST_DIR="$USB_MOUNT/BACKUP"
+elif grep -m 1 "$SD_DEVICE" /proc/partitions > /dev/null; then
     echo "SD2 mounted, archiving to SD2" > /tmp/muxlog_info
-    mkdir -p "/mnt/sdcard/BACKUP/"
-    DEST_DIR="/mnt/sdcard/BACKUP"
+    mkdir -p "$SD_MOUNT/BACKUP/"
+    DEST_DIR="$SD_MOUNT/BACKUP"
 else
     echo "Archiving to SD1" > /tmp/muxlog_info
-    DEST_DIR="/mnt/mmc/BACKUP"
+    DEST_DIR="$ROM_MOUNT/BACKUP"
 fi
 
 # Set Destination File
@@ -88,6 +101,6 @@ sleep 1
 killall -q muxlog
 rm -rf "$MUX_TEMP" /tmp/muxlog_*
 
-# Resume the muxbackup program
-pkill -CONT muxbackup
+# Resume the muxtask program
+pkill -CONT muxtask
 killall -q "Backup Config.sh"

@@ -115,7 +115,10 @@ EXTRACT_ARCHIVE() {
 }
 
 if [ "$SUPPORT_PORTMASTER" -eq 1 ]; then
-	EXTRACT_ARCHIVE "/opt/muos/archive/portmaster/portmaster.zip" "$ROM_MOUNT/MUOS/PortMaster/" "PortMaster"
+	MUOS_NEW_PM_DIR="/opt/muos/archive/portmaster"
+	MUOS_PM_DIR="$ROM_MOUNT/MUOS/PortMaster"
+	
+	cp -r "$MUOS_NEW_PM_DIR"/* "$MUOS_PM_DIR"/.
 fi
 
 EXTRACT_ARCHIVE "/opt/muos/archive/soundfont/soundfont.zip" "/usr/share/soundfonts/" "Soundfonts"

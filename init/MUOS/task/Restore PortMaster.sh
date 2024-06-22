@@ -33,10 +33,10 @@ MUOS_NEW_PM_DIR="/opt/muos/archive/portmaster"
 MUOS_PM_DIR="$ROM_MOUNT/MUOS/PortMaster"
 
 echo "Deleting existing PortMaster install" > /tmp/muxlog_info
-rm -rf "$MUOS_PM_DIR/*"
+rm -rf "$MUOS_PM_DIR"/*
 
 echo "Reinstalling PortMaster from base" > /tmp/muxlog_info
-cp -r "$MUOS_NEW_PM_DIR/*" "$MUOS_PM_DIR/."
+cp -r "$MUOS_NEW_PM_DIR"/* "$MUOS_PM_DIR"/.
 
 # Sync filesystem just-in-case :)
 echo "Sync Filesystem" > /tmp/muxlog_info

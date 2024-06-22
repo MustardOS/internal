@@ -71,14 +71,14 @@ if [ "$STARTUP" = last ] || [ "$STARTUP" = resume ]; then
 	if [ -s "$LAST_PLAY" ]; then
 		NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
 		RETROWAIT=$(parse_ini "$CONFIG" "settings.advanced" "retrowait")
-		if [ "$NET_ENABLED" -eq 1 ] && [ "$RETROWAIT" -eq 1 ]; then
+		if [ "$NET_ENABLED" -eq 1 ] && [ "$RETROWAIT" -gt 0 ]; then
 			NET_CONNECTED="/tmp/net_connected"
 			OIP=0
 			while [ "$(cat "$NET_CONNECTED")" = "0" ]; do
 				OIP=$((OIP + 1))
 				LOGGER "NETWORK WAIT" "Waiting for network to connect..."
 				sleep 1
-				if [ $OIP -eq 10 ]; then
+				if [ $OIP -eq $RETROWAIT ]; then
 					break
 				fi
 			done

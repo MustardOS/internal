@@ -68,7 +68,7 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 		fi
 	done
 
-	/opt/muos/bin/muaudio &
+	/opt/muos/device/"$DEVICE"/input/input.sh
 	/opt/muos/bin/mp3play "/opt/muos/factory.mp3" &
 
 	LOGGER "FACTORY RESET" "Initialising Factory Reset Script"
@@ -79,6 +79,8 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 		LOGGER "FACTORY RESET" "Generating SSH Host Keys"
 		/opt/openssh/bin/ssh-keygen -A
 	fi
+	
+	killall -q "input.sh"
 fi
 
 /opt/muos/device/"$DEVICE"/script/charge.sh

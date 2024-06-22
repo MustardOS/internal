@@ -2,6 +2,8 @@
 
 . /opt/muos/script/system/parse.sh
 
+CONFIG=/opt/muos/config/config.ini
+
 DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
 DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 
@@ -19,8 +21,13 @@ KEY_COMBO=0
 
 # Place combo and trigger scripts here because fuck knows why for loops won't work...
 # Make sure to put them in order of how you want them to work too!
-/opt/muos/device/"$DEVICE"/input/trigger/power.sh &
-/opt/muos/device/"$DEVICE"/input/trigger/sleep.sh &
+FACTORY_RESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
+if [ "$FACTORY_RESET" -eq 0 ]; then
+	/opt/muos/device/"$DEVICE"/input/trigger/power.sh &
+	/opt/muos/device/"$DEVICE"/input/trigger/sleep.sh &
+else
+	echo "awake" > "/tmp/sleep_state"
+fi
 
 {
 	evtest "$INPUT_DEVICE_0" &

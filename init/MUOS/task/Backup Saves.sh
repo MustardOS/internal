@@ -11,7 +11,7 @@ DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
 CONTROL_DIR="/opt/muos/device/$DEVICE/control"
 ROM_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
 SD_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "mount")
-USB_MOUNT=$(arse_ini "$DEVICE_CONFIG" "storage.usb" "mount")
+USB_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.usb" "mount")
 
 SD_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "dev")p$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "num")
 USB_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.usb" "dev")$(parse_ini "$DEVICE_CONFIG" "storage.usb" "num")
@@ -29,8 +29,8 @@ sleep 1
 TMP_FILE=/tmp/muxlog_global
 rm -rf "$TMP_FILE"
 
-# Grab current date
-DATE=$(date +%Y-%m-%d)
+# Grab current date and time
+DATETIME=$(date +"%Y-%m-%dT%H%M%S")
 
 # Determine RetroArch Save Directory
 RA_SAVEFILE_DIR=$(grep 'savefile_dir' "$ROM_MOUNT/MUOS/retroarch/retroarch.cfg" | cut -d '"' -f 2)
@@ -57,7 +57,7 @@ else
 fi
 
 # Define PPSSPP source directories
-if [ -d "$ROM_MOUNT/MUOS/emulator/" ]; then
+if [ -d "$ROM_MOUNT/MUOS/emulator/ppsspp" ]; then
     PPSSPP_SAVE_DIR="$ROM_MOUNT/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA"
     PPSSPP_SAVESTATE_DIR="$ROM_MOUNT/MUOS/emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE"
 else
@@ -72,6 +72,15 @@ if [ -d "$ROM_MOUNT/MUOS/emulator/drastic" ]; then
 else
     Drastic_SAVE_DIR=""
     Drastic_SAVESTATE_DIR=""
+fi
+
+# Define DraStic-steward source directories
+if [ -d "$ROM_MOUNT/MUOS/emulator/drastic-steward" ]; then
+    Drasticsteward_SAVE_DIR="$ROM_MOUNT/MUOS/save/drastic/backup"
+    Drasticsteward_SAVESTATE_DIR="$ROM_MOUNT/MUOS/save/drastic/savestates"
+else
+    Drasticsteward_SAVE_DIR=""
+    Drasticsteward_SAVESTATE_DIR=""
 fi
 
 # Set destination file based on priority
@@ -89,14 +98,14 @@ else
     DEST_DIR="$ROM_MOUNT/BACKUP"
 fi
 
-DEST_FILE="$DEST_DIR/muOS-Save-$DATE.zip"
+DEST_FILE="$DEST_DIR/muOS-Save-$DATETIME.zip"
 
 # Change to root so we capture full path in .zip
 cd /
 
 # Create the backup
 echo "Archiving Saves" > /tmp/muxlog_info
-zip -ru9 "$DEST_FILE" "$MUOS_SAVEFILE_DIR" "$MUOS_SAVESTATE_DIR" "$PPSSPP_RA_SAVE_DIR" "$PPSSPP_SAVE_DIR" "$PPSSPP_SAVESTATE_DIR" "$Drastic_SAVE_DIR" "$Drastic_SAVESTATE_DIR" > "$TMP_FILE" 2>&1 &
+zip -ru9 "$DEST_FILE" "$MUOS_SAVEFILE_DIR" "$MUOS_SAVESTATE_DIR" "$PPSSPP_RA_SAVE_DIR" "$PPSSPP_SAVE_DIR" "$PPSSPP_SAVESTATE_DIR" "$Drastic_SAVE_DIR" "$Drastic_SAVESTATE_DIR" "$Drasticsteward_SAVE_DIR" "$Drasticsteward_SAVESTATE_DIR" > "$TMP_FILE" 2>&1 &
 
 # Tail zip process and push to muxlog
 C_LINE=""

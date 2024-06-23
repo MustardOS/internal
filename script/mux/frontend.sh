@@ -71,22 +71,35 @@ if [ "$STARTUP" = last ] || [ "$STARTUP" = resume ]; then
 	if [ -s "$LAST_PLAY" ]; then
 		NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
 		RETROWAIT=$(parse_ini "$CONFIG" "settings.advanced" "retrowait")
-		if [ "$NET_ENABLED" -eq 1 ] && [ "$RETROWAIT" -gt 0 ]; then
+		if [ "$NET_ENABLED" -eq 1 ] && [ "$RETROWAIT" -eq 1 ]; then
 			NET_CONNECTED="/tmp/net_connected"
 			OIP=0
-			while [ "$(cat "$NET_CONNECTED")" = "0" ]; do
+			while true; do
+				NW_MSG=$(cat <<EOF
+Waiting for network to connect... ($OIP)
+
+Press START to continue loading
+Press SELECT to go to main menu
+EOF
+				)
+				/opt/muos/extra/muxstart "$NW_MSG"
 				OIP=$((OIP + 1))
-				LOGGER "NETWORK WAIT" "Waiting for network to connect..."
-				sleep 1
-				if [ $OIP -eq $RETROWAIT ]; then
+				if [ "$(cat "$NET_CONNECTED")" -eq 1 ]; then
+					/opt/muos/extra/muxstart "Network connected... Booting content!"
 					break
 				fi
+				if [ "$(cat "$NET_CONNECTED")" -eq 2 ]; then
+					/opt/muos/extra/muxstart "Ignoring network connection... booting content!"
+					break
+				fi
+				if [ "$(cat "$NET_CONNECTED")" -eq 3 ]; then
+					/opt/muos/extra/muxstart "Booting to main menu!"
+					break
+				fi
+				sleep 1
 			done
-			if [ "$(cat "$NET_CONNECTED")" = "1" ]; then
-				cat "$LAST_PLAY" > "$ROM_GO"
-				/opt/muos/script/mux/launch.sh
-			fi
-		else
+		fi
+		if [ "$(cat "$NET_CONNECTED")" -eq 1 ] || [ "$(cat "$NET_CONNECTED")" -eq 2 ] || [ "$NET_ENABLED" -eq 0 ] || [ "$RETROWAIT" -eq 0 ]; then
 			cat "$LAST_PLAY" > "$ROM_GO"
 			/opt/muos/script/mux/launch.sh
 		fi

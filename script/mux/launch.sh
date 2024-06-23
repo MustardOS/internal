@@ -130,7 +130,10 @@ echo explore > "$ACT_GO"
 cat /dev/zero > "$(parse_ini "$DEVICE_CONFIG" "screen" "device")" 2>/dev/null
 cat /dev/zero > "$(parse_ini "$DEVICE_CONFIG" "screen" "device")" 2>/dev/null
 
-[ "$(cat "$ACT_GO")" = last ] && echo launcher > "$ACT_GO"
+STARTUP=$(parse_ini "$CONFIG" "settings.general" "startup")
+if [ "$STARTUP" = last ] || [ "$STARTUP" = resume ]; then
+	echo launcher > "$ACT_GO"
+fi
 
 killall -q "$GPTOKEYB_BIN"
 killall -q "$EVSIEVE_BIN"

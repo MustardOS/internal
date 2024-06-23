@@ -54,6 +54,30 @@ fi
 #        	echo "Trigger of UP detected"
 #        fi
 
+        if [ $STATE_START -eq 1 ] && [ $KEY_COMBO -eq 0 ]; then
+        	KEY_COMBO=1
+		RETROWAIT=$(parse_ini "$CONFIG" "settings.advanced" "retrowait")
+		if [ "$RETROWAIT" -eq 1 ]; then
+			echo 2 > "/tmp/net_connected"
+		fi
+        	STATE_START=0
+        	KEY_COMBO=0
+        elif [ $STATE_START -eq 0 ]; then
+        	KEY_COMBO=0
+        fi
+
+        if [ $STATE_SELECT -eq 1 ] && [ $KEY_COMBO -eq 0 ]; then
+        	KEY_COMBO=1
+		RETROWAIT=$(parse_ini "$CONFIG" "settings.advanced" "retrowait")
+		if [ "$RETROWAIT" -eq 1 ]; then
+			echo 3 > "/tmp/net_connected"
+		fi
+        	STATE_SELECT=0
+        	KEY_COMBO=0
+        elif [ $STATE_SELECT -eq 0 ]; then
+        	KEY_COMBO=0
+        fi
+
         if [ $STATE_MENU_LONG -eq 1 ] && [ $STATE_VOL_UP -eq 1 ] && [ $KEY_COMBO -eq 0 ]; then
         	KEY_COMBO=1
         	/opt/muos/device/"$DEVICE"/input/combo/bright.sh U

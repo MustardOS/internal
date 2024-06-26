@@ -1,12 +1,9 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.ini
-
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
-
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+. /opt/muos/script/var/device/storage.sh
+. /opt/muos/script/var/global/setting_advanced.sh
+. /opt/muos/script/var/global/setting_general.sh
+. /opt/muos/script/var/global/network.sh
 
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
@@ -20,24 +17,8 @@ SND_PIPE=/tmp/muplay_pipe
 MUX_RELOAD=/tmp/mux_reload
 MUX_AUTH=/tmp/mux_auth
 
-STARTUP=$(parse_ini "$CONFIG" "settings.general" "startup")
-echo "$STARTUP" > $ACT_GO
+echo "$GC_GEN_STARTUP" > $ACT_GO
 echo "root" > $EX_CARD
-
-LOGGER() {
-VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")
-if [ "$VERBOSE" -eq 1 ]; then
-	_TITLE=$1
-	_MESSAGE=$2
-	_FORM=$(cat <<EOF
-$_TITLE
-
-$_MESSAGE
-EOF
-	)
-	/opt/muos/extra/muxstart "$_FORM" && sleep 0.5
-fi
-}
 
 KILL_BGM() {
 	if pgrep -f "playbgm.sh" > /dev/null; then
@@ -53,25 +34,19 @@ KILL_SND() {
 	fi
 }
 
-while true; do
-	if mount | grep -q "$STORE_ROM"; then
-		break
-	fi
+until mount | grep -q "$DC_STO_ROM_MOUNT"; do
 	sleep 0.25
 done
 
-RANDOM_THEME=$(parse_ini "$CONFIG" "settings.advanced" "random_theme")
-if [ "$RANDOM_THEME" -eq 1 ]; then
+if [ "$GC_ADV_RANDOM_THEME" -eq 1 ]; then
 	/opt/muos/script/mux/theme.sh "?R"
 fi
 
 LAST_PLAY="/opt/muos/config/lastplay.txt"
-STARTUP=$(parse_ini "$CONFIG" "settings.general" "startup")
-if [ "$STARTUP" = last ] || [ "$STARTUP" = resume ]; then
+
+if [ "$GC_GEN_STARTUP" = last ] || [ "$GC_GEN_STARTUP" = resume ]; then
 	if [ -s "$LAST_PLAY" ]; then
-		NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
-		RETROWAIT=$(parse_ini "$CONFIG" "settings.advanced" "retrowait")
-		if [ "$NET_ENABLED" -eq 1 ] && [ "$RETROWAIT" -eq 1 ]; then
+		if [ "$GC_NET_ENABLED" -eq 1 ] && [ "$GC_ADV_RETROWAIT" -eq 1 ]; then
 			NET_CONNECTED="/tmp/net_connected"
 			OIP=0
 			while true; do
@@ -99,7 +74,7 @@ EOF
 				sleep 1
 			done
 		fi
-		if [ "$(cat "$NET_CONNECTED")" -eq 1 ] || [ "$(cat "$NET_CONNECTED")" -eq 2 ] || [ "$NET_ENABLED" -eq 0 ] || [ "$RETROWAIT" -eq 0 ]; then
+		if [ "$(cat "$NET_CONNECTED")" -eq 1 ] || [ "$(cat "$NET_CONNECTED")" -eq 2 ] || [ "$GC_NET_ENABLED" -eq 0 ] || [ "$GC_ADV_RETROWAIT" -eq 0 ]; then
 			cat "$LAST_PLAY" > "$ROM_GO"
 			/opt/muos/script/mux/launch.sh
 		fi
@@ -108,23 +83,20 @@ EOF
 fi
 
 while true; do
+	. /opt/muos/script/var/global/setting_advanced.sh
+	. /opt/muos/script/var/global/setting_general.sh
+
 	# Background Music
-	BGM_SOUND=$(parse_ini "$CONFIG" "settings.general" "bgm")
-	if [ "$BGM_SOUND" -eq 1 ]; then
-		if ! pgrep -f "playbgm.sh" > /dev/null; then
-			/opt/muos/script/mux/playbgm.sh
-		fi
+	if [ "$GC_GEN_BGM" -eq 1 ] && ! pgrep -f "playbgm.sh" > /dev/null; then
+		/opt/muos/script/mux/playbgm.sh
 	else
 		KILL_BGM
 	fi
 
 	# Navigation Sounds
-	NAV_SOUND=$(parse_ini "$CONFIG" "settings.general" "sound")
-	if [ "$NAV_SOUND" -eq 1 ]; then
-		if ! pgrep -f "muplay" > /dev/null; then
-			mkfifo "$SND_PIPE"
-			/opt/muos/bin/muplay "$SND_PIPE" &
-		fi
+	if [ "$GC_GEN_SOUND" -eq 1 ] && ! pgrep -f "muplay" > /dev/null; then
+		mkfifo "$SND_PIPE"
+		/opt/muos/bin/muplay "$SND_PIPE" &
 	else
 		KILL_SND
 	fi
@@ -160,8 +132,7 @@ while true; do
 	fi
 
 	# Kill PortMaster GPTOKEYB just in case!
-	killall -q gptokeyb.armhf
-	killall -q gptokeyb.aarch64
+	killall -q gptokeyb.armhf gptokeyb.aarch64
 
 	# muX Programs
 	if [ -s "$ACT_GO" ]; then
@@ -191,8 +162,7 @@ while true; do
 				;;
 			"app")
 				echo launcher > $ACT_GO
-				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
-				if [ "$LOCK" -eq 1 ]; then
+				if [ "$GC_ADV_LOCK" -eq 1 ]; then
 					echo "muxpass" > /tmp/fg_proc
 						nice --20 /opt/muos/extra/muxpass -t launch
 					if [ "$?" = 1 ]; then
@@ -206,8 +176,7 @@ while true; do
 				;;
 			"config")
 				echo launcher > $ACT_GO
-				LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
-				if [ "$LOCK" -eq 1 ]; then
+				if [ "$GC_ADV_LOCK" -eq 1 ]; then
 					if [ -e "$MUX_AUTH" ]; then
 						echo "muxconfig" > /tmp/fg_proc
 						nice --20 /opt/muos/extra/muxconfig
@@ -250,6 +219,11 @@ while true; do
 				echo "muxvisual" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxvisual
 				;;
+			"net_profile")
+				echo network > $ACT_GO
+				echo "muxnetprofile" > /tmp/fg_proc
+				nice --20 /opt/muos/extra/muxnetprofile
+				;;
 			"net_scan")
 				echo network > $ACT_GO
 				echo "muxnetscan" > /tmp/fg_proc
@@ -291,7 +265,7 @@ while true; do
 				nice --20 /opt/muos/extra/muxsysinfo
 				;;
 			"favourite")
-				find "$STORE_ROM"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
+				find "$DC_STO_ROM_MOUNT"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
 				echo "muxplore" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m favourite
@@ -303,7 +277,7 @@ while true; do
 				fi
 				;;
 			"history")
-				find "$STORE_ROM"/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
+				find "$DC_STO_ROM_MOUNT"/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
 				echo launcher > $ACT_GO
 				echo "muxplore" > /tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i 0 -m history

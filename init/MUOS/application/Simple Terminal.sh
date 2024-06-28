@@ -1,32 +1,27 @@
 #!/bin/sh
 
-if pgrep -f "playbgm.sh" > /dev/null; then
-	killall -q "playbgm.sh"
-	killall -q "mp3play"
+if pgrep -f "playbgm.sh" >/dev/null; then
+	killall -q "playbgm.sh" "mp3play"
 fi
 
-if pgrep -f "muplay" > /dev/null; then
-	kill -9 "muplay"
+if pgrep -f "muplay" >/dev/null; then
+	killall -q "muplay"
 	rm "$SND_PIPE"
 fi
 
-echo app > /tmp/act_go
+echo app >/tmp/act_go
 
-. /opt/muos/script/system/parse.sh
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/sdl.sh
+. /opt/muos/script/var/device/storage.sh
 
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-SDL_SCALER=$(parse_ini "$DEVICE_CONFIG" "sdl" "scaler")
+export SDL_HQ_SCALER="$DC_SDL_SCALER"
 
-export SDL_HQ_SCALER="$SDL_SCALER"
-
-TERM_DIR="$STORE_ROM/MUOS/application/.terminal"
+TERM_DIR="$DC_STO_ROM_MOUNT/MUOS/application/.terminal"
 
 cd "$TERM_DIR" || exit
 
-echo "terminal" > /tmp/fg_proc
+echo "terminal" >/tmp/fg_proc
 
 LD_LIBRARY_PATH=/usr/lib32 HOME="$TERM_DIR" SDL_ASSERT=always_ignore ./terminal
-

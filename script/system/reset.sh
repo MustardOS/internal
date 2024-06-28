@@ -1,78 +1,50 @@
 #!/bin/sh
 
-MUOSBOOT_LOG=$1
+. /opt/muos/script/var/func.sh
 
-. /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.ini
+. /opt/muos/script/var/device/device.sh
+. /opt/muos/script/var/device/network.sh
+. /opt/muos/script/var/device/storage.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
-
-SUPPORT_PORTMASTER=$(parse_ini "$DEVICE_CONFIG" "device" "portmaster")
-SUPPORT_NETWORK=$(parse_ini "$DEVICE_CONFIG" "device" "network")
-NET_IFACE=$(parse_ini "$DEVICE_CONFIG" "network" "iface")
-
-CURRENT_DATE=$(date +"%Y_%m_%d__%H_%M_%S")
-
-ROM_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "dev")
-ROM_PARTITION=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "num")
-ROM_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-ROM_TYPE=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "type")
-
-LOGGER() {
-VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")
-if [ "$VERBOSE" -eq 1 ]; then
-	_TITLE=$1
-	_MESSAGE=$2
-	_FORM=$(cat <<EOF
-$_TITLE
-
-$_MESSAGE
-EOF
-	)
-	/opt/muos/extra/muxstart "$_FORM" && sleep 0.5
-	echo "=== ${CURRENT_DATE} === $_MESSAGE" >> "$MUOSBOOT_LOG"
-fi
-}
-
-umount "$ROM_MOUNT"
+umount "$DC_STO_ROM_MOUNT"
 
 LOGGER "FACTORY RESET" "Expanding ROM Partition"
-printf "w\nw\n" | fdisk /dev/"$ROM_DEVICE"
-parted ---pretend-input-tty /dev/"$ROM_DEVICE" resizepart "$ROM_PARTITION" 100%
+printf "w\nw\n" | fdisk /dev/"$DC_STO_ROM_DEV"
+parted ---pretend-input-tty /dev/"$DC_STO_ROM_DEV" resizepart "$DC_STO_ROM_NUM" 100%
 
 LOGGER "FACTORY RESET" "Formatting ROM Partition"
-mkfs."${ROM_TYPE}" /dev/"$ROM_DEVICE"p"$ROM_PARTITION"
-case "$ROM_TYPE" in
+mkfs."${DC_STO_ROM_TYPE}" /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM"
+case "$DC_STO_ROM_TYPE" in
 	vfat | exfat)
-		exfatlabel /dev/"$ROM_DEVICE"p"$ROM_PARTITION" ROMS
+		exfatlabel /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" ROMS
 		;;
 	ext4)
-		e2label /dev/"$ROM_DEVICE"p"$ROM_PARTITION" ROMS
+		e2label /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" ROMS
 		;;
 esac
 
 LOGGER "FACTORY RESET" "Setting ROM Partition Flags"
-parted ---pretend-input-tty /dev/"$ROM_DEVICE" set "$ROM_PARTITION" boot off
-parted ---pretend-input-tty /dev/"$ROM_DEVICE" set "$ROM_PARTITION" hidden off
+parted ---pretend-input-tty /dev/"$DC_STO_ROM_DEV" set "$DC_STO_ROM_NUM" boot off
+parted ---pretend-input-tty /dev/"$DC_STO_ROM_DEV" set "$DC_STO_ROM_NUM" hidden off
 
 LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
-mount -t "$ROM_TYPE" /dev/"$ROM_DEVICE"p"$ROM_PARTITION" "$ROM_MOUNT"
+mount -t "$DC_STO_ROM_TYPE" /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" "$DC_STO_ROM_MOUNT"
 
-RSRF="Restoring ROM Filesystem"
-LOGGER "FACTORY RESET" "$RSRF"
-
-if [ "$SUPPORT_PORTMASTER" -eq 0 ]; then
-	rm -rf /opt/muos/init/MUOS/PortMaster
-fi
-
-mv /opt/muos/init/* "$ROM_MOUNT"/ &
+LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
+mv /opt/muos/init/* "$DC_STO_ROM_MOUNT"/ &
 
 while true; do
 	IS_WORKING=$(pgrep -f "mv")
 	RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
 
-	LOGGER "$RSRF" "$RANDOM_LINE"
+	MSG=$(
+		cat <<EOF
+FACTORY RESET
+
+$RANDOM_LINE
+EOF
+	)
+	/opt/muos/extra/muxstart "$MSG" && sleep 0.5
 
 	if [ "$IS_WORKING" = "" ]; then
 		break
@@ -81,58 +53,21 @@ while true; do
 	sleep 5
 done
 
-rm -rf /opt/muos/init &
+LOGGER "$0" "FACTORY RESET" "Restoring PortMaster"
+cp -r /opt/muos/archive/portmaster/* "$DC_STO_ROM_MOUNT"/MUOS/PortMaster/
 
-EXTRACT_ARCHIVE() {
-	ARCHIVE="$1"
-	DESTINATION="$2"
-	WHAT="$3"
+LOGGER "$0" "FACTORY RESET" "Purging init directory"
+rm -rf /opt/muos/init
 
-	RSRF="Merging $WHAT Archive"
-	LOGGER "FACTORY RESET" "$RSRF"
+if [ "$DC_DEV_NETWORK" -eq 1 ]; then
+	LOGGER "$0" "FACTORY RESET" "Changing Network MAC Address"
+	macchanger -r "$DC_NET_INTERFACE"
 
-	zip -s0 "$ARCHIVE" --out /tmp/mux_archive.zip
-
-	RSRF="Restoring $WHAT"
-	LOGGER "FACTORY RESET" "$RSRF"
-
-	unzip -o /tmp/mux_archive.zip -d "$DESTINATION" &
-
-	while true; do
-		IS_WORKING=$(pgrep -f "unzip")
-		RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
-
-		LOGGER "$RSRF" "$RANDOM_LINE"
-
-		if [ -z "$IS_WORKING" ]; then
-			break
-		fi
-
-		sleep 5
-	done
-
-	rm /tmp/mux_archive.zip
-}
-
-if [ "$SUPPORT_PORTMASTER" -eq 1 ]; then
-	MUOS_NEW_PM_DIR="/opt/muos/archive/portmaster"
-	MUOS_PM_DIR="$ROM_MOUNT/MUOS/PortMaster"
-	
-	cp -r "$MUOS_NEW_PM_DIR"/* "$MUOS_PM_DIR"/.
-fi
-
-EXTRACT_ARCHIVE "/opt/muos/archive/soundfont/soundfont.zip" "/usr/share/soundfonts/" "Soundfonts"
-
-if [ "$SUPPORT_NETWORK" -eq 1 ]; then
-	LOGGER "FACTORY RESET" "Changing Network MAC Address"
-	macchanger -r "$NET_IFACE"
-
-	LOGGER "FACTORY RESET" "Setting Random Hostname"
+	LOGGER "$0" "FACTORY RESET" "Setting Random Hostname"
 	HN=$(hostname)-$(head -c 5 /proc/sys/kernel/random/uuid)
 	hostname "$HN"
-	echo "$HN" > /etc/hostname
+	echo "$HN" >/etc/hostname
 fi
 
-LOGGER "FACTORY RESET" "Syncing Partitions"
+LOGGER "$0" "FACTORY RESET" "Syncing Partitions"
 sync
-

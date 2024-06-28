@@ -11,7 +11,7 @@ pool=pool.ntp.org
 [network]
 enabled=0
 type=0
-ssid=
+ssid =
 address=192.168.0.123
 gateway=192.168.0.1
 subnet=24
@@ -25,14 +25,13 @@ startup=launcher
 power=0
 low_battery=0
 colour=9
-hdmi=0
+hdmi=-1
 shutdown=300
 
 [settings.advanced]
 swap=0
 thermal=0
 font=1
-verbose=0
 volume=previous
 brightness=previous
 offset=50
@@ -56,4 +55,3 @@ browser=0
 terminal=0
 syncthing=0
 ntp=1
-

@@ -1,38 +1,28 @@
 #!/bin/sh
 
-# Initialise the ini parser
-. /opt/muos/script/system/parse.sh
+. /opt/muos/script/var/func.sh
 
-# Define path ot muOS core ini files
-CurrentFile="/mnt/mmc/MUOS/info/assign/*.ini"
+. /opt/muos/script/var/device/storage.sh
 
-# Check if any .ini files are found
-set -- $CurrentFile
+ASSIGN_DIR="$DC_STO_ROM_MOUNT/MUOS/info/assign/*.ini"
+
+set -- "$ASSIGN_DIR"
 if [ $# -eq 0 ]; then
 	exit 1
 fi
 
-# Extract catalogue value from core ini and create appropriate folders
-create_directories_from_ini() {
-	ini_file="$1"
+GEN_ASSIGN_DIR() {
+	INI_FILE="$1"
+	CORE_CATALOGUE=$(PARSE_INI "$INI_FILE" "global" "catalogue")
 
-	# Extract the catalogue value using parse_ini function from parse.sh
-	catalogue=$(parse_ini "$ini_file" "global" "catalogue")
-
-	if [ -z "$catalogue" ]; then
+	if [ -z "$CORE_CATALOGUE" ]; then
 		return
 	fi
 
-	# Define the base system directory
-	base_dir="/mnt/mmc/MUOS/info/catalogue/$catalogue"
-
-	# Create the base directory and subdirectories
-	mkdir -p "$base_dir/box" "$base_dir/preview" "$base_dir/text"
-
+	BASE_DIR="$DC_STO_ROM_MOUNT/MUOS/info/catalogue/$CORE_CATALOGUE"
+	mkdir -p "$BASE_DIR/box" "$BASE_DIR/preview" "$BASE_DIR/text"
 }
 
-# Process each .ini file and create directories
-for ini_file in $CurrentFile; do
-	create_directories_from_ini "$ini_file"
+for INI_FILE in $ASSIGN_DIR; do
+	GEN_ASSIGN_DIR "$INI_FILE"
 done
-

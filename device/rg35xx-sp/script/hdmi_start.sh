@@ -1,48 +1,44 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.ini
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/screen.sh
 
-HDMI_STATE=$(parse_ini "$DEVICE_CONFIG" "screen" "hdmi")
-HDMI_MODE=$(parse_ini "$CONFIG" "settings.general" "hdmi")
+. /opt/muos/script/var/global/setting_general.sh
 
 DISPLAY="/sys/kernel/debug/dispdbg"
 
 FG_PROC="/tmp/fg_proc"
 
 RESET_DISP=0
-
 SWITCHED_ON=0
 SWITCHED_OFF=0
 
 while true; do
-	if [ "$(cat "$HDMI_STATE")" = "HDMI=1" ]; then
+	if [ "$(cat "$DC_SCR_HDMI")" = "HDMI=1" ]; then
 		SWITCHED_OFF=0
 
 		if [ $SWITCHED_ON -eq 0 ]; then
 			RESET_DISP=0
 
 			# Switch on HDMI
-			echo disp0 > $DISPLAY/name
-			echo switch > $DISPLAY/command
-			echo 4 $HDMI_MODE > $DISPLAY/param
-			echo 1 > $DISPLAY/start
+			echo disp0 >$DISPLAY/name
+			echo switch >$DISPLAY/command
+			echo 4 "$GC_GEN_HDMI" >$DISPLAY/param
+			echo 1 >$DISPLAY/start
 
 			FG_PROC_VAL=$(cat "$FG_PROC")
 
-			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
-   				pkill -STOP "playbgm.sh"
-   				killall -q "mp3play"
+			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
+				pkill -STOP "playbgm.sh"
+				killall -q "mp3play"
 			fi
 
-			sed -i -E 's/(defaults\.(ctl|pcm)\.card) 0/\1 2/g' /usr/share/alsa/alsa.conf
+			sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 2/g" /usr/share/alsa/alsa.conf
 			alsactl kill quit
 
-			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
-   				pkill -CONT "playbgm.sh"
+			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
+				pkill -CONT "playbgm.sh"
 			fi
 
 			# Reset the display
@@ -63,23 +59,23 @@ while true; do
 			RESET_DISP=0
 
 			# Switch off HDMI
-			echo disp0 > $DISPLAY/name
-			echo switch > $DISPLAY/command
-			echo 1 0 > $DISPLAY/param
-			echo 1 > $DISPLAY/start
+			echo disp0 >$DISPLAY/name
+			echo switch >$DISPLAY/command
+			echo 1 0 >$DISPLAY/param
+			echo 1 >$DISPLAY/start
 
 			FG_PROC_VAL=$(cat "$FG_PROC")
 
-			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
+			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
 				pkill -STOP "playbgm.sh"
 				killall -q "mp3play"
 			fi
 
-			sed -i -E 's/(defaults\.(ctl|pcm)\.card) 2/\1 0/g' /usr/share/alsa/alsa.conf
+			sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf
 			alsactl kill quit
 
-			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" > /dev/null; then
-   				pkill -CONT "playbgm.sh"
+			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
+				pkill -CONT "playbgm.sh"
 			fi
 
 			# Reset the display
@@ -96,4 +92,3 @@ while true; do
 	fi
 	sleep 3
 done
-

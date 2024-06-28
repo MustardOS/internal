@@ -1,148 +1,143 @@
 #!/bin/sh
 
-# We need to ensure that config.ini is readable before we continue
-if [ -s "/opt/muos/config/config.ini" ]; then
-	LOGGER "BOOTING" "Config Check Passed"
+. /opt/muos/script/var/func.sh
+
+. /opt/muos/script/var/device/audio.sh
+. /opt/muos/script/var/device/device.sh
+. /opt/muos/script/var/device/storage.sh
+
+. /opt/muos/script/var/global/boot.sh
+. /opt/muos/script/var/global/network.sh
+. /opt/muos/script/var/global/setting_advanced.sh
+
+if [ -s "$GLOBAL_CONFIG" ]; then
+	LOGGER "$0" "BOOTING" "Config Check Passed"
 else
-	LOGGER "BOOTING" "Config Check Failed: Restoring"
-	cp -f "/opt/muos/config/config.bak" "/opt/muos/config/config.ini"
+	LOGGER "$0" "BOOTING" "Config Check Failed: Restoring"
+	cp -f "/opt/muos/config/config.bak" "$GLOBAL_CONFIG"
 fi
 
-. /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.ini
-
-# THIS REQUIRES SOMETHING TO PARSE `dmesg` FOR UNIQUE VALUES
-# SO THAT WE CAN ADJUST FOR UNIQUE DEVICES AUTOMATICALLY!
-
-DEVICE_SETUP=$(parse_ini "$CONFIG" "boot" "device_setup")
-if [ "$DEVICE_SETUP" -eq 1 ]; then
-	modify_ini "$CONFIG" "boot" "device_setup" "0"
+if [ "$GC_BOO_DEVICE_SETUP" -eq 1 ]; then
+	MODIFY_INI "$GLOBAL_CONFIG" "boot" "device_setup" "0"
 	/opt/muos/extra/muxdevice
 fi
 
-LOGGER "BOOTING" "Checking Firmware"
+LOGGER "$0" "BOOTING" "Checking Firmware"
 /opt/muos/script/system/firmware.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+echo 1 >/tmp/work_led_state
+echo 0 >/tmp/net_connected
 
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-
-echo 1 > /tmp/work_led_state
-echo 0 > /tmp/net_connected
-
-LOGGER "BOOTING" "Restoring Audio State"
-cp -f "/opt/muos/device/$DEVICE/control/asound.state" "/var/lib/alsa/asound.state"
+LOGGER "$0" "BOOTING" "Restoring Audio State"
+cp -f "/opt/muos/device/$DEVICE_TYPE/control/asound.state" "/var/lib/alsa/asound.state"
 alsactl -U restore
 
-LOGGER "BOOTING" "Restoring Audio Volume"
-VOLUME=$(parse_ini "$CONFIG" "settings.advanced" "volume")
-AUDIO_CONTROL=$(parse_ini "$DEVICE_CONFIG" "audio" "control")
-AUDIO_VOL_MIN=$(parse_ini "$DEVICE_CONFIG" "audio" "min")
-AUDIO_VOL_MAX=$(parse_ini "$DEVICE_CONFIG" "audio" "max")
-case "$VOLUME" in
-	"loud")		
-		amixer sset "$AUDIO_CONTROL" "$AUDIO_VOL_MAX" > /dev/null
+LOGGER "$0" "BOOTING" "Restoring Audio Volume"
+case "$GC_ADV_VOLUME" in
+	"loud")
+		amixer sset "$DC_SND_CONTROL" "$DC_SND_MAX" >/dev/null
 		;;
 	"quiet")
-		amixer sset "$AUDIO_CONTROL" "$AUDIO_VOL_MIN" > /dev/null
+		amixer sset "$DC_SND_CONTROL" "$DC_SND_MIN" >/dev/null
 		;;
 	*)
 		RESTORED=$(cat "/opt/muos/config/volume.txt")
-		amixer sset "$AUDIO_CONTROL" "$RESTORED" > /dev/null
+		amixer sset "$DC_SND_CONTROL" "$RESTORED" >/dev/null
 		;;
 esac
 
-FACTORY_RESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
-if [ "$FACTORY_RESET" -eq 1 ]; then
-	date 060200002024
+if [ "$GC_BOO_FACTORY_RESET" -eq 1 ]; then
+	LOGGER "$0" "FACTORY RESET" "Setting date time to default"
+	date 070200002024
 	hwclock -w
 
-	CLOCK_SETUP=$(parse_ini "$CONFIG" "boot" "clock_setup")
 	/opt/muos/extra/muxtimezone
-	while [ "$CLOCK_SETUP" -eq 1 ]; do
+	while [ "$GC_BOO_CLOCK_SETUP" -eq 1 ]; do
 		/opt/muos/extra/muxrtc
-		CLOCK_SETUP=$(parse_ini "$CONFIG" "boot" "clock_setup")
-		if [ "$CLOCK_SETUP" -eq 1 ]; then
+		. /opt/muos/script/var/global/boot.sh
+		if [ "$GC_BOO_CLOCK_SETUP" -eq 1 ]; then
 			/opt/muos/extra/muxtimezone
 		fi
 	done
 
-	/opt/muos/device/"$DEVICE"/input/input.sh
+	LOGGER "$0" "FACTORY RESET" "Starting Input Reader"
+	/opt/muos/device/"$DEVICE_TYPE"/input/input.sh
 	/opt/muos/bin/mp3play "/opt/muos/factory.mp3" &
 
-	LOGGER "FACTORY RESET" "Initialising Factory Reset Script"
-	/opt/muos/script/system/reset.sh "$MUOSBOOT_LOG"
+	LOGGER "$0" "FACTORY RESET" "Initialising Factory Reset Script"
+	/opt/muos/script/system/reset.sh
 
-	SUPPORT_NETWORK=$(parse_ini "$DEVICE_CONFIG" "device" "network")
-	if [ "$SUPPORT_NETWORK" -eq 1 ]; then
-		LOGGER "FACTORY RESET" "Generating SSH Host Keys"
+	if [ "$DC_DEV_NETWORK" -eq 1 ]; then
+		LOGGER "$0" "FACTORY RESET" "Generating SSH Host Keys"
 		/opt/openssh/bin/ssh-keygen -A
 	fi
-	
+
 	killall -q "input.sh"
 fi
 
-/opt/muos/device/"$DEVICE"/script/charge.sh
+LOGGER "$0" "BOOTING" "Detecting Charge Mode"
+/opt/muos/device/"$DEVICE_TYPE"/script/charge.sh
 
+LOGGER "$0" "BOOTING" "Checking for passcode lock"
 HAS_UNLOCK=0
-LOCK=$(parse_ini "$CONFIG" "settings.advanced" "lock")
-if [ "$LOCK" -eq 1 ]; then
+if [ "$GC_ADV_LOCK" -eq 1 ]; then
 	while [ "$HAS_UNLOCK" != 1 ]; do
+		LOGGER "$0" "BOOTING" "Enabling passcode lock"
 		nice --20 /opt/muos/extra/muxpass -t boot
 		HAS_UNLOCK="$?"
 	done
 fi
 
-LOGGER "BOOTING" "Setting ARMhf Requirements"
+LOGGER "$0" "BOOTING" "Setting ARMHF Requirements"
 if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
-	LOGGER "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
+	LOGGER "$0" "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
 	ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
 fi
-ldconfig -v > "$STORE_ROM/MUOS/log/ldconfig.log"
+ldconfig -v >"$DC_STO_ROM_MOUNT/MUOS/log/ldconfig.log"
 
-LOGGER "BOOTING" "Starting Storage Watchdog"
+LOGGER "$0" "BOOTING" "Starting Storage Watchdog"
 /opt/muos/script/mount/sdcard.sh &
 /opt/muos/script/mount/usb.sh &
 
-LOGGER "BOOTING" "Running Device Specifics"
-/opt/muos/device/"$DEVICE"/script/start.sh &
+LOGGER "$0" "BOOTING" "Running Device Specifics"
+/opt/muos/device/"$DEVICE_TYPE"/script/start.sh &
 
-SUPPORT_NETWORK=$(parse_ini "$DEVICE_CONFIG" "device" "network")
-NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
-if [ "$SUPPORT_NETWORK" -eq 1 ] && [ "$NET_ENABLED" -eq 1 ]; then
-	LOGGER "BOOTING" "Starting Network Services"
-	/opt/muos/script/system/network.sh "$MUOSBOOT_LOG" &
+LOGGER "$0" "BOOTING" "Bringing up localhost network"
+ifconfig lo up &
+
+LOGGER "$0" "BOOTING" "Checking for network capability"
+if [ "$DC_DEV_NETWORK" -eq 1 ] && [ "$GC_NET_ENABLED" -eq 1 ]; then
+	LOGGER "$0" "BOOTING" "Starting Network Services"
+	/opt/muos/script/system/network.sh &
 fi
 
+LOGGER "$0" "BOOTING" "Running dotclean"
 /opt/muos/script/system/dotclean.sh &
+
+LOGGER "$0" "BOOTING" "Running catalogue generator"
 /opt/muos/script/system/catalogue.sh &
 
-dmesg > "$STORE_ROM/MUOS/log/dmesg/dmesg__${CURRENT_DATE}.log" &
+dmesg >"$DC_STO_ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
 
+LOGGER "$0" "BOOTING" "Correcting SSH permissions"
 chown -R root:root /opt &
 chmod -R 755 /opt &
 
-echo 2 > /proc/sys/abi/cp15_barrier &
+echo 2 >/proc/sys/abi/cp15_barrier &
 
-VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")
-if [ "$VERBOSE" -eq 1 ]; then
-	cp "$MUOSBOOT_LOG" "$STORE_ROM/MUOS/log/boot/."
-fi
+cp "$MUOS_BOOT_LOG" "$DC_STO_ROM_MOUNT/MUOS/log/boot/."
 
-FACTORY_RESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
-if [ "$FACTORY_RESET" -eq 1 ]; then
-	LOGGER "FACTORY RESET" "All Done!"
-	killall "mp3play"
+if [ "$GC_BOO_FACTORY_RESET" -eq 1 ]; then
+	killall -q "mp3play"
 
-	modify_ini "$CONFIG" "boot" "factory_reset" "0"
-	modify_ini "$CONFIG" "settings.advanced" "verbose" "0"
+	LOGGER "$0" "FACTORY RESET" "Setting factory_reset to 0"
+	MODIFY_INI "$GLOBAL_CONFIG" "boot" "factory_reset" "0"
 
 	/opt/muos/extra/muxcredits
 fi
 
-/opt/muos/script/mux/configbackup.sh &
+LOGGER "$0" "BOOTING" "Backing up global configuration"
+/opt/muos/script/system/config_backup.sh &
 
-touch /tmp/pdi_go
+LOGGER "$0" "BOOTING" "Starting muX frontend"
 /opt/muos/script/mux/frontend.sh &
-

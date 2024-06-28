@@ -4,21 +4,18 @@ SLEEP_STATE="/tmp/sleep_state"
 SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 
 if [ "$SLEEP_STATE_VAL" = "awake" ]; then
-	. /opt/muos/script/system/parse.sh
+	. /opt/muos/script/var/func.sh
+
+	. /opt/muos/script/var/device/storage.sh
 
 	SS_LOCK=/tmp/screenshot.lock
 
 	if [ ! -e "$SS_LOCK" ]; then
-		echo 1 > /sys/class/power_supply/axp2202-battery/moto && sleep 0.25 && echo 0 > /sys/class/power_supply/axp2202-battery/moto
+		echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.25 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
 
 		touch "$SS_LOCK"
 
-		DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-		DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
-
-		STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-
-		BASE_DIR="$STORE_ROM/MUOS/screenshot"
+		BASE_DIR="$DC_STO_ROM_MOUNT/MUOS/screenshot"
 		CURRENT_DATE=$(date +"%Y%m%d_%H%M")
 		INDEX=0
 
@@ -31,4 +28,3 @@ if [ "$SLEEP_STATE_VAL" = "awake" ]; then
 		rm "$SS_LOCK"
 	fi
 fi
-

@@ -60,4 +60,3 @@ a =
 b = "a"         # Bound in DraStic to Screen Orientation A
 x = "d"         # Bound in DraStic to Screen Orientation B
 y =
-

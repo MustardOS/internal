@@ -1,30 +1,24 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.ini
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/battery.sh
+. /opt/muos/script/var/device/cpu.sh
+. /opt/muos/script/var/device/device.sh
+. /opt/muos/script/var/device/storage.sh
 
-FACTORY_RESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
-CHARGER_ONLINE=$(cat /sys/class/power_supply/axp2202-usb/online)
-if [ "$CHARGER_ONLINE" -eq 1 ] && [ "$FACTORY_RESET" -eq 0 ]; then
-	ROM_DEV=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "dev")
-	ROM_NUM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "num")
-	ROM_MNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-	ROM_TYPE=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "type")
-	mount -t "$ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$ROM_DEV"p"$ROM_NUM" /"$ROM_MNT"
+. /opt/muos/script/var/global/boot.sh
 
-	USE_DEBUGFS=$(parse_ini "$DEVICE_CONFIG" "device" "debugfs")
-	if [ "$USE_DEBUGFS" -eq 1 ]; then
+if [ "$(cat "$DC_BAT_CHARGER")" -eq 1 ] && [ "$GC_BOO_FACTORY_RESET" -eq 0 ]; then
+	mount -t "$DC_STO_ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" "$DC_STO_ROM_MOUNT"
+
+	if [ "$DC_DEV_DEBUGFS" -eq 1 ]; then
 		mount -t debugfs debugfs /sys/kernel/debug
 	fi
 
-	GOVERNOR=$(parse_ini "$DEVICE_CONFIG" "cpu" "governor")
-	echo powersave > "$GOVERNOR"
+	echo "powersave" >"$DC_CPU_GOVERNOR"
 
 	/opt/muos/extra/muxcharge
 
-	umount /"$ROM_MNT"
+	umount "$DC_STO_ROM_MOUNT"
 fi
-

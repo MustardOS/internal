@@ -1,96 +1,58 @@
 #!/bin/sh
 
-CURRENT_DATE=$(date +"%Y_%m_%d__%H_%M_%S")
+. /opt/muos/script/var/func.sh
 
-. /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.ini
+. /opt/muos/script/var/device/cpu.sh
+. /opt/muos/script/var/device/device.sh
+. /opt/muos/script/var/device/screen.sh
+. /opt/muos/script/var/device/storage.sh
 
-LOGGER() {
-VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")
-if [ "$VERBOSE" -eq 1 ]; then
-	_TITLE=$1
-	_MESSAGE=$2
-	_FORM=$(cat <<EOF
-$_TITLE
+. /opt/muos/script/var/global/setting_advanced.sh
+. /opt/muos/script/var/global/setting_general.sh
 
-$_MESSAGE
-EOF
-	)
-	/opt/muos/extra/muxstart "$_FORM" && sleep 0.5
-	echo "=== ${CURRENT_DATE} === $_MESSAGE" >> "$MUOSBOOT_LOG"
-fi
-}
-
-FACTORY_RESET=$(parse_ini "$CONFIG" "boot" "factory_reset")
-if [ "$FACTORY_RESET" -eq 1 ]; then
-	MUOSBOOT_LOG="/tmp/muosboot__${CURRENT_DATE}.log"
-else
-	MUOSBOOT_LOG="/mnt/mmc/MUOS/log/boot/muosboot__${CURRENT_DATE}.log"
-fi
-
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf
 
 insmod /lib/modules/mali_kbase.ko &
 insmod /lib/modules/squashfs.ko &
 
-GOVERNOR_TYPE=$(parse_ini "$DEVICE_CONFIG" "cpu" "default")
-GOVERNOR_FILE=$(parse_ini "$DEVICE_CONFIG" "cpu" "governor")
-echo "$GOVERNOR_TYPE" > "$GOVERNOR_FILE"
+echo "$DC_CPU_DEFAULT" >"$DC_CPU_GOVERNOR"
 
-BOOT_DEV=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "dev")
-BOOT_NUM=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "num")
-BOOT_MNT=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "mount")
-BOOT_TYPE=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "type")
-mount -t "$BOOT_TYPE" -o rw,utf8,noatime,nofail /dev/"$BOOT_DEV"p"$BOOT_NUM" "$BOOT_MNT"
+mount -t "$DC_STO_BOOT_TYPE" -o rw,utf8,noatime,nofail /dev/"$DC_STO_BOOT_DEV"p"$DC_STO_BOOT_NUM" "$DC_STO_BOOT_MOUNT"
+mount -t "$DC_STO_ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" "$DC_STO_ROM_MOUNT"
 
-ROM_DEV=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "dev")
-ROM_NUM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "num")
-ROM_MNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-ROM_TYPE=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "type")
-mount -t "$ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$ROM_DEV"p"$ROM_NUM" "$ROM_MNT"
-
-USE_DEBUGFS=$(parse_ini "$DEVICE_CONFIG" "device" "debugfs")
-if [ "$USE_DEBUGFS" -eq 1 ]; then
+if [ "$DC_DEV_DEBUGFS" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
 fi
 
-SUPPORT_HDMI=$(parse_ini "$DEVICE_CONFIG" "device" "hdmi")
-HDMI=$(parse_ini "$CONFIG" "settings.general" "hdmi")
-if [ "$SUPPORT_HDMI" -eq 1 ] && [ "$HDMI" -gt -1 ]; then
-	/opt/muos/device/"$DEVICE"/script/hdmi_start.sh &
+if [ "$DC_DEV_HDMI" -eq 1 ] && [ "$GC_GEN_HDMI" -gt -1 ]; then
+	/opt/muos/device/"$DEVICE_TYPE"/script/hdmi_start.sh &
 fi
 
-SET_BRIGHT=$(parse_ini "$CONFIG" "settings.advanced" "brightness")
-case "$SET_BRIGHT" in
+case "$GC_ADV_BRIGHTNESS" in
 	"high")
-		MAX_BRIGHT=$(parse_ini "$DEVICE_CONFIG" "screen" "bright")
-		/opt/muos/device/"$DEVICE"/input/combo/bright.sh "$MAX_BRIGHT"
+		/opt/muos/device/"$DEVICE_TYPE"/input/combo/bright.sh "$DC_SCR_BRIGHT"
 		;;
 	"low")
-		/opt/muos/device/"$DEVICE"/input/combo/bright.sh 10
+		/opt/muos/device/"$DEVICE_TYPE"/input/combo/bright.sh 10
 		;;
 	*)
 		PREV_BRIGHT=$(cat "/opt/muos/config/brightness.txt")
-		/opt/muos/device/"$DEVICE"/input/combo/bright.sh "$PREV_BRIGHT"
+		/opt/muos/device/"$DEVICE_TYPE"/input/combo/bright.sh "$PREV_BRIGHT"
 		;;
 esac
 
-COLOUR=$(parse_ini "$CONFIG" "settings.general" "colour")
-echo "$COLOUR" > /sys/class/disp/disp/attr/color_temperature
+echo "$GC_GEN_COLOUR" >/sys/class/disp/disp/attr/color_temperature
 
-THERMAL=$(parse_ini "$CONFIG" "settings.advanced" "thermal")
-if [ "$THERMAL" -eq 1 ]; then
+if [ "$GC_ADV_THERMAL" -eq 1 ]; then
 	for ZONE in /sys/class/thermal/thermal_zone*; do
 		if [ -e "$ZONE/mode" ]; then
-			echo "disabled" > "ZONE/mode"
+			echo "disabled" >"ZONE/mode"
 		fi
 	done
 fi
 
-echo noop > /sys/devices/platform/soc/sdc0/mmc_host/mmc0/mmc0:59b4/block/mmcblk0/queue/scheduler
-echo on > /sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
+echo noop >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/mmc0:59b4/block/mmcblk0/queue/scheduler
+echo on >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
 
-/opt/muos/device/"$DEVICE"/script/control.sh
-/opt/muos/device/"$DEVICE"/input/input.sh
-
+/opt/muos/device/"$DEVICE_TYPE"/script/control.sh
+/opt/muos/device/"$DEVICE_TYPE"/input/input.sh

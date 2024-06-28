@@ -1,15 +1,9 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
-
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-
-SDL_SCALER=$(parse_ini "$DEVICE_CONFIG" "sdl" "scaler")
-SDL_ROTATE=$(parse_ini "$DEVICE_CONFIG" "sdl" "rotation")
-SDL_BLITTER=$(parse_ini "$DEVICE_CONFIG" "sdl" "blitter_disabled")
+. /opt/muos/script/var/device/storage.sh
+. /opt/muos/script/var/device/sdl.sh
 
 NAME=$1
 CORE=$2
@@ -17,13 +11,14 @@ ROM=$3
 
 export HOME=/root
 
-export SDL_HQ_SCALER="$SDL_SCALER"
-export SDL_ROTATION="$SDL_ROTATE"
-export SDL_BLITTER_DISABLED="$SDL_BLITTER"
+export SDL_HQ_SCALER="$DC_SDL_SCALER"
+export SDL_ROTATION="$DC_SDL_ROTATION"
+export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
 
-echo "pico8_64" > /tmp/fg_proc
+echo "pico8_64" >/tmp/fg_proc
 
-_BACKUPFAV=$(cat <<EOF
+_BACKUPFAV=$(
+	cat <<EOF
 #!/bin/sh 
 
 P8_DIR="$STORE_ROM/MUOS/emulator/pico8/.lexaloffle/pico-8"
@@ -41,9 +36,9 @@ do
 	cp $CARTS/$trimmed_filename.p8.png "$DEST/$tidy_display.p8.png"
 done < "$FAVES"
 EOF
-	) > "$R_DIR"/"Backup Favourites.sh"
+) >"$R_DIR"/"Backup Favourites.sh"
 
-EMUDIR="$STORE_ROM/MUOS/emulator/pico8"
+EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/pico8"
 
 chmod +x "$EMUDIR"/wget
 chmod +x "$EMUDIR"/pico8_64
@@ -57,4 +52,3 @@ elif [ "$NAME" = "Backup Favourites" ]; then
 else
 	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" SDL_ASSERT=always_ignore ./pico8_64 -windowed 0 -run "$ROM"
 fi
-

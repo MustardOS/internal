@@ -1,65 +1,41 @@
 #!/bin/sh
 
 # Original backup script created for muOS 2405 Beans +
-# Modified by Ali BEYAZ (aka symbuzzer) for backing up synching config
-# This should backup syncthing config
+# Modified by Ali BEYAZ (aka symbuzzer) for backing up syncthing config
 
-# Grab device variables
-. /opt/muos/script/system/parse.sh
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/func.sh
 
-CONTROL_DIR="/opt/muos/device/$DEVICE/control"
-ROM_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-SD_MOUNT=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "mount")
-USB_MOUNT=$(arse_ini "$DEVICE_CONFIG" "storage.usb" "mount")
+. /opt/muos/script/var/device/storage.sh
 
-SD_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "dev")p$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "num")
-USB_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.usb" "dev")$(parse_ini "$DEVICE_CONFIG" "storage.usb" "num")
+SD_DEVICE="${DC_STO_SDCARD_DEV}p${DC_STO_SDCARD_NUM}"
+USB_DEVICE="${DC_STO_USB_DEV}p${DC_STO_USB_NUM}"
 
-# Suspend the muxtask program
 pkill -STOP muxtask
-
-# Fire up the logger!
 /opt/muos/extra/muxlog &
-sleep 1
-
-echo "Waiting..." > /tmp/muxlog_info
 sleep 1
 
 TMP_FILE=/tmp/muxlog_global
 rm -rf "$TMP_FILE"
 
-# Grab current date
-DATE=$(date +%Y-%m-%d)
-
-# Syncthing config
-MU_SYNCTHING="$ROM_MOUNT/MUOS/syncthing"
-
-# Set destination file based on priority
-# USB -> SD2 -> SD1
-if grep -m 1 "$USB_DEVICE" /proc/partitions > /dev/null; then
-    echo "USB mounted, archiving to USB" > /tmp/muxlog_info
-    mkdir -p "$USB_MOUNT/BACKUP/"
-    DEST_DIR="$USB_MOUNT/BACKUP"
-elif grep -m 1 "$SD_DEVICE" /proc/partitions > /dev/null; then
-    echo "SD2 mounted, archiving to SD2" > /tmp/muxlog_info
-    mkdir -p "$SD_MOUNT/BACKUP/"
-    DEST_DIR="$SD_MOUNT/BACKUP"
+if grep -m 1 "$USB_DEVICE" /proc/partitions >/dev/null; then
+	echo "USB mounted, archiving to USB" >/tmp/muxlog_info
+	mkdir -p "$DC_STO_USB_MOUNT/BACKUP/"
+	DEST_DIR="$DC_STO_USB_MOUNT/BACKUP"
+elif grep -m 1 "$SD_DEVICE" /proc/partitions >/dev/null; then
+	echo "SD2 mounted, archiving to SD2" >/tmp/muxlog_info
+	mkdir -p "$DC_STO_SDCARD_MOUNT/BACKUP/"
+	DEST_DIR="$DC_STO_SDCARD_MOUNT/BACKUP"
 else
-    echo "Archiving to SD1" > /tmp/muxlog_info
-    DEST_DIR="$ROM_MOUNT/BACKUP"
+	echo "Archiving to SD1" >/tmp/muxlog_info
+	DEST_DIR="$DC_STO_ROM_MOUNT/BACKUP"
 fi
 
-# Set Destination File
-DEST_FILE="$DEST_DIR/SyncthingConfig-$DATE.zip"
+DEST_FILE="$DEST_DIR/SyncthingConfig-$(date +%Y-%m-%d).zip"
+MU_SYNCTHING="$ROM_MOUNT/MUOS/syncthing"
 
-# Change to root so we capture full path in .zip
 cd /
-
-# Create the backup
-echo "Archiving Syncthing Config" > /tmp/muxlog_info
-zip -ru9 "$DEST_FILE" "$MU_SYNCTHING" > "$TMP_FILE" 2>&1 &
+echo "Archiving Syncthing Config" >/tmp/muxlog_info
+zip -ru9 "$DEST_FILE" "$MU_SYNCTHING" >"$TMP_FILE" 2>&1 &
 
 # Tail zip process and push to muxlog
 C_LINE=""
@@ -70,7 +46,7 @@ while true; do
 		N_LINE=$(tail -n 1 "$TMP_FILE" | sed 's/^[[:space:]]*//')
 		if [ "$N_LINE" != "$C_LINE" ]; then
 			echo "$N_LINE"
-			echo "$N_LINE" > /tmp/muxlog_info
+			echo "$N_LINE" >/tmp/muxlog_info
 			C_LINE="$N_LINE"
 		fi
 	fi
@@ -78,20 +54,18 @@ while true; do
 	if [ -z "$IS_WORKING" ]; then
 		break
 	fi
-	
+
 	sleep 0.25
 done
 
-# Sync filesystem just-in-case :)
-echo "Sync Filesystem" > /tmp/muxlog_info
+echo "Sync Filesystem" >/tmp/muxlog_info
 sync
 
-echo "All Done!" > /tmp/muxlog_info
+echo "All Done!" >/tmp/muxlog_info
 sleep 1
 
 killall -q muxlog
 rm -rf "$MUX_TEMP" /tmp/muxlog_*
 
-# Resume the muxtask program
 pkill -CONT muxtask
 killall -q "Backup Syncthing Config.sh"

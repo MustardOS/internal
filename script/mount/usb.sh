@@ -1,35 +1,32 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/storage.sh
 
-STORE_DEVICE=$(parse_ini "$DEVICE_CONFIG" "storage.usb" "dev")$(parse_ini "$DEVICE_CONFIG" "storage.usb" "num")
-MOUNT_POINT=$(parse_ini "$DEVICE_CONFIG" "storage.usb" "mount")
+STORE_DEVICE=${DC_STO_USB_DEV}${DC_STO_USB_NUM}
 MOUNTED=false
 
-mkdir "$MOUNT_POINT"
+mkdir "$DC_STO_USB_MOUNT"
 
 while true; do
-	if grep -m 1 "$STORE_DEVICE" /proc/partitions > /dev/null; then
+	if grep -m 1 "$STORE_DEVICE" /proc/partitions >/dev/null; then
 		if ! $MOUNTED; then
 			FS_TYPE=$(blkid -o value -s TYPE "/dev/$STORE_DEVICE")
 			if [ "$FS_TYPE" = "vfat" ]; then
-				mount -t vfat -o rw,utf8,noatime,nofail "/dev/$STORE_DEVICE" "$MOUNT_POINT"
+				mount -t vfat -o rw,utf8,noatime,nofail "/dev/$STORE_DEVICE" "$DC_STO_USB_MOUNT"
 				MOUNTED=true
 			elif [ "$FS_TYPE" = "exfat" ]; then
-				mount -t exfat -o rw,utf8,noatime,nofail "/dev/$STORE_DEVICE" "$MOUNT_POINT"
+				mount -t exfat -o rw,utf8,noatime,nofail "/dev/$STORE_DEVICE" "$DC_STO_USB_MOUNT"
 				MOUNTED=true
 			elif [ "$FS_TYPE" = "ext4" ]; then
-				mount -t ext4 -o defaults,noatime,nofail "/dev/$STORE_DEVICE" "$MOUNT_POINT"
+				mount -t ext4 -o defaults,noatime,nofail "/dev/$STORE_DEVICE" "$DC_STO_USB_MOUNT"
 				MOUNTED=true
 			fi
 		fi
 	elif $MOUNTED; then
-		umount "$MOUNT_POINT"
+		umount "$DC_STO_USB_MOUNT"
 		MOUNTED=false
 	fi
 	sleep 2
 done &
-

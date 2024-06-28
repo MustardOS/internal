@@ -1,45 +1,41 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.ini
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/storage.sh
 
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
+. /opt/muos/script/var/global/web_service.sh
 
-CURRENT_IP=$(cat "/opt/muos/config/address.txt")
+killall -q sshd sftpgo gotty syncthing ntp.sh
 
-killall sshd
-killall sftpgo
-killall gotty
-killall syncthing
-killall ntp.sh
-
-SRV_SHELL=$(parse_ini "$CONFIG" "web" "shell")
-if [ "$SRV_SHELL" -eq 1 ]; then
-	# Special directories that should not be world editable!
+if [ "$GC_WEB_SHELL" -eq 1 ]; then
 	chmod -R 700 /opt/openssh/var /opt/openssh/etc
-	nice -2 /opt/openssh/sbin/sshd > /dev/null &
+	nice -2 /opt/openssh/sbin/sshd >/dev/null &
 fi
 
-SRV_BROWSER=$(parse_ini "$CONFIG" "web" "browser")
-if [ "$SRV_BROWSER" -eq 1 ]; then
-	nice -2 /opt/sftpgo/sftpgo serve -c /opt/sftpgo > /dev/null &
+if [ "$GC_WEB_BROWSER" -eq 1 ]; then
+	nice -2 /opt/sftpgo/sftpgo serve -c /opt/sftpgo >/dev/null &
 fi
 
-SRV_TERMINAL=$(parse_ini "$CONFIG" "web" "terminal")
-if [ "$SRV_TERMINAL" -eq 1 ]; then
-	nice -2 /opt/muos/bin/gotty --config /opt/muos/config/gotty --width 0 --height 0 /bin/sh > /dev/null &
+if [ "$GC_WEB_TERMINAL" -eq 1 ]; then
+	nice -2 /opt/muos/bin/gotty \
+		--config /opt/muos/config/gotty \
+		--width 0 \
+		--height 0 \
+		/bin/sh >/dev/null &
 fi
 
-SRV_SYNCTHING=$(parse_ini "$CONFIG" "web" "syncthing")
-if [ "$SRV_SYNCTHING" -eq 1 ]; then
-	nice -2 /opt/muos/bin/syncthing serve --home="$STORE_ROM/MUOS/syncthing" --skip-port-probing --gui-address="$CURRENT_IP:7070" --no-browser --no-default-folder > /dev/null &
+if [ "$GC_WEB_SYNCTHING" -eq 1 ]; then
+	CURRENT_IP=$(cat "/opt/muos/config/address.txt")
+
+	nice -2 /opt/muos/bin/syncthing serve \
+		--home="$DC_STO_ROM_MOUNT/MUOS/syncthing" \
+		--skip-port-probing \
+		--gui-address="$CURRENT_IP:7070" \
+		--no-browser \
+		--no-default-folder >/dev/null &
 fi
 
-SRV_NTP=$(parse_ini "$CONFIG" "web" "ntp")
-if [ "$SRV_NTP" -eq 1 ]; then
+if [ "$GC_WEB_NTP" -eq 1 ]; then
 	nice -2 /opt/muos/script/web/ntp.sh &
 fi
-

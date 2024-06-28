@@ -1,35 +1,29 @@
 #!/bin/sh
 
-if pgrep -f "playbgm.sh" > /dev/null; then
-	killall -q "playbgm.sh"
-	killall -q "mp3play"
+if pgrep -f "playbgm.sh" >/dev/null; then
+	killall -q "playbgm.sh" "mp3play"
 fi
 
-if pgrep -f "muplay" > /dev/null; then
-	kill -9 "muplay"
+if pgrep -f "muplay" >/dev/null; then
+	killall -q "muplay"
 	rm "$SND_PIPE"
 fi
 
-echo app > /tmp/act_go
+echo app >/tmp/act_go
 
-. /opt/muos/script/system/parse.sh
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/storage.sh
+. /opt/muos/script/var/device/sdl.sh
 
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-SDL_SCALER=$(parse_ini "$DEVICE_CONFIG" "sdl" "scaler")
-
-export SDL_HQ_SCALER="$SDL_SCALER"
+export SDL_HQ_SCALER="$DC_SDL_SCALER"
 export SDL_GAMECONTROLLER="/usr/lib/gamecontrollerdb.txt"
 export HOME=/root
 
-DINGUX_DIR="$STORE_ROM/MUOS/application/.dingux"
+DINGUX_DIR="$DC_STO_ROM_MOUNT/MUOS/application/.dingux"
 
 cd "$DINGUX_DIR" || exit
 
-echo "dingux" > /tmp/fg_proc
+echo "dingux" >/tmp/fg_proc
 
 SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "$SDL_GAMECONTROLLER") ./dingux --config "$DINGUX_DIR/dingux.cfg"
-
-

@@ -1,13 +1,10 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/storage.sh
 
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-
-NAME="$STORE_ROM/MUOS/info/activity/$1.act"
+NAME="$DC_STO_ROM_MOUNT/MUOS/info/activity/$1.act"
 shift
 PROG="nice --20 $*"
 
@@ -24,5 +21,4 @@ TOTAL_TIME=$(echo "$ELAPSED_TIME + $PREV_TIME" | bc)
 
 LAUNCH_COUNT=$(echo "$PREV_LAUNCH" + 1 | bc)
 
-printf "%s\n%.0f\n%.0f" "$PREV_SYS" "$TOTAL_TIME" "$LAUNCH_COUNT" > "$NAME"
-
+printf "%s\n%.0f\n%.0f" "$PREV_SYS" "$TOTAL_TIME" "$LAUNCH_COUNT" >"$NAME"

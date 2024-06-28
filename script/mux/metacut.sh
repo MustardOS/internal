@@ -5,15 +5,13 @@ if [ "$#" -ne 1 ]; then
 	exit 1
 fi
 
-. /opt/muos/script/system/parse.sh
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/storage.sh
 
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-SCHEME="$STORE_ROM/MUOS/theme/active/scheme/default.txt"
+SCHEME="$DC_STO_ROM_MOUNT/MUOS/theme/active/scheme/default.txt"
 
-METACUT=$(parse_ini "$SCHEME" "meta" "META_CUT")
+METACUT=$(PARSE_INI "$SCHEME" "meta" "META_CUT")
 
 if [ -z "$METACUT" ]; then
 	METACUT=40
@@ -37,4 +35,3 @@ END {
 		print line "\n";
 	}
 }' "$1"
-

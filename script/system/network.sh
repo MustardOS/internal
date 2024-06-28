@@ -1,105 +1,66 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.ini
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/network.sh
 
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-
-CURRENT_DATE=$(date +"%Y_%m_%d__%H_%M_%S")
-MUOSBOOT_LOG="$STORE_ROM/MUOS/log/network.txt"
+. /opt/muos/script/var/global/network.sh
 
 CURRENT_IP="/opt/muos/config/address.txt"
 
-LOGGER() {
-VERBOSE=$(parse_ini "$CONFIG" "settings.advanced" "verbose")
-if [ "$VERBOSE" -eq 1 ]; then
-	_MESSAGE=$1
-	echo "=== ${CURRENT_DATE} === $_MESSAGE" >> "$MUOSBOOT_LOG"
-fi
-}
-
-DEV_MODULE=$(parse_ini "$DEVICE_CONFIG" "network" "module")
-DEV_NAME=$(parse_ini "$DEVICE_CONFIG" "network" "name")
-DEV_TYPE=$(parse_ini "$DEVICE_CONFIG" "network" "type")
-
-NET_ENABLED=$(parse_ini "$CONFIG" "network" "enabled")
-NET_INTERFACE=$(parse_ini "$DEVICE_CONFIG" "network" "iface")
-NET_TYPE=$(parse_ini "$CONFIG" "network" "type")
-NET_ADDRESS=$(parse_ini "$CONFIG" "network" "address")
-NET_SUBNET=$(parse_ini "$CONFIG" "network" "subnet")
-NET_GATEWAY=$(parse_ini "$CONFIG" "network" "gateway")
-NET_DNS=$(parse_ini "$CONFIG" "network" "dns")
-
-LOGGER "Bringing Network Interface Down"
-if [ $NET_INTERFACE = "wlan0" ]; then
+if [ "$DC_NET_INTERFACE" = "wlan0" ]; then
 	killall wpa_supplicant
 fi
 killall dhcpcd
-ip link set "$NET_INTERFACE" down
+ip link set "$DC_NET_INTERFACE" down
 
-LOGGER "Killing running web services"
-killall sshd
-killall sftpgo
-killall gotty
-killall syncthing
+killall -q sshd sftpgo gotty syncthing ntp.sh
 
-echo "0.0.0.0" | tr -d '\n' > "$CURRENT_IP"
+echo "0.0.0.0" | tr -d '\n' >"$CURRENT_IP"
 
-LOGGER "Fixing Nameserver"
-echo "nameserver $NET_DNS" > /etc/resolv.conf
+echo "nameserver $GC_NET_DNS" >/etc/resolv.conf
 
-if [ $NET_INTERFACE = "wlan0" ]; then
-	if [ "$NET_ENABLED" -eq 0 ]; then
-		rmmod "$DEV_MODULE"
+if [ "$DC_NET_INTERFACE" = "wlan0" ]; then
+	if [ "$GC_NET_ENABLED" -eq 0 ]; then
+		rmmod "$DC_NET_MODULE"
 		exit
 	fi
 
-	if ! lsmod | grep -wq "$DEV_NAME"; then
-		rmmod "$DEV_MODULE"
+	if ! lsmod | grep -wq "$DC_NET_NAME"; then
+		rmmod "$DC_NET_MODULE"
 		sleep 1
-		LOGGER "Loading '$DEV_NAME' Kernel Module"
-		modprobe --force-modversion "$DEV_MODULE"
-		while [ ! -d "/sys/class/net/$NET_INTERFACE" ]; do
+		modprobe --force-modversion "$DC_NET_MODULE"
+		while [ ! -d "/sys/class/net/$DC_NET_INTERFACE" ]; do
 			sleep 1
 		done
-		LOGGER "Wi-Fi Module Loaded"
 	fi
 fi
 
-LOGGER "Setting up Network Interface"
 rfkill unblock all
-ip link set "$NET_INTERFACE" up
-iw dev "$NET_INTERFACE" set power_save off
+ip link set "$DC_NET_INTERFACE" up
+iw dev "$DC_NET_INTERFACE" set power_save off
 
-if [ $NET_INTERFACE = "wlan0" ]; then
-	LOGGER "Configuring WPA Supplicant"
-	wpa_supplicant -dd -B -i "$NET_INTERFACE" -c /etc/wpa_supplicant.conf -D "$DEV_TYPE"
+if [ "$DC_NET_INTERFACE" = "wlan0" ]; then
+	wpa_supplicant -dd -B -i "$DC_NET_INTERFACE" -c /etc/wpa_supplicant.conf -D "$DC_NET_TYPE"
 fi
 
-if [ "$NET_TYPE" -eq 0 ]; then
-	LOGGER "Clearing DHCP leases"
+if [ "$GC_NET_TYPE" -eq 0 ]; then
 	rm -rf "/var/db/dhcpcd/*"
-	LOGGER "Configuring Network using DHCP"
 	dhcpcd -n
-	dhcpcd -w -q "$NET_INTERFACE" &
+	dhcpcd -w -q "$DC_NET_INTERFACE" &
 else
-	LOGGER "Configuring Network using Static"
-	ip addr add "$NET_ADDRESS"/"$NET_SUBNET" dev "$NET_INTERFACE"
-	ip link set dev "$NET_INTERFACE" up
-	ip route add default via "$NET_GATEWAY"
+	ip addr add "$GC_NET_ADDRESS"/"$GC_NET_SUBNET" dev "$DC_NET_INTERFACE"
+	ip link set dev "$DC_NET_INTERFACE" up
+	ip route add default via "$GC_NET_GATEWAY"
 fi
 
 OIP=0
 while [ "$(cat "$CURRENT_IP")" = "0.0.0.0" ] || [ "$(cat "$CURRENT_IP")" = "" ]; do
-	LOGGER "Waiting for IP Address"
 	OIP=$((OIP + 1))
-	ip -4 a show dev "$NET_INTERFACE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p' | tr -d '\n' > "$CURRENT_IP"
+	ip -4 a show dev "$DC_NET_INTERFACE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p' | tr -d '\n' >"$CURRENT_IP"
 	sleep 1
 	if [ $OIP -eq 30 ]; then
-		echo "0.0.0.0" | tr -d '\n' > "$CURRENT_IP"
+		echo "0.0.0.0" | tr -d '\n' >"$CURRENT_IP"
 		break
 	fi
 done
@@ -108,10 +69,7 @@ if [ "$(cat "$CURRENT_IP")" = "0.0.0.0" ]; then
 	exit
 fi
 
-echo 1 > "/tmp/net_connected"
+echo 1 >"/tmp/net_connected"
 
-LOGGER "Starting DNS Ping"
-/opt/muos/script/web/ping.sh
-
-LOGGER "Running Web Service Script"
-/opt/muos/script/web/service.sh
+/opt/muos/script/web/ping.sh &
+/opt/muos/script/web/service.sh &

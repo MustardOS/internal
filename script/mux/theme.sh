@@ -1,28 +1,23 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
-CONFIG=/opt/muos/config/config.ini
+. /opt/muos/script/var/func.sh
 
-RANDOM_THEME=$(parse_ini "$CONFIG" "settings.advanced" "random_theme")
+. /opt/muos/script/var/device/storage.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/global/setting_advanced.sh
 
-STORE_BOOT=$(parse_ini "$DEVICE_CONFIG" "storage.boot" "mount")
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-
-if [ "$1" = "?R" ] && [ "$RANDOM_THEME" -eq 1 ]; then
-	THEME=$(find "$STORE_ROM/MUOS/theme" -name '*.zip' | shuf -n 1)
+if [ "$1" = "?R" ] && [ "$GC_ADV_RANDOM_THEME" -eq 1 ]; then
+	THEME=$(find "$DC_STO_ROM_MOUNT/MUOS/theme" -name '*.zip' | shuf -n 1)
 else
-	THEME="$STORE_ROM/MUOS/theme/$1.zip"
+	THEME="$DC_STO_ROM_MOUNT/MUOS/theme/$1.zip"
 fi
 
-THEME_DIR="$STORE_ROM/MUOS/theme"
+THEME_DIR="$DC_STO_ROM_MOUNT/MUOS/theme"
 
-BOOTLOGO_DEF="/opt/muos/device/$DEVICE/bootlogo.bmp"
+BOOTLOGO_DEF="/opt/muos/device/$DEVICE_TYPE/bootlogo.bmp"
 BOOTLOGO_NEW="$THEME_DIR/active/image/bootlogo.bmp"
 
-cp "$BOOTLOGO_DEF" "$STORE_BOOT/bootlogo.bmp"
+cp "$BOOTLOGO_DEF" "$DC_STO_BOOT_MOUNT/bootlogo.bmp"
 
 while [ -d "$THEME_DIR/active" ]; do
 	rm -rf "$THEME_DIR/active"
@@ -32,14 +27,13 @@ done
 
 unzip "$THEME" -d "$THEME_DIR/active"
 
-if [ "$RANDOM_THEME" -eq 0 ]; then
+if [ "$GC_ADV_RANDOM_THEME" -eq 0 ]; then
 	if [ -f "$BOOTLOGO_NEW" ]; then
-		cp "$BOOTLOGO_NEW" "$STORE_BOOT/bootlogo.bmp"
-		if [ "$DEVICE" = "rg28xx" ]; then
-			convert "$STORE_BOOT/bootlogo.bmp" -rotate 270 "$STORE_BOOT/bootlogo.bmp"
+		cp "$BOOTLOGO_NEW" "$DC_STO_BOOT_MOUNT/bootlogo.bmp"
+		if [ "$DEVICE_TYPE" = "rg28xx" ]; then
+			convert "$DC_STO_BOOT_MOUNT/bootlogo.bmp" -rotate 270 "$DC_STO_BOOT_MOUNT/bootlogo.bmp"
 		fi
 	fi
 fi
 
 sync
-

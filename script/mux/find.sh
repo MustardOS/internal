@@ -1,24 +1,19 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/storage.sh
 
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-if [ -d "$STORE_ROM/ROMS" ]; then
-	ROMPATH="$STORE_ROM/ROMS"
+if [ -d "$DC_STO_ROM_MOUNT/ROMS" ]; then
+	ROMPATH="$DC_STO_ROM_MOUNT/ROMS"
 fi
 
-STORE_SDCARD=$(parse_ini "$DEVICE_CONFIG" "storage.sdcard" "mount")
-if [ -d "$STORE_SDCARD/ROMS" ]; then
-	ROMPATH="${ROMPATH} /$STORE_SDCARD/ROMS"
+if [ -d "$DC_STO_SDCARD_MOUNT/ROMS" ]; then
+	ROMPATH="${ROMPATH} /$DC_STO_SDCARD_MOUNT/ROMS"
 fi
 
-STORE_USB=$(parse_ini "$DEVICE_CONFIG" "storage.usb" "mount")
-if [ -d "$STORE_USB/ROMS" ]; then
-	ROMPATH="${ROMPATH} /$STORE_USB/ROMS"
+if [ -d "$DC_STO_USB_MOUNT/ROMS" ]; then
+	ROMPATH="${ROMPATH} /$DC_STO_USB_MOUNT/ROMS"
 fi
 
 /opt/muos/bin/rg --files "${ROMPATH}" 2>&1 | /opt/muos/bin/rg --pcre2 -i "\/(?!.*\/).*$1"
-

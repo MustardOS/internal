@@ -1,15 +1,9 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
-
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-
-SDL_SCALER=$(parse_ini "$DEVICE_CONFIG" "sdl" "scaler")
-SDL_ROTATE=$(parse_ini "$DEVICE_CONFIG" "sdl" "rotation")
-SDL_BLITTER=$(parse_ini "$DEVICE_CONFIG" "sdl" "blitter_disabled")
+. /opt/muos/script/var/device/storage.sh
+. /opt/muos/script/var/device/sdl.sh
 
 NAME=$1
 CORE=$2
@@ -17,16 +11,15 @@ ROM=$3
 
 export HOME=/root
 
-export SDL_HQ_SCALER="$SDL_SCALER"
-export SDL_ROTATION="$SDL_ROTATE"
-export SDL_BLITTER_DISABLED="$SDL_BLITTER"
+export SDL_HQ_SCALER="$DC_SDL_SCALER"
+export SDL_ROTATION="$DC_SDL_ROTATION"
+export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
 
-echo "flycast" > /tmp/fg_proc
+echo "flycast" >/tmp/fg_proc
 
-EMUDIR="$STORE_ROM/MUOS/emulator/flycast"
+EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/flycast"
 
 chmod +x "$EMUDIR"/flycast
 cd "$EMUDIR" || exit
 
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./flycast "$ROM"
-

@@ -1,13 +1,10 @@
 #!/bin/sh
 
-. /opt/muos/script/system/parse.sh
+. /opt/muos/script/var/func.sh
 
-DEVICE=$(tr '[:upper:]' '[:lower:]' < "/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE/config.ini"
+. /opt/muos/script/var/device/storage.sh
 
-STORE_ROM=$(parse_ini "$DEVICE_CONFIG" "storage.rom" "mount")
-
-MP3_DIR="$STORE_ROM/MUOS/music"
+MP3_DIR="$DC_STO_ROM_MOUNT/MUOS/music"
 
 while true; do
 	cd "$MP3_DIR" || exit 1
@@ -23,4 +20,3 @@ while true; do
 
 	sleep 2
 done &
-

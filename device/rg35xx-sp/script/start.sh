@@ -2,6 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
+. /opt/muos/script/var/device/battery.sh
 . /opt/muos/script/var/device/cpu.sh
 . /opt/muos/script/var/device/device.sh
 . /opt/muos/script/var/device/screen.sh
@@ -9,6 +10,12 @@
 
 . /opt/muos/script/var/global/setting_advanced.sh
 . /opt/muos/script/var/global/setting_general.sh
+
+HALL_KEY="/sys/devices/platform/soc/twi5/i2c-5/5-0034/axp2202-bat-power-supply.0/power_supply/axp2202-battery/hallkey"
+
+if [ "$(cat "$HALL_KEY")" = "0" ] && [ "$(cat "$DC_BAT_CHARGER")" -eq 0 ]; then
+	/opt/muos/bin/mushutdown
+fi
 
 sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf
 

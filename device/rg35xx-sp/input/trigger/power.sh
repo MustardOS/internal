@@ -7,7 +7,7 @@
 TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
 FG_PROC="/tmp/fg_proc"
 DBG="/sys/kernel/debug/dispdbg"
-HALL_KEY="/sys/class/power_supply/axp2202-battery"
+HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
 SLEEP_STATE="/tmp/sleep_state"
 LED_STATE="/tmp/work_led_state"
 LID_CLOSED_FLAG="/tmp/lid_closed_flag"

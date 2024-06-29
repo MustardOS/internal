@@ -11,7 +11,7 @@
 . /opt/muos/script/var/global/setting_advanced.sh
 . /opt/muos/script/var/global/setting_general.sh
 
-HALL_KEY="/sys/class/power_supply/axp2202-battery"
+HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
 
 if [ "$(cat "$HALL_KEY")" = "0" ] && [ "$(cat "$DC_BAT_CHARGER")" -eq 0 ]; then
 	/opt/muos/bin/mushutdown

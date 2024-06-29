@@ -5,6 +5,8 @@
 . /opt/muos/script/var/device/storage.sh
 . /opt/muos/script/var/device/sdl.sh
 
+. /opt/muos/script/var/global/setting_general.sh
+
 NAME=$1
 CORE=$2
 ROM=$3
@@ -36,7 +38,8 @@ DOUK="$ROMPATH/.Cave Story (En)/Doukutsu.exe"
 LOGPATH="$DC_STO_ROM_MOUNT/MUOS/log/nxe.log"
 
 if [ -e "$DOUK" ]; then
-	retroarch -v -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg" -L "$DC_STO_ROM_MOUNT/MUOS/core/$CORE" "$DOUK"
+	retroarch -v -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg" -L "$DC_STO_ROM_MOUNT/MUOS/core/$CORE" "$DOUK" &
+	RA_PID=$!
 else
 	CZ_NAME="Cave Story (En).zip"
 	CAVE_URL="https://bot.libretro.com/assets/cores/Cave Story/$CZ_NAME"
@@ -78,5 +81,17 @@ else
 		echo "Did extraction fail?" >>"$LOGPATH"
 	fi
 
-	retroarch -v -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg" -L "$DC_STO_ROM_MOUNT/MUOS/core/$CORE" "$DOUK"
+	retroarch -v -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg" -L "$DC_STO_ROM_MOUNT/MUOS/core/$CORE" "$DOUK" &
+	RA_PID=$!
 fi
+
+# We have to pause just for a moment to let RetroArch finish loading...
+sleep 5
+
+if [ "$GC_GEN_STARTUP" = last ] || [ "$GC_GEN_STARTUP" = resume ]; then
+	if [ ! -e "/tmp/manual_launch" ]; then
+		retroarch --command LOAD_STATE
+	fi
+fi
+
+wait $RA_PID

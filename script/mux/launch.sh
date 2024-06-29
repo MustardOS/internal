@@ -129,7 +129,9 @@ cat /dev/zero >"$DC_SCR_DEVICE" 2>/dev/null
 cat /dev/zero >"$DC_SCR_DEVICE" 2>/dev/null
 
 if [ "$GC_GEN_STARTUP" = last ] || [ "$GC_GEN_STARTUP" = resume ]; then
-	echo launcher >"$ACT_GO"
+	if [ ! -e "/tmp/manual_launch" ]; then
+		echo launcher >"$ACT_GO"
+	fi
 fi
 
 killall -q "$GPTOKEYB_BIN" "$EVSIEVE_BIN"

@@ -76,7 +76,7 @@ fi
 
 	if [ $COUNT_POWER_LONG -eq 1 ]; then
 		TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
-		HALL_KEY=/sys/devices/platform/soc/twi5/i2c-5/5-0034/axp2202-bat-power-supply.0/power_supply/axp2202-battery/hallkey
+		HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
 		if [ ! -e $TMP_POWER_LONG ]; then
 			echo on >$TMP_POWER_LONG
 		fi

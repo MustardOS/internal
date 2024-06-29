@@ -24,4 +24,4 @@ cd "$TERM_DIR" || exit
 
 echo "terminal" >/tmp/fg_proc
 
-LD_LIBRARY_PATH=/usr/lib32 HOME="$TERM_DIR" SDL_ASSERT=always_ignore ./terminal
+LD_LIBRARY_PATH=/usr/lib32 HOME="$TERM_DIR" SDL_ASSERT=always_ignore ./terminal -f ./res/SourceCodePro-Regular.ttf -s 14

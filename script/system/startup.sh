@@ -25,6 +25,9 @@ fi
 LOGGER "$0" "BOOTING" "Checking Firmware"
 /opt/muos/script/system/firmware.sh
 
+LOGGER "$0" "BOOTING" "Removing any update scripts"
+rm -rf /opt/update.sh
+
 echo 1 >/tmp/work_led_state
 echo 0 >/tmp/net_connected
 

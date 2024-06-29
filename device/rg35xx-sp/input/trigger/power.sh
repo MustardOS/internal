@@ -7,7 +7,7 @@
 TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
 FG_PROC="/tmp/fg_proc"
 DBG="/sys/kernel/debug/dispdbg"
-HALL_KEY="/sys/devices/platform/soc/twi5/i2c-5/5-0034/axp2202-bat-power-supply.0/power_supply/axp2202-battery/hallkey"
+HALL_KEY="/sys/class/power_supply/axp2202-battery"
 SLEEP_STATE="/tmp/sleep_state"
 LED_STATE="/tmp/work_led_state"
 LID_CLOSED_FLAG="/tmp/lid_closed_flag"

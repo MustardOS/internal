@@ -29,6 +29,7 @@ while true; do
 				echo on >/sys/devices/platform/soc/sdc2/mmc_host/mmc1/power/control
 				MOUNTED=true
 			fi
+			/opt/muos/script/system/dotclean.sh &
 		fi
 	elif $MOUNTED; then
 		umount "$DC_STO_SDCARD_MOUNT"

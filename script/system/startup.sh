@@ -114,9 +114,6 @@ if [ "$DC_DEV_NETWORK" -eq 1 ] && [ "$GC_NET_ENABLED" -eq 1 ]; then
 	/opt/muos/script/system/network.sh &
 fi
 
-LOGGER "$0" "BOOTING" "Running dotclean"
-/opt/muos/script/system/dotclean.sh &
-
 LOGGER "$0" "BOOTING" "Running catalogue generator"
 /opt/muos/script/system/catalogue.sh &
 

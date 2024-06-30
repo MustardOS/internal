@@ -189,6 +189,9 @@ fi
 		$PRESS_MENU_SHORT)
 			STATE_MENU_SHORT=1
 			COUNT_MENU_SHORT=$((COUNT_MENU_SHORT + 1))
+			if [ "$(cat "/tmp/fg_proc")" = "flipclock" ]; then
+				killall -q "flipclock"			
+			fi
 			;;
 		$RELEASE_MENU_SHORT)
 			if [ $STATE_MENU_SHORT -eq 1 ]; then

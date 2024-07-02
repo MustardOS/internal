@@ -1,5 +1,7 @@
-back = \"
+back = enter
 start = \"
+
+guide = esc
 
 a = enter
 b = \"

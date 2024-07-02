@@ -22,8 +22,16 @@ EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/ppsspp"
 chmod +x "$EMUDIR"/ppsspp
 cd "$EMUDIR" || exit
 
-fbset -fb /dev/fb0 -g 960 720 960 1440 32
+if [ "$DEVICE_TYPE" = "rg28xx" ]; then
+	fbset -fb /dev/fb0 -g 720 960 720 1920 32
+else
+	fbset -fb /dev/fb0 -g 960 720 960 1440 32
+fi
 
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./PPSSPP "$ROM"
 
-fbset -fb /dev/fb0 -g 640 480 640 960 32
+if [ "$DEVICE_TYPE" = "rg28xx" ]; then
+    fbset -fb /dev/fb0 -g 480 640 480 1280 32
+else
+    fbset -fb /dev/fb0 -g 640 480 640 960 32
+fi

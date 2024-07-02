@@ -8,6 +8,7 @@
 
 . /opt/muos/script/var/global/setting_advanced.sh
 . /opt/muos/script/var/global/setting_general.sh
+. /opt/muos/script/var/global/web_service.sh
 
 ACT_GO=/tmp/act_go
 ROM_GO=/tmp/rom_go
@@ -140,6 +141,13 @@ if [ "$DEVICE_TYPE" = "rg28xx" ]; then
 	fbset -fb /dev/fb0 -g 480 640 480 1280 32
 else
 	fbset -fb /dev/fb0 -g 640 480 640 960 32
+fi
+
+NET_CONNECTED="/tmp/net_connected"
+if [ "$GC_WEB_SYNCTHING" -eq 1 ] && [ "$(cat "$NET_CONNECTED")" -eq 1 ]; then
+SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)
+SYNCTHING_API=$(cat /mnt/mmc/MUOS/syncthing/api.txt)
+curl -X POST -H "X-API-Key: $SYNCTHING_API" "$SYNCTHING_ADDRESS:7070/rest/db/scan"
 fi
 
 pkill -CONT "$SUSPEND_APP"

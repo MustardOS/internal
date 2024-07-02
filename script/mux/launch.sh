@@ -142,4 +142,8 @@ else
 	fbset -fb /dev/fb0 -g 640 480 640 960 32
 fi
 
+SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)
+SYNCTHING_API=$(cat /mnt/mmc/MUOS/syncthing/api.txt)
+curl -X POST -H "X-API-Key: $SYNCTHING_API" "$SYNCTHING_ADDRESS:7070/rest/db/scan"
+
 pkill -CONT "$SUSPEND_APP"

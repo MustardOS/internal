@@ -11,13 +11,24 @@ fi
 
 echo app >/tmp/act_go
 
+GPTOKEYB_BIN=gptokeyb2
+GPTOKEYB_DIR="$DC_STO_ROM_MOUNT/MUOS/emulator/gptokeyb"
+
 . /opt/muos/script/var/func.sh
 
+. /opt/muos/script/var/device/device.sh
 . /opt/muos/script/var/device/sdl.sh
 . /opt/muos/script/var/device/storage.sh
 
+export LD_LIBRARY_PATH=/usr/lib32
+export SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "$SDL_GAMECONTROLLER")
+
 export SDL_HQ_SCALER="$DC_SDL_SCALER"
-export SDL_ROTATION=3
+if [ $DC_DEV_NAME = "RG28XX" ]; then
+    export SDL_ROTATION=0
+else
+    export SDL_ROTATION=3
+fi
 
 export SDL_GAMECONTROLLER="/usr/lib/gamecontrollerdb.txt"
 export HOME=/root
@@ -28,4 +39,9 @@ cd "$FLIPCLOCK_DIR" || exit
 
 echo "flipclock" >/tmp/fg_proc
 
-LD_LIBRARY_PATH=/usr/lib32 HOME="$FLIPCLOCK_DIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "$SDL_GAMECONTROLLER") ./flipclock
+ HOME="$FLIPCLOCK_DIR" SDL_ASSERT=always_ignore  $GPTOKEYB_DIR/$GPTOKEYB_BIN "./flipclock" -c "./flipclock.gptk" &
+ ./flipclock
+
+kill -9 "$(pidof flipclock)"
+kill -9 "$(pidof gptokeyb2)"
+export SDL_ROTATION="$DC_SDL_ROTATION"

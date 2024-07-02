@@ -22,4 +22,8 @@ EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/ppsspp"
 chmod +x "$EMUDIR"/ppsspp
 cd "$EMUDIR" || exit
 
+fbset -fb /dev/fb0 -g 960 720 960 1440 32
+
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./PPSSPP "$ROM"
+
+fbset -fb /dev/fb0 -g 640 480 640 960 32

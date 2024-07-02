@@ -28,9 +28,17 @@ cd "$PPSSPP_DIR" || exit
 
 echo "PPSSPP" >/tmp/fg_proc
 
-fbset -fb /dev/fb0 -g 960 720 960 1440 32
+if [ "$DEVICE_TYPE" = "rg28xx" ]; then
+	fbset -fb /dev/fb0 -g 720 960 720 1920 32
+else
+	fbset -fb /dev/fb0 -g 960 720 960 1440 32
+fi
 
 SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "$SDL_GAMECONTROLLER") ./PPSSPP
 
-fbset -fb /dev/fb0 -g 640 480 640 960 32
+if [ "$DEVICE_TYPE" = "rg28xx" ]; then
+    fbset -fb /dev/fb0 -g 480 640 480 1280 32
+else
+    fbset -fb /dev/fb0 -g 640 480 640 960 32
+fi
 

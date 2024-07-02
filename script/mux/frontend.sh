@@ -25,14 +25,13 @@ echo "root" >$EX_CARD
 
 KILL_BGM() {
 	if pgrep -f "playbgm.sh" >/dev/null; then
-		killall -q "playbgm.sh"
-		killall -q "mp3play"
+		killall -q "playbgm.sh" "mp3play"
 	fi
 }
 
 KILL_SND() {
 	if pgrep -f "muplay" >/dev/null; then
-		kill -9 "muplay"
+		killall -q "muplay"
 		rm "$SND_PIPE"
 	fi
 }
@@ -99,20 +98,21 @@ fi
 
 LOGGER "$0" "FRONTEND" "Starting frontend launcher"
 while true; do
-	. /opt/muos/script/var/global/setting_advanced.sh &
-	. /opt/muos/script/var/global/setting_general.sh &
-
 	# Background Music
-	if [ "$GC_GEN_BGM" -eq 1 ] && ! pgrep -f "playbgm.sh" >/dev/null; then
-		/opt/muos/script/mux/playbgm.sh &
+	if [ "$GC_GEN_BGM" -eq 1 ]; then
+		if ! pgrep -f "playbgm.sh" >/dev/null; then
+			/opt/muos/script/mux/playbgm.sh &
+		fi
 	else
 		KILL_BGM
 	fi
 
 	# Navigation Sounds
-	if [ "$GC_GEN_SOUND" -eq 1 ] && ! pgrep -f "muplay" >/dev/null; then
-		mkfifo "$SND_PIPE"
-		/opt/muos/bin/muplay "$SND_PIPE" &
+	if [ "$GC_GEN_SOUND" -eq 1 ]; then
+		if ! pgrep -f "muplay" >/dev/null; then
+			mkfifo "$SND_PIPE"
+			/opt/muos/bin/muplay "$SND_PIPE" &
+		fi
 	else
 		KILL_SND
 	fi
@@ -135,6 +135,7 @@ while true; do
 	if [ -s "$APP_GO" ]; then
 		. "$(cat $APP_GO)"
 		rm "$APP_GO"
+		continue
 	fi
 
 	# Get Last ROM Index
@@ -220,11 +221,13 @@ while true; do
 				echo config >$ACT_GO
 				echo "muxtweakgen" >/tmp/fg_proc
 				nice --20 /opt/muos/extra/muxtweakgen
+				. /opt/muos/script/var/global/setting_general.sh
 				;;
 			"tweakadv")
 				echo tweakgen >$ACT_GO
 				echo "muxtweakadv" >/tmp/fg_proc
 				nice --20 /opt/muos/extra/muxtweakadv
+				. /opt/muos/script/var/global/setting_advanced.sh
 				;;
 			"theme")
 				echo config >$ACT_GO

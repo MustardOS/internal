@@ -31,7 +31,7 @@ fi
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./PPSSPP "$ROM"
 
 if [ "$DEVICE_TYPE" = "rg28xx" ]; then
-    fbset -fb /dev/fb0 -g 480 640 480 1280 32
+	fbset -fb /dev/fb0 -g 480 640 480 1280 32
 else
-    fbset -fb /dev/fb0 -g 640 480 640 960 32
+	fbset -fb /dev/fb0 -g 640 480 640 960 32
 fi

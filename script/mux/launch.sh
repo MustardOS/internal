@@ -145,9 +145,9 @@ fi
 
 NET_CONNECTED="/tmp/net_connected"
 if [ "$GC_WEB_SYNCTHING" -eq 1 ] && [ "$(cat "$NET_CONNECTED")" -eq 1 ]; then
-SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)
-SYNCTHING_API=$(cat /mnt/mmc/MUOS/syncthing/api.txt)
-curl -X POST -H "X-API-Key: $SYNCTHING_API" "$SYNCTHING_ADDRESS:7070/rest/db/scan"
+	SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)
+	SYNCTHING_API=$(cat /mnt/mmc/MUOS/syncthing/api.txt)
+	curl -X POST -H "X-API-Key: $SYNCTHING_API" "$SYNCTHING_ADDRESS:7070/rest/db/scan"
 fi
 
 pkill -CONT "$SUSPEND_APP"

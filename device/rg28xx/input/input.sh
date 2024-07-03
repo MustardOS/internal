@@ -275,10 +275,14 @@ fi
 				# Swap dpad controls to left analogue
 				echo 2 > /sys/class/power_supply/axp2202-battery/nds_pwrkey
 				DPAD=0
+				echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.1 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
 			else
 				# Swap dpad controls back to dpad
 				echo 0 > /sys/class/power_supply/axp2202-battery/nds_pwrkey
 				DPAD=1
+				echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.1 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
+                sleep 0.1
+                echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.1 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
 			fi
 			;;
 		$RELEASE_POWER_SHORT)

@@ -15,6 +15,7 @@ killall -q "evtest"
 . /opt/muos/device/"$DEVICE_TYPE"/input/map.sh
 
 KEY_COMBO=0
+DPAD=1
 
 # Place combo and trigger scripts here because fuck knows why for loops won't work...
 # Make sure to put them in order of how you want them to work too!
@@ -192,7 +193,15 @@ fi
 		$PRESS_MENU_SHORT)
 			STATE_MENU_SHORT=1
 			COUNT_MENU_SHORT=$((COUNT_MENU_SHORT + 1))
-
+			if [ $DPAD -eq 1 ]; then
+				# Swap dpad controls to left analogue
+				echo 2 > /sys/class/power_supply/axp2202-battery/nds_pwrkey
+				DPAD=0
+			else
+				# Swap dpad controls back to dpad
+				echo 0 > /sys/class/power_supply/axp2202-battery/nds_pwrkey
+				DPAD=1
+			fi
 			;;
 		$RELEASE_MENU_SHORT)
 			if [ $STATE_MENU_SHORT -eq 1 ]; then

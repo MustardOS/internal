@@ -193,19 +193,6 @@ fi
 		$PRESS_MENU_SHORT)
 			STATE_MENU_SHORT=1
 			COUNT_MENU_SHORT=$((COUNT_MENU_SHORT + 1))
-			if [ $DPAD -eq 1 ]; then
-				# Swap dpad controls to left analogue
-				echo 2 > /sys/class/power_supply/axp2202-battery/nds_pwrkey
-				DPAD=0
-				echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.1 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
-			else
-				# Swap dpad controls back to dpad
-				echo 0 > /sys/class/power_supply/axp2202-battery/nds_pwrkey
-				DPAD=1
-				echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.1 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
-                sleep 0.1
-                echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.1 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
-			fi
 			;;
 		$RELEASE_MENU_SHORT)
 			if [ $STATE_MENU_SHORT -eq 1 ]; then
@@ -296,6 +283,17 @@ fi
 				KEY_COMBO=0
 				STATE_POWER_SHORT=0
 				STATE_POWER_LONG=0
+				if [ "$DPAD" -eq 1 ] && [ "$STATE_MENU_LONG" -ne 1 ]; then
+                    echo 2 > /sys/class/power_supply/axp2202-battery/nds_pwrkey
+                    echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.1 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
+                    DPAD=0
+                elif [ $DPAD -eq 0 ] && [ "$STATE_MENU_LONG" -ne 1 ]; then
+                    echo 0 > /sys/class/power_supply/axp2202-battery/nds_pwrkey
+                    DPAD=1
+                    echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.1 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
+                    sleep 0.1
+                    echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.1 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
+                fi
 			fi
 			;;
 		$PRESS_POWER_LONG)

@@ -11,14 +11,14 @@ fi
 
 echo app >/tmp/act_go
 
-GPTOKEYB_BIN=gptokeyb2
-GPTOKEYB_DIR="$DC_STO_ROM_MOUNT/MUOS/emulator/gptokeyb"
-
 . /opt/muos/script/var/func.sh
 
 . /opt/muos/script/var/device/device.sh
 . /opt/muos/script/var/device/sdl.sh
 . /opt/muos/script/var/device/storage.sh
+
+GPTOKEYB_BIN=gptokeyb2
+GPTOKEYB_DIR="$DC_STO_ROM_MOUNT/MUOS/emulator/gptokeyb"
 
 export LD_LIBRARY_PATH=/usr/lib32
 export SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "$SDL_GAMECONTROLLER")

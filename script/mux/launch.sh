@@ -143,6 +143,8 @@ else
 	fbset -fb /dev/fb0 -g 640 480 640 960 32
 fi
 
+echo 0 >/sys/class/power_supply/axp2202-battery/nds_pwrkey
+
 NET_CONNECTED="/tmp/net_connected"
 if [ "$GC_WEB_SYNCTHING" -eq 1 ] && [ "$(cat "$NET_CONNECTED")" -eq 1 ]; then
 	SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)

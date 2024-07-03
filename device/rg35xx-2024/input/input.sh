@@ -15,7 +15,17 @@ killall -q "evtest"
 . /opt/muos/device/"$DEVICE_TYPE"/input/map.sh
 
 KEY_COMBO=0
-DPAD=1
+
+DPAD="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+MOTO="/sys/class/power_supply/axp2202-battery/moto"
+
+FG_PROC="/tmp/fg_proc"
+
+MOTO_BUZZ() {
+	echo 1 >$MOTO
+	sleep 0.1
+	echo 0 >$MOTO
+}
 
 # Place combo and trigger scripts here because fuck knows why for loops won't work...
 # Make sure to put them in order of how you want them to work too!
@@ -280,17 +290,19 @@ fi
 				KEY_COMBO=0
 				STATE_POWER_SHORT=0
 				STATE_POWER_LONG=0
-				if [ "$DPAD" -eq 1 ] && [ "$STATE_MENU_LONG" -ne 1 ]; then
-                    echo 2 > /sys/class/power_supply/axp2202-battery/nds_pwrkey
-                    echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.1 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
-                    DPAD=0
-                elif [ $DPAD -eq 0 ] && [ "$STATE_MENU_LONG" -ne 1 ]; then
-                    echo 0 > /sys/class/power_supply/axp2202-battery/nds_pwrkey
-                    DPAD=1
-                    echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.1 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
-                    sleep 0.1
-                    echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.1 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
-                fi
+				FG_PROC_VAL=$(cat "$FG_PROC")
+				DPAD_VAL=$(cat "$DPAD")
+				if [ "${FG_PROC_VAL#mux}" = "$FG_PROC_VAL" ] && [ "$STATE_MENU_LONG" -ne 1 ]; then
+					if [ "$DPAD_VAL" -eq 0 ]; then
+						echo 2 >$DPAD
+						MOTO_BUZZ
+					elif [ "$DPAD_VAL" -eq 2 ]; then
+						echo 0 >$DPAD
+						MOTO_BUZZ
+						sleep 0.1
+						MOTO_BUZZ
+					fi
+				fi
 			fi
 			;;
 		$PRESS_POWER_LONG)

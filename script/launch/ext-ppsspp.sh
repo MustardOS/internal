@@ -9,8 +9,6 @@ NAME=$1
 CORE=$2
 ROM=$3
 
-export HOME=/root
-
 export SDL_HQ_SCALER="$DC_SDL_SCALER"
 export SDL_ROTATION="$DC_SDL_ROTATION"
 export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
@@ -28,7 +26,7 @@ else
 	fbset -fb /dev/fb0 -g 960 720 960 1440 32
 fi
 
-HOME="$EMUDIR" SDL_ASSERT=always_ignore ./PPSSPP "$ROM"
+HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") ./PPSSPP "$ROM"
 
 if [ "$DEVICE_TYPE" = "rg28xx" ]; then
 	fbset -fb /dev/fb0 -g 480 640 480 1280 32

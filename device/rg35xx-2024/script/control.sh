@@ -12,10 +12,10 @@ for GCDB_DIR in "/usr/lib32" "/usr/lib"; do
 	cp -f "$DEVICE_CONTROL_DIR/gamecontrollerdb.txt" "$GCDB_DIR/gamecontrollerdb.txt"
 done
 
-# Move Moonlight configurations
-ML_CONF="$DC_STO_ROM_MOUNT/MUOS/application/.moonlight/moonlight.conf"
-if [ ! -f "$ML_CONF" ]; then
-	cp "$DEVICE_CONTROL_DIR/moonlight.conf" "$ML_CONF"
+# Move control.ini for ppsspp standalone
+CONTROL_INI="$DC_STO_ROM_MOUNT/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SYSTEM/controls.ini"
+if [ ! -f "$CONTROL_INI" ]; then
+	cp "$DEVICE_CONTROL_DIR/controls.ini" "$CONTROL_INI"
 fi
 
 # Move RetroArch configurations

@@ -98,6 +98,14 @@ if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
 fi
 ldconfig -v >"$DC_STO_ROM_MOUNT/MUOS/log/ldconfig.log"
 
+LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
+if [ ! -f "/usr/lib/gamecontrollerdb.txt" ]; then
+	ln -s "/opt/muos/device/$DEVICE_TYPE/control/gamecontrollerdb.txt" "/usr/lib/gamecontrollerdb.txt"
+fi
+if [ ! -f "/usr/lib32/gamecontrollerdb.txt" ]; then
+	ln -s "/opt/muos/device/$DEVICE_TYPE/control/gamecontrollerdb.txt" "/usr/lib32/gamecontrollerdb.txt"
+fi
+
 LOGGER "$0" "BOOTING" "Starting Storage Watchdog"
 /opt/muos/script/mount/sdcard.sh &
 /opt/muos/script/mount/usb.sh &

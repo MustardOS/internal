@@ -58,43 +58,45 @@ if [ -z "$1" ]; then
 	exit 0
 fi
 
-case "$1" in
-	U)
-		if [ "$CURRENT_BL" -le 14 ]; then
-			NEW_BL=$((CURRENT_BL + 1))
-		else
-			NEW_BL=$((CURRENT_BL + 15))
-		fi
-		if [ "$NEW_BL" -gt "$DC_SCR_BRIGHT" ]; then
-			NEW_BL=$DC_SCR_BRIGHT
-		fi
-		SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
-		if [ "$SLEEP_STATE_VAL" = "awake" ]; then
-			SET_CURRENT "$NEW_BL"
-		fi
-		;;
-	D)
-		if [ "$CURRENT_BL" -le 15 ]; then
-			NEW_BL=$((CURRENT_BL - 1))
-		else
-			NEW_BL=$((CURRENT_BL - 15))
-		fi
-		if [ "$NEW_BL" -lt 0 ]; then
-			NEW_BL=0
-		fi
-		SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
-		if [ "$SLEEP_STATE_VAL" = "awake" ]; then
-			SET_CURRENT "$NEW_BL"
-		fi
-		;;
-	[0-9]*)
-		if [ "$1" -ge 0 ] && [ "$1" -le "$DC_SCR_BRIGHT" ]; then
-			SET_CURRENT "$1"
-		else
-			echo "Invalid brightness value. Maximum is $DC_SCR_BRIGHT."
-		fi
-		;;
-	*)
-		printf "Invalid Argument\n\tU) Increase Brightness\n\tD) Decrease Brightness\n"
-		;;
-esac
+if [ ! "$(cat "$DC_SCR_HDMI")" = "HDMI=1" ]; then
+	case "$1" in
+		U)
+			if [ "$CURRENT_BL" -le 14 ]; then
+				NEW_BL=$((CURRENT_BL + 1))
+			else
+				NEW_BL=$((CURRENT_BL + 15))
+			fi
+			if [ "$NEW_BL" -gt "$DC_SCR_BRIGHT" ]; then
+				NEW_BL=$DC_SCR_BRIGHT
+			fi
+			SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
+			if [ "$SLEEP_STATE_VAL" = "awake" ]; then
+				SET_CURRENT "$NEW_BL"
+			fi
+			;;
+		D)
+			if [ "$CURRENT_BL" -le 15 ]; then
+				NEW_BL=$((CURRENT_BL - 1))
+			else
+				NEW_BL=$((CURRENT_BL - 15))
+			fi
+			if [ "$NEW_BL" -lt 0 ]; then
+				NEW_BL=0
+			fi
+			SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
+			if [ "$SLEEP_STATE_VAL" = "awake" ]; then
+				SET_CURRENT "$NEW_BL"
+			fi
+			;;
+		[0-9]*)
+			if [ "$1" -ge 0 ] && [ "$1" -le "$DC_SCR_BRIGHT" ]; then
+				SET_CURRENT "$1"
+			else
+				echo "Invalid brightness value. Maximum is $DC_SCR_BRIGHT."
+			fi
+			;;
+		*)
+			printf "Invalid Argument\n\tU) Increase Brightness\n\tD) Decrease Brightness\n"
+			;;
+	esac
+fi

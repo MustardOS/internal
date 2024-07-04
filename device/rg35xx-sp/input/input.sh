@@ -16,6 +16,18 @@ killall -q "evtest"
 
 KEY_COMBO=0
 
+HALL="/sys/class/power_supply/axp2202-battery/hallkey"
+DPAD="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+MOTO="/sys/class/power_supply/axp2202-battery/moto"
+
+FG_PROC="/tmp/fg_proc"
+
+MOTO_BUZZ() {
+	echo 1 >$MOTO
+	sleep 0.1
+	echo 0 >$MOTO
+}
+
 # Place combo and trigger scripts here because fuck knows why for loops won't work...
 # Make sure to put them in order of how you want them to work too!
 if [ "$GC_BOO_FACTORY_RESET" -eq 0 ]; then
@@ -76,11 +88,10 @@ fi
 
 	if [ $COUNT_POWER_LONG -eq 1 ]; then
 		TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
-		HALL_KEY=/sys/devices/platform/soc/twi5/i2c-5/5-0034/axp2202-bat-power-supply.0/power_supply/axp2202-battery/hallkey
 		if [ ! -e $TMP_POWER_LONG ]; then
 			echo on >$TMP_POWER_LONG
 		fi
-		if [ "$(cat $HALL_KEY)" = "1" ]; then
+		if [ "$(cat $HALL)" = "1" ]; then
 			if [ "$(cat $TMP_POWER_LONG)" = "off" ]; then
 				echo on >$TMP_POWER_LONG
 			else
@@ -282,6 +293,19 @@ fi
 				KEY_COMBO=0
 				STATE_POWER_SHORT=0
 				STATE_POWER_LONG=0
+				FG_PROC_VAL=$(cat "$FG_PROC")
+				DPAD_VAL=$(cat "$DPAD")
+				if [ "${FG_PROC_VAL#mux}" = "$FG_PROC_VAL" ] && [ "$STATE_MENU_LONG" -ne 1 ]; then
+					if [ "$DPAD_VAL" -eq 0 ]; then
+						echo 2 >$DPAD
+						MOTO_BUZZ
+					elif [ "$DPAD_VAL" -eq 2 ]; then
+						echo 0 >$DPAD
+						MOTO_BUZZ
+						sleep 0.1
+						MOTO_BUZZ
+					fi
+				fi
 			fi
 			;;
 		$PRESS_POWER_LONG)

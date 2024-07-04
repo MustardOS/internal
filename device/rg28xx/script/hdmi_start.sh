@@ -21,11 +21,7 @@ while true; do
 		if [ $SWITCHED_ON -eq 0 ]; then
 			RESET_DISP=0
 
-			# Switch on HDMI
-			echo disp0 >$DISPLAY/name
-			echo switch >$DISPLAY/command
-			echo 4 "$GC_GEN_HDMI" >$DISPLAY/param
-			echo 1 >$DISPLAY/start
+			echo "1" >/tmp/hdmi_in_use
 
 			FG_PROC_VAL=$(cat "$FG_PROC")
 
@@ -40,6 +36,12 @@ while true; do
 			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
 				pkill -CONT "playbgm.sh"
 			fi
+
+			# Switch on HDMI
+			echo disp0 >$DISPLAY/name
+			echo switch >$DISPLAY/command
+			echo 4 "$GC_GEN_HDMI" >$DISPLAY/param
+			echo 1 >$DISPLAY/start
 
 			# Reset the display
 			if [ $RESET_DISP -eq 0 ]; then
@@ -58,11 +60,7 @@ while true; do
 		if [ $SWITCHED_OFF -eq 0 ]; then
 			RESET_DISP=0
 
-			# Switch off HDMI
-			echo disp0 >$DISPLAY/name
-			echo switch >$DISPLAY/command
-			echo 1 0 >$DISPLAY/param
-			echo 1 >$DISPLAY/start
+			echo "0" >/tmp/hdmi_in_use
 
 			FG_PROC_VAL=$(cat "$FG_PROC")
 
@@ -77,6 +75,12 @@ while true; do
 			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
 				pkill -CONT "playbgm.sh"
 			fi
+
+			# Switch off HDMI
+			echo disp0 >$DISPLAY/name
+			echo switch >$DISPLAY/command
+			echo 1 0 >$DISPLAY/param
+			echo 1 >$DISPLAY/start
 
 			# Reset the display
 			if [ $RESET_DISP -eq 0 ]; then

@@ -23,6 +23,7 @@ while true; do
 				mount -t ext4 -o defaults,noatime,nofail "/dev/$STORE_DEVICE" "$DC_STO_USB_MOUNT"
 				MOUNTED=true
 			fi
+			/opt/muos/script/system/dotclean.sh &
 		fi
 	elif $MOUNTED; then
 		umount "$DC_STO_USB_MOUNT"

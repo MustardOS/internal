@@ -19,53 +19,86 @@ rm -rf "$TMP_FILE"
 
 if grep -m 1 "$USB_DEVICE" /proc/partitions >/dev/null; then
 	echo "USB mounted, archiving to USB" >/tmp/muxlog_info
-	mkdir -p "$DC_STO_USB_MOUNT/BACKUP/"
 	DEST_DIR="$DC_STO_USB_MOUNT/BACKUP"
+	mkdir -p "$DEST_DIR"
 elif grep -m 1 "$SD_DEVICE" /proc/partitions >/dev/null; then
 	echo "SD2 mounted, archiving to SD2" >/tmp/muxlog_info
-	mkdir -p "$DC_STO_SDCARD_MOUNT/BACKUP/"
 	DEST_DIR="$DC_STO_SDCARD_MOUNT/BACKUP"
+	mkdir -p "$DEST_DIR"
 else
 	echo "Archiving to SD1" >/tmp/muxlog_info
 	DEST_DIR="$DC_STO_ROM_MOUNT/BACKUP"
+	mkdir -p "$DEST_DIR"
 fi
 
-DEST_FILE="$DEST_DIR/BIOS-$(date +%Y-%m-%d).zip"
-BIOS_DIR="$ROM_MOUNT/MUOS/bios"
+DEST_FILE="$DEST_DIR/muOS-BIOS-$(date +"%Y-%m-%d_%H-%M").zip"
 
-cd /
-echo "Archiving BIOS files" >/tmp/muxlog_info
-zip -ru9 "$DEST_FILE" "$BIOS_DIR" >"$TMP_FILE" 2>&1 &
+TO_BACKUP="
+$DC_STO_ROM_MOUNT/MUOS/bios
+$DC_STO_SDCARD_MOUNT/MUOS/bios
+"
+VALID_BACKUP=$(mktemp)
 
-# Tail zip process and push to muxlog
-C_LINE=""
-while true; do
-	IS_WORKING=$(ps aux | grep '[z]ip' | awk '{print $1}')
-
-	if [ -s "$TMP_FILE" ]; then
-		N_LINE=$(tail -n 1 "$TMP_FILE" | sed 's/^[[:space:]]*//')
-		if [ "$N_LINE" != "$C_LINE" ]; then
-			echo "$N_LINE"
-			echo "$N_LINE" >/tmp/muxlog_info
-			C_LINE="$N_LINE"
-		fi
+for BACKUP in $TO_BACKUP; do
+	if [ -e "$BACKUP" ]; then
+		echo "$BACKUP" >>"$VALID_BACKUP"
+		echo "Found: $BACKUP" >/tmp/muxlog_info
 	fi
-
-	if [ -z "$IS_WORKING" ]; then
-		break
-	fi
-
-	sleep 0.25
 done
 
-echo "Sync Filesystem" >/tmp/muxlog_info
-sync
+if [ ! -s "$VALID_BACKUP" ]; then
+	echo "No valid files found to backup!" >/tmp/muxlog_info
+	sleep 1
+	rm "$VALID_BACKUP"
+else
+	cd /
+	echo "Archiving BIOS" >/tmp/muxlog_info
+	zip -ru9 "$DEST_FILE" "$(cat "$VALID_BACKUP")" >"$TMP_FILE" 2>&1 &
 
-echo "All Done!" >/tmp/muxlog_info
-sleep 1
+	C_LINE=""
+	while true; do
+		IS_WORKING=$(ps aux | grep '[z]ip' | awk '{print $1}')
+
+		if [ -s "$TMP_FILE" ]; then
+			N_LINE=$(tail -n 1 "$TMP_FILE" | sed 's/^[[:space:]]*//')
+			if [ "$N_LINE" != "$C_LINE" ]; then
+				# Don't want to scare people unnecessarily!
+				if ! echo "$N_LINE" | grep -q "^zip warning:"; then
+					echo "$N_LINE"
+					echo "$N_LINE" >/tmp/muxlog_info
+				fi
+				C_LINE="$N_LINE"
+			fi
+		fi
+
+		if [ -z "$IS_WORKING" ]; then
+			break
+		fi
+
+		sleep 0.1
+	done
+
+	rm "$VALID_BACKUP"
+
+	echo "Sync Filesystem" >/tmp/muxlog_info
+	sync
+
+	echo "All Done!" >/tmp/muxlog_info
+	sleep 1
+fi
+
+pkill -CONT muxtask
+
+while true; do
+	if ! toybox ps -Al | grep '[m]uxtask' | grep 'T' >/dev/null; then
+		echo "Waiting to quit..." >/tmp/muxlog_info
+		break
+	fi
+	sleep 0.1
+	pkill -CONT muxtask
+done
 
 killall -q muxlog
 rm -rf "$MUX_TEMP" /tmp/muxlog_*
 
-pkill -CONT muxtask
-killall -q "Backup BIOS.sh"
+killall -q "$(basename "$0")"

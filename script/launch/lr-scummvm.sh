@@ -5,6 +5,8 @@
 . /opt/muos/script/var/device/storage.sh
 . /opt/muos/script/var/device/sdl.sh
 
+. /opt/muos/script/var/global/setting_general.sh
+
 NAME=$1
 CORE=$2
 ROM=$3
@@ -29,4 +31,16 @@ SCVM="$ROMPATH/$SUBFOLDER/$NAME.scummvm"
 
 cp "$ROMPATH/$NAME.scummvm" "$SCVM"
 
-retroarch -v -f -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg" -L "$DC_STO_ROM_MOUNT/MUOS/core/scummvm_libretro.so" "$SCVM"
+retroarch -v -f -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg" -L "$DC_STO_ROM_MOUNT/MUOS/core/scummvm_libretro.so" "$SCVM" &
+RA_PID=$!
+
+# We have to pause just for a moment to let RetroArch finish loading...
+sleep 5
+
+if [ "$GC_GEN_STARTUP" = last ] || [ "$GC_GEN_STARTUP" = resume ]; then
+	if [ ! -e "/tmp/manual_launch" ]; then
+		retroarch --command LOAD_STATE
+	fi
+fi
+
+wait $RA_PID

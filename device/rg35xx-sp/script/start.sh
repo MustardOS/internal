@@ -11,7 +11,7 @@
 . /opt/muos/script/var/global/setting_advanced.sh
 . /opt/muos/script/var/global/setting_general.sh
 
-HALL_KEY="/sys/devices/platform/soc/twi5/i2c-5/5-0034/axp2202-bat-power-supply.0/power_supply/axp2202-battery/hallkey"
+HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
 
 if [ "$(cat "$HALL_KEY")" = "0" ] && [ "$(cat "$DC_BAT_CHARGER")" -eq 0 ]; then
 	/opt/muos/bin/mushutdown
@@ -23,9 +23,16 @@ insmod /lib/modules/mali_kbase.ko &
 insmod /lib/modules/squashfs.ko &
 
 echo "$DC_CPU_DEFAULT" >"$DC_CPU_GOVERNOR"
+echo "$DC_CPU_SAMPLING_RATE_DEFAULT" > "$DC_CPU_SAMPLING_RATE"
+echo "$DC_CPU_UP_THRESHOLD_DEFAULT" > "$DC_CPU_UP_THRESHOLD"
+echo "$DC_CPU_SAMPLING_DOWN_FACTOR_DEFAULT" > "$DC_CPU_SAMPLING_DOWN_FACTOR"
+echo "$DC_CPU_IO_IS_BUSY_DEFAULT" > "$DC_CPU_IO_IS_BUSY"
 
 mount -t "$DC_STO_BOOT_TYPE" -o rw,utf8,noatime,nofail /dev/"$DC_STO_BOOT_DEV"p"$DC_STO_BOOT_NUM" "$DC_STO_BOOT_MOUNT"
 mount -t "$DC_STO_ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" "$DC_STO_ROM_MOUNT"
+
+LOGGER "$0" "BOOTING" "Running dotclean"
+/opt/muos/script/system/dotclean.sh &
 
 if [ "$DC_DEV_DEBUGFS" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
@@ -61,5 +68,6 @@ fi
 echo noop >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/mmc0:59b4/block/mmcblk0/queue/scheduler
 echo on >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
 
-/opt/muos/device/"$DEVICE_TYPE"/script/control.sh
-/opt/muos/device/"$DEVICE_TYPE"/input/input.sh
+/opt/muos/device/"$DEVICE_TYPE"/script/adb.sh &
+/opt/muos/device/"$DEVICE_TYPE"/script/control.sh &
+/opt/muos/device/"$DEVICE_TYPE"/input/input.sh &

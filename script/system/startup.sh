@@ -25,6 +25,9 @@ fi
 LOGGER "$0" "BOOTING" "Checking Firmware"
 /opt/muos/script/system/firmware.sh
 
+LOGGER "$0" "BOOTING" "Removing any update scripts"
+rm -rf /opt/update.sh
+
 echo 1 >/tmp/work_led_state
 echo 0 >/tmp/net_connected
 
@@ -110,9 +113,6 @@ if [ "$DC_DEV_NETWORK" -eq 1 ] && [ "$GC_NET_ENABLED" -eq 1 ]; then
 	LOGGER "$0" "BOOTING" "Starting Network Services"
 	/opt/muos/script/system/network.sh &
 fi
-
-LOGGER "$0" "BOOTING" "Running dotclean"
-/opt/muos/script/system/dotclean.sh &
 
 LOGGER "$0" "BOOTING" "Running catalogue generator"
 /opt/muos/script/system/catalogue.sh &

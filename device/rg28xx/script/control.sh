@@ -7,11 +7,10 @@
 RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 
-# Move Moonlight configurations
-ML_CONF="$DC_STO_ROM_MOUNT/MUOS/application/.moonlight/moonlight.conf"
-if [ ! -f "$ML_CONF" ]; then
-	cp "$DEVICE_CONTROL_DIR/moonlight.conf" "$ML_CONF"
-fi
+# Move control.ini for ppsspp standalone
+CONTROL_INI="$DC_STO_ROM_MOUNT/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SYSTEM/controls.ini"
+if [ ! -f "$CONTROL_INI" ]; then
+	cp "$DEVICE_CONTROL_DIR/controls.ini" "$CONTROL_INI"
 
 # Move RetroArch configurations
 RA_CONF="$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg"

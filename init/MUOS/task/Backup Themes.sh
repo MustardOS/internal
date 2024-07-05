@@ -57,7 +57,7 @@ else
 
 	C_LINE=""
 	while true; do
-		IS_WORKING=$(ps aux | grep '[z]ip' | awk '{print $1}')
+		IS_WORKING=$(pgrep -f "zip")
 
 		if [ -s "$TMP_FILE" ]; then
 			N_LINE=$(tail -n 1 "$TMP_FILE" | sed 's/^[[:space:]]*//')

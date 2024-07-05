@@ -11,6 +11,7 @@ LOG_DATE="$(date +'[%Y-%m-%d]')"
 CONTROL_INI="$DC_STO_ROM_MOUNT/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SYSTEM/controls.ini"
 if [ ! -f "$CONTROL_INI" ]; then
 	cp "$DEVICE_CONTROL_DIR/controls.ini" "$CONTROL_INI"
+fi
 
 # Move RetroArch configurations
 RA_CONF="$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg"

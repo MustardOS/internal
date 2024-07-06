@@ -53,7 +53,12 @@ if [ ! -s "$VALID_BACKUP" ]; then
 else
 	cd /
 	echo "Archiving BIOS" >/tmp/muxlog_info
-	zip -ru9 "$DEST_FILE" "$(cat "$VALID_BACKUP")" >"$TMP_FILE" 2>&1 &
+
+	BACKUP_FILES=""
+	while IFS= read -r FILE; do
+		BACKUP_FILES="$BACKUP_FILES \"$FILE\""
+	done <"$VALID_BACKUP"
+	eval "zip -ru9 $DEST_FILE $BACKUP_FILES" >"$TMP_FILE" 2>&1 &
 
 	C_LINE=""
 	while true; do
@@ -74,8 +79,6 @@ else
 		if [ -z "$IS_WORKING" ]; then
 			break
 		fi
-
-		sleep 0.1
 	done
 
 	rm "$VALID_BACKUP"

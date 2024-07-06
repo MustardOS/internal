@@ -9,6 +9,9 @@ export DEVICE_TYPE
 DEVICE_CONFIG="/opt/muos/device/$DEVICE_TYPE/config.ini"
 export DEVICE_CONFIG
 
+ALSA_CONFIG="/usr/share/alsa/alsa.conf"
+export ALSA_CONFIG
+
 DEVICE_CONTROL_DIR="/opt/muos/device/$DEVICE_TYPE/control"
 export DEVICE_CONTROL_DIR
 

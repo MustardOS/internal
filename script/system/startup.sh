@@ -11,10 +11,17 @@
 . /opt/muos/script/var/global/setting_advanced.sh
 
 if [ -s "$GLOBAL_CONFIG" ]; then
-	LOGGER "$0" "BOOTING" "Config Check Passed"
+	LOGGER "$0" "BOOTING" "Global Config Check Passed"
 else
-	LOGGER "$0" "BOOTING" "Config Check Failed: Restoring"
+	LOGGER "$0" "BOOTING" "Global Config Check Failed: Restoring"
 	cp -f "/opt/muos/config/config.bak" "$GLOBAL_CONFIG"
+fi
+
+if [ -s "$ALSA_CONFIG" ]; then
+	LOGGER "$0" "BOOTING" "ALSA Config Check Passed"
+else
+	LOGGER "$0" "BOOTING" "ALSA Config Check Failed: Restoring"
+	cp -f "/opt/muos/config/alsa.conf" "$ALSA_CONFIG"
 fi
 
 if [ "$GC_BOO_DEVICE_SETUP" -eq 1 ]; then

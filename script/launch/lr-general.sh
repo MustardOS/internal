@@ -25,6 +25,12 @@ if echo "$CORE" | grep -q "morpheuscast"; then
 	export SDL_NO_SIGNAL_HANDLERS=1
 fi
 
+if echo "$CORE" | grep -q "j2me"; then
+	export SDL_NO_SIGNAL_HANDLERS=1
+	export JAVA_HOME=/opt/java
+	PATH=$PATH:$JAVA_HOME/bin
+fi
+
 echo "retroarch" >/tmp/fg_proc
 
 retroarch -v -f -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg" -L "$DC_STO_ROM_MOUNT/MUOS/core/$CORE" "$ROM" &

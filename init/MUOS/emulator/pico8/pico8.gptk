@@ -1,10 +1,10 @@
 back = \"
 start = \"
 
-a = \"
-b = \"
-x = \"
-y = \"
+a = z
+b = x
+x = z
+y = x
 
 l1 = \"
 l2 = \"

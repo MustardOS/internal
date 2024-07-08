@@ -1,5 +1,5 @@
-back = \"
-start = \"
+back = esc
+start = p
 
 a = z
 b = x

@@ -33,9 +33,17 @@ fi
 
 DEST_FILE="$DEST_DIR/muOS-BIOS-$(date +"%Y-%m-%d_%H-%M").zip"
 
+# Capture PICO-8 files and backup
+PICO8_FILES="
+$DC_STO_ROM_MOUNT/MUOS/emulator/pico8/pico8_64
+$DC_STO_ROM_MOUNT/MUOS/emulator/pico8/pico8_dyn
+$DC_STO_ROM_MOUNT/MUOS/emulator/pico8/pico8.dat
+"
+
 TO_BACKUP="
 $DC_STO_ROM_MOUNT/MUOS/bios
 $DC_STO_SDCARD_MOUNT/MUOS/bios
+$PICO_BIOS
 "
 VALID_BACKUP=$(mktemp)
 

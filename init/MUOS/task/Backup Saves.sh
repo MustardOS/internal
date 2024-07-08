@@ -64,6 +64,17 @@ else
 	PPSSPP_SAVESTATE_DIR=""
 fi
 
+# Define Dreamcast VMU source
+if [ -d "$DC_STO_ROM_MOUNT/MUOS/bios/dc" ]; then
+    if [ -f "$DC_STO_ROM_MOUNT/MUOS/bios/dc/dc_nvmem.bin" ]; then
+        DC_NV="$DC_STO_ROM_MOUNT/MUOS/bios/dc/dc_nvmem.bin"
+    fi
+    DC_VMU_FILES=$(ls "$DC_STO_ROM_MOUNT/MUOS/bios/dc/vmu_save_"* 2>/dev/null)
+    if [ -n "$DC_VMU_FILES" ]; then
+        DC_VMU="$DC_STO_ROM_MOUNT/MUOS/bios/dc/vmu_save_"*
+    fi
+fi
+
 # Define DraStic source directories
 if [ -d "$DC_STO_ROM_MOUNT/MUOS/emulator/drastic" ]; then
 	DRASTIC_SAVE_DIR="$DC_STO_ROM_MOUNT/MUOS/emulator/drastic/backup"
@@ -94,6 +105,8 @@ $DRASTIC_SAVE_DIR
 $DRASTIC_SAVESTATE_DIR
 $DRASTIC_STEWARD_SAVE_DIR
 $DRASTIC_STEWARD_SAVESTATE_DIR
+$DC_NV
+$DC_VMU
 "
 VALID_BACKUP=$(mktemp)
 

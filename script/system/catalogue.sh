@@ -24,9 +24,14 @@ GEN_ASSIGN_DIR() {
 }
 
 SYSTEM_ART="$DC_STO_ROM_MOUNT/MUOS/info/catalogue/Folder"
+ROOT_ART="$DC_STO_ROM_MOUNT/MUOS/info/catalogue/Root"
 if [ ! -d "$SYSTEM_ART" ]; then
 	mkdir -p "$SYSTEM_ART/box" "$SYSTEM_ART/preview" "$SYSTEM_ART/text"
 fi
+if [ ! -d "$ROOT_ART" ]; then
+	mkdir -p "$ROOT_ART/box" "$ROOT_ART/preview" "$ROOT_ART/text"
+fi
+
 
 for INI_FILE in $ASSIGN_DIR; do
 	GEN_ASSIGN_DIR "$INI_FILE"

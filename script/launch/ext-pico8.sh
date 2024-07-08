@@ -9,8 +9,6 @@ NAME=$1
 CORE=$2
 ROM=$3
 
-export HOME=/root
-
 export SDL_HQ_SCALER="$DC_SDL_SCALER"
 export SDL_ROTATION="$DC_SDL_ROTATION"
 export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
@@ -41,6 +39,7 @@ EOF
 ) >"$R_DIR"/"Backup Favourites.sh"
 
 EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/pico8"
+HOME="$EMUDIR"
 
 chmod +x "$EMUDIR"/wget
 chmod +x "$EMUDIR"/pico8_64

@@ -19,6 +19,8 @@ UPDATE_DISPLAY() {
 }
 
 DEV_WAKE() {
+	FG_PROC_VAL=$(cat "$FG_PROC")
+
 	echo "on" >"$TMP_POWER_LONG"
 	echo "awake" >"$SLEEP_STATE"
 
@@ -30,11 +32,13 @@ DEV_WAKE() {
 }
 
 DEV_SLEEP() {
+	FG_PROC_VAL=$(cat "$FG_PROC")
+
 	echo "off" >"$TMP_POWER_LONG"
 	echo "sleep" >"$SLEEP_STATE"
 
-	if pidof "$(cat "$FG_PROC")" >/dev/null; then
-		pkill -STOP "$(cat "$FG_PROC")"
+	if pidof "$FG_PROC_VAL" >/dev/null; then
+		pkill -STOP "$FG_PROC_VAL"
 	fi
 
 	UPDATE_DISPLAY 1 1
@@ -49,10 +53,6 @@ while true; do
 	FG_PROC_VAL=$(cat "$FG_PROC")
 
 	if [ "$TMP_POWER_LONG_VAL" = "off" ] && [ "$SLEEP_STATE_VAL" = "awake" ]; then
-		if [ "$FG_PROC_VAL" = "retroarch" ] && pidof "$FG_PROC_VAL" >/dev/null; then
-			retroarch --command SAVE_STATE
-			sleep 0.5
-		fi
 		if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
 			pkill -STOP "playbgm.sh"
 			killall -q "mp3play"

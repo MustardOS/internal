@@ -2,8 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/global/setting_general.sh
-
 . /opt/muos/script/mux/close_game.sh
 
 SLEEP_STATE="/tmp/sleep_state"
@@ -14,6 +12,8 @@ MUSHUTDOWN_CMD="/opt/muos/bin/mushutdown"
 echo "0" >"$SLEEP_TIMER"
 
 while true; do
+	. /opt/muos/script/var/global/setting_general.sh
+
 	SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 	SLEEP_TIMER_VAL=$(cat "$SLEEP_TIMER")
 
@@ -28,7 +28,6 @@ while true; do
 	if [ "$SLEEP_TIMER_VAL" -eq "$GC_GEN_SHUTDOWN" ]; then
 		echo "Attempting to shutdown at $(date)" >>"$LOG_FILE"
 		CLOSE_CONTENT
-		echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.25 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
 		if [ "$FG_PROC_VAL" != "retroarch" ]; then
 			echo "" >/opt/muos/config/lastplay.txt
 		fi

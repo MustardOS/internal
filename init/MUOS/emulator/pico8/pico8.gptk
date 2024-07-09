@@ -1,4 +1,4 @@
 back = esc
 start = p
-l1 = x
-r1 = z
+l1 = z
+r1 = x

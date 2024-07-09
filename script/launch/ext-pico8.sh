@@ -25,11 +25,11 @@ chmod +x "$EMUDIR"/pico8_64
 cd "$EMUDIR" || exit
 
 if [ "$NAME" = "Splore" ]; then
-	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") $GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
-./pico8_64 -windowed 0 -splore
+	SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") $GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
+PATH="$EMUDIR:$PATH" HOME="$EMUDIR" ./pico8_64 -windowed 0 -splore
 else
-	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") $GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
-./pico8_64 -windowed 0 -run "$ROM"
+	SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") $GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
+PATH="$EMUDIR:$PATH" HOME="$EMUDIR" ./pico8_64 -windowed 0 -run "$ROM"
 fi
 kill -9 "$(pidof pico8_64)"
 kill -9 "$(pidof gptokeyb2)"

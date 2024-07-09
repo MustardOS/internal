@@ -25,8 +25,8 @@ export LD_LIBRARY_PATH=/usr/lib32
 
 echo "gmu" >/tmp/fg_proc
 
-$GPTOKEYB "gmu" -c "$GMU_DIR/gmu.gptk" &
-SDL_ASSERT=always_ignore $SDL_GAMECONTROLLERCONFIG ./gmu -d "$GMU_DIR" -c "$GMU_DIR/gmu.conf"
+$GPTOKEYB "./gmu" -c "$GMU_DIR/gmu.gptk" &
+HOME="$GMU_DIR" SDL_ASSERT=always_ignore $SDL_GAMECONTROLLERCONFIG ./gmu -d "$GMU_DIR" -c "$GMU_DIR/gmu.conf"
 
 # Cleanup on exit
 kill -9 "$(pidof gptokeyb2.armhf)"

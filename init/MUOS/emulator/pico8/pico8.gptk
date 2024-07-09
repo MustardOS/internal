@@ -1,16 +1,4 @@
 back = esc
 start = p
-
-a = z
-b = x
-x = z
-y = x
-
 l1 = x
-
 r1 = z
-
-up = up
-down = down
-left = left
-right = right

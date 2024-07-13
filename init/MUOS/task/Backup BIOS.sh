@@ -33,9 +33,17 @@ fi
 
 DEST_FILE="$DEST_DIR/muOS-BIOS-$(date +"%Y-%m-%d_%H-%M").zip"
 
+# Capture PICO-8 files and backup
+PICO8_FILES="
+$DC_STO_ROM_MOUNT/MUOS/emulator/pico8/pico8_64
+$DC_STO_ROM_MOUNT/MUOS/emulator/pico8/pico8_dyn
+$DC_STO_ROM_MOUNT/MUOS/emulator/pico8/pico8.dat
+"
+
 TO_BACKUP="
 $DC_STO_ROM_MOUNT/MUOS/bios
 $DC_STO_SDCARD_MOUNT/MUOS/bios
+$PICO8_FILES
 "
 VALID_BACKUP=$(mktemp)
 
@@ -53,11 +61,16 @@ if [ ! -s "$VALID_BACKUP" ]; then
 else
 	cd /
 	echo "Archiving BIOS" >/tmp/muxlog_info
-	zip -ru9 "$DEST_FILE" "$(cat "$VALID_BACKUP")" >"$TMP_FILE" 2>&1 &
+
+	BACKUP_FILES=""
+	while IFS= read -r FILE; do
+		BACKUP_FILES="$BACKUP_FILES \"$FILE\""
+	done <"$VALID_BACKUP"
+	eval "zip -ru9 $DEST_FILE $BACKUP_FILES" >"$TMP_FILE" 2>&1 &
 
 	C_LINE=""
 	while true; do
-		IS_WORKING=$(ps aux | grep '[z]ip' | awk '{print $1}')
+		IS_WORKING=$(pgrep -f "zip")
 
 		if [ -s "$TMP_FILE" ]; then
 			N_LINE=$(tail -n 1 "$TMP_FILE" | sed 's/^[[:space:]]*//')
@@ -74,8 +87,6 @@ else
 		if [ -z "$IS_WORKING" ]; then
 			break
 		fi
-
-		sleep 0.1
 	done
 
 	rm "$VALID_BACKUP"

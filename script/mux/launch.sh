@@ -72,6 +72,7 @@ cat "$ROM_LAST" >"$LAST_PLAY"
 
 # External Script
 if [ "$CORE" = external ]; then
+	echo "$(/opt/muos/script/system/extract_process.sh $ROM)" >/tmp/fg_proc
 	/opt/muos/script/launch/ext-general.sh "$NAME" "$CORE" "$ROM"
 # Amiberry External
 elif [ "$CORE" = ext-amiberry ]; then

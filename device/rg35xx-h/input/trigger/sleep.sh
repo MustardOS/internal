@@ -28,7 +28,6 @@ while true; do
 	if [ "$SLEEP_TIMER_VAL" -eq "$GC_GEN_SHUTDOWN" ]; then
 		echo "Attempting to shutdown at $(date)" >>"$LOG_FILE"
 		CLOSE_CONTENT
-		echo 1 >/sys/class/power_supply/axp2202-battery/moto && sleep 0.25 && echo 0 >/sys/class/power_supply/axp2202-battery/moto
 		if [ "$FG_PROC_VAL" != "retroarch" ]; then
 			echo "" >/opt/muos/config/lastplay.txt
 		fi

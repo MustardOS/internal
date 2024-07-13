@@ -64,6 +64,17 @@ else
 	PPSSPP_SAVESTATE_DIR=""
 fi
 
+# Define Dreamcast VMU source
+if [ -d "$DC_STO_ROM_MOUNT/MUOS/bios/dc" ]; then
+    if [ -f "$DC_STO_ROM_MOUNT/MUOS/bios/dc/dc_nvmem.bin" ]; then
+        DC_NV="$DC_STO_ROM_MOUNT/MUOS/bios/dc/dc_nvmem.bin"
+    fi
+    DC_VMU_FILES=$(ls "$DC_STO_ROM_MOUNT/MUOS/bios/dc/vmu_save_"* 2>/dev/null)
+    if [ -n "$DC_VMU_FILES" ]; then
+        DC_VMU="$DC_STO_ROM_MOUNT/MUOS/bios/dc/vmu_save_"*
+    fi
+fi
+
 # Define DraStic source directories
 if [ -d "$DC_STO_ROM_MOUNT/MUOS/emulator/drastic" ]; then
 	DRASTIC_SAVE_DIR="$DC_STO_ROM_MOUNT/MUOS/emulator/drastic/backup"
@@ -94,6 +105,8 @@ $DRASTIC_SAVE_DIR
 $DRASTIC_SAVESTATE_DIR
 $DRASTIC_STEWARD_SAVE_DIR
 $DRASTIC_STEWARD_SAVESTATE_DIR
+$DC_NV
+$DC_VMU
 "
 VALID_BACKUP=$(mktemp)
 
@@ -111,11 +124,16 @@ if [ ! -s "$VALID_BACKUP" ]; then
 else
 	cd /
 	echo "Archiving Saves" >/tmp/muxlog_info
-	zip -ru9 "$DEST_FILE" "$(cat "$VALID_BACKUP")" >"$TMP_FILE" 2>&1 &
+
+	BACKUP_FILES=""
+	while IFS= read -r FILE; do
+		BACKUP_FILES="$BACKUP_FILES \"$FILE\""
+	done <"$VALID_BACKUP"
+	eval "zip -ru9 $DEST_FILE $BACKUP_FILES" >"$TMP_FILE" 2>&1 &
 
 	C_LINE=""
 	while true; do
-		IS_WORKING=$(ps aux | grep '[z]ip' | awk '{print $1}')
+		IS_WORKING=$(pgrep -f "zip")
 
 		if [ -s "$TMP_FILE" ]; then
 			N_LINE=$(tail -n 1 "$TMP_FILE" | sed 's/^[[:space:]]*//')
@@ -132,8 +150,6 @@ else
 		if [ -z "$IS_WORKING" ]; then
 			break
 		fi
-
-		sleep 0.1
 	done
 
 	rm "$VALID_BACKUP"

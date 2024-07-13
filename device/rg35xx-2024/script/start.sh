@@ -24,9 +24,6 @@ echo "$DC_CPU_IO_IS_BUSY_DEFAULT" > "$DC_CPU_IO_IS_BUSY"
 mount -t "$DC_STO_BOOT_TYPE" -o rw,utf8,noatime,nofail /dev/"$DC_STO_BOOT_DEV"p"$DC_STO_BOOT_NUM" "$DC_STO_BOOT_MOUNT"
 mount -t "$DC_STO_ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" "$DC_STO_ROM_MOUNT"
 
-LOGGER "$0" "BOOTING" "Running dotclean"
-/opt/muos/script/system/dotclean.sh &
-
 if [ "$DC_DEV_DEBUGFS" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
 fi

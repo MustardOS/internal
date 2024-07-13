@@ -10,6 +10,6 @@ iir_gain = 0.0
 iir_type = HPF
 
 eq_frequencies = "250 400 1000 2500 4200 5200"
-eq_gains = "10 7 -9 8 0 8"
+eq_gains = "7 4 -6 5 -3 5"
 
 crystalizer_intensity = 5.0

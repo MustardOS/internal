@@ -13,6 +13,18 @@ if [ ! -f "$CONTROL_INI" ]; then
 	cp "$DEVICE_CONTROL_DIR/controls.ini" "$CONTROL_INI"
 fi
 
+# Move mupen64plus-rice.cfg for external mupen64plus
+MP64RICE="$DC_STO_ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-rice.cfg"
+if [ ! -f "$MP64RICE" ]; then
+	cp "$DEVICE_CONTROL_DIR/mupen64plus-rice.cfg" "$MP64RICE"
+fi
+
+# Move mupen64plus-gl64.cfg for external mupen64plus
+MP64GL64="$DC_STO_ROM_MOUNT/MUOS/emulator/mupen64plus/mupen64plus-gl64.cfg"
+if [ ! -f "$MP64GL64" ]; then
+	cp "$DEVICE_CONTROL_DIR/mupen64plus-gl64.cfg" "$MP64GL64"
+fi
+
 # Move RetroArch configurations
 RA_CONF="$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg"
 if [ ! -f "$RA_CONF" ]; then

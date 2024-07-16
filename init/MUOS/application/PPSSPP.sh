@@ -17,6 +17,7 @@ echo app >/tmp/act_go
 . /opt/muos/script/var/device/sdl.sh
 
 PPSSPP_DIR="$DC_STO_ROM_MOUNT/MUOS/emulator/ppsspp"
+DPAD="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 
 export SDL_HQ_SCALER="$DC_SDL_SCALER"
 export SDL_ROTATION="$DC_SDL_ROTATION"
@@ -41,6 +42,7 @@ else
     fbset -fb /dev/fb0 -g 640 480 640 960 32
 fi
 
+echo 0 >$DPAD
 unset SDL_HQ_SCALER
 unset SDL_ROTATION
 unset SDL_BLITTER_DISABLED

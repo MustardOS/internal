@@ -23,9 +23,9 @@ export LD_LIBRARY_PATH=/usr/lib32
 
 export SDL_HQ_SCALER="$DC_SDL_SCALER"
 if [ $DC_DEV_NAME = "RG28XX" ]; then
-    export SDL_ROTATION=0
+	export SDL_ROTATION=0
 else
-    export SDL_ROTATION=3
+	export SDL_ROTATION=3
 fi
 
 FLIPCLOCK_DIR="$DC_STO_ROM_MOUNT/MUOS/application/.flipclock"

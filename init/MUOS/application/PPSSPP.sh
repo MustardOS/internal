@@ -13,11 +13,12 @@ echo app >/tmp/act_go
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
+. /opt/muos/script/var/device/device.sh
+. /opt/muos/script/var/device/screen.sh
 . /opt/muos/script/var/device/sdl.sh
+. /opt/muos/script/var/device/storage.sh
 
 PPSSPP_DIR="$DC_STO_ROM_MOUNT/MUOS/emulator/ppsspp"
-DPAD="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 
 export SDL_HQ_SCALER="$DC_SDL_SCALER"
 export SDL_ROTATION="$DC_SDL_ROTATION"
@@ -28,21 +29,29 @@ cd "$PPSSPP_DIR" || exit
 
 echo "PPSSPP" >/tmp/fg_proc
 
-if [ "$DEVICE_TYPE" = "rg28xx" ]; then
-	fbset -fb /dev/fb0 -g 720 960 720 1920 32
-else
-	fbset -fb /dev/fb0 -g 960 720 960 1440 32
-fi
+case "$DC_DEV_NAME" in
+	RG28XX)
+		FB_SWITCH 720 960 32
+		;;
+	*)
+		FB_SWITCH 960 720 32
+		;;
+esac
 
 SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") ./PPSSPP
 
-if [ "$DEVICE_TYPE" = "rg28xx" ]; then
-    fbset -fb /dev/fb0 -g 480 640 480 1280 32
-else
-    fbset -fb /dev/fb0 -g 640 480 640 960 32
-fi
+DPAD="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+case "$DC_DEV_NAME" in
+	RG*)
+		echo 0 > "$DPAD"
+		FB_SWITCH "$DC_SCR_WIDTH" "$DC_SCR_HEIGHT" 32
+		;;
+	*)
+		echo 0 > "$DPAD"
+		FB_SWITCH "$DC_SCR_WIDTH" "$DC_SCR_HEIGHT" 32
+		;;
+esac
 
-echo 0 >$DPAD
 unset SDL_HQ_SCALER
 unset SDL_ROTATION
 unset SDL_BLITTER_DISABLED

@@ -22,4 +22,8 @@ EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/drastic-steward"
 chmod +x "$EMUDIR"/launch.sh
 cd "$EMUDIR" || exit
 
-HOME="$EMUDIR" SDL_ASSERT=always_ignore "$EMUDIR"/launch.sh "$ROM"
+HOME="$EMUDIR" SDL_ASSERT=always_ignore ./launch.sh "$ROM"
+
+unset SDL_HQ_SCALER
+unset SDL_ROTATION
+unset SDL_BLITTER_DISABLED

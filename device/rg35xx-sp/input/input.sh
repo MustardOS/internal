@@ -48,7 +48,7 @@ fi
 			1)
 				KEY_COMBO=1
 				if [ "$GC_ADV_RETROWAIT" -eq 1 ]; then
-					echo 2 >"/tmp/net_connected"
+					echo "ignore" >"/tmp/net_state"
 				fi
 				;;
 		esac
@@ -57,7 +57,7 @@ fi
 			1)
 				KEY_COMBO=1
 				if [ "$GC_ADV_RETROWAIT" -eq 1 ]; then
-					echo 3 >"/tmp/net_connected"
+					echo "menu" >"/tmp/net_state"
 				fi
 				;;
 		esac

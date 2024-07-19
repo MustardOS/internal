@@ -24,7 +24,7 @@ FB_SWITCH() {
 	DEPTH="$3"
 
 	echo 4 > /sys/class/graphics/fb0/blank
-	cat /dev/zero > /dev/fb0
+	cat /dev/zero > /dev/fb0 2>/dev/null
 
 	VIRTUAL_HEIGHT=$((HEIGHT * 2))
 

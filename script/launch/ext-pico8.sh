@@ -16,7 +16,6 @@ export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
 echo "pico8_64" >/tmp/fg_proc
 
 GPTOKEYB="$DC_STO_ROM_MOUNT/MUOS/emulator/gptokeyb/gptokeyb2"
-
 EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/pico8"
 
 chmod +x "$EMUDIR"/wget
@@ -25,11 +24,23 @@ chmod +x "$EMUDIR"/pico8_64
 cd "$EMUDIR" || exit
 
 if [ "$NAME" = "Splore" ]; then
-	SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") $GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
-PATH="$EMUDIR:$PATH" HOME="$EMUDIR" ./pico8_64 -windowed 0 -splore
+	SDL_ASSERT=always_ignore \
+	SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") \
+	$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
+	PATH="$EMUDIR:$PATH" \
+	HOME="$EMUDIR" \
+	./pico8_64 -windowed 0 -splore
 else
-	SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") $GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
-PATH="$EMUDIR:$PATH" HOME="$EMUDIR" ./pico8_64 -windowed 0 -run "$ROM"
+	SDL_ASSERT=always_ignore \
+	SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") \
+	$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
+	PATH="$EMUDIR:$PATH" \
+	HOME="$EMUDIR" \
+	./pico8_64 -windowed 0 -run "$ROM"
 fi
-kill -9 "$(pidof pico8_64)"
-kill -9 "$(pidof gptokeyb2)"
+
+kill -9 "$(pidof pico8_64)" "$(pidof gptokeyb2)"
+
+unset SDL_HQ_SCALER
+unset SDL_ROTATION
+unset SDL_BLITTER_DISABLED

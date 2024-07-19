@@ -2,6 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
+. /opt/muos/script/var/device/device.sh
 . /opt/muos/script/var/device/storage.sh
 
 . /opt/muos/script/var/global/setting_advanced.sh
@@ -30,9 +31,14 @@ unzip "$THEME" -d "$THEME_DIR/active"
 if [ "$GC_ADV_RANDOM_THEME" -eq 0 ]; then
 	if [ -f "$BOOTLOGO_NEW" ]; then
 		cp "$BOOTLOGO_NEW" "$DC_STO_BOOT_MOUNT/bootlogo.bmp"
-		if [ "$DEVICE_TYPE" = "rg28xx" ]; then
-			convert "$DC_STO_BOOT_MOUNT/bootlogo.bmp" -rotate 270 "$DC_STO_BOOT_MOUNT/bootlogo.bmp"
-		fi
+		case "$DC_DEV_NAME" in
+			RG28XX)
+				convert "$DC_STO_BOOT_MOUNT/bootlogo.bmp" -rotate 270 "$DC_STO_BOOT_MOUNT/bootlogo.bmp"
+				;;
+			*)
+				# No conversion required
+				;;
+		esac
 	fi
 fi
 

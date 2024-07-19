@@ -1,18 +1,14 @@
 #!/bin/sh
-CUST_LOGO=0
-CUST_CPUCLOCK=1
-USE_752x560_RES=0
+export CUST_LOGO=0
+export CUST_CPUCLOCK=1
+export USE_752x560_RES=0
 
-mydir=`dirname "$0"`
+LDLIB="$(dirname "$0")/libs":"$LD_LIBRARY_PATH"
 
-
-export LD_LIBRARY_PATH=$mydir/libs:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH="$LDLIB"
 export SDL_VIDEODRIVER=mmiyoo
 export SDL_AUDIODRIVER=mmiyoo
 export EGL_VIDEODRIVER=mmiyoo
-
-
-cd $mydir
 
 ./drastic "$1"
 

@@ -69,7 +69,4 @@ if [ "$(cat "$CURRENT_IP")" = "0.0.0.0" ]; then
 	exit
 fi
 
-echo 1 >"/tmp/net_connected"
-
-/opt/muos/script/web/ping.sh &
 /opt/muos/script/web/service.sh &

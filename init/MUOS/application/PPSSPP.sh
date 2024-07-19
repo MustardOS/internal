@@ -40,14 +40,12 @@ esac
 
 SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") ./PPSSPP
 
-DPAD="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 case "$DC_DEV_NAME" in
 	RG*)
-		echo 0 > "$DPAD"
+		echo 0 > "/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 		FB_SWITCH "$DC_SCR_WIDTH" "$DC_SCR_HEIGHT" 32
 		;;
 	*)
-		echo 0 > "$DPAD"
 		FB_SWITCH "$DC_SCR_WIDTH" "$DC_SCR_HEIGHT" 32
 		;;
 esac

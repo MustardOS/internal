@@ -56,7 +56,7 @@ if [ "$GC_GEN_STARTUP" = last ] || [ "$GC_GEN_STARTUP" = resume ]; then
 	if [ -s "$LAST_PLAY" ]; then
 		LOGGER "$0" "FRONTEND" "Checking for network and retrowait"
 		if [ "$GC_NET_ENABLED" -eq 1 ] && [ "$GC_ADV_RETROWAIT" -eq 1 ]; then
-			NET_CONNECTED="/tmp/net_connected"
+			NET_START="/tmp/net_start"
 			OIP=0
 			while true; do
 				NW_MSG=$(
@@ -69,17 +69,17 @@ EOF
 				)
 				/opt/muos/extra/muxstart "$NW_MSG"
 				OIP=$((OIP + 1))
-				if [ "$(cat "$NET_CONNECTED")" -eq 1 ]; then
+				if [ "$(cat "$DC_NET_STATE")" = "up" ]; then
 					LOGGER "$0" "FRONTEND" "Network connected"
 					/opt/muos/extra/muxstart "Network connected... Booting content!"
 					break
 				fi
-				if [ "$(cat "$NET_CONNECTED")" -eq 2 ]; then
+				if [ "$(cat "$NET_START")" = "ignore" ]; then
 					LOGGER "$0" "FRONTEND" "Ignoring network connection"
 					/opt/muos/extra/muxstart "Ignoring network connection... booting content!"
 					break
 				fi
-				if [ "$(cat "$NET_CONNECTED")" -eq 3 ]; then
+				if [ "$(cat "$NET_START")" = "menu" ]; then
 					LOGGER "$0" "FRONTEND" "Booting to main menu"
 					/opt/muos/extra/muxstart "Booting to main menu!"
 					break
@@ -87,7 +87,7 @@ EOF
 				sleep 1
 			done
 		fi
-		if [ "$(cat "$NET_CONNECTED")" -eq 1 ] || [ "$(cat "$NET_CONNECTED")" -eq 2 ] || [ "$GC_NET_ENABLED" -eq 0 ] || [ "$GC_ADV_RETROWAIT" -eq 0 ]; then
+		if [ "$(cat "$DC_NET_STATE")" = "up" ] || [ "$(cat "$NET_START")" = "ignore" ] || [ "$GC_NET_ENABLED" -eq 0 ] || [ "$GC_ADV_RETROWAIT" -eq 0 ]; then
 			LOGGER "$0" "FRONTEND" "Booting to last launched content"
 			cat "$LAST_PLAY" >"$ROM_GO"
 			/opt/muos/script/mux/launch.sh
@@ -238,6 +238,11 @@ while true; do
 				echo tweakgen >$ACT_GO
 				echo "muxvisual" >/tmp/fg_proc
 				nice --20 /opt/muos/extra/muxvisual
+				;;
+			"storage")
+				echo tweakgen >$ACT_GO
+				echo "muxstorage" >/tmp/fg_proc
+				nice --20 /opt/muos/extra/muxstorage
 				;;
 			"net_profile")
 				echo network >$ACT_GO

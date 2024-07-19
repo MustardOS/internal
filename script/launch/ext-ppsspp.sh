@@ -2,8 +2,10 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
+. /opt/muos/script/var/device/device.sh
+. /opt/muos/script/var/device/screen.sh
 . /opt/muos/script/var/device/sdl.sh
+. /opt/muos/script/var/device/storage.sh
 
 NAME=$1
 CORE=$2
@@ -20,16 +22,27 @@ EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/ppsspp"
 chmod +x "$EMUDIR"/ppsspp
 cd "$EMUDIR" || exit
 
-if [ "$DEVICE_TYPE" = "rg28xx" ]; then
-	fbset -fb /dev/fb0 -g 720 960 720 1920 32
-else
-	fbset -fb /dev/fb0 -g 960 720 960 1440 32
-fi
+case "$DC_DEV_NAME" in
+	RG28XX)
+		FB_SWITCH 720 960 32
+		;;
+	*)
+		FB_SWITCH 960 720 32
+		;;
+esac
 
 HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") ./PPSSPP "$ROM"
 
-if [ "$DEVICE_TYPE" = "rg28xx" ]; then
-	fbset -fb /dev/fb0 -g 480 640 480 1280 32
-else
-	fbset -fb /dev/fb0 -g 640 480 640 960 32
-fi
+case "$DC_DEV_NAME" in
+	RG*)
+		echo 0 > "/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+		FB_SWITCH "$DC_SCR_WIDTH" "$DC_SCR_HEIGHT" 32
+		;;
+	*)
+		FB_SWITCH "$DC_SCR_WIDTH" "$DC_SCR_HEIGHT" 32
+		;;
+esac
+
+unset SDL_HQ_SCALER
+unset SDL_ROTATION
+unset SDL_BLITTER_DISABLED

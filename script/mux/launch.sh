@@ -126,8 +126,6 @@ echo 1 >/tmp/work_led_state
 
 echo explore >"$ACT_GO"
 
-# Do it twice, it's just as nice!
-cat /dev/zero >"$DC_SCR_DEVICE" 2>/dev/null
 cat /dev/zero >"$DC_SCR_DEVICE" 2>/dev/null
 
 if [ "$GC_GEN_STARTUP" = last ] || [ "$GC_GEN_STARTUP" = resume ]; then
@@ -138,16 +136,17 @@ fi
 
 killall -q "$GPTOKEYB_BIN" "$EVSIEVE_BIN"
 
-if [ "$DEVICE_TYPE" = "rg28xx" ]; then
-	fbset -fb /dev/fb0 -g 480 640 480 1280 32
-else
-	fbset -fb /dev/fb0 -g 640 480 640 960 32
-fi
+case "$DC_DEV_NAME" in
+	RG*)
+		echo 0 > "/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+		FB_SWITCH "$DC_SCR_WIDTH" "$DC_SCR_HEIGHT" 32
+		;;
+	*)
+		FB_SWITCH "$DC_SCR_WIDTH" "$DC_SCR_HEIGHT" 32
+		;;
+esac
 
-echo 0 >/sys/class/power_supply/axp2202-battery/nds_pwrkey
-
-NET_CONNECTED="/tmp/net_connected"
-if [ "$GC_WEB_SYNCTHING" -eq 1 ] && [ "$(cat "$NET_CONNECTED")" -eq 1 ]; then
+if [ "$GC_WEB_SYNCTHING" -eq 1 ] && [ "$(cat "$DC_NET_STATE")" = "up" ]; then
 	SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)
 	SYNCTHING_API=$(cat /mnt/mmc/MUOS/syncthing/api.txt)
 	curl -X POST -H "X-API-Key: $SYNCTHING_API" "$SYNCTHING_ADDRESS:7070/rest/db/scan"

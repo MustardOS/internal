@@ -36,7 +36,7 @@ LOGGER "$0" "BOOTING" "Removing any update scripts"
 rm -rf /opt/update.sh
 
 echo 1 >/tmp/work_led_state
-echo 0 >/tmp/net_connected
+echo "" >/tmp/net_start
 
 LOGGER "$0" "BOOTING" "Restoring Audio State"
 cp -f "/opt/muos/device/$DEVICE_TYPE/control/asound.state" "/var/lib/alsa/asound.state"

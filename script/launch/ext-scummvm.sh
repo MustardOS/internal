@@ -46,3 +46,7 @@ if [ "$SCVM" = "grim:grim" ]; then
 else
 	HOME="$EMUDIR" SDL_ASSERT=always_ignore nice --20 ./scummvm --aspect-ratio -f --extrapath="$EXTRA" --themepath="$THEME" --savepath="$SAVE" -p "$ROMPATH/$SUBFOLDER" "$SCVM"
 fi
+
+unset SDL_HQ_SCALER
+unset SDL_ROTATION
+unset SDL_BLITTER_DISABLED

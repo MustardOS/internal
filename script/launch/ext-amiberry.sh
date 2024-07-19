@@ -23,3 +23,7 @@ chmod +x "$EMUDIR"/amiberry
 cd "$EMUDIR" || exit
 
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./amiberry "$ROM"
+
+unset SDL_HQ_SCALER
+unset SDL_ROTATION
+unset SDL_BLITTER_DISABLED

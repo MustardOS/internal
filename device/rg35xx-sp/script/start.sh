@@ -65,6 +65,9 @@ fi
 echo noop >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/mmc0:59b4/block/mmcblk0/queue/scheduler
 echo on >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
 
-/opt/muos/device/"$DEVICE_TYPE"/script/adb.sh &
+if [ "$GC_ADV_ANDROID" -eq 1 ]; then
+	/opt/muos/device/"$DEVICE_TYPE"/script/adb.sh &
+fi
+
 /opt/muos/device/"$DEVICE_TYPE"/script/control.sh &
 /opt/muos/device/"$DEVICE_TYPE"/input/input.sh &

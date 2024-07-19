@@ -12,6 +12,7 @@
 : "${GC_ADV_LED:=0}"
 : "${GC_ADV_RANDOM_THEME:=0}"
 : "${GC_ADV_RETROWAIT:=0}"
+: "${GC_ADV_ANDROID:=0}"
 
 GC_ADV_SWAP=$(PARSE_INI "$GLOBAL_CONFIG" "settings.advanced" "swap")
 GC_ADV_THERMAL=$(PARSE_INI "$GLOBAL_CONFIG" "settings.advanced" "thermal")
@@ -24,6 +25,7 @@ GC_ADV_LOCK=$(PARSE_INI "$GLOBAL_CONFIG" "settings.advanced" "lock")
 GC_ADV_LED=$(PARSE_INI "$GLOBAL_CONFIG" "settings.advanced" "led")
 GC_ADV_RANDOM_THEME=$(PARSE_INI "$GLOBAL_CONFIG" "settings.advanced" "random_theme")
 GC_ADV_RETROWAIT=$(PARSE_INI "$GLOBAL_CONFIG" "settings.advanced" "retrowait")
+GC_ADV_ANDROID=$(PARSE_INI "$GLOBAL_CONFIG" "settings.advanced" "android")
 
 export GC_ADV_SWAP
 export GC_ADV_THERMAL
@@ -36,3 +38,4 @@ export GC_ADV_LOCK
 export GC_ADV_LED
 export GC_ADV_RANDOM_THEME
 export GC_ADV_RETROWAIT
+export GC_ADV_ANDROID

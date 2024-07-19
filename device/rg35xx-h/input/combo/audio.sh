@@ -37,6 +37,10 @@ fi
 
 if [ ! "$(cat "$DC_SCR_HDMI")" = "HDMI=1" ]; then
 	case "$1" in
+		I)
+			PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_VL/$DC_SND_MAX)*100}")
+			echo "$PERCENTAGE" >/tmp/current_volume_percent
+			;;
 		U)
 			NEW_VL=$((CURRENT_VL + 2))
 			if [ "$NEW_VL" -lt "$DC_SND_MIN" ]; then

@@ -23,14 +23,13 @@ FB_SWITCH() {
 	HEIGHT="$2"
 	DEPTH="$3"
 
-	echo 4 > /sys/class/graphics/fb0/blank
-	cat /dev/zero > /dev/fb0 2>/dev/null
+	echo 4 >/sys/class/graphics/fb0/blank
+	cat /dev/zero >/dev/fb0 2>/dev/null
 
 	VIRTUAL_HEIGHT=$((HEIGHT * 2))
 
 	fbset -fb /dev/fb0 -g "${WIDTH}" "${HEIGHT}" "${WIDTH}" "${VIRTUAL_HEIGHT}" "${DEPTH}"
-
-	echo 0 > /sys/class/graphics/fb0/blank
+	echo 0 >/sys/class/graphics/fb0/blank
 }
 
 PARSE_INI() {

@@ -23,9 +23,7 @@ CURRENT_BL=$(GET_CURRENT)
 
 SET_CURRENT() {
 	if [ $1 -eq 0 ]; then
-		echo disp0 >$DISPLAY/name
-		echo suspend >$DISPLAY/command
-		echo 1 >$DISPLAY/start
+		echo 4 >/sys/class/graphics/fb0/blank
 
 		printf "%d" "$1" >"$BRIGHT_FILE_PERCENT"
 		if ! pgrep -f "muxcharge" >/dev/null; then
@@ -33,9 +31,7 @@ SET_CURRENT() {
 			echo "Brightness set to $1 ($1%)"
 		fi
 	else
-		echo disp0 >$DISPLAY/name
-		echo resume >$DISPLAY/command
-		echo 1 >$DISPLAY/start
+		echo 0 >/sys/class/graphics/fb0/blank
 
 		PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($1/$DC_SCR_BRIGHT)*100}")
 		printf "%d" "$PERCENTAGE" >"$BRIGHT_FILE_PERCENT"
@@ -60,6 +56,10 @@ fi
 
 if [ ! "$(cat "$DC_SCR_HDMI")" = "HDMI=1" ]; then
 	case "$1" in
+		I)
+			PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_BL/$DC_SCR_BRIGHT)*100}")
+			echo "$PERCENTAGE" >/tmp/current_brightness_percent
+			;;
 		U)
 			if [ "$CURRENT_BL" -le 14 ]; then
 				NEW_BL=$((CURRENT_BL + 1))

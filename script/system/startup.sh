@@ -9,6 +9,7 @@
 . /opt/muos/script/var/global/boot.sh
 . /opt/muos/script/var/global/network.sh
 . /opt/muos/script/var/global/setting_advanced.sh
+. /opt/muos/script/var/global/setting_general.sh
 
 if [ -s "$GLOBAL_CONFIG" ]; then
 	LOGGER "$0" "BOOTING" "Global Config Check Passed"
@@ -72,7 +73,7 @@ if [ "$GC_BOO_FACTORY_RESET" -eq 1 ]; then
 
 	LOGGER "$0" "FACTORY RESET" "Starting Input Reader"
 	/opt/muos/device/"$DEVICE_TYPE"/input/input.sh
-	/usr/bin/mpv /opt/muos/factory.mp3 >/dev/null 2>&1 &
+	/usr/bin/ffplay /opt/muos/factory.mp3 >/dev/null 2>&1 &
 
 	LOGGER "$0" "FACTORY RESET" "Initialising Factory Reset Script"
 	/opt/muos/script/system/reset.sh
@@ -150,6 +151,13 @@ if [ "$GC_BOO_FACTORY_RESET" -eq 1 ]; then
 
 	/opt/muos/extra/muxcredits
 fi
+
+LOGGER "$0" "BOOTING" "Setting current variable modes"
+echo "$GC_ADV_ANDROID" >/tmp/mux_adb_mode
+echo "$GC_GEN_COLOUR" >/tmp/mux_colour_temp
+echo "$GC_GEN_HDMI" >/tmp/mux_hdmi_mode
+/opt/muos/device/"$DEVICE_TYPE"/input/combo/audio.sh I
+/opt/muos/device/"$DEVICE_TYPE"/input/combo/bright.sh I
 
 LOGGER "$0" "BOOTING" "Backing up global configuration"
 /opt/muos/script/system/config_backup.sh &

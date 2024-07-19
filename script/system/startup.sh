@@ -72,7 +72,7 @@ if [ "$GC_BOO_FACTORY_RESET" -eq 1 ]; then
 
 	LOGGER "$0" "FACTORY RESET" "Starting Input Reader"
 	/opt/muos/device/"$DEVICE_TYPE"/input/input.sh
-	/opt/muos/bin/mp3play "/opt/muos/factory.mp3" &
+	/usr/bin/mpv /opt/muos/factory.mp3 >/dev/null 2>&1 &
 
 	LOGGER "$0" "FACTORY RESET" "Initialising Factory Reset Script"
 	/opt/muos/script/system/reset.sh

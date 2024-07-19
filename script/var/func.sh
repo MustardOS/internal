@@ -18,6 +18,21 @@ export DEVICE_CONTROL_DIR
 MUOS_BOOT_LOG="/opt/muos/boot.log"
 export MUOS_BOOT_LOG
 
+FB_SWITCH() {
+	WIDTH="$1"
+	HEIGHT="$2"
+	DEPTH="$3"
+
+	echo 4 > /sys/class/graphics/fb0/blank
+	cat /dev/zero > /dev/fb0
+
+	VIRTUAL_HEIGHT=$((HEIGHT * 2))
+
+	fbset -fb /dev/fb0 -g "${WIDTH}" "${HEIGHT}" "${WIDTH}" "${VIRTUAL_HEIGHT}" "${DEPTH}"
+
+	echo 0 > /sys/class/graphics/fb0/blank
+}
+
 PARSE_INI() {
 	INI_FILE="$1"
 	SECTION="$2"

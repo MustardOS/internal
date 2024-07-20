@@ -15,9 +15,13 @@ DELETE_CRUFT() {
 	done
 }
 
-echo "Cleaning up junk files"
+echo "Checking ROM for junk"
 DELETE_CRUFT "$DC_STO_ROM_MOUNT"
+
+echo "Checking SDCARD for junk"
 DELETE_CRUFT "$DC_STO_SDCARD_MOUNT"
+
+echo "Checking USB for junk"
 DELETE_CRUFT "$DC_STO_USB_MOUNT"
 
 echo "Sync Filesystem"

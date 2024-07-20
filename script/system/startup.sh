@@ -73,7 +73,7 @@ if [ "$GC_BOO_FACTORY_RESET" -eq 1 ]; then
 
 	LOGGER "$0" "FACTORY RESET" "Starting Input Reader"
 	/opt/muos/device/"$DEVICE_TYPE"/input/input.sh
-	/usr/bin/ffplay /opt/muos/factory.mp3 >/dev/null 2>&1 &
+	/usr/bin/mpg123 -q /opt/muos/factory.mp3 &
 
 	LOGGER "$0" "FACTORY RESET" "Initialising Factory Reset Script"
 	/opt/muos/script/system/reset.sh
@@ -144,7 +144,7 @@ echo 2 >/proc/sys/abi/cp15_barrier &
 cp "$MUOS_BOOT_LOG" "$DC_STO_ROM_MOUNT/MUOS/log/boot/."
 
 if [ "$GC_BOO_FACTORY_RESET" -eq 1 ]; then
-	killall -q "mp3play"
+	killall -q "mpg123"
 
 	LOGGER "$0" "FACTORY RESET" "Setting factory_reset to 0"
 	MODIFY_INI "$GLOBAL_CONFIG" "boot" "factory_reset" "0"

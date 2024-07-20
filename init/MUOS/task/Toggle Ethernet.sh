@@ -9,29 +9,24 @@
 . /opt/muos/script/var/device/network.sh
 
 pkill -STOP muxtask
-/opt/muos/extra/muxlog &
-sleep 1
-
-TMP_FILE=/tmp/muxlog_global
-rm -rf "$TMP_FILE"
 
 MODIFY_INI "$DEVICE_CONFIG" "device" "network" "1"
 MODIFY_INI "$DEVICE_CONFIG" "device" "portmaster" "1"
 if [ "$DC_NET_INTERFACE" = "wlan0" ]; then
-	echo "Switching to 'eth0'" >/tmp/muxlog_info
+	echo "Switching to 'eth0'"
 	MODIFY_INI "$DEVICE_CONFIG" "network" "iface" "eth0"
 else
-	echo "Switching to 'wlan0'" >/tmp/muxlog_info
+	echo "Switching to 'wlan0'"
 	MODIFY_INI "$DEVICE_CONFIG" "network" "iface" "wlan0"
 fi
 
 /opt/openssh/bin/ssh-keygen -A
 
-echo "All Done!" >/tmp/muxlog_info
-sleep 1
+echo "Sync Filesystem"
+sync
 
-killall -q muxlog
-rm -rf "$MUX_TEMP" /tmp/muxlog_*
+echo "All Done!"
+sleep 2
 
 pkill -CONT muxtask
-killall -q "Toggle Ethernet.sh"
+exit 0

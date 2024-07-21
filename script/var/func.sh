@@ -3,6 +3,15 @@
 GLOBAL_CONFIG="/opt/muos/config/config.ini"
 export GLOBAL_CONFIG
 
+DBUS_SESSION_BUS_ADDRESS="unix:path=/run/dbus/system_bus_socket"
+export DBUS_SESSION_BUS_ADDRESS
+
+PIPEWIRE_RUNTIME_DIR="/var/run"
+export PIPEWIRE_RUNTIME_DIR
+
+XDG_RUNTIME_DIR="/var/run"
+export XDG_RUNTIME_DIR
+
 DEVICE_TYPE=$(tr '[:upper:]' '[:lower:]' <"/opt/muos/config/device.txt")
 export DEVICE_TYPE
 

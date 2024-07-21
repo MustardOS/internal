@@ -11,6 +11,14 @@
 . /opt/muos/script/var/global/setting_advanced.sh
 . /opt/muos/script/var/global/setting_general.sh
 
+AUDIO_SRC="/tmp/mux_audio_src"
+echo "pipewire" >$AUDIO_SRC
+
+/sbin/udevd -d || { echo "FAIL"; exit 1; }
+udevadm trigger --type=subsystems --action=add &
+udevadm trigger --type=devices --action=add &
+udevadm settle --timeout=30 || echo "udevadm settle failed"
+
 if [ -s "$GLOBAL_CONFIG" ]; then
 	LOGGER "$0" "BOOTING" "Global Config Check Passed"
 else
@@ -46,16 +54,18 @@ alsactl -U restore
 LOGGER "$0" "BOOTING" "Restoring Audio Volume"
 case "$GC_ADV_VOLUME" in
 	"loud")
-		amixer sset "$DC_SND_CONTROL" "$DC_SND_MAX" >/dev/null
+		wpctl set-volume @DEFAULT_AUDIO_SINK@ "$DC_SND_MAX"
 		;;
 	"quiet")
-		amixer sset "$DC_SND_CONTROL" "$DC_SND_MIN" >/dev/null
+		wpctl set-volume @DEFAULT_AUDIO_SINK@ "$DC_SND_MIN"
 		;;
 	*)
 		RESTORED=$(cat "/opt/muos/config/volume.txt")
-		amixer sset "$DC_SND_CONTROL" "$RESTORED" >/dev/null
+		wpctl set-volume @DEFAULT_AUDIO_SINK@ "$RESTORED"
 		;;
 esac
+
+/opt/muos/script/system/pipewire.sh &
 
 if [ "$GC_BOO_FACTORY_RESET" -eq 1 ]; then
 	LOGGER "$0" "FACTORY RESET" "Setting date time to default"

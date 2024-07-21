@@ -9,9 +9,14 @@ VOLUME_FILE="/opt/muos/config/volume.txt"
 VOLUME_FILE_PERCENT="/tmp/current_volume_percent"
 
 SLEEP_STATE="/tmp/sleep_state"
+AUDIO_SRC="/tmp/mux_audio_src"
 
 GET_CURRENT() {
-	amixer sget "$DC_SND_CONTROL" | sed -n "s/.*$DC_SND_CHANNEL: 0*\([0-9]*\).*/\1/p" | tr -d '\n'
+	if [ $(cat "$AUDIO_SRC") = "pipewire" ]; then
+		wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100)}'
+	else
+		amixer sget "$DC_SND_CONTROL" | sed -n "s/.*$DC_SND_CHANNEL: 0*\([0-9]*\).*/\1/p" | tr -d '\n'
+	fi
 }
 
 CURRENT_VL=$(GET_CURRENT)
@@ -23,7 +28,11 @@ SET_CURRENT() {
 	fi
 	printf "%d" "$PERCENTAGE" >"$VOLUME_FILE_PERCENT"
 
-	amixer sset "$DC_SND_CONTROL" $1 >/dev/null
+	if [ $(cat "$AUDIO_SRC") = "pipewire" ]; then
+		wpctl set-volume @DEFAULT_AUDIO_SINK@ $1% >/dev/null
+	else
+		amixer sget "$DC_SND_CONTROL" | sed -n "s/.*$DC_SND_CHANNEL: 0*\([0-9]*\).*/\1/p" | tr -d '\n'
+	fi
 
 	printf "%d" "$1" >"$VOLUME_FILE"
 	echo "Volume set to $1 ($PERCENTAGE%)"
@@ -42,25 +51,23 @@ if [ ! "$(cat "$DC_SCR_HDMI")" = "HDMI=1" ]; then
 			echo "$PERCENTAGE" >/tmp/current_volume_percent
 			;;
 		U)
-			NEW_VL=$((CURRENT_VL + 2))
+			NEW_VL=$((CURRENT_VL + 8))
 			if [ "$NEW_VL" -lt "$DC_SND_MIN" ]; then
 				NEW_VL=$DC_SND_MIN
 			fi
 			if [ "$NEW_VL" -gt "$DC_SND_MAX" ]; then
 				NEW_VL=$DC_SND_MAX
 			fi
-			SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
-			if [ "$SLEEP_STATE_VAL" = "awake" ]; then
+			if [ ! -e "$SLEEP_STATE" ] || [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
 				SET_CURRENT "$NEW_VL"
 			fi
 			;;
 		D)
-			NEW_VL=$((CURRENT_VL - 2))
+			NEW_VL=$((CURRENT_VL - 8))
 			if [ "$NEW_VL" -lt "$DC_SND_MIN" ]; then
 				NEW_VL=0
 			fi
-			SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
-			if [ "$SLEEP_STATE_VAL" = "awake" ]; then
+			if [ ! -e "$SLEEP_STATE" ] || [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
 				SET_CURRENT "$NEW_VL"
 			fi
 			;;

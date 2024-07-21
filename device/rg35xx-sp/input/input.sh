@@ -31,10 +31,12 @@ MOTO_BUZZ() {
 # Place combo and trigger scripts here because fuck knows why for loops won't work...
 # Make sure to put them in order of how you want them to work too!
 if [ "$GC_BOO_FACTORY_RESET" -eq 0 ]; then
-	/opt/muos/device/"$DEVICE_TYPE"/input/trigger/power.sh &
-	/opt/muos/device/"$DEVICE_TYPE"/input/trigger/sleep.sh &
-else
-	echo "awake" >"/tmp/sleep_state"
+	if [ "$GC_GEN_SHUTDOWN" -ge 0 ]; then
+		/opt/muos/device/"$DEVICE_TYPE"/input/trigger/power.sh &
+		/opt/muos/device/"$DEVICE_TYPE"/input/trigger/sleep.sh &
+	else
+		echo "awake" >"/tmp/sleep_state"
+	fi
 fi
 
 {
@@ -86,19 +88,23 @@ fi
 		esac
 	fi
 
-	if [ $COUNT_POWER_LONG -eq 1 ]; then
-		TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
-		if [ ! -e $TMP_POWER_LONG ]; then
-			echo on >$TMP_POWER_LONG
-		fi
-		if [ "$(cat $HALL)" = "1" ]; then
+	if [ "$COUNT_POWER_LONG" -eq 1 ]; then
+		. /opt/muos/script/var/global/setting_general.sh
+
+		COUNT_POWER_LONG=0
+		if [ "$GC_GEN_SHUTDOWN" -eq -1 ]; then
+			/opt/muos/device/"$DEVICE_TYPE"/script/suspend.sh
+		else
+			TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
+			if [ ! -e $TMP_POWER_LONG ]; then
+				echo on >$TMP_POWER_LONG
+			fi
 			if [ "$(cat $TMP_POWER_LONG)" = "off" ]; then
 				echo on >$TMP_POWER_LONG
 			else
 				echo off >$TMP_POWER_LONG
 			fi
 		fi
-		COUNT_POWER_LONG=0
 	fi
 
 	case $EVENT in

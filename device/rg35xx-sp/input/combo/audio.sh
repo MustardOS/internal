@@ -12,7 +12,7 @@ SLEEP_STATE="/tmp/sleep_state"
 AUDIO_SRC="/tmp/mux_audio_src"
 
 GET_CURRENT() {
-	if [ $(cat "$AUDIO_SRC") = "pipewire" ]; then
+	if [ "$(cat "$AUDIO_SRC")" = "pipewire" ]; then
 		wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100)}'
 	else
 		amixer sget "$DC_SND_CONTROL" | sed -n "s/.*$DC_SND_CHANNEL: 0*\([0-9]*\).*/\1/p" | tr -d '\n'
@@ -28,10 +28,10 @@ SET_CURRENT() {
 	fi
 	printf "%d" "$PERCENTAGE" >"$VOLUME_FILE_PERCENT"
 
-	if [ $(cat "$AUDIO_SRC") = "pipewire" ]; then
+	if [ "$(cat "$AUDIO_SRC")" = "pipewire" ]; then
 		wpctl set-volume @DEFAULT_AUDIO_SINK@ $1% >/dev/null
 	else
-		amixer sget "$DC_SND_CONTROL" | sed -n "s/.*$DC_SND_CHANNEL: 0*\([0-9]*\).*/\1/p" | tr -d '\n'
+		amixer sset "$DC_SND_CONTROL" $1 >/dev/null
 	fi
 
 	printf "%d" "$1" >"$VOLUME_FILE"

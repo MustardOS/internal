@@ -96,6 +96,8 @@ EOF
 	echo launcher >$ACT_GO
 fi
 
+/opt/muos/script/mux/golden.sh &
+
 LOGGER "$0" "FRONTEND" "Starting frontend launcher"
 while true; do
 	# Background Music

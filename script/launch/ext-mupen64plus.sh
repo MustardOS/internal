@@ -44,7 +44,25 @@ fi
 chmod +x "$EMUDIR"/mupen64plus
 cd "$EMUDIR" || exit
 
+# Decompress zipped ROMs since the emulator doesn't natively support them.
+case "$ROM" in *.zip)
+	TMPDIR="$(mktemp -d)"
+	unzip -q "$ROM" -d "$TMPDIR"
+	# Pick first file with a supported extension.
+	for TMPFILE in "$TMPDIR"/*; do
+		case "$TMPFILE" in *.n64|*.v64|*.z64)
+			ROM="$TMPFILE"
+			break
+		;; esac
+	done
+;; esac
+
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$ROM"
+
+# Clean up temp files if we unzipped the ROM.
+if [ -n "$TMPDIR" ]; then
+	rm -r "$TMPDIR"
+fi
 
 case "$DC_DEV_NAME" in
 	RG*)

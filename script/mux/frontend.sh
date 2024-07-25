@@ -10,7 +10,7 @@
 . /opt/muos/script/var/global/network.sh
 
 if [ "$DC_DEV_NAME" == "RG40XX" ]; then
-	/opt/muos/script/system/RG40XX_LED_CONTROL.sh 0
+	/opt/muos/deivce/rg40xx/script/RG40XX_LED_CONTROL.sh 1 0 0 0 0 0 0 0
 fi
 
 ACT_GO=/tmp/act_go

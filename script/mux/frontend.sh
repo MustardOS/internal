@@ -2,11 +2,16 @@
 
 . /opt/muos/script/var/func.sh
 
+. /opt/muos/script/var/device/device.sh
 . /opt/muos/script/var/device/storage.sh
 
 . /opt/muos/script/var/global/setting_advanced.sh
 . /opt/muos/script/var/global/setting_general.sh
 . /opt/muos/script/var/global/network.sh
+
+if $DC_DEV_NAME = "RG40XX"; then
+	/opt/muos/script/system/RG40XX_LED_CONTROL.sh 0
+fi
 
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go

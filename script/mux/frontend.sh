@@ -9,7 +9,7 @@
 . /opt/muos/script/var/global/setting_general.sh
 . /opt/muos/script/var/global/network.sh
 
-if $DC_DEV_NAME = "RG40XX"; then
+if [ "$DC_DEV_NAME" == "RG40XX" ]; then
 	/opt/muos/script/system/RG40XX_LED_CONTROL.sh 0
 fi
 

@@ -11,7 +11,7 @@
 . /opt/muos/script/var/global/setting_advanced.sh
 . /opt/muos/script/var/global/setting_general.sh
 
-if $DC_DEV_NAME = "RG40XX"; then
+if [ "$DC_DEV_NAME" == "RG40XX" ]; then
 	/opt/muos/script/system/RG40XX_LED_CONTROL.sh 2 255 225 173 1
 fi
 

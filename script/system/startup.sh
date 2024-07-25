@@ -12,7 +12,7 @@
 . /opt/muos/script/var/global/setting_general.sh
 
 if [ "$DC_DEV_NAME" == "RG40XX" ]; then
-	/opt/muos/deivce/rg40xx/script/RG40XX_LED_CONTROL.sh 2 255 225 173 1
+	/opt/muos/device/rg40xx/script/RG40XX_LED_CONTROL.sh 2 255 225 173 1
 fi
 
 AUDIO_SRC="/tmp/mux_audio_src"

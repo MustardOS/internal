@@ -85,13 +85,4 @@ else
 	RA_PID=$!
 fi
 
-# We have to pause just for a moment to let RetroArch finish loading...
-sleep 5
-
-if [ "$GC_GEN_STARTUP" = last ] || [ "$GC_GEN_STARTUP" = resume ]; then
-	if [ ! -e "/tmp/manual_launch" ]; then
-		retroarch --command LOAD_STATE
-	fi
-fi
-
 wait $RA_PID

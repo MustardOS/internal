@@ -68,7 +68,7 @@ while true; do
 	if { [ "$TMP_POWER_LONG_VAL" = "off" ] || [ "$HALL_KEY_VAL" = "0" ]; } && [ "$SLEEP_STATE_VAL" = "awake" ]; then
 		if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
 			pkill -STOP "playbgm.sh"
-			killall -q "mp3play"
+			killall -q "mpg123"
 		fi
 		DEV_SLEEP
 	fi

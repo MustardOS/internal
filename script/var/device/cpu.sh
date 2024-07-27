@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # DEVICE CONFIG - CPU
+DC_CPU_CORES=$(PARSE_INI "$DEVICE_CONFIG" "cpu" "cores")
 DC_CPU_DEFAULT=$(PARSE_INI "$DEVICE_CONFIG" "cpu" "default")
 DC_CPU_GOVERNOR=$(PARSE_INI "$DEVICE_CONFIG" "cpu" "governor")
 DC_CPU_SCALER=$(PARSE_INI "$DEVICE_CONFIG" "cpu" "scaler")
@@ -13,6 +14,7 @@ DC_CPU_UP_THRESHOLD_DEFAULT=$(PARSE_INI "$DEVICE_CONFIG" "cpu" "up_threshold_def
 DC_CPU_SAMPLING_DOWN_FACTOR_DEFAULT=$(PARSE_INI "$DEVICE_CONFIG" "cpu" "sampling_down_factor_default")
 DC_CPU_IO_IS_BUSY_DEFAULT=$(PARSE_INI "$DEVICE_CONFIG" "cpu" "io_is_busy_default")
 
+export DC_CPU_CORES
 export DC_CPU_DEFAULT
 export DC_CPU_GOVERNOR
 export DC_CPU_SCALER

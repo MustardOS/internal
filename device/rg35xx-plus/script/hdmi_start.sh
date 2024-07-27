@@ -27,7 +27,7 @@ while true; do
 
 			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
 				pkill -STOP "playbgm.sh"
-				killall -q "mp3play"
+				killall -q "mpg123"
 			fi
 
 			sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 2/g" /usr/share/alsa/alsa.conf
@@ -66,7 +66,7 @@ while true; do
 
 			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
 				pkill -STOP "playbgm.sh"
-				killall -q "mp3play"
+				killall -q "mpg123"
 			fi
 
 			sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf

@@ -10,16 +10,16 @@
 OG_GOV=$(cat "$DC_CPU_GOVERNOR")
 echo "powersave" >"$DC_CPU_GOVERNOR"
 
-for C in /sys/devices/system/cpu/cpu[1-3]/online; do
-	echo 0 >"$C"
+for C in $(seq 1 $((DC_CPU_CORES - 1))); do
+	echo 0 >"/sys/devices/system/cpu/cpu${C}/online"
 done
 
 sleep 0.1
 echo "$GC_ADV_POWER_STATE" >"/sys/power/state"
 sleep 0.1
 
-for C in /sys/devices/system/cpu/cpu[1-3]/online; do
-	echo 1 >"$C"
+for C in $(seq 1 $((DC_CPU_CORES - 1))); do
+	echo 1 >"/sys/devices/system/cpu/cpu${C}/online"
 done
 
 echo "$OG_GOV" >"$DC_CPU_GOVERNOR"

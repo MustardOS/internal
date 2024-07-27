@@ -57,12 +57,7 @@ if [ -f "$EVSIEVE_CONFDIR/$CORE.evs.sh" ]; then
 fi
 
 if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mp3play"
-fi
-
-if pgrep -f "muplay" >/dev/null; then
-	killall -q "muplay"
-	rm "/tmp/muplay_pipe"
+	killall -q "playbgm.sh" "mpg123"
 fi
 
 echo "$GC_ADV_LED" >"$DC_DEV_LED"

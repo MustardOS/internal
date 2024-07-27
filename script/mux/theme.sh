@@ -6,14 +6,15 @@
 . /opt/muos/script/var/device/storage.sh
 
 . /opt/muos/script/var/global/setting_advanced.sh
+. /opt/muos/script/var/global/storage.sh
 
 if [ "$1" = "?R" ] && [ "$GC_ADV_RANDOM_THEME" -eq 1 ]; then
-	THEME=$(find "$DC_STO_ROM_MOUNT/MUOS/theme" -name '*.zip' | shuf -n 1)
+	THEME=$(find "$GC_STO_THEME/MUOS/theme" -name '*.zip' | shuf -n 1)
 else
-	THEME="$DC_STO_ROM_MOUNT/MUOS/theme/$1.zip"
+	THEME="$GC_STO_THEME/MUOS/theme/$1.zip"
 fi
 
-THEME_DIR="$DC_STO_ROM_MOUNT/MUOS/theme"
+THEME_DIR="$GC_STO_THEME/MUOS/theme"
 
 BOOTLOGO_DEF="/opt/muos/device/$DEVICE_TYPE/bootlogo.bmp"
 BOOTLOGO_NEW="$THEME_DIR/active/image/bootlogo.bmp"

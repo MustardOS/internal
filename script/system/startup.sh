@@ -11,14 +11,17 @@
 . /opt/muos/script/var/global/setting_advanced.sh
 . /opt/muos/script/var/global/setting_general.sh
 
-if [ "$DC_DEV_NAME" == "RG40XX" ]; then
-	/opt/muos/device/rg40xx/script/RG40XX_LED_CONTROL.sh 2 255 225 173 1
+if [ "$DC_DEV_NAME" = "RG40XX" ]; then
+	/opt/muos/device/rg40xx/script/led_control.sh 2 255 225 173 1
 fi
 
 AUDIO_SRC="/tmp/mux_audio_src"
 echo "pipewire" >$AUDIO_SRC
 
-/sbin/udevd -d || { echo "FAIL"; exit 1; }
+/sbin/udevd -d || {
+	echo "FAIL"
+	exit 1
+}
 udevadm trigger --type=subsystems --action=add &
 udevadm trigger --type=devices --action=add &
 # udevadm settle --timeout=30 || echo "udevadm settle failed"
@@ -145,9 +148,13 @@ if [ "$DC_DEV_NETWORK" -eq 1 ] && [ "$GC_NET_ENABLED" -eq 1 ]; then
 fi
 
 LOGGER "$0" "BOOTING" "Running catalogue generator"
-/opt/muos/script/system/catalogue.sh &
+/opt/muos/script/system/catalogue.sh "$DC_STO_ROM_MOUNT" &
 
 dmesg >"$DC_STO_ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
+
+LOGGER "$0" "BOOTING" "Correcting Home permissions"
+chown -R root:root /root &
+chmod -R 755 /root &
 
 LOGGER "$0" "BOOTING" "Correcting SSH permissions"
 chown -R root:root /opt &

@@ -32,8 +32,19 @@ fi
 
 for TIMEOUT in $(seq 1 30); do
 	if pw-cli ls Node 2>/dev/null | grep -q "$DC_SND_PLATFORM"; then
-		NODE_ID=$(XDG_RUNTIME_DIR="/var/run" pw-cli ls Node | \
-		awk -v path="$DC_SND_OBJECT" '/object.path/ && $0 ~ path {print prev} {prev=$2}')
+
+		NODE_ID=$(
+			XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
+				awk -v path="$DC_SND_OBJECT" '
+        /id/ {
+            id = $2
+        }
+        /object.path/ && $0 ~ path {
+            gsub(/,$/, "", id)
+            print id
+        }
+    '
+		)
 
 		if [ -n "$NODE_ID" ]; then
 			printf "Setting default node to ID: '%s'\n" "$NODE_ID"

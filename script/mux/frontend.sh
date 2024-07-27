@@ -9,8 +9,8 @@
 . /opt/muos/script/var/global/setting_general.sh
 . /opt/muos/script/var/global/network.sh
 
-if [ "$DC_DEV_NAME" == "RG40XX" ]; then
-	/opt/muos/device/rg40xx/script/RG40XX_LED_CONTROL.sh 1 0 0 0 0 0 0 0
+if [ "$DC_DEV_NAME" = "RG40XX" ]; then
+	/opt/muos/device/rg40xx/script/led_control.sh 1 0 0 0 0 0 0 0
 fi
 
 ACT_GO=/tmp/act_go
@@ -20,8 +20,6 @@ ROM_GO=/tmp/rom_go
 
 EX_CARD=/tmp/explore_card
 
-SND_PIPE=/tmp/muplay_pipe
-
 MUX_RELOAD=/tmp/mux_reload
 MUX_AUTH=/tmp/mux_auth
 
@@ -30,14 +28,7 @@ echo "root" >$EX_CARD
 
 KILL_BGM() {
 	if pgrep -f "playbgm.sh" >/dev/null; then
-		killall -q "playbgm.sh" "mp3play"
-	fi
-}
-
-KILL_SND() {
-	if pgrep -f "muplay" >/dev/null; then
-		killall -q "muplay"
-		rm "$SND_PIPE"
+		killall -q "playbgm.sh" "mpg123"
 	fi
 }
 
@@ -112,16 +103,6 @@ while true; do
 		fi
 	else
 		KILL_BGM
-	fi
-
-	# Navigation Sounds
-	if [ "$GC_GEN_SOUND" -eq 1 ]; then
-		if ! pgrep -f "muplay" >/dev/null; then
-			mkfifo "$SND_PIPE"
-			/opt/muos/bin/muplay "$SND_PIPE" &
-		fi
-	else
-		KILL_SND
 	fi
 
 	# Core Association

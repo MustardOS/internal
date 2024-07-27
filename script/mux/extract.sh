@@ -22,6 +22,8 @@ fi
 
 . /opt/muos/script/var/device/storage.sh
 
+. /opt/muos/script/var/global/storage.sh
+
 ARCHIVE_NAME="${1##*/}"
 
 SCHEME_FOLDER="scheme"
@@ -31,7 +33,7 @@ echo "Inspecting archive..."
 if unzip -l "$1" | awk '$NF ~ /^'"$SCHEME_FOLDER"'\// && $NF ~ /\/'"$SCHEME_FILE"'$/ {print $NF}' | grep -q ""; then
 	echo "Archive contents indicate it is NOT an installable theme file"
 	echo "Copying unextracted archive to theme folder"
-	cp -f "$1" "$DC_STO_ROM_MOUNT/MUOS/theme/"
+	cp -f "$1" "$GC_STO_THEME/MUOS/theme/"
 else
 	MUX_TEMP="/opt/muxtmp"
 	mkdir "$MUX_TEMP"

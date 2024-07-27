@@ -1,38 +1,26 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
-
-. /opt/muos/script/var/device/storage.sh
-
-ASSIGN_DIR="$DC_STO_ROM_MOUNT/MUOS/info/assign/*.ini"
+ASSIGN_DIR="$1/MUOS/info/assign/*.ini"
 
 set -- "$ASSIGN_DIR"
 if [ $# -eq 0 ]; then
 	exit 1
 fi
 
-GEN_ASSIGN_DIR() {
-	INI_FILE="$1"
-	CORE_CATALOGUE=$(PARSE_INI "$INI_FILE" "global" "catalogue")
-
-	if [ -z "$CORE_CATALOGUE" ]; then
-		return
-	fi
-
-	BASE_DIR="$DC_STO_ROM_MOUNT/MUOS/info/catalogue/$CORE_CATALOGUE"
-	mkdir -p "$BASE_DIR/box" "$BASE_DIR/preview" "$BASE_DIR/text"
-}
-
-SYSTEM_ART="$DC_STO_ROM_MOUNT/MUOS/info/catalogue/Folder"
-ROOT_ART="$DC_STO_ROM_MOUNT/MUOS/info/catalogue/Root"
-if [ ! -d "$SYSTEM_ART" ]; then
-	mkdir -p "$SYSTEM_ART/box" "$SYSTEM_ART/preview" "$SYSTEM_ART/text"
-fi
-if [ ! -d "$ROOT_ART" ]; then
-	mkdir -p "$ROOT_ART/box" "$ROOT_ART/preview" "$ROOT_ART/text"
-fi
-
-
 for INI_FILE in $ASSIGN_DIR; do
-	GEN_ASSIGN_DIR "$INI_FILE"
+	CORE_CATALOGUE=$(PARSE_INI "$INI_FILE" "global" "catalogue")
+	if [ -n "$CORE_CATALOGUE" ]; then
+		BASE_DIR="$1/MUOS/info/catalogue/$CORE_CATALOGUE"
+		if [ ! -d "$BASE_DIR" ]; then
+			mkdir -p "$BASE_DIR/box" "$BASE_DIR/preview" "$BASE_DIR/text"
+		fi
+	fi
+done
+
+EXTRA_DIRS="Folder Root"
+for EXTRA_DIR in $EXTRA_DIRS; do
+	BASE_DIR="$1/MUOS/info/catalogue/$EXTRA_DIR"
+	if [ ! -d "$BASE_DIR" ]; then
+		mkdir -p "$BASE_DIR/box" "$BASE_DIR/preview" "$BASE_DIR/text"
+	fi
 done

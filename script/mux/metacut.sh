@@ -7,9 +7,9 @@ fi
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
+. /opt/muos/script/var/global/storage.sh
 
-SCHEME="$DC_STO_ROM_MOUNT/MUOS/theme/active/scheme/default.txt"
+SCHEME="$GC_STO_THEME/MUOS/theme/active/scheme/default.txt"
 
 METACUT=$(PARSE_INI "$SCHEME" "meta" "META_CUT")
 

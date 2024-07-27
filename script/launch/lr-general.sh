@@ -36,13 +36,4 @@ echo "retroarch" >/tmp/fg_proc
 retroarch -v -f -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg" -L "$DC_STO_ROM_MOUNT/MUOS/core/$CORE" "$ROM" &
 RA_PID=$!
 
-# We have to pause just for a moment to let RetroArch finish loading...
-sleep 5
-
-if [ "$GC_GEN_STARTUP" = last ] || [ "$GC_GEN_STARTUP" = resume ]; then
-	if [ ! -e "/tmp/manual_launch" ]; then
-		retroarch --command LOAD_STATE
-	fi
-fi
-
 wait $RA_PID

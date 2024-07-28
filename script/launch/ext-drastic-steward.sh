@@ -20,7 +20,7 @@ echo "Switching to ALSA-only configuration..."
 cp /etc/asound.conf /etc/asound.conf.bak
 cp /etc/asound.conf.alsa /etc/asound.conf
 echo "alsa" >"$AUDIO_SRC"
-amixer -c 0 sset "digital volume" 50%
+amixer -c 0 sset "digital volume" 75%
 
 echo "drastic" >/tmp/fg_proc
 

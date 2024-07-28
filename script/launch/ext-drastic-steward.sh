@@ -15,7 +15,8 @@ export SDL_HQ_SCALER="$DC_SDL_SCALER"
 export SDL_ROTATION="$DC_SDL_ROTATION"
 export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
 
-pkill -9 golden.sh pw-play
+pkill -9 golden.sh
+pkill -9pw-play
 echo "Switching to ALSA-only configuration..."
 cp /etc/asound.conf /etc/asound.conf.bak
 cp /etc/asound.conf.alsa /etc/asound.conf

@@ -3,6 +3,20 @@
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/var/device/audio.sh
 
+for TIMEOUT in $(seq 1 30); do
+	if [ -e /run/dbus/system_bus_socket ]; then
+		printf "D-Bus socket is available\n"
+		break
+	fi
+	printf "(%d of 30) Waiting for D-Bus...\n" "$TIMEOUT"
+	sleep 1
+done
+
+if [ ! -e /run/dbus/system_bus_socket ]; then
+	printf "Timeout expired waiting for D-Bus\n"
+	exit 1
+fi
+
 if ! pgrep -x "pipewire" >/dev/null; then
 	pipewire &
 	printf "Starting PipeWire\n"

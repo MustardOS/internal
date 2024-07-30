@@ -31,7 +31,7 @@ fi
 EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/scummvm"
 EXTRA="$EMUDIR/Extra"
 THEME="$EMUDIR/Theme"
-SAVE="$GC_STO_CONFIG/MUOS/save/file/ScummVM-Ext"
+SAVE="$GC_STO_SAVE/MUOS/save/file/ScummVM-Ext"
 
 mkdir -p "$SAVE"
 chmod +x "$EMUDIR"/scummvm

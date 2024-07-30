@@ -48,12 +48,12 @@ sed -i -e '/^system_directory/d' \
 	-e '/^screenshot_directory/d' "$RA_CONF"
 
 {
-	echo "system_directory = \"$GC_STO_CONFIG/MUOS/bios\""
+	echo "system_directory = \"$GC_STO_BIOS/MUOS/bios\""
 	echo "input_remapping_directory = \"$GC_STO_CONFIG/MUOS/info/config/remaps\""
 	echo "rgui_config_directory = \"$GC_STO_CONFIG/MUOS/info/config\""
-	echo "savefile_directory = \"$GC_STO_CONFIG/MUOS/save/file\""
-	echo "savestate_directory = \"$GC_STO_CONFIG/MUOS/save/state\""
-	echo "screenshot_directory = \"$GC_STO_CONFIG/MUOS/screenshot\""
+	echo "savefile_directory = \"$GC_STO_SAVE/MUOS/save/file\""
+	echo "savestate_directory = \"$GC_STO_SAVE/MUOS/save/state\""
+	echo "screenshot_directory = \"$GC_STO_SCREENSHOT/MUOS/screenshot\""
 } >>"$RA_CONF"
 
 if [ -e "$DOUK" ]; then
@@ -62,7 +62,7 @@ if [ -e "$DOUK" ]; then
 else
 	CZ_NAME="Cave Story (En).zip"
 	CAVE_URL="https://bot.libretro.com/assets/cores/Cave Story/$CZ_NAME"
-	BIOS_FOLDER="$GC_STO_CONFIG/MUOS/bios/"
+	BIOS_FOLDER="$GC_STO_BIOS/MUOS/bios/"
 
 	if [ -e "$BIOS_FOLDER$CZ_NAME" ]; then
 		echo "$CZ_NAME exists at $BIOS_FOLDER" >>"$LOGPATH"

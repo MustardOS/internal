@@ -39,12 +39,12 @@ sed -i -e '/^system_directory/d' \
 	-e '/^screenshot_directory/d' "$RA_CONF"
 
 {
-	echo "system_directory = \"$GC_STO_CONFIG/MUOS/bios\""
+	echo "system_directory = \"$GC_STO_BIOS/MUOS/bios\""
 	echo "input_remapping_directory = \"$GC_STO_CONFIG/MUOS/info/config/remaps\""
 	echo "rgui_config_directory = \"$GC_STO_CONFIG/MUOS/info/config\""
-	echo "savefile_directory = \"$GC_STO_CONFIG/MUOS/save/file\""
-	echo "savestate_directory = \"$GC_STO_CONFIG/MUOS/save/state\""
-	echo "screenshot_directory = \"$GC_STO_CONFIG/MUOS/screenshot\""
+	echo "savefile_directory = \"$GC_STO_SAVE/MUOS/save/file\""
+	echo "savestate_directory = \"$GC_STO_SAVE/MUOS/save/state\""
+	echo "screenshot_directory = \"$GC_STO_SCREENSHOT/MUOS/screenshot\""
 } >>"$RA_CONF"
 
 retroarch -v -f -c "$RA_CONF" -L "$DC_STO_ROM_MOUNT/MUOS/core/$CORE" "$ROM" &

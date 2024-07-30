@@ -93,7 +93,7 @@ fi
 
 		COUNT_POWER_LONG=0
 		if [ "$GC_GEN_SHUTDOWN" -eq -1 ]; then
-			/opt/muos/script/system/suspend.sh
+			/opt/muos/script/system/suspend.sh power
 		else
 			TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
 			if [ ! -e $TMP_POWER_LONG ]; then

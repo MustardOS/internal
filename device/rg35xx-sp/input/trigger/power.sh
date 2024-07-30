@@ -26,6 +26,8 @@ DEV_WAKE() {
 	echo "on" >"$TMP_POWER_LONG"
 	echo "awake" >"$SLEEP_STATE"
 
+	/opt/muos/script/system/suspend.sh resume
+
 	if pidof "$FG_PROC_VAL" >/dev/null; then
 		pkill -CONT "$FG_PROC_VAL"
 	fi
@@ -45,6 +47,8 @@ DEV_SLEEP() {
 		echo "sleep-open" >"$SLEEP_STATE"
 		echo "0" >"$LID_CLOSED_FLAG" # Lid was open
 	fi
+
+	/opt/muos/script/system/suspend.sh sleep
 
 	if pidof "$FG_PROC_VAL" >/dev/null; then
 		pkill -STOP "$FG_PROC_VAL"

@@ -12,8 +12,8 @@
 
 sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf
 
-insmod /lib/modules/mali_kbase.ko &
-insmod /lib/modules/squashfs.ko &
+insmod /lib/modules/mali_kbase.ko
+insmod /lib/modules/squashfs.ko
 
 echo "$DC_CPU_DEFAULT" >"$DC_CPU_GOVERNOR"
 echo "$DC_CPU_SAMPLING_RATE_DEFAULT" > "$DC_CPU_SAMPLING_RATE"

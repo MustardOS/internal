@@ -62,7 +62,7 @@ if [ -e "$DOUK" ]; then
 else
 	CZ_NAME="Cave Story (En).zip"
 	CAVE_URL="https://bot.libretro.com/assets/cores/Cave Story/$CZ_NAME"
-	BIOS_FOLDER="$DC_STO_ROM_MOUNT/MUOS/bios/"
+	BIOS_FOLDER="$GC_STO_CONFIG/MUOS/bios/"
 
 	if [ -e "$BIOS_FOLDER$CZ_NAME" ]; then
 		echo "$CZ_NAME exists at $BIOS_FOLDER" >>"$LOGPATH"

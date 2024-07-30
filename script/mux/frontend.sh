@@ -8,6 +8,7 @@
 . /opt/muos/script/var/global/setting_advanced.sh
 . /opt/muos/script/var/global/setting_general.sh
 . /opt/muos/script/var/global/network.sh
+. /opt/muos/script/var/global/storage.sh
 
 if [ "$DC_DEV_NAME" = "RG40XX" ]; then
 	/opt/muos/device/rg40xx/script/led_control.sh 1 0 0 0 0 0 0 0
@@ -278,7 +279,7 @@ while true; do
 				nice --20 /opt/muos/extra/muxsysinfo
 				;;
 			"favourite")
-				find "$DC_STO_ROM_MOUNT"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
+				find "$GC_STO_CONFIG"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
 				echo launcher >$ACT_GO
 				echo "muxplore" >/tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m favourite
@@ -290,7 +291,7 @@ while true; do
 				fi
 				;;
 			"history")
-				find "$DC_STO_ROM_MOUNT"/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
+				find "$GC_STO_CONFIG"/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
 				echo launcher >$ACT_GO
 				echo "muxplore" >/tmp/fg_proc
 				nice --20 /opt/muos/extra/muxplore -i 0 -m history

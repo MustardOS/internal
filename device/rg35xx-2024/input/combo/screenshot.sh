@@ -1,5 +1,9 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
+. /opt/muos/script/var/global/storage.sh
+
 SLEEP_STATE="/tmp/sleep_state"
 SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 
@@ -15,7 +19,7 @@ if [ "$SLEEP_STATE_VAL" = "awake" ]; then
 
 		touch "$SS_LOCK"
 
-		BASE_DIR="$DC_STO_ROM_MOUNT/MUOS/screenshot"
+		BASE_DIR="$GC_STO_CONFIG/MUOS/screenshot"
 		CURRENT_DATE=$(date +"%Y%m%d_%H%M")
 		INDEX=0
 

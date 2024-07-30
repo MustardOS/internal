@@ -32,7 +32,7 @@ dos2unix -n "$ROMPATH/$NAME.doom" "$ROMPATH/$NAME.doom"
 IWAD=$(awk -F'"' '/parentwad/ {print $2}' "$ROMPATH/$NAME.doom")
 
 cp -f "$ROMPATH/$NAME.doom" "$PRBC"
-cp -f "$DC_STO_ROM_MOUNT/MUOS/bios/prboom.wad" "$ROMPATH/.$NAME/prboom.wad"
+cp -f "$GC_STO_CONFIG/MUOS/bios/prboom.wad" "$ROMPATH/.$NAME/prboom.wad"
 cp -f "$ROMPATH/.IWAD/$IWAD" "$ROMPATH/.$NAME/$IWAD"
 
 RA_CONF="$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg"

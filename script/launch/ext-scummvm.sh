@@ -5,6 +5,8 @@
 . /opt/muos/script/var/device/storage.sh
 . /opt/muos/script/var/device/sdl.sh
 
+. /opt/muos/script/var/global/storage.sh
+
 NAME=$1
 CORE=$2
 ROM=$3
@@ -29,7 +31,7 @@ fi
 EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/scummvm"
 EXTRA="$EMUDIR/Extra"
 THEME="$EMUDIR/Theme"
-SAVE="$DC_STO_ROM_MOUNT/MUOS/save/file/ScummVM-Ext"
+SAVE="$GC_STO_CONFIG/MUOS/save/file/ScummVM-Ext"
 
 mkdir -p "$SAVE"
 chmod +x "$EMUDIR"/scummvm

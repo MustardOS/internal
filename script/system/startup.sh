@@ -24,7 +24,7 @@ echo "pipewire" >$AUDIO_SRC
 }
 udevadm trigger --type=subsystems --action=add &
 udevadm trigger --type=devices --action=add &
-udevadm settle --timeout=30 || echo "udevadm settle failed"
+udevadm settle --timeout=30 || LOGGER "$0" "BOOTING" "Udevadm Settle Failure"
 
 if [ -s "$GLOBAL_CONFIG" ]; then
 	LOGGER "$0" "BOOTING" "Global Config Check Passed"

@@ -7,7 +7,6 @@
 SLEEP_STATE="/tmp/sleep_state"
 SLEEP_TIMER="/tmp/sleep_timer"
 LOG_FILE="/tmp/mushutdown_log.txt"
-MUSHUTDOWN_CMD="/opt/muos/bin/mushutdown"
 
 echo "0" >"$SLEEP_TIMER"
 
@@ -31,7 +30,7 @@ while true; do
 		if [ "$FG_PROC_VAL" != "retroarch" ]; then
 			echo "" >/opt/muos/config/lastplay.txt
 		fi
-		$MUSHUTDOWN_CMD >>"$LOG_FILE" 2>&1
+		/opt/muos/script/system/halt.sh poweroff >>"$LOG_FILE" 2>&1
 		if [ $? -ne 0 ]; then
 			echo "Shutdown failed at $(date)" >>"$LOG_FILE"
 		fi

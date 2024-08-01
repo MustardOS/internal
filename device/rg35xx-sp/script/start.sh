@@ -14,7 +14,7 @@
 HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
 
 if [ "$(cat "$HALL_KEY")" = "0" ] && [ "$(cat "$DC_BAT_CHARGER")" -eq 0 ]; then
-	/opt/muos/bin/mushutdown
+	/opt/muos/script/system/halt.sh poweroff
 fi
 
 sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf

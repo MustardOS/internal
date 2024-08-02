@@ -1,7 +1,3 @@
-Absolutely! Here’s the revised version with the additional section:
-
----
-
 ### Setting Up muSpy Discord Integration
 
 #### Step 1: Create a Discord Application
@@ -78,7 +74,3 @@ Absolutely! Here’s the revised version with the additional section:
    - You should see a message saying "RPC is good."
 
 Now, as long as your muOS device is connected to the internet, you'll be able to see what you’re playing, on what device, and what version of muOS you’re using.
-
----
-
-Let me know if there’s anything else you need!

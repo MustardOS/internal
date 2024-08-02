@@ -47,9 +47,8 @@ ROM="$R_DIR"/$(sed -n '7p' "$ROM_GO")
 VERSION=$(cat /opt/muos/config/version.txt)
 PC_IP=$(cat /mnt/mmc/MUOS/discord/pc_ip.txt)
 
-# Check if the PC_IP.txt file is not empty
-if [ -s "$PC_IP" ]; then
-    PC_IP=$(cat "$PC_IP")
+# Check if the pc_ip.txt file is not empty
+if [ -s "/mnt/mmc/MUOS/discord/pc_ip.txt" ]; then
     python /mnt/mmc/MUOS/discord/discord_presence_handheld.py "$PC_IP" "On my $DC_DEV_NAME with muOS $VERSION!" "Playing $NAME"
 fi
 
@@ -155,8 +154,7 @@ if [ "$GC_WEB_SYNCTHING" -eq 1 ] && [ "$(cat "$DC_NET_STATE")" = "up" ]; then
 	curl -X POST -H "X-API-Key: $SYNCTHING_API" "$SYNCTHING_ADDRESS:7070/rest/db/scan"
 fi
 
-if [ -s "$PC_IP" ]; then
-    PC_IP=$(cat "$PC_IP")
+if [ -s "/mnt/mmc/MUOS/discord/pc_ip.txt" ]; then
 	python /mnt/mmc/MUOS/discord/discord_presence_handheld.py "$PC_IP" --clear
 fi
 

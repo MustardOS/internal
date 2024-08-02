@@ -1,5 +1,9 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
+. /opt/muos/script/var/device/storage.sh
+
 DIRS="
 ARCHIVE
 BACKUP
@@ -15,7 +19,8 @@ MUOS/save/drastic/savestates
 MUOS/save/file
 MUOS/save/state
 MUOS/screenshot
-MUOS/theme
+MUOS/theme/active
+MUOS/theme/preview
 "
 
 for DIR in $DIRS; do
@@ -25,4 +30,4 @@ for DIR in $DIRS; do
 done
 
 /opt/muos/script/system/catalogue.sh "$1" &
-cp -R "/mnt/mmc/MUOS/info/config" "$1/MUOS/info/config"
+cp -R "$DC_STO_ROM_MOUNT/MUOS/info/config" "$1/MUOS/info/config"

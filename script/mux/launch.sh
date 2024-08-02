@@ -67,7 +67,7 @@ cat "$ROM_LAST" >"$LAST_PLAY"
 
 # External Script
 if [ "$CORE" = external ]; then
-	echo "$(/opt/muos/script/system/extract_process.sh $ROM)" >/tmp/fg_proc
+	/opt/muos/script/system/extract_process.sh "$ROM" >/tmp/fg_proc
 	/opt/muos/script/launch/ext-general.sh "$NAME" "$CORE" "$ROM"
 # Amiberry External
 elif [ "$CORE" = ext-amiberry ]; then
@@ -133,7 +133,7 @@ killall -q "$GPTOKEYB_BIN" "$EVSIEVE_BIN"
 
 case "$DC_DEV_NAME" in
 	RG*)
-		echo 0 > "/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 		FB_SWITCH "$DC_SCR_WIDTH" "$DC_SCR_HEIGHT" 32
 		;;
 	*)
@@ -143,7 +143,7 @@ esac
 
 if [ "$GC_WEB_SYNCTHING" -eq 1 ] && [ "$(cat "$DC_NET_STATE")" = "up" ]; then
 	SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)
-	SYNCTHING_API=$(cat /mnt/mmc/MUOS/syncthing/api.txt)
+	SYNCTHING_API=$(cat "$DC_STO_ROM_MOUNT/MUOS/syncthing/api.txt")
 	curl -X POST -H "X-API-Key: $SYNCTHING_API" "$SYNCTHING_ADDRESS:7070/rest/db/scan"
 fi
 

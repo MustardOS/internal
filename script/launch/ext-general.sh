@@ -16,8 +16,7 @@ export SDL_ROTATION="$DC_SDL_ROTATION"
 export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
 
 if grep -q 'PORT_32BIT="Y"' "$ROM"; then
-	pkill -9 golden.sh
-	pkill -9pw-play
+	killall -q "golden.sh" "pw-play"
 	echo "Switching to ALSA-only configuration..."
 	cp /etc/asound.conf /etc/asound.conf.bak
 	cp /etc/asound.conf.alsa /etc/asound.conf

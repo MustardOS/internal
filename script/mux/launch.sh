@@ -44,6 +44,13 @@ NAME=$(sed -n '1p' "$ROM_GO")
 CORE=$(sed -n '2p' "$ROM_GO" | tr -d '\n')
 R_DIR=$(sed -n '5p' "$ROM_GO")$(sed -n '6p' "$ROM_GO")
 ROM="$R_DIR"/$(sed -n '7p' "$ROM_GO")
+VERSION=$(cat /opt/muos/config/version.txt)
+PC_IP=$(cat /mnt/mmc/MUOS/discord/pc_ip.txt)
+
+# Check if the pc_ip.txt file is not empty
+if [ -s "/mnt/mmc/MUOS/discord/pc_ip.txt" ]; then
+    python /mnt/mmc/MUOS/discord/discord_presence_handheld.py "$PC_IP" "On my $DC_DEV_NAME with muOS $VERSION!" "Playing $NAME"
+fi
 
 rm "$ROM_GO"
 
@@ -145,6 +152,10 @@ if [ "$GC_WEB_SYNCTHING" -eq 1 ] && [ "$(cat "$DC_NET_STATE")" = "up" ]; then
 	SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)
 	SYNCTHING_API=$(cat "$DC_STO_ROM_MOUNT/MUOS/syncthing/api.txt")
 	curl -X POST -H "X-API-Key: $SYNCTHING_API" "$SYNCTHING_ADDRESS:7070/rest/db/scan"
+fi
+
+if [ -s "/mnt/mmc/MUOS/discord/pc_ip.txt" ]; then
+	python /mnt/mmc/MUOS/discord/discord_presence_handheld.py "$PC_IP" --clear
 fi
 
 pkill -CONT "$SUSPEND_APP"

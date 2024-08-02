@@ -14,7 +14,7 @@
 HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
 
 if [ "$(cat "$HALL_KEY")" = "0" ] && [ "$(cat "$DC_BAT_CHARGER")" -eq 0 ]; then
-	/opt/muos/bin/mushutdown
+	/opt/muos/script/system/halt.sh poweroff
 fi
 
 sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf
@@ -23,10 +23,10 @@ insmod /lib/modules/mali_kbase.ko
 insmod /lib/modules/squashfs.ko
 
 echo "$DC_CPU_DEFAULT" >"$DC_CPU_GOVERNOR"
-echo "$DC_CPU_SAMPLING_RATE_DEFAULT" > "$DC_CPU_SAMPLING_RATE"
-echo "$DC_CPU_UP_THRESHOLD_DEFAULT" > "$DC_CPU_UP_THRESHOLD"
-echo "$DC_CPU_SAMPLING_DOWN_FACTOR_DEFAULT" > "$DC_CPU_SAMPLING_DOWN_FACTOR"
-echo "$DC_CPU_IO_IS_BUSY_DEFAULT" > "$DC_CPU_IO_IS_BUSY"
+echo "$DC_CPU_SAMPLING_RATE_DEFAULT" >"$DC_CPU_SAMPLING_RATE"
+echo "$DC_CPU_UP_THRESHOLD_DEFAULT" >"$DC_CPU_UP_THRESHOLD"
+echo "$DC_CPU_SAMPLING_DOWN_FACTOR_DEFAULT" >"$DC_CPU_SAMPLING_DOWN_FACTOR"
+echo "$DC_CPU_IO_IS_BUSY_DEFAULT" >"$DC_CPU_IO_IS_BUSY"
 
 mount -t "$DC_STO_BOOT_TYPE" -o rw,utf8,noatime,nofail /dev/"$DC_STO_BOOT_DEV"p"$DC_STO_BOOT_NUM" "$DC_STO_BOOT_MOUNT"
 mount -t "$DC_STO_ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" "$DC_STO_ROM_MOUNT"

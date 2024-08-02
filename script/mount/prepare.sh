@@ -30,4 +30,11 @@ for DIR in $DIRS; do
 done
 
 /opt/muos/script/system/catalogue.sh "$1" &
-cp -R "$DC_STO_ROM_MOUNT/MUOS/info/config" "$1/MUOS/info/config"
+
+if [ -z "$(find "$1/MUOS/info/config" -mindepth 1 -print -quit)" ]; then
+	cp -R "$DC_STO_ROM_MOUNT/MUOS/info/config" "$1/MUOS/info"
+fi
+
+if [ -z "$(find "$1/MUOS/theme/active" -mindepth 1 -print -quit)" ]; then
+	cp -R "$DC_STO_ROM_MOUNT/MUOS/theme/active" "$1/MUOS/theme"
+fi

@@ -33,6 +33,15 @@ KILL_BGM() {
 	fi
 }
 
+PREPARE_HALT() {
+	. /opt/muos/script/var/global/setting_general.sh
+	: >/opt/muos/config/address.txt
+	if [ "$GC_GEN_STARTUP" = resume ]; then
+		: >/opt/muos/config/lastplay.txt
+	fi
+	/opt/muos/bin/fbpad /opt/muos/script/system/halt.sh "$1"
+}
+
 LOGGER "$0" "FRONTEND" "Waiting for mount: $DC_STO_ROM_MOUNT"
 while true; do
 	if mount | grep -q "$DC_STO_ROM_MOUNT"; then
@@ -306,6 +315,12 @@ while true; do
 				echo info >$ACT_GO
 				echo "muxcredits" >/tmp/fg_proc
 				nice --20 /opt/muos/extra/muxcredits
+				;;
+			"reboot")
+				PREPARE_HALT reboot
+				;;
+			"shutdown")
+				PREPARE_HALT poweroff
 				;;
 		esac
 	fi

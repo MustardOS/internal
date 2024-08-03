@@ -171,6 +171,9 @@ if [ "$GC_BOO_FACTORY_RESET" -eq 1 ]; then
 	MODIFY_INI "$GLOBAL_CONFIG" "boot" "factory_reset" "0"
 
 	/opt/muos/extra/muxcredits
+
+	/opt/muos/device/"$DEVICE_TYPE"/input/trigger/power.sh &
+	/opt/muos/device/"$DEVICE_TYPE"/input/trigger/sleep.sh &
 fi
 
 LOGGER "$0" "BOOTING" "Setting current variable modes"

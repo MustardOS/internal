@@ -15,6 +15,7 @@ killall -q "evtest"
 . /opt/muos/device/"$DEVICE_TYPE"/input/map.sh
 
 KEY_COMBO=0
+RESUME_UPTIME="$(UPTIME)"
 
 DPAD="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 MOTO="/sys/class/power_supply/axp2202-battery/moto"
@@ -92,7 +93,16 @@ fi
 
 		COUNT_POWER_LONG=0
 		if [ "$GC_GEN_SHUTDOWN" -eq -1 ]; then
-			/opt/muos/script/system/suspend.sh power
+			# When the user presses power to wake from suspend, the
+			# press/release events are received by our evtest loop
+			# after wakeup. A long press sends us right back here.
+			#
+			# Avoid suspending again immediately by ignoring power
+			# long presses processed within 100ms of wakeup.
+			if [ "$(echo "$(UPTIME) - $RESUME_UPTIME >= .1" | bc)" = 1 ]; then
+				/opt/muos/script/system/suspend.sh power
+				RESUME_UPTIME="$(UPTIME)"
+			fi
 		else
 			TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
 			if [ ! -e $TMP_POWER_LONG ]; then

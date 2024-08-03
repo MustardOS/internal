@@ -40,6 +40,13 @@ fi
 # Move DraStic configuration
 cp -f "$DEVICE_CONTROL_DIR/drastic.cfg" "$DC_STO_ROM_MOUNT/MUOS/emulator/drastic/config/drastic.cfg"
 
+# Move OpenBOR config
+for file in "$DEVICE_CONTROL_DIR/openbor/"*.ini; do
+    if [ ! -f "$DC_STO_ROM_MOUNT/MUOS/emulator/openbor/userdata/system/configs/openbor/$(basename "$file")" ]; then
+        cp "$file" "$DC_STO_ROM_MOUNT/MUOS/emulator/openbor/userdata/system/configs/openbor/"
+    fi
+done
+
 # Define Playstation remap paths
 DUCK_RMP="$DC_STO_ROM_MOUNT/MUOS/info/config/remaps/DuckStation/DuckStation.rmp"
 PCSX_RMP="$DC_STO_ROM_MOUNT/MUOS/info/config/remaps/PCSX-ReARMed/PCSX-ReARMed.rmp"

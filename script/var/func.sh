@@ -27,6 +27,9 @@ export DEVICE_CONTROL_DIR
 MUOS_BOOT_LOG="/opt/muos/boot.log"
 export MUOS_BOOT_LOG
 
+AUDIO_SRC="/tmp/mux_audio_src"
+export AUDIO_SRC
+
 FB_SWITCH() {
 	WIDTH="$1"
 	HEIGHT="$2"

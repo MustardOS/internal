@@ -41,6 +41,7 @@ random_theme=0
 retrowait=0
 android=0
 state=mem
+verbose=0
 
 [visual]
 battery=1

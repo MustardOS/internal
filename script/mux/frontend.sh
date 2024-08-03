@@ -34,12 +34,17 @@ KILL_BGM() {
 }
 
 PREPARE_HALT() {
+	. /opt/muos/script/var/global/setting_advanced.sh
 	. /opt/muos/script/var/global/setting_general.sh
 	: >/opt/muos/config/address.txt
 	if [ "$GC_GEN_STARTUP" = resume ]; then
 		: >/opt/muos/config/lastplay.txt
 	fi
-	/opt/muos/bin/fbpad /opt/muos/script/system/halt.sh "$1"
+	if [ "$GC_ADV_VERBOSE" -eq 1 ]; then
+		/opt/muos/bin/fbpad /opt/muos/script/system/halt.sh "$1"
+	else
+		/opt/muos/script/system/halt.sh "$1"
+	fi
 }
 
 LOGGER "$0" "FRONTEND" "Waiting for mount: $DC_STO_ROM_MOUNT"

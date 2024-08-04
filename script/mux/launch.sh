@@ -84,6 +84,9 @@ elif [ "$CORE" = ext-flycast ]; then
 # Video Player (ffplay)
 elif [ "$CORE" = ext-ffplay ]; then
 	/opt/muos/script/launch/ext-ffplay.sh "$NAME" "$CORE" "$ROM"
+# OpenBOR External
+elif [[ "$CORE" == ext-openbor* ]]; then
+	/opt/muos/script/launch/ext-openbor.sh "$NAME" "$CORE" "$ROM"
 # PPSSPP External
 elif [ "$CORE" = ext-ppsspp ]; then
 	/opt/muos/script/launch/ext-ppsspp.sh "$NAME" "$CORE" "$ROM"

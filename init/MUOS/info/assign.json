@@ -283,6 +283,8 @@
     "nsnes": "nintendo snes-sfc.ini",
     "nsv": "nintendo snes-sfc.ini",
     "nvb": "nintendo virtual boy.ini",
+    "openbor": "openbor.ini",
+    "openbeatsofrage": "openbor.ini",
     "originalgameboy": "nintendo game boy.ini",
     "palm": "palmos.ini",
     "palmos": "palm os.ini",

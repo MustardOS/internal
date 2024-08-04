@@ -44,6 +44,13 @@ FB_SWITCH() {
 	echo 0 >/sys/class/graphics/fb0/blank
 }
 
+# Prints current system uptime in hundredths of a second. Unlike date or
+# EPOCHREALTIME, this won't decrease if the system clock is set back, so it can
+# be used to measure an interval of real time.
+UPTIME () {
+	cut -d ' ' -f 1 /proc/uptime
+}
+
 PARSE_INI() {
 	INI_FILE="$1"
 	SECTION="$2"

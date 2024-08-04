@@ -66,7 +66,7 @@ fi
 echo "Sync Filesystem"
 sync
 
-/opt/muos/script/mux/sync_storage.sh &
+/opt/muos/script/mux/sync_storage.sh "theme" &
 
 echo "All Done!"
 touch "$DC_STO_ROM_MOUNT/MUOS/update/installed/$ARCHIVE_NAME.done"

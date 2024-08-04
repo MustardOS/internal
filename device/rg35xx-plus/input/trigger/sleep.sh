@@ -25,11 +25,7 @@ while true; do
 
 	if [ "$SLEEP_TIMER_VAL" -eq "$GC_GEN_SHUTDOWN" ]; then
 		/opt/muos/script/system/suspend.sh resume
-		CLOSE_CONTENT
-		if [ "$FG_PROC_VAL" != "retroarch" ]; then
-			: >/opt/muos/config/lastplay.txt
-		fi
-		/opt/muos/script/system/halt.sh poweroff
+		CLOSE_CONTENT_AND_HALT poweroff
 	fi
 
 	sleep 1

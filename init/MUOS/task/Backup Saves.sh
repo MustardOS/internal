@@ -7,6 +7,8 @@
 
 . /opt/muos/script/var/device/storage.sh
 
+. /opt/muos/script/var/global/storage.sh
+
 SD_DEVICE="${DC_STO_SDCARD_DEV}p${DC_STO_SDCARD_NUM}"
 USB_DEVICE="${DC_STO_USB_DEV}p${DC_STO_USB_NUM}"
 
@@ -35,11 +37,11 @@ RA_SAVEFILE_DIR=$(echo "$RA_SAVEFILE_DIR" | sed 's/~//')
 RA_SAVESTATE_DIR=$(echo "$RA_SAVESTATE_DIR" | sed 's/~//')
 
 # Set RetroArch save source directories
-if [ "$RA_SAVEFILE_DIR" = "$DC_STO_ROM_MOUNT/MUOS/save/file" ]; then
+if [ "$RA_SAVEFILE_DIR" = "$GC_STO_SAVE/MUOS/save/file" ]; then
 	MUOS_SAVEFILE_DIR="$RA_SAVEFILE_DIR"
 fi
 
-if [ "$RA_SAVESTATE_DIR" = "$DC_STO_ROM_MOUNT/MUOS/save/state" ]; then
+if [ "$RA_SAVESTATE_DIR" = "$GC_STO_SAVE/MUOS/save/state" ]; then
 	MUOS_SAVESTATE_DIR="$RA_SAVESTATE_DIR"
 fi
 
@@ -60,13 +62,13 @@ else
 fi
 
 # Define Dreamcast VMU source
-if [ -d "$DC_STO_ROM_MOUNT/MUOS/bios/dc" ]; then
-    if [ -f "$DC_STO_ROM_MOUNT/MUOS/bios/dc/dc_nvmem.bin" ]; then
-        DC_NV="$DC_STO_ROM_MOUNT/MUOS/bios/dc/dc_nvmem.bin"
+if [ -d "$GC_STO_BIOS/MUOS/bios/dc" ]; then
+    if [ -f "$GC_STO_BIOS/MUOS/bios/dc/dc_nvmem.bin" ]; then
+        DC_NV="$GC_STO_BIOS/MUOS/bios/dc/dc_nvmem.bin"
     fi
-    DC_VMU_FILES=$(ls "$DC_STO_ROM_MOUNT/MUOS/bios/dc/vmu_save_"* 2>/dev/null)
+    DC_VMU_FILES=$(ls "$GC_STO_BIOS/MUOS/bios/dc/vmu_save_"* 2>/dev/null)
     if [ -n "$DC_VMU_FILES" ]; then
-        DC_VMU="$DC_STO_ROM_MOUNT/MUOS/bios/dc/vmu_save_"*
+        DC_VMU="$GC_STO_BIOS/MUOS/bios/dc/vmu_save_"*
     fi
 fi
 

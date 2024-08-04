@@ -2,11 +2,11 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
+. /opt/muos/script/var/global/storage.sh
 
 pkill -STOP muxtask
 
-MUOS_CONFIG_DIR="$DC_STO_ROM_MOUNT/MUOS/info/config"
+MUOS_CONFIG_DIR="$GC_STO_CONFIG/MUOS/info/config"
 
 echo "Removing all configurations"
 rm -rf "${MUOS_CONFIG_DIR:?}"/*

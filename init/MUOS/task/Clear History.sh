@@ -2,11 +2,11 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
+. /opt/muos/script/var/global/storage.sh
 
 pkill -STOP muxtask
 
-MUOS_HIST_DIR="$DC_STO_ROM_MOUNT/MUOS/info/history"
+MUOS_HIST_DIR="$GC_STO_FAV/MUOS/info/history"
 
 echo "Deleting History Files"
 rm -rf "${MUOS_HIST_DIR:?}"/*

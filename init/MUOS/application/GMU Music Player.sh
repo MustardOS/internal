@@ -26,7 +26,7 @@ export LD_LIBRARY_PATH=/usr/lib32
 echo "gmu" >/tmp/fg_proc
 
 echo "Switching to ALSA-only configuration..."
-pkill -9 golden.sh pw-play
+killall -q "golden.sh" "pw-play"
 cp /etc/asound.conf /etc/asound.conf.bak
 cp /etc/asound.conf.alsa /etc/asound.conf
 echo "alsa" >"$AUDIO_SRC"

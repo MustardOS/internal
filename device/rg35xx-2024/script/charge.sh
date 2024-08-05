@@ -18,7 +18,9 @@ if [ "$(cat "$DC_BAT_CHARGER")" -eq 1 ] && [ "$GC_BOO_FACTORY_RESET" -eq 0 ]; th
 
 	echo "powersave" >"$DC_CPU_GOVERNOR"
 
-	/opt/muos/extra/muxcharge
+	if ! /opt/muos/extra/muxcharge; then
+		/opt/muos/script/system/halt.sh poweroff
+	fi
 
 	umount "$DC_STO_ROM_MOUNT"
 fi

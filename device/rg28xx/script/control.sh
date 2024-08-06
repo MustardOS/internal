@@ -4,6 +4,8 @@
 
 . /opt/muos/script/var/device/storage.sh
 
+. /opt/muos/script/var/global/storage.sh
+
 RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 

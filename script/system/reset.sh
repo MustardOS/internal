@@ -32,26 +32,12 @@ LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
 mount -t "$DC_STO_ROM_TYPE" /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" "$DC_STO_ROM_MOUNT"
 
 LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
-rsync -a --remove-source-files /opt/muos/init/ "$DC_STO_ROM_MOUNT"/ &
+mv /opt/muos/init/* "$DC_STO_ROM_MOUNT"/ &
 
-while true; do
-	IS_WORKING=$(pgrep -f "rsync")
-	RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
-
-	MSG=$(
-		cat <<EOF
-FACTORY RESET
-
-$RANDOM_LINE
-EOF
-	)
-	/opt/muos/extra/muxstart "$MSG" && sleep 0.5
-
-	if [ "$IS_WORKING" = "" ]; then
-		break
-	fi
-
-	sleep 5
+while pgrep -f "mv" > /dev/null; do
+    RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
+    /opt/muos/extra/muxstart "$(printf "FACTORY RESET\n\n%s\n" "$RANDOM_LINE")"
+    sleep 5
 done
 
 LOGGER "$0" "FACTORY RESET" "Restoring PortMaster"

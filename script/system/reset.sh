@@ -26,6 +26,7 @@ esac
 LOGGER "FACTORY RESET" "Setting ROM Partition Flags"
 parted ---pretend-input-tty /dev/"$DC_STO_ROM_DEV" set "$DC_STO_ROM_NUM" boot off
 parted ---pretend-input-tty /dev/"$DC_STO_ROM_DEV" set "$DC_STO_ROM_NUM" hidden off
+parted ---pretend-input-tty /dev/"$DC_STO_ROM_DEV" set "$DC_STO_ROM_NUM" msftdata on
 
 LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
 mount -t "$DC_STO_ROM_TYPE" /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" "$DC_STO_ROM_MOUNT"

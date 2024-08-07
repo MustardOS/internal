@@ -41,6 +41,13 @@ elif [ "$CORE" = "ext-mupen64plus-rice" ]; then
 	cp -f "$RICE_CFG" "$MP64_CFG"
 fi
 
+# Update paths in config based on storage preference.
+sed -i \
+	-e "s|^SaveSRAMPath = .*|SaveSRAMPath = \"$GC_STO_SAVE/MUOS/save/file/Mupen64Plus\"|" \
+	-e "s|^SaveStatePath = .*|SaveStatePath = \"$GC_STO_SAVE/MUOS/save/state/Mupen64Plus\"|" \
+	-e "s|^ScreenshotPath = .*|ScreenshotPath = \"$GC_STO_SCREENSHOT/MUOS/screenshot\"|" \
+	"$MP64_CFG"
+
 chmod +x "$EMUDIR"/mupen64plus
 cd "$EMUDIR" || exit
 

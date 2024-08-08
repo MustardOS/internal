@@ -30,7 +30,7 @@ EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/drastic-steward"
 
 # Replace the save state location to where the user set it to!
 SETTINGS_FILE="$EMUDIR/resources/settings.json"
-sed -i '/"states":/d; $ s/}$//; $a\    "states": "'"$GC_STO_SAVE"'"\n}' "$SETTINGS_FILE"
+sed -i "s|\(\"states\":\"\)[^\"]*|\1$GC_STO_SAVE/MUOS/save/drastic|g" "$SETTINGS_FILE"
 
 chmod +x "$EMUDIR"/launch.sh
 cd "$EMUDIR" || exit

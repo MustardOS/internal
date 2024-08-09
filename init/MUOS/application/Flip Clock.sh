@@ -1,12 +1,7 @@
 #!/bin/sh
 
 if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mp3play"
-fi
-
-if pgrep -f "muplay" >/dev/null; then
-	killall -q "muplay"
-	rm "$SND_PIPE"
+	killall -q "playbgm.sh" "mpg123"
 fi
 
 echo app >/tmp/act_go
@@ -22,11 +17,15 @@ GPTOKEYB="$DC_STO_ROM_MOUNT/MUOS/emulator/gptokeyb/gptokeyb2"
 export LD_LIBRARY_PATH=/usr/lib32
 
 export SDL_HQ_SCALER="$DC_SDL_SCALER"
-if [ $DC_DEV_NAME = "RG28XX" ]; then
-	export SDL_ROTATION=0
-else
-	export SDL_ROTATION=3
-fi
+
+case "$DC_DEV_NAME" in
+	RG28XX)
+		export SDL_ROTATION=0
+		;;
+	*)
+		export SDL_ROTATION=3
+		;;
+esac
 
 FLIPCLOCK_DIR="$DC_STO_ROM_MOUNT/MUOS/application/.flipclock"
 

@@ -1,12 +1,7 @@
 #!/bin/sh
 
 if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mp3play"
-fi
-
-if pgrep -f "muplay" >/dev/null; then
-	killall -q "muplay"
-	rm "$SND_PIPE"
+	killall -q "playbgm.sh" "mpg123"
 fi
 
 echo app >/tmp/act_go
@@ -26,5 +21,4 @@ echo "terminal" >/tmp/fg_proc
 
 LD_LIBRARY_PATH=/usr/lib32 HOME="$TERM_DIR" SDL_ASSERT=always_ignore ./terminal -f ./res/SourceCodePro-Regular.ttf -s 14
 
-# CLeanup on exit
 unset SDL_HQ_SCALER

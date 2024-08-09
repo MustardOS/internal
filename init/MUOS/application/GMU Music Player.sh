@@ -1,17 +1,14 @@
 #!/bin/sh
 
 if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mp3play"
-fi
-
-if pgrep -f "muplay" >/dev/null; then
-	killall -q "muplay"
-	rm "$SND_PIPE"
+	killall -q "playbgm.sh" "mpg123"
 fi
 
 echo app >/tmp/act_go
 
 . /opt/muos/script/var/func.sh
+
+. /opt/muos/script/var/device/storage.sh
 
 AUDIO_SRC="/tmp/mux_audio_src"
 

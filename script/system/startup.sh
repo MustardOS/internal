@@ -172,8 +172,7 @@ if [ "$GC_BOO_FACTORY_RESET" -eq 1 ]; then
 
 	/opt/muos/extra/muxcredits
 
-	/opt/muos/device/"$DEVICE_TYPE"/input/trigger/power.sh &
-	/opt/muos/device/"$DEVICE_TYPE"/input/trigger/sleep.sh &
+	/opt/muos/script/system/halt.sh reboot
 fi
 
 LOGGER "$0" "BOOTING" "Setting current variable modes"

@@ -88,14 +88,19 @@ fi
 		esac
 	fi
 
+	# Power long press combos:
 	if [ "$COUNT_POWER_LONG" -eq 1 ]; then
 		. /opt/muos/script/var/global/setting_general.sh
-
 		COUNT_POWER_LONG=0
-		if [ "$GC_GEN_SHUTDOWN" -eq -1 ]; then
-			# When the user presses power to wake from suspend, the
-			# press/release events are received by our evtest loop
-			# after wakeup. A long press sends us right back here.
+
+		if [ "$STATE_L1:$STATE_L2:$STATE_R1:$STATE_R2" = 1:1:1:1 ]; then
+			# Power+L1+L2+R1+R2: Emergency reboot
+			#
+			# This blocks the input loop so we don't try to process
+			# more hotkeys while rebooting.
+			/opt/muos/script/system/halt.sh reboot
+		elif [ "$GC_GEN_SHUTDOWN" -eq -1 ]; then
+			# Power: Suspend
 			#
 			# Avoid suspending again immediately by ignoring power
 			# long presses processed within 100ms of wakeup.
@@ -104,6 +109,7 @@ fi
 				RESUME_UPTIME="$(UPTIME)"
 			fi
 		else
+			# Power: Sleep
 			TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
 			if [ ! -e $TMP_POWER_LONG ]; then
 				echo on >$TMP_POWER_LONG

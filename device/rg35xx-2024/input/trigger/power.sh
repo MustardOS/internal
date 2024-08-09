@@ -6,16 +6,12 @@
 
 TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
 FG_PROC="/tmp/fg_proc"
-DBG="/sys/kernel/debug/dispdbg"
 SLEEP_STATE="/tmp/sleep_state"
 LED_STATE="/tmp/work_led_state"
 
 UPDATE_DISPLAY() {
 	echo "$2" >"$DC_DEV_LED"
-	echo disp0 >"$DBG/name"
-	echo blank >"$DBG/command"
-	echo "$1" >"$DBG/param"
-	echo 1 >"$DBG/start"
+	DISPLAY_WRITE disp0 blank "$1"
 }
 
 DEV_WAKE() {

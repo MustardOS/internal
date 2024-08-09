@@ -6,8 +6,6 @@
 
 . /opt/muos/script/var/global/setting_general.sh
 
-DISPLAY="/sys/kernel/debug/dispdbg"
-
 FG_PROC="/tmp/fg_proc"
 
 RESET_DISP=0
@@ -38,10 +36,7 @@ while true; do
 			fi
 
 			# Switch on HDMI
-			echo disp0 >$DISPLAY/name
-			echo switch >$DISPLAY/command
-			echo 4 "$GC_GEN_HDMI" >$DISPLAY/param
-			echo 1 >$DISPLAY/start
+			DISPLAY_WRITE disp0 switch 4
 
 			# Reset the display
 			if [ $RESET_DISP -eq 0 ]; then
@@ -77,10 +72,7 @@ while true; do
 			fi
 
 			# Switch off HDMI
-			echo disp0 >$DISPLAY/name
-			echo switch >$DISPLAY/command
-			echo 1 0 >$DISPLAY/param
-			echo 1 >$DISPLAY/start
+			DISPLAY_WRITE disp0 switch '1 0'
 
 			# Reset the display
 			if [ $RESET_DISP -eq 0 ]; then

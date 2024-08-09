@@ -4,8 +4,6 @@
 
 . /opt/muos/script/var/device/screen.sh
 
-DISPLAY="/sys/kernel/debug/dispdbg"
-
 BRIGHT_FILE="/opt/muos/config/brightness.txt"
 BRIGHT_FILE_PERCENT="/tmp/current_brightness_percent"
 
@@ -13,10 +11,7 @@ SLEEP_STATE="/tmp/sleep_state"
 SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 
 GET_CURRENT() {
-	echo getbl >$DISPLAY/command
-	echo lcd0 >$DISPLAY/name
-	echo 1 >$DISPLAY/start
-	cat $DISPLAY/info
+	DISPLAY_READ lcd0 getbl
 }
 
 CURRENT_BL=$(GET_CURRENT)
@@ -36,10 +31,7 @@ SET_CURRENT() {
 		PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($1/$DC_SCR_BRIGHT)*100}")
 		printf "%d" "$PERCENTAGE" >"$BRIGHT_FILE_PERCENT"
 
-		echo lcd0 >$DISPLAY/name
-		echo setbl >$DISPLAY/command
-		echo "$1" >$DISPLAY/param
-		echo 1 >$DISPLAY/start
+		DISPLAY_WRITE lcd0 setbl "$1"
 
 		if ! pgrep -f "muxcharge" >/dev/null; then
 			printf "%d" "$1" >"$BRIGHT_FILE"

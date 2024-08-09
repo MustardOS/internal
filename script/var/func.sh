@@ -44,6 +44,26 @@ FB_SWITCH() {
 	echo 0 >/sys/class/graphics/fb0/blank
 }
 
+# Writes a setting valeu to the display driver.
+#
+# Usage: DISPLAY_WRITE NAME COMMAND PARAM
+DISPLAY_WRITE () {
+	printf '%s\n' "$1" >/sys/kernel/debug/dispdbg/name
+	printf '%s\n' "$2" >/sys/kernel/debug/dispdbg/command
+	printf '%s\n' "$3" >/sys/kernel/debug/dispdbg/param
+	echo 1 >/sys/kernel/debug/dispdbg/start
+}
+
+# Reads and prints a setting value from the display driver.
+#
+# Usage: DISPLAY_READ NAME COMMAND
+DISPLAY_READ () {
+	printf '%s\n' "$1" >/sys/kernel/debug/dispdbg/name
+	printf '%s\n' "$2" >/sys/kernel/debug/dispdbg/command
+	echo 1 >/sys/kernel/debug/dispdbg/start
+	cat /sys/kernel/debug/dispdbg/info
+}
+
 # Prints current system uptime in hundredths of a second. Unlike date or
 # EPOCHREALTIME, this won't decrease if the system clock is set back, so it can
 # be used to measure an interval of real time.

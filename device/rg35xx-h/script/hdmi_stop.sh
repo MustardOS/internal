@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DISPLAY="/sys/kernel/debug/dispdbg"
+. /opt/muos/script/var/func.sh
 
 FG_PROC="/tmp/fg_proc"
 
@@ -21,10 +21,7 @@ if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/nul
 fi
 
 # Switch off HDMI
-echo disp0 >$DISPLAY/name
-echo switch >$DISPLAY/command
-echo 1 0 >$DISPLAY/param
-echo 1 >$DISPLAY/start
+DISPLAY_WRITE disp0 switch '1 0'
 
 # Reset the display
 fbset -g 1280 720 1280 1440 32

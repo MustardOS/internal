@@ -85,13 +85,10 @@ fi
 		COUNT_POWER_LONG=0
 
 		if [ "$STATE_L1:$STATE_L2:$STATE_R1:$STATE_R2" = 1:1:1:1 ]; then
-			# Power+L1+L2+R1+R2: Emergency reboot
-			#
-			# This blocks the input loop so we don't try to process
-			# more hotkeys while rebooting.
+			# Power+L1+L2+R1+R2: Overall System Failsafe (Reboot)
 			HALT_SYSTEM osf reboot
 		elif [ "$GC_GEN_SHUTDOWN" -eq -1 ]; then
-			# Power: Suspend
+			# Power: Sleep Suspend
 			#
 			# Avoid suspending again immediately by ignoring power
 			# long presses processed within 100ms of wakeup.
@@ -99,8 +96,11 @@ fi
 				/opt/muos/script/system/suspend.sh power
 				RESUME_UPTIME="$(UPTIME)"
 			fi
+		elif [ "$GC_GEN_SHUTDOWN" -eq 2 ]; then
+			# Power: Instant Shutdown
+			HALT_SYSTEM sleep poweroff
 		else
-			# Power: Sleep
+			# Power: Sleep XXs + Shutdown
 			TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
 			if [ ! -e $TMP_POWER_LONG ]; then
 				echo on >$TMP_POWER_LONG

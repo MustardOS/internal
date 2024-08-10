@@ -25,7 +25,7 @@ while true; do
 
 	if [ "$SLEEP_TIMER_VAL" -eq "$GC_GEN_SHUTDOWN" ]; then
 		/opt/muos/script/system/suspend.sh resume
-		CLOSE_CONTENT_AND_HALT poweroff
+		HALT_SYSTEM sleep poweroff
 	fi
 
 	sleep 1

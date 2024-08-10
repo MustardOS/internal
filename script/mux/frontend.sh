@@ -10,6 +10,8 @@
 . /opt/muos/script/var/global/network.sh
 . /opt/muos/script/var/global/storage.sh
 
+. /opt/muos/script/mux/close_game.sh
+
 if [ "$DC_DEV_NAME" = "RG40XX" ]; then
 	/opt/muos/device/rg40xx/script/led_control.sh 1 0 0 0 0 0 0 0
 fi
@@ -30,20 +32,6 @@ echo "root" >$EX_CARD
 KILL_BGM() {
 	if pgrep -f "playbgm.sh" >/dev/null; then
 		killall -q "playbgm.sh" "mpg123"
-	fi
-}
-
-PREPARE_HALT() {
-	. /opt/muos/script/var/global/setting_advanced.sh
-	. /opt/muos/script/var/global/setting_general.sh
-	: >/opt/muos/config/address.txt
-	if [ "$GC_GEN_STARTUP" = resume ]; then
-		: >/opt/muos/config/lastplay.txt
-	fi
-	if [ "$GC_ADV_VERBOSE" -eq 1 ]; then
-		/opt/muos/bin/fbpad /opt/muos/script/system/halt.sh "$1"
-	else
-		/opt/muos/script/system/halt.sh "$1"
 	fi
 }
 
@@ -322,10 +310,10 @@ while true; do
 				nice --20 /opt/muos/extra/muxcredits
 				;;
 			"reboot")
-				PREPARE_HALT reboot
+				HALT_SYSTEM frontend reboot
 				;;
 			"shutdown")
-				PREPARE_HALT poweroff
+				HALT_SYSTEM frontend poweroff
 				;;
 		esac
 	fi

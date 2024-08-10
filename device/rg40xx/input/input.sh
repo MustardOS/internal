@@ -8,6 +8,8 @@
 . /opt/muos/script/var/global/setting_advanced.sh
 . /opt/muos/script/var/global/setting_general.sh
 
+. /opt/muos/script/mux/close_game.sh
+
 mkdir -p /tmp/combo
 mkdir -p /tmp/trigger
 
@@ -88,7 +90,7 @@ fi
 			#
 			# This blocks the input loop so we don't try to process
 			# more hotkeys while rebooting.
-			/opt/muos/script/system/halt.sh reboot
+			HALT_SYSTEM osf reboot
 		elif [ "$GC_GEN_SHUTDOWN" -eq -1 ]; then
 			# Power: Suspend
 			#

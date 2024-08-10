@@ -6,21 +6,20 @@
 
 . /opt/muos/script/var/global/storage.sh
 
-# We pass our arguments along to halt_internal.sh, and we also build a list of
-# additional arguments (`set -- "$@" ARGS...`) that are forwarded further to
-# killall5. Specifically, we add `-o PID` args below to avoid killing certain
-# processes too early in the sequence.
+USAGE () {
+	printf 'Usage: %s {halt|poweroff|reboot}\n' "$0" >&2
+	exit 1
+}
+
+# We pass our arguments along to halt_internal.sh, which forwards extra args to
+# killall5. In particular, we can append `-o PID` arguments to avoid killing
+# specific processes too early in the sequence.
+[ "$#" -eq 1 ] || USAGE
+
 case "$1" in
-	halt|poweroff)
-		SPLASH_IMG=shutdown
-		;;
-	reboot)
-		SPLASH_IMG=reboot
-		;;
-	*)
-		printf 'Usage: %s {halt|poweroff|reboot}\n' "$0" >&2
-		exit 1
-		;;
+	halt|poweroff) SPLASH_IMG=shutdown ;;
+	reboot) SPLASH_IMG=reboot ;;
+	*) USAGE ;;
 esac
 
 if [ "$(readlink "/proc/$PPID/exe")" = /opt/muos/bin/fbpad ]; then

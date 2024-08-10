@@ -35,7 +35,7 @@ GC_STO_THEME=$(STORAGE_MAP "$(PARSE_INI "$GLOBAL_CONFIG" "storage" "theme")")
 export GC_STO_BIOS
 export GC_STO_CONFIG
 export GC_STO_CATALOGUE
-export GC_STO_FAVE
+export GC_STO_FAV
 export GC_STO_MUSIC
 export GC_STO_SAVE
 export GC_STO_SCREENSHOT

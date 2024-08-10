@@ -11,6 +11,7 @@ MUOS/bios
 MUOS/info/activity
 MUOS/info/catalogue
 MUOS/info/config
+MUOS/info/core
 MUOS/info/favourite
 MUOS/info/history
 MUOS/music

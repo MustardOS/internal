@@ -12,8 +12,8 @@
 
 . /opt/muos/script/mux/close_game.sh
 
-if [ "$DC_DEV_NAME" = "RG40XX" ]; then
-	/opt/muos/device/rg40xx/script/led_control.sh 1 0 0 0 0 0 0 0
+if [ "$DC_DEV_NAME" = "RG40XX-H" ]; then
+	/opt/muos/device/rg40xx-h/script/led_control.sh 1 0 0 0 0 0 0 0
 fi
 
 ACT_GO=/tmp/act_go

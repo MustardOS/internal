@@ -4,8 +4,6 @@
 # poweroff/reboot commands, which also make some odd choices (e.g., unmounting
 # disks before killing processes, so running programs can't save state).
 
-. /opt/muos/script/var/global/storage.sh
-
 USAGE () {
 	printf 'Usage: %s {halt|poweroff|reboot}\n' "$0" >&2
 	exit 1
@@ -17,27 +15,26 @@ USAGE () {
 [ "$#" -eq 1 ] || USAGE
 
 case "$1" in
-	halt|poweroff) SPLASH_IMG=shutdown ;;
-	reboot) SPLASH_IMG=reboot ;;
+	halt|poweroff|reboot) ;;
 	*) USAGE ;;
 esac
 
+# With verbose messages enabled, we're launched inside fbpad. Omit it from the
+# termination process so console output remains visible.
 if [ "$(readlink "/proc/$PPID/exe")" = /opt/muos/bin/fbpad ]; then
-	# With verbose messages enabled, we're launched inside fbpad. Avoid
-	# prematurely killing it so console output remains visible.
 	set -- "$@" -o "$PPID"
-else
-	# Otherwise, show a theme-provided splash screen to give immediate
-	# visual feedback since the shutdown sequence can take a few seconds.
-	# (If muxsplash can't find the image, it simply clears the screen.)
-	/opt/muos/extra/muxsplash "$GC_STO_THEME/MUOS/theme/active/image/$SPLASH_IMG.png"
 fi
+
+# Omit muxsplash from the termination process to ensure shutdown splash shows.
+for OMIT_PID in $(pidof /opt/muos/extra/muxsplash); do
+	set -- "$@" -o "$OMIT_PID"
+done
 
 # Omit FUSE mount binaries from the termination process. Otherwise, FUSE
 # filesystems (e.g., exFAT) would unmount in parallel with other programs
 # exiting, preventing them from writing state to the SD card during cleanup.
-for FUSE_PID in $(pidof /sbin/mount.exfat-fuse); do
-	set -- "$@" -o "$FUSE_PID"
+for OMIT_PID in $(pidof /sbin/mount.exfat-fuse); do
+	set -- "$@" -o "$OMIT_PID"
 done
 
 # Our shutdown sequence kills processes using killall5, which sends signals to

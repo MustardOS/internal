@@ -6,12 +6,9 @@ ROM=$3
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-. /opt/muos/script/var/device/sdl.sh
-
-export SDL_HQ_SCALER="$DC_SDL_SCALER"
-export SDL_ROTATION="$DC_SDL_ROTATION"
-export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
+export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+export SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+export SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
 
 # Create needed symlink as required.
 if [ ! -L "/userdata" ]; then
@@ -28,7 +25,7 @@ elif [ "$CORE" = "ext-openbor7530" ]; then
 	BOR_BIN="OpenBOR7530"
 fi
 
-echo "$BOR_BIN" >/tmp/fg_proc
+SET_VAR "system" "foreground_process" "$BOR_BIN"
 
 EMUDIR="/mnt/mmc/MUOS/emulator/openbor"
 

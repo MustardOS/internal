@@ -1,24 +1,20 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
 if pgrep -f "playbgm.sh" >/dev/null; then
 	killall -q "playbgm.sh" "mpg123"
 fi
 
 echo app >/tmp/act_go
 
-. /opt/muos/script/var/func.sh
-
-. /opt/muos/script/var/device/device.sh
-. /opt/muos/script/var/device/sdl.sh
-. /opt/muos/script/var/device/storage.sh
-
-GPTOKEYB="$DC_STO_ROM_MOUNT/MUOS/emulator/gptokeyb/gptokeyb2"
+GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
 
 export LD_LIBRARY_PATH=/usr/lib32
 
-export SDL_HQ_SCALER="$DC_SDL_SCALER"
+export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 
-case "$DC_DEV_NAME" in
+case "$(GET_VAR "device" "board/name")" in
 	RG28XX)
 		export SDL_ROTATION=0
 		;;
@@ -27,18 +23,18 @@ case "$DC_DEV_NAME" in
 		;;
 esac
 
-FLIPCLOCK_DIR="$DC_STO_ROM_MOUNT/MUOS/application/.flipclock"
+FLIPCLOCK_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.flipclock"
 
 cd "$FLIPCLOCK_DIR" || exit
 
-echo "flipclock" >/tmp/fg_proc
+SET_VAR "system" "foreground_process" "flipclock"
 
 HOME="$FLIPCLOCK_DIR" SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib32/gamecontrollerdb.txt") $GPTOKEYB "./flipclock" -c "./flipclock.gptk" &
 ./flipclock
 
-# Cleanup on exit
 kill -9 "$(pidof flipclock)"
 kill -9 "$(pidof gptokeyb2)"
+
 unset SDL_HQ_SCALER
 unset SDL_ROTATION
 unset LD_LIBRARY_PATH

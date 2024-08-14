@@ -4,7 +4,7 @@
 # poweroff/reboot commands, which also make some odd choices (e.g., unmounting
 # disks before killing processes, so running programs can't save state).
 
-USAGE () {
+USAGE() {
 	printf 'Usage: %s {halt|poweroff|reboot}\n' "$0" >&2
 	exit 1
 }
@@ -15,7 +15,7 @@ USAGE () {
 [ "$#" -eq 1 ] || USAGE
 
 case "$1" in
-	halt|poweroff|reboot) ;;
+	halt | poweroff | reboot) ;;
 	*) USAGE ;;
 esac
 

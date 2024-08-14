@@ -2,9 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/audio.sh
-. /opt/muos/script/var/device/screen.sh
-
 VOLUME_FILE="/opt/muos/config/volume.txt"
 VOLUME_FILE_PERCENT="/tmp/current_volume_percent"
 
@@ -15,14 +12,14 @@ GET_CURRENT() {
 	if [ "$(cat "$AUDIO_SRC")" = "pipewire" ]; then
 		wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100)}'
 	else
-		amixer sget "$DC_SND_CONTROL" | sed -n "s/.*$DC_SND_CHANNEL: 0*\([0-9]*\).*/\1/p" | tr -d '\n'
+		amixer sget "$(GET_VAR "device" "audio/control")" | sed -n "s/.*$(GET_VAR "device" "audio/channel"): 0*\([0-9]*\).*/\1/p" | tr -d '\n'
 	fi
 }
 
 CURRENT_VL=$(GET_CURRENT)
 
 SET_CURRENT() {
-	PERCENTAGE=$(awk "BEGIN {printf \"%d\", (($1 - $DC_SND_MIN) / ($DC_SND_MAX - $DC_SND_MIN)) * 100}")
+	PERCENTAGE=$(awk "BEGIN {printf \"%d\", (($1 - $(GET_VAR "device" "audio/min")) / ($(GET_VAR "device" "audio/max") - $(GET_VAR "device" "audio/min"))) * 100}")
 	if [ "$PERCENTAGE" -lt 0 ]; then
 		PERCENTAGE=0
 	fi
@@ -31,7 +28,7 @@ SET_CURRENT() {
 	if [ "$(cat "$AUDIO_SRC")" = "pipewire" ]; then
 		wpctl set-volume @DEFAULT_AUDIO_SINK@ $1% >/dev/null
 	else
-		amixer sset "$DC_SND_CONTROL" $1 >/dev/null
+		amixer sset "$(GET_VAR "device" "audio/control")" $1 >/dev/null
 	fi
 
 	printf "%d" "$1" >"$VOLUME_FILE"
@@ -39,24 +36,24 @@ SET_CURRENT() {
 }
 
 if [ -z "$1" ]; then
-	PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_VL/$DC_SND_MAX)*100}")
+	PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_VL/$(GET_VAR "device" "audio/max"))*100}")
 	echo "Volume is $CURRENT_VL ($PERCENTAGE%)"
 	exit 0
 fi
 
-if [ ! "$(cat "$DC_SCR_HDMI")" = "HDMI=1" ]; then
+if [ ! "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ]; then
 	case "$1" in
 		I)
-			PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_VL/$DC_SND_MAX)*100}")
+			PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_VL/$(GET_VAR "device" "audio/max"))*100}")
 			echo "$PERCENTAGE" >/tmp/current_volume_percent
 			;;
 		U)
 			NEW_VL=$((CURRENT_VL + 8))
-			if [ "$NEW_VL" -lt "$DC_SND_MIN" ]; then
-				NEW_VL=$DC_SND_MIN
+			if [ "$NEW_VL" -lt "$(GET_VAR "device" "audio/min")" ]; then
+				NEW_VL=$(GET_VAR "device" "audio/min")
 			fi
-			if [ "$NEW_VL" -gt "$DC_SND_MAX" ]; then
-				NEW_VL=$DC_SND_MAX
+			if [ "$NEW_VL" -gt "$(GET_VAR "device" "audio/max")" ]; then
+				NEW_VL=$(GET_VAR "device" "audio/max")
 			fi
 			if [ ! -e "$SLEEP_STATE" ] || [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
 				SET_CURRENT "$NEW_VL"
@@ -64,7 +61,7 @@ if [ ! "$(cat "$DC_SCR_HDMI")" = "HDMI=1" ]; then
 			;;
 		D)
 			NEW_VL=$((CURRENT_VL - 8))
-			if [ "$NEW_VL" -lt "$DC_SND_MIN" ]; then
+			if [ "$NEW_VL" -lt "$(GET_VAR "device" "audio/min")" ]; then
 				NEW_VL=0
 			fi
 			if [ ! -e "$SLEEP_STATE" ] || [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
@@ -72,10 +69,10 @@ if [ ! "$(cat "$DC_SCR_HDMI")" = "HDMI=1" ]; then
 			fi
 			;;
 		[0-9]*)
-			if [ "$1" -ge 0 ] && [ "$1" -le "$DC_SND_MAX" ]; then
+			if [ "$1" -ge 0 ] && [ "$1" -le "$(GET_VAR "device" "audio/max")" ]; then
 				SET_CURRENT "$1"
 			else
-				printf "Invalid volume value\n\tMinimum is %s\n\tMaximum is %s\n" "$DC_SND_MAX" "$DC_SND_MAX"
+				printf "Invalid volume value\n\tMinimum is %s\n\tMaximum is %s\n" "$(GET_VAR "device" "audio/max")" "$(GET_VAR "device" "audio/max")"
 			fi
 			;;
 		*)

@@ -5,24 +5,22 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-
-SD_DEVICE="${DC_STO_SDCARD_DEV}p${DC_STO_SDCARD_NUM}"
-USB_DEVICE="${DC_STO_USB_DEV}p${DC_STO_USB_NUM}"
+SD_DEVICE="$(GET_VAR "device" "storage/sdcard/dev")$(GET_VAR "device" "storage/sdcard/sep")$(GET_VAR "device" "storage/sdcard/num")"
+USB_DEVICE="$(GET_VAR "device" "storage/usb/dev")$(GET_VAR "device" "storage/usb/sep")$(GET_VAR "device" "storage/usb/num")"
 
 pkill -STOP muxtask
 
 if grep -m 1 "$USB_DEVICE" /proc/partitions >/dev/null; then
 	echo "USB mounted, archiving to USB"
-	DEST_DIR="$DC_STO_USB_MOUNT/BACKUP"
+	DEST_DIR="$(GET_VAR "device" "storage/usb/mount")/BACKUP"
 	mkdir -p "$DEST_DIR"
 elif grep -m 1 "$SD_DEVICE" /proc/partitions >/dev/null; then
 	echo "SD2 mounted, archiving to SD2"
-	DEST_DIR="$DC_STO_SDCARD_MOUNT/BACKUP"
+	DEST_DIR="$(GET_VAR "device" "storage/sdcard/mount")/BACKUP"
 	mkdir -p "$DEST_DIR"
 else
 	echo "Archiving to SD1"
-	DEST_DIR="$DC_STO_ROM_MOUNT/BACKUP"
+	DEST_DIR="$(GET_VAR "device" "storage/rom/mount")/BACKUP"
 	mkdir -p "$DEST_DIR"
 fi
 
@@ -30,14 +28,14 @@ DEST_FILE="$DEST_DIR/muOS-BIOS-$(date +"%Y-%m-%d_%H-%M").zip"
 
 # Capture PICO-8 files and backup
 PICO8_FILES="
-$DC_STO_ROM_MOUNT/MUOS/emulator/pico8/pico8_64
-$DC_STO_ROM_MOUNT/MUOS/emulator/pico8/pico8_dyn
-$DC_STO_ROM_MOUNT/MUOS/emulator/pico8/pico8.dat
+$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64
+$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_dyn
+$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8.dat
 "
 
 TO_BACKUP="
-$DC_STO_ROM_MOUNT/MUOS/bios
-$DC_STO_SDCARD_MOUNT/MUOS/bios
+$(GET_VAR "device" "storage/rom/mount")/MUOS/bios
+$(GET_VAR "device" "storage/sdcard/mount")/MUOS/bios
 $PICO8_FILES
 "
 VALID_BACKUP=$(mktemp)

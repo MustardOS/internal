@@ -2,9 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-
-NAME="$DC_STO_ROM_MOUNT/MUOS/info/activity/$1.act"
+NAME="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/activity/$1.act"
 shift
 PROG="nice --20 $*"
 

@@ -1,26 +1,24 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
 if pgrep -f "playbgm.sh" >/dev/null; then
 	killall -q "playbgm.sh" "mpg123"
 fi
 
 echo app >/tmp/act_go
 
-. /opt/muos/script/var/func.sh
-
-. /opt/muos/script/var/device/storage.sh
-
 AUDIO_SRC="/tmp/mux_audio_src"
 
-GMU_DIR="$DC_STO_ROM_MOUNT/MUOS/application/.gmu"
-GPTOKEYB="$DC_STO_ROM_MOUNT/MUOS/emulator/gptokeyb/gptokeyb2.armhf"
+GMU_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.gmu"
+GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2.armhf"
 
 cd "$GMU_DIR" || exit
 
 export SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib32/gamecontrollerdb.txt"
 export LD_LIBRARY_PATH=/usr/lib32
 
-echo "gmu" >/tmp/fg_proc
+SET_VAR "system" "foreground_process" "gmu"
 
 echo "Switching to ALSA-only configuration..."
 killall -q "golden.sh" "pw-play"

@@ -6,7 +6,7 @@
 #
 # Any arguments are passed along to killall5. (Use `-o PID` args to omit
 # certain processes from the existence check.)
-WAIT_FOR_DEATH () {
+WAIT_FOR_DEATH() {
 	printf 'Waiting for processes to terminate: '
 	for _ in $(seq 10); do
 		# Note we sleep *before* the first check, so we always delay

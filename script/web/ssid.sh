@@ -2,26 +2,24 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/network.sh
-
-if ! lsmod | grep -wq "$DC_NET_NAME"; then
-	rmmod "$DC_NET_MODULE"
+if ! lsmod | grep -wq "$(GET_VAR "device" "network/name")"; then
+	rmmod "$(GET_VAR "device" "network/module")"
 	sleep 1
-	modprobe --force-modversion "$DC_NET_MODULE"
-	while [ ! -d "/sys/class/net/$DC_NET_INTERFACE" ]; do
+	modprobe --force-modversion "$(GET_VAR "device" "network/module")"
+	while [ ! -d "/sys/class/net/$(GET_VAR "device" "network/iface")" ]; do
 		sleep 1
 	done
 fi
 
 rfkill unblock all
-ip link set "$DC_NET_INTERFACE" up
-iw dev "$DC_NET_INTERFACE" set power_save off
+ip link set "$(GET_VAR "device" "network/iface")" up
+iw dev "$(GET_VAR "device" "network/iface")" set power_save off
 
 NET_SCAN="/tmp/net_scan"
 rm -f "$NET_SCAN"
 
 {
-	iw dev "$DC_NET_INTERFACE" scan |
+	iw dev "$(GET_VAR "device" "network/iface")" scan |
 		grep "SSID:" |
 		awk '{gsub(/^ +| +$/, "", $0); print substr($0, 8)}' |
 		sort -u |

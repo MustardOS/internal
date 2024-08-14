@@ -1,7 +1,6 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
-. /opt/muos/script/var/device/audio.sh
 
 for TIMEOUT in $(seq 1 30); do
 	if [ -e /run/dbus/system_bus_socket ]; then
@@ -45,11 +44,11 @@ if ! pw-cli info >/dev/null 2>&1; then
 fi
 
 for TIMEOUT in $(seq 1 30); do
-	if pw-cli ls Node 2>/dev/null | grep -q "$DC_SND_PLATFORM"; then
+	if pw-cli ls Node 2>/dev/null | grep -q "$(GET_VAR "device" "audio/platform")"; then
 
 		NODE_ID=$(
 			XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
-				awk -v path="$DC_SND_OBJECT" '
+				awk -v path="$(GET_VAR "device" "audio/object")" '
         /id/ {
             id = $2
         }
@@ -66,7 +65,7 @@ for TIMEOUT in $(seq 1 30); do
 			amixer -c 0 sset 'digital volume' 100% unmute
 			exit 0
 		else
-			printf "Node with object path '%s' not found.\n" "$DC_SND_OBJECT"
+			printf "Node with object path '%s' not found.\n" "$(GET_VAR "device" "audio/object")"
 			exit 1
 		fi
 	fi

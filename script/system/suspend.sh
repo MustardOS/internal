@@ -2,21 +2,16 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/cpu.sh
-. /opt/muos/script/var/device/device.sh
-
-. /opt/muos/script/var/global/setting_advanced.sh
-
 SLEEP() {
-	cat "$DC_CPU_GOVERNOR" >/tmp/orig_cpu_gov
-	echo "powersave" >"$DC_CPU_GOVERNOR"
+	cat "$(GET_VAR "device" "cpu/governor")" >/tmp/orig_cpu_gov
+	echo "powersave" >"$(GET_VAR "device" "cpu/governor")"
 	for C in $(seq 1 $((DC_CPU_CORES - 1))); do
 		echo 0 >"/sys/devices/system/cpu/cpu${C}/online"
 	done
 }
 
 RESUME() {
-	cat "/tmp/orig_cpu_gov" >"$DC_CPU_GOVERNOR"
+	cat "/tmp/orig_cpu_gov" >"$(GET_VAR "device" "cpu/governor")"
 	for C in $(seq 1 $((DC_CPU_CORES - 1))); do
 		echo 1 >"/sys/devices/system/cpu/cpu${C}/online"
 	done
@@ -33,7 +28,7 @@ case "$1" in
 	power)
 		SLEEP
 		sleep 0.1
-		echo "$GC_ADV_POWER_STATE" >"/sys/power/state"
+		GET_VAR "global" "settings/advanced/state" >"/sys/power/state"
 		sleep 0.1
 		RESUME
 		;;

@@ -8,10 +8,6 @@ SLEEP_STATE="/tmp/sleep_state"
 SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 
 if [ "$SLEEP_STATE_VAL" = "awake" ]; then
-	. /opt/muos/script/var/func.sh
-
-	. /opt/muos/script/var/device/storage.sh
-
 	SS_LOCK=/tmp/screenshot.lock
 
 	if [ ! -e "$SS_LOCK" ]; then
@@ -19,7 +15,7 @@ if [ "$SLEEP_STATE_VAL" = "awake" ]; then
 
 		touch "$SS_LOCK"
 
-		BASE_DIR="$GC_STO_SCREENSHOT/MUOS/screenshot"
+		BASE_DIR="$(GET_VAR "global" "storage/screenshot")/MUOS/screenshot"
 		CURRENT_DATE=$(date +"%Y%m%d_%H%M")
 		INDEX=0
 

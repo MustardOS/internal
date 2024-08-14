@@ -2,9 +2,9 @@
 
 . /opt/muos/script/var/func.sh
 
-FG_PROC="/tmp/fg_proc"
 
-FG_PROC_VAL=$(cat "$FG_PROC")
+
+FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 
 if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
 	pkill -STOP "playbgm.sh"

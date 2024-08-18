@@ -37,7 +37,13 @@ if unzip -l "$1" | awk '$NF ~ /^'"$SCHEME_FOLDER"'\// && $NF ~ /\/'"$SCHEME_FILE
 else
 	MUX_TEMP="/opt/muxtmp"
 	mkdir "$MUX_TEMP"
+ 	MNT_TEMP="/opt/mnttmp"
+  	mkdir "$MNT_TEMP"
 	unzip -o "$1" -d "$MUX_TEMP/" 
+ 
+ 	if [ -d "$MUX_TEMP/mnt/" ]; then
+  	mv "$MUX_TEMP/mnt" "$MNT_TEMP/mnt"
+   	fi
 
 	echo "Moving Files"
 	find "$MUX_TEMP" -mindepth 1 -type f -exec sh -c '
@@ -48,8 +54,154 @@ else
 			mkdir -p "$DEST" && mv "$SOURCE" "$DEST"
 		done
 	' sh {} +
-	
+
+ 	if [ -d "$MNT_TEMP/mnt/mmc/MUOS/bios/" ]; then
+    	echo "Copying BIOS folder..."
+     	mv "$MNT_TEMP/mnt/mmc/MUOS/bios" "$GC_STO_BIOS/MUOS/bios"
+  	fi
+
+    	if [ -d "$MNT_TEMP/mnt/sdcard/MUOS/bios/" ]; then
+    	echo "Copying BIOS folder..."
+     	mv "$MNT_TEMP/mnt/sdcard/MUOS/bios" "$GC_STO_BIOS/MUOS/bios"
+  	fi
+
+       	if [ -d "$MNT_TEMP/mnt/usb/MUOS/bios/" ]; then
+    	echo "Copying BIOS folder..."
+     	mv "$MNT_TEMP/mnt/usb/MUOS/bios" "$GC_STO_BIOS/MUOS/bios"
+  	fi
+
+    	if [ -d "$MNT_TEMP/mnt/mmc/MUOS/theme/" ]; then
+    	echo "Copying theme folder..."
+     	mv "$MNT_TEMP/mnt/mmc/MUOS/theme" "$GC_STO_THEME/MUOS/theme"
+  	fi
+
+    	if [ -d "$MNT_TEMP/mnt/sdcard/MUOS/theme/" ]; then
+    	echo "Copying theme folder..."
+     	mv "$MNT_TEMP/mnt/sdcard/MUOS/theme" "$GC_STO_THEME/MUOS/theme"
+  	fi
+
+       	if [ -d "$MNT_TEMP/mnt/usb/MUOS/theme/" ]; then
+    	echo "Copying theme folder..."
+     	mv "$MNT_TEMP/mnt/usb/MUOS/theme" "$GC_STO_THEME/MUOS/theme"
+  	fi
+
+       	if [ -d "$MNT_TEMP/mnt/mmc/MUOS/music/" ]; then
+    	echo "Copying music folder..."
+     	mv "$MNT_TEMP/mnt/mmc/MUOS/music" "$GC_STO_MUSIC/MUOS/music"
+  	fi
+
+    	if [ -d "$MNT_TEMP/mnt/sdcard/MUOS/music/" ]; then
+    	echo "Copying music folder..."
+     	mv "$MNT_TEMP/mnt/sdcard/MUOS/music" "$GC_STO_MUSIC/MUOS/music"
+  	fi
+
+       	if [ -d "$MNT_TEMP/mnt/usb/MUOS/music/" ]; then
+    	echo "Copying music folder..."
+     	mv "$MNT_TEMP/mnt/usb/MUOS/music" "$GC_STO_MUSIC/MUOS/music"
+  	fi
+
+   	if [ -d "$MNT_TEMP/mnt/mmc/MUOS/screenshot/" ]; then
+    	echo "Copying screenshot folder..."
+     	mv "$MNT_TEMP/mnt/mmc/MUOS/screenshot" "$GC_STO_SCREENSHOT/MUOS/screenshot"
+  	fi
+
+    	if [ -d "$MNT_TEMP/mnt/sdcard/MUOS/screenshot/" ]; then
+    	echo "Copying screenshot folder..."
+     	mv "$MNT_TEMP/mnt/sdcard/MUOS/screenshot" "$GC_STO_SCREENSHOT/MUOS/screenshot"
+  	fi
+
+       	if [ -d "$MNT_TEMP/mnt/usb/MUOS/screenshot/" ]; then
+    	echo "Copying screenshot folder..."
+     	mv "$MNT_TEMP/mnt/usb/MUOS/screenshot" "$GC_STO_SCREENSHOT/MUOS/screenshot"
+  	fi
+
+      	if [ -d "$MNT_TEMP/mnt/mmc/MUOS/save/" ]; then
+    	echo "Copying save folder..."
+     	mv "$MNT_TEMP/mnt/mmc/MUOS/save" "$GC_STO_SAVE/MUOS/save"
+  	fi
+
+    	if [ -d "$MNT_TEMP/mnt/sdcard/MUOS/save/" ]; then
+    	echo "Copying save folder..."
+     	mv "$MNT_TEMP/mnt/sdcard/MUOS/save" "$GC_STO_SAVE/MUOS/save"
+  	fi
+
+       	if [ -d "$MNT_TEMP/mnt/usb/MUOS/save/" ]; then
+    	echo "Copying save folder..."
+     	mv "$MNT_TEMP/mnt/usb/MUOS/save" "$GC_STO_SAVE/MUOS/save"
+  	fi
+
+        if [ -d "$MNT_TEMP/mnt/mmc/MUOS/info/catalogue/" ]; then
+    	echo "Copying catalogue folder..."
+     	mv "$MNT_TEMP/mnt/mmc/MUOS/info/catalogue" "$GC_STO_CATALOGUE/MUOS/info/catalogue"
+  	fi
+
+    	if [ -d "$MNT_TEMP/mnt/sdcard/MUOS/info/catalogue/" ]; then
+    	echo "Copying catalogue folder..."
+     	mv "$MNT_TEMP/mnt/sdcard/MUOS/info/catalogue" "$GC_STO_CATALOGUE/MUOS/info/catalogue"
+  	fi
+
+       	if [ -d "$MNT_TEMP/mnt/usb/MUOS/info/catalogue/" ]; then
+    	echo "Copying catalogue folder..."
+     	mv "$MNT_TEMP/mnt/usb/MUOS/info/catalogue" "$GC_STO_CATALOGUE/MUOS/info/catalogue"
+  	fi
+
+        if [ -d "$MNT_TEMP/mnt/mmc/MUOS/info/config/" ]; then
+    	echo "Copying config folder..."
+     	mv "$MNT_TEMP/mnt/mmc/MUOS/info/config" "$GC_STO_CONFIG/MUOS/info/config"
+  	fi
+
+    	if [ -d "$MNT_TEMP/mnt/sdcard/MUOS/info/config/" ]; then
+    	echo "Copying config folder..."
+     	mv "$MNT_TEMP/mnt/sdcard/MUOS/info/config" "$GC_STO_CONFIG/MUOS/info/config"
+  	fi
+
+       	if [ -d "$MNT_TEMP/mnt/usb/MUOS/info/config/" ]; then
+    	echo "Copying config folder..."
+     	mv "$MNT_TEMP/mnt/usb/MUOS/info/config" "$GC_STO_CONFIG/MUOS/info/config"
+  	fi
+
+        if [ -d "$MNT_TEMP/mnt/mmc/MUOS/info/favourite/" ]; then
+    	echo "Copying favourite folder..."
+     	mv "$MNT_TEMP/mnt/mmc/MUOS/info/favourite" "$GC_STO_FAV/MUOS/info/favourite"
+  	fi
+
+    	if [ -d "$MNT_TEMP/mnt/sdcard/MUOS/info/favourite/" ]; then
+    	echo "Copying favourite folder..."
+     	mv "$MNT_TEMP/mnt/sdcard/MUOS/info/favourite" "$GC_STO_FAV/MUOS/info/favourite"
+  	fi
+
+       	if [ -d "$MNT_TEMP/mnt/usb/MUOS/info/favourite/" ]; then
+    	echo "Copying favourite folder..."
+     	mv "$MNT_TEMP/mnt/usb/MUOS/info/favourite" "$GC_STO_FAV/MUOS/info/favourite"
+  	fi
+
+        if [ -d "$MNT_TEMP/mnt/mmc/MUOS/info/activity/" ]; then
+    	echo "Copying activity folder..."
+     	mv "$MNT_TEMP/mnt/mmc/MUOS/info/activity" "$GC_STO_FAV/MUOS/info/activity"
+  	fi
+
+    	if [ -d "$MNT_TEMP/mnt/sdcard/MUOS/info/activity/" ]; then
+    	echo "Copying activity folder..."
+     	mv "$MNT_TEMP/mnt/sdcard/MUOS/info/activity" "$GC_STO_FAV/MUOS/info/activity"
+  	fi
+
+       	if [ -d "$MNT_TEMP/mnt/usb/MUOS/info/activity/" ]; then
+    	echo "Copying activity folder..."
+     	mv "$MNT_TEMP/mnt/usb/MUOS/info/activity" "$GC_STO_FAV/MUOS/info/activity"
+  	fi
+
+   	echo "Moving Files"
+	find "$MNT_TEMP" -mindepth 1 -type f -exec sh -c '
+		for SOURCE; do
+			DIR_NAME=$(dirname "$SOURCE")
+			DEST="${DIR_NAME#'"$MNT_TEMP"'}"
+			echo "Moving $SOURCE to $DEST"
+			mkdir -p "$DEST" && mv "$SOURCE" "$DEST"
+		done
+	' sh {} +
+   
 	rm -rf "$MUX_TEMP"
+ 	rm -rf "$MNT_TEMP"
 fi
 
 echo "Correcting Permissions"

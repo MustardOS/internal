@@ -13,8 +13,13 @@ GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_thresho
 GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
 GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
 
-mount -t "$(GET_VAR "device" "storage/boot/type")" -o rw,utf8,noatime,nofail /dev/"$(GET_VAR "device" "storage/boot/dev")$(GET_VAR "device" "storage/boot/sep")$(GET_VAR "device" "storage/boot/num")" "$(GET_VAR "device" "storage/boot/mount")"
-mount -t "$(GET_VAR "device" "storage/rom/type")" -o rw,utf8,noatime,nofail /dev/"$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")" "$(GET_VAR "device" "storage/rom/mount")"
+mount -t "$(GET_VAR "device" "storage/boot/type")" -o rw,utf8,noatime,nofail \
+	/dev/"$(GET_VAR "device" "storage/boot/dev")$(GET_VAR "device" "storage/boot/sep")$(GET_VAR "device" "storage/boot/num")" \
+	"$(GET_VAR "device" "storage/boot/mount")"
+
+mount -t "$(GET_VAR "device" "storage/rom/type")" -o rw,utf8,noatime,nofail \
+	/dev/"$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")" \
+	"$(GET_VAR "device" "storage/rom/mount")"
 
 if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug

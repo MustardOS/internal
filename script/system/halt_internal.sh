@@ -40,6 +40,13 @@ fi
 HALT_CMD="$1"
 shift 1
 
+# We have to ensure we save all of the runtime variables to disk before we
+# shutdown or reboot the system as they are stored in a tmpfs location.
+printf 'Saving device variables...\n'
+/opt/muos/script/var/init/device.sh save
+printf 'Saving global variables...\n'
+/opt/muos/script/var/init/global.sh save
+
 # Stop system services.
 printf 'Running shutdown scripts...\n'
 /etc/init.d/rcK

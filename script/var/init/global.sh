@@ -1,17 +1,57 @@
 #!/bin/sh
 
+USAGE() {
+	printf 'Usage: %s {init|save}\n' "$0" >&2
+	exit 1
+}
+
+[ "$#" -eq 1 ] || USAGE
+
+case "$1" in
+	init | save) ;;
+	*) USAGE ;;
+esac
+
 . /opt/muos/script/var/func.sh
 
+ACTION="$1"
+
+BOOT_VARS="factory_reset device_setup clock_setup firmware_done"
+CLOCK_VARS="notation pool"
+NETWORK_VARS="enabled type ssid address gateway subnet dns"
+SETTINGS_GENERAL_VARS="hidden bgm sound startup power low_battery colour hdmi shutdown"
+SETTINGS_ADVANCED_VARS="swap thermal font verbose volume brightness offset lock led random_theme retrowait android state"
+VISUAL_VARS="battery network bluetooth clock boxart name dash contentfolder contentfile"
+WEB_VARS="shell browser terminal syncthing ntp"
+STORAGE_VARS="bios config catalogue fav music save screenshot theme"
+
 for INIT in boot clock network settings/general settings/advanced visual web storage; do
-	case $INIT in
-		"boot") VARS="factory_reset device_setup clock_setup firmware_done" ;;
-		"clock") VARS="notation pool" ;;
-		"network") VARS="enabled type ssid address gateway subnet dns" ;;
-		"settings/general") VARS="hidden bgm sound startup power low_battery colour hdmi shutdown" ;;
-		"settings/advanced") VARS="swap thermal font verbose volume brightness offset lock led random_theme retrowait android state" ;;
-		"visual") VARS="battery network bluetooth clock boxart name dash contentfolder contentfile" ;;
-		"web") VARS="shell browser terminal syncthing ntp" ;;
-		"storage") VARS="bios config catalogue fav music save screenshot theme" ;;
+	case "$INIT" in
+		boot) VARS="$BOOT_VARS" ;;
+		clock) VARS="$CLOCK_VARS" ;;
+		network) VARS="$NETWORK_VARS" ;;
+		settings/general) VARS="$SETTINGS_GENERAL_VARS" ;;
+		settings/advanced) VARS="$SETTINGS_ADVANCED_VARS" ;;
+		visual) VARS="$VISUAL_VARS" ;;
+		web) VARS="$WEB_VARS" ;;
+		storage) VARS="$STORAGE_VARS" ;;
+		*)
+			printf "'%s' is unknown to %s\n" "$INIT" "$(basename "$0" .sh)"
+			continue
+			;;
 	esac
-	GEN_VAR "$(basename "$0" .sh)" "$INIT" "$VARS"
+
+	case "$ACTION" in
+		init)
+			GEN_VAR "$(basename "$0" .sh)" "$INIT" "$VARS"
+			;;
+		save)
+			KEY_VALUES=""
+			for VAR in $VARS; do
+				VALUE=$(GET_VAR "$(basename "$0" .sh)/$INIT" "$VAR")
+				KEY_VALUES="$KEY_VALUES;$VAR:$VALUE"
+			done
+			SAVE_VAR "$(basename "$0" .sh)" "$INIT" "${KEY_VALUES#\;}"
+			;;
+	esac
 done

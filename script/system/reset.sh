@@ -30,10 +30,13 @@ mount -t "$(GET_VAR "device" "storage/rom/type")" /dev/"$(GET_VAR "device" "stor
 LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
 mv /opt/muos/init/* "$(GET_VAR "device" "storage/rom/mount")"/ &
 
-while pgrep -f "mv" > /dev/null; do
-    RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
-    /opt/muos/extra/muxstart "$(printf "FACTORY RESET\n\n%s\n" "$RANDOM_LINE")"
-    sleep 5
+# I suppose we just have to wait a little bit before moving on for pgrep to work!
+sleep 1
+
+while pgrep -f "mv" >/dev/null; do
+	RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
+	/opt/muos/extra/muxstart "$(printf "FACTORY RESET\n\n%s\n" "$RANDOM_LINE")"
+	sleep 5
 done
 
 LOGGER "$0" "FACTORY RESET" "Restoring PortMaster"

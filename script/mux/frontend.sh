@@ -3,7 +3,7 @@
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/mux/close_game.sh
 
-if [ "$(GET_VAR "device" "board/name")" = "RG40XX-H" ]; then
+if [ "$(GET_VAR "device" "board/name")" = "rg40xx-h" ]; then
 	/opt/muos/device/rg40xx-h/script/led_control.sh 1 0 0 0 0 0 0 0
 fi
 

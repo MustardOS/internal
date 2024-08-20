@@ -2,25 +2,18 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/battery.sh
-. /opt/muos/script/var/device/cpu.sh
-. /opt/muos/script/var/device/device.sh
-. /opt/muos/script/var/device/storage.sh
+if [ "$(cat "$(GET_VAR "device" "battery/charger")")" -eq 1 ] && [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
+	mount -t "$(GET_VAR "device" "storage/rom/type")" -o rw,utf8,noatime,nofail /dev/"$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")" "$(GET_VAR "device" "storage/rom/mount")"
 
-. /opt/muos/script/var/global/boot.sh
-
-if [ "$(cat "$DC_BAT_CHARGER")" -eq 1 ] && [ "$GC_BOO_FACTORY_RESET" -eq 0 ]; then
-	mount -t "$DC_STO_ROM_TYPE" -o rw,utf8,noatime,nofail /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" "$DC_STO_ROM_MOUNT"
-
-	if [ "$DC_DEV_DEBUGFS" -eq 1 ]; then
+	if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
 		mount -t debugfs debugfs /sys/kernel/debug
 	fi
 
-	echo "powersave" >"$DC_CPU_GOVERNOR"
+	echo "powersave" >"$(GET_VAR "device" "cpu/governor")"
 
 	if ! /opt/muos/extra/muxcharge; then
 		/opt/muos/script/system/halt.sh poweroff
 	fi
 
-	umount "$DC_STO_ROM_MOUNT"
+	umount "$(GET_VAR "device" "storage/rom/mount")"
 fi

@@ -1,17 +1,15 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
 if pgrep -f "playbgm.sh" >/dev/null; then
 	killall -q "playbgm.sh" "mpg123"
 fi
 
 echo app >/tmp/act_go
 
-. /opt/muos/script/var/func.sh
+export HOME=$(GET_VAR "device" "board/home")
 
-. /opt/muos/script/var/device/storage.sh
+SET_VAR "system" "foreground_process" "retroarch"
 
-export HOME=/root
-
-echo "retroarch" >/tmp/fg_proc
-
-nice --20 /usr/bin/retroarch -v -f -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg"
+nice --20 /usr/bin/retroarch -v -f -c "$(GET_VAR "device" "storage/rom/mount")/MUOS/retroarch/retroarch.cfg"

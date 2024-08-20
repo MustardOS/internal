@@ -2,53 +2,52 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/device.sh
-. /opt/muos/script/var/device/network.sh
-. /opt/muos/script/var/device/storage.sh
-
-umount "$DC_STO_ROM_MOUNT"
+umount "$(GET_VAR "device" "storage/rom/mount")"
 
 LOGGER "FACTORY RESET" "Expanding ROM Partition"
-printf "w\nw\n" | fdisk /dev/"$DC_STO_ROM_DEV"
-parted ---pretend-input-tty /dev/"$DC_STO_ROM_DEV" resizepart "$DC_STO_ROM_NUM" 100%
+printf "w\nw\n" | fdisk /dev/"$(GET_VAR "device" "storage/rom/dev")"
+parted ---pretend-input-tty /dev/"$(GET_VAR "device" "storage/rom/dev")" resizepart "$(GET_VAR "device" "storage/rom/num")" 100%
 
 LOGGER "FACTORY RESET" "Formatting ROM Partition"
-mkfs."${DC_STO_ROM_TYPE}" /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM"
-case "$DC_STO_ROM_TYPE" in
+mkfs."$(GET_VAR "device" "storage/rom/type")" /dev/"$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")"
+case "$(GET_VAR "device" "storage/rom/type")" in
 	vfat | exfat)
-		exfatlabel /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" ROMS
+		exfatlabel /dev/"$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")" ROMS
 		;;
 	ext4)
-		e2label /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" ROMS
+		e2label /dev/"$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")" ROMS
 		;;
 esac
 
 LOGGER "FACTORY RESET" "Setting ROM Partition Flags"
-parted ---pretend-input-tty /dev/"$DC_STO_ROM_DEV" set "$DC_STO_ROM_NUM" boot off
-parted ---pretend-input-tty /dev/"$DC_STO_ROM_DEV" set "$DC_STO_ROM_NUM" hidden off
-parted ---pretend-input-tty /dev/"$DC_STO_ROM_DEV" set "$DC_STO_ROM_NUM" msftdata on
+parted ---pretend-input-tty /dev/"$(GET_VAR "device" "storage/rom/dev")" set "$(GET_VAR "device" "storage/rom/num")" boot off
+parted ---pretend-input-tty /dev/"$(GET_VAR "device" "storage/rom/dev")" set "$(GET_VAR "device" "storage/rom/num")" hidden off
+parted ---pretend-input-tty /dev/"$(GET_VAR "device" "storage/rom/dev")" set "$(GET_VAR "device" "storage/rom/num")" msftdata on
 
 LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
-mount -t "$DC_STO_ROM_TYPE" /dev/"$DC_STO_ROM_DEV"p"$DC_STO_ROM_NUM" "$DC_STO_ROM_MOUNT"
+mount -t "$(GET_VAR "device" "storage/rom/type")" /dev/"$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")" "$(GET_VAR "device" "storage/rom/mount")"
 
 LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
-mv /opt/muos/init/* "$DC_STO_ROM_MOUNT"/ &
+mv /opt/muos/init/* "$(GET_VAR "device" "storage/rom/mount")"/ &
 
-while pgrep -f "mv" > /dev/null; do
-    RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
-    /opt/muos/extra/muxstart "$(printf "FACTORY RESET\n\n%s\n" "$RANDOM_LINE")"
-    sleep 5
+# I suppose we just have to wait a little bit before moving on for pgrep to work!
+sleep 1
+
+while pgrep -f "mv" >/dev/null; do
+	RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
+	/opt/muos/extra/muxstart "$(printf "FACTORY RESET\n\n%s\n" "$RANDOM_LINE")"
+	sleep 5
 done
 
 LOGGER "$0" "FACTORY RESET" "Restoring PortMaster"
-cp -r /opt/muos/archive/portmaster/* "$DC_STO_ROM_MOUNT"/MUOS/PortMaster/
+cp -r /opt/muos/archive/portmaster/* "$(GET_VAR "device" "storage/rom/mount")"/MUOS/PortMaster/
 
 LOGGER "$0" "FACTORY RESET" "Purging init directory"
 rm -rf /opt/muos/init
 
-if [ "$DC_DEV_NETWORK" -eq 1 ]; then
+if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
 	LOGGER "$0" "FACTORY RESET" "Changing Network MAC Address"
-	macchanger -r "$DC_NET_INTERFACE"
+	macchanger -r "$(GET_VAR "device" "network/iface")"
 
 	LOGGER "$0" "FACTORY RESET" "Setting Random Hostname"
 	HN=$(hostname)-$(head -c 5 /proc/sys/kernel/random/uuid)

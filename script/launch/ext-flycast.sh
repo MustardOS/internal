@@ -2,22 +2,19 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-. /opt/muos/script/var/device/sdl.sh
-
 NAME=$1
 CORE=$2
 ROM=$3
 
-export HOME=/root
+export HOME=$(GET_VAR "device" "board/home")
 
-export SDL_HQ_SCALER="$DC_SDL_SCALER"
-export SDL_ROTATION="$DC_SDL_ROTATION"
-export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
+export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+export SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+export SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
 
-echo "flycast" >/tmp/fg_proc
+SET_VAR "system" "foreground_process" "flycast"
 
-EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/flycast"
+EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/flycast"
 
 chmod +x "$EMUDIR"/flycast
 cd "$EMUDIR" || exit

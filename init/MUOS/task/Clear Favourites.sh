@@ -2,11 +2,9 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/global/storage.sh
-
 pkill -STOP muxtask
 
-MUOS_FAV_DIR="$GC_STO_FAV/MUOS/info/favourite"
+MUOS_FAV_DIR="$(GET_VAR "global" "storage/fav")/MUOS/info/favourite"
 
 echo "Deleting Favourite Files"
 rm -rf "${MUOS_FAV_DIR:?}"/*

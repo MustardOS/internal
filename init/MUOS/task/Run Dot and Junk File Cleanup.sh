@@ -2,8 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-
 pkill -STOP muxtask
 
 DELETE_CRUFT() {
@@ -16,13 +14,13 @@ DELETE_CRUFT() {
 }
 
 echo "Checking ROM for junk"
-DELETE_CRUFT "$DC_STO_ROM_MOUNT"
+DELETE_CRUFT "$(GET_VAR "device" "storage/rom/mount")"
 
 echo "Checking SDCARD for junk"
-DELETE_CRUFT "$DC_STO_SDCARD_MOUNT"
+DELETE_CRUFT "$(GET_VAR "device" "storage/sdcard/mount")"
 
 echo "Checking USB for junk"
-DELETE_CRUFT "$DC_STO_USB_MOUNT"
+DELETE_CRUFT "$(GET_VAR "device" "storage/usb/mount")"
 
 echo "Sync Filesystem"
 sync

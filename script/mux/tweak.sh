@@ -2,41 +2,36 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/device.sh
-
-. /opt/muos/script/var/global/setting_advanced.sh
-. /opt/muos/script/var/global/setting_general.sh
-
 if [ "$(cat /opt/muos/config/brightness.txt)" -lt 1 ]; then
-	/opt/muos/device/"$DEVICE_TYPE"/input/combo/bright.sh U
+	/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh U
 fi
 
-if [ "$(cat /tmp/mux_colour_temp)" -ne "$GC_GEN_COLOUR" ]; then
-	echo "$GC_GEN_COLOUR" >/sys/class/disp/disp/attr/color_temperature
-	echo "$GC_GEN_COLOUR" >/tmp/mux_colour_temp
+if [ "$(cat /tmp/mux_colour_temp)" -ne "$(GET_VAR "global" "settings/general/colour")" ]; then
+	GET_VAR "global" "settings/general/colour" >/sys/class/disp/disp/attr/color_temperature
+	GET_VAR "global" "settings/general/colour" >/tmp/mux_colour_temp
 fi
 
-if [ "$(cat /tmp/mux_hdmi_mode)" -ne "$GC_GEN_HDMI" ]; then
-	if [ "$GC_GEN_HDMI" -gt -1 ]; then
+if [ "$(cat /tmp/mux_hdmi_mode)" -ne "$(GET_VAR "global" "settings/general/hdmi")" ]; then
+	if [ "$(GET_VAR "global" "settings/general/hdmi")" -gt -1 ]; then
 		killall hdmi_start.sh
-		/opt/muos/device/"$DEVICE_TYPE"/script/hdmi_stop.sh
-		if [ "$DC_DEV_HDMI" -eq 1 ]; then
-			/opt/muos/device/"$DEVICE_TYPE"/script/hdmi_start.sh &
+		/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/hdmi_stop.sh
+		if [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
+			/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/hdmi_start.sh &
 		fi
 	else
 		if pgrep -f "hdmi_start.sh" >/dev/null; then
 			killall hdmi_start.sh
-			/opt/muos/device/"$DEVICE_TYPE"/script/hdmi_stop.sh
+			/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/hdmi_stop.sh
 		fi
 	fi
-	echo "$GC_GEN_HDMI" >/tmp/mux_hdmi_mode
+	GET_VAR "global" "settings/general/hdmi" >/tmp/mux_hdmi_mode
 fi
 
-if [ "$(cat /tmp/mux_adb_mode)" -ne "$GC_ADV_ANDROID" ]; then
-	if [ "$GC_ADV_ANDROID" -eq 1 ]; then
-		/opt/muos/device/"$DEVICE_TYPE"/script/adb.sh &
+if [ "$(cat /tmp/mux_adb_mode)" -ne "$(GET_VAR "global" "settings/advanced/android")" ]; then
+	if [ "$(GET_VAR "global" "settings/advanced/android")" -eq 1 ]; then
+		/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/adb.sh &
 	else
 		killall -q adbd
 	fi
-	echo "$GC_ADV_ANDROID" >/tmp/mux_adb_mode
+	GET_VAR "global" "settings/advanced/android" >/tmp/mux_adb_mode
 fi

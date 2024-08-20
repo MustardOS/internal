@@ -2,12 +2,10 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/device.sh
-
 # Attempts to cleanly close the current foreground process, resuming it first
 # if it's stopped. Waits five seconds before giving up.
 CLOSE_CONTENT() {
-	FG_PROC_VAL="$(cat /tmp/fg_proc)"
+	FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 	FG_PROC_PID="$(pidof "$FG_PROC_VAL")"
 	if [ -n "$FG_PROC_PID" ]; then
 		kill -CONT "$FG_PROC_PID" 2>/dev/null
@@ -31,21 +29,17 @@ CLOSE_CONTENT() {
 #
 # CMD is one of "halt", "poweroff", or "reboot" and corresponds to the usual
 # meaning of those programs.
-HALT_SYSTEM () {
-	. /opt/muos/script/var/global/setting_advanced.sh
-	. /opt/muos/script/var/global/setting_general.sh
-	. /opt/muos/script/var/global/storage.sh
-
+HALT_SYSTEM() {
 	HALT_SRC="$1"
 	HALT_CMD="$2"
 
 	case "$HALT_CMD" in
-		halt|poweroff) SPLASH_IMG=shutdown ;;
+		halt | poweroff) SPLASH_IMG=shutdown ;;
 		reboot) SPLASH_IMG=reboot ;;
 	esac
 
 	# Turn on power LED for consistency across different halt codepaths.
-	echo 1 >"$DC_DEV_LED"
+	echo 1 >"$(GET_VAR "device" "board/led")"
 
 	# Clear state we never want to persist across reboots.
 	: >/opt/muos/config/address.txt
@@ -54,13 +48,13 @@ HALT_SYSTEM () {
 		frontend)
 			# When not showing verbose output, display a
 			# theme-provided splash screen during shutdown.
-			if [ "$GC_ADV_VERBOSE" -eq 0 ]; then
-				/opt/muos/extra/muxsplash "$GC_STO_THEME/MUOS/theme/active/image/$SPLASH_IMG.png"
+			if [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 0 ]; then
+				/opt/muos/extra/muxsplash "$(GET_VAR "global" "storage/theme")/MUOS/theme/active/image/$SPLASH_IMG.png"
 			fi
 
 			# Unless startup option is "last game", clear last
 			# played so we don't rerun it on the next boot.
-			if [ "$GC_GEN_STARTUP" != last ]; then
+			if [ "$(GET_VAR "global" "settings/general/startup")" != last ]; then
 				: >/opt/muos/config/lastplay.txt
 			fi
 			;;
@@ -89,7 +83,7 @@ HALT_SYSTEM () {
 
 	# When "verbose messages" setting is enabled, run the underlying halt
 	# script in fbpad so its output is visible on screen.
-	if [ "$GC_ADV_VERBOSE" -eq 1 ]; then
+	if [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 1 ]; then
 		/opt/muos/bin/fbpad /opt/muos/script/system/halt.sh "$HALT_CMD" </dev/null
 	else
 		/opt/muos/script/system/halt.sh "$HALT_CMD"

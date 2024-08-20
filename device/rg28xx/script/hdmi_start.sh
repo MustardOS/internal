@@ -2,18 +2,14 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/screen.sh
 
-. /opt/muos/script/var/global/setting_general.sh
-
-FG_PROC="/tmp/fg_proc"
 
 RESET_DISP=0
 SWITCHED_ON=0
 SWITCHED_OFF=0
 
 while true; do
-	if [ "$(cat "$DC_SCR_HDMI")" = "HDMI=1" ]; then
+	if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ]; then
 		SWITCHED_OFF=0
 
 		if [ $SWITCHED_ON -eq 0 ]; then
@@ -21,7 +17,7 @@ while true; do
 
 			echo "1" >/tmp/hdmi_in_use
 
-			FG_PROC_VAL=$(cat "$FG_PROC")
+			FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 
 			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
 				pkill -STOP "playbgm.sh"
@@ -57,7 +53,7 @@ while true; do
 
 			echo "0" >/tmp/hdmi_in_use
 
-			FG_PROC_VAL=$(cat "$FG_PROC")
+			FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 
 			if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
 				pkill -STOP "playbgm.sh"

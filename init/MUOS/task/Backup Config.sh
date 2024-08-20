@@ -5,40 +5,38 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-
-SD_DEVICE="${DC_STO_SDCARD_DEV}p${DC_STO_SDCARD_NUM}"
-USB_DEVICE="${DC_STO_USB_DEV}p${DC_STO_USB_NUM}"
+SD_DEVICE="$(GET_VAR "device" "storage/sdcard/dev")$(GET_VAR "device" "storage/sdcard/sep")$(GET_VAR "device" "storage/sdcard/num")"
+USB_DEVICE="$(GET_VAR "device" "storage/usb/dev")$(GET_VAR "device" "storage/usb/sep")$(GET_VAR "device" "storage/usb/num")"
 
 pkill -STOP muxtask
 
 if grep -m 1 "$USB_DEVICE" /proc/partitions >/dev/null; then
 	echo "USB mounted, archiving to USB"
-	DEST_DIR="$DC_STO_USB_MOUNT/BACKUP"
+	DEST_DIR="$(GET_VAR "device" "storage/usb/mount")/BACKUP"
 	mkdir -p "$DEST_DIR"
 elif grep -m 1 "$SD_DEVICE" /proc/partitions >/dev/null; then
 	echo "SD2 mounted, archiving to SD2"
-	DEST_DIR="$DC_STO_SDCARD_MOUNT/BACKUP"
+	DEST_DIR="$(GET_VAR "device" "storage/sdcard/mount")/BACKUP"
 	mkdir -p "$DEST_DIR"
 else
 	echo "Archiving to SD1"
-	DEST_DIR="$DC_STO_ROM_MOUNT/BACKUP"
+	DEST_DIR="$(GET_VAR "device" "storage/rom/mount")/BACKUP"
 	mkdir -p "$DEST_DIR"
 fi
 
 DEST_FILE="$DEST_DIR/muOS-Config-$(date +"%Y-%m-%d_%H-%M").zip"
 
 TO_BACKUP="
-$DC_STO_ROM_MOUNT/MUOS/info/config
-$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg
-$DC_STO_ROM_MOUNT/MUOS/info/core
-$DC_STO_ROM_MOUNT/MUOS/info/favourite
-$DC_STO_ROM_MOUNT/MUOS/info/history
-$DC_STO_SDCARD_MOUNT/MUOS/info/config
-$DC_STO_SDCARD_MOUNT/MUOS/retroarch/retroarch.cfg
-$DC_STO_SDCARD_MOUNT/MUOS/info/core
-$DC_STO_SDCARD_MOUNT/MUOS/info/favourite
-$DC_STO_SDCARD_MOUNT/MUOS/info/history
+$(GET_VAR "device" "storage/rom/mount")/MUOS/info/config
+$(GET_VAR "device" "storage/rom/mount")/MUOS/retroarch/retroarch.cfg
+$(GET_VAR "device" "storage/rom/mount")/MUOS/info/core
+$(GET_VAR "device" "storage/rom/mount")/MUOS/info/favourite
+$(GET_VAR "device" "storage/rom/mount")/MUOS/info/history
+$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/config
+$(GET_VAR "device" "storage/sdcard/mount")/MUOS/retroarch/retroarch.cfg
+$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/core
+$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/favourite
+$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/history
 "
 VALID_BACKUP=$(mktemp)
 

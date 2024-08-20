@@ -1,18 +1,9 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
-
-. /opt/muos/script/var/device/device.sh
-. /opt/muos/script/var/device/storage.sh
-
-. /opt/muos/script/var/global/setting_advanced.sh
-. /opt/muos/script/var/global/setting_general.sh
-. /opt/muos/script/var/global/network.sh
-. /opt/muos/script/var/global/storage.sh
-
 . /opt/muos/script/mux/close_game.sh
 
-if [ "$DC_DEV_NAME" = "RG40XX-H" ]; then
+if [ "$(GET_VAR "device" "board/name")" = "rg40xx-h" ]; then
 	/opt/muos/device/rg40xx-h/script/led_control.sh 1 0 0 0 0 0 0 0
 fi
 
@@ -26,7 +17,7 @@ EX_CARD=/tmp/explore_card
 MUX_RELOAD=/tmp/mux_reload
 MUX_AUTH=/tmp/mux_auth
 
-echo "$GC_GEN_STARTUP" >$ACT_GO
+GET_VAR "global" "settings/general/startup" >$ACT_GO
 echo "root" >$EX_CARD
 
 KILL_BGM() {
@@ -35,15 +26,15 @@ KILL_BGM() {
 	fi
 }
 
-LOGGER "$0" "FRONTEND" "Waiting for mount: $DC_STO_ROM_MOUNT"
+LOGGER "$0" "FRONTEND" "Waiting for mount: $(GET_VAR "device" "storage/rom/mount")"
 while true; do
-	if mount | grep -q "$DC_STO_ROM_MOUNT"; then
+	if mount | grep -q "$(GET_VAR "device" "storage/rom/mount")"; then
 		break
 	fi
 	sleep 0.25
 done
 
-if [ "$GC_ADV_RANDOM_THEME" -eq 1 ]; then
+if [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 1 ]; then
 	LOGGER "$0" "FRONTEND" "Changing to a random theme"
 	/opt/muos/script/mux/theme.sh "?R"
 fi
@@ -51,10 +42,10 @@ fi
 LAST_PLAY="/opt/muos/config/lastplay.txt"
 
 LOGGER "$0" "FRONTEND" "Checking for last or resume startup"
-if [ "$GC_GEN_STARTUP" = last ] || [ "$GC_GEN_STARTUP" = resume ]; then
+if [ "$(GET_VAR "global" "settings/general/startup")" = last ] || [ "$(GET_VAR "global" "settings/general/startup")" = resume ]; then
 	if [ -s "$LAST_PLAY" ]; then
 		LOGGER "$0" "FRONTEND" "Checking for network and retrowait"
-		if [ "$GC_NET_ENABLED" -eq 1 ] && [ "$GC_ADV_RETROWAIT" -eq 1 ]; then
+		if [ "$(GET_VAR "global" "network/enabled")" -eq 1 ] && [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
 			NET_START="/tmp/net_start"
 			OIP=0
 			while true; do
@@ -68,7 +59,7 @@ EOF
 				)
 				/opt/muos/extra/muxstart "$NW_MSG"
 				OIP=$((OIP + 1))
-				if [ "$(cat "$DC_NET_STATE")" = "up" ]; then
+				if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
 					LOGGER "$0" "FRONTEND" "Network connected"
 					/opt/muos/extra/muxstart "Network connected... Booting content!"
 					break
@@ -86,7 +77,7 @@ EOF
 				sleep 1
 			done
 		fi
-		if [ "$(cat "$DC_NET_STATE")" = "up" ] || [ "$(cat "$NET_START")" = "ignore" ] || [ "$GC_NET_ENABLED" -eq 0 ] || [ "$GC_ADV_RETROWAIT" -eq 0 ]; then
+		if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ] || [ "$(cat "$NET_START")" = "ignore" ] || [ "$(GET_VAR "global" "network/enabled")" -eq 0 ] || [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 0 ]; then
 			LOGGER "$0" "FRONTEND" "Booting to last launched content"
 			cat "$LAST_PLAY" >"$ROM_GO"
 			/opt/muos/script/mux/launch.sh
@@ -100,7 +91,7 @@ fi
 LOGGER "$0" "FRONTEND" "Starting frontend launcher"
 while true; do
 	# Background Music
-	if [ "$GC_GEN_BGM" -eq 1 ]; then
+	if [ "$(GET_VAR "global" "settings/general/bgm")" -eq 1 ]; then
 		if ! pgrep -f "playbgm.sh" >/dev/null; then
 			/opt/muos/script/mux/playbgm.sh &
 		fi
@@ -151,139 +142,137 @@ while true; do
 				if [ -s "$MUX_AUTH" ]; then
 					rm "$MUX_AUTH"
 				fi
-				echo "muxlaunch" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxlaunch"
 				nice --20 /opt/muos/extra/muxlaunch
 				;;
 			"assign")
 				echo explore >$ACT_GO
 				echo "$LAST_INDEX_SYS" >/tmp/lisys
-				echo "muxassign" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxassign"
 				nice --20 /opt/muos/extra/muxassign -a 0 -d "$ROM_DIR" -s "$ROM_SYS"
 				;;
 			"explore")
 				MODULE=$(sed -n '1p' "$EX_CARD")
 				echo launcher >$ACT_GO
 				echo "$LAST_INDEX_SYS" >/tmp/lisys
-				echo "muxassign" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxassign"
 				nice --20 /opt/muos/extra/muxassign -a 1 -d "$(cat /tmp/explore_dir)" -s none
-				echo "muxplore" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxplore"
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m "$MODULE"
 				;;
 			"app")
 				echo launcher >$ACT_GO
-				if [ "$GC_ADV_LOCK" -eq 1 ]; then
-					echo "muxpass" >/tmp/fg_proc
+				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
+					SET_VAR "system" "foreground_process" "muxpass"
 					nice --20 /opt/muos/extra/muxpass -t launch
 					if [ "$?" = 1 ]; then
-						echo "muxapp" >/tmp/fg_proc
+						SET_VAR "system" "foreground_process" "muxapp"
 						nice --20 /opt/muos/extra/muxapp
 					fi
 				else
-					echo "muxapp" >/tmp/fg_proc
+					SET_VAR "system" "foreground_process" "muxapp"
 					nice --20 /opt/muos/extra/muxapp
 				fi
 				;;
 			"config")
 				echo launcher >$ACT_GO
-				if [ "$GC_ADV_LOCK" -eq 1 ]; then
+				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 					if [ -e "$MUX_AUTH" ]; then
-						echo "muxconfig" >/tmp/fg_proc
+						SET_VAR "system" "foreground_process" "muxconfig"
 						nice --20 /opt/muos/extra/muxconfig
 					else
-						echo "muxpass" >/tmp/fg_proc
+						SET_VAR "system" "foreground_process" "muxpass"
 						nice --20 /opt/muos/extra/muxpass -t setting
 						if [ "$?" = 1 ]; then
-							echo "muxconfig" >/tmp/fg_proc
+							SET_VAR "system" "foreground_process" "muxconfig"
 							nice --20 /opt/muos/extra/muxconfig
 							touch "$MUX_AUTH"
 						fi
 					fi
 				else
-					echo "muxconfig" >/tmp/fg_proc
+					SET_VAR "system" "foreground_process" "muxconfig"
 					nice --20 /opt/muos/extra/muxconfig
 				fi
 				;;
 			"info")
 				echo launcher >$ACT_GO
-				echo "muxinfo" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxinfo"
 				nice --20 /opt/muos/extra/muxinfo
 				;;
 			"tweakgen")
 				echo config >$ACT_GO
-				echo "muxtweakgen" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxtweakgen"
 				nice --20 /opt/muos/extra/muxtweakgen
-				. /opt/muos/script/var/global/setting_general.sh
 				;;
 			"tweakadv")
 				echo tweakgen >$ACT_GO
-				echo "muxtweakadv" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxtweakadv"
 				nice --20 /opt/muos/extra/muxtweakadv
-				. /opt/muos/script/var/global/setting_advanced.sh
 				;;
 			"theme")
 				echo config >$ACT_GO
-				echo "muxtheme" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxtheme"
 				nice --20 /opt/muos/extra/muxtheme
 				;;
 			"visual")
 				echo tweakgen >$ACT_GO
-				echo "muxvisual" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxvisual"
 				nice --20 /opt/muos/extra/muxvisual
 				;;
 			"storage")
 				echo tweakgen >$ACT_GO
-				echo "muxstorage" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxstorage"
 				nice --20 /opt/muos/extra/muxstorage
 				;;
 			"net_profile")
 				echo network >$ACT_GO
-				echo "muxnetprofile" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxnetprofile"
 				nice --20 /opt/muos/extra/muxnetprofile
 				;;
 			"net_scan")
 				echo network >$ACT_GO
-				echo "muxnetscan" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxnetscan"
 				nice --20 /opt/muos/extra/muxnetscan
 				;;
 			"network")
 				echo config >$ACT_GO
-				echo "muxnetwork" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxnetwork"
 				nice --20 /opt/muos/extra/muxnetwork
 				;;
 			"webserv")
 				echo config >$ACT_GO
-				echo "muxwebserv" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxwebserv"
 				nice --20 /opt/muos/extra/muxwebserv
 				;;
 			"rtc")
 				echo config >$ACT_GO
-				echo "muxrtc" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxrtc"
 				nice --20 /opt/muos/extra/muxrtc
 				;;
 			"timezone")
 				echo rtc >$ACT_GO
-				echo "muxtimezone" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxtimezone"
 				nice --20 /opt/muos/extra/muxtimezone
 				;;
 			"tester")
 				echo info >$ACT_GO
-				echo "muxtester" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxtester"
 				nice --20 /opt/muos/extra/muxtester
 				;;
 			"device")
 				echo config >$ACT_GO
-				echo "muxdevice" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxdevice"
 				nice --20 /opt/muos/extra/muxdevice
 				;;
 			"system")
 				echo info >$ACT_GO
-				echo "muxsysinfo" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxsysinfo"
 				nice --20 /opt/muos/extra/muxsysinfo
 				;;
 			"favourite")
-				find "$GC_STO_FAV"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
+				find "$(GET_VAR "global" "storage/fav")"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
 				echo launcher >$ACT_GO
-				echo "muxplore" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxplore"
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m favourite
 				if [ -s "$MUX_RELOAD" ]; then
 					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
@@ -293,9 +282,9 @@ while true; do
 				fi
 				;;
 			"history")
-				find "$GC_STO_FAV"/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
+				find "$(GET_VAR "global" "storage/fav")"/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
 				echo launcher >$ACT_GO
-				echo "muxplore" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxplore"
 				nice --20 /opt/muos/extra/muxplore -i 0 -m history
 				if [ -s "$MUX_RELOAD" ]; then
 					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
@@ -306,7 +295,7 @@ while true; do
 				;;
 			"credits")
 				echo info >$ACT_GO
-				echo "muxcredits" >/tmp/fg_proc
+				SET_VAR "system" "foreground_process" "muxcredits"
 				nice --20 /opt/muos/extra/muxcredits
 				;;
 			"reboot")

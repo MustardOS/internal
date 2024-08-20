@@ -1,13 +1,6 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
-
-. /opt/muos/script/var/device/input.sh
-
-. /opt/muos/script/var/global/boot.sh
-. /opt/muos/script/var/global/setting_advanced.sh
-. /opt/muos/script/var/global/setting_general.sh
-
 . /opt/muos/script/mux/close_game.sh
 
 mkdir -p /tmp/combo
@@ -15,25 +8,25 @@ mkdir -p /tmp/trigger
 
 killall -q "evtest"
 
-. /opt/muos/device/"$DEVICE_TYPE"/input/map.sh
+. /opt/muos/device/"$(GET_VAR "device" "board/name")"/input/map.sh
 
 KEY_COMBO=0
 RESUME_UPTIME="$(UPTIME)"
 
 # Place combo and trigger scripts here because fuck knows why for loops won't work...
 # Make sure to put them in order of how you want them to work too!
-if [ "$GC_BOO_FACTORY_RESET" -eq 0 ]; then
-	if [ "$GC_GEN_SHUTDOWN" -ge 0 ]; then
-		/opt/muos/device/"$DEVICE_TYPE"/input/trigger/power.sh &
-		/opt/muos/device/"$DEVICE_TYPE"/input/trigger/sleep.sh &
+if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
+	if [ "$(GET_VAR "global" "settings/general/shutdown")" -ge 0 ]; then
+		/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/trigger/power.sh &
+		/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/trigger/sleep.sh &
 	else
 		echo "awake" >"/tmp/sleep_state"
 	fi
 fi
 
 {
-	evtest "$DC_INP_EVENT_0" &
-	evtest "$DC_INP_EVENT_1" &
+	evtest "$(GET_VAR "device" "input/ev0")" &
+	evtest "$(GET_VAR "device" "input/ev1")" &
 	wait
 } | while read -r EVENT; do
 
@@ -41,7 +34,7 @@ fi
 		case $STATE_START in
 			1)
 				KEY_COMBO=1
-				if [ "$GC_ADV_RETROWAIT" -eq 1 ]; then
+				if [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
 					echo "ignore" >"/tmp/net_state"
 				fi
 				;;
@@ -50,7 +43,7 @@ fi
 		case $STATE_SELECT in
 			1)
 				KEY_COMBO=1
-				if [ "$GC_ADV_RETROWAIT" -eq 1 ]; then
+				if [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
 					echo "menu" >"/tmp/net_state"
 				fi
 				;;
@@ -59,23 +52,23 @@ fi
 		case "$STATE_MENU_LONG:$STATE_VOL_UP:$STATE_VOL_DOWN:$STATE_POWER_SHORT" in
 			1:1:0:0)
 				KEY_COMBO=1
-				/opt/muos/device/"$DEVICE_TYPE"/input/combo/bright.sh U
+				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh U
 				;;
 			1:0:1:0)
 				KEY_COMBO=1
-				/opt/muos/device/"$DEVICE_TYPE"/input/combo/bright.sh D
+				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh D
 				;;
 			1:0:0:1)
 				KEY_COMBO=1
-				/opt/muos/device/"$DEVICE_TYPE"/input/combo/screenshot.sh
+				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/screenshot.sh
 				;;
 			0:1:0:0)
 				KEY_COMBO=1
-				/opt/muos/device/"$DEVICE_TYPE"/input/combo/audio.sh U
+				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/audio.sh U
 				;;
 			0:0:1:0)
 				KEY_COMBO=1
-				/opt/muos/device/"$DEVICE_TYPE"/input/combo/audio.sh D
+				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/audio.sh D
 				;;
 		esac
 	fi
@@ -88,7 +81,7 @@ fi
 		if [ "$STATE_L1:$STATE_L2:$STATE_R1:$STATE_R2" = 1:1:1:1 ]; then
 			# Power+L1+L2+R1+R2: Overall System Failsafe (Reboot)
 			HALT_SYSTEM osf reboot
-		elif [ "$GC_GEN_SHUTDOWN" -eq -1 ]; then
+		elif [ "$(GET_VAR "global" "settings/general/shutdown")" -eq -1 ]; then
 			# Power: Sleep Suspend
 			#
 			# Avoid suspending again immediately by ignoring power
@@ -97,7 +90,7 @@ fi
 				/opt/muos/script/system/suspend.sh power
 				RESUME_UPTIME="$(UPTIME)"
 			fi
-		elif [ "$GC_GEN_SHUTDOWN" -eq 2 ]; then
+		elif [ "$(GET_VAR "global" "settings/general/shutdown")" -eq 2 ]; then
 			# Power: Instant Shutdown
 			HALT_SYSTEM sleep poweroff
 		else

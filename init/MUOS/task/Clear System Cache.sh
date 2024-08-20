@@ -2,11 +2,9 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-
 pkill -STOP muxtask
 
-MUOS_CACHE_DIR="$DC_STO_ROM_MOUNT/MUOS/info/cache"
+MUOS_CACHE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/cache"
 
 echo "Clearing all cache"
 rm -rf "$MUOS_CACHE_DIR"/mmc/* "$MUOS_CACHE_DIR"/sdcard/* "$MUOS_CACHE_DIR"/usb/*

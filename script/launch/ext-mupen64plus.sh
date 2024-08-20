@@ -2,24 +2,19 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/device.sh
-. /opt/muos/script/var/device/screen.sh
-. /opt/muos/script/var/device/sdl.sh
-. /opt/muos/script/var/device/storage.sh
-
 NAME=$1
 CORE=$2
 ROM=$3
 
-export HOME=/root
+export HOME=$(GET_VAR "device" "board/home")
 
-export SDL_HQ_SCALER="$DC_SDL_SCALER"
-export SDL_ROTATION="$DC_SDL_ROTATION"
-export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
+export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+export SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+export SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
 
-echo "mupen64plus" >/tmp/fg_proc
+SET_VAR "system" "foreground_process" "mupen64plus"
 
-case "$DC_DEV_NAME" in
+case "$(GET_VAR "device" "board/name")" in
 	RG28XX)
 		FB_SWITCH 240 320 32
 		;;
@@ -28,7 +23,7 @@ case "$DC_DEV_NAME" in
 		;;
 esac
 
-EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/mupen64plus"
+EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/mupen64plus"
 MP64_CFG="$EMUDIR/mupen64plus.cfg"
 
 RICE_CFG="$EMUDIR/mupen64plus-rice.cfg"
@@ -43,9 +38,9 @@ fi
 
 # Update paths in config based on storage preference.
 sed -i \
-	-e "s|^SaveSRAMPath = .*|SaveSRAMPath = \"$GC_STO_SAVE/MUOS/save/file/Mupen64Plus\"|" \
-	-e "s|^SaveStatePath = .*|SaveStatePath = \"$GC_STO_SAVE/MUOS/save/state/Mupen64Plus\"|" \
-	-e "s|^ScreenshotPath = .*|ScreenshotPath = \"$GC_STO_SCREENSHOT/MUOS/screenshot\"|" \
+	-e "s|^SaveSRAMPath = .*|SaveSRAMPath = \"$(GET_VAR "global" "storage/save")/MUOS/save/file/Mupen64Plus\"|" \
+	-e "s|^SaveStatePath = .*|SaveStatePath = \"$(GET_VAR "global" "storage/save")/MUOS/save/state/Mupen64Plus\"|" \
+	-e "s|^ScreenshotPath = .*|ScreenshotPath = \"$(GET_VAR "global" "storage/screenshot")/MUOS/screenshot\"|" \
 	"$MP64_CFG"
 
 chmod +x "$EMUDIR"/mupen64plus
@@ -71,13 +66,13 @@ if [ -n "$TMPDIR" ]; then
 	rm -r "$TMPDIR"
 fi
 
-case "$DC_DEV_NAME" in
+case "$(GET_VAR "device" "board/name")" in
 	RG*)
 		echo 0 > "/sys/class/power_supply/axp2202-battery/nds_pwrkey"
-		FB_SWITCH "$DC_SCR_WIDTH" "$DC_SCR_HEIGHT" 32
+		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
 		;;
 	*)
-		FB_SWITCH "$DC_SCR_WIDTH" "$DC_SCR_HEIGHT" 32
+		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
 		;;
 esac
 

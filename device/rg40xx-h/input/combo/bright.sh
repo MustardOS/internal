@@ -2,8 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/screen.sh
-
 BRIGHT_FILE="/opt/muos/config/brightness.txt"
 BRIGHT_FILE_PERCENT="/tmp/current_brightness_percent"
 
@@ -17,39 +15,45 @@ GET_CURRENT() {
 CURRENT_BL=$(GET_CURRENT)
 
 SET_CURRENT() {
-	if [ $1 -eq 0 ]; then
+	C_BRIGHT=$1
+
+	if [ "$C_BRIGHT" -eq 0 ]; then
 		echo 4 >/sys/class/graphics/fb0/blank
 
-		printf "%d" "$1" >"$BRIGHT_FILE_PERCENT"
+		printf "%d" "$C_BRIGHT" >"$BRIGHT_FILE_PERCENT"
+
+		SET_VAR "global" "settings/general/brightness" "0"
+
 		if ! pgrep -f "muxcharge" >/dev/null; then
-			printf "%d" "$1" >"$BRIGHT_FILE"
-			echo "Brightness set to $1 ($1%)"
+			printf "%d" "$C_BRIGHT" >"$BRIGHT_FILE"
+			echo "Brightness set to $C_BRIGHT ($C_BRIGHT%)"
 		fi
 	else
 		echo 0 >/sys/class/graphics/fb0/blank
 
-		PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($1/$DC_SCR_BRIGHT)*100}")
+		PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($C_BRIGHT/$(GET_VAR "device" "screen/bright"))*100}")
 		printf "%d" "$PERCENTAGE" >"$BRIGHT_FILE_PERCENT"
 
-		DISPLAY_WRITE lcd0 setbl "$1"
+		SET_VAR "global" "settings/general/brightness" "$((C_BRIGHT - 2))"
+		DISPLAY_WRITE lcd0 setbl "$C_BRIGHT"
 
 		if ! pgrep -f "muxcharge" >/dev/null; then
-			printf "%d" "$1" >"$BRIGHT_FILE"
-			echo "Brightness set to $1 ($PERCENTAGE%)"
+			printf "%d" "$C_BRIGHT" >"$BRIGHT_FILE"
+			echo "Brightness set to $C_BRIGHT ($PERCENTAGE%)"
 		fi
 	fi
 }
 
 if [ -z "$1" ]; then
-	PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_BL/$DC_SCR_BRIGHT)*100}")
+	PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_BL/$(GET_VAR "device" "screen/bright"))*100}")
 	echo "Brightness is $CURRENT_BL ($PERCENTAGE%)"
 	exit 0
 fi
 
-if [ ! "$(cat "$DC_SCR_HDMI")" = "HDMI=1" ]; then
+if [ ! "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ]; then
 	case "$1" in
 		I)
-			PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_BL/$DC_SCR_BRIGHT)*100}")
+			PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_BL/$(GET_VAR "device" "screen/bright"))*100}")
 			echo "$PERCENTAGE" >/tmp/current_brightness_percent
 			;;
 		U)
@@ -58,8 +62,8 @@ if [ ! "$(cat "$DC_SCR_HDMI")" = "HDMI=1" ]; then
 			else
 				NEW_BL=$((CURRENT_BL + 15))
 			fi
-			if [ "$NEW_BL" -gt "$DC_SCR_BRIGHT" ]; then
-				NEW_BL=$DC_SCR_BRIGHT
+			if [ "$NEW_BL" -gt "$(GET_VAR "device" "screen/bright")" ]; then
+				NEW_BL=$(GET_VAR "device" "screen/bright")
 			fi
 			SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 			if [ "$SLEEP_STATE_VAL" = "awake" ]; then
@@ -81,10 +85,10 @@ if [ ! "$(cat "$DC_SCR_HDMI")" = "HDMI=1" ]; then
 			fi
 			;;
 		[0-9]*)
-			if [ "$1" -ge 0 ] && [ "$1" -le "$DC_SCR_BRIGHT" ]; then
+			if [ "$1" -ge 0 ] && [ "$1" -le "$(GET_VAR "device" "screen/bright")" ]; then
 				SET_CURRENT "$1"
 			else
-				echo "Invalid brightness value. Maximum is $DC_SCR_BRIGHT."
+				echo "Invalid brightness value. Maximum is $(GET_VAR "device" "screen/bright")."
 			fi
 			;;
 		*)

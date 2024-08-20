@@ -2,62 +2,58 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/network.sh
-
-. /opt/muos/script/var/global/network.sh
-
 CURRENT_IP="/opt/muos/config/address.txt"
 
-if [ "$DC_NET_INTERFACE" = "wlan0" ]; then
+if [ "$(GET_VAR "device" "network/iface")" = "wlan0" ]; then
 	killall wpa_supplicant
 fi
 killall dhcpcd
-ip link set "$DC_NET_INTERFACE" down
+ip link set "$(GET_VAR "device" "network/iface")" down
 
 killall -q sshd sftpgo gotty syncthing ntp.sh
 
 echo "0.0.0.0" | tr -d '\n' >"$CURRENT_IP"
 
-echo "nameserver $GC_NET_DNS" >/etc/resolv.conf
+echo "nameserver $(GET_VAR "global" "network/dns")" >/etc/resolv.conf
 
-if [ "$DC_NET_INTERFACE" = "wlan0" ]; then
-	if [ "$GC_NET_ENABLED" -eq 0 ]; then
-		rmmod "$DC_NET_MODULE"
+if [ "$(GET_VAR "device" "network/iface")" = "wlan0" ]; then
+	if [ "$(GET_VAR "global" "network/enabled")" -eq 0 ]; then
+		rmmod "$(GET_VAR "device" "network/module")"
 		exit
 	fi
 
-	if ! lsmod | grep -wq "$DC_NET_NAME"; then
-		rmmod "$DC_NET_MODULE"
+	if ! lsmod | grep -wq "$(GET_VAR "device" "network/name")"; then
+		rmmod "$(GET_VAR "device" "network/module")"
 		sleep 1
-		modprobe --force-modversion "$DC_NET_MODULE"
-		while [ ! -d "/sys/class/net/$DC_NET_INTERFACE" ]; do
+		modprobe --force-modversion "$(GET_VAR "device" "network/module")"
+		while [ ! -d "/sys/class/net/$(GET_VAR "device" "network/iface")" ]; do
 			sleep 1
 		done
 	fi
 fi
 
 rfkill unblock all
-ip link set "$DC_NET_INTERFACE" up
-iw dev "$DC_NET_INTERFACE" set power_save off
+ip link set "$(GET_VAR "device" "network/iface")" up
+iw dev "$(GET_VAR "device" "network/iface")" set power_save off
 
-if [ "$DC_NET_INTERFACE" = "wlan0" ]; then
-	wpa_supplicant -dd -B -i "$DC_NET_INTERFACE" -c /etc/wpa_supplicant.conf -D "$DC_NET_TYPE"
+if [ "$(GET_VAR "device" "network/iface")" = "wlan0" ]; then
+	wpa_supplicant -dd -B -i "$(GET_VAR "device" "network/iface")" -c /etc/wpa_supplicant.conf -D "$(GET_VAR "device" "network/type")"
 fi
 
-if [ "$GC_NET_TYPE" -eq 0 ]; then
+if [ "$(GET_VAR "global" "network/type")" -eq 0 ]; then
 	rm -rf "/var/db/dhcpcd/*"
 	dhcpcd -n
-	dhcpcd -w -q "$DC_NET_INTERFACE" &
+	dhcpcd -w -q "$(GET_VAR "device" "network/iface")" &
 else
-	ip addr add "$GC_NET_ADDRESS"/"$GC_NET_SUBNET" dev "$DC_NET_INTERFACE"
-	ip link set dev "$DC_NET_INTERFACE" up
-	ip route add default via "$GC_NET_GATEWAY"
+	ip addr add "$(GET_VAR "global" "network/address")"/"$(GET_VAR "global" "network/subnet")" dev "$(GET_VAR "device" "network/iface")"
+	ip link set dev "$(GET_VAR "device" "network/iface")" up
+	ip route add default via "$(GET_VAR "global" "network/gateway")"
 fi
 
 OIP=0
 while [ "$(cat "$CURRENT_IP")" = "0.0.0.0" ] || [ "$(cat "$CURRENT_IP")" = "" ]; do
 	OIP=$((OIP + 1))
-	ip -4 a show dev "$DC_NET_INTERFACE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p' | tr -d '\n' >"$CURRENT_IP"
+	ip -4 a show dev "$(GET_VAR "device" "network/iface")" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p' | tr -d '\n' >"$CURRENT_IP"
 	sleep 1
 	if [ $OIP -eq 30 ]; then
 		echo "0.0.0.0" | tr -d '\n' >"$CURRENT_IP"

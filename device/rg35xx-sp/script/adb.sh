@@ -6,8 +6,6 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/device.sh
-
 mount -t configfs none /sys/kernel/config
 mkdir -p /sys/kernel/config/usb_gadget/g1
 
@@ -23,7 +21,7 @@ echo "0x1d6b" >/sys/kernel/config/usb_gadget/g1/idVendor
 echo "0x0105" >/sys/kernel/config/usb_gadget/g1/idProduct
 echo "0123456789" >/sys/kernel/config/usb_gadget/g1/strings/0x409/serialnumber
 echo "muOS" >/sys/kernel/config/usb_gadget/g1/strings/0x409/manufacturer
-echo "$DC_DEV_NAME" >/sys/kernel/config/usb_gadget/g1/strings/0x409/product
+GET_VAR "device" "board/name" >/sys/kernel/config/usb_gadget/g1/strings/0x409/product
 
 #Create Function(s) Instance(s)
 mkdir -p /sys/kernel/config/usb_gadget/g1/functions/ffs.adb

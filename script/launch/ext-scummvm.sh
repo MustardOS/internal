@@ -2,22 +2,17 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-. /opt/muos/script/var/device/sdl.sh
-
-. /opt/muos/script/var/global/storage.sh
-
 NAME=$1
 CORE=$2
 ROM=$3
 
-export HOME=/root
+export HOME=$(GET_VAR "device" "board/home")
 
-export SDL_HQ_SCALER="$DC_SDL_SCALER"
-export SDL_ROTATION="$DC_SDL_ROTATION"
-export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
+export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+export SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+export SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
 
-echo "scummvm" >/tmp/fg_proc
+SET_VAR "system" "foreground_process" "scummvm"
 
 ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')
 SCVM=$(cat "$ROMPATH/$NAME.scummvm")
@@ -28,10 +23,10 @@ else
 	SUBFOLDER="$NAME"
 fi
 
-EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/scummvm"
+EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/scummvm"
 EXTRA="$EMUDIR/Extra"
 THEME="$EMUDIR/Theme"
-SAVE="$GC_STO_SAVE/MUOS/save/file/ScummVM-Ext"
+SAVE="$(GET_VAR "global" "storage/save")/MUOS/save/file/ScummVM-Ext"
 
 mkdir -p "$SAVE"
 chmod +x "$EMUDIR"/scummvm

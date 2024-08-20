@@ -2,20 +2,18 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/device.sh
-
 TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
-FG_PROC="/tmp/fg_proc"
+
 SLEEP_STATE="/tmp/sleep_state"
 LED_STATE="/tmp/work_led_state"
 
 UPDATE_DISPLAY() {
-	echo "$2" >"$DC_DEV_LED"
+	echo "$2" >"$(GET_VAR "device" "board/led")"
 	DISPLAY_WRITE disp0 blank "$1"
 }
 
 DEV_WAKE() {
-	FG_PROC_VAL=$(cat "$FG_PROC")
+	FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 
 	echo "on" >"$TMP_POWER_LONG"
 	echo "awake" >"$SLEEP_STATE"
@@ -30,7 +28,7 @@ DEV_WAKE() {
 }
 
 DEV_SLEEP() {
-	FG_PROC_VAL=$(cat "$FG_PROC")
+	FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 
 	echo "off" >"$TMP_POWER_LONG"
 	echo "sleep" >"$SLEEP_STATE"
@@ -50,7 +48,7 @@ echo "awake" >"$SLEEP_STATE"
 while true; do
 	TMP_POWER_LONG_VAL=$(cat "$TMP_POWER_LONG")
 	SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
-	FG_PROC_VAL=$(cat "$FG_PROC")
+	FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 
 	if [ "$TMP_POWER_LONG_VAL" = "off" ] && [ "$SLEEP_STATE_VAL" = "awake" ]; then
 		if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then

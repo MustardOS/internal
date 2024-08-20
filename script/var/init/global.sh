@@ -13,13 +13,17 @@ case "$1" in
 esac
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/init/system.sh
 
 ACTION="$1"
+
+CONFIG_CLEARED=0
+CONFIG_FILE="$GLOBAL_CONFIG"
 
 BOOT_VARS="factory_reset device_setup clock_setup firmware_done"
 CLOCK_VARS="notation pool"
 NETWORK_VARS="enabled type ssid address gateway subnet dns"
-SETTINGS_GENERAL_VARS="hidden bgm sound startup power low_battery colour hdmi shutdown"
+SETTINGS_GENERAL_VARS="hidden bgm sound startup power low_battery colour brightness hdmi shutdown"
 SETTINGS_ADVANCED_VARS="swap thermal font verbose volume brightness offset lock led random_theme retrowait android state"
 VISUAL_VARS="battery network bluetooth clock boxart name dash contentfolder contentfile"
 WEB_VARS="shell browser terminal syncthing ntp"
@@ -43,15 +47,25 @@ for INIT in boot clock network settings/general settings/advanced visual web sto
 
 	case "$ACTION" in
 		init)
-			GEN_VAR "$(basename "$0" .sh)" "$INIT" "$VARS"
+			BASE_DIR="/run/muos/$(basename "$0" .sh)/$INIT"
+			mkdir -p "$BASE_DIR"
+			for VAR in $VARS; do
+				VAR_VALUE=$(PARSE_INI "$CONFIG_FILE" "$(echo "$INIT" | sed 's/\//./g')" "$VAR")
+				SET_VAR "$(basename "$0" .sh)" "$INIT/$VAR" "$VAR_VALUE"
+			done
+			chmod -R 755 "$BASE_DIR"
 			;;
 		save)
+			if [ $CONFIG_CLEARED -eq 0 ]; then
+				: >"$CONFIG_FILE"
+				CONFIG_CLEARED=1
+			fi
 			KEY_VALUES=""
 			for VAR in $VARS; do
 				VALUE=$(GET_VAR "$(basename "$0" .sh)/$INIT" "$VAR")
-				KEY_VALUES="$KEY_VALUES;$VAR:$VALUE"
+				KEY_VALUES=$(printf "%s\n%s" "$KEY_VALUES" "$VAR = $VALUE")
 			done
-			SAVE_VAR "$(basename "$0" .sh)" "$INIT" "${KEY_VALUES#\;}"
+			printf "[%s]%s\n\n" "$(echo "$INIT" | sed 's/\//./g')" "$KEY_VALUES" >>"$CONFIG_FILE"
 			;;
 	esac
 done

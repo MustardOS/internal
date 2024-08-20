@@ -13,8 +13,12 @@ case "$1" in
 esac
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/init/system.sh
 
 ACTION="$1"
+
+CONFIG_CLEARED=0
+CONFIG_FILE="$DEVICE_CONFIG"
 
 AUDIO_VARS="platform object control channel min max"
 BATTERY_VARS="capacity health voltage charger"
@@ -63,15 +67,25 @@ for INIT in audio battery cpu board input input/dpad input/analog/left input/ana
 
 	case "$ACTION" in
 		init)
-			GEN_VAR "$(basename "$0" .sh)" "$INIT" "$VARS"
+			BASE_DIR="/run/muos/$(basename "$0" .sh)/$INIT"
+			mkdir -p "$BASE_DIR"
+			for VAR in $VARS; do
+				VAR_VALUE=$(PARSE_INI "$CONFIG_FILE" "$(echo "$INIT" | sed 's/\//./g')" "$VAR")
+				SET_VAR "$(basename "$0" .sh)" "$INIT/$VAR" "$VAR_VALUE"
+			done
+			chmod -R 755 "$BASE_DIR"
 			;;
 		save)
+			if [ $CONFIG_CLEARED -eq 0 ]; then
+				: >"$CONFIG_FILE"
+				CONFIG_CLEARED=1
+			fi
 			KEY_VALUES=""
 			for VAR in $VARS; do
 				VALUE=$(GET_VAR "$(basename "$0" .sh)/$INIT" "$VAR")
-				KEY_VALUES="$KEY_VALUES;$VAR:$VALUE"
+				KEY_VALUES=$(printf "%s\n%s" "$KEY_VALUES" "$VAR = $VALUE")
 			done
-			SAVE_VAR "$(basename "$0" .sh)" "$INIT" "${KEY_VALUES#\;}"
+			printf "[%s]%s\n\n" "$(echo "$INIT" | sed 's/\//./g')" "$KEY_VALUES" >>"$CONFIG_FILE"
 			;;
 	esac
 done

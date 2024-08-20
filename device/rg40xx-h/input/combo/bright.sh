@@ -15,25 +15,31 @@ GET_CURRENT() {
 CURRENT_BL=$(GET_CURRENT)
 
 SET_CURRENT() {
-	if [ $1 -eq 0 ]; then
+	C_BRIGHT=$1
+
+	if [ "$C_BRIGHT" -eq 0 ]; then
 		echo 4 >/sys/class/graphics/fb0/blank
 
-		printf "%d" "$1" >"$BRIGHT_FILE_PERCENT"
+		printf "%d" "$C_BRIGHT" >"$BRIGHT_FILE_PERCENT"
+
+		SET_VAR "global" "settings/general/brightness" "0"
+
 		if ! pgrep -f "muxcharge" >/dev/null; then
-			printf "%d" "$1" >"$BRIGHT_FILE"
-			echo "Brightness set to $1 ($1%)"
+			printf "%d" "$C_BRIGHT" >"$BRIGHT_FILE"
+			echo "Brightness set to $C_BRIGHT ($C_BRIGHT%)"
 		fi
 	else
 		echo 0 >/sys/class/graphics/fb0/blank
 
-		PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($1/$(GET_VAR "device" "screen/bright"))*100}")
+		PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($C_BRIGHT/$(GET_VAR "device" "screen/bright"))*100}")
 		printf "%d" "$PERCENTAGE" >"$BRIGHT_FILE_PERCENT"
 
-		DISPLAY_WRITE lcd0 setbl "$1"
+		SET_VAR "global" "settings/general/brightness" "$((C_BRIGHT - 2))"
+		DISPLAY_WRITE lcd0 setbl "$C_BRIGHT"
 
 		if ! pgrep -f "muxcharge" >/dev/null; then
-			printf "%d" "$1" >"$BRIGHT_FILE"
-			echo "Brightness set to $1 ($PERCENTAGE%)"
+			printf "%d" "$C_BRIGHT" >"$BRIGHT_FILE"
+			echo "Brightness set to $C_BRIGHT ($PERCENTAGE%)"
 		fi
 	fi
 }

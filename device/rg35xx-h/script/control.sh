@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/init/system.sh
 
 RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
@@ -40,9 +41,9 @@ cp -f "$DEVICE_CONTROL_DIR/drastic.cfg" "$(GET_VAR "device" "storage/rom/mount")
 
 # Move OpenBOR config
 for file in "$DEVICE_CONTROL_DIR/openbor/"*.ini; do
-    if [ ! -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/openbor/userdata/system/configs/openbor/$(basename "$file")" ]; then
-        cp "$file" "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/openbor/userdata/system/configs/openbor/"
-    fi
+	if [ ! -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/openbor/userdata/system/configs/openbor/$(basename "$file")" ]; then
+		cp "$file" "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/openbor/userdata/system/configs/openbor/"
+	fi
 done
 
 # Define Playstation remap paths

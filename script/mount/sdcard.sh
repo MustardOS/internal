@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-STORE_DEVICE=$(GET_VAR "device" "storage/usb/dev")$(GET_VAR "device" "storage/usb/sep")$(GET_VAR "device" "storage/usb/num")
+STORE_DEVICE=$(GET_VAR "device" "storage/sdcard/dev")$(GET_VAR "device" "storage/sdcard/sep")$(GET_VAR "device" "storage/sdcard/num")
 MOUNTED=false
 
 mkdir "$(GET_VAR "device" "storage/sdcard/mount")"

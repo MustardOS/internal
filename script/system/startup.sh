@@ -125,7 +125,7 @@ LOGGER "$0" "BOOTING" "Starting Storage Watchdog"
 /opt/muos/script/mount/usb.sh &
 
 LOGGER "$0" "BOOTING" "Running Device Specifics"
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/start.sh &
+/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/start.sh
 
 LOGGER "$0" "BOOTING" "Bringing up localhost network"
 ifconfig lo up &

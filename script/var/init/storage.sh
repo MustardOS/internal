@@ -11,7 +11,7 @@ S_=0
 for S_VAR in $STORAGE_VARS; do
 	S_LOC=$(echo "$STORAGE_LOCS" | cut -d' ' -f$((S_ + 1)))
 
-	mkdir -p "/run/muos/storage/$S_VAR"
+	mkdir -p "/run/muos/storage/$S_LOC"
 	case "$(GET_VAR "global" "storage/$S_VAR")" in
 		0)
 			MOUNT="$(GET_VAR "device" "storage/rom/mount")"
@@ -31,10 +31,11 @@ for S_VAR in $STORAGE_VARS; do
 
 	echo mount --bind "$MOUNT/MUOS/$S_LOC" "/run/muos/storage/$S_LOC"
 
-	if ! mount --bind "$MOUNT/MUOS/$S_LOC" "/run/muos/storage/$S_VAR"; then
+	if ! mount --bind "$MOUNT/MUOS/$S_LOC" "/run/muos/storage/$S_LOC"; then
 		MOUNT="$(GET_VAR "device" "storage/rom/mount")"
-		if ! mount --bind "$MOUNT/MUOS/$S_LOC" "/run/muos/storage/$S_VAR"; then
-			/opt/muos/extra/muxstart "$(printf "Critical Mount Failure\n\nFailed to mount '%s' on '%s'!\nDirectory '%s' not found!" "$S_LOC" "$MOUNT" "$S_VAR")" && sleep infinity
+		if ! mount --bind "$MOUNT/MUOS/$S_LOC" "/run/muos/storage/$S_LOC"; then
+			/opt/muos/extra/muxstart "$(printf "Critical Mount Failure\n\nFailed to mount '%s' on '%s'!" "$S_LOC" "$MOUNT")"
+			sleep infinity
 		fi
 	fi
 

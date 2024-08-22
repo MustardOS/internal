@@ -4,7 +4,7 @@
 
 pkill -STOP muxtask
 
-MUOS_FAV_DIR="$(GET_VAR "global" "storage/fav")/MUOS/info/favourite"
+MUOS_FAV_DIR="/run/muos/storage/info/favourite"
 
 echo "Deleting Favourite Files"
 rm -rf "${MUOS_FAV_DIR:?}"/*

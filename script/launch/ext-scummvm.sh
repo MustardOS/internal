@@ -26,7 +26,7 @@ fi
 EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/scummvm"
 EXTRA="$EMUDIR/Extra"
 THEME="$EMUDIR/Theme"
-SAVE="$(GET_VAR "global" "storage/save")/MUOS/save/file/ScummVM-Ext"
+SAVE="/run/muos/storage/save/file/ScummVM-Ext"
 
 mkdir -p "$SAVE"
 chmod +x "$EMUDIR"/scummvm

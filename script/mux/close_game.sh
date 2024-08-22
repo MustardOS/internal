@@ -49,7 +49,7 @@ HALT_SYSTEM() {
 			# When not showing verbose output, display a
 			# theme-provided splash screen during shutdown.
 			if [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 0 ]; then
-				/opt/muos/extra/muxsplash "$(GET_VAR "global" "storage/theme")/MUOS/theme/active/image/$SPLASH_IMG.png"
+				/opt/muos/extra/muxsplash "/run/muos/storage/theme/active/image/$SPLASH_IMG.png"
 			fi
 
 			# Unless startup option is "last game", clear last

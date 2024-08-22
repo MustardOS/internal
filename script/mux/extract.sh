@@ -29,7 +29,7 @@ echo "Inspecting archive..."
 if unzip -l "$1" | awk '$NF ~ /^'"$SCHEME_FOLDER"'\// && $NF ~ /\/'"$SCHEME_FILE"'$/ {print $NF}' | grep -q ""; then
 	echo "Archive contents indicate it is NOT an installable theme file"
 	echo "Copying unextracted archive to theme folder"
-	cp -f "$1" "$(GET_VAR "global" "storage/theme")/MUOS/theme/"
+	cp -f "$1" "/run/muos/storage/theme/"
 else
 	MUX_TEMP="/opt/muxtmp"
 	mkdir "$MUX_TEMP"

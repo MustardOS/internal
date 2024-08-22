@@ -4,7 +4,7 @@
 
 pkill -STOP muxtask
 
-MUOS_HIST_DIR="$(GET_VAR "global" "storage/fav")/MUOS/info/history"
+MUOS_HIST_DIR="/run/muos/storage/info/history"
 
 echo "Deleting History Files"
 rm -rf "${MUOS_HIST_DIR:?}"/*

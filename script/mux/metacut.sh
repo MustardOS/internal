@@ -1,14 +1,13 @@
 #!/bin/sh
 
-if [ "$#" -ne 1 ]; then
+if [ $# -ne 1 ]; then
 	echo "Usage: $0 <input>"
 	exit 1
 fi
 
 . /opt/muos/script/var/func.sh
 
-SCHEME="$(GET_VAR "global" "storage/theme")/MUOS/theme/active/scheme/default.txt"
-
+SCHEME="/run/muos/storage/theme/active/scheme/default.txt"
 METACUT=$(PARSE_INI "$SCHEME" "meta" "META_CUT")
 
 if [ -z "$METACUT" ]; then

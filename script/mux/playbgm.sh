@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-MP3_DIR="$(GET_VAR "global" "storage/music")/MUOS/music"
+MP3_DIR="/run/muos/storage/music"
 
 while true; do
 	MP3_FILES=$(find "$MP3_DIR" -maxdepth 1 -type f -name "*.mp3")

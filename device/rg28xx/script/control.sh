@@ -47,13 +47,13 @@ for file in "$DEVICE_CONTROL_DIR/openbor/"*.ini; do
 done
 
 # Set GB Micro Overlay as default in gpSP / mGBA
-GP_CFG="$(GET_VAR "global" "storage/config")/MUOS/info/config/gpSP/gpSP.cfg"
+GP_CFG="/run/muos/storage/info/config/gpSP/gpSP.cfg"
 if [ ! -f "$GP_CFG.bak" ]; then
 	cp "$GP_CFG" "$GP_CFG.bak"
 	cp -f "$DEVICE_CONTROL_DIR/gpSP.cfg" "$GP_CFG"
 fi
 
-MG_CFG="$(GET_VAR "global" "storage/config")/MUOS/info/config/mGBA/mGBA.cfg"
+MG_CFG="/run/muos/storage/info/config/mGBA/mGBA.cfg"
 if [ ! -f "$MG_CFG.bak" ]; then
 	cp "$MG_CFG" "$MG_CFG.bak"
 	cp -f "$DEVICE_CONTROL_DIR/mGBA.cfg" "$MG_CFG"

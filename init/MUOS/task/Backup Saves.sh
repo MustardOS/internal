@@ -33,11 +33,11 @@ RA_SAVEFILE_DIR=$(echo "$RA_SAVEFILE_DIR" | sed 's/~//')
 RA_SAVESTATE_DIR=$(echo "$RA_SAVESTATE_DIR" | sed 's/~//')
 
 # Set RetroArch save source directories
-if [ "$RA_SAVEFILE_DIR" = "$(GET_VAR "global" "storage/save")/MUOS/save/file" ]; then
+if [ "$RA_SAVEFILE_DIR" = "/run/muos/storage/save/file" ]; then
 	MUOS_SAVEFILE_DIR="$RA_SAVEFILE_DIR"
 fi
 
-if [ "$RA_SAVESTATE_DIR" = "$(GET_VAR "global" "storage/save")/MUOS/save/state" ]; then
+if [ "$RA_SAVESTATE_DIR" = "/run/muos/storage/save/state" ]; then
 	MUOS_SAVESTATE_DIR="$RA_SAVESTATE_DIR"
 fi
 
@@ -58,13 +58,13 @@ else
 fi
 
 # Define Dreamcast VMU source
-if [ -d "$(GET_VAR "global" "storage/bios")/MUOS/bios/dc" ]; then
-	if [ -f "$(GET_VAR "global" "storage/bios")/MUOS/bios/dc/dc_nvmem.bin" ]; then
-		DREAMCAST_NVMEM="$(GET_VAR "global" "storage/bios")/MUOS/bios/dc/dc_nvmem.bin"
+if [ -d "/run/muos/storage/bios/dc" ]; then
+	if [ -f "/run/muos/storage/bios/dc/dc_nvmem.bin" ]; then
+		DREAMCAST_NVMEM="/run/muos/storage/bios/dc/dc_nvmem.bin"
 	fi
-	VMU_SAVES=$(ls "$(GET_VAR "global" "storage/bios")/MUOS/bios/dc/vmu_save_"* 2>/dev/null)
+	VMU_SAVES=$(ls "/run/muos/storage/bios/dc/vmu_save_"* 2>/dev/null)
 	if [ -n "$VMU_SAVES" ]; then
-		DREAMCAST_VMU="$(GET_VAR "global" "storage/bios")/MUOS/bios/dc/vmu_save_"*
+		DREAMCAST_VMU="/run/muos/storage/bios/dc/vmu_save_"*
 	fi
 fi
 

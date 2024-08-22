@@ -3,12 +3,12 @@
 . /opt/muos/script/var/func.sh
 
 if [ "$1" = "?R" ] && [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 1 ]; then
-	THEME=$(find "$(GET_VAR "global" "storage/theme")/MUOS/theme" -name '*.zip' | shuf -n 1)
+	THEME=$(find "/run/muos/storage/theme" -name '*.zip' | shuf -n 1)
 else
-	THEME="$(GET_VAR "global" "storage/theme")/MUOS/theme/$1.zip"
+	THEME="/run/muos/storage/theme/$1.zip"
 fi
 
-THEME_DIR="$(GET_VAR "global" "storage/theme")/MUOS/theme"
+THEME_DIR="/run/muos/storage/theme"
 
 BOOTLOGO_DEF="/opt/muos/device/$(GET_VAR "device" "board/name")/bootlogo.bmp"
 BOOTLOGO_NEW="$THEME_DIR/active/image/bootlogo.bmp"

@@ -4,7 +4,7 @@
 
 pkill -STOP muxtask
 
-MUOS_CONFIG_DIR="$(GET_VAR "global" "storage/config")/MUOS/info/config"
+MUOS_CONFIG_DIR="/run/muos/storage/info/config"
 
 echo "Removing all configurations"
 rm -rf "${MUOS_CONFIG_DIR:?}"/*

@@ -15,7 +15,7 @@ if [ "$SLEEP_STATE_VAL" = "awake" ]; then
 
 		touch "$SS_LOCK"
 
-		BASE_DIR="$(GET_VAR "global" "storage/screenshot")/MUOS/screenshot"
+		BASE_DIR="/run/muos/storage/screenshot"
 		CURRENT_DATE=$(date +"%Y%m%d_%H%M")
 		INDEX=0
 

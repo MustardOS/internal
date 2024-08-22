@@ -270,7 +270,7 @@ while true; do
 				nice --20 /opt/muos/extra/muxsysinfo
 				;;
 			"favourite")
-				find "$(GET_VAR "global" "storage/fav")"/MUOS/info/favourite -maxdepth 1 -type f -size 0 -delete
+				find "/run/muos/storage/info/favourite" -maxdepth 1 -type f -size 0 -delete
 				echo launcher >$ACT_GO
 				SET_VAR "system" "foreground_process" "muxplore"
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m favourite
@@ -282,7 +282,7 @@ while true; do
 				fi
 				;;
 			"history")
-				find "$(GET_VAR "global" "storage/fav")"/MUOS/info/history -maxdepth 1 -type f -size 0 -delete
+				find "/run/muos/storage/info/history" -maxdepth 1 -type f -size 0 -delete
 				echo launcher >$ACT_GO
 				SET_VAR "system" "foreground_process" "muxplore"
 				nice --20 /opt/muos/extra/muxplore -i 0 -m history

@@ -38,9 +38,9 @@ fi
 
 # Update paths in config based on storage preference.
 sed -i \
-	-e "s|^SaveSRAMPath = .*|SaveSRAMPath = \"$(GET_VAR "global" "storage/save")/MUOS/save/file/Mupen64Plus\"|" \
-	-e "s|^SaveStatePath = .*|SaveStatePath = \"$(GET_VAR "global" "storage/save")/MUOS/save/state/Mupen64Plus\"|" \
-	-e "s|^ScreenshotPath = .*|ScreenshotPath = \"$(GET_VAR "global" "storage/screenshot")/MUOS/screenshot\"|" \
+	-e "s|^SaveSRAMPath = .*|SaveSRAMPath = \"/run/muos/storage/save/file/Mupen64Plus\"|" \
+	-e "s|^SaveStatePath = .*|SaveStatePath = \"/run/muos/storage/save/state/Mupen64Plus\"|" \
+	-e "s|^ScreenshotPath = .*|ScreenshotPath = \"/run/muos/storage/screenshot\"|" \
 	"$MP64_CFG"
 
 chmod +x "$EMUDIR"/mupen64plus

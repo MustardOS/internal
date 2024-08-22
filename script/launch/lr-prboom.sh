@@ -26,7 +26,7 @@ dos2unix -n "$ROMPATH/$NAME.doom" "$ROMPATH/$NAME.doom"
 IWAD=$(awk -F'"' '/parentwad/ {print $2}' "$ROMPATH/$NAME.doom")
 
 cp -f "$ROMPATH/$NAME.doom" "$PRBC"
-cp -f "$(GET_VAR "global" "storage/bios")/MUOS/bios/prboom.wad" "$ROMPATH/.$NAME/prboom.wad"
+cp -f "/run/muos/storage/bios/prboom.wad" "$ROMPATH/.$NAME/prboom.wad"
 cp -f "$ROMPATH/.IWAD/$IWAD" "$ROMPATH/.$NAME/$IWAD"
 
 RA_CONF="$(GET_VAR "device" "storage/rom/mount")/MUOS/retroarch/retroarch.cfg"
@@ -39,12 +39,12 @@ sed -i -e '/^system_directory/d' \
 	-e '/^screenshot_directory/d' "$RA_CONF"
 
 {
-	echo "system_directory = \"$(GET_VAR "global" "storage/bios")/MUOS/bios\""
-	echo "input_remapping_directory = \"$(GET_VAR "global" "storage/config")/MUOS/info/config/remaps\""
-	echo "rgui_config_directory = \"$(GET_VAR "global" "storage/config")/MUOS/info/config\""
-	echo "savefile_directory = \"$(GET_VAR "global" "storage/save")/MUOS/save/file\""
-	echo "savestate_directory = \"$(GET_VAR "global" "storage/save")/MUOS/save/state\""
-	echo "screenshot_directory = \"$(GET_VAR "global" "storage/screenshot")/MUOS/screenshot\""
+	echo "system_directory = \"/run/muos/storage/bios\""
+	echo "input_remapping_directory = \"/run/muos/storage/info/config/remaps\""
+	echo "rgui_config_directory = \"/run/muos/storage/info/config\""
+	echo "savefile_directory = \"/run/muos/storage/save/file\""
+	echo "savestate_directory = \"/run/muos/storage/save/state\""
+	echo "screenshot_directory = \"/run/muos/storage/screenshot\""
 } >>"$RA_CONF"
 
 retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/prboom_libretro.so" "$ROMPATH/.$NAME/$IWAD" &

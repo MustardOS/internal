@@ -23,7 +23,7 @@ for S_VAR in $STORAGE_VARS; do
 			FALLBACK=0
 			;;
 		2)
-			MOUNT="$(GET_VAR "device" "storage/usb/mount")"
+			MOUNT="$(GET_VAR "device" "storage/sdcard/mount")"
 			FALLBACK=1
 			;;
 		*)

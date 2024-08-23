@@ -34,26 +34,25 @@ else
 	DEVICE_MOUNT_FAILURE "$(GET_VAR "device" "storage/rom/mount")" "/dev/$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")"
 fi
 
-# Let's wait a bit for the mount to go through - just in case!
-sleep 1
+RESTORE_ROM_FS() {
+	LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
+	rsync --archive --checksum --remove-source-files /opt/muos/init/ "$(GET_VAR "device" "storage/rom/mount")"/ &
 
-LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
-cp -r /opt/muos/init/* "$(GET_VAR "device" "storage/rom/mount")"/ &
+	while pgrep -f "rsync" >/dev/null; do
+		RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
+		/opt/muos/extra/muxstart "$(printf "FACTORY RESET\n\n%s\n" "$RANDOM_LINE")"
+		sleep 4
+	done
+}
 
-# I suppose we just have to wait a little bit before moving on for pgrep to work!
-sleep 1
-
-while pgrep -f "cp" >/dev/null; do
-	RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
-	/opt/muos/extra/muxstart "$(printf "FACTORY RESET\n\n%s\n" "$RANDOM_LINE")"
-	sleep 5
-done
+if [ "$(find /opt/muos/init -type f | wc -l)" -gt 0 ]; then
+	LOGGER "$0" "FACTORY RESET" "Checking init directory"
+	RESTORE_ROM_FS
+	sleep 1
+fi
 
 LOGGER "$0" "FACTORY RESET" "Purging init directory"
 rm -rf /opt/muos/init
-
-LOGGER "$0" "FACTORY RESET" "Restoring PortMaster"
-cp -r /opt/muos/archive/portmaster/* "$(GET_VAR "device" "storage/rom/mount")"/MUOS/PortMaster/
 
 if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
 	LOGGER "$0" "FACTORY RESET" "Changing Network MAC Address"

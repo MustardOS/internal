@@ -6,9 +6,6 @@
 /opt/muos/script/var/init/device.sh init
 /opt/muos/script/var/init/global.sh init
 
-LOGGER "$0" "BOOTING" "Detecting Charge Mode"
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/charge.sh
-
 if [ "$(GET_VAR "device" "board/name")" = "rg40xx-h" ]; then
 	/opt/muos/device/rg40xx-h/script/led_control.sh 2 255 225 173 1
 fi
@@ -84,6 +81,16 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	killall -q "input.sh"
 fi
 
+LOGGER "$0" "BOOTING" "Running Device Specifics"
+/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/start.sh
+
+LOGGER "$0" "BOOTING" "Starting Storage Watchdog"
+/opt/muos/script/mount/sdcard.sh
+/opt/muos/script/mount/usb.sh
+
+LOGGER "$0" "BOOTING" "Detecting Charge Mode"
+/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/charge.sh
+
 LOGGER "$0" "BOOTING" "Setting ARMHF Requirements"
 if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
 	LOGGER "$0" "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
@@ -92,20 +99,18 @@ fi
 ldconfig -v >"$(GET_VAR "device" "storage/rom/mount")/MUOS/log/ldconfig.log"
 
 LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
-if [ ! -f "/usr/lib/gamecontrollerdb.txt" ]; then
-	ln -s "/opt/muos/device/$(GET_VAR "device" "board/name")/control/gamecontrollerdb.txt" "/usr/lib/gamecontrollerdb.txt"
-fi
-if [ ! -f "/usr/lib32/gamecontrollerdb.txt" ]; then
-	ln -s "/opt/muos/device/$(GET_VAR "device" "board/name")/control/gamecontrollerdb.txt" "/usr/lib32/gamecontrollerdb.txt"
-fi
+for l in lib lib32; do
+	if [ ! -f "/usr/$l/gamecontrollerdb.txt" ]; then
+		ln -s "/opt/muos/device/$(GET_VAR "device" "board/name")/control/gamecontrollerdb.txt" "/usr/$l/gamecontrollerdb.txt"
+	fi
+done
 
 if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
-	killall -q "mpg123"
-
 	LOGGER "$0" "FACTORY RESET" "Setting factory_reset to 0"
 	SET_VAR "global" "boot/factory_reset" "0"
 
 	/opt/muos/extra/muxcredits
+	killall -q "mpg123"
 
 	/opt/muos/script/system/halt.sh reboot
 fi
@@ -119,13 +124,6 @@ if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 		HAS_UNLOCK="$?"
 	done
 fi
-
-LOGGER "$0" "BOOTING" "Starting Storage Watchdog"
-/opt/muos/script/mount/sdcard.sh &
-/opt/muos/script/mount/usb.sh &
-
-LOGGER "$0" "BOOTING" "Running Device Specifics"
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/start.sh
 
 LOGGER "$0" "BOOTING" "Bringing up localhost network"
 ifconfig lo up &

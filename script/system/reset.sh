@@ -24,26 +24,36 @@ parted ---pretend-input-tty /dev/"$(GET_VAR "device" "storage/rom/dev")" set "$(
 parted ---pretend-input-tty /dev/"$(GET_VAR "device" "storage/rom/dev")" set "$(GET_VAR "device" "storage/rom/num")" hidden off
 parted ---pretend-input-tty /dev/"$(GET_VAR "device" "storage/rom/dev")" set "$(GET_VAR "device" "storage/rom/num")" msftdata on
 
-LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
-mount -t "$(GET_VAR "device" "storage/rom/type")" /dev/"$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")" "$(GET_VAR "device" "storage/rom/mount")"
+LOGGER "FACTORY RESET" "Remounting ROM Partition"
+if mount -t "$(GET_VAR "device" "storage/rom/type")" -o rw,utf8,noatime,nofail \
+	/dev/"$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")" \
+	"$(GET_VAR "device" "storage/rom/mount")"; then
+	SET_VAR "device" "storage/rom/active" "1"
+else
+	killall -q "mpg123"
+	DEVICE_MOUNT_FAILURE "$(GET_VAR "device" "storage/rom/mount")" "/dev/$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")"
+fi
+
+# Let's wait a bit for the mount to go through - just in case!
+sleep 1
 
 LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
-mv /opt/muos/init/* "$(GET_VAR "device" "storage/rom/mount")"/ &
+cp -r /opt/muos/init/* "$(GET_VAR "device" "storage/rom/mount")"/ &
 
 # I suppose we just have to wait a little bit before moving on for pgrep to work!
 sleep 1
 
-while pgrep -f "mv" >/dev/null; do
+while pgrep -f "cp" >/dev/null; do
 	RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
 	/opt/muos/extra/muxstart "$(printf "FACTORY RESET\n\n%s\n" "$RANDOM_LINE")"
 	sleep 5
 done
 
-LOGGER "$0" "FACTORY RESET" "Restoring PortMaster"
-cp -r /opt/muos/archive/portmaster/* "$(GET_VAR "device" "storage/rom/mount")"/MUOS/PortMaster/
-
 LOGGER "$0" "FACTORY RESET" "Purging init directory"
 rm -rf /opt/muos/init
+
+LOGGER "$0" "FACTORY RESET" "Restoring PortMaster"
+cp -r /opt/muos/archive/portmaster/* "$(GET_VAR "device" "storage/rom/mount")"/MUOS/PortMaster/
 
 if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
 	LOGGER "$0" "FACTORY RESET" "Changing Network MAC Address"

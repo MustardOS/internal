@@ -12,19 +12,26 @@ while true; do
 		if ! $MOUNTED; then
 			FS_TYPE=$(blkid -o value -s TYPE "/dev/$STORE_DEVICE")
 			if [ "$FS_TYPE" = "vfat" ]; then
-				mount -t vfat -o rw,utf8,noatime,nofail "/dev/$STORE_DEVICE" "$(GET_VAR "device" "storage/usb/mount")"
-				MOUNTED=true
+				if mount -t vfat -o rw,utf8,noatime,nofail "/dev/$STORE_DEVICE" "$(GET_VAR "device" "storage/usb/mount")"; then
+					SET_VAR "device" "storage/usb/active" "1"
+					MOUNTED=true
+				fi
 			elif [ "$FS_TYPE" = "exfat" ]; then
-				mount -t exfat -o rw,utf8,noatime,nofail "/dev/$STORE_DEVICE" "$(GET_VAR "device" "storage/usb/mount")"
-				MOUNTED=true
+				if mount -t exfat -o rw,utf8,noatime,nofail "/dev/$STORE_DEVICE" "$(GET_VAR "device" "storage/usb/mount")"; then
+					SET_VAR "device" "storage/usb/active" "1"
+					MOUNTED=true
+				fi
 			elif [ "$FS_TYPE" = "ext4" ]; then
-				mount -t ext4 -o defaults,noatime,nofail "/dev/$STORE_DEVICE" "$(GET_VAR "device" "storage/usb/mount")"
-				MOUNTED=true
+				if mount -t ext4 -o defaults,noatime,nofail "/dev/$STORE_DEVICE" "$(GET_VAR "device" "storage/usb/mount")"; then
+					SET_VAR "device" "storage/usb/active" "1"
+					MOUNTED=true
+				fi
 			fi
 			/opt/muos/script/mount/prepare.sh "$(GET_VAR "device" "storage/usb/mount")" &
 		fi
 	elif $MOUNTED; then
 		umount "$(GET_VAR "device" "storage/usb/mount")"
+		SET_VAR "device" "storage/usb/active" "0"
 		MOUNTED=false
 	fi
 	sleep 2

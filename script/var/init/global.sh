@@ -27,7 +27,7 @@ SETTINGS_GENERAL_VARS="hidden bgm sound startup power low_battery colour brightn
 SETTINGS_ADVANCED_VARS="swap thermal font verbose volume brightness offset lock led random_theme retrowait android state"
 VISUAL_VARS="battery network bluetooth clock boxart name dash contentfolder contentfile"
 WEB_VARS="shell browser terminal syncthing ntp"
-STORAGE_VARS="bios config catalogue fav music save screenshot theme"
+STORAGE_VARS="bios config catalogue content music save screenshot theme"
 
 for INIT in boot clock network settings/general settings/advanced visual web storage; do
 	case "$INIT" in

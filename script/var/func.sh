@@ -64,3 +64,13 @@ LOGGER() {
 	fi
 	printf "%s\t[%s] :: %s - %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "$1" "$2" "$3" >>"$MUOS_BOOT_LOG"
 }
+
+DEVICE_MOUNT_FAILURE() {
+	/opt/muos/extra/muxstart "$(printf "Critical Mount Failure\n\nFailed to mount '%s'!\n\n%s" "$1" "$2")"
+	sleep infinity
+}
+
+DIRECTORY_MOUNT_FAILURE() {
+	/opt/muos/extra/muxstart "$(printf "Critical Mount Failure\n\nFailed to mount '%s' on '%s'!" "$1" "$2")"
+	sleep infinity
+}

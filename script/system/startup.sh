@@ -81,12 +81,12 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	killall -q "input.sh"
 fi
 
-LOGGER "$0" "BOOTING" "Running Device Specifics"
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/start.sh
-
 LOGGER "$0" "BOOTING" "Starting Storage Watchdog"
 /opt/muos/script/mount/sdcard.sh
 /opt/muos/script/mount/usb.sh
+
+LOGGER "$0" "BOOTING" "Running Device Specifics"
+/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/start.sh
 
 LOGGER "$0" "BOOTING" "Detecting Charge Mode"
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/script/charge.sh

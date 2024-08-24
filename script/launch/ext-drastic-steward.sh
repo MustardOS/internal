@@ -23,10 +23,6 @@ SET_VAR "system" "foreground_process" "drastic"
 
 EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-steward"
 
-# Replace the save state location to where the user set it to!
-SETTINGS_FILE="$EMUDIR/resources/settings.json"
-sed -i "s|\(\"states\":\"\)[^\"]*|\1$(GET_VAR "global" "storage/save")/MUOS/save/drastic|g" "$SETTINGS_FILE"
-
 chmod +x "$EMUDIR"/launch.sh
 cd "$EMUDIR" || exit
 

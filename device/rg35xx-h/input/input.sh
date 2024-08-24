@@ -75,7 +75,6 @@ fi
 
 	# Power long press combos:
 	if [ "$COUNT_POWER_LONG" -eq 1 ]; then
-		. /opt/muos/script/var/global/setting_general.sh
 		COUNT_POWER_LONG=0
 
 		if [ "$STATE_L1:$STATE_L2:$STATE_R1:$STATE_R2" = 1:1:1:1 ]; then

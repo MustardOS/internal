@@ -14,6 +14,7 @@ RUN_WITH_TIMEOUT() {
 
 	local EXIT_STATUS="$?"
 	if [ "$EXIT_STATUS" -gt 128 ]; then
+		# Command exited due to signal.
 		printf 'Killed %s after timeout\n' "$DESCRIPTION"
 	fi
 	return "$EXIT_STATUS"
@@ -33,7 +34,7 @@ KILL_AND_WAIT() {
 
 	printf 'Waiting for processes to terminate: '
 	for _ in $(seq "$((TIMEOUT_SEC*100/25))"); do
-		# Sleep before check since even SIGKILL isn't instant.
+		# Minimum 250ms delay for things to settle a bit.
 		sleep .25
 		if ! PROCS="$(FIND_PROCS "$@")"; then
 			printf 'done\n'
@@ -44,16 +45,15 @@ KILL_AND_WAIT() {
 	return 1
 }
 
-# Prints names of commands still running outside the current session. Returns
-# success if at least one process is still running, and failure otherwise.
+# Prints a space-separated list of running process command names using the same
+# criteria as killall5. Returns success if at least one such process is found.
 #
 # Usage: FIND_PROCS [-o OMIT_PID]...
 FIND_PROCS() {
 	local EXIT_STATUS=1 PID SID COMM
 	while read -r PID SID COMM; do
-		# Skip init (PID 1), kernel threads (SID 0), and processes in
-		# the same session as the halt process.
-		if [ "$PID" -eq 1 ] || [ "$SID" -eq 0 ] || [ "$SID" -eq "$HALT_SID" ]; then
+		# Skip init (PID 1), kernel threads (SID 0), and this session.
+		if [ "$PID" -eq 1 ] || [ "$SID" -eq 0 ] || [ "$SID" -eq "$CURRENT_SID" ]; then
 			continue
 		fi
 		# Skip PIDs the caller tells us to. List should be short, so
@@ -64,8 +64,8 @@ FIND_PROCS() {
 				continue 2
 			fi
 		done
-		# Found a process we should've killed that is still alive.
-		if [ "$EXIT_STATUS" -eq 1 ]; then
+		# Fonud a running process matching our criteria.
+		if [ "$EXIT_STATUS" -ne 0 ]; then
 			EXIT_STATUS=0
 		else
 			printf ' '
@@ -75,23 +75,15 @@ FIND_PROCS() {
 	return "$EXIT_STATUS"
 }
 
-# Prints the session ID of the specified process.
-#
-# Usage: GET_SID PID
-GET_SID() {
-	cut -d ' ' -f 6 "/proc/$1/stat"
-}
-
 # Sanity check that SID = PID. (See note on setsid in halt.sh for rationale.)
-HALT_SID="$(GET_SID "$$")"
-if [ "$HALT_SID" -ne "$$" ]; then
+CURRENT_SID="$(cut -d ' ' -f 6 /proc/self/stat)"
+if [ "$CURRENT_SID" -ne "$$" ]; then
 	printf 'Not a session leader (run halt.sh, not halt_internal.sh)\n' >&2
 	exit 1
 fi
 
-# Sanity check required parameters. Any additional args will be passed to
-# killall5 directly, allowing the caller to specify `-o PID` and safeguard
-# certain processes (e.g., FUSE mounts) from our initial termination pass.
+# Any additional args will be passed to killall5 directly, allowing the caller
+# to specify `-o PID` and omit certain processes from early termination.
 if [ "$#" -le 1 ]; then
 	printf 'Wrong number of arguments (run halt.sh, not halt_internal.sh)\n' >&2
 	exit 1
@@ -124,15 +116,13 @@ shift 1
 		KILL_AND_WAIT 1 KILL "$@"
 	fi
 
-	# We log the steps that are likely to fail (shutdown script errors,
-	# processes that don't respond to SIGTERM, etc.), but we have to close
-	# the log file before syncing and unmounting to ensure it's written.
+	# Log output for debugging, but close the log file before we sync and
+	# unmount to ensure it's written and avoid keeping the filesystem busy.
 	printf 'Closing log file...\n'
 } 2>&1 | tee >(ts '%Y-%m-%d %H:%M:%S' >>/opt/muos/halt.log)
 
 # Sync filesystems before unmounting them. (This should be unnecessary, but
-# sysvinit has done it since time immemorial, and the cached writes still need
-# to be flushed at some point regardless.)
+# sysvinit does it, and the cached writes need to be flushed at some point.)
 printf 'Syncing writes to disk...\n'
 sync
 

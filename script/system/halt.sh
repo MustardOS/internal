@@ -26,31 +26,25 @@ if [ "$(readlink "/proc/$PPID/exe")" = /opt/muos/bin/fbpad ]; then
 fi
 
 # Omit muxsplash from the termination process to ensure shutdown splash shows.
-for OMIT_PID in $(pidof /opt/muos/extra/muxsplash); do
-	set -- "$@" -o "$OMIT_PID"
-done
-
+#
 # Omit FUSE mount binaries from the termination process. Otherwise, FUSE
 # filesystems (e.g., exFAT) would unmount in parallel with other programs
 # exiting, preventing them from writing state to the SD card during cleanup.
-for OMIT_PID in $(pidof /sbin/mount.exfat-fuse); do
+for OMIT_PID in $(pidof /opt/muos/extra/muxsplash /sbin/mount.exfat-fuse); do
 	set -- "$@" -o "$OMIT_PID"
 done
 
-# Our shutdown sequence kills processes using killall5, which sends signals to
-# every process except those in the current session. This means by default, we
-# might miss killing some processes (e.g., background jobs in the same shell as
-# halt.sh is invoked).
+# We kill processes using killall5, which sends signals to processes outside
+# the current session. We might miss killing some processes since we don't know
+# anything about the session we're started in.
 #
 # We address this by wrapping the actual shutdown sequence in a setsid command,
-# ensuring we invoke killall5 from a new (and otherwise empty) session.
+# ensuring we invoke killall5 from a new, empty session.
 #
 # Use -f to always fork a new process, even if it would possible for the
-# current process to become a session leader directly. This ensures
-# halt_internal.sh always gets a new PID, which prevents our parent process
-# from "helpfully" trying to kill us when it terminates.
+# current process to become a session leader directly. This prevents our parent
+# process from "helpfully" trying to kill us when it terminates.
 #
-# Use -w to wait for halt_internal.sh to terminate. On a successful halt, that
-# doesn't really matter, but it allows us to return an appropriate exit status
-# if the shutdown fails partway through.
+# Use -w to wait for halt_internal.sh to terminate so we can return an
+# appropriate exit status if the shutdown fails partway through.
 exec setsid -fw /opt/muos/script/system/halt_internal.sh "$@"

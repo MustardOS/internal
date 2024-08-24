@@ -149,7 +149,7 @@ chmod -R 755 /opt &
 
 echo 2 >/proc/sys/abi/cp15_barrier &
 
-cp "/opt/muos/boot.log" "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/."
+cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/."
 
 LOGGER "$0" "BOOTING" "Setting current variable modes"
 GET_VAR "global" "settings/advanced/android" >/tmp/mux_adb_mode

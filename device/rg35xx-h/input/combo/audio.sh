@@ -41,7 +41,7 @@ if [ -z "$1" ]; then
 	exit 0
 fi
 
-if [ ! "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ]; then
+if [ ! "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ] && [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
 	case "$1" in
 		I)
 			PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_VL/$(GET_VAR "device" "audio/max"))*100}")
@@ -55,18 +55,14 @@ if [ ! "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ]; then
 			if [ "$NEW_VL" -gt "$(GET_VAR "device" "audio/max")" ]; then
 				NEW_VL=$(GET_VAR "device" "audio/max")
 			fi
-			if [ ! -e "$SLEEP_STATE" ] || [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
-				SET_CURRENT "$NEW_VL"
-			fi
+			SET_CURRENT "$NEW_VL"
 			;;
 		D)
 			NEW_VL=$((CURRENT_VL - 8))
 			if [ "$NEW_VL" -lt "$(GET_VAR "device" "audio/min")" ]; then
 				NEW_VL=0
 			fi
-			if [ ! -e "$SLEEP_STATE" ] || [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
-				SET_CURRENT "$NEW_VL"
-			fi
+			SET_CURRENT "$NEW_VL"
 			;;
 		[0-9]*)
 			if [ "$1" -ge 0 ] && [ "$1" -le "$(GET_VAR "device" "audio/max")" ]; then

@@ -4,36 +4,37 @@
 
 BRIGHT_FILE="/opt/muos/config/brightness.txt"
 BRIGHT_FILE_PERCENT="/tmp/current_brightness_percent"
-
 SLEEP_STATE="/tmp/sleep_state"
-SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 
-GET_CURRENT() {
-	DISPLAY_READ lcd0 getbl
-}
-
-CURRENT_BL=$(GET_CURRENT)
+CURRENT_BL=$(DISPLAY_READ lcd0 getbl)
 
 SET_CURRENT() {
-	if [ $1 -eq 0 ]; then
-		echo 4 >/sys/class/graphics/fb0/blank
+	C_BRIGHT=$1
 
-		printf "%d" "$1" >"$BRIGHT_FILE_PERCENT"
+	if [ "$C_BRIGHT" -eq 0 ]; then
+		echo 4 >/sys/class/graphics/fb0/blank
+		DISPLAY_WRITE lcd0 setbl "0"
+
+		printf "%d" "$C_BRIGHT" >"$BRIGHT_FILE_PERCENT"
+
+		SET_VAR "global" "settings/general/brightness" "0"
+
 		if ! pgrep -f "muxcharge" >/dev/null; then
-			printf "%d" "$1" >"$BRIGHT_FILE"
-			echo "Brightness set to $1 ($1%)"
+			printf "%d" "$C_BRIGHT" >"$BRIGHT_FILE"
+			echo "Brightness set to $C_BRIGHT ($C_BRIGHT%)"
 		fi
 	else
 		echo 0 >/sys/class/graphics/fb0/blank
 
-		PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($1/$(GET_VAR "device" "screen/bright"))*100}")
+		PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($C_BRIGHT/$(GET_VAR "device" "screen/bright"))*100}")
 		printf "%d" "$PERCENTAGE" >"$BRIGHT_FILE_PERCENT"
 
-		DISPLAY_WRITE lcd0 setbl "$1"
+		SET_VAR "global" "settings/general/brightness" "$((C_BRIGHT - 2))"
+		DISPLAY_WRITE lcd0 setbl "$C_BRIGHT"
 
 		if ! pgrep -f "muxcharge" >/dev/null; then
-			printf "%d" "$1" >"$BRIGHT_FILE"
-			echo "Brightness set to $1 ($PERCENTAGE%)"
+			printf "%d" "$C_BRIGHT" >"$BRIGHT_FILE"
+			echo "Brightness set to $C_BRIGHT ($PERCENTAGE%)"
 		fi
 	fi
 }
@@ -44,7 +45,7 @@ if [ -z "$1" ]; then
 	exit 0
 fi
 
-if [ ! "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ]; then
+if [ ! "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ] && [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
 	case "$1" in
 		I)
 			PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_BL/$(GET_VAR "device" "screen/bright"))*100}")
@@ -59,10 +60,7 @@ if [ ! "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ]; then
 			if [ "$NEW_BL" -gt "$(GET_VAR "device" "screen/bright")" ]; then
 				NEW_BL=$(GET_VAR "device" "screen/bright")
 			fi
-			SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
-			if [ "$SLEEP_STATE_VAL" = "awake" ]; then
-				SET_CURRENT "$NEW_BL"
-			fi
+			SET_CURRENT "$NEW_BL"
 			;;
 		D)
 			if [ "$CURRENT_BL" -le 15 ]; then
@@ -73,10 +71,7 @@ if [ ! "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ]; then
 			if [ "$NEW_BL" -lt 0 ]; then
 				NEW_BL=0
 			fi
-			SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
-			if [ "$SLEEP_STATE_VAL" = "awake" ]; then
-				SET_CURRENT "$NEW_BL"
-			fi
+			SET_CURRENT "$NEW_BL"
 			;;
 		[0-9]*)
 			if [ "$1" -ge 0 ] && [ "$1" -le "$(GET_VAR "device" "screen/bright")" ]; then

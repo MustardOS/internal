@@ -13,14 +13,14 @@ killall -q "evtest"
 KEY_COMBO=0
 RESUME_UPTIME="$(UPTIME)"
 
+echo "awake" >"/tmp/sleep_state"
+
 # Place combo and trigger scripts here because fuck knows why for loops won't work...
 # Make sure to put them in order of how you want them to work too!
 if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
 	if [ "$(GET_VAR "global" "settings/general/shutdown")" -ge 0 ]; then
 		/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/trigger/power.sh &
 		/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/trigger/sleep.sh &
-	else
-		echo "awake" >"/tmp/sleep_state"
 	fi
 fi
 

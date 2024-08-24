@@ -14,15 +14,14 @@ KEY_COMBO=0
 RESUME_UPTIME="$(UPTIME)"
 
 DPAD="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
-MOTO="/sys/class/power_supply/axp2202-battery/moto"
-
-
 
 MOTO_BUZZ() {
-	echo 1 >$MOTO
+	echo 1 >"$(GET_VAR "device" "board/rumble")"
 	sleep 0.1
-	echo 0 >$MOTO
+	echo 0 >"$(GET_VAR "device" "board/rumble")"
 }
+
+echo "awake" >"/tmp/sleep_state"
 
 # Place combo and trigger scripts here because fuck knows why for loops won't work...
 # Make sure to put them in order of how you want them to work too!
@@ -30,8 +29,6 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
 	if [ "$(GET_VAR "global" "settings/general/shutdown")" -ge 0 ]; then
 		/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/trigger/power.sh &
 		/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/trigger/sleep.sh &
-	else
-		echo "awake" >"/tmp/sleep_state"
 	fi
 fi
 

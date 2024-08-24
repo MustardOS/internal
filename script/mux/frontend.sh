@@ -101,8 +101,9 @@ while true; do
 
 	# Core Association
 	if [ -s "$ASS_GO" ]; then
-		ROM_DIR=$(sed -n '1p' "$ASS_GO")
-		ROM_SYS=$(sed -n '2p' "$ASS_GO")
+		ROM_NAME=$(sed -n '1p' "$ASS_GO")
+		ROM_DIR=$(sed -n '2p' "$ASS_GO")
+		ROM_SYS=$(sed -n '3p' "$ASS_GO")
 
 		rm "$ASS_GO"
 		echo "assign" >$ACT_GO
@@ -149,14 +150,14 @@ while true; do
 				echo explore >$ACT_GO
 				echo "$LAST_INDEX_SYS" >/tmp/lisys
 				SET_VAR "system" "foreground_process" "muxassign"
-				nice --20 /opt/muos/extra/muxassign -a 0 -d "$ROM_DIR" -s "$ROM_SYS"
+				nice --20 /opt/muos/extra/muxassign -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
 				;;
 			"explore")
 				MODULE=$(sed -n '1p' "$EX_CARD")
 				echo launcher >$ACT_GO
 				echo "$LAST_INDEX_SYS" >/tmp/lisys
 				SET_VAR "system" "foreground_process" "muxassign"
-				nice --20 /opt/muos/extra/muxassign -a 1 -d "$(cat /tmp/explore_dir)" -s none
+				nice --20 /opt/muos/extra/muxassign -a 1 -c "$ROM_NAME" -d "$(cat /tmp/explore_dir)" -s none
 				SET_VAR "system" "foreground_process" "muxplore"
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m "$MODULE"
 				;;

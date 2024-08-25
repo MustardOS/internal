@@ -27,7 +27,6 @@ while true; do
 					MOUNTED=true
 				fi
 			fi
-			/opt/muos/script/mount/prepare.sh "$(GET_VAR "device" "storage/usb/mount")" &
 		fi
 	elif $MOUNTED; then
 		umount "$(GET_VAR "device" "storage/usb/mount")"

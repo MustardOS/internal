@@ -77,7 +77,7 @@ elif [ "$CORE" = ext-flycast ]; then
 elif [ "$CORE" = ext-ffplay ]; then
 	/opt/muos/script/launch/ext-ffplay.sh "$NAME" "$CORE" "$ROM"
 # OpenBOR External
-elif [[ "$CORE" == ext-openbor* ]]; then
+elif [ "${CORE#ext-openbor}" != "$CORE" ]; then
 	/opt/muos/script/launch/ext-openbor.sh "$NAME" "$CORE" "$ROM"
 # PPSSPP External
 elif [ "$CORE" = ext-ppsspp ]; then
@@ -97,7 +97,7 @@ elif [ "${CORE#ext-mupen64plus}" != "$CORE" ]; then
 # ScummVM External
 elif [ "$CORE" = ext-scummvm ]; then
 	/opt/muos/script/launch/ext-scummvm.sh "$NAME" "$CORE" "$ROM"
-# Flycast Extreme armhf LibRetro
+# Flycast Extreme LibRetro
 elif [ "$CORE" = flycast_xtreme_libretro.so ]; then
 	/opt/muos/script/launch/lr-flycastx.sh "$NAME" "$CORE" "$ROM"
 # ScummVM LibRetro
@@ -132,15 +132,8 @@ fi
 
 killall -q "$GPTOKEYB_BIN" "$EVSIEVE_BIN"
 
-case "$(GET_VAR "device" "board/name")" in
-	RG*)
-		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
-		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
-		;;
-	*)
-		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
-		;;
-esac
+echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" 1>&2
+FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
 
 if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
 	SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)

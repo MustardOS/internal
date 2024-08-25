@@ -13,12 +13,6 @@ sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.con
 insmod /lib/modules/mali_kbase.ko
 insmod /lib/modules/squashfs.ko
 
-GET_VAR "device" "cpu/default" >"$(GET_VAR "device" "cpu/governor")"
-GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
-GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"
-GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
-GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
-
 if mount -t "$(GET_VAR "device" "storage/boot/type")" -o rw,utf8,noatime,nofail \
 	/dev/"$(GET_VAR "device" "storage/boot/dev")$(GET_VAR "device" "storage/boot/sep")$(GET_VAR "device" "storage/boot/num")" \
 	"$(GET_VAR "device" "storage/boot/mount")"; then

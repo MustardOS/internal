@@ -43,18 +43,14 @@ fi
 		case $STATE_START in
 			1)
 				KEY_COMBO=1
-				if [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
-					echo "ignore" >"/tmp/net_state"
-				fi
+				[ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ] && printf "ignore" >"/tmp/net_start"
 				;;
 		esac
 
 		case $STATE_SELECT in
 			1)
 				KEY_COMBO=1
-				if [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
-					echo "menu" >"/tmp/net_state"
-				fi
+				[ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ] && printf "menu" >"/tmp/net_start"
 				;;
 		esac
 

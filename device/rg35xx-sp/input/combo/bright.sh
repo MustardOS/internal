@@ -48,7 +48,10 @@ fi
 if [ ! "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ] && [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
 	case "$1" in
 		I)
-			PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_BL/$(GET_VAR "device" "screen/bright"))*100}")
+			E_BRIGHT="$(cat $BRIGHT_FILE)"
+			[ "$E_BRIGHT" -lt 1 ] && E_BRIGHT=90
+			DISPLAY_WRITE lcd0 setbl "$E_BRIGHT"
+			PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($E_BRIGHT/$(GET_VAR "device" "screen/bright"))*100}")
 			echo "$PERCENTAGE" >/tmp/current_brightness_percent
 			;;
 		U)

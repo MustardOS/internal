@@ -3,9 +3,9 @@
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/mux/close_game.sh
 
-if [ "$(GET_VAR "device" "board/name")" = "rg40xx-h" ]; then
-	/opt/muos/device/rg40xx-h/script/led_control.sh 1 0 0 0 0 0 0 0
-fi
+# Reset the dpad switch and LED control - This can be modified to device specifics later!
+echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" 1>&2
+/opt/muos/device/rg40xx-h/script/led_control.sh 1 0 0 0 0 0 0 0
 
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
@@ -42,21 +42,14 @@ fi
 LAST_PLAY="/opt/muos/config/lastplay.txt"
 
 LOGGER "$0" "FRONTEND" "Checking for last or resume startup"
-if [ "$(GET_VAR "global" "settings/general/startup")" = last ] || [ "$(GET_VAR "global" "settings/general/startup")" = resume ]; then
+if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR "global" "settings/general/startup")" = "resume" ]; then
 	if [ -s "$LAST_PLAY" ]; then
 		LOGGER "$0" "FRONTEND" "Checking for network and retrowait"
 		if [ "$(GET_VAR "global" "network/enabled")" -eq 1 ] && [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
 			NET_START="/tmp/net_start"
 			OIP=0
 			while true; do
-				NW_MSG=$(
-					cat <<EOF
-Waiting for network to connect... ($OIP)
-
-Press START to continue loading
-Press SELECT to go to main menu
-EOF
-				)
+				NW_MSG=$(printf "Waiting for network to connect... (%s)\n\nPress START to continue loading\nPress SELECT to go to main menu" "$OIP")
 				/opt/muos/extra/muxstart "$NW_MSG"
 				OIP=$((OIP + 1))
 				if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
@@ -66,7 +59,7 @@ EOF
 				fi
 				if [ "$(cat "$NET_START")" = "ignore" ]; then
 					LOGGER "$0" "FRONTEND" "Ignoring network connection"
-					/opt/muos/extra/muxstart "Ignoring network connection... booting content!"
+					/opt/muos/extra/muxstart "Ignoring network connection... Booting content!"
 					break
 				fi
 				if [ "$(cat "$NET_START")" = "menu" ]; then

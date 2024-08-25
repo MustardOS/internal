@@ -2,8 +2,11 @@
 
 . /opt/muos/script/var/func.sh
 
-if [ "$(cat /opt/muos/config/brightness.txt)" -lt 1 ]; then
+C_BRIGHT="$(cat /opt/muos/config/brightness.txt)"
+if [ "$C_BRIGHT" -lt 1 ]; then
 	/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh U
+else
+	/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh "$C_BRIGHT"
 fi
 
 if [ "$(cat /tmp/mux_colour_temp)" -ne "$(GET_VAR "global" "settings/general/colour")" ]; then

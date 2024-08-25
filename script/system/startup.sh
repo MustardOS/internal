@@ -112,7 +112,8 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	/opt/muos/extra/muxcredits
 	killall -q "mpg123"
 
-	/opt/muos/script/system/halt.sh reboot
+	. /opt/muos/script/mux/close_game.sh
+	HALT_SYSTEM frontend reboot
 fi
 
 LOGGER "$0" "BOOTING" "Checking for passcode lock"

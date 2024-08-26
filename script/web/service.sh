@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-killall -q sshd sftpgo gotty syncthing ntp.sh
+killall -q sshd sftpgo gotty rslsync syncthing ntp.sh
 
 if [ "$(GET_VAR "global" "web/shell")" -eq 1 ]; then
 	chmod -R 700 /opt/openssh/var /opt/openssh/etc
@@ -22,12 +22,10 @@ if [ "$(GET_VAR "global" "web/terminal")" -eq 1 ]; then
 fi
 
 if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ]; then
-	CURRENT_IP=$(cat "/opt/muos/config/address.txt")
-
 	nice -2 /opt/muos/bin/syncthing serve \
 		--home="$(GET_VAR "device" "storage/rom/mount")/MUOS/syncthing" \
 		--skip-port-probing \
-		--gui-address="$CURRENT_IP:7070" \
+		--gui-address="0.0.0.0:7070" \
 		--no-browser \
 		--no-default-folder >/dev/null &
 fi

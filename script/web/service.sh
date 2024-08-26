@@ -32,6 +32,10 @@ if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ]; then
 		--no-default-folder >/dev/null &
 fi
 
+if [ "$(GET_VAR "global" "web/resilio")" -eq 1 ]; then
+	nice -2 /opt/muos/bin/rslsync --webui.listen 0.0.0.0:6060 >/dev/null &
+fi
+
 if [ "$(GET_VAR "global" "web/ntp")" -eq 1 ]; then
 	nice -2 /opt/muos/script/web/ntp.sh &
 fi

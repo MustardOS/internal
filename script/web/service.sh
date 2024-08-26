@@ -27,7 +27,7 @@ if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ]; then
 	nice -2 /opt/muos/bin/syncthing serve \
 		--home="$(GET_VAR "device" "storage/rom/mount")/MUOS/syncthing" \
 		--skip-port-probing \
-		--gui-address="$CURRENT_IP:7070" \
+		--gui-address="0.0.0.0:7070" \
 		--no-browser \
 		--no-default-folder >/dev/null &
 fi

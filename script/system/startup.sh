@@ -81,6 +81,9 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	killall -q "input.sh"
 fi
 
+LOGGER "$0" "BOOTING" "Precaching muX and RetroArch System"
+vmtouch -tfb "/opt/muos/preload.txt" &
+
 LOGGER "$0" "BOOTING" "Starting Storage Watchdog"
 /opt/muos/script/mount/sdcard.sh
 /opt/muos/script/mount/usb.sh

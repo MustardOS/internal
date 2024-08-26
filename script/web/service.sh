@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-killall -q sshd sftpgo gotty syncthing ntp.sh
+killall -q sshd sftpgo gotty rslsync syncthing ntp.sh
 
 if [ "$(GET_VAR "global" "web/shell")" -eq 1 ]; then
 	chmod -R 700 /opt/openssh/var /opt/openssh/etc

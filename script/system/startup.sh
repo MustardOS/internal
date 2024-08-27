@@ -79,6 +79,13 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	fi
 
 	killall -q "input.sh"
+
+	LOGGER "$0" "BOOTING" "Setting ARMHF Requirements"
+	if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
+		LOGGER "$0" "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
+		ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
+	fi
+	ldconfig -v >"/opt/muos/ldconfig.log"
 fi
 
 LOGGER "$0" "BOOTING" "Precaching muX and RetroArch System"
@@ -100,13 +107,6 @@ GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_
 GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"
 GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
 GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
-
-LOGGER "$0" "BOOTING" "Setting ARMHF Requirements"
-if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
-	LOGGER "$0" "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
-	ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
-fi
-ldconfig -v >"$(GET_VAR "device" "storage/rom/mount")/MUOS/log/ldconfig.log"
 
 LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
 for l in lib lib32; do

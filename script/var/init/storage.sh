@@ -54,3 +54,16 @@ for S_VAR in $STORAGE_VARS; do
 
 	S_=$((S_ + 1))
 done
+
+# Bind hardcoded paths on SD1's ROM parition (where we can't use symlinks) to
+# subdirs of the appropriate locations under /run/muos/storage (bound above).
+BIND_INTO_STORAGE() {
+	local TARGET="/run/muos/storage/$1" MOUNT="$(GET_VAR "device" "storage/rom/mount")/MUOS/$2"
+	mkdir -p "$TARGET" "$MOUNT"
+	if ! mount --bind "$TARGET" "$MOUNT"; then
+		CRITICAL_FAILURE directory "$TARGET" "$MOUNT"
+	fi
+}
+
+BIND_INTO_STORAGE save/state/PPSSPP-Ext emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE
+BIND_INTO_STORAGE save/file/PPSSPP-Ext emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA

@@ -44,10 +44,10 @@ for S_VAR in $STORAGE_VARS; do
 			if [ $FALLBACK -eq 1 ]; then
 				MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 				if ! mount --bind "$MOUNT/MUOS/$S_LOC" "/run/muos/storage/$S_LOC"; then
-					DIRECTORY_MOUNT_FAILURE "$S_LOC" "$MOUNT"
+					CRITICAL_FAILURE directory "$S_LOC" "$MOUNT"
 				fi
 			else
-				DIRECTORY_MOUNT_FAILURE "$S_LOC" "$MOUNT"
+				CRITICAL_FAILURE directory "$S_LOC" "$MOUNT"
 			fi
 		fi
 	fi

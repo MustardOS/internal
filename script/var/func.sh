@@ -65,14 +65,15 @@ LOGGER() {
 	printf "%s\t[%s] :: %s - %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "$1" "$2" "$3" >>"$MUOS_BOOT_LOG"
 }
 
-DEVICE_MOUNT_FAILURE() {
-	/opt/muos/extra/muxstart "$(printf "Critical Mount Failure\n\nFailed to mount '%s'!\n\n%s" "$1" "$2")"
-	sleep 10
-	/opt/muos/script/system/halt.sh poweroff
-}
+CRITICAL_FAILURE() {
+	case "$1" in
+		device) MESSAGE=$(printf "Critical Failure\n\nFailed to mount '%s'!\n\n%s" "$2" "$3") ;;
+		directory) MESSAGE=$(printf "Critical Failure\n\nFailed to mount '%s' on '%s'!" "$2" "$3") ;;
+		udev) MESSAGE="Critical Failure\n\nFailed to initialise udev!" ;;
+		*) MESSAGE="Critical Failure\n\nAn unknown error occurred!" ;;
+	esac
 
-DIRECTORY_MOUNT_FAILURE() {
-	/opt/muos/extra/muxstart "$(printf "Critical Mount Failure\n\nFailed to mount '%s' on '%s'!" "$1" "$2")"
+	/opt/muos/extra/muxstart "$MESSAGE"
 	sleep 10
 	/opt/muos/script/system/halt.sh poweroff
 }

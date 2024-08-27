@@ -12,10 +12,7 @@ fi
 
 echo "pipewire" >"$AUDIO_SRC"
 
-/sbin/udevd -d || {
-	echo "FAIL"
-	exit 1
-}
+/sbin/udevd -d || CRITICAL_FAILURE udev
 udevadm trigger --type=subsystems --action=add &
 udevadm trigger --type=devices --action=add &
 udevadm settle --timeout=30 || LOGGER "$0" "BOOTING" "Udevadm Settle Failure"
@@ -86,6 +83,15 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 		ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
 	fi
 	ldconfig -v >"/opt/muos/ldconfig.log"
+
+	LOGGER "$0" "FACTORY RESET" "Switching off Factory Reset mode"
+	SET_VAR "global" "boot/factory_reset" "0"
+
+	/opt/muos/extra/muxcredits
+	killall -q "mpg123"
+
+	. /opt/muos/script/mux/close_game.sh
+	HALT_SYSTEM frontend reboot
 fi
 
 LOGGER "$0" "BOOTING" "Precaching muX and RetroArch System"
@@ -109,22 +115,12 @@ GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sa
 GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
 
 LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
-for l in lib lib32; do
-	if [ ! -f "/usr/$l/gamecontrollerdb.txt" ]; then
-		ln -s "/opt/muos/device/$(GET_VAR "device" "board/name")/control/gamecontrollerdb.txt" "/usr/$l/gamecontrollerdb.txt"
+for LIB_D in lib lib32; do
+	GCDB="gamecontrollerdb.txt"
+	if [ ! -f "/usr/$LIB_D/$GCDB" ]; then
+		ln -s "/opt/muos/device/$(GET_VAR "device" "board/name")/control/$GCDB" "/usr/$LIB_D/$GCDB" &
 	fi
 done
-
-if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
-	LOGGER "$0" "FACTORY RESET" "Setting factory_reset to 0"
-	SET_VAR "global" "boot/factory_reset" "0"
-
-	/opt/muos/extra/muxcredits
-	killall -q "mpg123"
-
-	. /opt/muos/script/mux/close_game.sh
-	HALT_SYSTEM frontend reboot
-fi
 
 LOGGER "$0" "BOOTING" "Checking for passcode lock"
 HAS_UNLOCK=0
@@ -160,14 +156,14 @@ chmod -R 755 /opt &
 
 echo 2 >/proc/sys/abi/cp15_barrier &
 
-cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/."
+cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
 LOGGER "$0" "BOOTING" "Setting current variable modes"
-GET_VAR "global" "settings/advanced/android" >/tmp/mux_adb_mode
-GET_VAR "global" "settings/general/colour" >/tmp/mux_colour_temp
-GET_VAR "global" "settings/general/hdmi" >/tmp/mux_hdmi_mode
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/audio.sh I
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh I
+GET_VAR "global" "settings/advanced/android" >/tmp/mux_adb_mode &
+GET_VAR "global" "settings/general/colour" >/tmp/mux_colour_temp &
+GET_VAR "global" "settings/general/hdmi" >/tmp/mux_hdmi_mode &
+/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/audio.sh I &
+/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh I &
 
 LOGGER "$0" "BOOTING" "Backing up global configuration"
 /opt/muos/script/system/config_backup.sh &

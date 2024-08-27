@@ -7,6 +7,9 @@
 echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" 1>&2
 /opt/muos/device/rg40xx-h/script/led_control.sh 1 0 0 0 0 0 0 0
 
+/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/audio.sh I
+/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh I
+
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
 ASS_GO=/tmp/ass_go

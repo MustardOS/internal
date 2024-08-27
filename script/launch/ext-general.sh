@@ -33,4 +33,4 @@ fi
 
 echo "pipewire" >"$AUDIO_SRC"
 amixer -c 0 sset "digital volume" 100%
-/opt/muos/golden.sh &
+/opt/muos/script/mux/golden.sh &

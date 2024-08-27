@@ -5,8 +5,6 @@
 ACT_GO=/tmp/act_go
 ROM_GO=/tmp/rom_go
 
-SUSPEND_APP=muxplore
-
 GPTOKEYB_BIN=gptokeyb2
 GPTOKEYB_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb"
 GPTOKEYB_CONTROLLERCONFIG="/usr/lib/gamecontrollerdb.txt"
@@ -27,8 +25,6 @@ if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 		exit
 	fi
 fi
-
-pkill -STOP "$SUSPEND_APP"
 
 cat "$ROM_GO" >"$ROM_LAST"
 
@@ -144,5 +140,3 @@ fi
 if [ -s "$PC_IP" ]; then
 	python "$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/discord_presence_handheld.py" "$(cat "$PC_IP")" --clear
 fi
-
-pkill -CONT "$SUSPEND_APP"

@@ -162,8 +162,6 @@ LOGGER "$0" "BOOTING" "Setting current variable modes"
 GET_VAR "global" "settings/advanced/android" >/tmp/mux_adb_mode &
 GET_VAR "global" "settings/general/colour" >/tmp/mux_colour_temp &
 GET_VAR "global" "settings/general/hdmi" >/tmp/mux_hdmi_mode &
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/audio.sh I
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh I
 
 LOGGER "$0" "BOOTING" "Backing up global configuration"
 /opt/muos/script/system/config_backup.sh &

@@ -1,0 +1,20 @@
+{
+  "FAVOURITES": "FAVORITOS",
+  "HISTORY": "HISTORIAL",
+  "EXPLORE": "EXPLORAR",
+  "EXPLORE (SD1)": "EXPLORAR (SD1)",
+  "EXPLORE (SD2)": "EXPLORAR (SD2)",
+  "EXPLORE (USB)": "EXPLORAR (USB)",
+  "Could not load content - No core is associated": "No se pudo cargar el contenido - No hay ningún núcleo asociado",
+  "Could not load content!": "¡No se pudo cargar el contenido!",
+  "Loading...": "Cargando...",
+  "Directories cannot be added to Favourites": "No se pueden agregar directorios a Favoritos",
+  "Added to Favourites": "Añadido a Favoritos",
+  "Error adding to Favourites": "Error al añadir a Favoritos",
+  "Open": "Abrir",
+  "Back": "Atrás",
+  "Refresh": "Actualizar",
+  "Favourite": "Favorito",
+  "Info": "Información",
+  "Remove": "Eliminar"
+}

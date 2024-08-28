@@ -48,15 +48,6 @@ else
 	PPSSPP_RA_SAVE_DIR=""
 fi
 
-# Define PPSSPP source directories
-if [ -d "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp" ]; then
-	PPSSPP_SAVE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA"
-	PPSSPP_SAVESTATE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE"
-else
-	PPSSPP_SAVE_DIR=""
-	PPSSPP_SAVESTATE_DIR=""
-fi
-
 # Define Dreamcast VMU source
 if [ -d "/run/muos/storage/bios/dc" ]; then
 	if [ -f "/run/muos/storage/bios/dc/dc_nvmem.bin" ]; then
@@ -92,8 +83,6 @@ TO_BACKUP="
 $MUOS_SAVEFILE_DIR
 $MUOS_SAVESTATE_DIR
 $PPSSPP_RA_SAVE_DIR
-$PPSSPP_SAVE_DIR
-$PPSSPP_SAVESTATE_DIR
 $DRASTIC_SAVE_DIR
 $DRASTIC_SAVESTATE_DIR
 $DRASTIC_STEWARD_SAVE_DIR

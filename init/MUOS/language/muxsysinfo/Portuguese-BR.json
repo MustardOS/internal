@@ -1,0 +1,16 @@
+{
+  "muOS Version": "Versão do muOS",
+  "Linux Kernel": "Kernel Linux",
+  "System Uptime": "Tempo de Atividade do Sistema",
+  "CPU Information": "Informação da CPU",
+  "CPU Speed": "Velocidade da CPU",
+  "CPU Governor": "Regulador da CPU",
+  "RAM Usage": "Uso de RAM",
+  "Temperature": "Temperatura",
+  "Running Services": "Serviços em Execução",
+  "Battery Capacity": "Capacidade da Bateria",
+  "Battery Voltage": "Voltagem da Bateria",
+  "Thank you for using muOS!": "Obrigado por usar o muOS!",
+  "Back": "Voltar",
+  "SYSTEM DETAILS": "Detalhes do Sistema"
+}

@@ -246,6 +246,11 @@ while true; do
 				SET_VAR "system" "foreground_process" "muxrtc"
 				nice --20 /opt/muos/extra/muxrtc
 				;;
+			"language")
+				echo config >$ACT_GO
+				SET_VAR "system" "foreground_process" "muxlanguage"
+				nice --20 /opt/muos/extra/muxlanguage
+				;;
 			"timezone")
 				echo rtc >$ACT_GO
 				SET_VAR "system" "foreground_process" "muxtimezone"

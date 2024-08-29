@@ -33,7 +33,7 @@ for S_VAR in $STORAGE_VARS; do
 			;;
 	esac
 
-	# Always mount 'retroarch' to SD1 as no user should be realistically place it on SD2.
+	# Always mount 'retroarch' to SD1 as no user should realistically place it on SD2.
 	# It also reduces a number of headaches if somebody decides to force SD2 on RetroArch Config storage preference!
 	if [ "$S_LOC" = "retroarch" ]; then
 		mount --bind "$(GET_VAR "device" "storage/rom/mount")/MUOS/$S_LOC" "/run/muos/storage/$S_LOC"
@@ -41,7 +41,7 @@ for S_VAR in $STORAGE_VARS; do
 		echo mount --bind "$MOUNT/MUOS/$S_LOC" "/run/muos/storage/$S_LOC"
 
 		if ! mount --bind "$MOUNT/MUOS/$S_LOC" "/run/muos/storage/$S_LOC"; then
-			if [ $FALLBACK -eq 1 ]; then
+			if [ "$FALLBACK" -eq 1 ]; then
 				MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 				if ! mount --bind "$MOUNT/MUOS/$S_LOC" "/run/muos/storage/$S_LOC"; then
 					CRITICAL_FAILURE directory "$S_LOC" "$MOUNT"
@@ -55,10 +55,11 @@ for S_VAR in $STORAGE_VARS; do
 	S_=$((S_ + 1))
 done
 
-# Bind hardcoded paths on SD1's ROM parition (where we can't use symlinks) to
+# Bind hardcoded paths on SD1's ROM partition (where we can't use symlinks) to
 # subdirs of the appropriate locations under /run/muos/storage (bound above).
 BIND_INTO_STORAGE() {
-	local TARGET="/run/muos/storage/$1" MOUNT="$(GET_VAR "device" "storage/rom/mount")/MUOS/$2"
+	TARGET="/run/muos/storage/$1"
+	MOUNT="$(GET_VAR "device" "storage/rom/mount")/MUOS/$2"
 	mkdir -p "$TARGET" "$MOUNT"
 	if ! mount --bind "$TARGET" "$MOUNT"; then
 		CRITICAL_FAILURE directory "$TARGET" "$MOUNT"

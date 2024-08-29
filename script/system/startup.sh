@@ -158,11 +158,6 @@ echo 2 >/proc/sys/abi/cp15_barrier &
 
 cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
-LOGGER "$0" "BOOTING" "Setting current variable modes"
-GET_VAR "global" "settings/advanced/android" >/tmp/mux_adb_mode &
-GET_VAR "global" "settings/general/colour" >/tmp/mux_colour_temp &
-GET_VAR "global" "settings/general/hdmi" >/tmp/mux_hdmi_mode &
-
 LOGGER "$0" "BOOTING" "Backing up global configuration"
 /opt/muos/script/system/config_backup.sh &
 

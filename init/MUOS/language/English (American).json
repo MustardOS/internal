@@ -1,32 +1,32 @@
 {
   "muxapp": {
     "Loading Application": "Loading Application",
-    "Launch": "Lancer",
-    "Back": "Retour",
-    "APPLICATIONS": "Applications",
+    "Launch": "Launch",
+    "Back": "Back",
+    "APPLICATIONS": "APPLICATIONS",
     "No Applications Found": "No Applications Found",
-    "Archive Manager": "Gestionnaire d'archives",
+    "Archive Manager": "Archive Manager",
     "Dingux Commander": "Dingux Commander",
-    "Flip Clock": "Horloge rabattable",
-    "GMU Music Player": "Lecteur de musique GMU",
+    "Flip Clock": "Flip Clock",
+    "GMU Music Player": "GMU Music Player",
     "Moonlight": "Moonlight",
     "PortMaster": "PortMaster",
     "PPSSPP": "PPSSPP",
     "RetroArch": "RetroArch",
     "Simple Terminal": "Simple Terminal",
-    "Task Toolkit": "Boîte à outils de tâches"
+    "Task Toolkit": "Task Toolkit"
   },
   "muxarchive": {
     "INSTALLED": "INSTALLED",
     "Extract": "Extract",
-    "Back": "Retour",
-    "ARCHIVE MANAGER": "Gestionnaire d'archives",
+    "Back": "Back",
+    "ARCHIVE MANAGER": "ARCHIVE MANAGER",
     "No Archives Found": "No Archives Found"
   },
   "muxassign": {
     "ASSIGN CORE": "ASSIGN CORE",
-    "Confirm": "Confirmer",
-    "Back": "Retour",
+    "Confirm": "Confirm",
+    "Back": "Back",
     "Directory": "Directory",
     "Individual": "Individual",
     "Recursive": "Recursive",
@@ -40,55 +40,55 @@
     "Health": "Health"
   },
   "muxconfig": {
-    "General Settings": "Paramètres Généraux",
-    "Theme Picker": "Sélecteur de Thème",
+    "General Settings": "General Settings",
+    "Theme Picker": "Theme Picker",
     "Wi-Fi Network": "Wi-Fi Network",
-    "Web Services": "Services Internet",
-    "Date and Time": "Date et Heure",
+    "Web Services": "Web Services",
+    "Date and Time": "Date and Time",
     "Language": "Language",
-    "Confirm": "Confirmer",
-    "Back": "Retour",
-    "CONFIGURATION": "Configuration"
+    "Confirm": "Confirm",
+    "Back": "Back",
+    "CONFIGURATION": "CONFIGURATION"
   },
   "muxinfo": {
     "Activity Tracker": "Activity Tracker",
-    "Input Tester": "Tester les touches",
-    "System Details": "Détails du Système",
-    "Supporters": "Soutiens",
-    "Confirm": "Confirmer",
-    "Back": "Retour",
-    "INFORMATION": "Information"
+    "Input Tester": "Input Tester",
+    "System Details": "System Details",
+    "Supporters": "Supporters",
+    "Confirm": "Confirm",
+    "Back": "Back",
+    "INFORMATION": "INFORMATION"
   },
   "muxlanguage": {
     "Saving Language": "Saving Language",
-    "Confirm": "Confirmer",
-    "Back": "Retour",
+    "Confirm": "Confirm",
+    "Back": "Back",
     "LANGUAGES": "LANGUAGES",
     "No Languages Found...": "No Languages Found..."
   },
   "muxlaunch": {
-    "Explore Content": "Jeux",
-    "Favourites": "Favoris",
-    "History": "Historique",
+    "Explore Content": "Explore Content",
+    "Favourites": "Favorites",
+    "History": "History",
     "Applications": "Applications",
     "Information": "Information",
     "Configuration": "Configuration",
-    "Reboot": "Redémarrer la console",
-    "Shutdown": "Éteindre la console",
-    "Confirm": "Confirmer",
+    "Reboot": "Reboot",
+    "Shutdown": "Shutdown",
+    "Confirm": "Confirm",
     "MAIN MENU": "MAIN MENU"
   },
   "muxnetprofile": {
     "No Saved Network Profiles Found": "No Saved Network Profiles Found",
     "Load": "Load",
-    "Back": "Retour",
+    "Back": "Back",
     "NETWORK PROFILE": "NETWORK PROFILE",
     "Loading Network Profiles...": "Loading Network Profiles..."
   },
   "muxnetscan": {
     "No Wi-Fi Networks Found": "No Wi-Fi Networks Found",
     "Use": "Use",
-    "Back": "Retour",
+    "Back": "Back",
     "Rescan": "Rescan",
     "NETWORK SCAN": "NETWORK SCAN",
     "Scanning for Wi-Fi Networks...": "Scanning for Wi-Fi Networks..."
@@ -112,33 +112,33 @@
     "Static": "Static",
     "False": "False",
     "True": "True",
-    "Back": "Retour",
+    "Back": "Back",
     "Scan": "Scan",
     "Profiles": "Profiles",
     "WI-FI NETWORK": "WI-FI NETWORK"
   },
   "muxpass": {
-    "Confirm": "Confirmer",
-    "Back": "Retour",
+    "Confirm": "Confirm",
+    "Back": "Back",
     "PASSCODE": "PASSCODE"
   },
   "muxplore": {
-    "FAVOURITES": "Favoris",
-    "HISTORY": "Historique",
+    "FAVOURITES": "FAVOURITES",
+    "HISTORY": "HISTORY",
     "EXPLORE": "EXPLORE",
     "EXPLORE (SD1)": "EXPLORE (SD1)",
     "EXPLORE (SD2)": "EXPLORE (SD2)",
     "EXPLORE (USB)": "EXPLORE (USB)",
     "Could not load content - No core is associated": "Could not load content - No core is associated",
     "Could not load content!": "Could not load content!",
-    "Loading...": "Chargement...",
-    "Directories cannot be added to Favourites": "Directories cannot be added to Favourites",
-    "Added to Favourites": "Added to Favourites",
-    "Error adding to Favourites": "Error adding to Favourites",
+    "Loading...": "Loading...",
+    "Directories cannot be added to Favourites": "Directories cannot be added to Favorites",
+    "Added to Favourites": "Added to Favorites",
+    "Error adding to Favourites": "Error adding to Favorites",
     "Open": "Open",
-    "Back": "Retour",
+    "Back": "Back",
     "Refresh": "Refresh",
-    "Favourite": "Favourite",
+    "Favourite": "Favorite",
     "Info": "Info",
     "Remove": "Remove"
   },
@@ -152,7 +152,7 @@
     "Set Timezone": "Set Timezone",
     "Saving Changes": "Saving Changes",
     "Save": "Save",
-    "DATE AND TIME": "Date et Heure"
+    "DATE AND TIME": "DATE AND TIME"
   },
   "muxstorage": {
     "RetroArch BIOS": "RetroArch BIOS",
@@ -182,29 +182,29 @@
     "Running Services": "Running Services",
     "Battery Capacity": "Battery Capacity",
     "Battery Voltage": "Battery Voltage",
-    "Back": "Retour",
-    "SYSTEM DETAILS": "Détails du Système"
+    "Back": "Back",
+    "SYSTEM DETAILS": "SYSTEM DETAILS"
   },
   "muxtask": {
-    "Launch": "Lancer",
-    "Back": "Retour",
-    "TASK TOOLKIT": "Boîte à outils de tâches",
+    "Launch": "Launch",
+    "Back": "Back",
+    "TASK TOOLKIT": "TASK TOOLKIT",
     "No Tasks Found": "No Tasks Found"
   },
   "muxtester": {
     "Press POWER to finish testing": "Press POWER to finish testing",
-    "INPUT TESTER": "Tester les touches"
+    "INPUT TESTER": "INPUT TESTER"
   },
   "muxtheme": {
     "Loading Theme": "Loading Theme",
-    "Confirm": "Confirmer",
-    "Back": "Retour",
-    "THEME PICKER": "Sélecteur de Thème",
+    "Confirm": "Confirm",
+    "Back": "Back",
+    "THEME PICKER": "THEME PICKER",
     "No Themes Found": "No Themes Found"
   },
   "muxtimezone": {
     "Saving Timezone": "Saving Timezone",
-    "Confirm": "Confirmer",
+    "Confirm": "Confirm",
     "TIMEZONE": "TIMEZONE",
     "No Timezones Found...": "No Timezones Found..."
   },
@@ -240,7 +240,7 @@
     "Background Music": "Background Music",
     "Navigation Sound": "Navigation Sound",
     "Device Startup": "Device Startup",
-    "Colour Temperature": "Colour Temperature",
+    "Colour Temperature": "Color Temperature",
     "Brightness": "Brightness",
     "HDMI Output": "HDMI Output",
     "Sleep Function": "Sleep Function",
@@ -251,8 +251,8 @@
     "Enabled": "Enabled",
     "Main Menu": "Main Menu",
     "Content Explorer": "Content Explorer",
-    "Favourites": "Favoris",
-    "History": "Historique",
+    "Favourites": "Favorites",
+    "History": "History",
     "Last Game": "Last Game",
     "Resume Game": "Resume Game",
     "Deep Arctic (-256)": "Deep Arctic (-256)",
@@ -295,7 +295,7 @@
     "Sleep 60m + Shutdown": "Sleep 60m + Shutdown",
     "Saving Changes": "Saving Changes",
     "Save": "Save",
-    "GENERAL SETTINGS": "Paramètres Généraux"
+    "GENERAL SETTINGS": "GENERAL SETTINGS"
   },
   "muxvisual": {
     "Battery": "Battery",
@@ -339,6 +339,6 @@
     "Enabled": "Enabled",
     "Saving Changes": "Saving Changes",
     "Save": "Save",
-    "WEB SERVICES": "Services Internet"
+    "WEB SERVICES": "WEB SERVICES"
   }
 }

@@ -64,13 +64,7 @@
     "Confirm": "Confirmar",
     "Back": "Voltar",
     "LANGUAGES": "LANGUAGES",
-    "No Languages Found...": "No Languages Found...",
-    "English": "English",
-    "French": "French",
-    "Portuguese-PT": "Portuguese-PT",
-    "Portuguese-BR": "Portuguese-BR",
-    "Spanish": "Spanish",
-    "Valencian": "Valencian"
+    "No Languages Found...": "No Languages Found..."
   },
   "muxlaunch": {
     "Explore Content": "Explorador",
@@ -188,7 +182,6 @@
     "Running Services": "Running Services",
     "Battery Capacity": "Battery Capacity",
     "Battery Voltage": "Battery Voltage",
-    "Thank you for using muOS!": "Thank you for using muOS!",
     "Back": "Voltar",
     "SYSTEM DETAILS": "Detalhes do Sistema"
   },
@@ -238,8 +231,6 @@
     "Loud": "Loud",
     "Low": "Low",
     "High": "High",
-    "mem": "mem",
-    "freeze": "freeze",
     "Saving Changes": "Saving Changes",
     "Save": "Save",
     "ADVANCED SETTINGS": "ADVANCED SETTINGS"

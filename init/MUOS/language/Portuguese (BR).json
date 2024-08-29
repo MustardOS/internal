@@ -64,13 +64,7 @@
     "Confirm": "Confirmar",
     "Back": "Voltar",
     "LANGUAGES": "IDIOMAS",
-    "No Languages Found...": "Nenhum Idioma Encontrado...",
-    "English": "Inglês",
-    "French": "Francês",
-    "Portuguese-PT": "Português - Portugal",
-    "Portuguese-BR": "Português - Brasil",
-    "Spanish": "Espanhol",
-    "Valencian": "Valenciano"
+    "No Languages Found...": "Nenhum Idioma Encontrado..."
   },
   "muxlaunch": {
     "Explore Content": "Explorar Conteúdo",
@@ -188,7 +182,6 @@
     "Running Services": "Serviços em Execução",
     "Battery Capacity": "Capacidade da Bateria",
     "Battery Voltage": "Voltagem da Bateria",
-    "Thank you for using muOS!": "Obrigado por usar o muOS!",
     "Back": "Voltar",
     "SYSTEM DETAILS": "Detalhes do Sistema"
   },
@@ -238,8 +231,6 @@
     "Loud": "Barulhento",
     "Low": "Baixo",
     "High": "Alto",
-    "mem": "mem",
-    "freeze": "freeze",
     "Saving Changes": "Salvando Alterações",
     "Save": "Salvar",
     "ADVANCED SETTINGS": "CONFIGURAÇÕES AVANÇADAS"

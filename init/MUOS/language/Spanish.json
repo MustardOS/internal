@@ -64,13 +64,7 @@
     "Confirm": "CONFIRMAR",
     "Back": "ATRÁS",
     "LANGUAGES": "LANGUAGES",
-    "No Languages Found...": "No Languages Found...",
-    "English": "English",
-    "French": "French",
-    "Portuguese-PT": "Portuguese-PT",
-    "Portuguese-BR": "Portuguese-BR",
-    "Spanish": "Spanish",
-    "Valencian": "Valencian"
+    "No Languages Found...": "No Languages Found..."
   },
   "muxlaunch": {
     "Explore Content": "Juegos",
@@ -188,7 +182,6 @@
     "Running Services": "Running Services",
     "Battery Capacity": "Battery Capacity",
     "Battery Voltage": "Battery Voltage",
-    "Thank you for using muOS!": "Thank you for using muOS!",
     "Back": "ATRÁS",
     "SYSTEM DETAILS": "Detalles del Sistema"
   },
@@ -238,8 +231,6 @@
     "Loud": "Loud",
     "Low": "Low",
     "High": "High",
-    "mem": "mem",
-    "freeze": "freeze",
     "Saving Changes": "Saving Changes",
     "Save": "Save",
     "ADVANCED SETTINGS": "ADVANCED SETTINGS"

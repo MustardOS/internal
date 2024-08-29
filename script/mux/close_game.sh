@@ -78,13 +78,6 @@ HALT_SYSTEM() {
 
 				# Close foreground process (for autosave).
 				CLOSE_CONTENT
-
-				# Only support "last game" and "resume game"
-				# startup options for RetroArch; clear last
-				# played otherwise.
-				if [ "$FG_PROC_VAL" != retroarch ]; then
-					: >/opt/muos/config/lastplay.txt
-				fi
 				;;
 		esac
 	} 2>&1 | ts '%Y-%m-%d %H:%M:%S' >>/opt/muos/halt.log

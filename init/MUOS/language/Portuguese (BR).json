@@ -52,7 +52,7 @@
   },
   "muxinfo": {
     "Activity Tracker": "Registro de Atividade",
-    "Input Tester": "Testar Botões",
+    "Input Tester": "Teste de Botões",
     "System Details": "Detalhes do Sistema",
     "Supporters": "Apoiadores",
     "Confirm": "Confirmar",
@@ -149,10 +149,10 @@
     "Hour": "Hora",
     "Minute": "Minuto",
     "Time Notation": "Formato de Hora",
-    "Set Timezone": "Fuso Horário",
+    "Set Timezone": "Selecionar Fuso Horário",
     "Saving Changes": "Salvando Alterações",
     "Save": "Salvar",
-    "DATE AND TIME": "Data e Hora"
+    "DATE AND TIME": "DATA E HORA"
   },
   "muxstorage": {
     "RetroArch BIOS": "BIOS do RetroArch",
@@ -183,17 +183,17 @@
     "Battery Capacity": "Capacidade da Bateria",
     "Battery Voltage": "Voltagem da Bateria",
     "Back": "Voltar",
-    "SYSTEM DETAILS": "Detalhes do Sistema"
+    "SYSTEM DETAILS": "DETALHES DO SISTEMA"
   },
   "muxtask": {
     "Launch": "Executar",
     "Back": "Voltar",
-    "TASK TOOLKIT": "KIT DE FERRAMENTAS",
+    "TASK TOOLKIT": "FERRAMENTAS DE TAREFAS",
     "No Tasks Found": "Nenhuma Ferramenta Encontrada"
   },
   "muxtester": {
     "Press POWER to finish testing": "Aperte POWER para encerrar o teste",
-    "INPUT TESTER": "TESTAR BOTÕES"
+    "INPUT TESTER": "TESTE DE BOTÕES"
   },
   "muxtheme": {
     "Loading Theme": "Carregando Tema",
@@ -214,7 +214,7 @@
     "Interface Font Type": "Tipo de Fonte da Interface",
     "Volume On Boot": "Volume ao Ligar",
     "Brightness On Boot": "Brilho ao Ligar",
-    "Battery Offset": "Desvio de Bateria",
+    "Battery Offset": "Ajuste do Desvio de Bateria",
     "Passcode Lock": "Trava com Senha",
     "LED During Play": "LED Durante a Jogatina",
     "Random Theme on Boot": "Tema Aleatório ao Ligar",
@@ -236,7 +236,7 @@
     "ADVANCED SETTINGS": "CONFIGURAÇÕES AVANÇADAS"
   },
   "muxtweakgen": {
-    "Show Hidden Content": "Mostrar Conteudo Escondido",
+    "Show Hidden Content": "Mostrar Conteudo Oculto",
     "Background Music": "Música de Fundo",
     "Navigation Sound": "Sons de Navegação",
     "Device Startup": "Inicialização do Dispositivo",
@@ -247,7 +247,7 @@
     "Interface Options": "Opções de Interface",
     "Storage Preference": "Opções de Armazenamento",
     "Advanced Settings": "Configurações Avançadas",
-    "Disabled": "Desativdo",
+    "Disabled": "Desativado",
     "Enabled": "Ativado",
     "Main Menu": "Menu Principal",
     "Content Explorer": "Explorador de Conteúdo",
@@ -302,24 +302,24 @@
     "Network": "Rede",
     "Bluetooth": "Bluetooth",
     "Clock": "Relógio",
-    "Content Box Art": "Arte do Conteúdo",
+    "Content Box Art": "Arte da Caixa",
     "Content Name Scheme": "Esquema de Nome do Conteúdo",
     "Content Dash Replacement": "Substituir Traço no Conteúdo",
     "Display Title Reformatting": "Display Title Reformatting",
     "Menu Counter Folder": "Contador de Pastas do Menu",
     "Menu Counter File": "Contador de Arquivos do Menu",
-    "Hidden": "Escondido",
+    "Hidden": "Oculto",
     "Visible": "Visível",
     "Disabled": "Desativado",
     "Enabled": "Ativado",
-    "Bottom + Behind": "Embaixo + Atrás",
-    "Bottom + Front": "Embaixo + Frente",
-    "Middle + Behind": "Ao Meio + Atrás",
-    "Middle + Front": "Ao Meio + Frente",
-    "Top + Behind": "Acima + Atrás",
-    "Top + Front": "Acima + Frente",
-    "Fullscreen + Behind": "Tela Cheia + Atrás",
-    "Fullscreen + Front": "Tela Cheia + Frente",
+    "Bottom + Behind": "Abaixo + Ao Fundo",
+    "Bottom + Front": "Abaixo + À Frente",
+    "Middle + Behind": "Ao Centro + Ao Fundo",
+    "Middle + Front": "Ao Centro + À Frente",
+    "Top + Behind": "Acima + Ao Fundo",
+    "Top + Front": "Acima + À Frente",
+    "Fullscreen + Behind": "Tela Cheia + Ao Fundo",
+    "Fullscreen + Front": "Tela Cheia + À Frente",
     "Full Name": "Nome Completo",
     "Remove [ ]": "Remover [ ]",
     "Remove ( )": "Remover ( )",
@@ -339,6 +339,6 @@
     "Enabled": "Ativado",
     "Saving Changes": "Salvando Alterações",
     "Save": "Salvar",
-    "WEB SERVICES": "Serviços Web"
+    "WEB SERVICES": "SERVIÇOS WEB"
   }
 }

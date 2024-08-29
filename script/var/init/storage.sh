@@ -3,8 +3,8 @@
 . /opt/muos/script/var/func.sh
 
 # Make sure both VARS and LOCS match the same index as required
-STORAGE_VARS="bios catalogue catalogue config config content content content music save screenshot theme"
-STORAGE_LOCS="bios info/catalogue info/name retroarch info/config info/core info/favourite info/history music save screenshot theme"
+STORAGE_VARS="bios catalogue catalogue config config content content content music save screenshot theme language"
+STORAGE_LOCS="bios info/catalogue info/name retroarch info/config info/core info/favourite info/history music save screenshot theme language"
 
 # Shouldn't need to touch any of the below logic unless a critical failure occurs!
 S_=0

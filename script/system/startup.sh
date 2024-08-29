@@ -52,7 +52,7 @@ esac
 
 if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	LOGGER "$0" "FACTORY RESET" "Setting date time to default"
-	date 082100002024
+	date 090100002024
 	hwclock -w
 
 	/opt/muos/extra/muxtimezone
@@ -67,15 +67,10 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/input.sh
 	/usr/bin/mpg123 -q /opt/muos/factory.mp3 &
 
-	LOGGER "$0" "FACTORY RESET" "Initialising Factory Reset Script"
-	/opt/muos/script/system/reset.sh
-
 	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
 		LOGGER "$0" "FACTORY RESET" "Generating SSH Host Keys"
-		/opt/openssh/bin/ssh-keygen -A
+		/opt/openssh/bin/ssh-keygen -A &
 	fi
-
-	killall -q "input.sh"
 
 	LOGGER "$0" "BOOTING" "Setting ARMHF Requirements"
 	if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
@@ -84,11 +79,14 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	fi
 	ldconfig -v >"/opt/muos/ldconfig.log"
 
+	LOGGER "$0" "FACTORY RESET" "Initialising Factory Reset Script"
+	/opt/muos/script/system/reset.sh
+
 	LOGGER "$0" "FACTORY RESET" "Switching off Factory Reset mode"
 	SET_VAR "global" "boot/factory_reset" "0"
 
+	killall -q "input.sh" "mpg123"
 	/opt/muos/extra/muxcredits
-	killall -q "mpg123"
 
 	. /opt/muos/script/mux/close_game.sh
 	HALT_SYSTEM frontend reboot

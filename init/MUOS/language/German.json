@@ -60,11 +60,11 @@
     "INFORMATION": "INFORMATION"
   },
   "muxlanguage": {
-    "Saving Language": "Sprache wird gespeichert",
+    "Saving Language": "Sprache wird übernommen",
     "Confirm": "Bestätigen",
     "Back": "Zurück",
     "LANGUAGES": "SPRACHE",
-    "No Languages Found...": "Keine Sprachen gefunden...",
+    "No Languages Found...": "Keine Sprachen gefunden..."
   },
   "muxlaunch": {
     "Explore Content": "Inhalte durchsuchen",
@@ -203,7 +203,7 @@
     "No Themes Found": "Keine Themes gefunden..."
   },
   "muxtimezone": {
-    "Saving Timezone": "Zeitzone wird gespeichert",
+    "Saving Timezone": "Zeitzone wird übernommen",
     "Confirm": "Bestätigen",
     "TIMEZONE": "ZEITZONE",
     "No Timezones Found...": "Keine Zeitzonen gefunden..."

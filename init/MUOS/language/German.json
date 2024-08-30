@@ -1,6 +1,6 @@
 {
   "muxapp": {
-    "Loading Application": "Lade Programme",
+    "Loading Application": "Programm lädt",
     "Launch": "Starten",
     "Back": "Zurück",
     "APPLICATIONS": "PROGRAMME",
@@ -24,7 +24,7 @@
     "No Archives Found": "Keine Archive gefunden"
   },
   "muxassign": {
-    "ASSIGN CORE": "Kern zuweisen",
+    "ASSIGN CORE": "KERN ZUWEISEN",
     "Confirm": "Bestätigen",
     "Back": "Zurück",
     "Directory": "Verzeichnis",
@@ -60,7 +60,7 @@
     "INFORMATION": "INFORMATION"
   },
   "muxlanguage": {
-    "Saving Language": "Speichere Sprache",
+    "Saving Language": "Sprache wird gespeichert",
     "Confirm": "Bestätigen",
     "Back": "Zurück",
     "LANGUAGES": "SPRACHE",
@@ -150,7 +150,7 @@
     "Minute": "Minute",
     "Time Notation": "Zeitformat",
     "Set Timezone": "Zeitzone einstellen",
-    "Saving Changes": "Speichere Änderungen",
+    "Saving Changes": "Änderungen werden gespeichert",
     "Save": "Speichern",
     "DATE AND TIME": "DATUM UND UHRZEIT"
   },
@@ -166,7 +166,7 @@
     "SD1": "SD1",
     "SD2": "SD2",
     "AUTO": "AUTO",
-    "Saving Changes": "Speichere Änderungen",
+    "Saving Changes": "Änderungen werden gespeichert",
     "Save": "Speichern",
     "STORAGE PREFERENCE": "SPEICHERPRÄFERENZEN"
   },
@@ -203,7 +203,7 @@
     "No Themes Found": "Keine Themes gefunden..."
   },
   "muxtimezone": {
-    "Saving Timezone": "Speichere Zeitzone",
+    "Saving Timezone": "Zeitzone wird gespeichert",
     "Confirm": "Bestätigen",
     "TIMEZONE": "ZEITZONE",
     "No Timezones Found...": "Keine Zeitzonen gefunden..."
@@ -283,8 +283,8 @@
     "1080p + 24hz": "1080p + 24hz",
     "1080p + 50hz": "1080p + 50hz",
     "1080p + 60hz": "1080p + 60hz",
-    "Sleep Suspend": "Shutdown Verzögerung",
-    "Instant Shutdown": "Sofort",
+    "Sleep Suspend": "Standby / Shutdown",
+    "Instant Shutdown": "Nur Shutdown",
     "Sleep 10s + Shutdown": "Standby 10s + Shutdown",
     "Sleep 30s + Shutdown": "Standby 30s + Shutdown",
     "Sleep 60s + Shutdown": "Standby 60s + Shutdown",
@@ -293,7 +293,7 @@
     "Sleep 10m + Shutdown": "Standby 10m + Shutdown",
     "Sleep 30m + Shutdown": "Standby 30m + Shutdown",
     "Sleep 60m + Shutdown": "Standby 60m + Shutdown",
-    "Saving Changes": "Speichere Änderungen",
+    "Saving Changes": "Änderungen werden gespeichert",
     "Save": "Speichern",
     "GENERAL SETTINGS": "ALLGEMEINE EINSTELLUNGEN"
   },
@@ -324,7 +324,7 @@
     "Remove [ ]": "Entferne [ ]",
     "Remove ( )": "Entferne ( )",
     "Remove [ ] and ( )": "Entferne [ ] und ( )",
-    "Saving Changes": "Speichere Änderungen",
+    "Saving Changes": "Änderungen werden gespeichert",
     "Save": "Speichern",
     "INTERFACE OPTIONS": "INTERFACE EINSTELLUNGEN"
   },
@@ -337,7 +337,7 @@
     "Network Time Sync": "Netzwerk Zeitsynchronisierung",
     "Disabled": "Deaktiviert",
     "Enabled": "Aktiviert",
-    "Saving Changes": "Speichere Änderungen",
+    "Saving Changes": "Änderungen werden gespeichert",
     "Save": "Speichern",
     "WEB SERVICES": "WEB DIENSTE"
   }

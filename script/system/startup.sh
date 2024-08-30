@@ -92,6 +92,9 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	HALT_SYSTEM frontend reboot
 fi
 
+LOGGER "$0" "BOOTING" "Starting Low Power Indicator"
+/opt/muos/script/system/lowpower.sh &
+
 LOGGER "$0" "BOOTING" "Precaching muX and RetroArch System"
 /opt/muos/bin/vmtouch -tfb "/opt/muos/preload.txt" &
 

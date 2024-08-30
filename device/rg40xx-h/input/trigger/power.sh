@@ -8,7 +8,7 @@ SLEEP_STATE="/tmp/sleep_state"
 LED_STATE="/tmp/work_led_state"
 
 UPDATE_DISPLAY() {
-	echo "$2" >"$(GET_VAR "device" "board/led")"
+	echo "$2" >"$(GET_VAR "device" "led/normal")"
 	DISPLAY_WRITE disp0 blank "$1"
 }
 

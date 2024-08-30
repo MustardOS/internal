@@ -107,7 +107,7 @@
     "DNS Server": "DNS Server",
     "Connect": "Verbinden",
     "Status": "Status",
-    "Changes Saved": "Änderungen gespeichert",
+    "Changes Saved": "Änderungen übernommen",
     "DHCP": "DHCP",
     "Static": "Statisch",
     "False": "Nein",
@@ -150,7 +150,7 @@
     "Minute": "Minute",
     "Time Notation": "Zeitformat",
     "Set Timezone": "Zeitzone einstellen",
-    "Saving Changes": "Änderungen werden gespeichert",
+    "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
     "DATE AND TIME": "DATUM UND UHRZEIT"
   },
@@ -166,7 +166,7 @@
     "SD1": "SD1",
     "SD2": "SD2",
     "AUTO": "AUTO",
-    "Saving Changes": "Änderungen werden gespeichert",
+    "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
     "STORAGE PREFERENCE": "SPEICHERPRÄFERENZEN"
   },
@@ -231,7 +231,7 @@
     "Loud": "Laut",
     "Low": "Niedrig",
     "High": "Hoch",
-    "Saving Changes": "Änderungen werden gespeichert",
+    "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
     "ADVANCED SETTINGS": "ERWEITERTE EINSTELLUNGEN"
   },
@@ -294,7 +294,7 @@
     "Sleep 10m + Shutdown": "Standby 10m + Shutdown",
     "Sleep 30m + Shutdown": "Standby 30m + Shutdown",
     "Sleep 60m + Shutdown": "Standby 60m + Shutdown",
-    "Saving Changes": "Änderungen werden gespeichert",
+    "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
     "GENERAL SETTINGS": "ALLGEMEINE EINSTELLUNGEN"
   },
@@ -325,7 +325,7 @@
     "Remove [ ]": "Entferne [ ]",
     "Remove ( )": "Entferne ( )",
     "Remove [ ] and ( )": "Entferne [ ] und ( )",
-    "Saving Changes": "Änderungen werden gespeichert",
+    "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
     "INTERFACE OPTIONS": "INTERFACE EINSTELLUNGEN"
   },
@@ -338,7 +338,7 @@
     "Network Time Sync": "Netzwerk Zeitsynchronisierung",
     "Disabled": "Deaktiviert",
     "Enabled": "Aktiviert",
-    "Saving Changes": "Änderungen werden gespeichert",
+    "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
     "WEB SERVICES": "WEB DIENSTE"
   }

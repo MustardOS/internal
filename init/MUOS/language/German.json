@@ -1,6 +1,6 @@
 {
   "muxapp": {
-    "Loading Application": "Lade Programme",
+    "Loading Application": "Programm lädt",
     "Launch": "Starten",
     "Back": "Zurück",
     "APPLICATIONS": "PROGRAMME",
@@ -14,7 +14,7 @@
     "PPSSPP": "PPSSPP",
     "RetroArch": "RetroArch",
     "Simple Terminal": "Simple Terminal",
-    "Task Toolkit": "Aufgaben und Werkzeuge"
+    "Task Toolkit": "Systemverwaltung"
   },
   "muxarchive": {
     "INSTALLED": "INSTALLIERT",
@@ -24,7 +24,7 @@
     "No Archives Found": "Keine Archive gefunden"
   },
   "muxassign": {
-    "ASSIGN CORE": "Kern zuweisen",
+    "ASSIGN CORE": "KERN ZUWEISEN",
     "Confirm": "Bestätigen",
     "Back": "Zurück",
     "Directory": "Verzeichnis",
@@ -37,7 +37,7 @@
     "Booting System - Please Wait...": "System wird gestartet - Bitte warten...",
     "Capacity": "Kapazität",
     "Voltage": "Spannung",
-    "Health": "Gesundheit"
+    "Health": "Zustand"
   },
   "muxconfig": {
     "General Settings": "Allgemeine Einstellungen",
@@ -60,7 +60,7 @@
     "INFORMATION": "INFORMATION"
   },
   "muxlanguage": {
-    "Saving Language": "Speichere Sprache",
+    "Saving Language": "Sprache wird übernommen",
     "Confirm": "Bestätigen",
     "Back": "Zurück",
     "LANGUAGES": "SPRACHE",
@@ -107,7 +107,7 @@
     "DNS Server": "DNS Server",
     "Connect": "Verbinden",
     "Status": "Status",
-    "Changes Saved": "Änderungen gespeichert",
+    "Changes Saved": "Änderungen übernommen",
     "DHCP": "DHCP",
     "Static": "Statisch",
     "False": "Nein",
@@ -120,7 +120,7 @@
   "muxpass": {
     "Confirm": "Bestätigen",
     "Back": "Zurück",
-    "PASSCODE": "PASSCODE"
+    "PASSCODE": "PASSWORT"
   },
   "muxplore": {
     "FAVOURITES": "FAVORITEN",
@@ -134,7 +134,7 @@
     "Loading...": "Laden...",
     "Directories cannot be added to Favourites": "Verzeichnisse können nicht den Favoriten hinzugefügt werden",
     "Added to Favourites": "Zu den Favoriten hinzugefügt",
-    "Error adding to Favourites": "Fehler beim hinzufügen zu den Favoriten",
+    "Error adding to Favourites": "Fehler beim Hinzufügen zu den Favoriten",
     "Open": "Öffnen",
     "Back": "Zurück",
     "Refresh": "Aktualisieren",
@@ -148,9 +148,9 @@
     "Day": "Tag",
     "Hour": "Stunde",
     "Minute": "Minute",
-    "Time Notation": "Zeitangabe",
+    "Time Notation": "Zeitformat",
     "Set Timezone": "Zeitzone einstellen",
-    "Saving Changes": "Speichere Änderungen",
+    "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
     "DATE AND TIME": "DATUM UND UHRZEIT"
   },
@@ -166,7 +166,7 @@
     "SD1": "SD1",
     "SD2": "SD2",
     "AUTO": "AUTO",
-    "Saving Changes": "Speichere Änderungen",
+    "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
     "STORAGE PREFERENCE": "SPEICHERPRÄFERENZEN"
   },
@@ -180,15 +180,15 @@
     "RAM Usage": "RAM Nutzung",
     "Temperature": "Temperatur",
     "Running Services": "Laufende Dienste",
-    "Battery Capacity": "Battery Kapazität",
-    "Battery Voltage": "Battery Spannung",
+    "Battery Capacity": "Akkukapazität",
+    "Battery Voltage": "Akkuspannung",
     "Back": "Zurück",
     "SYSTEM DETAILS": "SYSTEMDETAILS"
   },
   "muxtask": {
     "Launch": "Starten",
     "Back": "Zurück",
-    "TASK TOOLKIT": "AUFGABEN UND WERKZEUGE",
+    "TASK TOOLKIT": "SYSTEMVERWALTUNG",
     "No Tasks Found": "Keine Aufgaben gefunden..."
   },
   "muxtester": {
@@ -196,42 +196,42 @@
     "INPUT TESTER": "EINGABENTEST"
   },
   "muxtheme": {
-    "Loading Theme": "Lade Theme",
+    "Loading Theme": "Theme lädt",
     "Confirm": "Bestätigen",
     "Back": "Zurück",
     "THEME PICKER": "THEME AUSWAHL",
     "No Themes Found": "Keine Themes gefunden..."
   },
   "muxtimezone": {
-    "Saving Timezone": "Speichere Zeitzone",
+    "Saving Timezone": "Zeitzone wird übernommen",
     "Confirm": "Bestätigen",
     "TIMEZONE": "ZEITZONE",
     "No Timezones Found...": "Keine Zeitzonen gefunden..."
   },
   "muxtweakadv": {
-    "A+B Button Swap": "A+B Knöpfe vertauschen",
+    "A+B Button Swap": "A+B Knöpfe tauschen",
     "Thermal Zone Control": "Thermal Zone Control",
     "Interface Font Type": "Schriftart im Interface",
     "Volume On Boot": "Lautstärke bei Systemstart",
     "Brightness On Boot": "Helligkeit bei Systemstart",
-    "Battery Offset": "Batterie Korrektur",
-    "Passcode Lock": "Passcodesperre",
+    "Battery Offset": "Korrektur Akkuanzeige",
+    "Passcode Lock": "Passwortsperre",
     "LED During Play": "LED-Anzeige im Spiel",
     "Random Theme on Boot": "Zufälliges Theme bei Systemstart",
     "RetroArch Network Wait": "Warte auf Netzwerk für RetroArch",
     "Android Debug Bridge": "Android Debug Bridge",
     "Suspend Power State": "Suspend Power State",
-    "Verbose Messages": "Detaillierterer Meldungen",
+    "Verbose Messages": "Detaillierte Meldungen",
     "Disabled": "Deaktiviert",
     "Enabled": "Aktiviert",
     "Noto Sans": "Noto Sans",
     "Theme Controlled": "Durch Theme gesteuert",
-    "Previous": "Letztes",
+    "Previous": "Bisherige",
     "Quiet": "Leise",
     "Loud": "Laut",
     "Low": "Niedrig",
     "High": "Hoch",
-    "Saving Changes": "Speichere Änderungen",
+    "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
     "ADVANCED SETTINGS": "ERWEITERTE EINSTELLUNGEN"
   },
@@ -244,7 +244,7 @@
     "Brightness": "Helligkeit",
     "HDMI Output": "HDMI Ausgabe",
     "Sleep Function": "Schlaf Funktion",
-    "Low Battery Indicator": "Niedrigbatterieanzeige",
+    "Low Battery Indicator": "Anzeige für niedrigen Akkustand",
     "Interface Options": "Interface Einstellungen",
     "Storage Preference": "Speicherpräferenzen",
     "Advanced Settings": "Erweiterte Einstellungen",
@@ -284,22 +284,22 @@
     "1080p + 24hz": "1080p + 24hz",
     "1080p + 50hz": "1080p + 50hz",
     "1080p + 60hz": "1080p + 60hz",
-    "Sleep Suspend": "Ruhezustand Verzögerung",
-    "Instant Shutdown": "Sofortiges Herunterfahren",
-    "Sleep 10s + Shutdown": "Ruhezustand 10s + Shutdown",
-    "Sleep 30s + Shutdown": "Ruhezustand 30s + Shutdown",
-    "Sleep 60s + Shutdown": "Ruhezustand 60s + Shutdown",
-    "Sleep 2m + Shutdown": "Ruhezustand 2m + Shutdown",
-    "Sleep 5m + Shutdown": "Ruhezustand 5m + Shutdown",
-    "Sleep 10m + Shutdown": "Ruhezustand 10m + Shutdown",
-    "Sleep 30m + Shutdown": "Ruhezustand 30m + Shutdown",
-    "Sleep 60m + Shutdown": "Ruhezustand 60m + Shutdown",
-    "Saving Changes": "Speichere Änderungen",
+    "Sleep Suspend": "Standby / Shutdown",
+    "Instant Shutdown": "Nur Shutdown",
+    "Sleep 10s + Shutdown": "Standby 10s + Shutdown",
+    "Sleep 30s + Shutdown": "Standby 30s + Shutdown",
+    "Sleep 60s + Shutdown": "Standby 60s + Shutdown",
+    "Sleep 2m + Shutdown": "Standby 2m + Shutdown",
+    "Sleep 5m + Shutdown": "Standby 5m + Shutdown",
+    "Sleep 10m + Shutdown": "Standby 10m + Shutdown",
+    "Sleep 30m + Shutdown": "Standby 30m + Shutdown",
+    "Sleep 60m + Shutdown": "Standby 60m + Shutdown",
+    "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
     "GENERAL SETTINGS": "ALLGEMEINE EINSTELLUNGEN"
   },
   "muxvisual": {
-    "Battery": "Batterie",
+    "Battery": "Akku",
     "Network": "Netzwerk",
     "Bluetooth": "Bluetooth",
     "Clock": "Uhr",
@@ -325,7 +325,7 @@
     "Remove [ ]": "Entferne [ ]",
     "Remove ( )": "Entferne ( )",
     "Remove [ ] and ( )": "Entferne [ ] und ( )",
-    "Saving Changes": "Speichere Änderungen",
+    "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
     "INTERFACE OPTIONS": "INTERFACE EINSTELLUNGEN"
   },
@@ -335,10 +335,10 @@
     "Virtual Terminal": "Virtuelles Terminal",
     "Syncthing": "Syncthing",
     "Resilio": "Resilio",
-    "Network Time Sync": "Netwzerk Zeitsynchronisierung",
+    "Network Time Sync": "Netzwerk Zeitsynchronisierung",
     "Disabled": "Deaktiviert",
     "Enabled": "Aktiviert",
-    "Saving Changes": "Speichere Änderungen",
+    "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
     "WEB SERVICES": "WEB DIENSTE"
   }

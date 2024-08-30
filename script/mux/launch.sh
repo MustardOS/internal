@@ -54,7 +54,7 @@ if pgrep -f "playbgm.sh" >/dev/null; then
 	killall -q "playbgm.sh" "mpg123"
 fi
 
-GET_VAR "global" "settings/advanced/led" >"$(GET_VAR "device" "board/led")"
+GET_VAR "global" "settings/advanced/led" >"$(GET_VAR "device" "led/normal")"
 GET_VAR "global" "settings/advanced/led" >/tmp/work_led_state
 
 cat "$ROM_LAST" >"$LAST_PLAY"
@@ -113,7 +113,7 @@ else
 	/opt/muos/script/launch/lr-general.sh "$NAME" "$CORE" "$ROM"
 fi
 
-echo 1 >"$(GET_VAR "device" "board/led")"
+echo 1 >"$(GET_VAR "device" "led/normal")"
 echo 1 >/tmp/work_led_state
 
 echo explore >"$ACT_GO"

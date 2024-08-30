@@ -45,7 +45,7 @@ HALT_SYSTEM() {
 		esac
 
 		# Turn on power LED for visual feedback on halt success.
-		echo 1 >"$(GET_VAR "device" "board/led")"
+		echo 1 >"$(GET_VAR "device" "led/normal")"
 
 		# Clear state we never want to persist across reboots.
 		: >/opt/muos/config/address.txt

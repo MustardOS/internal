@@ -23,12 +23,13 @@ CONFIG_FILE="$DEVICE_CONFIG"
 AUDIO_VARS="platform object control channel min max"
 BATTERY_VARS="capacity health voltage charger"
 CPU_VARS="cores default governor scaler sampling_rate up_threshold sampling_down_factor io_is_busy sampling_rate_default up_threshold_default sampling_down_factor_default io_is_busy_default"
-BOARD_VARS="name home network bluetooth portmaster lid hdmi event debugfs rtc led rumble"
+BOARD_VARS="name home network bluetooth portmaster lid hdmi event debugfs rtc rumble"
 INPUT_VARS="ev0 ev1 axis_min axis_max"
 INPUT_DPAD_VARS="up down left right"
 INPUT_ANALOG_LEFT_VARS="up down left right click"
 INPUT_ANALOG_RIGHT_VARS="up down left right click"
 INPUT_BUTTON_VARS="a b c x y z l1 l2 l3 r1 r2 r3 menu_short menu_long select start power_short power_long vol_up vol_down"
+LED_VARS="normal low"
 MUX_VARS="width height"
 NETWORK_VARS="module name type iface state"
 SCREEN_VARS="device hdmi bright buffer width height rotate wait"
@@ -39,7 +40,7 @@ STORAGE_ROOT_VARS="active dev sep num mount type"
 STORAGE_SDCARD_VARS="active dev sep num mount type"
 STORAGE_USB_VARS="active dev sep num mount type"
 
-for INIT in audio battery cpu board input input/dpad input/analog/left input/analog/right input/button mux network screen sdl storage/boot storage/rom storage/root storage/sdcard storage/usb; do
+for INIT in audio battery cpu board input input/dpad input/analog/left input/analog/right input/button led mux network screen sdl storage/boot storage/rom storage/root storage/sdcard storage/usb; do
 	case $INIT in
 		audio) VARS="$AUDIO_VARS" ;;
 		battery) VARS="$BATTERY_VARS" ;;
@@ -50,6 +51,7 @@ for INIT in audio battery cpu board input input/dpad input/analog/left input/ana
 		input/analog/left) VARS="$INPUT_ANALOG_LEFT_VARS" ;;
 		input/analog/right) VARS="$INPUT_ANALOG_RIGHT_VARS" ;;
 		input/button) VARS="$INPUT_BUTTON_VARS" ;;
+		led) VARS="$LED_VARS" ;;
 		mux) VARS="$MUX_VARS" ;;
 		network) VARS="$NETWORK_VARS" ;;
 		screen) VARS="$SCREEN_VARS" ;;

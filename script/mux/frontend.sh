@@ -85,6 +85,8 @@ fi
 /opt/muos/script/mux/golden.sh &
 
 LOGGER "$0" "FRONTEND" "Starting frontend launcher"
+cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
+
 while true; do
 	# Background Music
 	if [ "$(GET_VAR "global" "settings/general/bgm")" -eq 1 ]; then

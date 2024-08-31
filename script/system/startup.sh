@@ -157,8 +157,6 @@ chmod -R 755 /opt &
 
 echo 2 >/proc/sys/abi/cp15_barrier &
 
-cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
-
 LOGGER "$0" "BOOTING" "Backing up global configuration"
 /opt/muos/script/system/config_backup.sh &
 

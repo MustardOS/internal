@@ -17,8 +17,16 @@ udevadm trigger --type=subsystems --action=add &
 udevadm trigger --type=devices --action=add &
 udevadm settle --timeout=30 || LOGGER "$0" "BOOTING" "Udevadm Settle Failure"
 
-LOGGER "$0" "BOOTING" "Starting Storage Mounts"
-/opt/muos/script/mount/start.sh &
+if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
+	LOGGER "$0" "BOOTING" "Loading Storage Mounts"
+	/opt/muos/script/mount/start.sh &
+
+	LOGGER "$0" "BOOTING" "Removing any update scripts"
+	rm -rf /opt/update.sh
+
+	echo 1 >/tmp/work_led_state
+	: >/tmp/net_start
+fi
 
 if [ -s "$ALSA_CONFIG" ]; then
 	LOGGER "$0" "BOOTING" "ALSA Config Check Passed"
@@ -26,12 +34,6 @@ else
 	LOGGER "$0" "BOOTING" "ALSA Config Check Failed: Restoring"
 	cp -f "/opt/muos/config/alsa.conf" "$ALSA_CONFIG"
 fi
-
-LOGGER "$0" "BOOTING" "Removing any update scripts"
-rm -rf /opt/update.sh
-
-echo 1 >/tmp/work_led_state
-: >/tmp/net_start
 
 LOGGER "$0" "BOOTING" "Restoring Audio State"
 cp -f "/opt/muos/device/$(GET_VAR "device" "board/name")/control/asound.state" "/var/lib/alsa/asound.state"

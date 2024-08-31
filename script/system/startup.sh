@@ -6,9 +6,12 @@
 /opt/muos/script/var/init/device.sh init
 /opt/muos/script/var/init/global.sh init
 
-if [ "$(GET_VAR "device" "board/name")" = "rg40xx-h" ]; then
-	/opt/muos/device/rg40xx-h/script/led_control.sh 2 255 225 173 1
-fi
+DEV_BOARD=$(GET_VAR "device" "board/name")
+case "$DEV_BOARD" in
+    rg40xx-h | rg40xx-v)
+        /opt/muos/device/"$DEV_BOARD"/script/led_control.sh 2 255 225 173 1
+        ;;
+esac
 
 echo "pipewire" >"$AUDIO_SRC"
 

@@ -17,6 +17,9 @@ udevadm trigger --type=subsystems --action=add &
 udevadm trigger --type=devices --action=add &
 udevadm settle --timeout=30 || LOGGER "$0" "BOOTING" "Udevadm Settle Failure"
 
+LOGGER "$0" "BOOTING" "Starting Storage Mounts"
+/opt/muos/script/mount/start.sh &
+
 if [ -s "$ALSA_CONFIG" ]; then
 	LOGGER "$0" "BOOTING" "ALSA Config Check Passed"
 else
@@ -95,25 +98,21 @@ fi
 LOGGER "$0" "BOOTING" "Starting Low Power Indicator"
 /opt/muos/script/system/lowpower.sh &
 
-LOGGER "$0" "BOOTING" "Precaching muX and RetroArch System"
-/opt/muos/bin/vmtouch -tfb "/opt/muos/preload.txt" &
-
-LOGGER "$0" "BOOTING" "Starting Storage Watchdog"
-/opt/muos/script/mount/sdcard.sh
-/opt/muos/script/mount/usb.sh
+LOGGER "$0" "BOOTING" "Precaching RetroArch System"
+ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/preload.txt &
 
 LOGGER "$0" "BOOTING" "Running Device Specifics"
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/script/start.sh
 
+# Block on storage mounts as late as possible to reduce boot time. Must wait
+# before charger detection since muxcharge expects the theme to be mounted.
+LOGGER "$0" "BOOTING" "Waiting for Storage Mounts"
+while [ ! -f /run/muos/storage/mounted ]; do
+	sleep 0.25
+done
+
 LOGGER "$0" "BOOTING" "Detecting Charge Mode"
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/script/charge.sh
-
-LOGGER "$0" "BOOTING" "Setting Default CPU Governor"
-GET_VAR "device" "cpu/default" >"$(GET_VAR "device" "cpu/governor")"
-GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
-GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"
-GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
-GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
 
 LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
 for LIB_D in lib lib32; do
@@ -156,8 +155,6 @@ chown -R root:root /opt &
 chmod -R 755 /opt &
 
 echo 2 >/proc/sys/abi/cp15_barrier &
-
-cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
 LOGGER "$0" "BOOTING" "Backing up global configuration"
 /opt/muos/script/system/config_backup.sh &

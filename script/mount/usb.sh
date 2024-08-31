@@ -2,36 +2,40 @@
 
 . /opt/muos/script/var/func.sh
 
-STORE_DEVICE=$(GET_VAR "device" "storage/usb/dev")$(GET_VAR "device" "storage/usb/sep")$(GET_VAR "device" "storage/usb/num")
-MOUNTED=false
+DEVICE=$(GET_VAR "device" "storage/usb/dev")$(GET_VAR "device" "storage/usb/sep")$(GET_VAR "device" "storage/usb/num")
+MOUNT="$(GET_VAR "device" "storage/usb/mount")"
 
-mkdir "$(GET_VAR "device" "storage/usb/mount")"
+mkdir -p "$MOUNT"
 
-while true; do
-	if grep -m 1 "$STORE_DEVICE" /proc/partitions >/dev/null; then
-		if ! $MOUNTED; then
-			FS_TYPE=$(blkid -o value -s TYPE "/dev/$STORE_DEVICE")
-			if [ "$FS_TYPE" = "vfat" ]; then
-				if mount -t vfat -o rw,utf8,noatime,nofail "/dev/$STORE_DEVICE" "$(GET_VAR "device" "storage/usb/mount")"; then
-					SET_VAR "device" "storage/usb/active" "1"
-					MOUNTED=true
-				fi
-			elif [ "$FS_TYPE" = "exfat" ]; then
-				if mount -t exfat -o rw,utf8,noatime,nofail "/dev/$STORE_DEVICE" "$(GET_VAR "device" "storage/usb/mount")"; then
-					SET_VAR "device" "storage/usb/active" "1"
-					MOUNTED=true
-				fi
-			elif [ "$FS_TYPE" = "ext4" ]; then
-				if mount -t ext4 -o defaults,noatime,nofail "/dev/$STORE_DEVICE" "$(GET_VAR "device" "storage/usb/mount")"; then
-					SET_VAR "device" "storage/usb/active" "1"
-					MOUNTED=true
-				fi
-			fi
-		fi
-	elif $MOUNTED; then
-		umount "$(GET_VAR "device" "storage/usb/mount")"
-		SET_VAR "device" "storage/usb/active" "0"
-		MOUNTED=false
+MOUNTED () {
+	[ "$(GET_VAR "device" "storage/usb/active")" -eq 1 ]
+}
+
+HAS_DEVICE() {
+	grep -q "$DEVICE" /proc/partitions
+}
+
+MOUNT_DEVICE() {
+	FS_TYPE="$(blkid -o value -s TYPE "/dev/$DEVICE")"
+
+	case "$FS_TYPE" in
+		vfat|exfat) FS_OPTS=rw,utf8,noatime,nofail ;;
+		ext4) FS_OPTS=defaults,noatime,nofail ;;
+		*) return ;;
+	esac
+
+	if mount -t "$FS_TYPE" -o "$FS_OPTS" "/dev/$DEVICE" "$MOUNT"; then
+		SET_VAR "device" "storage/usb/active" "1"
 	fi
+}
+
+# Asynchronously monitor insertion/eject.
+while true; do
 	sleep 2
+	if HAS_DEVICE; then
+		! MOUNTED && MOUNT_DEVICE
+	elif MOUNTED; then
+		umount "$MOUNT"
+		SET_VAR "device" "storage/usb/active" "0"
+	fi
 done &

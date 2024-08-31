@@ -12,21 +12,6 @@ sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.con
 
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/script/module.sh &
 
-if mount -t "$(GET_VAR "device" "storage/boot/type")" -o rw,utf8,noatime,nofail \
-	/dev/"$(GET_VAR "device" "storage/boot/dev")$(GET_VAR "device" "storage/boot/sep")$(GET_VAR "device" "storage/boot/num")" \
-	"$(GET_VAR "device" "storage/boot/mount")"; then
-	SET_VAR "device" "storage/boot/active" "1"
-fi
-
-if mount -t "$(GET_VAR "device" "storage/rom/type")" -o rw,utf8,noatime,nofail \
-	/dev/"$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")" \
-	"$(GET_VAR "device" "storage/rom/mount")"; then
-	SET_VAR "device" "storage/rom/active" "1"
-fi
-
-# Bind mount storage preference to /run/muos
-/opt/muos/script/var/init/storage.sh
-
 if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
 fi

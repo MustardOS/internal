@@ -6,6 +6,13 @@
 STORAGE_VARS="bios catalogue catalogue config config content content content music save screenshot theme language"
 STORAGE_LOCS="bios info/catalogue info/name retroarch info/config info/core info/favourite info/history music save screenshot theme language"
 
+# Unmount storage before remounting (e.g., on SD card insert/eject).
+if [ -f /run/muos/storage/mounted ]; then
+	for S_LOC in $STORAGE_LOCS; do
+		umount -q "/run/muos/storage/$S_LOC"
+	done
+fi
+
 # Shouldn't need to touch any of the below logic unless a critical failure occurs!
 S_=0
 
@@ -60,11 +67,13 @@ done
 BIND_INTO_STORAGE() {
 	TARGET="/run/muos/storage/$1"
 	MOUNT="$(GET_VAR "device" "storage/rom/mount")/MUOS/$2"
+	[ -f /run/muos/storage/mounted ] && umount -q "$MOUNT"
 	mkdir -p "$TARGET" "$MOUNT"
-	if ! mount --bind "$TARGET" "$MOUNT"; then
-		CRITICAL_FAILURE directory "$TARGET" "$MOUNT"
-	fi
+	mount --bind "$TARGET" "$MOUNT" || CRITICAL_FAILURE directory "$TARGET" "$MOUNT"
 }
 
 BIND_INTO_STORAGE save/state/PPSSPP-Ext emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE
 BIND_INTO_STORAGE save/file/PPSSPP-Ext emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA
+
+# muOS boot checks for this to know when storage mounts are available for use.
+touch /run/muos/storage/mounted

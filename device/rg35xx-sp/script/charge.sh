@@ -14,4 +14,6 @@ if [ "$(cat "$(GET_VAR "device" "battery/charger")")" -eq 1 ] && [ "$(GET_VAR "g
 	if ! /opt/muos/extra/muxcharge; then
 		/opt/muos/script/system/halt.sh poweroff
 	fi
+
+	echo "performance" >"$(GET_VAR "device" "cpu/governor")"
 fi

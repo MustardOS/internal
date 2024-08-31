@@ -34,22 +34,6 @@ LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/nxe.log"
 
 RA_CONF="$(GET_VAR "device" "storage/rom/mount")/MUOS/retroarch/retroarch.cfg"
 
-sed -i -e '/^system_directory/d' \
-	-e '/^input_remapping_directory/d' \
-	-e '/^rgui_config_directory/d' \
-	-e '/^savefile_directory/d' \
-	-e '/^savestate_directory/d' \
-	-e '/^screenshot_directory/d' "$RA_CONF"
-
-{
-	echo "system_directory = \"/run/muos/storage/bios\""
-	echo "input_remapping_directory = \"/run/muos/storage/info/config/remaps\""
-	echo "rgui_config_directory = \"/run/muos/storage/info/config\""
-	echo "savefile_directory = \"/run/muos/storage/save/file\""
-	echo "savestate_directory = \"/run/muos/storage/save/state\""
-	echo "screenshot_directory = \"/run/muos/storage/screenshot\""
-} >>"$RA_CONF"
-
 if [ -e "$DOUK" ]; then
 	retroarch -v -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$DOUK" &
 	RA_PID=$!

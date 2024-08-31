@@ -4,9 +4,12 @@
 
 DEVICE="$(GET_VAR "device" "storage/sdcard/dev")$(GET_VAR "device" "storage/sdcard/sep")$(GET_VAR "device" "storage/sdcard/num")"
 MOUNT="$(GET_VAR "device" "storage/sdcard/mount")"
-MOUNTED=false
 
 mkdir -p "$MOUNT"
+
+MOUNTED () {
+	[ "$(GET_VAR "device" "storage/sdcard/active")" -eq 1 ]
+}
 
 HAS_DEVICE() {
 	grep -q "$DEVICE" /proc/partitions
@@ -30,7 +33,6 @@ MOUNT_DEVICE() {
 		SET_VAR "device" "storage/sdcard/active" "1"
 		echo noop >/sys/devices/platform/soc/sdc2/mmc_host/mmc1/mmc1:"$BLK_ID4"/block/mmcblk1/queue/scheduler
 		echo on >/sys/devices/platform/soc/sdc2/mmc_host/mmc1/power/control
-		MOUNTED=true
 	fi
 }
 
@@ -42,14 +44,13 @@ HAS_DEVICE && MOUNT_DEVICE
 while true; do
 	sleep 2
 	if HAS_DEVICE; then
-		if ! $MOUNTED; then
+		if ! MOUNTED; then
 			MOUNT_DEVICE
 			/opt/muos/script/var/init/storage.sh
 		fi
-	elif $MOUNTED; then
-		umount "$(GET_VAR "device" "storage/sdcard/mount")"
-		/opt/muos/script/var/init/storage.sh
+	elif MOUNTED; then
+		umount "$MOUNT"
 		SET_VAR "device" "storage/sdcard/active" "0"
-		MOUNTED=false
+		/opt/muos/script/var/init/storage.sh
 	fi
 done &

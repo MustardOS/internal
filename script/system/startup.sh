@@ -17,6 +17,9 @@ udevadm trigger --type=subsystems --action=add &
 udevadm trigger --type=devices --action=add &
 udevadm settle --timeout=30 || LOGGER "$0" "BOOTING" "Udevadm Settle Failure"
 
+LOGGER "$0" "BOOTING" "Starting Storage Mounts"
+/opt/muos/script/mount/start.sh &
+
 if [ -s "$ALSA_CONFIG" ]; then
 	LOGGER "$0" "BOOTING" "ALSA Config Check Passed"
 else
@@ -98,12 +101,15 @@ LOGGER "$0" "BOOTING" "Starting Low Power Indicator"
 LOGGER "$0" "BOOTING" "Precaching RetroArch System"
 ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/preload.txt &
 
-LOGGER "$0" "BOOTING" "Starting Storage Watchdog"
-/opt/muos/script/mount/sdcard.sh
-/opt/muos/script/mount/usb.sh
-
 LOGGER "$0" "BOOTING" "Running Device Specifics"
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/script/start.sh
+
+# Block on storage mounts as late as possible to reduce boot time. Must wait
+# before charger detection since muxcharge expects the theme to be mounted.
+LOGGER "$0" "BOOTING" "Waiting for Storage Mounts"
+while [ ! -f /run/muos/storage/mounted ]; do
+	sleep 0.25
+done
 
 LOGGER "$0" "BOOTING" "Detecting Charge Mode"
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/script/charge.sh

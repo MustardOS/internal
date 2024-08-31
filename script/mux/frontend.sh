@@ -29,14 +29,6 @@ KILL_BGM() {
 	fi
 }
 
-LOGGER "$0" "FRONTEND" "Waiting for mount: $(GET_VAR "device" "storage/rom/mount")"
-while true; do
-	if mount | grep -q "$(GET_VAR "device" "storage/rom/mount")"; then
-		break
-	fi
-	sleep 0.25
-done
-
 if [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 1 ]; then
 	LOGGER "$0" "FRONTEND" "Changing to a random theme"
 	/opt/muos/script/mux/theme.sh "?R"

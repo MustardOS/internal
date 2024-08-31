@@ -95,8 +95,8 @@ fi
 LOGGER "$0" "BOOTING" "Starting Low Power Indicator"
 /opt/muos/script/system/lowpower.sh &
 
-LOGGER "$0" "BOOTING" "Precaching muX and RetroArch System"
-/opt/muos/bin/vmtouch -tfb "/opt/muos/preload.txt" &
+LOGGER "$0" "BOOTING" "Precaching RetroArch System"
+ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/preload.txt &
 
 LOGGER "$0" "BOOTING" "Starting Storage Watchdog"
 /opt/muos/script/mount/sdcard.sh

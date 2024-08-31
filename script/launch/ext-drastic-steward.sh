@@ -12,7 +12,8 @@ export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 export SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
 export SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
 
-killall -q "golden.sh" "pw-play"
+killall -q "golden.sh" "pw-play" "pipewire" "wireplumber"
+
 echo "Switching to ALSA-only configuration..."
 cp /etc/asound.conf /etc/asound.conf.bak
 cp /etc/asound.conf.alsa /etc/asound.conf
@@ -37,5 +38,7 @@ if [ -f /etc/asound.conf.bak ]; then
 fi
 
 echo "pipewire" >"$AUDIO_SRC"
+/opt/muos/script/system/pipewire.sh
+
 amixer -c 0 sset "digital volume" 100%
 /opt/muos/script/mux/golden.sh &

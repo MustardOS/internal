@@ -108,13 +108,6 @@ LOGGER "$0" "BOOTING" "Running Device Specifics"
 LOGGER "$0" "BOOTING" "Detecting Charge Mode"
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/script/charge.sh
 
-LOGGER "$0" "BOOTING" "Setting Default CPU Governor"
-GET_VAR "device" "cpu/default" >"$(GET_VAR "device" "cpu/governor")"
-GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
-GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"
-GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
-GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
-
 LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
 for LIB_D in lib lib32; do
 	GCDB="gamecontrollerdb.txt"

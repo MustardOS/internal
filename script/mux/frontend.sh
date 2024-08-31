@@ -84,6 +84,13 @@ fi
 
 /opt/muos/script/mux/golden.sh &
 
+LOGGER "$0" "FRONTEND" "Setting default CPU governor"
+GET_VAR "device" "cpu/default" >"$(GET_VAR "device" "cpu/governor")"
+GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
+GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"
+GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
+GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
+
 LOGGER "$0" "FRONTEND" "Starting frontend launcher"
 cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 

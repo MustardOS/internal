@@ -31,6 +31,9 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
 	: >/tmp/net_start
 fi
 
+LOGGER "$0" "BOOTING" "Restoring Default Sound System"
+cp -f "/opt/muos/device/$DEV_BOARD/control/asound.conf" "/etc/asound.conf"
+
 if [ -s "$ALSA_CONFIG" ]; then
 	LOGGER "$0" "BOOTING" "ALSA Config Check Passed"
 else
@@ -39,7 +42,7 @@ else
 fi
 
 LOGGER "$0" "BOOTING" "Restoring Audio State"
-cp -f "/opt/muos/device/$(GET_VAR "device" "board/name")/control/asound.state" "/var/lib/alsa/asound.state"
+cp -f "/opt/muos/device/$DEV_BOARD/control/asound.state" "/var/lib/alsa/asound.state"
 alsactl -U restore
 
 LOGGER "$0" "BOOTING" "Restoring Audio Volume"
@@ -72,7 +75,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	done
 
 	LOGGER "$0" "FACTORY RESET" "Starting Input Reader"
-	/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/input.sh
+	/opt/muos/device/"$DEV_BOARD"/input/input.sh
 	/usr/bin/mpg123 -q /opt/muos/factory.mp3 &
 
 	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
@@ -94,6 +97,8 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	SET_VAR "global" "boot/factory_reset" "0"
 
 	killall -q "input.sh" "mpg123"
+	rm -f "/opt/muos/factory.mp3"
+
 	/opt/muos/extra/muxcredits
 
 	. /opt/muos/script/mux/close_game.sh
@@ -107,7 +112,7 @@ LOGGER "$0" "BOOTING" "Precaching RetroArch System"
 ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/preload.txt &
 
 LOGGER "$0" "BOOTING" "Running Device Specifics"
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/start.sh
+/opt/muos/device/"$DEV_BOARD"/script/start.sh
 
 # Block on storage mounts as late as possible to reduce boot time. Must wait
 # before charger detection since muxcharge expects the theme to be mounted.
@@ -117,13 +122,13 @@ while [ ! -f /run/muos/storage/mounted ]; do
 done
 
 LOGGER "$0" "BOOTING" "Detecting Charge Mode"
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/charge.sh
+/opt/muos/device/"$DEV_BOARD"/script/charge.sh
 
 LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
 for LIB_D in lib lib32; do
 	GCDB="gamecontrollerdb.txt"
 	if [ ! -f "/usr/$LIB_D/$GCDB" ]; then
-		ln -s "/opt/muos/device/$(GET_VAR "device" "board/name")/control/$GCDB" "/usr/$LIB_D/$GCDB" &
+		ln -s "/opt/muos/device/$DEV_BOARD/control/$GCDB" "/usr/$LIB_D/$GCDB" &
 	fi
 done
 

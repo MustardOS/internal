@@ -7,10 +7,16 @@
 CLOSE_CONTENT() {
 	FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 	FG_PROC_PID="$(pidof "$FG_PROC_VAL")"
+
 	if [ -n "$FG_PROC_PID" ]; then
-		printf 'Closing foreground content (%s): ' "$FG_PROC_VAL"
+		printf 'Closing content (%s): ' "$FG_PROC_VAL"
+
 		kill -CONT "$FG_PROC_PID" 2>/dev/null
+		# HACK: Let content run for 10ms before SIGTERM to avoid a hang
+		# in RetroArch alsathread driver (due to audio buffer underrun).
+		sleep .01
 		kill "$FG_PROC_PID" 2>/dev/null
+
 		for _ in $(seq 1 20); do
 			if ! kill -0 "$FG_PROC_PID" 2>/dev/null; then
 				printf 'done\n'
@@ -19,6 +25,7 @@ CLOSE_CONTENT() {
 			sleep .25
 		done
 	fi
+
 	printf 'timed out\n'
 }
 

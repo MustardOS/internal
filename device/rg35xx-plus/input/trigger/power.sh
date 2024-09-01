@@ -6,10 +6,12 @@ TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
 
 SLEEP_STATE="/tmp/sleep_state"
 LED_STATE="/tmp/work_led_state"
+TMP_BRIGHT="/tmp/tmp_bright_value"
 
 UPDATE_DISPLAY() {
-	echo "$2" >"$(GET_VAR "device" "led/normal")"
-	DISPLAY_WRITE disp0 blank "$1"
+	echo "$1" >"$(GET_VAR "device" "led/normal")"
+	echo "$2" >/sys/class/graphics/fb0/blank
+	DISPLAY_WRITE lcd0 setbl "$3"
 }
 
 DEV_WAKE() {
@@ -24,7 +26,7 @@ DEV_WAKE() {
 		pkill -CONT "$FG_PROC_VAL"
 	fi
 
-	UPDATE_DISPLAY 0 "$(cat $LED_STATE)"
+	UPDATE_DISPLAY "$(cat $LED_STATE)" 0 "$(cat $TMP_BRIGHT)"
 }
 
 DEV_SLEEP() {
@@ -39,7 +41,8 @@ DEV_SLEEP() {
 		pkill -STOP "$FG_PROC_VAL"
 	fi
 
-	UPDATE_DISPLAY 1 1
+	printf "%s" "$(DISPLAY_READ lcd0 getbl)" >$TMP_BRIGHT
+	UPDATE_DISPLAY 1 4 0
 }
 
 echo "on" >"$TMP_POWER_LONG"

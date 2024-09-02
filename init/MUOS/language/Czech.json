@@ -37,7 +37,8 @@
     "Booting System - Please Wait...": "Zavádění systému - čekejte prosím...",
     "Capacity": "Kapacita",
     "Voltage": "Napětí",
-    "Health": "Zdraví"
+    "Health": "Zdraví",
+    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
   },
   "muxconfig": {
     "General Settings": "Nastavení",
@@ -184,7 +185,9 @@
     "Battery Capacity": "Kapacita baterie",
     "Battery Voltage": "Napětí baterie",
     "Back": "Zpět",
-    "SYSTEM DETAILS": "SYSTÉMOVÉ PODROBNOSTI"
+    "SYSTEM DETAILS": "SYSTÉMOVÉ PODROBNOSTI",
+    "Device Type": "Device Type",
+    "Thank you for using muOS!": "Thank you for using muOS!"
   },
   "muxtask": {
     "Launch": "Launch",
@@ -194,7 +197,8 @@
   },
   "muxtester": {
     "Press POWER to finish testing": "Stisknutím tlačítka POWER dokončete testování",
-    "INPUT TESTER": "TESTER VSTUPU"
+    "INPUT TESTER": "TESTER VSTUPU",
+    "Press any button to start input testing!": "Press any button to start input testing!"
   },
   "muxtheme": {
     "Loading Theme": "Načítání tématu",
@@ -234,7 +238,10 @@
     "High": "Vysoký",
     "Saving Changes": "Ukládání změn",
     "Save": "Uložit",
-    "ADVANCED SETTINGS": "POKROČILÉ NASTAVENÍ"
+    "ADVANCED SETTINGS": "POKROČILÉ NASTAVENÍ",
+    "Menu Acceleration": "Menu Acceleration",
+    "Language": "Language",
+    "Theme": "Theme"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Zobrazit skrytý obsah",

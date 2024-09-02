@@ -4,7 +4,7 @@
     "Launch": "Lancer",
     "Back": "Retour",
     "APPLICATIONS": "Applications",
-"No Applications Found": "Pas d'Applications",
+    "No Applications Found": "Pas d'Applications",
     "Archive Manager": "Gestionnaire d'archives",
     "Dingux Commander": "Dingux Commander",
     "Flip Clock": "Horloge rabattable",
@@ -37,7 +37,8 @@
     "Booting System - Please Wait...": "Démarrage du Système - Merci de patienter...",
     "Capacity": "Capacité",
     "Voltage": "Tension",
-    "Health": "Santé"
+    "Health": "Santé",
+    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
   },
   "muxconfig": {
     "General Settings": "Paramètres Généraux",
@@ -184,7 +185,9 @@
     "Battery Capacity": "Capacité de la batterie",
     "Battery Voltage": "Tension de la Batterie",
     "Back": "Retour",
-    "SYSTEM DETAILS": "Détails du Système"
+    "SYSTEM DETAILS": "Détails du Système",
+    "Device Type": "Device Type",
+    "Thank you for using muOS!": "Thank you for using muOS!"
   },
   "muxtask": {
     "Launch": "Lancer",
@@ -194,7 +197,8 @@
   },
   "muxtester": {
     "Press POWER to finish testing": "Appuyer sur POWER pour quitter le test",
-    "INPUT TESTER": "Tester les touches"
+    "INPUT TESTER": "Tester les touches",
+    "Press any button to start input testing!": "Press any button to start input testing!"
   },
   "muxtheme": {
     "Loading Theme": "Chargement du Thème en cours",
@@ -234,7 +238,10 @@
     "High": "Haut",
     "Saving Changes": "Sauvegarde des Modifications en cours",
     "Save": "Sauvegarder",
-    "ADVANCED SETTINGS": "RÉGLAGES AVANCÉS"
+    "ADVANCED SETTINGS": "RÉGLAGES AVANCÉS",
+    "Menu Acceleration": "Menu Acceleration",
+    "Language": "Language",
+    "Theme": "Theme"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Afficher le Contenu Caché",

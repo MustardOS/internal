@@ -37,7 +37,8 @@
     "Booting System - Please Wait...": "启动系统中 - 请稍等...",
     "Capacity": "容量",
     "Voltage": "电压",
-    "Health": "健康"
+    "Health": "健康",
+    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
   },
   "muxconfig": {
     "General Settings": "常规设置",
@@ -184,7 +185,9 @@
     "Battery Capacity": "电池容量",
     "Battery Voltage": "电池电压",
     "Back": "返回",
-    "SYSTEM DETAILS": "系统详情"
+    "SYSTEM DETAILS": "系统详情",
+    "Device Type": "Device Type",
+    "Thank you for using muOS!": "Thank you for using muOS!"
   },
   "muxtask": {
     "Launch": "启动",
@@ -194,7 +197,8 @@
   },
   "muxtester": {
     "Press POWER to finish testing": "按下电源键结束测试",
-    "INPUT TESTER": "输入测试"
+    "INPUT TESTER": "输入测试",
+    "Press any button to start input testing!": "Press any button to start input testing!"
   },
   "muxtheme": {
     "Loading Theme": "加载主题中",
@@ -234,7 +238,10 @@
     "High": "高",
     "Saving Changes": "保存变更中",
     "Save": "保存",
-    "ADVANCED SETTINGS": "高级设置"
+    "ADVANCED SETTINGS": "高级设置",
+    "Menu Acceleration": "Menu Acceleration",
+    "Language": "Language",
+    "Theme": "Theme"
   },
   "muxtweakgen": {
     "Show Hidden Content": "显示隐藏内容",

@@ -27,6 +27,7 @@ SET_CURRENT() {
 
 	if [ "$(cat "$AUDIO_SRC")" = "pipewire" ]; then
 		wpctl set-volume @DEFAULT_AUDIO_SINK@ $1% >/dev/null
+		printf "%s" "$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -o '[0-9]*\.[0-9]*')" >"/run/muos/audio/pw_vol"
 	else
 		amixer sset "$(GET_VAR "device" "audio/control")" $1 >/dev/null
 	fi

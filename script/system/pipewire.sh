@@ -61,8 +61,25 @@ for TIMEOUT in $(seq 1 30); do
 
 		if [ -n "$NODE_ID" ]; then
 			printf "Setting default node to ID: '%s'\n" "$NODE_ID"
+			mkdir -p "/run/muos/audio"
 			XDG_RUNTIME_DIR="/var/run" wpctl set-default "$NODE_ID"
-			amixer -c 0 sset 'digital volume' 100% unmute
+			amixer -c 0 sset "$(GET_VAR "device" "audio/control")" 100% unmute
+			printf "%s" "$NODE_ID" >"/run/muos/audio/node_id"
+			printf "%s" "$(XDG_RUNTIME_DIR="/var/run" wpctl get-volume "$NODE_ID" | grep -o '[0-9]*\.[0-9]*')" >"/run/muos/audio/pw_vol"
+
+			case "$(GET_VAR "global" "settings/advanced/volume")" in
+            	"loud")
+            		XDG_RUNTIME_DIR="/var/run" wpctl set-volume @DEFAULT_AUDIO_SINK@ "$(GET_VAR "device" "audio/max")"%
+            		;;
+            	"quiet")
+            		XDG_RUNTIME_DIR="/var/run" wpctl set-volume @DEFAULT_AUDIO_SINK@ "$(GET_VAR "device" "audio/min")"%
+            		;;
+            	*)
+            		RESTORED=$(cat "/opt/muos/config/volume.txt")
+            		XDG_RUNTIME_DIR="/var/run" wpctl set-volume @DEFAULT_AUDIO_SINK@ "$RESTORED"%
+            		;;
+            esac
+
 			exit 0
 		else
 			printf "Node with object path '%s' not found.\n" "$(GET_VAR "device" "audio/object")"

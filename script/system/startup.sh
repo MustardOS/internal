@@ -45,20 +45,7 @@ LOGGER "$0" "BOOTING" "Restoring Audio State"
 cp -f "/opt/muos/device/$DEV_BOARD/control/asound.state" "/var/lib/alsa/asound.state"
 alsactl -U restore
 
-LOGGER "$0" "BOOTING" "Restoring Audio Volume"
-case "$(GET_VAR "global" "settings/advanced/volume")" in
-	"loud")
-		wpctl set-volume @DEFAULT_AUDIO_SINK@ "$(GET_VAR "device" "audio/max")"
-		;;
-	"quiet")
-		wpctl set-volume @DEFAULT_AUDIO_SINK@ "$(GET_VAR "device" "audio/min")"
-		;;
-	*)
-		RESTORED=$(cat "/opt/muos/config/volume.txt")
-		wpctl set-volume @DEFAULT_AUDIO_SINK@ "$RESTORED"
-		;;
-esac
-
+LOGGER "$0" "BOOTING" "Starting Pipewire"
 /opt/muos/script/system/pipewire.sh &
 
 if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then

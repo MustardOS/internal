@@ -20,12 +20,13 @@ export LD_LIBRARY_PATH=/usr/lib32
 
 SET_VAR "system" "foreground_process" "gmu"
 
+killall -q "golden.sh" "pw-play" "pipewire" "wireplumber"
+
 echo "Switching to ALSA-only configuration..."
-killall -q "golden.sh" "pw-play"
 cp /etc/asound.conf /etc/asound.conf.bak
 cp /etc/asound.conf.alsa /etc/asound.conf
 echo "alsa" >"$AUDIO_SRC"
-amixer -c 0 sset "digital volume" 50%
+amixer -c 0 sset \""$(GET_VAR "device" "audio/control")"\" "$(printf '%.0f%%' "$(echo "$(GET_VAR "audio" "pw_vol") * 100" | bc)")"
 
 $GPTOKEYB "./gmu" -c "$GMU_DIR/gmu.gptk" &
 HOME="$GMU_DIR" SDL_ASSERT=always_ignore $SDL_GAMECONTROLLERCONFIG ./gmu -d "$GMU_DIR" -c "$GMU_DIR/gmu.conf"
@@ -39,5 +40,7 @@ if [ -f /etc/asound.conf.bak ]; then
 fi
 
 echo "pipewire" >"$AUDIO_SRC"
-amixer -c 0 sset "digital volume" 100%
+/opt/muos/script/system/pipewire.sh
+
+amixer -c 0 sset \""$(GET_VAR "device" "audio/control")"\" "$(printf '%.0f%%' "$(echo "$(GET_VAR "audio" "pw_vol") * 100" | bc)")"
 /opt/muos/script/mux/golden.sh &

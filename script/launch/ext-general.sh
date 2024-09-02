@@ -23,7 +23,7 @@ if [ $IS_32BIT -eq 1 ]; then
 	cp /etc/asound.conf /etc/asound.conf.bak
 	cp /etc/asound.conf.alsa /etc/asound.conf
 	echo "alsa" >"$AUDIO_SRC"
-	amixer -c 0 sset "digital volume" 75%
+	amixer -c 0 sset \""$(GET_VAR "device" "audio/control")"\" "$(printf '%.0f%%' "$(echo "$(GET_VAR "audio" "pw_vol") * 100" | bc)")"
 fi
 
 "$ROM"
@@ -41,5 +41,5 @@ if [ $IS_32BIT -eq 1 ]; then
 	/opt/muos/script/system/pipewire.sh
 fi
 
-amixer -c 0 sset "digital volume" 100%
+amixer -c 0 sset \""$(GET_VAR "device" "audio/control")"\" "$(printf '%.0f%%' "$(echo "$(GET_VAR "audio" "pw_vol") * 100" | bc)")"
 /opt/muos/script/mux/golden.sh &

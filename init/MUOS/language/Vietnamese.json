@@ -335,7 +335,8 @@
     "Remove [ ] and ( )": "Loại bỏ [ ] và ( )",
     "Saving Changes": "Đang lưu thay đổi",
     "Save": "Lưu",
-    "INTERFACE OPTIONS": "CÀI ĐẶT GIAO DIỆN"
+    "INTERFACE OPTIONS": "CÀI ĐẶT GIAO DIỆN",
+    "Folder Item Count": "Folder Item Count"
   },
   "muxwebserv": {
     "Secure Shell": "Secure Shell",

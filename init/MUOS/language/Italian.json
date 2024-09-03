@@ -37,7 +37,8 @@
     "Booting System - Please Wait...": "Avvio del Sistema - Attendere Prego...",
     "Capacity": "Capacità",
     "Voltage": "Voltaggio",
-    "Health": "Salute"
+    "Health": "Salute",
+    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
   },
   "muxconfig": {
     "General Settings": "Impostazioni Generali",
@@ -96,7 +97,7 @@
   "muxnetwork": {
     "Network Disabled": "Rete Disabilitata",
     "Not Connected": "Non Connesso",
-    "Connected": "Connesso"
+    "Connected": "Connesso",
     "Enabled": "Abilitato",
     "Identifier": "Identificatore",
     "Password": "Password",
@@ -184,7 +185,9 @@
     "Battery Capacity": "Capacità della Batteria",
     "Battery Voltage": "Voltaggio della Batteria",
     "Back": "Indietro",
-    "SYSTEM DETAILS": "DETTAGLI DEL SISTEMA"
+    "SYSTEM DETAILS": "DETTAGLI DEL SISTEMA",
+    "Device Type": "Device Type",
+    "Thank you for using muOS!": "Thank you for using muOS!"
   },
   "muxtask": {
     "Launch": "Avvia",
@@ -194,7 +197,8 @@
   },
   "muxtester": {
     "Press POWER to finish testing": "Premere POWER per terminare il test",
-    "INPUT TESTER": "TEST DEGLI INPUT"
+    "INPUT TESTER": "TEST DEGLI INPUT",
+    "Press any button to start input testing!": "Press any button to start input testing!"
   },
   "muxtheme": {
     "Loading Theme": "Caricamento Tema",
@@ -234,7 +238,10 @@
     "High": "Alto",
     "Saving Changes": "Salvataggio Modifiche",
     "Save": "Salva",
-    "ADVANCED SETTINGS": "IMPOSTAZIONI AVANZATE"
+    "ADVANCED SETTINGS": "IMPOSTAZIONI AVANZATE",
+    "Menu Acceleration": "Menu Acceleration",
+    "Language": "Language",
+    "Theme": "Theme"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Mostra Contenuto Nascosto",
@@ -328,7 +335,8 @@
     "Remove [ ] and ( )": "Rimuovi [ ] e ( )",
     "Saving Changes": "Salvataggio Modifiche",
     "Save": "Salva",
-    "INTERFACE OPTIONS": "OPZIONI INTERFACCIA"
+    "INTERFACE OPTIONS": "OPZIONI INTERFACCIA",
+    "Folder Item Count": "Folder Item Count"
   },
   "muxwebserv": {
     "Secure Shell": "Secure Shell",

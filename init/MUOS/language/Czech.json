@@ -335,7 +335,8 @@
     "Remove [ ] and ( )": "Odstranit [ ] a ( )",
     "Saving Changes": "Ukládání změn",
     "Save": "Uložit",
-    "INTERFACE OPTIONS": "MOŽNOSTI ROZHRANÍ"
+    "INTERFACE OPTIONS": "MOŽNOSTI ROZHRANÍ",
+    "Folder Item Count": "Folder Item Count"
   },
   "muxwebserv": {
     "Secure Shell": "Secure Shell",

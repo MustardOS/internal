@@ -24,14 +24,14 @@
     "No Archives Found": "Nenhum Arquivo de Instalação Encontrado"
   },
   "muxassign": {
-    "ASSIGN CORE": "Associar Núcleo",
+    "ASSIGN CORE": "ASSOCIAR NÚCLEO",
     "Confirm": "Confirmar",
     "Back": "Voltar",
     "Directory": "Diretório",
     "Individual": "Individual",
     "Recursive": "Recursivo",
     "No Cores Found...": "Nenhum Núcleo Encontrado...",
-    "ASSIGN": "Associar"
+    "ASSIGN": "ASSOCIAR"
   },
   "muxcharge": {
     "Booting System - Please Wait...": "Iniciando Sistema - Por Favor Aguarde...",
@@ -130,7 +130,7 @@
     "EXPLORE (SD1)": "EXPLORAR (SD1)",
     "EXPLORE (SD2)": "EXPLORAR (SD2)",
     "EXPLORE (USB)": "EXPLORAR (USB)",
-    "Could not load content - No core is associated": "Impossível carregar conteúdo - Nenheum núcleo associado",
+    "Could not load content - No core is associated": "Impossível carregar conteúdo - Nenhum núcleo associado",
     "Could not load content!": "Impossível carregar conteúdo!",
     "Loading...": "Carregando...",
     "Directories cannot be added to Favourites": "Diretórios não podem ser adicionados aos Favoritos",
@@ -158,13 +158,13 @@
   "muxstorage": {
     "RetroArch BIOS": "BIOS do RetroArch",
     "RetroArch Configs": "Configurações do RetroArch",
-    "Metadata Catalogue": "Catálogo e Metadata",
+    "Metadata Catalogue": "Metadados do Catálogo",
     "Content Management": "Gerenciamento de Conteúdo",
     "Background Music": "Música De Fundo",
     "Save Games + Save States": "Save de Jogos + Save States",
-    "Screenshots": "Screenshots",
+    "Screenshots": "Capturas de tela",
     "Themes": "Temas",
-    "Languages": "Languages",
+    "Languages": "Idiomas",
     "SD1": "SD1",
     "SD2": "SD2",
     "AUTO": "AUTO",
@@ -186,25 +186,25 @@
     "Battery Voltage": "Voltagem da Bateria",
     "Back": "Voltar",
     "SYSTEM DETAILS": "DETALHES DO SISTEMA",
-    "Device Type": "Device Type",
-    "Thank you for using muOS!": "Thank you for using muOS!"
+    "Device Type": "Tipo de Dispositivo",
+    "Thank you for using muOS!": "Obrigado por usar muOS!"
   },
   "muxtask": {
     "Launch": "Executar",
     "Back": "Voltar",
     "TASK TOOLKIT": "FERRAMENTAS DE TAREFAS",
-    "No Tasks Found": "Nenhuma Ferramenta Encontrada"
+    "No Tasks Found": "Nenhuma Tarefa Encontrada"
   },
   "muxtester": {
     "Press POWER to finish testing": "Aperte POWER para encerrar o teste",
     "INPUT TESTER": "TESTE DE BOTÕES",
-    "Press any button to start input testing!": "Press any button to start input testing!"
+    "Press any button to start input testing!": "Pressione qualquer botão para iniciar o teste!"
   },
   "muxtheme": {
     "Loading Theme": "Carregando Tema",
     "Confirm": "Confirmar",
     "Back": "Voltar",
-    "THEME PICKER": "SELECONAR TEMA",
+    "THEME PICKER": "SELECIONAR TEMA",
     "No Themes Found": "Nenhum Tema Encontrado"
   },
   "muxtimezone": {
@@ -240,8 +240,8 @@
     "Save": "Salvar",
     "ADVANCED SETTINGS": "CONFIGURAÇÕES AVANÇADAS",
     "Menu Acceleration": "Menu Acceleration",
-    "Language": "Language",
-    "Theme": "Theme"
+    "Language": "Idioma",
+    "Theme": "Tema"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Mostrar Conteudo Oculto",

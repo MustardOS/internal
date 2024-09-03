@@ -37,7 +37,8 @@
     "Booting System - Please Wait...": "Ładowanie systemu - Proszę czekać...",
     "Capacity": "Pojemność",
     "Voltage": "Napięcie",
-    "Health": "Zdrowie"
+    "Health": "Zdrowie",
+    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
   },
   "muxconfig": {
     "General Settings": "Ustawienia ogólne",
@@ -184,7 +185,9 @@
     "Battery Capacity": "Pojemność baterii",
     "Battery Voltage": "Napięcie baterii",
     "Back": "Wróć",
-    "SYSTEM DETAILS": "SZCZEGÓŁY SYSTEMU"
+    "SYSTEM DETAILS": "SZCZEGÓŁY SYSTEMU",
+    "Device Type": "Device Type",
+    "Thank you for using muOS!": "Thank you for using muOS!"
   },
   "muxtask": {
     "Launch": "Uruchom",
@@ -194,7 +197,8 @@
   },
   "muxtester": {
     "Press POWER to finish testing": "Wciśnij POWER, aby zakończyć testowanie",
-    "INPUT TESTER": "TESTER PRZYCISKÓW"
+    "INPUT TESTER": "TESTER PRZYCISKÓW",
+    "Press any button to start input testing!": "Press any button to start input testing!"
   },
   "muxtheme": {
     "Loading Theme": "Wczytywanie motywu",
@@ -234,7 +238,10 @@
     "High": "Wysoka",
     "Saving Changes": "Zapisywanie zmian",
     "Save": "Zapisz",
-    "ADVANCED SETTINGS": "USTAWIENIA ZAAWANSOWANE"
+    "ADVANCED SETTINGS": "USTAWIENIA ZAAWANSOWANE",
+    "Menu Acceleration": "Menu Acceleration",
+    "Language": "Language",
+    "Theme": "Theme"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Pokaż ukrytą zawartość",

@@ -37,7 +37,8 @@
     "Booting System - Please Wait...": "Opstarten - Een ogenblik geduld...",
     "Capacity": "Capaciteit",
     "Voltage": "Voltage",
-    "Health": "Levensduur"
+    "Health": "Levensduur",
+    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
   },
   "muxconfig": {
     "General Settings": "Algemene instellingen",
@@ -184,7 +185,9 @@
     "Battery Capacity": "Accucapaciteit",
     "Battery Voltage": "Accuspanning",
     "Back": "Terug",
-    "SYSTEM DETAILS": "SYSTEEMDETAILS"
+    "SYSTEM DETAILS": "SYSTEEMDETAILS",
+    "Device Type": "Device Type",
+    "Thank you for using muOS!": "Thank you for using muOS!"
   },
   "muxtask": {
     "Launch": "Starten",
@@ -194,7 +197,8 @@
   },
   "muxtester": {
     "Press POWER to finish testing": "Druk de AAN-knop om te stoppen met testen",
-    "INPUT TESTER": "TEST BESTURING"
+    "INPUT TESTER": "TEST BESTURING",
+    "Press any button to start input testing!": "Press any button to start input testing!"
   },
   "muxtheme": {
     "Loading Theme": "Thema wordt geladen",
@@ -234,7 +238,10 @@
     "High": "Hoog",
     "Saving Changes": "Wijzigingen opslaan",
     "Save": "Opslaan",
-    "ADVANCED SETTINGS": "GEAVANCEERDE INSTELLINGEN"
+    "ADVANCED SETTINGS": "GEAVANCEERDE INSTELLINGEN",
+    "Menu Acceleration": "Menu Acceleration",
+    "Language": "Language",
+    "Theme": "Theme"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Verborgen mappen en bestanden tonen",

@@ -37,7 +37,8 @@
     "Booting System - Please Wait...": "開機中 - 請稍等...",
     "Capacity": "容量",
     "Voltage": "電壓",
-    "Health": "健康"
+    "Health": "健康",
+    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
   },
   "muxconfig": {
     "General Settings": "通用設定",
@@ -184,7 +185,9 @@
     "Battery Capacity": "電池容量",
     "Battery Voltage": "電池電壓",
     "Back": "返回",
-    "SYSTEM DETAILS": "系統詳情"
+    "SYSTEM DETAILS": "系統詳情",
+    "Device Type": "Device Type",
+    "Thank you for using muOS!": "Thank you for using muOS!"
   },
   "muxtask": {
     "Launch": "啟動",
@@ -194,7 +197,8 @@
   },
   "muxtester": {
     "Press POWER to finish testing": "按下電源鍵以結束測試",
-    "INPUT TESTER": "輸入測試器"
+    "INPUT TESTER": "輸入測試器",
+    "Press any button to start input testing!": "Press any button to start input testing!"
   },
   "muxtheme": {
     "Loading Theme": "讀取主題",
@@ -234,7 +238,10 @@
     "High": "高",
     "Saving Changes": "儲存變更",
     "Save": "儲存",
-    "ADVANCED SETTINGS": "進階設定"
+    "ADVANCED SETTINGS": "進階設定",
+    "Menu Acceleration": "Menu Acceleration",
+    "Language": "Language",
+    "Theme": "Theme"
   },
   "muxtweakgen": {
     "Show Hidden Content": "顯示隱藏的內容",

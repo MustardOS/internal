@@ -37,7 +37,8 @@
     "Booting System - Please Wait...": "Перезагрузка системы - пожалуйста, подождите...",
     "Capacity": "Емкость",
     "Voltage": "Напряжение",
-    "Health": "Здоровье"
+    "Health": "Здоровье",
+    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
   },
   "muxconfig": {
     "General Settings": "Базовые настройки",
@@ -58,6 +59,13 @@
     "Confirm": "Подтвердить",
     "Back": "Назад",
     "INFORMATION": "ИНФОРМАЦИЯ"
+  },
+  "muxlanguage": {
+    "Saving Language": "Saving Language",
+    "Confirm": "Confirm",
+    "Back": "Back",
+    "LANGUAGES": "LANGUAGES",
+    "No Languages Found...": "No Languages Found..."
   },
   "muxlaunch": {
     "Explore Content": "Библиотека",
@@ -161,7 +169,8 @@
     "AUTO": "АВТО",
     "Saving Changes": "Сохранение изменений",
     "Save": "Сохранить",
-    "STORAGE PREFERENCE": "ВЫБОР НАКОПИТЕЛЯ"
+    "STORAGE PREFERENCE": "ВЫБОР НАКОПИТЕЛЯ",
+    "Languages": "Languages"
   },
   "muxsysinfo": {
     "muOS Version": "Версия muOS",
@@ -176,7 +185,9 @@
     "Battery Capacity": "Емкость батареи",
     "Battery Voltage": "Напряжение батареи",
     "Back": "Назад",
-    "SYSTEM DETAILS": "ДЕТАЛИ СИСТЕМЫ"
+    "SYSTEM DETAILS": "ДЕТАЛИ СИСТЕМЫ",
+    "Device Type": "Device Type",
+    "Thank you for using muOS!": "Thank you for using muOS!"
   },
   "muxtask": {
     "Launch": "Запуск",
@@ -186,7 +197,8 @@
   },
   "muxtester": {
     "Press POWER to finish testing": "Нажмите кнопку питания для завершения проверки",
-    "INPUT TESTER": "ПРОВЕРКА КОНТРОЛЛЕРА"
+    "INPUT TESTER": "ПРОВЕРКА КОНТРОЛЛЕРА",
+    "Press any button to start input testing!": "Press any button to start input testing!"
   },
   "muxtheme": {
     "Loading Theme": "Загрузка темы",
@@ -226,7 +238,10 @@
     "High": "Максимальный",
     "Saving Changes": "Сохранение изменений",
     "Save": "Сохранить",
-    "ADVANCED SETTINGS": "РАСШИРЕННЫЕ НАСТРОЙКИ"
+    "ADVANCED SETTINGS": "РАСШИРЕННЫЕ НАСТРОЙКИ",
+    "Menu Acceleration": "Menu Acceleration",
+    "Language": "Language",
+    "Theme": "Theme"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Показать скрытые файлы",

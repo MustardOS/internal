@@ -37,7 +37,8 @@
     "Booting System - Please Wait...": "Đang khởi động hệ thống...",
     "Capacity": "Dung lượng",
     "Voltage": "Điện áp",
-    "Health": "Tình trạng"
+    "Health": "Tình trạng",
+    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
   },
   "muxconfig": {
     "General Settings": "Cài đặt chung",
@@ -184,7 +185,9 @@
     "Battery Capacity": "Dung lượng pin",
     "Battery Voltage": "Điện áp pin",
     "Back": "Trở về",
-    "SYSTEM DETAILS": "CHI TIẾT HỆ THỐNG"
+    "SYSTEM DETAILS": "CHI TIẾT HỆ THỐNG",
+    "Device Type": "Device Type",
+    "Thank you for using muOS!": "Thank you for using muOS!"
   },
   "muxtask": {
     "Launch": "Khởi chạy",
@@ -194,7 +197,8 @@
   },
   "muxtester": {
     "Press POWER to finish testing": "Nhấn nút NGUỒN để kết thúc kiểm tra",
-    "INPUT TESTER": "KIỂM TRA PHÍM"
+    "INPUT TESTER": "KIỂM TRA PHÍM",
+    "Press any button to start input testing!": "Press any button to start input testing!"
   },
   "muxtheme": {
     "Loading Theme": "Đang nạp chủ đề",
@@ -234,7 +238,10 @@
     "High": "Cao",
     "Saving Changes": "Đang lưu thay đổi",
     "Save": "Lưu",
-    "ADVANCED SETTINGS": "CÀI ĐẶT NÂNG CAO"
+    "ADVANCED SETTINGS": "CÀI ĐẶT NÂNG CAO",
+    "Menu Acceleration": "Menu Acceleration",
+    "Language": "Language",
+    "Theme": "Theme"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Hiển thị nội dung ẩn",

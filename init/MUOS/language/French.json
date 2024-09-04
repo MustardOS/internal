@@ -241,7 +241,8 @@
     "Save": "Sauvegarder",
     "ADVANCED SETTINGS": "RÉGLAGES AVANCÉS",
     "Language": "Language",
-    "Theme": "Theme"
+    "Theme": "Theme",
+    "Storage Preference": "Préférences de stockage"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Afficher le contenu caché",
@@ -254,7 +255,6 @@
     "Sleep Function": "Fonction de veille",
     "Low Battery Indicator": "Indicateur de batterie faible",
     "Interface Options": "Options de l'interface",
-    "Storage Preference": "Préférences de stockage",
     "Advanced Settings": "Réglages avancés",
     "Disabled": "Désactivé",
     "Enabled": "Activé",

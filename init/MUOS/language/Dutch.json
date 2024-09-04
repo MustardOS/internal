@@ -241,7 +241,8 @@
     "ADVANCED SETTINGS": "GEAVANCEERDE INSTELLINGEN",
     "Menu Acceleration": "Menu Acceleration",
     "Language": "Language",
-    "Theme": "Theme"
+    "Theme": "Theme",
+    "Storage Preference": "Opslagvoorkeur"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Verborgen mappen en bestanden tonen",
@@ -254,7 +255,6 @@
     "Sleep Function": "Slaapfunctie",
     "Low Battery Indicator": "Low Battery Indicator",
     "Interface Options": "Interface-opties",
-    "Storage Preference": "Opslagvoorkeur",
     "Advanced Settings": "Geavanceerde instellingen",
     "Disabled": "Uit",
     "Enabled": "Aan",

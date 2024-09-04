@@ -198,7 +198,7 @@
   "muxtester": {
     "Press POWER to finish testing": "Pressione POWER para terminar o teste",
     "INPUT TESTER": "Testar botões",
-    "Press any button to start input testing!": "Pressione qualquer botão para iniciar o teste de entrada!"
+    "Press any button to start input testing!": "Pressione qualquer botão para iniciar o teste!"
   },
   "muxtheme": {
     "Loading Theme": "A carregar tema",
@@ -210,9 +210,8 @@
   "muxtimezone": {
     "Saving Timezone": "A guardar fuso horário",
     "Confirm": "Confirmar",
-    "Back": "Voltar",
-    "TIME ZONES": "FUSOS HORÁRIOS",
-    "No Time Zones Found...": "Nenhum fuso horário encontrado..."
+    "TIMEZONE": "FUSO HORÁRIO",
+    "No Timezones Found...": "Nenhum fuso horário encontrado..."
   },
   "muxtweakadv": {
     "A+B Button Swap": "Troca de Botões A+B",
@@ -242,7 +241,8 @@
     "ADVANCED SETTINGS": "DEFINIÇÕES AVANÇADAS",
     "Menu Acceleration": "Aceleração do Menu",
     "Language": "Idioma",
-    "Theme": "Tema"
+    "Theme": "Tema",
+    "Storage Preference": "Preferência de Armazenamento"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Mostrar Conteúdo Oculto",
@@ -255,7 +255,6 @@
     "Sleep Function": "Função de Suspensão",
     "Low Battery Indicator": "Indicador de Bateria Fraca",
     "Interface Options": "Opções da Interface",
-    "Storage Preference": "Preferência de Armazenamento",
     "Advanced Settings": "Configurações Avançadas",
     "Disabled": "Desativado",
     "Enabled": "Ativado",
@@ -336,7 +335,8 @@
     "Remove [ ] and ( )": "Remover [ ] e ( )",
     "Saving Changes": "A guardar alterações",
     "Save": "Guardar",
-    "INTERFACE OPTIONS": "OPÇÕES DA INTERFACE"
+    "INTERFACE OPTIONS": "OPÇÕES DA INTERFACE",
+     "Folder Item Count": "Contagem de Itens da Pasta"
   },
   "muxwebserv": {
     "Secure Shell": "Shell Seguro",

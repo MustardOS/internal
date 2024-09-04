@@ -241,7 +241,8 @@
     "ADVANCED SETTINGS": "РАСШИРЕННЫЕ НАСТРОЙКИ",
     "Menu Acceleration": "Menu Acceleration",
     "Language": "Language",
-    "Theme": "Theme"
+    "Theme": "Theme",
+    "Storage Preference": "Выбор накопителя"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Показать скрытые файлы",
@@ -254,7 +255,6 @@
     "Sleep Function": "Сон",
     "Low Battery Indicator": "Индикация никзого заряда",
     "Interface Options": "Настройки интерфейса",
-    "Storage Preference": "Выбор накопителя",
     "Advanced Settings": "Расширенные настройки",
     "Disabled": "ВЫКЛ",
     "Enabled": "ВКЛ",
@@ -335,7 +335,8 @@
     "Remove [ ] and ( )": "Удалять [ ] и ( )",
     "Saving Changes": "Сохранение настроек",
     "Save": "Сохранить",
-    "INTERFACE OPTIONS": "НАСТРОЙКИ ИНТЕРФЕЙСА"
+    "INTERFACE OPTIONS": "НАСТРОЙКИ ИНТЕРФЕЙСА",
+    "Folder Item Count": "Folder Item Count"
   },
   "muxwebserv": {
     "Secure Shell": "Secure Shell",

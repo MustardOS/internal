@@ -4,7 +4,7 @@
     "Launch": "Lancer",
     "Back": "Retour",
     "APPLICATIONS": "APPLICATIONS",
-"No Applications Found": "Aucune application trouvée",
+    "No Applications Found": "Aucune application trouvée",
     "Archive Manager": "Gestionnaire d'archives",
     "Dingux Commander": "Dingux Commander",
     "Flip Clock": "Horloge Flip",
@@ -37,7 +37,8 @@
     "Booting System - Please Wait...": "Démarrage du système - Merci de patienter...",
     "Capacity": "Capacité",
     "Voltage": "Tension",
-    "Health": "Santé"
+    "Health": "Santé",
+    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
   },
   "muxconfig": {
     "General Settings": "Paramètres généraux",
@@ -168,7 +169,8 @@
     "AUTO": "AUTO",
     "Saving Changes": "Sauvegarde des modifications",
     "Save": "Sauvegarder",
-    "STORAGE PREFERENCE": "PRÉFÉRENCE DE STOCKAGE"
+    "STORAGE PREFERENCE": "PRÉFÉRENCE DE STOCKAGE",
+    "Languages": "Languages"
   },
   "muxsysinfo": {
     "muOS Version": "Version de muOS",
@@ -183,7 +185,9 @@
     "Battery Capacity": "Capacité de la batterie",
     "Battery Voltage": "Tension de la batterie",
     "Back": "Retour",
-    "SYSTEM DETAILS": "DÉTAILS DU SYSTÈME"
+    "SYSTEM DETAILS": "DÉTAILS DU SYSTÈME",
+    "Device Type": "Device Type",
+    "Thank you for using muOS!": "Thank you for using muOS!"
   },
   "muxtask": {
     "Launch": "Lancer",
@@ -193,7 +197,8 @@
   },
   "muxtester": {
     "Press POWER to finish testing": "Appuyer sur POWER pour quitter le test",
-    "INPUT TESTER": "TESTEUR DE TOUCHES"
+    "INPUT TESTER": "TESTEUR DE TOUCHES",
+    "Press any button to start input testing!": "Press any button to start input testing!"
   },
   "muxtheme": {
     "Loading Theme": "Chargement du thème en cours",
@@ -235,6 +240,8 @@
     "Saving Changes": "Sauvegarde des modifications en cours",
     "Save": "Sauvegarder",
     "ADVANCED SETTINGS": "RÉGLAGES AVANCÉS",
+    "Language": "Language",
+    "Theme": "Theme",
     "Storage Preference": "Préférences de stockage"
   },
   "muxtweakgen": {
@@ -328,7 +335,8 @@
     "Remove [ ] and ( )": "Retirer les [ ] et les ( )",
     "Saving Changes": "Sauvegarde des modifications en cours",
     "Save": "Sauvegarder",
-    "INTERFACE OPTIONS": "OPTIONS DE L'INTERFACE"
+    "INTERFACE OPTIONS": "OPTIONS DE L'INTERFACE",
+    "Folder Item Count": "Folder Item Count"
   },
   "muxwebserv": {
     "Secure Shell": "Shell sécurisé",

@@ -335,7 +335,8 @@
     "Remove [ ] and ( )": "移除 [ ] 及 ( )",
     "Saving Changes": "儲存變更",
     "Save": "儲存",
-    "INTERFACE OPTIONS": "介面選項"
+    "INTERFACE OPTIONS": "介面選項",
+    "Folder Item Count": "Folder Item Count"
   },
   "muxwebserv": {
     "Secure Shell": "安全殼層(SSH)",

@@ -335,7 +335,8 @@
     "Remove [ ] and ( )": "Entferne [ ] und ( )",
     "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
-    "INTERFACE OPTIONS": "INTERFACE EINSTELLUNGEN"
+    "INTERFACE OPTIONS": "INTERFACE EINSTELLUNGEN",
+    "Folder Item Count": "Folder Item Count"
   },
   "muxwebserv": {
     "Secure Shell": "Secure Shell (SSH)",

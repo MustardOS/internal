@@ -226,7 +226,7 @@ while true; do
 				nice --20 /opt/muos/extra/muxvisual
 				;;
 			"storage")
-				echo tweakgen >$ACT_GO
+				echo tweakadv >$ACT_GO
 				SET_VAR "system" "foreground_process" "muxstorage"
 				nice --20 /opt/muos/extra/muxstorage
 				;;

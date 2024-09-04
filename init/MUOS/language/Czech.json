@@ -241,7 +241,8 @@
     "ADVANCED SETTINGS": "POKROČILÉ NASTAVENÍ",
     "Menu Acceleration": "Menu Acceleration",
     "Language": "Language",
-    "Theme": "Theme"
+    "Theme": "Theme",
+    "Storage Preference": "Předvolba úložiště"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Zobrazit skrytý obsah",
@@ -254,7 +255,6 @@
     "Sleep Function": "Funkce spánku",
     "Low Battery Indicator": "Indikátor slabé baterie",
     "Interface Options": "Možnosti rozhraní",
-    "Storage Preference": "Předvolba úložiště",
     "Advanced Settings": "Pokročilá nastavení",
     "Disabled": "Zakázáno",
     "Enabled": "Povoleno",
@@ -335,7 +335,8 @@
     "Remove [ ] and ( )": "Odstranit [ ] a ( )",
     "Saving Changes": "Ukládání změn",
     "Save": "Uložit",
-    "INTERFACE OPTIONS": "MOŽNOSTI ROZHRANÍ"
+    "INTERFACE OPTIONS": "MOŽNOSTI ROZHRANÍ",
+    "Folder Item Count": "Folder Item Count"
   },
   "muxwebserv": {
     "Secure Shell": "Secure Shell",

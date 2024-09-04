@@ -241,7 +241,8 @@
     "ADVANCED SETTINGS": "ERWEITERTE EINSTELLUNGEN",
     "Menu Acceleration": "Menu Acceleration",
     "Language": "Language",
-    "Theme": "Theme"
+    "Theme": "Theme",
+    "Storage Preference": "Speicherpräferenzen"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Zeige versteckte Inhalte",
@@ -254,7 +255,6 @@
     "Sleep Function": "Schlaf Funktion",
     "Low Battery Indicator": "Anzeige für niedrigen Akkustand",
     "Interface Options": "Interface Einstellungen",
-    "Storage Preference": "Speicherpräferenzen",
     "Advanced Settings": "Erweiterte Einstellungen",
     "Disabled": "Deaktiviert",
     "Enabled": "Aktiviert",
@@ -335,7 +335,8 @@
     "Remove [ ] and ( )": "Entferne [ ] und ( )",
     "Saving Changes": "Änderungen werden übernommen",
     "Save": "Speichern",
-    "INTERFACE OPTIONS": "INTERFACE EINSTELLUNGEN"
+    "INTERFACE OPTIONS": "INTERFACE EINSTELLUNGEN",
+    "Folder Item Count": "Folder Item Count"
   },
   "muxwebserv": {
     "Secure Shell": "Secure Shell (SSH)",

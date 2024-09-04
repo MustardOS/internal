@@ -241,7 +241,8 @@
     "ADVANCED SETTINGS": "CONFIGURACIÓN AVANZADA",
     "Menu Acceleration": "Menu Acceleration",
     "Language": "Language",
-    "Theme": "Theme"
+    "Theme": "Theme",
+    "Storage Preference": "Preferencias de almacenamiento"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Mostrar contenido oculto",
@@ -254,7 +255,6 @@
     "Sleep Function": "Función de suspensión",
     "Low Battery Indicator": "Indicador de batería baja",
     "Interface Options": "Opciones de interfaz",
-    "Storage Preference": "Preferencias de almacenamiento",
     "Advanced Settings": "Configuración avanzada",
     "Disabled": "Deshabilitado",
     "Enabled": "Habilitado",

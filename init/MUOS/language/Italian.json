@@ -234,7 +234,8 @@
     "High": "Alto",
     "Saving Changes": "Salvataggio Modifiche",
     "Save": "Salva",
-    "ADVANCED SETTINGS": "IMPOSTAZIONI AVANZATE"
+    "ADVANCED SETTINGS": "IMPOSTAZIONI AVANZATE",
+    "Storage Preference": "Preferenze di Archiviazione"
   },
   "muxtweakgen": {
     "Show Hidden Content": "Mostra Contenuto Nascosto",
@@ -247,7 +248,6 @@
     "Sleep Function": "Funzione di Sospensione",
     "Low Battery Indicator": "Indicatore Batteria Scarica",
     "Interface Options": "Opzioni Interfaccia",
-    "Storage Preference": "Preferenze di Archiviazione",
     "Advanced Settings": "Impostazioni Avanzate",
     "Disabled": "Disabilitato",
     "Enabled": "Abilitato",

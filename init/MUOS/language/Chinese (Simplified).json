@@ -241,7 +241,8 @@
     "ADVANCED SETTINGS": "高级设置",
     "Menu Acceleration": "Menu Acceleration",
     "Language": "Language",
-    "Theme": "Theme"
+    "Theme": "Theme",
+    "Storage Preference": "存储偏好"
   },
   "muxtweakgen": {
     "Show Hidden Content": "显示隐藏内容",
@@ -254,7 +255,6 @@
     "Sleep Function": "睡眠功能",
     "Low Battery Indicator": "低电量指示器",
     "Interface Options": "界面选项",
-    "Storage Preference": "存储偏好",
     "Advanced Settings": "高级设置",
     "Disabled": "关闭",
     "Enabled": "开启",

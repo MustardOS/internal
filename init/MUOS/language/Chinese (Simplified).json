@@ -5,14 +5,14 @@
     "Back": "返回",
     "APPLICATIONS": "应用",
     "No Applications Found": "找不到应用",
-    "Archive Manager": "归档包管理",
+    "Archive Manager": "归档管理",
     "Dingux Commander": "Dingux Commander 文件管理器",
     "Flip Clock": "翻页时钟",
     "GMU Music Player": "GMU 音乐播放器",
-    "Moonlight": "Moonlight 串流",
+    "Moonlight": "Moonlight",
     "PortMaster": "PortMaster 移植作品浏览器",
-    "PPSSPP": "PPSSPP 菜单",
-    "RetroArch": "RetroArch 全能模拟器菜单",
+    "PPSSPP": "PPSSPP",
+    "RetroArch": "RetroArch 全能模拟器",
     "Simple Terminal": "Simple Terminal 命令行终端",
     "Task Toolkit": "任务工具箱"
   },
@@ -20,8 +20,8 @@
     "INSTALLED": "已安装",
     "Extract": "解包",
     "Back": "返回",
-    "ARCHIVE MANAGER": "归档包管理",
-    "No Archives Found": "找不到归档包"
+    "ARCHIVE MANAGER": "归档管理",
+    "No Archives Found": "找不到归档"
   },
   "muxassign": {
     "ASSIGN CORE": "分配核心",
@@ -204,7 +204,7 @@
     "Loading Theme": "加载主题中",
     "Confirm": "确认",
     "Back": "返回",
-    "THEME PICKER": "主题选取",
+    "THEME PICKER": "主题选择",
     "No Themes Found": "找不到主题"
   },
   "muxtimezone": {

@@ -24,21 +24,10 @@ else
 	mkdir -p "$DEST_DIR"
 fi
 
-# Determine RetroArch Save Directory
-RA_SAVEFILE_DIR=$(grep 'savefile_dir' "$(GET_VAR "device" "storage/rom/mount")/MUOS/retroarch/retroarch.cfg" | cut -d '"' -f 2)
-RA_SAVESTATE_DIR=$(grep 'savestate_dir' "$(GET_VAR "device" "storage/rom/mount")/MUOS/retroarch/retroarch.cfg" | cut -d '"' -f 2)
-
-# Remove ~ from modified RA save paths
-RA_SAVEFILE_DIR=$(echo "$RA_SAVEFILE_DIR" | sed 's/~//')
-RA_SAVESTATE_DIR=$(echo "$RA_SAVESTATE_DIR" | sed 's/~//')
-
-# Set RetroArch save source directories
-if [ "$RA_SAVEFILE_DIR" = "/run/muos/storage/save/file" ]; then
-	MUOS_SAVEFILE_DIR="$RA_SAVEFILE_DIR"
-fi
-
-if [ "$RA_SAVESTATE_DIR" = "/run/muos/storage/save/state" ]; then
-	MUOS_SAVESTATE_DIR="$RA_SAVESTATE_DIR"
+# Define standard muOS save directory
+MUOS_SAVE_DIR=/run/muos/storage/save
+if [ ! -d "$MUOS_SAVE_DIR" ]; then
+	MUOS_SAVE_DIR=""
 fi
 
 # Define additional RA source directories
@@ -68,25 +57,13 @@ else
 	DRASTIC_SAVESTATE_DIR=""
 fi
 
-# Define DraStic-steward source directories
-if [ -d "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-steward" ]; then
-	DRASTIC_STEWARD_SAVE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/save/drastic/backup"
-	DRASTIC_STEWARD_SAVESTATE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/save/drastic/savestates"
-else
-	DRASTIC_STEWARD_SAVE_DIR=""
-	DRASTIC_STEWARD_SAVESTATE_DIR=""
-fi
-
 DEST_FILE="$DEST_DIR/muOS-Save-$(date +"%Y-%m-%d_%H-%M").zip"
 
 TO_BACKUP="
-$MUOS_SAVEFILE_DIR
-$MUOS_SAVESTATE_DIR
+$MUOS_SAVE_DIR
 $PPSSPP_RA_SAVE_DIR
 $DRASTIC_SAVE_DIR
 $DRASTIC_SAVESTATE_DIR
-$DRASTIC_STEWARD_SAVE_DIR
-$DRASTIC_STEWARD_SAVESTATE_DIR
 $DREAMCAST_NVMEM
 $DREAMCAST_VMU
 "

@@ -13,12 +13,12 @@
     "PortMaster": "PortMaster",
     "PPSSPP": "PPSSPP",
     "RetroArch": "RetroArch",
-    "Simple Terminal": "簡易終端機",
+    "Simple Terminal": "Simple Terminal",
     "Task Toolkit": "任務工具包"
   },
   "muxarchive": {
     "INSTALLED": "已安裝",
-    "Extract": "解壓縮",
+    "Extract": "解封裝",
     "Back": "返回",
     "ARCHIVE MANAGER": "封裝檔管理員",
     "No Archives Found": "找不到封裝檔"
@@ -38,7 +38,7 @@
     "Capacity": "容量",
     "Voltage": "電壓",
     "Health": "健康",
-    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
+    "Press POWER button to continue booting...": "按下電源鍵以繼續啟動..."
   },
   "muxconfig": {
     "General Settings": "通用設定",
@@ -164,7 +164,7 @@
     "Save Games + Save States": "遊戲存檔 + 即時存檔",
     "Screenshots": "螢幕截圖",
     "Themes": "主題",
-    "Languages": "Languages",
+    "Languages": "語言",
     "SD1": "SD1",
     "SD2": "SD2",
     "AUTO": "自動",
@@ -186,8 +186,8 @@
     "Battery Voltage": "電池電壓",
     "Back": "返回",
     "SYSTEM DETAILS": "系統詳情",
-    "Device Type": "Device Type",
-    "Thank you for using muOS!": "Thank you for using muOS!"
+    "Device Type": "裝置類型",
+    "Thank you for using muOS!": "感謝您使用 muOS！"
   },
   "muxtask": {
     "Launch": "啟動",
@@ -198,7 +198,7 @@
   "muxtester": {
     "Press POWER to finish testing": "按下電源鍵以結束測試",
     "INPUT TESTER": "輸入測試器",
-    "Press any button to start input testing!": "Press any button to start input testing!"
+    "Press any button to start input testing!": "按任何鍵開始輸入測試！"
   },
   "muxtheme": {
     "Loading Theme": "讀取主題",
@@ -239,9 +239,9 @@
     "Saving Changes": "儲存變更",
     "Save": "儲存",
     "ADVANCED SETTINGS": "進階設定",
-    "Menu Acceleration": "Menu Acceleration",
-    "Language": "Language",
-    "Theme": "Theme",
+    "Menu Acceleration": "選單加速",
+    "Language": "語言",
+    "Theme": "主題",
     "Storage Preference": "存儲偏好"
   },
   "muxtweakgen": {
@@ -336,7 +336,7 @@
     "Saving Changes": "儲存變更",
     "Save": "儲存",
     "INTERFACE OPTIONS": "介面選項",
-    "Folder Item Count": "Folder Item Count"
+    "Folder Item Count": "資料夾物件數量統計"
   },
   "muxwebserv": {
     "Secure Shell": "安全殼層(SSH)",

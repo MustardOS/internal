@@ -28,8 +28,8 @@
     "Confirm": "确认",
     "Back": "返回",
     "Directory": "文件夹",
-    "Individual": "仅本文件夹",
-    "Recursive": "包括子目录文件夹",
+    "Individual": "仅该文件",
+    "Recursive": "包括子文件夹",
     "No Cores Found...": "找不到核心...",
     "ASSIGN": "分配"
   },
@@ -52,10 +52,10 @@
     "CONFIGURATION": "系统设置"
   },
   "muxinfo": {
-    "Activity Tracker": "游玩历史",
+    "Activity Tracker": "游玩记录",
     "Input Tester": "输入测试",
     "System Details": "系统详情",
-    "Supporters": "赞助者",
+    "Supporters": "赞助者鸣谢",
     "Confirm": "确认",
     "Back": "返回",
     "INFORMATION": "信息"
@@ -165,8 +165,8 @@
     "Screenshots": "截图",
     "Themes": "主题",
     "Languages": "语言",
-    "SD1": "SD卡1",
-    "SD2": "SD卡2",
+    "SD1": "SD1",
+    "SD2": "SD2",
     "AUTO": "自动",
     "Saving Changes": "保存变更中",
     "Save": "保存",
@@ -239,7 +239,7 @@
     "Saving Changes": "保存变更中",
     "Save": "保存",
     "ADVANCED SETTINGS": "高级设置",
-    "Menu Acceleration": "菜单滚动延迟时长 ms",
+    "Menu Acceleration": "菜单滚动延迟 ms",
     "Language": "跟随语言",
     "Theme": "跟随主题",
     "Storage Preference": "存储位置偏好"
@@ -314,7 +314,7 @@
     "Content Box Art": "内容封面",
     "Content Name Scheme": "内容名称格式",
     "Content Dash Replacement": "内容名称横杠替换",
-    "Display Title Reformatting": "显示标题格式替换",
+    "Display Title Reformatting": "显示标题格式调整（英文）",
     "Menu Counter Folder": "文件夹计数",
     "Menu Counter File": "文件计数",
     "Hidden": "隐藏",

@@ -4,6 +4,7 @@
 
 ACT_GO=/tmp/act_go
 ROM_GO=/tmp/rom_go
+GVR_GO=/tmp/gvr_go
 
 GPTOKEYB_BIN=gptokeyb2
 GPTOKEYB_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb"
@@ -60,6 +61,7 @@ GET_VAR "global" "settings/advanced/led" >"$(GET_VAR "device" "led/normal")"
 GET_VAR "global" "settings/advanced/led" >/tmp/work_led_state
 
 cat "$ROM_LAST" >"$LAST_PLAY"
+cat "$GVR_GO" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
 # External Script
 if [ "$CORE" = external ]; then
@@ -114,6 +116,8 @@ elif [ "$CORE" = nxengine_libretro.so ]; then
 else
 	/opt/muos/script/launch/lr-general.sh "$NAME" "$CORE" "$ROM"
 fi
+
+GET_VAR "device" "cpu/default" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
 echo 1 >"$(GET_VAR "device" "led/normal")"
 echo 1 >/tmp/work_led_state

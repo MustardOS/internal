@@ -19,6 +19,7 @@ esac
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
 ASS_GO=/tmp/ass_go
+GOV_GO=/tmp/gov_go
 ROM_GO=/tmp/rom_go
 
 EX_CARD=/tmp/explore_card
@@ -102,14 +103,38 @@ while true; do
 		KILL_BGM
 	fi
 
-	# Core Association
+	# Content Association
 	if [ -s "$ASS_GO" ]; then
 		ROM_NAME=$(sed -n '1p' "$ASS_GO")
 		ROM_DIR=$(sed -n '2p' "$ASS_GO")
 		ROM_SYS=$(sed -n '3p' "$ASS_GO")
 
+		ROM_FORCED=$(sed -n '4p' "$ASS_GO")
 		rm "$ASS_GO"
-		echo "assign" >$ACT_GO
+
+		if [ "$ROM_FORCED" -eq 1 ]; then
+			printf "Content Association FORCED\n"
+			echo "option" >$ACT_GO
+		else
+			echo "assign" >$ACT_GO
+		fi
+	fi
+
+	# Content Governor
+	if [ -s "$GOV_GO" ]; then
+		ROM_NAME=$(sed -n '1p' "$GOV_GO")
+		ROM_DIR=$(sed -n '2p' "$GOV_GO")
+		ROM_SYS=$(sed -n '3p' "$GOV_GO")
+
+		GOV_FORCED=$(sed -n '4p' "$GOV_GO")
+		rm "$GOV_GO"
+
+		if [ "$GOV_FORCED" -eq 1 ]; then
+			printf "Content Governor FORCED\n"
+			echo "option" >$ACT_GO
+		else
+			echo "governor" >$ACT_GO
+		fi
 	fi
 
 	# Content Loader
@@ -151,11 +176,23 @@ while true; do
 				SET_VAR "system" "foreground_process" "muxlaunch"
 				nice --20 /opt/muos/extra/muxlaunch
 				;;
-			"assign")
+			"option")
 				echo explore >$ACT_GO
+				echo "$LAST_INDEX_SYS" >/tmp/lisys
+				SET_VAR "system" "foreground_process" "muxoption"
+				nice --20 /opt/muos/extra/muxoption
+				;;
+			"assign")
+				echo option >$ACT_GO
 				echo "$LAST_INDEX_SYS" >/tmp/lisys
 				SET_VAR "system" "foreground_process" "muxassign"
 				nice --20 /opt/muos/extra/muxassign -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
+				;;
+			"governor")
+				echo option >$ACT_GO
+				echo "$LAST_INDEX_SYS" >/tmp/lisys
+				SET_VAR "system" "foreground_process" "muxgov"
+				nice --20 /opt/muos/extra/muxgov -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
 				;;
 			"explore")
 				MODULE=$(sed -n '1p' "$EX_CARD")
@@ -163,6 +200,8 @@ while true; do
 				echo "$LAST_INDEX_SYS" >/tmp/lisys
 				SET_VAR "system" "foreground_process" "muxassign"
 				nice --20 /opt/muos/extra/muxassign -a 1 -c "$ROM_NAME" -d "$(cat /tmp/explore_dir)" -s none
+				SET_VAR "system" "foreground_process" "muxgov"
+				nice --20 /opt/muos/extra/muxgov -a 1 -c "$ROM_NAME" -d "$(cat /tmp/explore_dir)" -s none
 				SET_VAR "system" "foreground_process" "muxplore"
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m "$MODULE"
 				;;

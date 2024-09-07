@@ -5,6 +5,7 @@
 NAME=$1
 CORE=$2
 ROM=$3
+ROMDIR="$(dirname "$ROM")"
 
 export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 export SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
@@ -33,14 +34,14 @@ if [ "$NAME" = "Splore" ]; then
 	$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
 	PATH="$EMUDIR:$PATH" \
 	HOME="$EMUDIR" \
-	"$EMU" -windowed 0 -splore
+	"$EMU" -windowed 0 -root_path "$ROMDIR" -splore
 else
 	SDL_ASSERT=always_ignore \
 	SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") \
 	$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
 	PATH="$EMUDIR:$PATH" \
 	HOME="$EMUDIR" \
-	"$EMU" -windowed 0 -run "$ROM"
+	"$EMU" -windowed 0 -root_path "$ROMDIR" -run "$ROM"
 fi
 
 kill -9 "$(pidof pico8_64)" "$(pidof gptokeyb2)"

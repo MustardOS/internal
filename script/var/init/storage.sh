@@ -72,8 +72,12 @@ BIND_INTO_STORAGE() {
 	mount --bind "$TARGET" "$MOUNT" || CRITICAL_FAILURE directory "$TARGET" "$MOUNT"
 }
 
-BIND_INTO_STORAGE save/state/PPSSPP-Ext emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE
+for DIR in bbs cdata cstore desktop; do
+	BIND_INTO_STORAGE "save/pico8/$DIR" "emulator/pico8/.lexaloffle/pico-8/$DIR"
+done
+
 BIND_INTO_STORAGE save/file/PPSSPP-Ext emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA
+BIND_INTO_STORAGE save/state/PPSSPP-Ext emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE
 
 # muOS boot checks for this to know when storage mounts are available for use.
 touch /run/muos/storage/mounted

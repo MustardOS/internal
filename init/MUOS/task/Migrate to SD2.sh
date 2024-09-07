@@ -13,7 +13,9 @@ SD1_BIOS="/mnt/mmc/MUOS/bios"
 SD1_CATALOGUE="/mnt/mmc/MUOS/info/catalogue"
 SD1_CONFIG="/mnt/mmc/MUOS/info/config"
 SD1_CONTENT="/mnt/mmc/MUOS/info/core /mnt/mmc/MUOS/info/favourite /mnt/mmc/MUOS/info/history"
+SD1_LANGUAGE="/mnt/mmc/MUOS/language"
 SD1_MUSIC="/mnt/mmc/MUOS/music"
+SD1_NAME="/mnt/mmc/MUOS/info/name"
 SD1_SAVE="/mnt/mmc/MUOS/save"
 SD1_SCREENSHOT="/mnt/mmc/MUOS/screenshot"
 SD1_THEME="/mnt/mmc/MUOS/theme"
@@ -23,7 +25,9 @@ SD2_BIOS="/mnt/sdcard/MUOS"
 SD2_CATALOGUE="/mnt/sdcard/MUOS/info"
 SD2_CONFIG="/mnt/sdcard/MUOS/info"
 SD2_CONTENT="/mnt/sdcard/MUOS/info"
+SD2_LANGUAGE="/mnt/mmc/MUOS"
 SD2_MUSIC="/mnt/sdcard/MUOS"
+SD2_NAME="/mnt/mmc/MUOS/info"
 SD2_SAVE="/mnt/sdcard/MUOS"
 SD2_SCREENSHOT="/mnt/sdcard/MUOS"
 SD2_THEME="/mnt/sdcard/MUOS"
@@ -55,8 +59,12 @@ TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_CATALOGUE")))
 echo "Size of Catalogue Folder: $(GET_SIZE "$SD1_CATALOGUE") MB"
 TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_CONFIG")))
 echo "Size of Config Folder: $(GET_SIZE "$SD1_CONFIG") MB"
+TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_LANGUAGE")))
+echo "Size of Music Folder: $(GET_SIZE "$SD1_LANGUAGE") MB"
 TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_MUSIC")))
 echo "Size of Music Folder: $(GET_SIZE "$SD1_MUSIC") MB"
+TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_NAME")))
+echo "Size of Save Folder: $(GET_SIZE "$SD1_NAME") MB"
 TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_SAVE")))
 echo "Size of Save Folder: $(GET_SIZE "$SD1_SAVE") MB"
 TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_SCREENSHOT")))
@@ -113,9 +121,29 @@ for DIR in $SD1_CONTENT; do
 	rsync --verbose --archive --checksum "$DIR" "$SD2_CONTENT"
 done
 
-echo -e "\nCopying Music to SD Card 2"
-sleep 1
-rsync --verbose --archive --checksum "$SD1_MUSIC" "$SD2_MUSIC"
+if [ -d "$SD1_LANGUAGE" ]; then
+	echo -e "\nCopying Language to SD Card 2"
+	sleep 1
+	rsync --verbose --archive --checksum "$SD1_LANGUAGE" "$SD2_LANGUAGE"
+else
+	echo -e "\nNo language folder exists, skipping."
+fi
+
+if [ -d "$SD1_MUSIC" ]; then
+	echo -e "\nCopying Music to SD Card 2"
+	sleep 1
+	rsync --verbose --archive --checksum "$SD1_MUSIC" "$SD2_MUSIC"
+else
+	echo -e "\nNo music folder exists, skipping."
+fi
+
+if [ -d "$SD1_NAMES" ]; then
+	echo -e "\nCopying Names to SD Card 2"
+	sleep 1
+	rsync --verbose --archive --checksum "$SD1_NAME" "$SD2_NAME"
+else
+	echo -e "\nNo names folder exists, skipping."
+fi
 
 echo -e "\nCopying Save to SD Card 2"
 sleep 1

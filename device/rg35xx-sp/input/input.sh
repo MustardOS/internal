@@ -44,6 +44,9 @@ fi
 			1)
 				KEY_COMBO=1
 				[ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ] && printf "ignore" >"/tmp/net_start"
+				if pgrep -f "muxcredits" >/dev/null; then
+					killall -q "muxcredits"
+				fi
 				;;
 		esac
 

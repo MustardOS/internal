@@ -64,20 +64,26 @@ done
 
 # Bind hardcoded paths on SD1's ROM partition (where we can't use symlinks) to
 # subdirs of the appropriate locations under /run/muos/storage (bound above).
-BIND_INTO_STORAGE() {
+BIND_EMULATOR() {
 	TARGET="/run/muos/storage/$1"
-	MOUNT="$(GET_VAR "device" "storage/rom/mount")/MUOS/$2"
+	MOUNT="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/$2"
 	[ -f /run/muos/storage/mounted ] && umount -q "$MOUNT"
 	mkdir -p "$TARGET" "$MOUNT"
 	mount --bind "$TARGET" "$MOUNT" || CRITICAL_FAILURE directory "$TARGET" "$MOUNT"
 }
 
+# OpenBOR
+BIND_EMULATOR save/file/OpenBOR-Ext openbor/userdata/saves/openbor
+BIND_EMULATOR screenshot openbor/userdata/screenshots/openbor
+
+# PICO-8
 for DIR in bbs cdata cstore desktop; do
-	BIND_INTO_STORAGE "save/pico8/$DIR" "emulator/pico8/.lexaloffle/pico-8/$DIR"
+	BIND_EMULATOR "save/pico8/$DIR" "pico8/.lexaloffle/pico-8/$DIR"
 done
 
-BIND_INTO_STORAGE save/file/PPSSPP-Ext emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA
-BIND_INTO_STORAGE save/state/PPSSPP-Ext emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE
+# PPSSPP
+BIND_EMULATOR save/file/PPSSPP-Ext ppsspp/.config/ppsspp/PSP/SAVEDATA
+BIND_EMULATOR save/state/PPSSPP-Ext ppsspp/.config/ppsspp/PSP/PPSSPP_STATE
 
 # muOS boot checks for this to know when storage mounts are available for use.
 touch /run/muos/storage/mounted

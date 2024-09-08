@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Prepare SD2
+# ICON: prepare
 
 . /opt/muos/script/var/func.sh
 

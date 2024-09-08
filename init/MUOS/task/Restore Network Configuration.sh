@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Restore Network Configuration
+# ICON: network
 
 . /opt/muos/script/var/func.sh
 

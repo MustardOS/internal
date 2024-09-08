@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/sh
+# HELP: Moonlight
+# ICON: moonlight
 
 . /opt/muos/script/var/func.sh
 

@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Run Dot and Junk File Cleanup
+# ICON: junk
 
 . /opt/muos/script/var/func.sh
 

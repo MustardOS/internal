@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Backup Syncthing Config
+# ICON: syncthing
 
 # Original backup script created for muOS 2405 Beans +
 # Modified by Ali BEYAZ (aka symbuzzer) for backing up syncthing config

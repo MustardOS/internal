@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Simple Terminal
+# ICON: terminal
 
 . /opt/muos/script/var/func.sh
 

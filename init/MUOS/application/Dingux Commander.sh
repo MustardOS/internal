@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Dingux Commander
+# ICON: dingux
 
 . /opt/muos/script/var/func.sh
 

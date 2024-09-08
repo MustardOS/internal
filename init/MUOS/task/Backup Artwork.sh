@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Backup Artwork
+# ICON: artwork
 
 # Backup script created for muOS 2405 Beans +
 # This should grab all artwork and add it to a .zip archive for easy restoration later using the muOS Archive Manager.

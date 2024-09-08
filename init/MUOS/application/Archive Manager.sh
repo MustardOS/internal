@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Archive Manager
+# ICON: archive
 
 . /opt/muos/script/var/func.sh
 

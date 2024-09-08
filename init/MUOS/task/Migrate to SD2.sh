@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Migrate to SD2
+# ICON: migrate
 
 #---------------------------------------------------------#
 # This script is designed to migrate all user data stored

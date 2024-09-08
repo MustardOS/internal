@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Clear SFTPGO Keys
+# ICON: sftpgo
 
 # This script will remove the SFTPGO keys
 # These will be (re)generated on next boot.
@@ -14,7 +16,7 @@ echo "Sync Filesystem"
 sync
 
 echo "All Done!"
-echo "Please reboot your console."
+echo "Please reboot your device."
 sleep 5
 
 pkill -CONT muxtask

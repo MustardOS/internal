@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Toggle Ethernet
+# ICON: ethernet
 
 # USB Ethernet script created for muOS 2405.1 Refried Beans +
 # This script will toggle the iface between eth0 and wlan0

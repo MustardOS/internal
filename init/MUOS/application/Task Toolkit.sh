@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Task Toolkit
+# ICON: task
 
 . /opt/muos/script/var/func.sh
 

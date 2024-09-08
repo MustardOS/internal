@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: PortMaster
+# ICON: portmaster
 
 . /opt/muos/script/var/func.sh
 

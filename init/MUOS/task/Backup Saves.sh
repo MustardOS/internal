@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Backup Saves
+# ICON: save
 
 # Backup script created for muOS 2405 Beans +
 # This grabs all save files and save states and adds them to a .zip archive for easy restoration later using the muOS Task Commander.

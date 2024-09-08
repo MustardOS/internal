@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: RetroArch
+# ICON: retroarch
 
 . /opt/muos/script/var/func.sh
 

@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Clear Core Assignments
+# ICON: core
 
 . /opt/muos/script/var/func.sh
 

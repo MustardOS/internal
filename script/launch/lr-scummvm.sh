@@ -26,7 +26,7 @@ SCVM="$ROMPATH/$SUBFOLDER/$NAME.scummvm"
 
 cp "$ROMPATH/$NAME.scummvm" "$SCVM"
 
-RA_CONF="$(GET_VAR "device" "storage/rom/mount")/MUOS/retroarch/retroarch.cfg"
+RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 
 retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/scummvm_libretro.so" "$SCVM" &
 RA_PID=$!

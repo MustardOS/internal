@@ -29,7 +29,7 @@ cp -f "$ROMPATH/$NAME.doom" "$PRBC"
 cp -f "/run/muos/storage/bios/prboom.wad" "$ROMPATH/.$NAME/prboom.wad"
 cp -f "$ROMPATH/.IWAD/$IWAD" "$ROMPATH/.$NAME/$IWAD"
 
-RA_CONF="$(GET_VAR "device" "storage/rom/mount")/MUOS/retroarch/retroarch.cfg"
+RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 
 retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/prboom_libretro.so" "$ROMPATH/.$NAME/$IWAD" &
 RA_PID=$!

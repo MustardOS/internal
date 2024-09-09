@@ -16,7 +16,7 @@ SET_VAR "system" "foreground_process" "retroarch"
 
 ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')
 
-RA_CONF="$(GET_VAR "device" "storage/rom/mount")/MUOS/retroarch/retroarch.cfg"
+RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 
 if [ "$(echo "$ROM" | awk -F. '{print $NF}')" = "zip" ]; then
 	retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$ROM" &

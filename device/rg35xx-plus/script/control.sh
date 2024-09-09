@@ -24,9 +24,13 @@ if [ ! -f "$MP64GL64" ]; then
 fi
 
 # Move RetroArch configurations
-RA_CONF="$(GET_VAR "device" "storage/rom/mount")/MUOS/retroarch/retroarch.cfg"
+RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 if [ ! -f "$RA_CONF" ]; then
-	cp "$DEVICE_CONTROL_DIR/retroarch.cfg" "$RA_CONF"
+	cp /run/muos/storage/retroarch/retroarch.default.cfg "$RA_CONF"
+fi
+RA_DEVICE_CONF=/run/muos/storage/retroarch/retroarch.device.cfg
+if [ ! -f "$RA_DEVICE_CONF" ]; then
+	cp "$DEVICE_CONTROL_DIR/retroarch.device.cfg" "$RA_DEVICE_CONF"
 fi
 
 # Move DraStic Steward config

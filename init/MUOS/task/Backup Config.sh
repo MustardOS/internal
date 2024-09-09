@@ -30,12 +30,10 @@ DEST_FILE="$DEST_DIR/muOS-Config-$(date +"%Y-%m-%d_%H-%M").zip"
 
 TO_BACKUP="
 $(GET_VAR "device" "storage/rom/mount")/MUOS/info/config
-$(GET_VAR "device" "storage/rom/mount")/MUOS/retroarch/retroarch.cfg
 $(GET_VAR "device" "storage/rom/mount")/MUOS/info/core
 $(GET_VAR "device" "storage/rom/mount")/MUOS/info/favourite
 $(GET_VAR "device" "storage/rom/mount")/MUOS/info/history
 $(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/config
-$(GET_VAR "device" "storage/sdcard/mount")/MUOS/retroarch/retroarch.cfg
 $(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/core
 $(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/favourite
 $(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/history

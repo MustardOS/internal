@@ -59,5 +59,4 @@ if [ "$(GET_VAR "global" "settings/advanced/android")" -eq 1 ]; then
 	/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/adb.sh &
 fi
 
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/control.sh &
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/input/input.sh &

@@ -111,6 +111,9 @@ done
 LOGGER "$0" "BOOTING" "Detecting Charge Mode"
 /opt/muos/device/"$DEV_BOARD"/script/charge.sh
 
+LOGGER "$0" "BOOTING" "Setting Device Controls"
+/opt/muos/device/"$DEV_BOARD"/script/control.sh &
+
 LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
 for LIB_D in lib lib32; do
 	GCDB="gamecontrollerdb.txt"

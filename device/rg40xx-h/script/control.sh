@@ -47,9 +47,9 @@ for file in "$DEVICE_CONTROL_DIR/openbor/"*.ini; do
 done
 
 # Define Playstation remap paths
-DUCK_RMP="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/config/remaps/DuckStation/DuckStation.rmp"
-PCSX_RMP="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/config/remaps/PCSX-ReARMed/PCSX-ReARMed.rmp"
-SWAN_RMP="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/config/remaps/SwanStation/SwanStation.rmp"
+DUCK_RMP=/run/muos/storage/info/config/remaps/DuckStation/DuckStation.rmp
+PCSX_RMP=/run/muos/storage/info/config/remaps/PCSX-ReARMed/PCSX-ReARMed.rmp
+SWAN_RMP=/run/muos/storage/info/config/remaps/SwanStation/SwanStation.rmp
 
 # Check for DuckStation remap
 DUCK_DIR=$(dirname "$DUCK_RMP")

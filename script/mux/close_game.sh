@@ -29,6 +29,11 @@ CLOSE_CONTENT() {
 	printf 'timed out\n'
 }
 
+# Clears the last-played content so we won't relaunch it on the next boot.
+CLEAR_LAST_PLAY() {
+	: >/opt/muos/config/lastplay.txt
+}
+
 # Cleanly halts, shuts down, or reboots the device.
 #
 # Usage: HALT_SYSTEM SRC CMD
@@ -57,6 +62,17 @@ HALT_SYSTEM() {
 		# Clear state we never want to persist across reboots.
 		: >/opt/muos/config/address.txt
 
+		# Clear last-played content per Device Startup setting.
+		#
+		# Last Game: Always relaunch on boot.
+		# Resume Game: Only relaunch on boot if we're running content
+		# that was started via the launch script.
+		case "$(GET_VAR "global" "settings/general/startup")" in
+			last) ;;
+			resume) pidof launch.sh >/dev/null || CLEAR_LAST_PLAY ;;
+			*) CLEAR_LAST_PLAY ;;
+		esac
+
 		case "$HALT_SRC" in
 			frontend)
 				# When not showing verbose output, display a
@@ -64,20 +80,14 @@ HALT_SYSTEM() {
 				if [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 0 ]; then
 					/opt/muos/extra/muxsplash "/run/muos/storage/theme/active/image/$SPLASH_IMG.png"
 				fi
-
-				# Unless startup option is "last game", clear
-				# last played so we don't rerun it on boot.
-				if [ "$(GET_VAR "global" "settings/general/startup")" != last ]; then
-					: >/opt/muos/config/lastplay.txt
-				fi
 				;;
 			osf)
 				# Blank screen to prevent visual glitches.
 				DISPLAY_WRITE disp0 blank 1
 
-				# Clear last played on reboot hotkey in case
-				# the content itself forced the user to reboot.
-				: >/opt/muos/config/lastplay.txt
+				# Never relaunch content after failsafe reboot
+				# since it may have been what hung or crashed.
+				CLEAR_LAST_PLAY
 				;;
 			sleep)
 				# Blank screen to prevent visual glitches.

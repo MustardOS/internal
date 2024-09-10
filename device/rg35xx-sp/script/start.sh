@@ -55,8 +55,4 @@ echo on >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
 # Switch GPU power policy
 echo always_on >/sys/devices/platform/gpu/power_policy &
 
-if [ "$(GET_VAR "global" "settings/advanced/android")" -eq 1 ]; then
-	/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/adb.sh &
-fi
-
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/input/input.sh &

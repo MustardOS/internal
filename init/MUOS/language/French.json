@@ -38,7 +38,7 @@
     "Capacity": "Capacité",
     "Voltage": "Tension",
     "Health": "Santé",
-    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
+    "Press POWER button to continue booting...": "Appuyez sur POWER pour démarrer..."
   },
   "muxconfig": {
     "General Settings": "Paramètres généraux",
@@ -170,7 +170,7 @@
     "Saving Changes": "Sauvegarde des modifications",
     "Save": "Sauvegarder",
     "STORAGE PREFERENCE": "PRÉFÉRENCE DE STOCKAGE",
-    "Languages": "Languages"
+    "Languages": "Langues"
   },
   "muxsysinfo": {
     "muOS Version": "Version de muOS",
@@ -187,7 +187,7 @@
     "Back": "Retour",
     "SYSTEM DETAILS": "DÉTAILS DU SYSTÈME",
     "Device Type": "Device Type",
-    "Thank you for using muOS!": "Thank you for using muOS!"
+    "Thank you for using muOS!": "Merci d'utiliser muOS!"
   },
   "muxtask": {
     "Launch": "Lancer",
@@ -198,7 +198,7 @@
   "muxtester": {
     "Press POWER to finish testing": "Appuyer sur POWER pour quitter le test",
     "INPUT TESTER": "TESTEUR DE TOUCHES",
-    "Press any button to start input testing!": "Press any button to start input testing!"
+    "Press any button to start input testing!": "Appuyez sur une touche pour démarrer le test!"
   },
   "muxtheme": {
     "Loading Theme": "Chargement du thème en cours",
@@ -293,7 +293,7 @@
     "1080p + 50hz": "1080p + 50hz",
     "1080p + 60hz": "1080p + 60hz",
     "Sleep Suspend": "Mise en Veille",
-    "Instant Shutdown": "Exctinction Immédiate",
+    "Instant Shutdown": "Exctinction immédiate",
     "Sleep 10s + Shutdown": "Veille pendant 10s + Extinction",
     "Sleep 30s + Shutdown": "Veille pendant 30s + Extinction",
     "Sleep 60s + Shutdown": "Veille pendant 60s + Extinction",
@@ -313,10 +313,10 @@
     "Clock": "Horloge",
     "Content Box Art": "Illustration du contenu",
     "Content Name Scheme": "Schéma de nom du contenu",
-    "Content Dash Replacement": "Remplacement des tirets du contenu",
-    "Display Title Reformatting": "Reformatage du titre affiché",
-    "Menu Counter Folder": "Afficher le numéro des répertoires",
-    "Menu Counter File": "Afficher le numéro des fichiers",
+    "Content Dash Replacement": "Remplacer les tirets du contenu",
+    "Display Title Reformatting": "Reformater le titre affiché",
+    "Menu Counter Folder": "Numéro des répertoires",
+    "Menu Counter File": "Numéro des fichiers",
     "Hidden": "Caché",
     "Visible": "Visible",
     "Disabled": "Désactivé",
@@ -336,7 +336,7 @@
     "Saving Changes": "Sauvegarde des modifications en cours",
     "Save": "Sauvegarder",
     "INTERFACE OPTIONS": "OPTIONS DE L'INTERFACE",
-    "Folder Item Count": "Folder Item Count"
+    "Folder Item Count": "Nombre de fichiers dans les répertoires"
   },
   "muxwebserv": {
     "Secure Shell": "Shell sécurisé",

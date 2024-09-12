@@ -24,8 +24,4 @@ else
 	fi
 fi
 
-if [ "$(GET_VAR "global" "settings/advanced/android")" -eq 1 ]; then
-	/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/adb.sh &
-else
-	killall -q adbd
-fi
+/opt/muos/script/system/usb.sh &

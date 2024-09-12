@@ -132,6 +132,9 @@ if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 	done
 fi
 
+LOGGER "$0" "BOOTING" "Starting USB Function"
+/opt/muos/script/system/usb.sh &
+
 LOGGER "$0" "BOOTING" "Bringing up localhost network"
 ifconfig lo up &
 

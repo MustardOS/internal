@@ -15,7 +15,7 @@ export SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
 SET_VAR "system" "foreground_process" "mupen64plus"
 
 case "$(GET_VAR "device" "board/name")" in
-	RG28XX)
+	rg28xx)
 		FB_SWITCH 240 320 32
 		;;
 	*)
@@ -45,12 +45,14 @@ case "$ROM" in *.zip)
 	unzip -q "$ROM" -d "$TMPDIR"
 	# Pick first file with a supported extension.
 	for TMPFILE in "$TMPDIR"/*; do
-		case "$TMPFILE" in *.n64|*.v64|*.z64)
+		case "$TMPFILE" in *.n64 | *.v64 | *.z64)
 			ROM="$TMPFILE"
 			break
-		;; esac
+			;;
+		esac
 	done
-;; esac
+	;;
+esac
 
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$ROM"
 
@@ -60,8 +62,8 @@ if [ -n "$TMPDIR" ]; then
 fi
 
 case "$(GET_VAR "device" "board/name")" in
-	RG*)
-		echo 0 > "/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+	rg*)
+		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
 		;;
 	*)

@@ -8,6 +8,12 @@ SLEEP() {
 	for C in $(seq 1 $((DC_CPU_CORES - 1))); do
 		echo 0 >"/sys/devices/system/cpu/cpu${C}/online"
 	done
+
+	DEV_BOARD=$(GET_VAR "device" "board/name")
+	case "$DEV_BOARD" in
+		rg40xx*) /opt/muos/device/"$DEV_BOARD"/script/led_control.sh 1 0 0 0 0 0 0 0 ;;
+		*) ;;
+	esac
 }
 
 RESUME() {
@@ -15,6 +21,19 @@ RESUME() {
 	for C in $(seq 1 $((DC_CPU_CORES - 1))); do
 		echo 1 >"/sys/devices/system/cpu/cpu${C}/online"
 	done
+
+	DEV_BOARD=$(GET_VAR "device" "board/name")
+	case "$DEV_BOARD" in
+		rg40xx*)
+			RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
+			if [ -f "$RGBCONF_SCRIPT" ]; then
+				"$RGBCONF_SCRIPT"
+			else
+				/opt/muos/device/"$DEV_BOARD"/script/led_control.sh 1 0 0 0 0 0 0 0
+			fi
+			;;
+		*) ;;
+	esac
 }
 
 if [ "$#" -ne 1 ]; then

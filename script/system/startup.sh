@@ -8,9 +8,8 @@
 
 DEV_BOARD=$(GET_VAR "device" "board/name")
 case "$DEV_BOARD" in
-    rg40xx-h | rg40xx-v)
-        /opt/muos/device/"$DEV_BOARD"/script/led_control.sh 2 255 225 173 1
-        ;;
+	rg40xx*) /opt/muos/device/"$DEV_BOARD"/script/led_control.sh 2 255 225 173 1 ;;
+	*) ;;
 esac
 
 echo "pipewire" >"$AUDIO_SRC"

@@ -18,7 +18,7 @@ chmod +x "$EMUDIR"/ppsspp
 cd "$EMUDIR" || exit
 
 case "$(GET_VAR "device" "board/name")" in
-	RG28XX)
+	rg28xx)
 		FB_SWITCH 720 960 32
 		;;
 	*)
@@ -31,8 +31,8 @@ sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d'
 HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") ./PPSSPP "$ROM"
 
 case "$(GET_VAR "device" "board/name")" in
-	RG*)
-		echo 0 > "/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+	rg*)
+		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
 		;;
 	*)

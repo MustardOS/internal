@@ -6,11 +6,22 @@
 # Reset the dpad switch and LED control - This can be modified to device specifics later!
 echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" 1>&2
 
+case "$(GET_VAR "device" "board/name")" in
+	rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
+	*) ;;
+esac
+
 DEV_BOARD=$(GET_VAR "device" "board/name")
 case "$DEV_BOARD" in
-	rg40xx-h | rg40xx-v)
-		/opt/muos/device/"$DEV_BOARD"/script/led_control.sh 1 0 0 0 0 0 0 0
+	rg40xx*)
+		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
+		if [ -f "$RGBCONF_SCRIPT" ]; then
+			"$RGBCONF_SCRIPT"
+		else
+			/opt/muos/device/"$DEV_BOARD"/script/led_control.sh 1 0 0 0 0 0 0 0
+		fi
 		;;
+	*) ;;
 esac
 
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/audio.sh I
@@ -146,7 +157,8 @@ while true; do
 	# Application Loader
 	if [ -s "$APP_GO" ]; then
 		KILL_BGM
-		. "$(cat $APP_GO)"
+		RUN_APP=$(cat $APP_GO)
+		"$RUN_APP"
 		rm "$APP_GO"
 		continue
 	fi

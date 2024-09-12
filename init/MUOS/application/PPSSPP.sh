@@ -22,7 +22,7 @@ cd "$PPSSPP_DIR" || exit
 SET_VAR "system" "foreground_process" "PPSSPP"
 
 case "$(GET_VAR "device" "board/name")" in
-	RG28XX)
+	rg28xx)
 		FB_SWITCH 720 960 32
 		;;
 	*)
@@ -35,7 +35,7 @@ sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d'
 SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") ./PPSSPP
 
 case "$(GET_VAR "device" "board/name")" in
-	RG*)
+	rg*)
 		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
 		;;

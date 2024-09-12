@@ -7,7 +7,7 @@ mount -t configfs none /sys/kernel/config &
 /opt/muos/script/mount/mmc.sh &
 /opt/muos/script/mount/sdcard.sh &
 
-# Wait for parallel mounts required by the boot process to become available.
+# Wait for mounts required by the boot process to become available.
 wait
 
 # Set up bind mounts under /run/muos/storage. Creates /run/muos/storage/mounted

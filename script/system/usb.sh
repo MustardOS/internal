@@ -17,10 +17,9 @@ FUNCTIONFS=/dev/usb-ffs
 UDC="$(GET_VAR "device" "board/udc")"
 USB_FUNCTION="$(GET_VAR "global" "settings/advanced/usb_function")"
 
-# See https://usb-ids.gowdy.us/read/UD/1d6b for USB vendor and product IDs.
 
 USB_VID() {
-	echo 0x1d6b # Linux Foundation
+	echo 0x1d6b # Linux Foundation (https://usb-ids.gowdy.us/read/UD/1d6b)
 }
 
 USB_PID() {

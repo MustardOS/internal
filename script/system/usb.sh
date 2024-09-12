@@ -31,9 +31,8 @@ USB_PID() {
 }
 
 USB_SERIAL() {
-	# Randomized on factory reset, but the user can change it. (The SoC has
-	# a stable hardware serial number, but it's not clear how to read it.)
-	hostname -s
+	# Parse device serial number passed by U-Boot out of kernel cmdline.
+	xargs -n 1 -a /proc/cmdline | sed -n s/^snum=//p
 }
 
 USB_MANUFACTURER() {

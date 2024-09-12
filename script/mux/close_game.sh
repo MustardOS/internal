@@ -29,6 +29,12 @@ CLOSE_CONTENT() {
 	printf 'timed out\n'
 }
 
+# Blank screen to prevent visual glitches as running programs exit.
+DISPLAY_BLANK() {
+	echo 4 >/sys/class/graphics/fb0/blank
+	DISPLAY_WRITE disp0 setbl 0
+}
+
 # Clears the last-played content so we won't relaunch it on the next boot.
 CLEAR_LAST_PLAY() {
 	: >/opt/muos/config/lastplay.txt
@@ -82,18 +88,14 @@ HALT_SYSTEM() {
 				fi
 				;;
 			osf)
-				# Blank screen to prevent visual glitches.
-				DISPLAY_WRITE disp0 blank 1
+				DISPLAY_BLANK
 
 				# Never relaunch content after failsafe reboot
 				# since it may have been what hung or crashed.
 				CLEAR_LAST_PLAY
 				;;
 			sleep)
-				# Blank screen to prevent visual glitches.
-				DISPLAY_WRITE disp0 blank 1
-
-				# Close foreground process (for autosave).
+				DISPLAY_BLANK
 				CLOSE_CONTENT
 				;;
 		esac

@@ -3,9 +3,6 @@
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/mux/close_game.sh
 
-# Reset the dpad switch and LED control - This can be modified to device specifics later!
-echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" 1>&2
-
 case "$(GET_VAR "device" "board/name")" in
 	rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
 	*) ;;

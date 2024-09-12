@@ -134,8 +134,15 @@ fi
 
 killall -q "$GPTOKEYB_BIN" "$EVSIEVE_BIN"
 
-echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" 1>&2
-FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
+case "$(GET_VAR "device" "board/name")" in
+	rg*)
+		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
+		;;
+	*)
+		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
+		;;
+esac
 
 if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
 	SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)

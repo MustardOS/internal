@@ -8,13 +8,13 @@
 
 GADGET=/sys/kernel/config/usb_gadget/muos
 GADGET_CONFIG="$GADGET/configs/c.1"
-GADGET_CONFIG_STRINGS="$GADGET_CONFIG/strings/0x409"
 GADGET_FUNCTIONS="$GADGET/functions"
 GADGET_STRINGS="$GADGET/strings/0x409"
 
 # Path /dev/usb-ffs/adb is hardcoded inside adbd. :/
 FUNCTIONFS=/dev/usb-ffs
 
+UDC="$(GET_VAR "device" "board/udc")"
 USB_FUNCTION="$(GET_VAR "global" "settings/advanced/usb_function")"
 
 # See https://usb-ids.gowdy.us/read/UD/1d6b for USB vendor and product IDs.
@@ -31,7 +31,8 @@ USB_PID() {
 }
 
 USB_SERIAL() {
-	# Randomized on setup. If the user changes it, they're on their own. :)
+	# Randomized on factory reset, but the user can change it. (The SoC has
+	# a stable hardware serial number, but it's not clear how to read it.)
 	hostname -s
 }
 
@@ -50,25 +51,20 @@ FIRMWARE_VERSION() {
 START() {
 	# Configure USB gadget
 	# (https://docs.kernel.org/usb/gadget_configfs.html).
-	if ! mountpoint -q /sys/kernel/config; then
-		mount -t configfs none /sys/kernel/config
-	fi
+	mkdir "$GADGET" "$GADGET_STRINGS" "$GADGET_CONFIG"
 
-	mkdir "$GADGET"
 	USB_VID >"$GADGET/idVendor"
 	USB_PID >"$GADGET/idProduct"
 
-	mkdir "$GADGET_STRINGS"
 	USB_SERIAL >"$GADGET_STRINGS/serialnumber"
 	USB_MANUFACTURER >"$GADGET_STRINGS/manufacturer"
 	USB_PRODUCT >"$GADGET_STRINGS/product"
 
-	mkdir "$GADGET_CONFIG"
+	# The device can charge while a USB gadget is enabled. Charging may draw
+	# more power, but 500 mA is the most a USB 2.0 device can claim to need.
+	echo 500 >"$GADGET_CONFIG/MaxPower"
 
-	mkdir "$GADGET_CONFIG_STRINGS"
-	echo "Configuration 1" >"$GADGET_CONFIG_STRINGS/configuration"
-
-	# Configure USB functions (https://docs.kernel.org/usb/functionfs.html).
+	# Configure USB function (https://docs.kernel.org/usb/functionfs.html).
 	mkdir "$GADGET_FUNCTIONS/ffs.$USB_FUNCTION"
 	ln -s "$GADGET_FUNCTIONS/ffs.$USB_FUNCTION" "$GADGET_CONFIG"
 
@@ -77,21 +73,16 @@ START() {
 
 	# Start daemon.
 	case "$USB_FUNCTION" in
-		adb)
-			/usr/bin/adbd &
-			;;
-		mtp)
-			UPDATE_UMTPRD_CONFIG
-			/usr/bin/umtprd &
-			;;
+		adb) /usr/bin/adbd & ;;
+		mtp) UPDATE_UMTPRD_CONF && /usr/bin/umtprd & ;;
 	esac
 	sleep 1
 
 	# Enable USB gadget.
-	echo 5100000.udc-controller >"$GADGET/UDC"
+	echo "$UDC" >"$GADGET/UDC"
 }
 
-UPDATE_UMTPRD_CONFIG() {
+UPDATE_UMTPRD_CONF() {
 	sed \
 		-e "s/^usb_vendor_id .*/usb_vendor_id \"$(USB_VID)\"/" \
 		-e "s/^usb_product_id .*/usb_product_id \"$(USB_PID)\"/" \
@@ -103,17 +94,14 @@ UPDATE_UMTPRD_CONFIG() {
 }
 
 STOP() {
-	# Check if USB gadget is already stopped.
-	[ -d "$GADGET" ] || return
-
 	# Disable USB gadget.
 	echo '' >"$GADGET/UDC"
 
-	# Stop daemons.
+	# Stop daemon.
 	killall -q adbd umtprd
 	sleep 1
 
-	# Clean up USB functions.
+	# Clean up USB function.
 	for FUNCTION in adb mtp; do
 		[ -d "$FUNCTIONFS/$FUNCTION" ] && umount -q "$FUNCTIONFS/$FUNCTION"
 		[ -L "$GADGET_CONFIG/ffs.$FUNCTION" ] && rm "$GADGET_CONFIG/ffs.$FUNCTION"
@@ -121,27 +109,26 @@ STOP() {
 	done
 	rm -rf "$FUNCTIONFS"
 
-	# Clean up USB gadget. Note that `rm -rf` inside configfs fails with
-	# "Operation not permitted" errors. Instead, `rmdir` commands must be
-	# used in a specific order, even though the directories appear nonempty
-	# (https://docs.kernel.org/usb/gadget_configfs.html#cleaning-up).
-	rmdir "$GADGET_CONFIG_STRINGS"
-	rmdir "$GADGET_CONFIG"
-	rmdir "$GADGET_STRINGS"
-	rmdir "$GADGET"
+	# Clean up USB gadget. Note that configfs items must be removed with
+	# rmdir, not rm, even though the relevant directories appear nonempty.
+	# (See also https://docs.kernel.org/filesystems/configfs.html and
+	# https://docs.kernel.org/usb/gadget_configfs.html#cleaning-up.)
+	rmdir "$GADGET_CONFIG" "$GADGET_STRINGS" "$GADGET"
 }
+
+[ -n "$UDC" ] || exit # USB function requires a USB Device Controller (UDC).
 
 case "$USB_FUNCTION" in
 	adb|mtp)
-		# Check if specified gadget is already running; start it if not.
+		# Check if specified function is running; start it if not.
 		if [ ! -d "$GADGET_FUNCTIONS/ffs.$USB_FUNCTION" ]; then
-			STOP
+			[ -d "$GADGET" ] && STOP
 			START
 		fi
 		;;
-	host) STOP ;;
+	none) [ -d "$GADGET" ] && STOP ;;
 	*)
-		printf "Invalid USB function setting: %s\n" "$USB_FUNCTION" >&2
+		printf "Invalid usb_function setting: %s\n" "$USB_FUNCTION" >&2
 		exit 1
 		;;
 esac

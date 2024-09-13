@@ -65,7 +65,7 @@
     "Confirm": "확인",
     "Back": "이전",
     "LANGUAGES": "언어",
-    "No Languages Found...": "언어가 없음..."
+    "No Languages Found...": "언어 설정 없음..."
   },
   "muxlaunch": {
     "Explore Content": "콘텐츠 탐색",
@@ -156,12 +156,12 @@
     "DATE AND TIME": "날짜와 시간"
   },
   "muxstorage": {
-    "RetroArch BIOS": "RetroArch BIOS",
-    "RetroArch Configs": "RetroArch Configs",
-    "Metadata Catalogue": "Metadata Catalogue",
-    "Content Management": "Content Management",
+    "RetroArch BIOS": "레트로아크 바이오스",
+    "RetroArch Configs": "레트로아크 설정",
+    "Metadata Catalogue": "메타데이터 카탈로그",
+    "Content Management": "콘텐츠 관리",
     "Background Music": "배경 음악",
-    "Save Games + Save States": "Save Games + Save States",
+    "Save Games + Save States": "게임 세이브 + 상태 저장",
     "Screenshots": "스크린샷",
     "Themes": "테마",
     "Languages": "언어",
@@ -215,13 +215,13 @@
   },
   "muxtweakadv": {
     "A+B Button Swap": "A+B 버튼 교체",
-    "Thermal Zone Control": "써멀 존 제어",
+    "Thermal Zone Control": "써멀 존 컨트롤",
     "Interface Font Type": "인터페이스 폰트 유형",
     "Volume On Boot": "부팅시 볼륨",
     "Brightness On Boot": "부팅시 밝기",
     "Battery Offset": "배터리 오프셋",
     "Passcode Lock": "패스코드 락",
-    "LED During Play": "플레이시 LED",
+    "LED During Play": "플레이시 LED 켜기",
     "Random Theme on Boot": "부팅시 랜덤 테마",
     "RetroArch Network Wait": "레트로아크 네트워크 대기",
     "Android Debug Bridge": "안드로이드 디버그 브릿지",

@@ -7,10 +7,6 @@
 /opt/muos/script/var/init/global.sh init
 
 DEV_BOARD=$(GET_VAR "device" "board/name")
-case "$DEV_BOARD" in
-	rg40xx*) /opt/muos/device/"$DEV_BOARD"/script/led_control.sh 2 255 225 173 1 ;;
-	*) ;;
-esac
 
 echo "pipewire" >"$AUDIO_SRC"
 
@@ -48,6 +44,11 @@ LOGGER "$0" "BOOTING" "Starting Pipewire"
 /opt/muos/script/system/pipewire.sh &
 
 if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
+	case "$DEV_BOARD" in
+		rg40xx*) /opt/muos/device/"$DEV_BOARD"/script/led_control.sh 2 255 225 173 1 ;;
+		*) ;;
+	esac
+
 	LOGGER "$0" "FACTORY RESET" "Setting date time to default"
 	date 090100002024
 	hwclock -w

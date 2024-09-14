@@ -1,6 +1,6 @@
 #!/bin/sh
 # HELP: Clear System Cache
-# ICON: syscache
+# ICON: clear
 
 . /opt/muos/script/var/func.sh
 

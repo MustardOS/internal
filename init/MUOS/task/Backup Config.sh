@@ -1,6 +1,6 @@
 #!/bin/sh
 # HELP: Backup Config
-# ICON: config
+# ICON: backup
 
 # Backup script created for muOS 2405 Beans +
 # This should backup all core overrides, core assignments, favourites, and RA global config

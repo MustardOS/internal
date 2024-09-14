@@ -1,6 +1,6 @@
 #!/bin/sh
 # HELP: Clear System Configuration
-# ICON: sysconfig
+# ICON: clear
 
 . /opt/muos/script/var/func.sh
 

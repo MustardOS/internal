@@ -1,6 +1,6 @@
 #!/bin/sh
 # HELP: Backup Themes
-# ICON: theme
+# ICON: backup
 
 # Backup script created for muOS 2405 Beans +
 # This should backup the themes folder.

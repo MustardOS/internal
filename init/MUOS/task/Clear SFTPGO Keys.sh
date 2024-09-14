@@ -1,6 +1,6 @@
 #!/bin/sh
 # HELP: Clear SFTPGO Keys
-# ICON: sftpgo
+# ICON: clear
 
 # This script will remove the SFTPGO keys
 # These will be (re)generated on next boot.

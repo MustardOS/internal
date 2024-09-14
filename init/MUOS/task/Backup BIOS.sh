@@ -1,6 +1,6 @@
 #!/bin/sh
 # HELP: Backup BIOS
-# ICON: bios
+# ICON: backup
 
 # Backup script created for muOS 2405 Beans +
 # This should backup the BIOS folder.

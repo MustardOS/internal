@@ -3,8 +3,8 @@
 . /opt/muos/script/var/func.sh
 
 # Make sure both VARS and LOCS match the same index as required
-STORAGE_VARS="bios catalogue catalogue config config content content content music save screenshot theme language"
-STORAGE_LOCS="bios info/catalogue info/name retroarch info/config info/core info/favourite info/history music save screenshot theme language"
+STORAGE_VARS="bios catalogue catalogue config config content content content music save screenshot theme language network"
+STORAGE_LOCS="bios info/catalogue info/name retroarch info/config info/core info/favourite info/history music save screenshot theme language network"
 
 # Unmount storage before remounting (e.g., on SD card insert/eject).
 if [ -f /run/muos/storage/mounted ]; then

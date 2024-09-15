@@ -108,7 +108,6 @@ function setupFont()
 	
 end
 
--- Save the settings to a file
 function saveSettings()
     local settingsData = string.format(
         "mode=%d\ncolor=%d\ncombo=%d\nbrightness=%d\nspeed=%d",
@@ -118,15 +117,33 @@ function saveSettings()
         settings.brightness,
         settings.speed
     )
-    love.filesystem.write("settings.txt", settingsData)
+    
+    -- Specify the absolute file path
+    local filePath = "/run/muos/storage/theme/active/rgb/settings.txt"
+    
+    -- Use Lua's standard I/O library to write the file
+    local file = io.open(filePath, "w")
+    
+    if file then
+        file:write(settingsData)
+        file:close()
+    else
+        print("Failed to open file for writing.")
+    end
 end
 
--- Load the settings from a file
+
 function loadSettings()
-    local settingsFile = "settings.txt"
+    -- Specify the absolute file path
+    local filePath = "/run/muos/storage/theme/active/rgb/settings.txt"
     
-    if love.filesystem.getInfo(settingsFile) then
-        local contents = love.filesystem.read(settingsFile)
+    -- Use Lua's standard I/O library to read the file
+    local file = io.open(filePath, "r")
+    
+    if file then
+        local contents = file:read("*all")
+        file:close()
+        
         if contents then
             parseSettings(contents)
         else
@@ -136,6 +153,7 @@ function loadSettings()
         print("Settings file not found.")
     end
 end
+
 
 -- Parse the settings content from a file
 function parseSettings(contents)

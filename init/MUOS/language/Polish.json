@@ -38,7 +38,7 @@
     "Capacity": "Pojemność",
     "Voltage": "Napięcie",
     "Health": "Zdrowie",
-    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
+    "Press POWER button to continue booting...": "Wciśnij POWER, aby kontynuować uruchamianie..."
   },
   "muxconfig": {
     "General Settings": "Ustawienia ogólne",
@@ -186,8 +186,8 @@
     "Battery Voltage": "Napięcie baterii",
     "Back": "Wróć",
     "SYSTEM DETAILS": "SZCZEGÓŁY SYSTEMU",
-    "Device Type": "Device Type",
-    "Thank you for using muOS!": "Thank you for using muOS!"
+    "Device Type": "Typ Urządzenia",
+    "Thank you for using muOS!": "Dziękujemy za korzystanie z muOS!"
   },
   "muxtask": {
     "Launch": "Uruchom",
@@ -198,7 +198,7 @@
   "muxtester": {
     "Press POWER to finish testing": "Wciśnij POWER, aby zakończyć testowanie",
     "INPUT TESTER": "TESTER PRZYCISKÓW",
-    "Press any button to start input testing!": "Press any button to start input testing!"
+    "Press any button to start input testing!": "Wciśnij dowolny przycisk, aby zacząć testowanie!"
   },
   "muxtheme": {
     "Loading Theme": "Wczytywanie motywu",
@@ -336,7 +336,7 @@
     "Saving Changes": "Zapisywanie zmian",
     "Save": "Zapisz",
     "INTERFACE OPTIONS": "OPCJE INTERFEJSU",
-    "Folder Item Count": "Folder Item Count"
+    "Folder Item Count": "Licznik elementów folderów"
   },
   "muxwebserv": {
     "Secure Shell": "Secure Shell (SSH)",

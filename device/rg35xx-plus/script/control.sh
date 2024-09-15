@@ -33,14 +33,11 @@ if [ ! -f "$RA_DEVICE_CONF" ]; then
 	cp "$DEVICE_CONTROL_DIR/retroarch.device.cfg" "$RA_DEVICE_CONF"
 fi
 
-# Move DraStic Steward config
-DRSTU_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-steward/resources/settings.json"
-if [ ! -f "$DRSTU_JSON" ]; then
-	cp -f "$DEVICE_CONTROL_DIR/drastic-steward.json" "$DRSTU_JSON"
+# Move DraStic config
+DRASTIC_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/resources/settings.json"
+if [ ! -f "$DRASTIC_JSON" ]; then
+	cp -f "$DEVICE_CONTROL_DIR/drastic.json" "$DRASTIC_JSON"
 fi
-
-# Move DraStic configuration
-cp -f "$DEVICE_CONTROL_DIR/drastic.cfg" "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/config/drastic.cfg"
 
 # Move OpenBOR config
 for file in "$DEVICE_CONTROL_DIR/openbor/"*.ini; do

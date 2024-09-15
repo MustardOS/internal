@@ -16,10 +16,10 @@ SET_VAR "system" "foreground_process" "drastic"
 
 EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic"
 
-chmod +x "$EMUDIR"/drastic
+chmod +x "$EMUDIR"/launch.sh
 cd "$EMUDIR" || exit
 
-HOME="$EMUDIR" SDL_ASSERT=always_ignore ./drastic "$ROM"
+HOME="$EMUDIR" SDL_ASSERT=always_ignore ./launch.sh "$ROM"
 
 unset SDL_HQ_SCALER
 unset SDL_ROTATION

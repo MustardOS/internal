@@ -139,7 +139,7 @@ else
 	echo -e "\nNo music folder exists, skipping."
 fi
 
-if [ -d "$SD1_NAMES" ]; then
+if [ -d "$SD1_NAME" ]; then
 	echo -e "\nCopying Names to SD Card 2"
 	sleep 1
 	rsync --verbose --archive --checksum "$SD1_NAME" "$SD2_NAME"

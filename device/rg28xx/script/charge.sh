@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-if [ "$(cat "$(GET_VAR "device" "battery/charger")")" -eq 1 ] && [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
+if [ "$(cat "$(GET_VAR "device" "battery/boot_mode")")" -eq 1 ] && [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
 	SET_VAR "system" "foreground_process" "muxcharge"
 
 	if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then

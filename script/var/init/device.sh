@@ -21,7 +21,7 @@ CONFIG_CLEARED=0
 CONFIG_FILE="$DEVICE_CONFIG"
 
 AUDIO_VARS="platform object control channel min max"
-BATTERY_VARS="capacity health voltage charger"
+BATTERY_VARS="boot_mode capacity health voltage charger"
 CPU_VARS="cores default governor scaler sampling_rate up_threshold sampling_down_factor io_is_busy sampling_rate_default up_threshold_default sampling_down_factor_default io_is_busy_default"
 BOARD_VARS="name home network bluetooth portmaster lid hdmi event debugfs rtc rumble udc"
 INPUT_VARS="ev0 ev1 axis_min axis_max"

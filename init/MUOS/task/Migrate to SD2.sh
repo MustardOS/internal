@@ -27,9 +27,9 @@ SD2_BIOS="/mnt/sdcard/MUOS"
 SD2_CATALOGUE="/mnt/sdcard/MUOS/info"
 SD2_CONFIG="/mnt/sdcard/MUOS/info"
 SD2_CONTENT="/mnt/sdcard/MUOS/info"
-SD2_LANGUAGE="/mnt/mmc/MUOS"
+SD2_LANGUAGE="/mnt/sdcard/MUOS"
 SD2_MUSIC="/mnt/sdcard/MUOS"
-SD2_NAME="/mnt/mmc/MUOS/info"
+SD2_NAME="/mnt/sdcard/MUOS/info"
 SD2_SAVE="/mnt/sdcard/MUOS"
 SD2_SCREENSHOT="/mnt/sdcard/MUOS"
 SD2_THEME="/mnt/sdcard/MUOS"
@@ -139,7 +139,7 @@ else
 	echo -e "\nNo music folder exists, skipping."
 fi
 
-if [ -d "$SD1_NAMES" ]; then
+if [ -d "$SD1_NAME" ]; then
 	echo -e "\nCopying Names to SD Card 2"
 	sleep 1
 	rsync --verbose --archive --checksum "$SD1_NAME" "$SD2_NAME"

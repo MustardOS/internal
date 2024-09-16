@@ -3,16 +3,12 @@
 . /opt/muos/script/var/func.sh
 
 CURRENT_IP="/opt/muos/config/address.txt"
+: >"$CURRENT_IP"
 
-if [ "$(GET_VAR "device" "network/iface")" = "wlan0" ]; then
-	killall wpa_supplicant
-fi
-killall dhcpcd
+killall -q dhcpcd wpa_supplicant sshd sftpgo gotty rslsync syncthing ntp.sh
+
+ip addr flush dev "$(GET_VAR "device" "network/iface")"
 ip link set "$(GET_VAR "device" "network/iface")" down
-
-killall -q sshd sftpgo gotty syncthing ntp.sh
-
-echo "0.0.0.0" | tr -d '\n' >"$CURRENT_IP"
 
 echo "nameserver $(GET_VAR "global" "network/dns")" >/etc/resolv.conf
 
@@ -51,7 +47,7 @@ else
 fi
 
 OIP=0
-while [ "$(cat "$CURRENT_IP")" = "0.0.0.0" ] || [ "$(cat "$CURRENT_IP")" = "" ]; do
+while [ "$(cat "$CURRENT_IP")" = "" ]; do
 	OIP=$((OIP + 1))
 	ip -4 a show dev "$(GET_VAR "device" "network/iface")" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p' | tr -d '\n' >"$CURRENT_IP"
 	sleep 1

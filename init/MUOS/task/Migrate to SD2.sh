@@ -385,6 +385,7 @@ echo -e "Syncing Filesystem\n"
 if [ $CURRENT_VER = "PREBANANA" ]; then
 	echo -e "Copying Syncing Filesystem\n" >/tmp/muxlog_info
 fi
+sync
 
 # Clean Up
 if [ $CURRENT_VER = "PREBANANA" ]; then

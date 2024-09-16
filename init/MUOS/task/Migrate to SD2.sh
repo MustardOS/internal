@@ -10,6 +10,23 @@
 # Once the migration is complete set the pref to AUTO
 #---------------------------------------------------------#
 
+# Check if using e Pre-Banana version of muOS
+MUOS_VER=$(head -n 1 /opt/muos/config/version.txt | awk '{print $1}')
+if [ $(echo "$MUOS_VER < 2405.3" | bc) -eq 1 ]; then
+	CURRENT_VER="PREBANANA"
+else
+	CURRENT_VER="BANANA"
+fi
+
+# Fire up the logger (Pre-Banana)
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	/opt/muos/extra/muxlog &
+	sleep 1
+
+	TMP_FILE=/tmp/muxlog_global
+	rm -rf "$TMP_FILE"
+fi
+
 # Define all moveable storage locations.
 SD1_BIOS="/mnt/mmc/MUOS/bios"
 SD1_CATALOGUE="/mnt/mmc/MUOS/info/catalogue"
@@ -21,6 +38,11 @@ SD1_NAME="/mnt/mmc/MUOS/info/name"
 SD1_SAVE="/mnt/mmc/MUOS/save"
 SD1_SCREENSHOT="/mnt/mmc/MUOS/screenshot"
 SD1_THEME="/mnt/mmc/MUOS/theme"
+SD1_OPENBOR_SAVE="/mnt/mmc/MUOS/emulator/openbor/userdata/saves/openbor/"
+SD1_OPENBOR_SCREENSHOT="/mnt/mmc/MUOS/emulator/openbor/userdata/screenshots/openbor/"
+SD1_PICO8="/mnt/mmc/MUOS/pico8/.lexaloffle/pico-8/"
+SD1_PPSSPP_SAVE="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA/"
+SD1_PPSSPP_STATE="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE/"
 
 # Define all target locations
 SD2_BIOS="/mnt/sdcard/MUOS"
@@ -33,18 +55,35 @@ SD2_NAME="/mnt/sdcard/MUOS/info"
 SD2_SAVE="/mnt/sdcard/MUOS"
 SD2_SCREENSHOT="/mnt/sdcard/MUOS"
 SD2_THEME="/mnt/sdcard/MUOS"
+SD2_OPENBOR_SAVE="/mnt/sdcard/MUOS/save/file/OpenBOR-Ext"
+SD2_OPENBOR_SCREENSHOT="/mnt/sdcard/MUOS/screenshot"
+SD2_PICO8="/mnt/sdcard/MUOS/save/pico8"
+SD2_PPSSPP_SAVE="/mnt/sdcard/MUOS/save/file/PPSSPP-Ext"
+SD2_PPSSPP_STATE="/mnt/sdcard/MUOS/save/state/PPSSPP-Ext"
 
 # See if SD2 is mounted.
 # Let's do this early in case it's not here.
 if grep -m 1 "mmcblk1" /proc/partitions >/dev/null; then
 	echo "SD Card 2 has been detected."
 	echo -e "Continuing.\n"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo "SD Card 2 has been detected." >/tmp/muxlog_info
+		echo -e "Continuing.\n" >/tmp/muxlog_info
+	fi
 else
 	echo "SD Card 2 not detected."
 	echo -e "Aborting!\n"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo "SD Card 2 not detected." >/tmp/muxlog_info
+		echo -e "Aborting!\n" >/tmp/muxlog_info
+	fi
 	sleep 10
 	exit 1
 fi
+
+# Create temporary directory
+MUX_TEMP="/opt/muxtmp"
+mkdir "$MUX_TEMP"
 
 # Initialize total size of folders to migrate
 TOTAL_SIZE=0
@@ -57,107 +96,272 @@ GET_SIZE() {
 # Add sizes of individual directories
 TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_BIOS")))
 echo "Size of BIOS Folder: $(GET_SIZE "$SD1_BIOS") MB"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e ""Size of BIOS Folder: $(GET_SIZE "$SD1_BIOS") MB"\n" >/tmp/muxlog_info
+fi
+
 TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_CATALOGUE")))
 echo "Size of Catalogue Folder: $(GET_SIZE "$SD1_CATALOGUE") MB"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e ""Size of Catalogue Folder: $(GET_SIZE "$SD1_CATALOGUE") MB"\n" >/tmp/muxlog_info
+fi
+
 TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_CONFIG")))
 echo "Size of Config Folder: $(GET_SIZE "$SD1_CONFIG") MB"
-TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_LANGUAGE")))
-echo "Size of Music Folder: $(GET_SIZE "$SD1_LANGUAGE") MB"
-TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_MUSIC")))
-echo "Size of Music Folder: $(GET_SIZE "$SD1_MUSIC") MB"
-TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_NAME")))
-echo "Size of Save Folder: $(GET_SIZE "$SD1_NAME") MB"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e ""Size of Config Folder: $(GET_SIZE "$SD1_CONFIG") MB"\n" >/tmp/muxlog_info
+fi
+
+if [ -d $SD1_LANGUAGE ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_LANGUAGE")))
+	echo "Size of Language Folder: $(GET_SIZE "$SD1_LANGUAGE") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of Language Folder: $(GET_SIZE "$SD1_LANGUAGE") MB"\n" >/tmp/muxlog_info
+	fi
+fi
+
+if [ -d $SD1_MUSIC ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_MUSIC")))
+	echo "Size of Music Folder: $(GET_SIZE "$SD1_MUSIC") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of Music Folder: $(GET_SIZE "$SD1_MUSIC") MB"\n" >/tmp/muxlog_info
+	fi
+fi
+
+if [ -d $SD1_NAME ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_NAME")))
+	echo "Size of Name Folder: $(GET_SIZE "$SD1_NAME") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of Name Folder: $(GET_SIZE "$SD1_NAME") MB"\n" >/tmp/muxlog_info
+	fi
+fi
+
 TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_SAVE")))
 echo "Size of Save Folder: $(GET_SIZE "$SD1_SAVE") MB"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e ""Size of Save Folder: $(GET_SIZE "$SD1_SAVE") MB"\n" >/tmp/muxlog_info
+fi
+
 TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_SCREENSHOT")))
 echo "Size of Screenshot Folder: $(GET_SIZE "$SD1_SCREENSHOT") MB"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e ""Size of Screenshot Folder: $(GET_SIZE "$SD1_SCREENSHOT") MB"\n" >/tmp/muxlog_info
+fi
+
 TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_THEME")))
 echo "Size of Theme Folder: $(GET_SIZE "$SD1_THEME") MB"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e ""Size of Theme Folder: $(GET_SIZE "$SD1_THEME") MB"\n" >/tmp/muxlog_info
+fi
+
+if [ -d $SD1_OPENBOR_SAVE ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_OPENBOR_SAVE")))
+	echo "Size of OpenBOR Save Folder: $(GET_SIZE "$$SD1_OPENBOR_SAVE") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of OpenBOR Save Folder: $(GET_SIZE "$SD1_OPENBOR_SAVE") MB"\n" >/tmp/muxlog_info
+	fi
+
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_OPENBOR_SCREENSHOT")))
+	echo "Size of OpenBOR Screenshot Folder: $(GET_SIZE "$$SD1_OPENBOR_SCREENSHOT") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of OpenBOR Screenshot Folder: $(GET_SIZE "$SD1_OPENBOR_SCREENSHOT") MB"\n" >/tmp/muxlog_info
+	fi
+fi
+
+if [ -d $SD1_PICO8 ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_PICO8")))
+	echo "Size of PICO-8 Folder: $(GET_SIZE "$$SD1_PICO8") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of PICO-8 Folder: $(GET_SIZE "$SD1_PICO8") MB"\n" >/tmp/muxlog_info
+	fi
+fi
+
+TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_PPSSPP_SAVE")))
+echo "Size of PPSSPP Save Folder: $(GET_SIZE "$$SD1_PPSSPP_SAVE") MB"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e ""Size of PPSSPP Save Folder: $(GET_SIZE "$SD1_PPSSPP_SAVE") MB"\n" >/tmp/muxlog_info
+fi
+
+TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_PPSSPP_STATE")))
+echo "Size of PPSSPP State Folder: $(GET_SIZE "$$SD1_PPSSPP_STATE") MB"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e ""Size of PPSSPP State Folder: $(GET_SIZE "$SD1_PPSSPP_STATE") MB"\n" >/tmp/muxlog_info
+fi
 
 # Loop through SD1_CONTENT directories
 for dir in $SD1_CONTENT; do
     TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$dir")))
 	if [ $dir = "/mnt/mmc/MUOS/info/core" ]; then
 		echo "Size of Core Folder: $(GET_SIZE "$dir") MB"
+		if [ $CURRENT_VER = "PREBANANA" ]; then
+			echo -e ""Size of Core Folder: $(GET_SIZE "$dir") MB"\n" >/tmp/muxlog_info
+		fi
 	elif [ $dir = "/mnt/mmc/MUOS/info/favourite" ]; then
 		echo "Size of Favourite Folder: $(GET_SIZE "$dir") MB"
+				if [ $CURRENT_VER = "PREBANANA" ]; then
+			echo -e ""Size of Favourite Folder: $(GET_SIZE "$dir") MB"\n" >/tmp/muxlog_info
+		fi
 	else
 		echo "Size of History Folder: $(GET_SIZE "$dir") MB"
+				if [ $CURRENT_VER = "PREBANANA" ]; then
+			echo -e ""Size of History Folder: $(GET_SIZE "$dir") MB"\n" >/tmp/muxlog_info
+		fi
 	fi
 done
+sleep 2
 
 # Print the total size
 echo -e "\nTotal size of folders to migrate: ${TOTAL_SIZE} MB"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "\nTotal size of folders to migrate: ${TOTAL_SIZE} MB" >/tmp/muxlog_info
+fi
 
 # Check free space
 SD_FREE_SPACE=$(df -m /mnt/sdcard | awk 'NR==2 {print $4}')
 echo -e "Total free space on SD Card 2: ${SD_FREE_SPACE} MB\n"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "Total free space on SD Card 2: ${SD_FREE_SPACE} MB\n" >/tmp/muxlog_info
+fi
 
 # Check if there is enough space before continuing
 if [ $TOTAL_SIZE -lt $SD_FREE_SPACE ]; then
 	echo -e "\nThere is enough free space for the migration."
 	echo -e "Continuing.\n"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "\nThere is enough free space for the migration." >/tmp/muxlog_info
+		echo -e "Continuing.\n" >/tmp/muxlog_info
+	fi
 else
 	echo -e "\nThere is not enough free space for the migration!"
 	echo "Aborting!"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "\nThere is not enough free space for the migration!" >/tmp/muxlog_info
+		echo "Aborting!" >/tmp/muxlog_info
+	fi
 	sleep 10
 	exit 1
 fi
 
+# Generate Exclusion List
+# Add any additional files / folders you want to exclude in here.
+cat <<EOF > $MUX_TEMP/sync_exclude.txt
+.stfolder/
+EOF
+
+RSYNC_OPTS="--verbose --archive --checksum --exclude-from=$MUX_TEMP/sync_exclude.txt"
+
 # Migrate all folders.
 echo "Copying BIOS to SD Card 2"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "Copying BIOS to SD Card 2\n" >/tmp/muxlog_info
+fi
 sleep 1
-rsync --verbose --archive --checksum "$SD1_BIOS" "$SD2_BIOS"
+rsync $RSYNC_OPTS "$SD1_BIOS" "$SD2_BIOS"
 
 echo -e "\nCopying Catalogue to SD Card 2"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "Copying Catalogue to SD Card 2\n" >/tmp/muxlog_info
+fi
 sleep 1
-rsync --verbose --archive --checksum "$SD1_CATALOGUE" "$SD2_CATALOGUE"
+rsync $RSYNC_OPTS "$SD1_CATALOGUE" "$SD2_CATALOGUE"
 
 echo -e "\nCopying Config to SD Card 2"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "Copying Config to SD Card 2\n" >/tmp/muxlog_info
+fi
 sleep 1
-rsync --verbose --archive --checksum "$SD1_CONFIG" "$SD2_CONFIG"
+rsync $RSYNC_OPTS "$SD1_CONFIG" "$SD2_CONFIG"
 
 echo -e "\nCopying Content to SD Card 2"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "Copying Content to SD Card 2\n" >/tmp/muxlog_info
+fi
 sleep 1
 for DIR in $SD1_CONTENT; do
-	rsync --verbose --archive --checksum "$DIR" "$SD2_CONTENT"
+	rsync $RSYNC_OPTS "$DIR" "$SD2_CONTENT"
 done
 
 if [ -d "$SD1_LANGUAGE" ]; then
 	echo -e "\nCopying Language to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Copying Language to SD Card 2\n" >/tmp/muxlog_info
+	fi
 	sleep 1
-	rsync --verbose --archive --checksum "$SD1_LANGUAGE" "$SD2_LANGUAGE"
+	rsync $RSYNC_OPTS "$SD1_LANGUAGE" "$SD2_LANGUAGE"
 else
 	echo -e "\nNo language folder exists, skipping."
 fi
 
 if [ -d "$SD1_MUSIC" ]; then
 	echo -e "\nCopying Music to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Copying Music to SD Card 2\n" >/tmp/muxlog_info
+	fi
 	sleep 1
-	rsync --verbose --archive --checksum "$SD1_MUSIC" "$SD2_MUSIC"
+	rsync $RSYNC_OPTS "$SD1_MUSIC" "$SD2_MUSIC"
 else
 	echo -e "\nNo music folder exists, skipping."
 fi
 
 if [ -d "$SD1_NAME" ]; then
 	echo -e "\nCopying Names to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Copying Names to SD Card 2\n" >/tmp/muxlog_info
+	fi
 	sleep 1
-	rsync --verbose --archive --checksum "$SD1_NAME" "$SD2_NAME"
+	rsync $RSYNC_OPTS "$SD1_NAME" "$SD2_NAME"
 else
 	echo -e "\nNo names folder exists, skipping."
 fi
 
-echo -e "\nCopying Save to SD Card 2"
+echo -e "\nCopying Saves to SD Card 2"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "Copying Saves to SD Card 2\n" >/tmp/muxlog_info
+fi
 sleep 1
-rsync --verbose --archive --checksum "$SD1_SAVE" "$SD2_SAVE"
+rsync $RSYNC_OPTS "$SD1_SAVE" "$SD2_SAVE"
 
-echo -e "\nCopying Screenshot to SD Card 2"
+echo -e "\nCopying Screenshots to SD Card 2"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "Copying Screenshots to SD Card 2\n" >/tmp/muxlog_info
+fi
 sleep 1
-rsync --verbose --archive --checksum "$SD1_SCREENSHOT" "$SD2_SCREENSHOT"
+rsync $RSYNC_OPTS "$SD1_SCREENSHOT" "$SD2_SCREENSHOT"
 
-echo -e "\nCopying Theme to SD Card 2"
+echo -e "\nCopying Themes to SD Card 2"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "Copying Themes to SD Card 2\n" >/tmp/muxlog_info
+fi
 sleep 1
-rsync --verbose --archive --checksum "$SD1_THEME" "$SD2_THEME"
+rsync $RSYNC_OPTS "$SD1_THEME" "$SD2_THEME"
+
+
+if [ -d "$SD1_OPENBOR_SAVE" ]; then
+	echo -e "\nCopying OpenBOR Saves and Screenshots to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Copying OpenBOR Saves to SD Card 2\n" >/tmp/muxlog_info
+	fi
+	sleep 1
+	rsync $RSYNC_OPTS "$SD1_OPENBOR_SAVE" "$SD2_OPENBOR_SAVE"
+	rsync $RSYNC_OPTS "$SD1_OPENBOR_SCREENSHOT" "$SD2_OPENBOR_SCREENSHOT"
+else
+	echo -e "\nNo OpenBOR folder exists, skipping."
+fi
+
+echo -e "\nCopying PICO-8 Files to SD Card 2"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "Copying PICO-8 Files to SD Card 2\n" >/tmp/muxlog_info
+fi
+sleep 1
+rsync $RSYNC_OPTS "$SD1_PICO8" "$SD2_PICO8"
+
+echo -e "\nCopying PPSSPP Saves to SD Card 2"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "Copying PPSSPP Saves to SD Card 2\n" >/tmp/muxlog_info
+fi
+sleep 1
+rsync $RSYNC_OPTS "$SD1_PPSSPP_SAVE" "$SD2_PPSSPP_SAVE"
+rsync $RSYNC_OPTS "$SD1_PPSSPP_STATE" "$SD2_PPSSPP_STATE"
 
 # Set muOS Storage Pref to AUTO
 # Using AUTO instead of SD2 ensures it keeps working if they remove SD2
@@ -175,3 +379,16 @@ else
 	echo "Storage Preference change not required."
 	exit 0
 fi
+
+# Sync Filesystem
+echo -e "Syncing Filesystem\n"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "Copying Syncing Filesystem\n" >/tmp/muxlog_info
+fi
+
+# Clean Up
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	killall -q muxlog
+	rm -rf "$MUX_TEMP" /tmp/muxlog_*
+fi
+rm -rf "$MUX_TEMP"

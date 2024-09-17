@@ -22,13 +22,8 @@ export LD_LIBRARY_PATH=/usr/lib32
 
 SET_VAR "system" "foreground_process" "gmu"
 
-killall -q "golden.sh" "pw-play" "pipewire" "wireplumber"
-
-echo "Switching to ALSA-only configuration..."
-cp /etc/asound.conf /etc/asound.conf.bak
-cp /etc/asound.conf.alsa /etc/asound.conf
-echo "alsa" >"$AUDIO_SRC"
-amixer -c 0 sset \""$(GET_VAR "device" "audio/control")"\" "$(printf '%.0f%%' "$(echo "$(GET_VAR "audio" "pw_vol") * 100" | bc)")"
+export PIPEWIRE_MODULE_DIR="/usr/lib32/pipewire-0.3"
+export SPA_PLUGIN_DIR="/usr/lib32/spa-0.2"
 
 $GPTOKEYB "./gmu" -c "$GMU_DIR/gmu.gptk" &
 HOME="$GMU_DIR" SDL_ASSERT=always_ignore $SDL_GAMECONTROLLERCONFIG ./gmu -d "$GMU_DIR" -c "$GMU_DIR/gmu.conf"
@@ -36,13 +31,7 @@ HOME="$GMU_DIR" SDL_ASSERT=always_ignore $SDL_GAMECONTROLLERCONFIG ./gmu -d "$GM
 kill -9 "$(pidof gptokeyb2.armhf)"
 unset SDL_GAMECONTROLLERCONFIG_FILE
 unset LD_LIBRARY_PATH
+unset PIPEWIRE_MODULE_DIR
+unset SPA_PLUGIN_DIR
 
-if [ -f /etc/asound.conf.bak ]; then
-	mv /etc/asound.conf.bak /etc/asound.conf
-fi
-
-echo "pipewire" >"$AUDIO_SRC"
-/opt/muos/script/system/pipewire.sh
-
-amixer -c 0 sset \""$(GET_VAR "device" "audio/control")"\" "$(printf '%.0f%%' "$(echo "$(GET_VAR "audio" "pw_vol") * 100" | bc)")"
 /opt/muos/script/mux/golden.sh &

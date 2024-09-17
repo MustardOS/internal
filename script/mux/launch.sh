@@ -143,7 +143,7 @@ esac
 
 if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
 	SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)
-	SYNCTHING_API=$(cat "$(GET_VAR "device" "storage/rom/mount")/MUOS/syncthing/api.txt")
+	SYNCTHING_API=$(cat /run/muos/storage/syncthing/api.txt)
 	curl -X POST -H "X-API-Key: $SYNCTHING_API" "$SYNCTHING_ADDRESS:7070/rest/db/scan"
 fi
 

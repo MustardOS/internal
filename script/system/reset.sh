@@ -59,8 +59,8 @@ if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
 	LOGGER "$0" "FACTORY RESET" "Changing Network MAC Address"
 	macchanger -r "$(GET_VAR "device" "network/iface")"
 
-	LOGGER "$0" "FACTORY RESET" "Setting Random Hostname"
-	HN=$(hostname)-$(head -c 5 /proc/sys/kernel/random/uuid)
+	LOGGER "$0" "FACTORY RESET" "Setting Hostname"
+	HN="$(hostname)-$(/opt/muos/script/system/serial.sh | tail -c 9)"
 	hostname "$HN"
 	echo "$HN" >/etc/hostname
 fi

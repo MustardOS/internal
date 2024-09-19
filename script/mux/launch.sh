@@ -4,7 +4,7 @@
 
 ACT_GO=/tmp/act_go
 ROM_GO=/tmp/rom_go
-GVR_GO=/tmp/gvr_go
+GOV_GO=/tmp/gov_go
 
 GPTOKEYB_BIN=gptokeyb2
 GPTOKEYB_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb"
@@ -61,7 +61,7 @@ GET_VAR "global" "settings/advanced/led" >"$(GET_VAR "device" "led/normal")"
 GET_VAR "global" "settings/advanced/led" >/tmp/work_led_state
 
 cat "$ROM_LAST" >"$LAST_PLAY"
-cat "$GVR_GO" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+cat "$GOV_GO" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
 # External Script
 if [ "$CORE" = external ]; then

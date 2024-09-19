@@ -30,8 +30,7 @@ USB_PID() {
 }
 
 USB_SERIAL() {
-	# Parse device serial number passed by U-Boot out of kernel cmdline.
-	xargs -n 1 -a /proc/cmdline | sed -n s/^snum=//p
+	/opt/muos/script/system/serial.sh
 }
 
 USB_MANUFACTURER() {

@@ -114,7 +114,14 @@ else
 	/opt/muos/script/launch/lr-general.sh "$NAME" "$CORE" "$ROM"
 fi
 
-GET_VAR "device" "cpu/default" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+DEF_GOV=$(GET_VAR "device" "cpu/default")
+$DEF_GOV >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+if [ "$DEF_GOV" = ondemand ]; then
+	GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
+	GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"
+	GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
+	GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
+fi
 
 echo 1 >"$(GET_VAR "device" "led/normal")"
 echo 1 >/tmp/work_led_state

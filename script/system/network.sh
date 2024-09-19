@@ -15,6 +15,7 @@ echo "nameserver $(GET_VAR "global" "network/dns")" >/etc/resolv.conf
 if [ "$(GET_VAR "device" "network/iface")" = "wlan0" ]; then
 	if [ "$(GET_VAR "global" "network/enabled")" -eq 0 ]; then
 		rmmod "$(GET_VAR "device" "network/module")"
+		: >/etc/wpa_supplicant.conf
 		exit
 	fi
 

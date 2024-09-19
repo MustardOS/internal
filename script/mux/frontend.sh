@@ -52,11 +52,14 @@ fi
 LAST_PLAY="/opt/muos/config/lastplay.txt"
 
 LOGGER "$0" "FRONTEND" "Setting default CPU governor"
-GET_VAR "device" "cpu/default" >"$(GET_VAR "device" "cpu/governor")"
-GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
-GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"
-GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
-GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
+DEF_GOV=$(GET_VAR "device" "cpu/default")
+$DEF_GOV >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+if [ "$DEF_GOV" = ondemand ]; then
+	GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
+	GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"
+	GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
+	GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
+fi
 
 LOGGER "$0" "FRONTEND" "Checking for last or resume startup"
 if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR "global" "settings/general/startup")" = "resume" ]; then

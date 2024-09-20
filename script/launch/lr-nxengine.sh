@@ -78,6 +78,13 @@ else
 		echo "Did extraction fail?" >>"$LOGPATH"
 	fi
 
+	# Include default button mappings from retroarch.device.cfg. (Settings
+	# in the retroarch.cfg will take precedence. Modified settings will save
+	# to the main retroarch.cfg, not the included retroarch.device.cfg.)
+	sed -n -e '/^#include /!p' \
+		-e '$a#include "/opt/muos/device/current/control/retroarch.device.cfg"' \
+		-i "$RA_CONF"
+
 	retroarch -v -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$DOUK" &
 	RA_PID=$!
 fi

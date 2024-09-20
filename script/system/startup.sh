@@ -17,6 +17,7 @@ case "$(GET_VAR "global" "settings/advanced/rumble")" in
 esac
 
 DEV_BOARD=$(GET_VAR "device" "board/name")
+[ ! -L /opt/muos/device/current ] && ln -s "$DEV_BOARD" /opt/muos/device/current
 
 echo "pipewire" >"$AUDIO_SRC"
 
@@ -37,7 +38,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
 fi
 
 LOGGER "$0" "BOOTING" "Restoring Default Sound System"
-cp -f "/opt/muos/device/$DEV_BOARD/control/asound.conf" "/etc/asound.conf"
+cp -f "/opt/muos/device/current/control/asound.conf" "/etc/asound.conf"
 
 if [ -s "$ALSA_CONFIG" ]; then
 	LOGGER "$0" "BOOTING" "ALSA Config Check Passed"
@@ -47,7 +48,7 @@ else
 fi
 
 LOGGER "$0" "BOOTING" "Restoring Audio State"
-cp -f "/opt/muos/device/$DEV_BOARD/control/asound.state" "/var/lib/alsa/asound.state"
+cp -f "/opt/muos/device/current/control/asound.state" "/var/lib/alsa/asound.state"
 alsactl -U restore
 
 LOGGER "$0" "BOOTING" "Starting Pipewire"
@@ -55,7 +56,7 @@ LOGGER "$0" "BOOTING" "Starting Pipewire"
 
 if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	case "$DEV_BOARD" in
-		rg40xx*) /opt/muos/device/"$DEV_BOARD"/script/led_control.sh 2 255 225 173 1 ;;
+		rg40xx*) /opt/muos/device/current/script/led_control.sh 2 255 225 173 1 ;;
 		*) ;;
 	esac
 
@@ -72,7 +73,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	done
 
 	LOGGER "$0" "FACTORY RESET" "Starting Input Reader"
-	/opt/muos/device/"$DEV_BOARD"/input/input.sh
+	/opt/muos/device/current/input/input.sh
 	/usr/bin/mpg123 -q /opt/muos/factory.mp3 &
 
 	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
@@ -110,7 +111,7 @@ LOGGER "$0" "BOOTING" "Precaching RetroArch System"
 ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/preload.txt &
 
 LOGGER "$0" "BOOTING" "Running Device Specifics"
-/opt/muos/device/"$DEV_BOARD"/script/start.sh
+/opt/muos/device/current/script/start.sh
 
 # Block on storage mounts as late as possible to reduce boot time. Must wait
 # before charger detection since muxcharge expects the theme to be mounted.
@@ -120,16 +121,16 @@ while [ ! -f /run/muos/storage/mounted ]; do
 done
 
 LOGGER "$0" "BOOTING" "Detecting Charge Mode"
-/opt/muos/device/"$DEV_BOARD"/script/charge.sh
+/opt/muos/device/current/script/charge.sh
 
 LOGGER "$0" "BOOTING" "Setting Device Controls"
-/opt/muos/device/"$DEV_BOARD"/script/control.sh &
+/opt/muos/device/current/script/control.sh &
 
 LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
 for LIB_D in lib lib32; do
 	GCDB="gamecontrollerdb.txt"
 	if [ ! -f "/usr/$LIB_D/$GCDB" ]; then
-		ln -s "/opt/muos/device/$DEV_BOARD/control/$GCDB" "/usr/$LIB_D/$GCDB" &
+		ln -s "/opt/muos/device/current/control/$GCDB" "/usr/$LIB_D/$GCDB" &
 	fi
 done
 

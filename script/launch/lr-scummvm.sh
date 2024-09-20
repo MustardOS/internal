@@ -28,6 +28,13 @@ cp "$ROMPATH/$NAME.scummvm" "$SCVM"
 
 RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 
+# Include default button mappings from retroarch.device.cfg. (Settings in the
+# retroarch.cfg will take precedence. Modified settings will save to the main
+# retroarch.cfg, not the included retroarch.device.cfg.)
+sed -n -e '/^#include /!p' \
+	-e '$a#include "/opt/muos/device/current/control/retroarch.device.cfg"' \
+	-i "$RA_CONF"
+
 retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/scummvm_libretro.so" "$SCVM" &
 RA_PID=$!
 

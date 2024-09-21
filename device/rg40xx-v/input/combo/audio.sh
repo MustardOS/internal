@@ -6,14 +6,9 @@ VOLUME_FILE="/opt/muos/config/volume.txt"
 VOLUME_FILE_PERCENT="/tmp/current_volume_percent"
 
 SLEEP_STATE="/tmp/sleep_state"
-AUDIO_SRC="/tmp/mux_audio_src"
 
 GET_CURRENT() {
-	if [ "$(cat "$AUDIO_SRC")" = "pipewire" ]; then
-		wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2 * 100)}'
-	else
-		amixer sget "$(GET_VAR "device" "audio/control")" | sed -n "s/.*$(GET_VAR "device" "audio/channel"): 0*\([0-9]*\).*/\1/p" | tr -d '\n'
-	fi
+	XDG_RUNTIME_DIR="/var/run" wpctl get-volume "$(GET_VAR "audio" "nid_internal")" | awk '{print int($2 * 100)}'
 }
 
 CURRENT_VL=$(GET_CURRENT)
@@ -25,12 +20,7 @@ SET_CURRENT() {
 	fi
 	printf "%d" "$PERCENTAGE" >"$VOLUME_FILE_PERCENT"
 
-	if [ "$(cat "$AUDIO_SRC")" = "pipewire" ]; then
-		wpctl set-volume @DEFAULT_AUDIO_SINK@ $1% >/dev/null
-		printf "%s" "$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -o '[0-9]*\.[0-9]*')" >"/run/muos/audio/pw_vol"
-	else
-		amixer sset "$(GET_VAR "device" "audio/control")" $1 >/dev/null
-	fi
+	XDG_RUNTIME_DIR="/var/run" wpctl get-volume "$(GET_VAR "audio" "nid_internal")" | awk '{print int($2 * 100)}'
 
 	printf "%d" "$1" >"$VOLUME_FILE"
 	echo "Volume set to $1 ($PERCENTAGE%)"
@@ -42,7 +32,7 @@ if [ -z "$1" ]; then
 	exit 0
 fi
 
-if [ ! "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ] && [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
+if [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
 	case "$1" in
 		I)
 			PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($CURRENT_VL/$(GET_VAR "device" "audio/max"))*100}")

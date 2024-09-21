@@ -20,7 +20,7 @@ ACTION="$1"
 CONFIG_CLEARED=0
 CONFIG_FILE="$DEVICE_CONFIG"
 
-AUDIO_VARS="platform object control channel min max"
+AUDIO_VARS="pf_internal ob_internal pf_external ob_external control channel min max"
 BATTERY_VARS="boot_mode capacity health voltage charger"
 CPU_VARS="cores default governor scaler sampling_rate up_threshold sampling_down_factor io_is_busy sampling_rate_default up_threshold_default sampling_down_factor_default io_is_busy_default"
 BOARD_VARS="name home network bluetooth portmaster lid hdmi event debugfs rtc rumble udc"
@@ -36,7 +36,7 @@ INPUT_TYPE_BUTTON_VARS="a b c x y z l1 l2 l3 r1 r2 r3 menu_short menu_long selec
 LED_VARS="normal low"
 MUX_VARS="width height"
 NETWORK_VARS="module name type iface state"
-SCREEN_VARS="device hdmi bright buffer width height rotate wait"
+SCREEN_VARS="device hdmi bright width height rotate wait"
 SDL_VARS="scaler rotation blitter_disabled"
 STORAGE_BOOT_VARS="active dev sep num mount type"
 STORAGE_ROM_VARS="active dev sep num mount type"

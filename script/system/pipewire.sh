@@ -44,11 +44,11 @@ if ! pw-cli info >/dev/null 2>&1; then
 fi
 
 for TIMEOUT in $(seq 1 30); do
-	if pw-cli ls Node 2>/dev/null | grep -q "$(GET_VAR "device" "audio/platform")"; then
+	if pw-cli ls Node 2>/dev/null | grep -q "$(GET_VAR "device" "audio/pf_internal")"; then
 
-		NODE_ID=$(
+		INTERNAL_NODE_ID=$(
 			XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
-				awk -v path="$(GET_VAR "device" "audio/object")" '
+				awk -v path="$(GET_VAR "device" "audio/ob_internal")" '
         /id/ {
             id = $2
         }
@@ -59,36 +59,50 @@ for TIMEOUT in $(seq 1 30); do
     '
 		)
 
-		if [ -n "$NODE_ID" ]; then
-			printf "Setting default node to ID: '%s'\n" "$NODE_ID"
+		EXTERNAL_NODE_ID=$(
+			XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
+				awk -v path="$(GET_VAR "device" "audio/ob_external")" '
+        /id/ {
+            id = $2
+        }
+        /object.path/ && $0 ~ path {
+            gsub(/,$/, "", id)
+            print id
+        }
+    '
+		)
+
+		if [ -n "$INTERNAL_NODE_ID" ]; then
+			printf "Setting default node to ID: '%s'\n" "$INTERNAL_NODE_ID"
 			mkdir -p "/run/muos/audio"
-			XDG_RUNTIME_DIR="/var/run" wpctl set-default "$NODE_ID"
+			XDG_RUNTIME_DIR="/var/run" wpctl set-default "$INTERNAL_NODE_ID"
 			amixer -c 0 sset "$(GET_VAR "device" "audio/control")" 100% unmute
-			printf "%s" "$NODE_ID" >"/run/muos/audio/node_id"
-			printf "%s" "$(XDG_RUNTIME_DIR="/var/run" wpctl get-volume "$NODE_ID" | grep -o '[0-9]*\.[0-9]*')" >"/run/muos/audio/pw_vol"
+			printf "%s" "$INTERNAL_NODE_ID" >"/run/muos/audio/nid_internal"
+			printf "%s" "$EXTERNAL_NODE_ID" >"/run/muos/audio/nid_external"
+			printf "%s" "$(XDG_RUNTIME_DIR="/var/run" wpctl get-volume "$INTERNAL_NODE_ID" | grep -o '[0-9]*\.[0-9]*')" >"/run/muos/audio/pw_vol"
 
 			case "$(GET_VAR "global" "settings/advanced/volume")" in
-            	"loud")
-            		XDG_RUNTIME_DIR="/var/run" wpctl set-volume @DEFAULT_AUDIO_SINK@ "$(GET_VAR "device" "audio/max")"%
-            		;;
-            	"quiet")
-            		XDG_RUNTIME_DIR="/var/run" wpctl set-volume @DEFAULT_AUDIO_SINK@ "$(GET_VAR "device" "audio/min")"%
-            		;;
-            	*)
-            		RESTORED=$(cat "/opt/muos/config/volume.txt")
-            		XDG_RUNTIME_DIR="/var/run" wpctl set-volume @DEFAULT_AUDIO_SINK@ "$RESTORED"%
-            		;;
-            esac
+				"loud")
+					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$(GET_VAR "device" "audio/max")"%
+					;;
+				"quiet")
+					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$(GET_VAR "device" "audio/min")"%
+					;;
+				*)
+					RESTORED=$(cat "/opt/muos/config/volume.txt")
+					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$RESTORED"%
+					;;
+			esac
 
 			exit 0
 		else
-			printf "Node with object path '%s' not found.\n" "$(GET_VAR "device" "audio/object")"
+			printf "Node with object path '%s' not found.\n" "$(GET_VAR "device" "audio/ob_internal")"
 			exit 1
 		fi
 	fi
-	printf "(%d of 30) ALSA sink not found yet\n" "$TIMEOUT"
+	printf "(%d of 30) PipeWire sink not found yet\n" "$TIMEOUT"
 	sleep 1
 done
 
-printf "Timeout expired waiting for ALSA sink...\n%s\n\nCheck your audio configuration\n" "$(pw-cli ls Node)"
+printf "Timeout expired waiting for PipeWire sink...\n%s\n\nCheck your audio configuration\n" "$(pw-cli ls Node)"
 exit 1

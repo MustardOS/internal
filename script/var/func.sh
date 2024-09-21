@@ -10,9 +10,11 @@ FB_SWITCH() {
 	echo 4 >/sys/class/graphics/fb0/blank
 	cat /dev/zero >/dev/fb0 2>/dev/null
 
-	VIRTUAL_HEIGHT=$((HEIGHT * 2))
+	fbset -fb /dev/fb0 -g "$((WIDTH * 2))" "$((HEIGHT * 2))" "$((WIDTH * 2))" "$((HEIGHT * 3))" "${DEPTH}"
+	sleep 0.25
+	fbset -fb /dev/fb0 -g "${WIDTH}" "${HEIGHT}" "${WIDTH}" "$((HEIGHT * 2))" "${DEPTH}"
+	sleep 0.25
 
-	fbset -fb /dev/fb0 -g "${WIDTH}" "${HEIGHT}" "${WIDTH}" "${VIRTUAL_HEIGHT}" "${DEPTH}"
 	echo 0 >/sys/class/graphics/fb0/blank
 }
 

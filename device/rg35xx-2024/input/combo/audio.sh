@@ -20,7 +20,7 @@ SET_CURRENT() {
 	fi
 	printf "%d" "$PERCENTAGE" >"$VOLUME_FILE_PERCENT"
 
-	XDG_RUNTIME_DIR="/var/run" wpctl get-volume "$(GET_VAR "audio" "nid_internal")" | awk '{print int($2 * 100)}'
+	XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$PERCENTAGE%"
 
 	printf "%d" "$1" >"$VOLUME_FILE"
 	echo "Volume set to $1 ($PERCENTAGE%)"

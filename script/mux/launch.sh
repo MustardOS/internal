@@ -115,7 +115,7 @@ else
 fi
 
 DEF_GOV=$(GET_VAR "device" "cpu/default")
-$DEF_GOV >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+printf '%s\n' "$DEF_GOV" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 if [ "$DEF_GOV" = ondemand ]; then
 	GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
 	GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"

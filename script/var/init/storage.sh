@@ -72,6 +72,9 @@ BIND_EMULATOR() {
 	mount --bind "$TARGET" "$MOUNT" || CRITICAL_FAILURE directory "$TARGET" "$MOUNT"
 }
 
+# Drastic
+BIND_EMULATOR save/drastic/backup drastic/backup
+
 # OpenBOR
 BIND_EMULATOR save/file/OpenBOR-Ext openbor/userdata/saves/openbor
 BIND_EMULATOR screenshot openbor/userdata/screenshots/openbor

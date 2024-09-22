@@ -49,4 +49,7 @@ echo on >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
 # Switch GPU power policy
 echo always_on >/sys/devices/platform/gpu/power_policy &
 
+# Work around swapped speaker channels
+/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/spk.sh &
+
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/input/input.sh &

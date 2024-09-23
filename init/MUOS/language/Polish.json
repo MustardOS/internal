@@ -1,8 +1,30 @@
 {
+  "generic": {
+    "Back": "Wróć",
+    "Confirm": "Potwierdź",
+    "Directory": "Katalog",
+    "Disabled": "Wyłączony",
+    "Enabled": "Włączony",
+    "Extract": "Wyodrębnij",
+    "False": "Fałsz",
+    "Hidden": "Ukryty",
+    "Individual": "Pojedynczy",
+    "Launch": "Uruchom",
+    "Load": "Wczytaj",
+    "Next": "Następny",
+    "Open": "Otwórz",
+    "Previous": "Poprzednia",
+    "Recursive": "Rekursywny",
+    "Remove": "Usuń",
+    "Save": "Zapisz",
+    "Saving Changes": "Zapisywanie zmian",
+    "Select": "Wybierz",
+    "True": "Prawda",
+    "Use": "Użyj",
+    "Visible": "Widoczny"
+  },
   "muxapp": {
     "Loading Application": "Ładowanie aplikacji",
-    "Launch": "Uruchom",
-    "Back": "Wróć",
     "APPLICATIONS": "APLIKACJE",
     "No Applications Found": "Nie znaleziono aplikacji",
     "Archive Manager": "Menedżer archiwów",
@@ -18,18 +40,11 @@
   },
   "muxarchive": {
     "INSTALLED": "ZAINSTALOWANO",
-    "Extract": "Wyodrębnij",
-    "Back": "Wróć",
     "ARCHIVE MANAGER": "MENEDŻER ARCHIWÓW",
     "No Archives Found": "Nie znaleziono archiwów"
   },
   "muxassign": {
     "ASSIGN CORE": "PRZYPISZ RDZEŃ",
-    "Confirm": "Potwierdź",
-    "Back": "Wróć",
-    "Directory": "Katalog",
-    "Individual": "Pojedynczy",
-    "Recursive": "Rekursywny",
     "No Cores Found...": "Nie znaleziono rdzeni...",
     "ASSIGN": "PRZYPISZ"
   },
@@ -47,8 +62,6 @@
     "Web Services": "Usługi sieciowe",
     "Date and Time": "Data i czas",
     "Language": "Język",
-    "Confirm": "Potwierdź",
-    "Back": "Wróć",
     "CONFIGURATION": "KONFIGURACJA"
   },
   "muxinfo": {
@@ -56,14 +69,10 @@
     "Input Tester": "Tester przycisków",
     "System Details": "Szczegóły systemu",
     "Supporters": "Wspierający",
-    "Confirm": "Potwierdź",
-    "Back": "Wróć",
     "INFORMATION": "INFORMACJE"
   },
   "muxlanguage": {
     "Saving Language": "Zapisywanie języka",
-    "Confirm": "Potwierdź",
-    "Back": "Wróć",
     "LANGUAGES": "JĘZYKI",
     "No Languages Found...": "Nie znaleziono języków..."
   },
@@ -76,20 +85,15 @@
     "Configuration": "Konfiguracja",
     "Reboot": "Uruchom ponownie",
     "Shutdown": "Wyłącz",
-    "Confirm": "Potwierdź",
     "MAIN MENU": "MENU GŁÓWNE"
   },
   "muxnetprofile": {
     "No Saved Network Profiles Found": "Nie znaleziono zapisanych profilów sieciowych",
-    "Load": "Wczytaj",
-    "Back": "Wróć",
     "NETWORK PROFILE": "PROFIL SIECIOWY",
     "Loading Network Profiles...": "Ładowanie profili sieciowych..."
   },
   "muxnetscan": {
     "No Wi-Fi Networks Found": "Nie znaleziono sieci Wi-Fi",
-    "Use": "Użyj",
-    "Back": "Wróć",
     "Rescan": "Skanuj ponownie",
     "NETWORK SCAN": "SKANOWANIE SIECI",
     "Scanning for Wi-Fi Networks...": "Skanowanie sieci Wi-Fi..."
@@ -98,7 +102,6 @@
     "Network Disabled": "Sieć wyłączona",
     "Not Connected": "Nie połączono",
     "Connected": "Połączono",
-    "Enabled": "Włączony",
     "Identifier": "Identyfikator",
     "Password": "Hasło",
     "Network Type": "Typ sieci",
@@ -111,16 +114,11 @@
     "Changes Saved": "Zapisano zmiany",
     "DHCP": "DHCP",
     "Static": "Statyczne",
-    "False": "Fałsz",
-    "True": "Prawda",
-    "Back": "Wróć",
     "Scan": "Skanuj",
     "Profiles": "Profile",
     "WI-FI NETWORK": "SIEĆ WI-FI"
   },
   "muxpass": {
-    "Confirm": "Potwierdź",
-    "Back": "Wróć",
     "PASSCODE": "HASŁO"
   },
   "muxplore": {
@@ -136,12 +134,9 @@
     "Directories cannot be added to Favourites": "Katalogi nie mogą zostać dodane do Ulubionych",
     "Added to Favourites": "Dodano do Ulubionych",
     "Error adding to Favourites": "Błąd przy dodawaniu do Ulubionych",
-    "Open": "Otwórz",
-    "Back": "Wróć",
     "Refresh": "Odśwież",
     "Favourite": "Ulubione",
     "Info": "Info",
-    "Remove": "Usuń"
   },
   "muxrtc": {
     "Year": "Rok",
@@ -151,8 +146,6 @@
     "Minute": "Minuta",
     "Time Notation": "Notacja czasu",
     "Set Timezone": "Ustaw strefę czasową",
-    "Saving Changes": "Zapisywanie zmian",
-    "Save": "Zapisz",
     "DATE AND TIME": "DATA I CZAS"
   },
   "muxstorage": {
@@ -168,8 +161,6 @@
     "SD1": "SD1",
     "SD2": "SD2",
     "AUTO": "AUTO",
-    "Saving Changes": "Zapisywanie zmian",
-    "Save": "Zapisz",
     "STORAGE PREFERENCE": "PREFERENCJE PRZECHOWYWANIA"
   },
   "muxsysinfo": {
@@ -184,14 +175,11 @@
     "Running Services": "Działające usługi",
     "Battery Capacity": "Pojemność baterii",
     "Battery Voltage": "Napięcie baterii",
-    "Back": "Wróć",
     "SYSTEM DETAILS": "SZCZEGÓŁY SYSTEMU",
-    "Device Type": "Typ Urządzenia",
+    "Device Type": "Typ urządzenia",
     "Thank you for using muOS!": "Dziękujemy za korzystanie z muOS!"
   },
   "muxtask": {
-    "Launch": "Uruchom",
-    "Back": "Wróć",
     "TASK TOOLKIT": "PRZYBORNIK ZADAŃ",
     "No Tasks Found": "Nie znaleziono zadań"
   },
@@ -202,14 +190,11 @@
   },
   "muxtheme": {
     "Loading Theme": "Wczytywanie motywu",
-    "Confirm": "Potwierdź",
-    "Back": "Wróć",
     "THEME PICKER": "WYBÓR MOTYWU",
     "No Themes Found": "Nie znaleziono motywów"
   },
   "muxtimezone": {
     "Saving Timezone": "Zapisywanie strefy czasowej",
-    "Confirm": "Potwierdź",
     "TIMEZONE": "STREFA CZASOWA",
     "No Timezones Found...": "Nie znaleziono stref czasowych..."
   },
@@ -227,21 +212,16 @@
     "Android Debug Bridge": "Android Debug Bridge",
     "Suspend Power State": "Wstrzymanie stanu baterii",
     "Verbose Messages": "Pełne wiadomości",
-    "Disabled": "Wyłączone",
-    "Enabled": "Włączone",
     "Noto Sans": "Noto Sans",
     "Theme Controlled": "Sterowane przez motyw",
-    "Previous": "Poprzednia",
     "Quiet": "Cicha",
     "Loud": "Głośna",
     "Low": "Niska",
     "High": "Wysoka",
-    "Saving Changes": "Zapisywanie zmian",
-    "Save": "Zapisz",
     "ADVANCED SETTINGS": "USTAWIENIA ZAAWANSOWANE",
-    "Menu Acceleration": "Menu Acceleration",
-    "Language": "Language",
-    "Theme": "Theme",
+    "Menu Acceleration": "Przyspieszenie menu",
+    "Language": "Język",
+    "Theme": "Motyw",
     "Storage Preference": "Preferencje przechowywania"
   },
   "muxtweakgen": {
@@ -256,8 +236,6 @@
     "Low Battery Indicator": "Wskaźnik niskiego poziomu baterii",
     "Interface Options": "Opcje interfejsu",
     "Advanced Settings": "Ustawienia zaawansowane",
-    "Disabled": "Wyłączone",
-    "Enabled": "Włączone",
     "Main Menu": "Menu główne",
     "Content Explorer": "Przeglądanie zawartości",
     "Favourites": "Ulubione",
@@ -302,8 +280,6 @@
     "Sleep 10m + Shutdown": "Śpij 10m + Zamknij",
     "Sleep 30m + Shutdown": "Śpij 30m + Zamknij",
     "Sleep 60m + Shutdown": "Śpij 60m + Zamknij",
-    "Saving Changes": "Zapisywanie zmian",
-    "Save": "Zapisz",
     "GENERAL SETTINGS": "USTAWIENIA OGÓLNE"
   },
   "muxvisual": {
@@ -315,12 +291,8 @@
     "Content Name Scheme": "Schemat nazw zawartości",
     "Content Dash Replacement": "Zamiana myślników w zawartości",
     "Display Title Reformatting": "Reformatowanie wyświetlanego tytułu",
-    "Menu Counter Folder": "Katalog licznika menu",
-    "Menu Counter File": "Plik licznika menu",
-    "Hidden": "Ukryte",
-    "Visible": "Widoczne",
-    "Disabled": "Wyłączone",
-    "Enabled": "Włączone",
+    "Menu Counter Folder": "Licznik katalogów w menu",
+    "Menu Counter File": "Licznik plików w menu",
     "Bottom + Behind": "Dół + Tył",
     "Bottom + Front": "Tył + Przód",
     "Middle + Behind": "Środek + Tył",
@@ -333,10 +305,8 @@
     "Remove [ ]": "Usuń [ ]",
     "Remove ( )": "Usuń ( )",
     "Remove [ ] and ( )": "Usuń [ ] i ( )",
-    "Saving Changes": "Zapisywanie zmian",
-    "Save": "Zapisz",
     "INTERFACE OPTIONS": "OPCJE INTERFEJSU",
-    "Folder Item Count": "Licznik elementów folderów"
+    "Folder Item Count": "Licznik elementów folderu"
   },
   "muxwebserv": {
     "Secure Shell": "Secure Shell (SSH)",
@@ -345,10 +315,6 @@
     "Syncthing": "Syncthing",
     "Resilio": "Resilio",
     "Network Time Sync": "Synchronizacja czasu sieciowego",
-    "Disabled": "Wyłączone",
-    "Enabled": "Włączone",
-    "Saving Changes": "Zapisywanie zmian",
-    "Save": "Zapisz",
     "WEB SERVICES": "USŁUGI SIECIOWE"
   }
 }

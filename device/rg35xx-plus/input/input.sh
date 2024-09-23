@@ -308,17 +308,22 @@ fi
 				if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
 					FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 					DPAD_VAL=$(cat "$DPAD")
-					if [ "${FG_PROC_VAL#mux}" = "$FG_PROC_VAL" ] && [ "$STATE_MENU_LONG" -ne 1 ]; then
-						if [ "$DPAD_VAL" -eq 0 ]; then
-							echo 2 >$DPAD
-							MOTO_BUZZ
-						elif [ "$DPAD_VAL" -eq 2 ]; then
-							echo 0 >$DPAD
-							MOTO_BUZZ
-							sleep 0.1
-							MOTO_BUZZ
-						fi
-					fi
+					case "$FG_PROC_VAL" in
+						mux*) ;;
+						*)
+							if [ "$STATE_MENU_LONG" -ne 1 ]; then
+								if [ "$DPAD_VAL" -eq 0 ]; then
+									echo 2 >$DPAD
+									MOTO_BUZZ
+								elif [ "$DPAD_VAL" -eq 2 ]; then
+									echo 0 >$DPAD
+									MOTO_BUZZ
+									sleep 0.1
+									MOTO_BUZZ
+								fi
+							fi
+							;;
+					esac
 				fi
 			fi
 			;;

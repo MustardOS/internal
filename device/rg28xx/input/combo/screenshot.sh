@@ -20,7 +20,9 @@ if [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
 			INDEX=$((INDEX + 1))
 		done
 
-		fbgrab -a "${BASE_DIR}/muOS_${CURRENT_DATE}_${INDEX}.png"
+		SS_FILE="${BASE_DIR}/muOS_${CURRENT_DATE}_${INDEX}.png"
+		fbgrab -a "$SS_FILE"
+		convert "$SS_FILE" -rotate 270 "$SS_FILE"
 
 		rm "$SS_LOCK"
 	fi

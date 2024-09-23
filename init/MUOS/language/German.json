@@ -1,8 +1,30 @@
 {
+  "generic": {
+    "Back": "Zurück",
+    "Confirm": "Bestätigen",
+    "Directory": "Verzeichnis",
+    "Disabled": "Deaktiviert",
+    "Enabled": "Aktiviert",
+    "Extract": "Extrahieren",
+    "False": "Nein",
+    "Hidden": "Versteckt",
+    "Individual": "Individuell",
+    "Launch": "Starten",
+    "Load": "Laden",
+    "Next": "Nächste",
+    "Open": "Öffnen",
+    "Previous": "Bisherige",
+    "Recursive": "Rekursiv",
+    "Remove": "Entfernen",
+    "Save": "Speichern",
+    "Saving Changes": "Änderungen werden übernommen",
+    "Select": "Auswählen",
+    "True": "Ja",
+    "Use": "Benutzen",
+    "Visible": "Sichtbar"
+  },
   "muxapp": {
     "Loading Application": "Programm lädt",
-    "Launch": "Starten",
-    "Back": "Zurück",
     "APPLICATIONS": "PROGRAMME",
     "No Applications Found": "Keine Programme gefunden",
     "Archive Manager": "Archiv Manager",
@@ -18,18 +40,11 @@
   },
   "muxarchive": {
     "INSTALLED": "INSTALLIERT",
-    "Extract": "Extrahieren",
-    "Back": "Zurück",
     "ARCHIVE MANAGER": "ARCHIV MANAGER",
     "No Archives Found": "Keine Archive gefunden"
   },
   "muxassign": {
     "ASSIGN CORE": "KERN ZUWEISEN",
-    "Confirm": "Bestätigen",
-    "Back": "Zurück",
-    "Directory": "Verzeichnis",
-    "Individual": "Individuell",
-    "Recursive": "Rekursiv",
     "No Cores Found...": "Keine Kerne gefunden...",
     "ASSIGN": "ZUWEISEN"
   },
@@ -47,8 +62,6 @@
     "Web Services": "Web Dienste",
     "Date and Time": "Datum und Uhrzeit",
     "Language": "Sprache",
-    "Confirm": "Bestätigen",
-    "Back": "Zurück",
     "CONFIGURATION": "KONFIGURATION"
   },
   "muxinfo": {
@@ -56,14 +69,10 @@
     "Input Tester": "Eingabentest",
     "System Details": "Systemdetails",
     "Supporters": "Unterstützer",
-    "Confirm": "Bestätigen",
-    "Back": "Zurück",
     "INFORMATION": "INFORMATION"
   },
   "muxlanguage": {
     "Saving Language": "Sprache wird übernommen",
-    "Confirm": "Bestätigen",
-    "Back": "Zurück",
     "LANGUAGES": "SPRACHE",
     "No Languages Found...": "Keine Sprachen gefunden..."
   },
@@ -76,20 +85,15 @@
     "Configuration": "Konfiguration",
     "Reboot": "Neustart",
     "Shutdown": "Herunterfahren",
-    "Confirm": "Bestätigen",
     "MAIN MENU": "HAUPTMENÜ"
   },
   "muxnetprofile": {
     "No Saved Network Profiles Found": "Keine gespeicherten Netzwerkprofile gefunden",
-    "Load": "Laden",
-    "Back": "Zurück",
     "NETWORK PROFILE": "NETZWERK PROFILE",
     "Loading Network Profiles...": "Lade Netzwerk Profile..."
   },
   "muxnetscan": {
     "No Wi-Fi Networks Found": "Keine Wi-Fi Netzwerke gefunden",
-    "Use": "Benutzen",
-    "Back": "Zurück",
     "Rescan": "Erneut suchen",
     "NETWORK SCAN": "NETZWERKSUCHE",
     "Scanning for Wi-Fi Networks...": "Suche nach Wi-Fi Netzwerken..."
@@ -98,7 +102,6 @@
     "Network Disabled": "Netzwerk deaktiviert",
     "Not Connected": "Nicht verbunden",
     "Connected": "Verbunden",
-    "Enabled": "Aktiviert",
     "Identifier": "Netzwerkname",
     "Password": "Passwort",
     "Network Type": "Netzwerktyp",
@@ -111,16 +114,11 @@
     "Changes Saved": "Änderungen übernommen",
     "DHCP": "DHCP",
     "Static": "Statisch",
-    "False": "Nein",
-    "True": "Ja",
-    "Back": "Zurück",
     "Scan": "Suchen",
     "Profiles": "Profile",
     "WI-FI NETWORK": "WI-FI NETZWERK"
   },
   "muxpass": {
-    "Confirm": "Bestätigen",
-    "Back": "Zurück",
     "PASSCODE": "PASSWORT"
   },
   "muxplore": {
@@ -136,12 +134,9 @@
     "Directories cannot be added to Favourites": "Verzeichnisse können nicht den Favoriten hinzugefügt werden",
     "Added to Favourites": "Zu den Favoriten hinzugefügt",
     "Error adding to Favourites": "Fehler beim Hinzufügen zu den Favoriten",
-    "Open": "Öffnen",
-    "Back": "Zurück",
     "Refresh": "Aktualisieren",
     "Favourite": "Favorisieren",
-    "Info": "Info",
-    "Remove": "Entfernen"
+    "Info": "Info"
   },
   "muxrtc": {
     "Year": "Jahr",
@@ -151,8 +146,6 @@
     "Minute": "Minute",
     "Time Notation": "Zeitformat",
     "Set Timezone": "Zeitzone einstellen",
-    "Saving Changes": "Änderungen werden übernommen",
-    "Save": "Speichern",
     "DATE AND TIME": "DATUM UND UHRZEIT"
   },
   "muxstorage": {
@@ -168,8 +161,6 @@
     "SD1": "SD1",
     "SD2": "SD2",
     "AUTO": "AUTO",
-    "Saving Changes": "Änderungen werden übernommen",
-    "Save": "Speichern",
     "STORAGE PREFERENCE": "SPEICHERPRÄFERENZEN"
   },
   "muxsysinfo": {
@@ -184,14 +175,11 @@
     "Running Services": "Laufende Dienste",
     "Battery Capacity": "Akkukapazität",
     "Battery Voltage": "Akkuspannung",
-    "Back": "Zurück",
     "SYSTEM DETAILS": "SYSTEMDETAILS",
     "Device Type": "Device Type",
     "Thank you for using muOS!": "Thank you for using muOS!"
   },
   "muxtask": {
-    "Launch": "Starten",
-    "Back": "Zurück",
     "TASK TOOLKIT": "SYSTEMVERWALTUNG",
     "No Tasks Found": "Keine Aufgaben gefunden..."
   },
@@ -202,14 +190,11 @@
   },
   "muxtheme": {
     "Loading Theme": "Theme lädt",
-    "Confirm": "Bestätigen",
-    "Back": "Zurück",
     "THEME PICKER": "THEME AUSWAHL",
     "No Themes Found": "Keine Themes gefunden..."
   },
   "muxtimezone": {
     "Saving Timezone": "Zeitzone wird übernommen",
-    "Confirm": "Bestätigen",
     "TIMEZONE": "ZEITZONE",
     "No Timezones Found...": "Keine Zeitzonen gefunden..."
   },
@@ -227,17 +212,12 @@
     "Android Debug Bridge": "Android Debug Bridge",
     "Suspend Power State": "Suspend Power State",
     "Verbose Messages": "Detaillierte Meldungen",
-    "Disabled": "Deaktiviert",
-    "Enabled": "Aktiviert",
     "Noto Sans": "Noto Sans",
     "Theme Controlled": "Durch Theme gesteuert",
-    "Previous": "Bisherige",
     "Quiet": "Leise",
     "Loud": "Laut",
     "Low": "Niedrig",
     "High": "Hoch",
-    "Saving Changes": "Änderungen werden übernommen",
-    "Save": "Speichern",
     "ADVANCED SETTINGS": "ERWEITERTE EINSTELLUNGEN",
     "Menu Acceleration": "Menu Acceleration",
     "Language": "Language",
@@ -256,8 +236,6 @@
     "Low Battery Indicator": "Anzeige für niedrigen Akkustand",
     "Interface Options": "Interface Einstellungen",
     "Advanced Settings": "Erweiterte Einstellungen",
-    "Disabled": "Deaktiviert",
-    "Enabled": "Aktiviert",
     "Main Menu": "Hauptmenü",
     "Content Explorer": "Inhalte durchsuchen",
     "Favourites": "Favoriten",
@@ -302,8 +280,6 @@
     "Sleep 10m + Shutdown": "Standby 10m + Shutdown",
     "Sleep 30m + Shutdown": "Standby 30m + Shutdown",
     "Sleep 60m + Shutdown": "Standby 60m + Shutdown",
-    "Saving Changes": "Änderungen werden übernommen",
-    "Save": "Speichern",
     "GENERAL SETTINGS": "ALLGEMEINE EINSTELLUNGEN"
   },
   "muxvisual": {
@@ -317,10 +293,6 @@
     "Display Title Reformatting": "Display Title Reformatting",
     "Menu Counter Folder": "Menu Counter Folder",
     "Menu Counter File": "Menu Counter File",
-    "Hidden": "Versteckt",
-    "Visible": "Sichtbar",
-    "Disabled": "Deaktiviert",
-    "Enabled": "Aktiviert",
     "Bottom + Behind": "Unten + Hinten",
     "Bottom + Front": "Unten + Vorne",
     "Middle + Behind": "Mitte + Hinten",
@@ -333,8 +305,6 @@
     "Remove [ ]": "Entferne [ ]",
     "Remove ( )": "Entferne ( )",
     "Remove [ ] and ( )": "Entferne [ ] und ( )",
-    "Saving Changes": "Änderungen werden übernommen",
-    "Save": "Speichern",
     "INTERFACE OPTIONS": "INTERFACE EINSTELLUNGEN",
     "Folder Item Count": "Folder Item Count"
   },
@@ -345,10 +315,6 @@
     "Syncthing": "Syncthing",
     "Resilio": "Resilio",
     "Network Time Sync": "Netzwerk Zeitsynchronisierung",
-    "Disabled": "Deaktiviert",
-    "Enabled": "Aktiviert",
-    "Saving Changes": "Änderungen werden übernommen",
-    "Save": "Speichern",
     "WEB SERVICES": "WEB DIENSTE"
   }
 }

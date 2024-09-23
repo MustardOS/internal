@@ -1,8 +1,30 @@
 {
+  "generic": {
+    "Back": "Back",
+    "Confirm": "Confirm",
+    "Directory": "Directory",
+    "Disabled": "Disabled",
+    "Enabled": "Enabled",
+    "Extract": "Extract",
+    "False": "False",
+    "Hidden": "Hidden",
+    "Individual": "Individual",
+    "Launch": "Launch",
+    "Load": "Load",
+    "Next": "Next",
+    "Open": "Open",
+    "Previous": "Previous",
+    "Recursive": "Recursive",
+    "Remove": "Remove",
+    "Save": "Save",
+    "Saving Changes": "Saving Changes",
+    "Select": "Select",
+    "True": "True",
+    "Use": "Use",
+    "Visible": "Visible"
+  },
   "muxapp": {
     "Loading Application": "Loading Application",
-    "Launch": "Launch",
-    "Back": "Back",
     "APPLICATIONS": "APPLICATIONS",
     "No Applications Found": "No Applications Found",
     "Archive Manager": "Archive Manager",
@@ -18,18 +40,11 @@
   },
   "muxarchive": {
     "INSTALLED": "INSTALLED",
-    "Extract": "Extract",
-    "Back": "Back",
     "ARCHIVE MANAGER": "ARCHIVE MANAGER",
     "No Archives Found": "No Archives Found"
   },
   "muxassign": {
     "ASSIGN CORE": "ASSIGN CORE",
-    "Confirm": "Confirm",
-    "Back": "Back",
-    "Directory": "Directory",
-    "Individual": "Individual",
-    "Recursive": "Recursive",
     "No Cores Found...": "No Cores Found...",
     "ASSIGN": "ASSIGN"
   },
@@ -47,8 +62,6 @@
     "Web Services": "Web Services",
     "Date and Time": "Date and Time",
     "Language": "Language",
-    "Confirm": "Confirm",
-    "Back": "Back",
     "CONFIGURATION": "CONFIGURATION"
   },
   "muxinfo": {
@@ -56,14 +69,10 @@
     "Input Tester": "Input Tester",
     "System Details": "System Details",
     "Supporters": "Supporters",
-    "Confirm": "Confirm",
-    "Back": "Back",
     "INFORMATION": "INFORMATION"
   },
   "muxlanguage": {
     "Saving Language": "Saving Language",
-    "Confirm": "Confirm",
-    "Back": "Back",
     "LANGUAGES": "LANGUAGES",
     "No Languages Found...": "No Languages Found..."
   },
@@ -76,20 +85,15 @@
     "Configuration": "Configuration",
     "Reboot": "Reboot",
     "Shutdown": "Shutdown",
-    "Confirm": "Confirm",
     "MAIN MENU": "MAIN MENU"
   },
   "muxnetprofile": {
     "No Saved Network Profiles Found": "No Saved Network Profiles Found",
-    "Load": "Load",
-    "Back": "Back",
     "NETWORK PROFILE": "NETWORK PROFILE",
     "Loading Network Profiles...": "Loading Network Profiles..."
   },
   "muxnetscan": {
     "No Wi-Fi Networks Found": "No Wi-Fi Networks Found",
-    "Use": "Use",
-    "Back": "Back",
     "Rescan": "Rescan",
     "NETWORK SCAN": "NETWORK SCAN",
     "Scanning for Wi-Fi Networks...": "Scanning for Wi-Fi Networks..."
@@ -98,7 +102,6 @@
     "Network Disabled": "Network Disabled",
     "Not Connected": "Not Connected",
     "Connected": "Connected",
-    "Enabled": "Enabled",
     "Identifier": "Identifier",
     "Password": "Password",
     "Network Type": "Network Type",
@@ -111,16 +114,11 @@
     "Changes Saved": "Changes Saved",
     "DHCP": "DHCP",
     "Static": "Static",
-    "False": "False",
-    "True": "True",
-    "Back": "Back",
     "Scan": "Scan",
     "Profiles": "Profiles",
     "WI-FI NETWORK": "WI-FI NETWORK"
   },
   "muxpass": {
-    "Confirm": "Confirm",
-    "Back": "Back",
     "PASSCODE": "PASSCODE"
   },
   "muxplore": {
@@ -136,12 +134,9 @@
     "Directories cannot be added to Favourites": "Directories cannot be added to Favourites",
     "Added to Favourites": "Added to Favourites",
     "Error adding to Favourites": "Error adding to Favourites",
-    "Open": "Open",
-    "Back": "Back",
     "Refresh": "Refresh",
     "Favourite": "Favourite",
-    "Info": "Info",
-    "Remove": "Remove"
+    "Info": "Info"
   },
   "muxrtc": {
     "Year": "Year",
@@ -151,8 +146,6 @@
     "Minute": "Minute",
     "Time Notation": "Time Notation",
     "Set Timezone": "Set Timezone",
-    "Saving Changes": "Saving Changes",
-    "Save": "Save",
     "DATE AND TIME": "DATE AND TIME"
   },
   "muxstorage": {
@@ -168,8 +161,6 @@
     "SD1": "SD1",
     "SD2": "SD2",
     "AUTO": "AUTO",
-    "Saving Changes": "Saving Changes",
-    "Save": "Save",
     "STORAGE PREFERENCE": "STORAGE PREFERENCE"
   },
   "muxsysinfo": {
@@ -184,14 +175,11 @@
     "Running Services": "Running Services",
     "Battery Capacity": "Battery Capacity",
     "Battery Voltage": "Battery Voltage",
-    "Back": "Back",
     "SYSTEM DETAILS": "SYSTEM DETAILS",
     "Device Type": "Device Type",
     "Thank you for using muOS!": "Thank you for using muOS!"
   },
   "muxtask": {
-    "Launch": "Launch",
-    "Back": "Back",
     "TASK TOOLKIT": "TASK TOOLKIT",
     "No Tasks Found": "No Tasks Found"
   },
@@ -202,14 +190,11 @@
   },
   "muxtheme": {
     "Loading Theme": "Loading Theme",
-    "Confirm": "Confirm",
-    "Back": "Back",
     "THEME PICKER": "THEME PICKER",
     "No Themes Found": "No Themes Found"
   },
   "muxtimezone": {
     "Saving Timezone": "Saving Timezone",
-    "Confirm": "Confirm",
     "TIMEZONE": "TIMEZONE",
     "No Timezones Found...": "No Timezones Found..."
   },
@@ -227,17 +212,12 @@
     "Android Debug Bridge": "Android Debug Bridge",
     "Suspend Power State": "Suspend Power State",
     "Verbose Messages": "Verbose Messages",
-    "Disabled": "Disabled",
-    "Enabled": "Enabled",
     "Noto Sans": "Noto Sans",
     "Theme Controlled": "Theme Controlled",
-    "Previous": "Previous",
     "Quiet": "Quiet",
     "Loud": "Loud",
     "Low": "Low",
     "High": "High",
-    "Saving Changes": "Saving Changes",
-    "Save": "Save",
     "ADVANCED SETTINGS": "ADVANCED SETTINGS",
     "Menu Acceleration": "Menu Acceleration",
     "Language": "Language",
@@ -256,8 +236,6 @@
     "Low Battery Indicator": "Low Battery Indicator",
     "Interface Options": "Interface Options",
     "Advanced Settings": "Advanced Settings",
-    "Disabled": "Disabled",
-    "Enabled": "Enabled",
     "Main Menu": "Main Menu",
     "Content Explorer": "Content Explorer",
     "Favourites": "Favourites",
@@ -302,8 +280,6 @@
     "Sleep 10m + Shutdown": "Sleep 10m + Shutdown",
     "Sleep 30m + Shutdown": "Sleep 30m + Shutdown",
     "Sleep 60m + Shutdown": "Sleep 60m + Shutdown",
-    "Saving Changes": "Saving Changes",
-    "Save": "Save",
     "GENERAL SETTINGS": "GENERAL SETTINGS"
   },
   "muxvisual": {
@@ -317,10 +293,6 @@
     "Display Title Reformatting": "Display Title Reformatting",
     "Menu Counter Folder": "Menu Counter Folder",
     "Menu Counter File": "Menu Counter File",
-    "Hidden": "Hidden",
-    "Visible": "Visible",
-    "Disabled": "Disabled",
-    "Enabled": "Enabled",
     "Bottom + Behind": "Bottom + Behind",
     "Bottom + Front": "Bottom + Front",
     "Middle + Behind": "Middle + Behind",
@@ -333,8 +305,6 @@
     "Remove [ ]": "Remove [ ]",
     "Remove ( )": "Remove ( )",
     "Remove [ ] and ( )": "Remove [ ] and ( )",
-    "Saving Changes": "Saving Changes",
-    "Save": "Save",
     "INTERFACE OPTIONS": "INTERFACE OPTIONS",
     "Folder Item Count": "Folder Item Count"
   },
@@ -345,10 +315,6 @@
     "Syncthing": "Syncthing",
     "Resilio": "Resilio",
     "Network Time Sync": "Network Time Sync",
-    "Disabled": "Disabled",
-    "Enabled": "Enabled",
-    "Saving Changes": "Saving Changes",
-    "Save": "Save",
     "WEB SERVICES": "WEB SERVICES"
   }
 }

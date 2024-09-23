@@ -1,8 +1,30 @@
 {
+  "generic": {
+    "Back": "返回",
+    "Confirm": "確認",
+    "Directory": "目錄",
+    "Disabled": "停用",
+    "Enabled": "啟用",
+    "Extract": "解開",
+    "False": "錯誤的",
+    "Hidden": "隱藏",
+    "Individual": "個別的",
+    "Launch": "啟動",
+    "Load": "讀取",
+    "Next": "下一個",
+    "Open": "開啟",
+    "Previous": "前一個",
+    "Recursive": "遞迴",
+    "Remove": "移除",
+    "Save": "儲存",
+    "Saving Changes": "儲存變更",
+    "Select": "選擇",
+    "True": "真的",
+    "Use": "使用",
+    "Visible": "可見的"
+  },
   "muxapp": {
     "Loading Application": "載入應用程式",
-    "Launch": "啟動",
-    "Back": "返回",
     "APPLICATIONS": "應用程式",
     "No Applications Found": "找不到應用程式",
     "Archive Manager": "封裝檔管理員",
@@ -14,22 +36,15 @@
     "PPSSPP": "PPSSPP",
     "RetroArch": "RetroArch",
     "Simple Terminal": "Simple Terminal",
-    "Task Toolkit": "任務工具包"
+    "Task Toolkit": "任務工具箱"
   },
   "muxarchive": {
     "INSTALLED": "已安裝",
-    "Extract": "解封裝",
-    "Back": "返回",
     "ARCHIVE MANAGER": "封裝檔管理員",
     "No Archives Found": "找不到封裝檔"
   },
   "muxassign": {
     "ASSIGN CORE": "分配核心",
-    "Confirm": "確認",
-    "Back": "返回",
-    "Directory": "目錄",
-    "Individual": "個別",
-    "Recursive": "遞迴",
     "No Cores Found...": "找不到核心...",
     "ASSIGN": "分配"
   },
@@ -47,8 +62,6 @@
     "Web Services": "Web服務",
     "Date and Time": "日期與時間",
     "Language": "語言",
-    "Confirm": "確認",
-    "Back": "返回",
     "CONFIGURATION": "配置"
   },
   "muxinfo": {
@@ -56,14 +69,10 @@
     "Input Tester": "輸入測試器",
     "System Details": "系統詳情",
     "Supporters": "支持者",
-    "Confirm": "確認",
-    "Back": "返回",
     "INFORMATION": "資訊"
   },
   "muxlanguage": {
     "Saving Language": "儲存語言設定",
-    "Confirm": "確認",
-    "Back": "返回",
     "LANGUAGES": "語言",
     "No Languages Found...": "找不到語言..."
   },
@@ -76,29 +85,23 @@
     "Configuration": "配置",
     "Reboot": "重開機",
     "Shutdown": "關機",
-    "Confirm": "確認",
     "MAIN MENU": "主選單"
   },
   "muxnetprofile": {
     "No Saved Network Profiles Found": "找不到儲存的網路描述檔",
-    "Load": "讀取",
-    "Back": "返回",
     "NETWORK PROFILE": "網路描述檔",
     "Loading Network Profiles...": "讀取網路描述檔..."
   },
   "muxnetscan": {
     "No Wi-Fi Networks Found": "找不到Wi-Fi網路",
-    "Use": "使用",
-    "Back": "返回",
-    "Rescan": "重掃",
-    "NETWORK SCAN": "NETWORK掃描",
+    "Rescan": "重新掃苗",
+    "NETWORK SCAN": "掃描網路",
     "Scanning for Wi-Fi Networks...": "正在掃描Wi-Fi網路..."
   },
   "muxnetwork": {
     "Network Disabled": "網路已關閉",
     "Not Connected": "未連接",
     "Connected": "已連接",
-    "Enabled": "開啟",
     "Identifier": "SSID",
     "Password": "密碼",
     "Network Type": "網路類型",
@@ -111,16 +114,11 @@
     "Changes Saved": "變更已儲存",
     "DHCP": "DHCP",
     "Static": "固定",
-    "False": "錯誤",
-    "True": "正確",
-    "Back": "返回",
     "Scan": "掃描",
     "Profiles": "描述檔",
     "WI-FI NETWORK": "WI-FI網路"
   },
   "muxpass": {
-    "Confirm": "確認",
-    "Back": "返回",
     "PASSCODE": "密碼"
   },
   "muxplore": {
@@ -136,12 +134,9 @@
     "Directories cannot be added to Favourites": "目錄無法新增到最愛",
     "Added to Favourites": "新增至我的最愛",
     "Error adding to Favourites": "新增到最愛時出錯",
-    "Open": "開啟",
-    "Back": "返回",
     "Refresh": "重新整理",
     "Favourite": "我的最愛",
     "Info": "資訊",
-    "Remove": "移除"
   },
   "muxrtc": {
     "Year": "年",
@@ -151,8 +146,6 @@
     "Minute": "分",
     "Time Notation": "時間格式",
     "Set Timezone": "設定時區",
-    "Saving Changes": "儲存變更",
-    "Save": "儲存",
     "DATE AND TIME": "日期與時間"
   },
   "muxstorage": {
@@ -168,8 +161,6 @@
     "SD1": "SD1",
     "SD2": "SD2",
     "AUTO": "自動",
-    "Saving Changes": "儲存變更",
-    "Save": "儲存",
     "STORAGE PREFERENCE": "存儲偏好"
   },
   "muxsysinfo": {
@@ -184,15 +175,12 @@
     "Running Services": "運作中的服務",
     "Battery Capacity": "電池容量",
     "Battery Voltage": "電池電壓",
-    "Back": "返回",
     "SYSTEM DETAILS": "系統詳情",
     "Device Type": "裝置類型",
     "Thank you for using muOS!": "感謝您使用 muOS！"
   },
   "muxtask": {
-    "Launch": "啟動",
-    "Back": "返回",
-    "TASK TOOLKIT": "任務工具包",
+    "TASK TOOLKIT": "任務工具箱",
     "No Tasks Found": "找不到任務"
   },
   "muxtester": {
@@ -202,14 +190,11 @@
   },
   "muxtheme": {
     "Loading Theme": "讀取主題",
-    "Confirm": "確認",
-    "Back": "返回",
-    "THEME PICKER": "選題選擇器",
+    "THEME PICKER": "選題選擇",
     "No Themes Found": "找不到主題"
   },
   "muxtimezone": {
     "Saving Timezone": "儲存時區設定",
-    "Confirm": "確認",
     "TIMEZONE": "時區",
     "No Timezones Found...": "找不到時區..."
   },
@@ -227,17 +212,12 @@
     "Android Debug Bridge": "Android Debug Bridge",
     "Suspend Power State": "暫停電源狀態",
     "Verbose Messages": "詳細訊息",
-    "Disabled": "關閉",
-    "Enabled": "開啟",
     "Noto Sans": "思源黑體",
     "Theme Controlled": "由主題控制",
-    "Previous": "先前",
     "Quiet": "安靜",
-    "Loud": "Loud",
+    "Loud": "響亮",
     "Low": "低",
     "High": "高",
-    "Saving Changes": "儲存變更",
-    "Save": "儲存",
     "ADVANCED SETTINGS": "進階設定",
     "Menu Acceleration": "選單加速",
     "Language": "語言",
@@ -256,8 +236,6 @@
     "Low Battery Indicator": "低電量指示器",
     "Interface Options": "介面選項",
     "Advanced Settings": "進階設定",
-    "Disabled": "關閉",
-    "Enabled": "開啟",
     "Main Menu": "主選單",
     "Content Explorer": "內容瀏覽器",
     "Favourites": "我的最愛",
@@ -302,8 +280,6 @@
     "Sleep 10m + Shutdown": "睡眠10分 + 關機",
     "Sleep 30m + Shutdown": "睡眠30分 + 關機",
     "Sleep 60m + Shutdown": "睡眠60分 + 關機",
-    "Saving Changes": "儲存變更",
-    "Save": "儲存",
     "GENERAL SETTINGS": "通用設定"
   },
   "muxvisual": {
@@ -317,10 +293,6 @@
     "Display Title Reformatting": "顯示標題重新格式化",
     "Menu Counter Folder": "選單計數器資料夾",
     "Menu Counter File": "選單計數器檔案",
-    "Hidden": "隱藏",
-    "Visible": "可見的",
-    "Disabled": "關閉",
-    "Enabled": "開啟",
     "Bottom + Behind": "底部+後方",
     "Bottom + Front": "底部+前方",
     "Middle + Behind": "中間+後方",
@@ -333,8 +305,6 @@
     "Remove [ ]": "移除 [ ]",
     "Remove ( )": "移除 ( )",
     "Remove [ ] and ( )": "移除 [ ] 及 ( )",
-    "Saving Changes": "儲存變更",
-    "Save": "儲存",
     "INTERFACE OPTIONS": "介面選項",
     "Folder Item Count": "資料夾物件數量統計"
   },
@@ -345,10 +315,6 @@
     "Syncthing": "Syncthing",
     "Resilio": "Resilio",
     "Network Time Sync": "網路校時",
-    "Disabled": "關閉",
-    "Enabled": "開啟",
-    "Saving Changes": "儲存變更",
-    "Save": "儲存",
     "WEB SERVICES": "Web服務"
   }
 }

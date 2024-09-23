@@ -14,6 +14,13 @@ DO_REFRESH=/tmp/hdmi_do_refresh
 
 while true; do
 	if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ]; then
+		if [ "$(GET_VAR "global" "settings/advanced/hdmi_output")" -eq 0 ]; then
+			XDG_RUNTIME_DIR="/var/run" wpctl set-default "$(GET_VAR "audio" "nid_external")"
+			XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_external")" 100%
+		else
+			XDG_RUNTIME_DIR="/var/run" wpctl set-default "$(GET_VAR "audio" "nid_internal")"
+		fi
+
 		echo "1" >$HAS_PLUGGED
 		SWITCHED_OFF=0
 
@@ -26,17 +33,13 @@ while true; do
 			# Reset the display
 			FB_SWITCH "$WIDTH" "$HEIGHT" 32
 
-			# Switch to external audio if set
-			if [ "$(GET_VAR "global" "settings/advanced/hdmi_output")" -eq 0 ]; then
-				XDG_RUNTIME_DIR="/var/run" wpctl set-default "$(GET_VAR "audio" "nid_external")"
-				XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_external")" 100%
-			fi
-
 			SWITCHED_ON=1
 			echo "1" >$DO_REFRESH
 		fi
 	else
 		if [ "$(cat "$HAS_PLUGGED")" -eq 1 ]; then
+			XDG_RUNTIME_DIR="/var/run" wpctl set-default "$(GET_VAR "audio" "nid_internal")"
+
 			echo "0" >$HAS_PLUGGED
 			SWITCHED_ON=0
 
@@ -48,9 +51,6 @@ while true; do
 
 				# Reset the display
 				FB_SWITCH "$WIDTH" "$HEIGHT" 32
-
-				# Switch to internal audio
-				XDG_RUNTIME_DIR="/var/run" wpctl set-default "$(GET_VAR "audio" "nid_internal")"
 
 				SWITCHED_OFF=1
 				echo "1" >$DO_REFRESH

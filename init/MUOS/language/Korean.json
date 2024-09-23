@@ -1,8 +1,30 @@
 {
+  "generic": {
+    "Back": "이전",
+    "Confirm": "확인",
+    "Directory": "디렉터리",
+    "Disabled": "비활성화",
+    "Enabled": "활성화됨",
+    "Extract": "추출하기",
+    "False": "아니오",
+    "Hidden": "숨기기",
+    "Individual": "개별",
+    "Launch": "실행",
+    "Load": "로드",
+    "Next": "다음",
+    "Open": "열기",
+    "Previous": "이전 상태",
+    "Recursive": "하위 디렉터리 포함",
+    "Remove": "제거"
+    "Save": "저장",
+    "Saving Changes": "변경 저장중",
+    "Select": "선택",
+    "True": "예",
+    "Use": "사용",
+    "Visible": "보이기",
+  },
   "muxapp": {
     "Loading Application": "어플리케이션 로드 중",
-    "Launch": "실행",
-    "Back": "이전",
     "APPLICATIONS": "어플리케이션",
     "No Applications Found": "어플리케이션 없음",
     "Archive Manager": "아카이브 매니저",
@@ -18,18 +40,11 @@
   },
   "muxarchive": {
     "INSTALLED": "설치됨",
-    "Extract": "추출하기",
-    "Back": "이전",
     "ARCHIVE MANAGER": "아카이브 매니저",
     "No Archives Found": "아카이브 없음"
   },
   "muxassign": {
     "ASSIGN CORE": "코어 할당하기",
-    "Confirm": "확인",
-    "Back": "이전",
-    "Directory": "디렉터리",
-    "Individual": "개별",
-    "Recursive": "하위 디렉터리 포함",
     "No Cores Found...": "코어 없음...",
     "ASSIGN": "할당"
   },
@@ -47,8 +62,6 @@
     "Web Services": "웹 서비스",
     "Date and Time": "날짜와 시간",
     "Language": "언어",
-    "Confirm": "확인",
-    "Back": "이전",
     "CONFIGURATION": "구성"
   },
   "muxinfo": {
@@ -56,14 +69,10 @@
     "Input Tester": "인풋 테스트기",
     "System Details": "시스템 상세정보",
     "Supporters": "후원 감사의 말",
-    "Confirm": "확인",
-    "Back": "이전",
     "INFORMATION": "정보"
   },
   "muxlanguage": {
     "Saving Language": "언어 저장중",
-    "Confirm": "확인",
-    "Back": "이전",
     "LANGUAGES": "언어",
     "No Languages Found...": "언어 설정 없음..."
   },
@@ -76,20 +85,15 @@
     "Configuration": "구성",
     "Reboot": "재부팅",
     "Shutdown": "시스템종료",
-    "Confirm": "확인",
     "MAIN MENU": "메인 메뉴"
   },
   "muxnetprofile": {
     "No Saved Network Profiles Found": "저장된 네트워크 프로필을 찾을 수 없음",
-    "Load": "로드",
-    "Back": "이전",
     "NETWORK PROFILE": "네트워크 프로필",
     "Loading Network Profiles...": "네트워크 프로필 로드중..."
   },
   "muxnetscan": {
     "No Wi-Fi Networks Found": "Wi-Fi 네트워크를 찾을 수 없음",
-    "Use": "사용",
-    "Back": "이전",
     "Rescan": "재스캔",
     "NETWORK SCAN": "네트워크 스캔",
     "Scanning for Wi-Fi Networks...": "Wi-Fi 네트워크 스캔 중..."
@@ -98,7 +102,6 @@
     "Network Disabled": "네트워크 비활성화",
     "Not Connected": "연결되지 않음",
     "Connected": "연결됨",
-    "Enabled": "활성화",
     "Identifier": "네트워크 식별자",
     "Password": "비밀번호",
     "Network Type": "네트워크 유형",
@@ -111,16 +114,11 @@
     "Changes Saved": "변경 저장됨",
     "DHCP": "DHCP",
     "Static": "Static",
-    "False": "아니오",
-    "True": "예",
-    "Back": "이전",
     "Scan": "스캔",
     "Profiles": "프로필",
     "WI-FI NETWORK": "WI-FI 네트워크"
   },
   "muxpass": {
-    "Confirm": "확인",
-    "Back": "이전",
     "PASSCODE": "패스코드"
   },
   "muxplore": {
@@ -136,12 +134,9 @@
     "Directories cannot be added to Favourites": "즐겨찾기에 디렉터리를 추가할 수 없음",
     "Added to Favourites": "즐겨찾기에 추가함",
     "Error adding to Favourites": "즐겨찾기 추가에 오류",
-    "Open": "열기",
-    "Back": "이전",
     "Refresh": "새로고침",
     "Favourite": "즐겨찾기",
-    "Info": "정보",
-    "Remove": "제거"
+    "Info": "정보"
   },
   "muxrtc": {
     "Year": "연",
@@ -151,8 +146,6 @@
     "Minute": "분",
     "Time Notation": "시간 표기",
     "Set Timezone": "타임존 설정",
-    "Saving Changes": "변경 저장중",
-    "Save": "저장",
     "DATE AND TIME": "날짜와 시간"
   },
   "muxstorage": {
@@ -168,8 +161,6 @@
     "SD1": "SD1",
     "SD2": "SD2",
     "AUTO": "자동",
-    "Saving Changes": "변경 저장중",
-    "Save": "저장",
     "STORAGE PREFERENCE": "저장소 선호"
   },
   "muxsysinfo": {
@@ -184,14 +175,11 @@
     "Running Services": "실행중인 서비스",
     "Battery Capacity": "배터리 용량",
     "Battery Voltage": "배터리 전압",
-    "Back": "이전",
     "SYSTEM DETAILS": "시스템 상세정보",
     "Device Type": "디바이스 타입",
     "Thank you for using muOS!": "muOS를 이용해 주셔서 감사합니다!"
   },
   "muxtask": {
-    "Launch": "실행",
-    "Back": "이전",
     "TASK TOOLKIT": "태스크 툴킷",
     "No Tasks Found": "태스크가 없음"
   },
@@ -202,14 +190,11 @@
   },
   "muxtheme": {
     "Loading Theme": "테마 로드 중",
-    "Confirm": "확인",
-    "Back": "이전",
     "THEME PICKER": "테마 피커",
     "No Themes Found": "테마가 없음"
   },
   "muxtimezone": {
     "Saving Timezone": "타임존 저장중",
-    "Confirm": "확인",
     "TIMEZONE": "타임존",
     "No Timezones Found...": "타임존 발견되지 않음..."
   },
@@ -227,17 +212,12 @@
     "Android Debug Bridge": "안드로이드 디버그 브릿지",
     "Suspend Power State": "절전 상태",
     "Verbose Messages": "메시지 출력",
-    "Disabled": "비활성화",
-    "Enabled": "활성화됨",
     "Noto Sans": "노토 산스",
     "Theme Controlled": "테마가 조절",
-    "Previous": "이전 상태",
     "Quiet": "조용히",
     "Loud": "크게",
     "Low": "낮음",
     "High": "높음",
-    "Saving Changes": "변경 저장중",
-    "Save": "저장",
     "ADVANCED SETTINGS": "고급 설정",
     "Menu Acceleration": "메뉴 가속화",
     "Language": "언어",
@@ -256,8 +236,6 @@
     "Low Battery Indicator": "배터리 부족 표시",
     "Interface Options": "인터페이스 옵션",
     "Advanced Settings": "고급 설정",
-    "Disabled": "비활성화",
-    "Enabled": "활성화됨",
     "Main Menu": "메인 메뉴",
     "Content Explorer": "콘텐츠 탐색기",
     "Favourites": "즐겨찾기",
@@ -302,8 +280,6 @@
     "Sleep 10m + Shutdown": "슬립 10분 이후 셧다운",
     "Sleep 30m + Shutdown": "슬립 30분 이후 셧다운",
     "Sleep 60m + Shutdown": "슬립 60분 이후 셧다운",
-    "Saving Changes": "변경 저장중",
-    "Save": "저장",
     "GENERAL SETTINGS": "일반 설정"
   },
   "muxvisual": {
@@ -317,10 +293,6 @@
     "Display Title Reformatting": "제목 표시 리포",
     "Menu Counter Folder": "메뉴 카운터 폴더",
     "Menu Counter File": "메뉴 카운터 파일",
-    "Hidden": "숨기기",
-    "Visible": "보이기",
-    "Disabled": "비활성화",
-    "Enabled": "활성화됨",
     "Bottom + Behind": "하단 + 뒤에",
     "Bottom + Front": "하단 + 앞에",
     "Middle + Behind": "가운데 + 뒤에",
@@ -333,8 +305,6 @@
     "Remove [ ]": "[ ] 제거",
     "Remove ( )": "( ) 제거",
     "Remove [ ] and ( )": "[ ] ( ) 모두 제거",
-    "Saving Changes": "변경 저장중",
-    "Save": "저장",
     "INTERFACE OPTIONS": "인터페이스 옵션",
     "Folder Item Count": "폴더 아이템 카운트"
   },
@@ -345,10 +315,6 @@
     "Syncthing": "Syncthing",
     "Resilio": "Resilio",
     "Network Time Sync": "네트워크 시간 동기화",
-    "Disabled": "비활성화",
-    "Enabled": "활성화됨",
-    "Saving Changes": "변경 저장중",
-    "Save": "저장",
     "WEB SERVICES": "웹 서비스"
   }
 }

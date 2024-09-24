@@ -1,8 +1,30 @@
 {
+    "generic": {
+    "Back": "Zpět",
+    "Confirm": "Potvrdit",
+    "Directory": "Adresář",
+    "Disabled": "Zakázáno",
+    "Enabled": "Povoleno",
+    "Extract": "Rozbalit",
+    "False": "Ne",
+    "Hidden": "Skryté",
+    "Individual": "Individuální",
+    "Launch": "Spustit",
+    "Load": "Nahrát",
+    "Next": "Další",
+    "Open": "Otevřít",
+    "Previous": "Předchozí",
+    "Recursive": "Rekurzivní",
+    "Remove": "Odstranit",
+    "Save": "Uložit",
+    "Saving Changes": "Ukládání změn",
+    "Select": "Select",
+    "True": "Ano",
+    "Use": "Použijte",
+    "Visible": "Viditelné"
+  },  
   "muxapp": {
     "Loading Application": "Načítání aplikace",
-    "Launch": "Spustit",
-    "Back": "Zpět",
     "APPLICATIONS": "APLIKACE",
     "No Applications Found": "Nebyly nalezeny žádné aplikace",
     "Archive Manager": "Správce archivu",
@@ -18,18 +40,11 @@
   },
   "muxarchive": {
     "INSTALLED": "NAINSTALOVÁNO",
-    "Extract": "Rozbalit",
-    "Back": "Zpět",
     "ARCHIVE MANAGER": "SPRÁVCE ARCHIVU",
     "No Archives Found": "Nebyly nalezeny žádné archivy"
   },
   "muxassign": {
     "ASSIGN CORE": "PŘIŘADIT JÁDRO",
-    "Confirm": "Potvrdit",
-    "Back": "Zpět",
-    "Directory": "Adresář",
-    "Individual": "Individuální",
-    "Recursive": "Rekurzivní",
     "No Cores Found...": "Nebyla nalezena žádná jádra...",
     "ASSIGN": "PŘIŘADIT"
   },
@@ -38,7 +53,7 @@
     "Capacity": "Kapacita",
     "Voltage": "Napětí",
     "Health": "Zdraví",
-    "Press POWER button to continue booting...": "Press POWER button to continue booting..."
+    "Press POWER button to continue booting...": "Stisknutím tlačítka NAPÁJENÍ pokračujte v bootovaní..."
   },
   "muxconfig": {
     "General Settings": "Nastavení",
@@ -47,28 +62,22 @@
     "Web Services": "Síťové služby",
     "Date and Time": "Datum a čas",
     "Language": "Jazyk",
-    "Confirm": "Potvrdit",
-    "Back": "Zpět",
     "CONFIGURATION": "KONFIGURACE"
   },
   "muxinfo": {
     "Activity Tracker": "Sledování aktivity",
     "Input Tester": "Test ovládání",
     "System Details": "Podrobnosti o systému",
-    "Supporters": "Supporters",
-    "Confirm": "Potvrdit",
-    "Back": "Zpět",
+    "Supporters": "Podporovatelé",
     "INFORMATION": "INFORMACE"
   },
   "muxlanguage": {
     "Saving Language": "Uložení jazyka",
-    "Confirm": "Potvrdit",
-    "Back": "Zpět",
     "LANGUAGES": "JAZYKY",
     "No Languages Found...": "Nebyly nalezeny žádné jazyky..."
   },
   "muxlaunch": {
-    "Explore Content": "Prozkoumat obsah",
+    "Explore Content": "Hry",
     "Favourites": "Oblíbené",
     "History": "Historie",
     "Applications": "Aplikace",
@@ -76,29 +85,23 @@
     "Configuration": "Nastavení",
     "Reboot": "Restart",
     "Shutdown": "Vypnout",
-    "Confirm": "Potvrdit",
     "MAIN MENU": "HLAVNÍ MENU"
   },
   "muxnetprofile": {
     "No Saved Network Profiles Found": "Nebyly nalezeny žádné uložené síťové profily",
-    "Load": "Nahrát",
-    "Back": "Zpět",
     "NETWORK PROFILE": "SÍŤOVÝ PROFIL",
     "Loading Network Profiles...": "Načítání síťových profilů..."
   },
   "muxnetscan": {
     "No Wi-Fi Networks Found": "Nebyly nalezeny žádné sítě Wi-Fi",
-    "Use": "Použijte",
-    "Back": "Zpět",
     "Rescan": "Proskenovat",
-    "NETWORK SCAN": "SÍŤOVÉ SKENOVÁNÍ",
+    "NETWORK SCAN": "SKENOVÁNÍ SÍŤĚ",
     "Scanning for Wi-Fi Networks...": "Vyhledávání sítí Wi-Fi..."
   },
   "muxnetwork": {
     "Network Disabled": "Vypnutá síť",
     "Not Connected": "Nepřipojeno",
     "Connected": "Připojeno",
-    "Enabled": "Povoleno",
     "Identifier": "SSID",
     "Password": "Heslo",
     "Network Type": "Typ sítě",
@@ -111,16 +114,11 @@
     "Changes Saved": "Změny uloženy",
     "DHCP": "DHCP",
     "Static": "Statická ",
-    "False": "Ne",
-    "True": "Ano",
-    "Back": "Zpět",
     "Scan": "Skenovat",
     "Profiles": "Profily",
     "WI-FI NETWORK": "WI-FI SÍŤ"
   },
   "muxpass": {
-    "Confirm": "Potvrdit",
-    "Back": "Zpět",
     "PASSCODE": "HESLO"
   },
   "muxplore": {
@@ -136,12 +134,9 @@
     "Directories cannot be added to Favourites": "Adresáře nelze přidat do oblíbených položek",
     "Added to Favourites": "Přidáno k oblíbeným",
     "Error adding to Favourites": "Chyba při přidávání do oblíbených",
-    "Open": "Otevřít",
-    "Back": "Zpět",
     "Refresh": "Obnovit",
     "Favourite": "Oblíbené",
-    "Info": "Info",
-    "Remove": "Odstranit"
+    "Info": "Info"
   },
   "muxrtc": {
     "Year": "Rok",
@@ -151,8 +146,6 @@
     "Minute": "Minuta",
     "Time Notation": "Formát času",
     "Set Timezone": "Nastavení časového pásma",
-    "Saving Changes": "Ukládání změn",
-    "Save": "Uložit",
     "DATE AND TIME": "DATUM A ČAS"
   },
   "muxstorage": {
@@ -168,8 +161,6 @@
     "SD1": "SD1",
     "SD2": "SD2",
     "AUTO": "AUTO",
-    "Saving Changes": "Ukládání změn",
-    "Save": "Uložit",
     "STORAGE PREFERENCE": "ULOŽIŠTĚ"
   },
   "muxsysinfo": {
@@ -184,32 +175,26 @@
     "Running Services": "Běžící Služby ",
     "Battery Capacity": "Kapacita baterie",
     "Battery Voltage": "Napětí baterie",
-    "Back": "Zpět",
     "SYSTEM DETAILS": "SYSTÉMOVÉ PODROBNOSTI",
-    "Device Type": "Device Type",
-    "Thank you for using muOS!": "Thank you for using muOS!"
+    "Device Type": "Typ zařízení",
+    "Thank you for using muOS!": "Děkujeme, že používáte muOS!"
   },
   "muxtask": {
-    "Launch": "Launch",
-    "Back": "Zpět",
     "TASK TOOLKIT": "SADA NÁSTROJŮ",
     "No Tasks Found": "Nebyly nalezeny žádné úkoly"
   },
   "muxtester": {
     "Press POWER to finish testing": "Stisknutím tlačítka POWER dokončete testování",
     "INPUT TESTER": "TESTER VSTUPU",
-    "Press any button to start input testing!": "Press any button to start input testing!"
+    "Press any button to start input testing!": "Stisknutím libovolného tlačítka zahájíte testování vstupu!"
   },
   "muxtheme": {
     "Loading Theme": "Načítání tématu",
-    "Confirm": "Potvrdit",
-    "Back": "Zpět",
     "THEME PICKER": "VÝBĚR TÉMATU",
     "No Themes Found": "Nebyla nalezena žádná témata"
   },
   "muxtimezone": {
     "Saving Timezone": "Ukládání časového pásma",
-    "Confirm": "Potvrdit",
     "TIMEZONE": "ČASOVÉ PÁSMO",
     "No Timezones Found...": "Nebyla nalezena žádná časová pásma..."
   },
@@ -227,21 +212,16 @@
     "Android Debug Bridge": "Android Debug Bridge",
     "Suspend Power State": "Pozastavit stav napájení",
     "Verbose Messages": "Podrobné zprávy",
-    "Disabled": "Zakázáno",
-    "Enabled": "Povoleno",
     "Noto Sans": "Noto Sans",
     "Theme Controlled": "Řízené Tématem",
-    "Previous": "Předchozí",
     "Quiet": "Klid",
     "Loud": "Hlasitý",
     "Low": "Nízký",
     "High": "Vysoký",
-    "Saving Changes": "Ukládání změn",
-    "Save": "Uložit",
     "ADVANCED SETTINGS": "POKROČILÉ NASTAVENÍ",
-    "Menu Acceleration": "Menu Acceleration",
-    "Language": "Language",
-    "Theme": "Theme",
+    "Menu Acceleration": "Nabídka Akcelerace",
+    "Language": "Jazyk",
+    "Theme": "Téma",
     "Storage Preference": "Předvolba úložiště"
   },
   "muxtweakgen": {
@@ -256,8 +236,6 @@
     "Low Battery Indicator": "Indikátor slabé baterie",
     "Interface Options": "Možnosti rozhraní",
     "Advanced Settings": "Pokročilá nastavení",
-    "Disabled": "Zakázáno",
-    "Enabled": "Povoleno",
     "Main Menu": "Hlavní menu",
     "Content Explorer": "Průzkumník obsahu",
     "Favourites": "Oblíbené",
@@ -302,8 +280,6 @@
     "Sleep 10m + Shutdown": "Spánek 10m + Vypnout",
     "Sleep 30m + Shutdown": "Spánek 30m + Vypnout",
     "Sleep 60m + Shutdown": "Spánek 60m + Vypnout",
-    "Saving Changes": "Ukládání změn",
-    "Save": "Uložit",
     "GENERAL SETTINGS": "HLAVNÍ NASTAVENÍ"
   },
   "muxvisual": {
@@ -317,10 +293,6 @@
     "Display Title Reformatting": "Přeformátování zobrazení titulků",
     "Menu Counter Folder": "Počítadlo Složek",
     "Menu Counter File": "Počítadlo Souborů",
-    "Hidden": "Skryté",
-    "Visible": "Viditelné",
-    "Disabled": "Zakázáno",
-    "Enabled": "Povoleno",
     "Bottom + Behind": "Dole + V pozadí",
     "Bottom + Front": "Dole + Na popředí",
     "Middle + Behind": "Střed + V pozadí",
@@ -333,10 +305,8 @@
     "Remove [ ]": "Odstranit [ ]",
     "Remove ( )": "Odstranit ( )",
     "Remove [ ] and ( )": "Odstranit [ ] a ( )",
-    "Saving Changes": "Ukládání změn",
-    "Save": "Uložit",
-    "INTERFACE OPTIONS": "MOŽNOSTI ROZHRANÍ",
-    "Folder Item Count": "Folder Item Count"
+    "Folder Item Count": "Počet položek ve složce",
+    "INTERFACE OPTIONS": "MOŽNOSTI ROZHRANÍ"
   },
   "muxwebserv": {
     "Secure Shell": "Secure Shell",
@@ -345,10 +315,7 @@
     "Syncthing": "Synchronizace",
     "Resilio": "Resilio",
     "Network Time Sync": "Synchronizace času z Internetu",
-    "Disabled": "Zakázáno",
-    "Enabled": "Povoleno",
-    "Saving Changes": "Ukládání změn",
-    "Save": "Uložit",
     "WEB SERVICES": "SÍŤOVÉ SLUŽBY"
   }
 }
+

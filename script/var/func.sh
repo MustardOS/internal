@@ -14,15 +14,15 @@ FB_SWITCH() {
 		HDMI_IN_USE=0
 	fi
 
-	[ "$HDMI_IN_USE" -eq 0 ] echo 4 >/sys/class/graphics/fb0/blank
-	[ "$HDMI_IN_USE" -eq 0 ] cat /dev/zero >/dev/fb0 2>/dev/null
+	[ "$HDMI_IN_USE" -eq 0 ]; echo 4 >/sys/class/graphics/fb0/blank
+	[ "$HDMI_IN_USE" -eq 0 ]; cat /dev/zero >/dev/fb0 2>/dev/null
 
-	fbset -fb /dev/fb0 -g "$((WIDTH * 2))" "$((HEIGHT * 2))" "$((WIDTH * 2))" "$((HEIGHT * 3))" "${DEPTH}"
+	fbset -fb /dev/fb0 -g 0 0 0 0 "${DEPTH}"
 	sleep 0.25
 	fbset -fb /dev/fb0 -g "${WIDTH}" "${HEIGHT}" "${WIDTH}" "$((HEIGHT * 2))" "${DEPTH}"
 	sleep 0.25
 
-	[ "$HDMI_IN_USE" -eq 0 ] echo 0 >/sys/class/graphics/fb0/blank
+	[ "$HDMI_IN_USE" -eq 0 ]; echo 0 >/sys/class/graphics/fb0/blank
 }
 
 # Writes a setting value to the display driver.

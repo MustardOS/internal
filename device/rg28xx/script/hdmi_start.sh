@@ -2,8 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
-WIDTH="$(GET_VAR "device" "screen/width")"
-HEIGHT="$(GET_VAR "device" "screen/height")"
+WIDTH="$(GET_VAR "device" "screen/height")"
+HEIGHT="$(GET_VAR "device" "screen/width")"
 
 SWITCHED_ON=0
 SWITCHED_OFF=0

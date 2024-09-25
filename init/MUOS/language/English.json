@@ -5,10 +5,12 @@
     "Directory": "Directory",
     "Disabled": "Disabled",
     "Enabled": "Enabled",
+    "External": "External",
     "Extract": "Extract",
     "False": "False",
     "Hidden": "Hidden",
     "Individual": "Individual",
+    "Internal": "Internal",
     "Launch": "Launch",
     "Load": "Load",
     "Next": "Next",
@@ -139,6 +141,8 @@
     "Info": "Info"
   },
   "muxrtc": {
+    "12 Hour": "12 Hour",
+    "24 Hour": "24 Hour",
     "Year": "Year",
     "Month": "Month",
     "Day": "Day",
@@ -158,6 +162,7 @@
     "Screenshots": "Screenshots",
     "Themes": "Themes",
     "Languages": "Languages",
+    "Network Profiles": "Network Profiles",
     "SD1": "SD1",
     "SD2": "SD2",
     "AUTO": "AUTO",
@@ -176,8 +181,7 @@
     "Battery Capacity": "Battery Capacity",
     "Battery Voltage": "Battery Voltage",
     "SYSTEM DETAILS": "SYSTEM DETAILS",
-    "Device Type": "Device Type",
-    "Thank you for using muOS!": "Thank you for using muOS!"
+    "Device Type": "Device Type"
   },
   "muxtask": {
     "TASK TOOLKIT": "TASK TOOLKIT",
@@ -222,6 +226,7 @@
     "Menu Acceleration": "Menu Acceleration",
     "Language": "Language",
     "Theme": "Theme",
+    "HDMI Audio Output": "HDMI Audio Output",
     "Storage Preference": "Storage Preference"
   },
   "muxtweakgen": {

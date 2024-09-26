@@ -53,30 +53,30 @@
   "muxcharge": {
     "Booting System - Please Wait...": "Zavádění systému - čekejte prosím...",
     "Capacity": "Kapacita",
-    "Voltage": "Napětí",
     "Health": "Zdraví",
-    "Press POWER button to continue booting...": "Stisknutím tlačítka NAPÁJENÍ pokračujte v bootovaní..."
+    "Press POWER button to continue booting...": "Stisknutím tlačítka NAPÁJENÍ pokračujte v bootovaní...",
+    "Voltage": "Napětí"
   },
   "muxconfig": {
-    "General Settings": "Nastavení",
-    "Theme Picker": "Výběr motivu",
-    "Wi-Fi Network": "Wi-Fi síť",
-    "Web Services": "Síťové služby",
+    "CONFIGURATION": "KONFIGURACE",
     "Date and Time": "Datum a čas",
+    "General Settings": "Nastavení",
     "Language": "Jazyk",
-    "CONFIGURATION": "KONFIGURACE"
+    "Theme Picker": "Výběr motivu",
+    "Web Services": "Síťové služby",
+    "Wi-Fi Network": "Wi-Fi síť"
   },
   "muxinfo": {
     "Activity Tracker": "Sledování aktivity",
+    "INFORMATION": "INFORMACE",
     "Input Tester": "Test ovládání",
-    "System Details": "Podrobnosti o systému",
     "Supporters": "Podporovatelé",
-    "INFORMATION": "INFORMACE"
+    "System Details": "Podrobnosti o systému"
   },
   "muxlanguage": {
-    "Saving Language": "Uložení jazyka",
     "LANGUAGES": "JAZYKY",
-    "No Languages Found...": "Nebyly nalezeny žádné jazyky..."
+    "No Languages Found...": "Nebyly nalezeny žádné jazyky...",
+    "Saving Language": "Uložení jazyka"
   },
   "muxlaunch": {
     "Applications": "Aplikace",
@@ -208,6 +208,7 @@
     "Android Debug Bridge": "Android Debug Bridge",
     "Battery Offset": "Posunutí baterie",
     "Brightness On Boot": "Jas při spuštění",
+    "Device Rumble": "Vybrace zařízení",
     "HDMI Audio Output": "HDMI audio výstup",    
     "High": "Vysoký",
     "Interface Font Type": "Typ písma rozhraní",
@@ -221,6 +222,12 @@
     "Quiet": "Klid",
     "Random Theme on Boot": "Náhodné téma při spouštění",
     "RetroArch Network Wait": "RetroArch počká na Síť",
+    "Shutdown": "Vypnutí",
+    "Shutdown + Sleep": "Vypnutí + Spánek",
+    "Sleep": "Spánek",
+    "Startup": "Spuštění",    
+    "Startup + Shutdown": "Spuštění + Vypnutí",
+    "Startup + Sleep": "Spuštění + Spánek",
     "Storage Preference": "Předvolba úložiště",
     "Suspend Power State": "Pozastavit stav napájení",
     "Theme Controlled": "Řízené Tématem",

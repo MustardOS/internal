@@ -99,3 +99,10 @@ for INIT in audio battery cpu board input input/code/dpad input/code/analog/left
 			;;
 	esac
 done
+
+if [ "$ACTION" = save ]; then
+	case "$(GET_VAR "global" "settings/advanced/rumble")" in
+		2 | 4 | 6) RUMBLE "$(GET_VAR "device" "board/rumble")" 0.3 ;;
+		*) ;;
+	esac
+fi

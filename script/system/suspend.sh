@@ -14,6 +14,11 @@ SLEEP() {
 		rg40xx*) /opt/muos/device/"$DEV_BOARD"/script/led_control.sh 1 0 0 0 0 0 0 0 ;;
 		*) ;;
 	esac
+
+	case "$(GET_VAR "global" "settings/advanced/rumble")" in
+    	3 | 5 | 6) RUMBLE "$(GET_VAR "device" "board/rumble")" 0.3 ;;
+    	*) ;;
+    esac
 }
 
 RESUME() {

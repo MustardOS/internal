@@ -86,3 +86,9 @@ CRITICAL_FAILURE() {
 	sleep 10
 	/opt/muos/script/system/halt.sh poweroff
 }
+
+RUMBLE() {
+	echo 1 >"$1"
+	sleep "$2"
+	echo 0 >"$1"
+}

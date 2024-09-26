@@ -6,6 +6,11 @@
 /opt/muos/script/var/init/device.sh init
 /opt/muos/script/var/init/global.sh init
 
+case "$(GET_VAR "global" "settings/advanced/rumble")" in
+	1 | 4 | 5) RUMBLE "$(GET_VAR "device" "board/rumble")" 0.3 ;;
+	*) ;;
+esac
+
 DEV_BOARD=$(GET_VAR "device" "board/name")
 
 echo "pipewire" >"$AUDIO_SRC"
@@ -82,6 +87,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 
 	LOGGER "$0" "FACTORY RESET" "Switching off Factory Reset mode"
 	SET_VAR "global" "boot/factory_reset" "0"
+	SET_VAR "global" "settings/advanced/rumble" "0"
 
 	killall -q "input.sh" "mpg123"
 	rm -f "/opt/muos/factory.mp3"

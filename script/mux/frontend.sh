@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_LIBRARY_PATH="/opt/muos/extra:$LD_LIBRARY_PATH"
 
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/mux/close_game.sh
@@ -369,3 +370,4 @@ while true; do
 		esac
 	fi
 done
+unset LD_LIBRARY_PATH

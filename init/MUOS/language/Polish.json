@@ -87,7 +87,7 @@
     "Information": "Informacje",
     "MAIN MENU": "MENU GŁÓWNE",
     "Reboot": "Uruchom ponownie",
-    "Shutdown": "Wyłącz"
+    "Shutdown": "Zamknij"
   },
   "muxnetprofile": {
     "Loading Network Profiles...": "Ładowanie profili sieciowych...",
@@ -208,7 +208,8 @@
     "Android Debug Bridge": "Android Debug Bridge",
     "Battery Offset": "Kompensacja baterii",
     "Brightness On Boot": "Jasność przy uruchomieniu",
-    "HDMI Audio Output": "HDMI Audio Output",
+    "Device Rumble": "Wibracje urządzenia",
+    "HDMI Audio Output": "Wyjście audio HDMI",
     "High": "Wysoka",
     "Interface Font Type": "Typ czcionki interfejsu",
     "LED During Play": "LED podczas gry",
@@ -221,6 +222,12 @@
     "Quiet": "Cicha",
     "Random Theme on Boot": "Losowy motyw przy uruchomieniu",
     "RetroArch Network Wait": "Czekanie na sieć w RetroArch",
+    "Shutdown": "Zamknięcie",
+    "Shutdown + Sleep": "Zamknięcie + Uśpienie",
+    "Sleep": "Uśpienie",
+    "Startup": "Uruchomienie",
+    "Startup + Shutdown": "Uruchomienie + Zamknięcie",
+    "Startup + Sleep": "Uruchomienie + Uśpienie",
     "Storage Preference": "Preferencje przechowywania",
     "Suspend Power State": "Wstrzymanie stanu baterii",
     "Theme": "Motyw",

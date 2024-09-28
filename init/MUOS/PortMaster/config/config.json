@@ -1,15 +1,16 @@
 {
     "change_channel": false,
-    "featured_ports_checked": "2024-06-22T19:33:23.183987",
-    "first-run": false,
+    "disclaimer": false,
+    "featured_ports_checked": "2024-09-27T18:22:15.581369",
+    "first-run": true,
     "music-disabled": true,
-    "porters_checked": "2024-06-22T19:33:25.544173",
+    "porters_checked": "2024-09-27T18:22:17.833802",
     "ports_info_checked": "2024-06-22T19:33:24.425003",
     "release_channel": "stable",
     "sfx-disabled": true,
     "show_experimental": false,
     "theme": "default_theme",
     "theme-scheme": "Dracula",
-    "update_checked": "2024-06-22T19:26:28.834448",
+    "update_checked": "2024-10-24T12:31:41.531003",
     "version": 2
 }

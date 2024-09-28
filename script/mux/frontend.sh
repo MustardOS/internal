@@ -1,6 +1,9 @@
 #!/bin/sh
 
-export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH"
+case ":$LD_LIBRARY_PATH:" in
+  *":/opt/muos/extra/lib:"*) ;;
+  *) export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH" ;;
+esac
 
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/mux/close_game.sh

@@ -58,6 +58,12 @@
                 "name": "Godot/FRT 3.1.2",
                 "size": 10199040,
                 "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-03-01_1113/frt_3.1.2.armhf.squashfs"
+            },
+            "x86_64": {
+                "md5": "da9d64d4c5a5e9163c2fc3a3974224db",
+                "name": "Godot/FRT 3.1.2",
+                "size": 12230656,
+                "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-09-20_1106/frt_3.1.2.x86_64.squashfs"
             }
         },
         "status": "Unknown"
@@ -81,6 +87,12 @@
                 "name": "Godot/FRT 3.2.3",
                 "size": 10956800,
                 "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-03-01_1113/frt_3.2.3.armhf.squashfs"
+            },
+            "x86_64": {
+                "md5": "3a9d600bc605ad38c75efd0e5934890d",
+                "name": "Godot/FRT 3.2.3",
+                "size": 12701696,
+                "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-09-20_1106/frt_3.2.3.x86_64.squashfs"
             }
         },
         "status": "Unknown"
@@ -104,6 +116,12 @@
                 "name": "Godot/FRT 3.3.4",
                 "size": 11202560,
                 "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-03-01_1113/frt_3.3.4.armhf.squashfs"
+            },
+            "x86_64": {
+                "md5": "109082b4d553393bb99723587de6385b",
+                "name": "Godot/FRT 3.3.4",
+                "size": 12992512,
+                "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-09-20_1106/frt_3.3.4.x86_64.squashfs"
             }
         },
         "status": "Unknown"
@@ -127,6 +145,12 @@
                 "name": "Godot/FRT 3.4.5",
                 "size": 11714560,
                 "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-03-01_1113/frt_3.4.5.armhf.squashfs"
+            },
+            "x86_64": {
+                "md5": "81f812c8f4fc71aed11101eaa6a55a10",
+                "name": "Godot/FRT 3.4.5",
+                "size": 13557760,
+                "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-09-20_1106/frt_3.4.5.x86_64.squashfs"
             }
         },
         "status": "Unknown"
@@ -150,6 +174,12 @@
                 "name": "Godot/FRT 3.5.2",
                 "size": 12808192,
                 "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-03-01_1113/frt_3.5.2.armhf.squashfs"
+            },
+            "x86_64": {
+                "md5": "43b70f8f18633b23d8623128e48811e2",
+                "name": "Godot/FRT 3.5.2",
+                "size": 14774272,
+                "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-09-20_1106/frt_3.5.2.x86_64.squashfs"
             }
         },
         "status": "Unknown"
@@ -173,6 +203,12 @@
                 "name": "Godot/FRT 3.5.3",
                 "size": 12804096,
                 "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-03-10_0307/frt_3.5.3.armhf.squashfs"
+            },
+            "x86_64": {
+                "md5": "32b57a28a6129994673d33a74859b1af",
+                "name": "Godot/FRT 3.5.3",
+                "size": 14770176,
+                "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-09-20_1106/frt_3.5.3.x86_64.squashfs"
             }
         },
         "status": "Unknown"
@@ -213,9 +249,9 @@
     },
     "mono-6.12.0.122-aarch64.squashfs": {
         "local": {
-            "arch": null,
-            "md5": null,
-            "status": "Not Installed"
+            "arch": "aarch64",
+            "md5": "dc7145731bf17610c13c07d6e69de550",
+            "status": "Verified"
         },
         "name": "Mono 6.12.0.122",
         "remote": {
@@ -224,6 +260,23 @@
                 "name": "Mono 6.12.0.122",
                 "size": 262057984,
                 "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-02-11_0846/mono-6.12.0.122-aarch64.squashfs"
+            }
+        },
+        "status": "Unknown"
+    },
+    "rlvm.squashfs": {
+        "local": {
+            "arch": "aarch64",
+            "md5": "c9beb62f1ca594cda8bb285d20baa1aa",
+            "status": "Verified"
+        },
+        "name": "Real Live VM",
+        "remote": {
+            "aarch64": {
+                "md5": "c9beb62f1ca594cda8bb285d20baa1aa",
+                "name": "Real Live VM",
+                "size": 10678272,
+                "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-07-21_2233/rlvm.squashfs"
             }
         },
         "status": "Unknown"

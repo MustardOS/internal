@@ -43,6 +43,11 @@ SD1_OPENBOR_SCREENSHOT="/mnt/mmc/MUOS/emulator/openbor/userdata/screenshots/open
 SD1_PICO8="/mnt/mmc/MUOS/pico8/.lexaloffle/pico-8/"
 SD1_PPSSPP_SAVE="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA/"
 SD1_PPSSPP_STATE="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE/"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	SD1_DRASTIC_SAVE="/mnt/mmc/MUOS/emulator/drastic-steward/backup/"
+else
+	SD1_DRASTIC_SAVE="/mnt/mmc/MUOS/emulator/drastic/backup/"
+fi
 
 # Define all target locations
 SD2_BIOS="/mnt/sdcard/MUOS"
@@ -60,6 +65,7 @@ SD2_OPENBOR_SCREENSHOT="/mnt/sdcard/MUOS/screenshot"
 SD2_PICO8="/mnt/sdcard/MUOS/save/pico8"
 SD2_PPSSPP_SAVE="/mnt/sdcard/MUOS/save/file/PPSSPP-Ext"
 SD2_PPSSPP_STATE="/mnt/sdcard/MUOS/save/state/PPSSPP-Ext"
+SD2_DRASTIC_SAVE="/mnt/sdcard/MUOS/save/drastic/backup"
 
 # See if SD2 is mounted.
 # Let's do this early in case it's not here.
@@ -186,6 +192,12 @@ TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_PPSSPP_STATE")))
 echo "Size of PPSSPP State Folder: $(GET_SIZE "$$SD1_PPSSPP_STATE") MB"
 if [ $CURRENT_VER = "PREBANANA" ]; then
 	echo -e ""Size of PPSSPP State Folder: $(GET_SIZE "$SD1_PPSSPP_STATE") MB"\n" >/tmp/muxlog_info
+fi
+
+TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_DRASTIC_SAVE")))
+echo "Size of DraStic Save Folder: $(GET_SIZE "$$SD1_PPSSPP_SAVE") MB"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e ""Size of DraStic Save Folder: $(GET_SIZE "$SD1_DRASTIC_SAVE") MB"\n" >/tmp/muxlog_info
 fi
 
 # Loop through SD1_CONTENT directories
@@ -362,6 +374,13 @@ fi
 sleep 1
 rsync $RSYNC_OPTS "$SD1_PPSSPP_SAVE" "$SD2_PPSSPP_SAVE"
 rsync $RSYNC_OPTS "$SD1_PPSSPP_STATE" "$SD2_PPSSPP_STATE"
+
+echo -e "\nCopying DraStic Saves to SD Card 2"
+if [ $CURRENT_VER = "PREBANANA" ]; then
+	echo -e "Copying DraStic Saves to SD Card 2\n" >/tmp/muxlog_info
+fi
+sleep 1
+rsync $RSYNC_OPTS "$SD1_DRASTIC_SAVE" "$SD2_DRASTIC_SAVE"
 
 # Set muOS Storage Pref to AUTO
 # Using AUTO instead of SD2 ensures it keeps working if they remove SD2

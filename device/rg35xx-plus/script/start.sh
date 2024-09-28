@@ -50,3 +50,4 @@ echo on >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
 echo always_on >/sys/devices/platform/gpu/power_policy &
 
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/input/input.sh &
+/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/idle.sh &

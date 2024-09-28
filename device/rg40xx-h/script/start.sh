@@ -53,3 +53,4 @@ echo always_on >/sys/devices/platform/gpu/power_policy &
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/script/spk.sh &
 
 /opt/muos/device/"$(GET_VAR "device" "board/name")"/input/input.sh &
+/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/idle.sh &

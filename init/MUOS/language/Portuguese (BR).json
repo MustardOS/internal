@@ -46,37 +46,37 @@
     "No Archives Found": "Nenhum Arquivo de Instalação Encontrado"
   },
   "muxassign": {
-    "ASSIGN": "ASSOCIAR"
+    "ASSIGN": "ASSOCIAR",
     "ASSIGN CORE": "ASSOCIAR NÚCLEO",
-    "No Cores Found...": "Nenhum Núcleo Encontrado...",
+    "No Cores Found...": "Nenhum Núcleo Encontrado..."
   },
   "muxcharge": {
     "Booting System - Please Wait...": "Iniciando Sistema - Por Favor Aguarde...",
     "Capacity": "Capacidade",
     "Health": "Saúde",
     "Press POWER button to continue booting...": "Pressione o botão POWER(Ligar) para iniciar o sistema...",
-    "Voltage": "Voltagem",
+    "Voltage": "Voltagem"
   },
   "muxconfig": {
-    "CONFIGURATION": "CONFIGURAÇÕES"
+    "CONFIGURATION": "CONFIGURAÇÕES",
     "Date and Time": "Data e Hora",
     "General Settings": "Configurações Gerais",
     "Language": "Idioma",
     "Theme Picker": "Selecionar Tema",
     "Web Services": "Serviços Web",
-    "Wi-Fi Network": "Rede Wi-Fi",
+    "Wi-Fi Network": "Rede Wi-Fi"
   },
   "muxinfo": {
     "Activity Tracker": "Registro de Atividade",
-    "INFORMATION": "INFORMAÇÕES"
+    "INFORMATION": "INFORMAÇÕES",
     "Input Tester": "Teste de Botões",
     "Supporters": "Apoiadores",
-    "System Details": "Detalhes do Sistema",
+    "System Details": "Detalhes do Sistema"
   },
   "muxlanguage": {
     "LANGUAGES": "IDIOMAS",
-    "No Languages Found...": "Nenhum Idioma Encontrado..."
-    "Saving Language": "Salvando Idioma",
+    "No Languages Found...": "Nenhum Idioma Encontrado...",
+    "Saving Language": "Salvando Idioma"
   },
   "muxlaunch": {
     "Applications": "Aplicativos",
@@ -85,14 +85,14 @@
     "Favourites": "Favoritos",
     "History": "Histórico",
     "Information": "Informações",
-    "MAIN MENU": "MENU PRINCIPAL"
+    "MAIN MENU": "MENU PRINCIPAL",
     "Reboot": "Reiniciar",
-    "Shutdown": "Desligar",
+    "Shutdown": "Desligar"
   },
   "muxnetprofile": {
-    "Loading Network Profiles...": "Carregando Perfis de Rede..."
+    "Loading Network Profiles...": "Carregando Perfis de Rede...",
     "NETWORK PROFILE": "PERFIL DE REDE",
-    "No Saved Network Profiles Found": "Nenhum Perfil de Rede Salvo",
+    "No Saved Network Profiles Found": "Nenhum Perfil de Rede Salvo"
   },
   "muxnetscan": {
     "NETWORK SCAN": "PROCURAR REDE",
@@ -118,11 +118,11 @@
     "Static": "Estático",
     "Status": "Status",
     "Subnet CIDR": "Subnet CIDR",
-    "WI-FI NETWORK": "REDE WI-FI"
+    "WI-FI NETWORK": "REDE WI-FI",
     "Cannot modify while connected!": "Não é possível modificar enquanto conectado!",
     "Encrypting Password...": "Criptografando senha...",
     "Please check network settings": "Por favor confira as opções de rede",
-    "Trying to Connect...": "Tentativa de conexão...",
+    "Trying to Connect...": "Tentativa de conexão..."
   },
   "muxpass": {
     "PASSCODE": "SENHA"
@@ -142,12 +142,12 @@
     "HISTORY": "HISTÓRICO",
     "Info": "Informação",
     "Loading...": "Carregando...",
-    "Refresh": "Atualizar",
+    "Refresh": "Atualizar"
   },
   "muxrtc": {
     "12 Hour": "12 Horas",
     "24 Hour": "24 Horas",
-    "DATE AND TIME": "DATA E HORA"
+    "DATE AND TIME": "DATA E HORA",
     "Day": "Dia",
     "Hour": "Hora",
     "Minute": "Minuto",
@@ -167,10 +167,10 @@
     "RetroArch Configs": "Configurações do RetroArch",
     "SD1": "SD1",
     "SD2": "SD2",
-    "STORAGE PREFERENCE": "PREFERÊNCIAS DE ARMAZENAMENTO"
+    "STORAGE PREFERENCE": "PREFERÊNCIAS DE ARMAZENAMENTO",
     "Save Games + Save States": "Save de Jogos + Save States",
     "Screenshots": "Capturas de Tela",
-    "Themes": "Temas",
+    "Themes": "Temas"
   },
   "muxsysinfo": {
     "Battery Capacity": "Capacidade da Bateria",
@@ -185,11 +185,11 @@
     "SYSTEM DETAILS": "DETALHES DO SISTEMA",
     "System Uptime": "Tempo de Atividade do Sistema",
     "Temperature": "Temperatura",
-    "muOS Version": "Versão do muOS",
+    "muOS Version": "Versão do muOS"
   },
   "muxtask": {
-    "No Tasks Found": "Nenhuma Tarefa Encontrada"
-    "TASK TOOLKIT": "FERRAMENTAS DE TAREFAS",
+    "No Tasks Found": "Nenhuma Tarefa Encontrada",
+    "TASK TOOLKIT": "FERRAMENTAS DE TAREFAS"
   },
   "muxtester": {
     "INPUT TESTER": "TESTE DE BOTÕES",
@@ -198,13 +198,13 @@
   },
   "muxtheme": {
     "Loading Theme": "Carregando Tema",
-    "No Themes Found": "Nenhum Tema Encontrado"
-    "THEME PICKER": "SELECIONAR TEMA",
+    "No Themes Found": "Nenhum Tema Encontrado",
+    "THEME PICKER": "SELECIONAR TEMA"
   },
   "muxtimezone": {
-    "No Timezones Found...": "Nenhum Fuso Horário Encontrado..."
+    "No Timezones Found...": "Nenhum Fuso Horário Encontrado...",
     "Saving Timezone": "Salvando Fuso Horário",
-    "TIMEZONE": "FUSO HORÁRIO",
+    "TIMEZONE": "FUSO HORÁRIO"
   },
   "muxtweakadv": {
     "A+B Button Swap": "Inverter Botões A e B",
@@ -232,14 +232,14 @@
     "Startup": "Inicializar",
     "Startup + Shutdown": "Inicializar + Desligar",
     "Startup + Sleep": "Inicializar + Suspender",
-    "Storage Preference": "Opções de Armazenamento"
+    "Storage Preference": "Opções de Armazenamento",
     "Suspend Power State": "Tipo do Estado de Suspensão",
     "Theme": "Tema",
     "Theme Controlled": "Controlado Pelo Tema",
     "Thermal Zone Control": "Controle de Zona Térmica",
     "USB Function": "Função USB",
     "Verbose Messages": "Modo Detalhado(Verbose)",
-    "Volume On Boot": "Volume ao Ligar",
+    "Volume On Boot": "Volume ao Ligar"
   },
   "muxtweakgen": {
     "1080i + 50hz": "1080i + 50hz",
@@ -270,7 +270,7 @@
     "Favourites": "Favoritos",
     "Frostbite Blue (-64)": "Azul Gelado (-64)",
     "Frosty Breeze (-192)": "Brisa Congelante (-192)",
-    "GENERAL SETTINGS": "CONFIGURAÇÕES GERAIS"
+    "GENERAL SETTINGS": "CONFIGURAÇÕES GERAIS",
     "HDMI Output": "Saída HDMI",
     "History": "Histórico",
     "Icy Chill (-224)": "Calafrio Gelado (-224)",
@@ -307,7 +307,7 @@
     "5m": "5m",
     "60s": "60s",
     "Idle Input Display Timeout": "Tempo de Espera para Desligar a Tela",
-    "Idle Input Sleep Timeout": "Tempo de Espera para Suspender",
+    "Idle Input Sleep Timeout": "Tempo de Espera para Suspender"
   },
   "muxvisual": {
     "Background Animation": "Animações de Plano de Fundo",
@@ -320,7 +320,7 @@
     "Content Dash Replacement": "Substituir Traço no Conteúdo",
     "Content Name Scheme": "Esquema de Nome do Conteúdo",
     "Display Title Reformatting": "Display Title Reformatting",
-    "Folder Item Count": "Folder Item Count"
+    "Folder Item Count": "Folder Item Count",
     "Friendly Folder Names": "Nomes de Pasta Amigáveis",
     "Full Name": "Nome Completo",
     "Fullscreen + Behind": "Tela Cheia + Ao Fundo",
@@ -335,7 +335,7 @@
     "Remove [ ] and ( )": "Remover [ ] e ( )",
     "Remove [ ]": "Remover [ ]",
     "Top + Behind": "Acima + Ao Fundo",
-    "Top + Front": "Acima + À Frente",
+    "Top + Front": "Acima + À Frente"
   },
   "muxwebserv": {
     "Network Time Sync": "Sincronia de Data e Hora por Rede",

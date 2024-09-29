@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ## -- BEGIN PORTMASTER INFO --
-PORTMASTER_VERSION = '2024.05.14-1028'
+PORTMASTER_VERSION = '2024.07.17-1125'
 PORTMASTER_RELEASE_CHANNEL = 'stable'
 ## -- END PORTMASTER INFO --
 
@@ -141,12 +141,21 @@ ALL_LANGUAGES = {
     "pt_PT": _("Portuguese (Portugal)"),
     "pt_BR": _("Portuguese (Brazil)"),
     "ru_RU": _("Russian"),
+    "sv_SE": _("Swedish"),
     "uk_UA": _("Ukrainian"),
     "zh_CN": _("Chinese Simplified"),
     }
 
 
 def check_lang(lang):
+    """
+    Check if `LANG_DIR / lang / "LC_MESSAGES"` exists
+
+    We simplify the language by removing any encoding eg: `en_AU.utf8` to `en_AU`
+    We then simplify the language by removing any sub-language: `en_AU` to `en`
+
+    We then check all languages on the list of languages.
+    """
     if lang is None:
         return None
 
@@ -555,6 +564,7 @@ class PortMasterGUI(pySDL2gui.GUI, harbourmaster.Callback):
                 # 'ogs'
                 # 'ogu'
                 # 'x55'
+                # 'ace'
                 )
 
             if not pretend_device:
@@ -580,6 +590,7 @@ class PortMasterGUI(pySDL2gui.GUI, harbourmaster.Callback):
         capabilities['capabilities'].append(CURRENT_LANG)
 
         logger.info(capabilities)
+        print(capabilities)
 
         # Create the window
         if harbourmaster.HM_TESTING:
@@ -628,7 +639,7 @@ class PortMasterGUI(pySDL2gui.GUI, harbourmaster.Callback):
                 ]
         else:
             self.scenes = [
-                ('root', [MainMenuScene(self)]),
+                ('root', [TempMenuScene(self)]),
                 ]
 
         self.callback_messages = []
@@ -690,10 +701,24 @@ class PortMasterGUI(pySDL2gui.GUI, harbourmaster.Callback):
 
         return cfg_data
 
+    def save_config(self, cfg_data):
+        cfg_dir = harbourmaster.HM_TOOLS_DIR / "PortMaster"
+        cfg_file = cfg_dir / "config" / "config.json"
+
+        if self.hm is None:
+            with open(cfg_file, 'w') as fh:
+                json.dump(cfg_data, fh, indent=4)
+
+        else:
+            self.hm.save_config()
+
     ## Loop stuff.
     def run(self):
-        if self.hm is not None and self.hm.platform.WANT_XBOX_FIX:
-            self.events.fix_xbox_mode()
+        if self.hm is not None:
+            if self.hm.platform.WANT_XBOX_FIX:
+                self.events.fix_xbox_mode()
+
+            self.SWAP_BUTTONS = self.hm.platform.WANT_SWAP_BUTTONS
 
         try:
             while True:
@@ -1859,6 +1884,8 @@ def portmaster_check_update(pm, config, temp_dir):
             pm.hm = HarbourMaster(config, temp_dir=temp_dir, callback=pm)
             if pm.hm.platform.WANT_XBOX_FIX:
                 pm.events.fix_xbox_mode()
+
+            pm.SWAP_BUTTONS = pm.hm.platform.WANT_SWAP_BUTTONS
 
             if pm.message_box(update_reason, want_cancel=True):
                 pm.do_install(

@@ -19,7 +19,7 @@
 #
 # usage `source <path_to>/device_info.txt`
 
-DEVICE_INFO_VERSION="0.1.8"
+DEVICE_INFO_VERSION="0.1.9"
 
 if [ -z "$controlfolder" ]; then
     SCRIPT_DIR="$(dirname "$0")"
@@ -48,10 +48,12 @@ if [ -f "/usr/share/plymouth/themes/text.plymouth" ]; then
 
     elif [[ $CFW_FFS == *"arkos"* ]]; then
         CFW_NAME=$(echo "${CFW_INFO}" | sed -n 's/title=\(.*\) (\([0-9]\{8\}\))/\1/p' | cut -d' ' -f 1)
-        CFW_VERSION=$(echo "${CFW_INFO}" | sed -n 's/title=\(.*\) (\([0-9]\{8\}\))/\2/p' | cut -d' ' -f 1)
+        CFW_VERSION=$(echo "${CFW_INFO}" | sed -n 's/title=\(.*\) (\([0-9]\{8\}\)).*$/\2/p' | cut -d' ' -f 1)
 
         if [[ $CFW_FFS == *"wummle"* ]]; then
             CFW_NAME="${CFW_NAME} wuMMLe"
+        elif [[ $CFW_FFS == *"aeux"* ]]; then
+            CFW_NAME="${CFW_NAME} AeUX"
         fi
     fi
 
@@ -69,6 +71,12 @@ elif [ -f "/opt/muos/config/version.txt" ]; then
 elif [ -e "$(which batocera-version)" ]; then
     CFW_NAME="Batocera"
     CFW_VERSION="$(batocera-version | cut -d' ' -f 1)"
+
+    TMP_NAME=$(grep -a '^OS_NAME=".*"' /etc/os-release | cut -d'"' -f 2)
+    if [ ! -z "$TMP_NAME" ]; then
+        CFW_NAME="$TMP_NAME"
+    fi
+    unset TMP_NAME
 elif [ -d "/usr/trimui" ]; then
     # TrimUI Smart Pro
     CFW_NAME="TrimUI"
@@ -261,9 +269,16 @@ case "$(echo "$DEVICE_NAME" | tr '[:upper:]' '[:lower:]')" in
 
     "sun50iw9")
         if [ -f "/opt/muos/config/device.txt" ]; then
-            if [ "$(cat /opt/muos/config/device.txt)" == "RG35XX-PLUS" ]; then
+            if [[ "$(cat /opt/muos/config/device.txt)" == "RG35XX-PLUS" ]]; then
                 ANALOG_STICKS=0
                 DEVICE_NAME="RG35XX PLUS"
+            elif [[ "$(cat /opt/muos/config/device.txt)" == "RG35XX-SP" ]]; then
+                ANALOG_STICKS=0
+                DEVICE_NAME="RG35XX SP"
+            elif [[ "$(cat /opt/muos/config/device.txt)" == "RG28XX" ]]; then
+                ANALOG_STICKS=0
+                DEVICE_NAME="RG28XX"
+                DISPLAY_ORIENTATION=1
             else
                 DEVICE_NAME="RG35XX H"
             fi

@@ -13,6 +13,13 @@ killall -q "evtest"
 KEY_COMBO=0
 RESUME_UPTIME="$(UPTIME)"
 
+# Idle timer setup
+LEFT_BL=$(DISPLAY_READ lcd0 getbl)
+IDLE_DISPLAY_TIMEOUT=/tmp/idle_display_timeout
+IDLE_SLEEP_TIMEOUT=/tmp/idle_sleep_timeout
+printf "%s" "$(GET_VAR "global" "settings/general/idle_display")" >"$IDLE_DISPLAY_TIMEOUT"
+printf "%s" "$(GET_VAR "global" "settings/general/idle_sleep")" >"$IDLE_SLEEP_TIMEOUT"
+
 HALL="/sys/class/power_supply/axp2202-battery/hallkey"
 DPAD="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 
@@ -38,6 +45,14 @@ fi
 	evtest "$(GET_VAR "device" "input/ev1")" &
 	wait
 } | while read -r EVENT; do
+
+	# Idle timer function
+	if [ "$(cat "$IDLE_DISPLAY_TIMEOUT")" -eq 0 ]; then
+		DISPLAY_WRITE lcd0 setbl "$LEFT_BL"
+	fi
+	LEFT_BL=$(DISPLAY_READ lcd0 getbl)
+	printf "%s" "$(GET_VAR "global" "settings/general/idle_display")" >"$IDLE_DISPLAY_TIMEOUT"
+	printf "%s" "$(GET_VAR "global" "settings/general/idle_sleep")" >"$IDLE_SLEEP_TIMEOUT"
 
 	if [ $KEY_COMBO -eq 0 ]; then
 		case $STATE_START in

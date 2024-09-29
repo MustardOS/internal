@@ -3,17 +3,20 @@
     "api": "PortMasterV3",
     "name": "PortMaster Multiverse",
     "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/latest/download/ports.json",
-    "last_checked": "2024-06-22T19:33:46.863928",
+    "last_checked": "2024-09-27T18:22:41.297057",
     "version": 2,
     "data": {
         "ports": [
             "gta3.zip",
             "gtavc.zip",
             "loderunneronline.zip",
+            "pocketcrystalleague.zip",
+            "render96ex.zip",
             "soh.zip",
             "soh2.zip",
             "smworld.zip",
             "sm.zip",
+            "thextech.zip",
             "wipeout.zip",
             "zelda3.zip"
         ],
@@ -39,17 +42,29 @@
                 "md5": "641922a587d52ee1c169e8bf9525fae2",
                 "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-04-09_1309/loderunneronline.zip"
             },
+            "pocketcrystalleague.zip": {
+                "name": "pocketcrystalleague.zip",
+                "size": 22236749,
+                "md5": "8dbd959e140f310ba5e4b69df8b19306",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-07_0119/pocketcrystalleague.zip"
+            },
+            "render96ex.zip": {
+                "name": "render96ex.zip",
+                "size": 145147383,
+                "md5": "86b06b0abd214bc513cc3bb68abbf427",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-08-18_0624/render96ex.zip"
+            },
             "soh.zip": {
                 "name": "soh.zip",
-                "size": 19776367,
-                "md5": "732558c6abc68ace39f30ad8dfe7a4ff",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-06-06_1510/soh.zip"
+                "size": 25569486,
+                "md5": "25d1bfdbb32e125197734271cff17e83",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-26_1427/soh.zip"
             },
             "soh2.zip": {
                 "name": "soh2.zip",
-                "size": 14651833,
-                "md5": "c2d8b14bdc11c396d8f5ba21ada6846e",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-06-10_1032/soh2.zip"
+                "size": 21170942,
+                "md5": "4612c183685ed8bf87c379aed179e72a",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-26_1427/soh2.zip"
             },
             "smworld.zip": {
                 "name": "smworld.zip",
@@ -62,6 +77,12 @@
                 "size": 1992726,
                 "md5": "126446e019c6473352e5b85f39d600eb",
                 "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-04-09_1309/sm.zip"
+            },
+            "thextech.zip": {
+                "name": "thextech.zip",
+                "size": 4109591,
+                "md5": "ee488ed4b59c17132ea81d6fb8355e02",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-21_1909/thextech.zip"
             },
             "wipeout.zip": {
                 "name": "wipeout.zip",
@@ -77,15 +98,15 @@
             },
             "gameinfo.zip": {
                 "name": "gameinfo.zip",
-                "size": 2900234,
-                "md5": "bfa5554a7651c64442d69dfb3b977d41",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-06-10_1032/gameinfo.zip"
+                "size": 3210403,
+                "md5": "d512dfde27ce47cdce28572e743a9d8b",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-25_0915/gameinfo.zip"
             },
             "images.zip": {
                 "name": "images.zip",
-                "size": 1444043,
-                "md5": "822210609b649e44e18ada278042dd54",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-06-10_1032/images.zip"
+                "size": 1663242,
+                "md5": "208d78b5e39ea7a379bb89da203aeab7",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-26_1427/images.zip"
             }
         },
         "info": {
@@ -216,6 +237,98 @@
                     "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-04-09_1309/loderunneronline.zip"
                 }
             },
+            "pocketcrystalleague.zip": {
+                "version": 3,
+                "name": "pocketcrystalleague.zip",
+                "items": [
+                    "Pocket Crystal League.sh",
+                    "pocketcrystalleague"
+                ],
+                "items_opt": null,
+                "attr": {
+                    "title": "Pocket Crystal League",
+                    "porter": [
+                        "Jeod"
+                    ],
+                    "desc": "Pocket Crystal League (PCL) is a Poke-card game, although completely different to the Official TCG. The gameplay mechanics were partially inspired by Inscryption, being pretty straightforward and easy to learn.",
+                    "desc_md": null,
+                    "inst": "Game is ready to run!",
+                    "inst_md": null,
+                    "genres": [
+                        "casino/card"
+                    ],
+                    "image": {
+                        "screenshot": "screenshot.png",
+                        "covers": [
+                            "cover.png"
+                        ],
+                        "thumbnail": null,
+                        "video": null
+                    },
+                    "rtr": true,
+                    "exp": false,
+                    "runtime": null,
+                    "reqs": [],
+                    "arch": [
+                        "aarch64"
+                    ]
+                },
+                "source": {
+                    "date_added": "2024-08-18",
+                    "date_updated": "2024-09-07",
+                    "md5": "8dbd959e140f310ba5e4b69df8b19306",
+                    "release_id": "2024-09-07_0119",
+                    "size": 22236749,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-07_0119/pocketcrystalleague.zip"
+                }
+            },
+            "render96ex.zip": {
+                "version": 3,
+                "name": "render96ex.zip",
+                "items": [
+                    "render96ex.sh",
+                    "render96ex"
+                ],
+                "items_opt": null,
+                "attr": {
+                    "title": "Render96ex",
+                    "porter": [
+                        "kotzebuedog"
+                    ],
+                    "desc": "Super Mario 64 is the first Super Mario game to feature 3D. Discover the precursor to Mario Odyssey in this boosted version with the support of enhanced 3d models, HD textures, HQ musics and sounds, 60 fps.",
+                    "desc_md": null,
+                    "inst": "Super Mario 64 rom must be present in the render96ex folder during first launch to install the assets.",
+                    "inst_md": null,
+                    "genres": [
+                        "platformer"
+                    ],
+                    "image": {
+                        "screenshot": "screenshot.png",
+                        "covers": [
+                            "cover.png"
+                        ],
+                        "thumbnail": null,
+                        "video": null
+                    },
+                    "rtr": false,
+                    "exp": false,
+                    "runtime": null,
+                    "reqs": [
+                        "!lowres"
+                    ],
+                    "arch": [
+                        "aarch64"
+                    ]
+                },
+                "source": {
+                    "date_added": "2024-07-01",
+                    "date_updated": "2024-07-18",
+                    "md5": "86b06b0abd214bc513cc3bb68abbf427",
+                    "release_id": "2024-08-18_0624",
+                    "size": 145147383,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-08-18_0624/render96ex.zip"
+                }
+            },
             "soh.zip": {
                 "version": 2,
                 "name": "soh.zip",
@@ -238,7 +351,7 @@
                     "image": {
                         "screenshot": "screenshot.png",
                         "covers": [
-                            "cover.jpg"
+                            "cover.png"
                         ],
                         "thumbnail": null,
                         "video": null
@@ -253,11 +366,11 @@
                 },
                 "source": {
                     "date_added": "2024-04-10",
-                    "date_updated": "2024-06-06",
-                    "md5": "732558c6abc68ace39f30ad8dfe7a4ff",
-                    "release_id": "2024-06-06_1510",
-                    "size": 19776367,
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-06-06_1510/soh.zip"
+                    "date_updated": "2024-09-26",
+                    "md5": "25d1bfdbb32e125197734271cff17e83",
+                    "release_id": "2024-09-26_1427",
+                    "size": 25569486,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-26_1427/soh.zip"
                 }
             },
             "soh2.zip": {
@@ -282,7 +395,7 @@
                     "image": {
                         "screenshot": "screenshot.png",
                         "covers": [
-                            "cover.jpg"
+                            "cover.png"
                         ],
                         "thumbnail": null,
                         "video": null
@@ -297,11 +410,11 @@
                 },
                 "source": {
                     "date_added": "2024-06-10",
-                    "date_updated": "2024-06-10",
-                    "md5": "c2d8b14bdc11c396d8f5ba21ada6846e",
-                    "size": 14651833,
-                    "release_id": "2024-06-10_1032",
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-06-10_1032/soh2.zip"
+                    "date_updated": "2024-09-26",
+                    "md5": "4612c183685ed8bf87c379aed179e72a",
+                    "release_id": "2024-09-26_1427",
+                    "size": 21170942,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-26_1427/soh2.zip"
                 }
             },
             "smworld.zip": {
@@ -391,6 +504,49 @@
                     "release_id": "2024-04-09_1309",
                     "size": 1992726,
                     "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-04-09_1309/sm.zip"
+                }
+            },
+            "thextech.zip": {
+                "version": 3,
+                "name": "thextech.zip",
+                "items": [
+                    "TheXtech.sh",
+                    "thextech"
+                ],
+                "items_opt": null,
+                "attr": {
+                    "title": "TheXTech",
+                    "porter": [
+                        "ddrsoul"
+                    ],
+                    "desc": "This is a direct continuation of the SMBX 1.3 engine. Add assets, worlds and play Mario-style games with built-in world editor and many other features!",
+                    "desc_md": null,
+                    "inst": "Download assets from https://github.com/TheXTech/TheXTech and unpack them to ./thextech/assets/<asset_pack_name>.\nCheck README for more details!",
+                    "inst_md": null,
+                    "genres": [
+                        "platformer"
+                    ],
+                    "image": {
+                        "screenshot": "screenshot.png",
+                        "covers": [],
+                        "thumbnail": null,
+                        "video": null
+                    },
+                    "rtr": false,
+                    "exp": false,
+                    "runtime": null,
+                    "reqs": [],
+                    "arch": [
+                        "aarch64"
+                    ]
+                },
+                "source": {
+                    "date_added": "2024-09-08",
+                    "date_updated": "2024-09-21",
+                    "md5": "ee488ed4b59c17132ea81d6fb8355e02",
+                    "release_id": "2024-09-21_1909",
+                    "size": 4109591,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-21_1909/thextech.zip"
                 }
             },
             "wipeout.zip": {

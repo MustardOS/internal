@@ -177,14 +177,14 @@
     "webpage": "https://github.com/JeodC",
     "image": "https://i.imgur.com/MO9EwXN.png"
   },
-   "wesam": {
+  "wesam": {
     "name": "wesam",
     "social": "https://www.instagram.com/wesamdev/",
     "support": "",
     "webpage": "https://wesam.site",
     "image": "https://i.imgur.com/NakfHv4.jpeg"
   },
-   "Fraxinus88": {
+  "Fraxinus88": {
     "name": "Fraxinus88",
     "social": "",
     "support": "",
@@ -212,28 +212,28 @@
     "webpage": "https://github.com/JanTrueno",
     "image": ""
   },
-   "Troidem": {
+  "Troidem": {
     "name": "Troidem",
     "social": "",
     "support": "",
     "webpage": "",
     "image": ""
   },
-   "Consumerism": {
+  "Consumerism": {
     "name": "Consumerism",
     "social": "",
     "support": "",
     "webpage": "",
     "image": ""
   },
-   "MegaStriker": {
+  "MegaStriker": {
     "name": "MegaStriker",
     "social": "",
     "support": "",
     "webpage": "",
     "image": ""
   },
-   "Pridetoons": {
+  "Pridetoons": {
     "name": "Pridetoons",
     "social": "",
     "support": "",
@@ -253,5 +253,33 @@
     "support": "https://ko-fi.com/fexofenadine",
     "webpage": "https://github.com/fexofenadine",
     "image": "https://avatars.githubusercontent.com/u/13533014"
+  },
+  "Damian2809": {
+    "name": "Damian2809",
+    "social": "",
+    "support": "",
+    "webpage": "https://github.com/Damian2809",
+    "image": ""
+  },
+  "Zehmaluco": {
+    "name": "Zehmaluco",
+    "social": "https://www.behance.net/ohzemesmo",
+    "support": "",
+    "webpage": "https://github.com/zehmaluco",
+    "image": ""
+  },
+  "Black_Hand": {
+    "name": "Black_Hand",
+    "social": "",
+    "support": "",
+    "webpage": "https://github.com/Blackerererer",
+    "image": ""
+  },
+   "nate_____": {
+    "name": "nate_____",
+    "social": "",
+    "support": "",
+    "webpage": "https://github.com/EzDzzIt",
+    "image": ""
   }
 }

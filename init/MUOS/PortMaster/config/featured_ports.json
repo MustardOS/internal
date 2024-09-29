@@ -4,6 +4,10 @@
         "image": "images/banger-ports.jpg",
         "description": "Ports which are ready to run and are absolute bangers.",
         "ports": [
+            "stargrovescramble.zip",
+            "globeba.zip",
+            "curseofthearrow.zip",
+            "mire.zip",
             "rota.zip",
             "echo_chamber.zip",
             "help.no.brake.zip"

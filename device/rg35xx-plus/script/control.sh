@@ -8,7 +8,7 @@ LOG_DATE="$(date +'[%Y-%m-%d]')"
 # Move control.ini for ppsspp standalone
 CONTROL_INI="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SYSTEM/controls.ini"
 if [ ! -f "$CONTROL_INI" ]; then
-	cp "$DEVICE_CONTROL_DIR/controls.ini" "$CONTROL_INI"
+	cp "$DEVICE_CONTROL_DIR/ppsspp_controls.ini" "$CONTROL_INI"
 fi
 
 # Move mupen64plus-rice.cfg for external mupen64plus

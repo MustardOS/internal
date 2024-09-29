@@ -8,7 +8,6 @@ HEIGHT="$(GET_VAR "device" "screen/height")"
 SWITCHED_ON=0
 SWITCHED_OFF=0
 
-IN_USE=/tmp/hdmi_in_use
 HAS_PLUGGED=/tmp/hdmi_has_plugged
 DO_REFRESH=/tmp/hdmi_do_refresh
 
@@ -25,13 +24,13 @@ while true; do
 		SWITCHED_OFF=0
 
 		if [ $SWITCHED_ON -eq 0 ]; then
-			echo "1" >$IN_USE
-
-			# Switch on HDMI
 			DISPLAY_WRITE disp0 switch "4 $(GET_VAR "global" "settings/general/hdmi") 0 0 0x4 0x201 0 1 0 8"
 
-			# Reset the display
-			FB_SWITCH "$WIDTH" "$HEIGHT" 32
+			FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
+			case "$FG_PROC_VAL" in
+				mux*) FB_SWITCH "$WIDTH" "$HEIGHT" 32 ;;
+				*) ;;
+			esac
 
 			SWITCHED_ON=1
 			echo "1" >$DO_REFRESH
@@ -44,13 +43,13 @@ while true; do
 			SWITCHED_ON=0
 
 			if [ $SWITCHED_OFF -eq 0 ]; then
-				echo "0" >$IN_USE
-
-				# Switch off HDMI
 				DISPLAY_WRITE disp0 switch "1 0"
 
-				# Reset the display
-				FB_SWITCH "$WIDTH" "$HEIGHT" 32
+				FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
+				case "$FG_PROC_VAL" in
+					mux*) FB_SWITCH "$WIDTH" "$HEIGHT" 32 ;;
+					*) ;;
+				esac
 
 				SWITCHED_OFF=1
 				echo "1" >$DO_REFRESH

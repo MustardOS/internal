@@ -1,5 +1,10 @@
 #!/bin/sh
 
+case ":$LD_LIBRARY_PATH:" in
+  *":/opt/muos/extra/lib:"*) ;;
+  *) export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH" ;;
+esac
+
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/mux/close_game.sh
 
@@ -35,7 +40,11 @@ EX_CARD=/tmp/explore_card
 MUX_RELOAD=/tmp/mux_reload
 MUX_AUTH=/tmp/mux_auth
 
-GET_VAR "global" "settings/general/startup" >$ACT_GO
+DEF_ACT=$(GET_VAR "global" "settings/general/startup")
+printf '%s\n' "$DEF_ACT" >$ACT_GO
+if [ "$DEF_ACT" = "explore" ]; then printf '%s\n' "explore_alt" >$ACT_GO; fi
+EC=0
+
 echo "root" >$EX_CARD
 
 KILL_BGM() {
@@ -190,24 +199,20 @@ while true; do
 				;;
 			"option")
 				echo explore >$ACT_GO
-				echo "$LAST_INDEX_SYS" >/tmp/lisys
 				SET_VAR "system" "foreground_process" "muxoption"
 				nice --20 /opt/muos/extra/muxoption
 				;;
 			"assign")
 				echo option >$ACT_GO
-				echo "$LAST_INDEX_SYS" >/tmp/lisys
 				SET_VAR "system" "foreground_process" "muxassign"
 				nice --20 /opt/muos/extra/muxassign -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
 				;;
 			"governor")
 				echo option >$ACT_GO
-				echo "$LAST_INDEX_SYS" >/tmp/lisys
 				SET_VAR "system" "foreground_process" "muxgov"
 				nice --20 /opt/muos/extra/muxgov -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
 				;;
 			"explore")
-				MODULE=$(sed -n '1p' "$EX_CARD")
 				echo launcher >$ACT_GO
 				echo "$LAST_INDEX_SYS" >/tmp/lisys
 				SET_VAR "system" "foreground_process" "muxassign"
@@ -215,7 +220,33 @@ while true; do
 				SET_VAR "system" "foreground_process" "muxgov"
 				nice --20 /opt/muos/extra/muxgov -a 1 -c "$ROM_NAME" -d "$(cat /tmp/explore_dir)" -s none
 				SET_VAR "system" "foreground_process" "muxplore"
-				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m "$MODULE"
+				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m "$(cat $EX_CARD)"
+				;;
+			"explore_alt")
+				if [ "$EC" -gt 0 ]; then echo launcher >"$ACT_GO"; fi
+				SD1_COUNT=$(find "$(GET_VAR "device" "storage/rom/mount")"/ROMS -mindepth 1 -maxdepth 1 -type d | wc -l)
+				SD2_COUNT=$(find "$(GET_VAR "device" "storage/sdcard/mount")"/ROMS -mindepth 1 -maxdepth 1 -type d | wc -l)
+				USB_COUNT=$(find "$(GET_VAR "device" "storage/usb/mount")"/ROMS -mindepth 1 -maxdepth 1 -type d | wc -l)
+				if { [ "$SD1_COUNT" -gt 1 ] && [ "$SD2_COUNT" -gt 1 ]; } ||
+					{ [ "$SD1_COUNT" -gt 1 ] && [ "$USB_COUNT" -gt 1 ]; } ||
+					{ [ "$SD2_COUNT" -gt 1 ] && [ "$USB_COUNT" -gt 1 ]; }; then
+					echo "root" >"$EX_CARD"
+				elif [ "$SD1_COUNT" -gt 1 ]; then
+					echo "mmc" >"$EX_CARD"
+					touch "/tmp/single_card"
+				elif [ "$SD2_COUNT" -gt 1 ]; then
+					echo "sdcard" >"$EX_CARD"
+					touch "/tmp/single_card"
+				elif [ "$USB_COUNT" -gt 1 ]; then
+					echo "usb" >"$EX_CARD"
+					touch "/tmp/single_card"
+				else
+					echo launcher >"$ACT_GO"
+					continue
+				fi
+				SET_VAR "system" "foreground_process" "muxplore"
+				nice --20 /opt/muos/extra/muxplore -i 0 -m "$(cat $EX_CARD)"
+				EC=$((EC + 1))
 				;;
 			"app")
 				echo launcher >$ACT_GO

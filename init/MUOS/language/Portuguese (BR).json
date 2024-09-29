@@ -119,6 +119,10 @@
     "Status": "Status",
     "Subnet CIDR": "Subnet CIDR",
     "WI-FI NETWORK": "REDE WI-FI"
+    "Cannot modify while connected!": "Não é possível modificar enquanto conectado!",
+    "Encrypting Password...": "Criptografando senha...",
+    "Please check network settings": "Por favor confira as opções de rede",
+    "Trying to Connect...": "Tentativa de conexão...",
   },
   "muxpass": {
     "PASSCODE": "SENHA"
@@ -294,6 +298,16 @@
     "Warm Glow (160)": "Brilho Acalorado (160)",
     "Warm White (64)": "Branco Quente (64)",
     "Winter Sky (-96)": "Céu de Inverno (-96)",
+    "10m": "10m",
+    "10s": "10s",
+    "15m": "15m",
+    "2m": "2m",
+    "30m": "30m",
+    "30s": "30s",
+    "5m": "5m",
+    "60s": "60s",
+    "Idle Input Display Timeout": "Tempo de Espera para Desligar a Tela",
+    "Idle Input Sleep Timeout": "Tempo de Espera para Suspender",
   },
   "muxvisual": {
     "Background Animation": "Animações de Plano de Fundo",

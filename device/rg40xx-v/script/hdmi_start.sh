@@ -31,7 +31,7 @@ while true; do
 			DISPLAY_WRITE disp0 switch "4 $(GET_VAR "global" "settings/general/hdmi") 0 0 0x4 0x201 0 1 0 8"
 
 			# Reset the display
-			FB_SWITCH "$WIDTH" "$HEIGHT" 32
+			# FB_SWITCH "$WIDTH" "$HEIGHT" 32
 
 			SWITCHED_ON=1
 			echo "1" >$DO_REFRESH
@@ -50,7 +50,7 @@ while true; do
 				DISPLAY_WRITE disp0 switch "1 0"
 
 				# Reset the display
-				FB_SWITCH "$WIDTH" "$HEIGHT" 32
+				# FB_SWITCH "$WIDTH" "$HEIGHT" 32
 
 				SWITCHED_OFF=1
 				echo "1" >$DO_REFRESH

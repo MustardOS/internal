@@ -13,5 +13,5 @@ if [ "$(cat "$HAS_PLUGGED")" -eq 1 ]; then
 	XDG_RUNTIME_DIR="/var/run" wpctl set-default "$(GET_VAR "audio" "nid_internal")"
 
 	# Reset the display
-	FB_SWITCH "$WIDTH" "$HEIGHT" 32
+	# FB_SWITCH "$WIDTH" "$HEIGHT" 32
 fi

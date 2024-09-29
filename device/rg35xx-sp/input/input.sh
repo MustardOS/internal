@@ -76,10 +76,12 @@ fi
 			1:1:0:0)
 				KEY_COMBO=1
 				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh U
+				LEFT_BL=$(DISPLAY_READ lcd0 getbl)
 				;;
 			1:0:1:0)
 				KEY_COMBO=1
 				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh D
+				LEFT_BL=$(DISPLAY_READ lcd0 getbl)
 				;;
 			1:0:0:1)
 				KEY_COMBO=1

@@ -11,7 +11,12 @@ printf "%s" "$(GET_VAR "global" "settings/general/idle_display")" >"$IDLE_DISPLA
 printf "%s" "$(GET_VAR "global" "settings/general/idle_sleep")" >"$IDLE_SLEEP_TIMEOUT"
 
 while true; do
-	if [ "$(GET_VAR "global" "settings/general/idle_display")" -gt 0 ]; then
+	case "$(GET_VAR "system" "foreground_process")" in
+		fbpad | muxcharge | muxstart) sleep 1 && continue ;;
+		*) ;;
+	esac
+
+	if [ "$(GET_VAR "global" "settings/general/idle_display")" -gt 0 ] && [ "$(cat "/tmp/sleep_state")" = "awake" ]; then
 		IDT=$(cat "$IDLE_DISPLAY_TIMEOUT")
 
 		if [ "$IDT" -eq 0 ]; then
@@ -29,7 +34,7 @@ while true; do
 		fi
 	fi
 
-	if [ "$(GET_VAR "global" "settings/general/idle_sleep")" -gt 0 ]; then
+	if [ "$(GET_VAR "global" "settings/general/idle_sleep")" -gt 0 ] && [ "$(cat "/tmp/sleep_state")" = "awake" ]; then
 		IST=$(cat "$IDLE_SLEEP_TIMEOUT")
 
 		if [ "$IST" -eq 0 ]; then

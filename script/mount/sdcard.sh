@@ -32,7 +32,7 @@ MOUNT_DEVICE() {
 
 	if mount -t "$FS_TYPE" -o "$FS_OPTS" "/dev/$DEVICE" "$MOUNT"; then
 		SET_VAR "device" "storage/sdcard/active" "1"
-		SET_VAR "device" "storage/usb/label" "$FS_LABEL"
+		SET_VAR "device" "storage/sdcard/label" "$FS_LABEL"
 		echo noop >/sys/devices/platform/soc/sdc2/mmc_host/mmc1/mmc1:"$BLK_ID4"/block/mmcblk1/queue/scheduler
 		echo on >/sys/devices/platform/soc/sdc2/mmc_host/mmc1/power/control
 	fi

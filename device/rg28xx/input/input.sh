@@ -46,9 +46,13 @@ fi
 	evtest "$(GET_VAR "device" "input/ev1")" &
 	wait
 } | while read -r EVENT; do
+	case "$(GET_VAR "system" "foreground_process")" in
+		muxcharge) sleep 1 && continue ;;
+		*) ;;
+	esac
 
 	# Idle timer function
-	if [ "$(GET_VAR "global" "settings/general/idle_display")" -gt 0 ] && [ "$(cat "$IDLE_DISPLAY_TIMEOUT")" -eq 0 ]; then
+	if [ "$(GET_VAR "global" "settings/general/idle_display")" -gt 0 ] && [ "$(cat "$IDLE_DISPLAY_TIMEOUT")" -eq 0 ] && [ "$(cat "/tmp/sleep_state")" = "awake" ]; then
 		DISPLAY_WRITE lcd0 setbl "$(cat "$IDLE_OLD_BACKLIGHT")"
 		printf 0 >$IDLE_RESET
 	fi

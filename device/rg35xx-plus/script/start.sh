@@ -4,27 +4,27 @@
 
 sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf
 
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/module.sh &
+/opt/muos/device/current/script/module.sh &
 
 if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
 fi
 
 if [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ] && [ "$(GET_VAR "global" "settings/general/hdmi")" -gt -1 ]; then
-	/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/hdmi_start.sh &
+	/opt/muos/device/current/script/hdmi_start.sh &
 fi
 
 (
 	case "$(GET_VAR "global" "settings/advanced/brightness")" in
 		"high")
-			/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh "$(GET_VAR "device" "screen/bright")"
+			/opt/muos/device/current/input/combo/bright.sh "$(GET_VAR "device" "screen/bright")"
 			;;
 		"low")
-			/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh 10
+			/opt/muos/device/current/input/combo/bright.sh 10
 			;;
 		*)
 			PREV_BRIGHT=$(cat "/opt/muos/config/brightness.txt")
-			/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh "$PREV_BRIGHT"
+			/opt/muos/device/current/input/combo/bright.sh "$PREV_BRIGHT"
 			;;
 	esac
 ) &
@@ -49,5 +49,5 @@ echo on >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
 # Switch GPU power policy
 echo always_on >/sys/devices/platform/gpu/power_policy &
 
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/input.sh &
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/idle.sh &
+/opt/muos/device/current/input/input.sh &
+/opt/muos/device/current/input/idle.sh &

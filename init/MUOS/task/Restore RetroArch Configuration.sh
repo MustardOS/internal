@@ -8,7 +8,7 @@ pkill -STOP muxtask
 
 echo "Restoring RetroArch Configuration"
 rm -f /run/muos/storage/info/config/retroarch.cfg
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/script/control.sh
+/opt/muos/device/current/script/control.sh
 
 echo "Sync Filesystem"
 sync

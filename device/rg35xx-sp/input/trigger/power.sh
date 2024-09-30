@@ -8,7 +8,6 @@ HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
 SLEEP_STATE="/tmp/sleep_state"
 LED_STATE="/tmp/work_led_state"
 LID_CLOSED_FLAG="/tmp/lid_closed_flag"
-TMP_BRIGHT="/tmp/tmp_bright_value"
 
 UPDATE_DISPLAY() {
 	echo "$1" >"$(GET_VAR "device" "led/normal")"
@@ -17,11 +16,10 @@ UPDATE_DISPLAY() {
 }
 
 DEV_WAKE() {
+	FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 	case "$FG_PROC_VAL" in
 		fbpad | muxcharge | muxstart) ;;
 		*)
-			FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
-
 			echo "on" >"$TMP_POWER_LONG"
 			echo "awake" >"$SLEEP_STATE"
 
@@ -31,17 +29,16 @@ DEV_WAKE() {
 				pkill -CONT "$FG_PROC_VAL"
 			fi
 
-			UPDATE_DISPLAY "$(cat $LED_STATE)" 0 "$(cat $TMP_BRIGHT)"
+			UPDATE_DISPLAY "$(cat $LED_STATE)" 0 "$(GET_VAR "global" "settings/general/brightness")"
 			;;
 	esac
 }
 
 DEV_SLEEP() {
-	case "$FG_PROC_VAL" in
+	FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
+	case "$(cat "$FG_PROC_VAL")" in
 		fbpad | muxcharge | muxstart) ;;
 		*)
-			FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
-
 			echo "off" >"$TMP_POWER_LONG"
 
 			if [ "$(cat "$HALL_KEY")" = "0" ]; then
@@ -58,7 +55,6 @@ DEV_SLEEP() {
 				pkill -STOP "$FG_PROC_VAL"
 			fi
 
-			printf "%s" "$(DISPLAY_READ lcd0 getbl)" >$TMP_BRIGHT
 			UPDATE_DISPLAY 1 4 0
 			;;
 	esac
@@ -72,7 +68,6 @@ while true; do
 	TMP_POWER_LONG_VAL=$(cat "$TMP_POWER_LONG")
 	HALL_KEY_VAL=$(cat "$HALL_KEY")
 	SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
-	FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 	LID_CLOSED_FLAG_VAL=$(cat "$LID_CLOSED_FLAG")
 
 	# power button OR lid closed

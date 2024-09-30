@@ -25,7 +25,7 @@ CLOCK_VARS="notation pool"
 NETWORK_VARS="enabled type ssid pass address gateway subnet dns"
 SETTINGS_GENERAL_VARS="hidden bgm sound startup power low_battery colour brightness hdmi shutdown language idle_display idle_sleep"
 SETTINGS_ADVANCED_VARS="accelerate swap thermal font verbose rumble volume brightness offset lock led random_theme retrowait usb_function state hdmi_output"
-VISUAL_VARS="battery network bluetooth clock boxart name dash friendlyfolder thetitleformat counterfolder counterfile folderitemcount backgroundanimation"
+VISUAL_VARS="battery network bluetooth clock boxart name dash friendlyfolder thetitleformat titleincluderootdrive counterfolder counterfile folderitemcount backgroundanimation"
 WEB_VARS="shell browser terminal syncthing resilio ntp"
 STORAGE_VARS="bios config catalogue content music save screenshot theme language network"
 

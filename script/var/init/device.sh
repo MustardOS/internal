@@ -38,11 +38,11 @@ MUX_VARS="width height"
 NETWORK_VARS="module name type iface state"
 SCREEN_VARS="device hdmi bright width height rotate wait"
 SDL_VARS="scaler rotation blitter_disabled"
-STORAGE_BOOT_VARS="active dev sep num mount type"
-STORAGE_ROM_VARS="active dev sep num mount type"
-STORAGE_ROOT_VARS="active dev sep num mount type"
-STORAGE_SDCARD_VARS="active dev sep num mount type"
-STORAGE_USB_VARS="active dev sep num mount type"
+STORAGE_BOOT_VARS="active dev sep num mount type label"
+STORAGE_ROM_VARS="active dev sep num mount type label"
+STORAGE_ROOT_VARS="active dev sep num mount type label"
+STORAGE_SDCARD_VARS="active dev sep num mount type label"
+STORAGE_USB_VARS="active dev sep num mount type label"
 
 for INIT in audio battery cpu board input input/code/dpad input/code/analog/left input/code/analog/right input/code/button input/type/dpad input/type/analog/left input/type/analog/right input/type/button led mux network screen sdl storage/boot storage/rom storage/root storage/sdcard storage/usb; do
 	case $INIT in

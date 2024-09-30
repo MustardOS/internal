@@ -2,8 +2,10 @@
 
 . /opt/muos/script/var/func.sh
 
+IDLE_OLD_BACKLIGHT=/tmp/idle_old_backlight
 IDLE_DISPLAY_TIMEOUT=/tmp/idle_display_timeout
 IDLE_SLEEP_TIMEOUT=/tmp/idle_sleep_timeout
+IDLE_RESET=/tmp/idle_reset
 
 printf "%s" "$(GET_VAR "global" "settings/general/idle_display")" >"$IDLE_DISPLAY_TIMEOUT"
 printf "%s" "$(GET_VAR "global" "settings/general/idle_sleep")" >"$IDLE_SLEEP_TIMEOUT"
@@ -14,6 +16,10 @@ while true; do
 
 		if [ "$IDT" -eq 0 ]; then
 			CURRENT_BL=$(DISPLAY_READ lcd0 getbl)
+			if [ "$(cat $IDLE_RESET)" -eq 0 ]; then
+				printf "%s" "$CURRENT_BL" >$IDLE_OLD_BACKLIGHT
+				printf 1 >$IDLE_RESET
+			fi
 			if [ "$CURRENT_BL" -gt 10 ]; then
 				DISPLAY_WRITE lcd0 setbl "$((CURRENT_BL - 10))"
 			fi

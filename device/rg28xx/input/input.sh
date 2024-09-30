@@ -14,9 +14,11 @@ KEY_COMBO=0
 RESUME_UPTIME="$(UPTIME)"
 
 # Idle timer setup
-LEFT_BL=$(DISPLAY_READ lcd0 getbl)
+IDLE_OLD_BACKLIGHT=/tmp/idle_old_backlight
 IDLE_DISPLAY_TIMEOUT=/tmp/idle_display_timeout
 IDLE_SLEEP_TIMEOUT=/tmp/idle_sleep_timeout
+IDLE_RESET=/tmp/idle_reset
+
 printf "%s" "$(GET_VAR "global" "settings/general/idle_display")" >"$IDLE_DISPLAY_TIMEOUT"
 printf "%s" "$(GET_VAR "global" "settings/general/idle_sleep")" >"$IDLE_SLEEP_TIMEOUT"
 
@@ -46,10 +48,12 @@ fi
 } | while read -r EVENT; do
 
 	# Idle timer function
-	if [ "$(cat "$IDLE_DISPLAY_TIMEOUT")" -eq 0 ]; then
-		DISPLAY_WRITE lcd0 setbl "$LEFT_BL"
+	if [ "$(GET_VAR "global" "settings/general/idle_display")" -gt 0 ] && [ "$(cat "$IDLE_DISPLAY_TIMEOUT")" -eq 0 ]; then
+		DISPLAY_WRITE lcd0 setbl "$(cat "$IDLE_OLD_BACKLIGHT")"
+		printf 0 >$IDLE_RESET
 	fi
-	LEFT_BL=$(DISPLAY_READ lcd0 getbl)
+
+	printf "%s" "$(DISPLAY_READ lcd0 getbl)" >$IDLE_OLD_BACKLIGHT
 	printf "%s" "$(GET_VAR "global" "settings/general/idle_display")" >"$IDLE_DISPLAY_TIMEOUT"
 	printf "%s" "$(GET_VAR "global" "settings/general/idle_sleep")" >"$IDLE_SLEEP_TIMEOUT"
 
@@ -75,12 +79,10 @@ fi
 			1:1:0:0)
 				KEY_COMBO=1
 				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh U
-				LEFT_BL=$(DISPLAY_READ lcd0 getbl)
 				;;
 			1:0:1:0)
 				KEY_COMBO=1
 				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh D
-				LEFT_BL=$(DISPLAY_READ lcd0 getbl)
 				;;
 			1:0:0:1)
 				KEY_COMBO=1

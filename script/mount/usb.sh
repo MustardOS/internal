@@ -7,7 +7,7 @@ MOUNT="$(GET_VAR "device" "storage/usb/mount")"
 
 mkdir -p "$MOUNT"
 
-MOUNTED () {
+MOUNTED() {
 	[ "$(GET_VAR "device" "storage/usb/active")" -eq 1 ]
 }
 
@@ -17,15 +17,17 @@ HAS_DEVICE() {
 
 MOUNT_DEVICE() {
 	FS_TYPE="$(blkid -o value -s TYPE "/dev/$DEVICE")"
+	FS_LABEL="$(blkid -o value -s LABEL "/dev/$DEVICE")"
 
 	case "$FS_TYPE" in
-		vfat|exfat) FS_OPTS=rw,utf8,noatime,nofail ;;
+		vfat | exfat) FS_OPTS=rw,utf8,noatime,nofail ;;
 		ext4) FS_OPTS=defaults,noatime,nofail ;;
 		*) return ;;
 	esac
 
 	if mount -t "$FS_TYPE" -o "$FS_OPTS" "/dev/$DEVICE" "$MOUNT"; then
 		SET_VAR "device" "storage/usb/active" "1"
+		SET_VAR "device" "storage/usb/label" "$FS_LABEL"
 	fi
 }
 

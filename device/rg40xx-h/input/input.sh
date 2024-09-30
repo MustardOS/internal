@@ -8,7 +8,7 @@ mkdir -p /tmp/trigger
 
 killall -q "evtest"
 
-. /opt/muos/device/"$(GET_VAR "device" "board/name")"/input/map.sh
+. /opt/muos/device/current/input/map.sh
 
 KEY_COMBO=0
 RESUME_UPTIME="$(UPTIME)"
@@ -28,8 +28,8 @@ echo "awake" >"/tmp/sleep_state"
 # Make sure to put them in order of how you want them to work too!
 if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
 	if [ "$(GET_VAR "global" "settings/general/shutdown")" -ge 0 ]; then
-		/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/trigger/power.sh &
-		/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/trigger/sleep.sh &
+		/opt/muos/device/current/input/trigger/power.sh &
+		/opt/muos/device/current/input/trigger/sleep.sh &
 	fi
 fi
 
@@ -74,23 +74,23 @@ fi
 		case "$STATE_MENU_LONG:$STATE_VOL_UP:$STATE_VOL_DOWN:$STATE_POWER_SHORT" in
 			1:1:0:0)
 				KEY_COMBO=1
-				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh U
+				/opt/muos/device/current/input/combo/bright.sh U
 				;;
 			1:0:1:0)
 				KEY_COMBO=1
-				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh D
+				/opt/muos/device/current/input/combo/bright.sh D
 				;;
 			1:0:0:1)
 				KEY_COMBO=1
-				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/screenshot.sh
+				/opt/muos/device/current/input/combo/screenshot.sh
 				;;
 			0:1:0:0)
 				KEY_COMBO=1
-				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/audio.sh U
+				/opt/muos/device/current/input/combo/audio.sh U
 				;;
 			0:0:1:0)
 				KEY_COMBO=1
-				/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/audio.sh D
+				/opt/muos/device/current/input/combo/audio.sh D
 				;;
 		esac
 	fi

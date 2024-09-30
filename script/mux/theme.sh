@@ -10,7 +10,7 @@ fi
 
 THEME_DIR="/run/muos/storage/theme"
 
-BOOTLOGO_DEF="/opt/muos/device/$(GET_VAR "device" "board/name")/bootlogo.bmp"
+BOOTLOGO_DEF="/opt/muos/device/current/bootlogo.bmp"
 BOOTLOGO_NEW="$THEME_DIR/active/image/bootlogo.bmp"
 
 cp "$BOOTLOGO_DEF" "$(GET_VAR "device" "storage/boot/mount")/bootlogo.bmp"
@@ -30,7 +30,7 @@ case "$DEV_BOARD" in
 		if [ -f "$RGBCONF_SCRIPT" ]; then
 			"$RGBCONF_SCRIPT"
 		else
-			/opt/muos/device/"$DEV_BOARD"/script/led_control.sh 1 0 0 0 0 0 0 0
+			/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
 		fi
 		;;
 	*) ;;

@@ -20,14 +20,14 @@ case "$DEV_BOARD" in
 		if [ -f "$RGBCONF_SCRIPT" ]; then
 			"$RGBCONF_SCRIPT"
 		else
-			/opt/muos/device/"$DEV_BOARD"/script/led_control.sh 1 0 0 0 0 0 0 0
+			/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
 		fi
 		;;
 	*) ;;
 esac
 
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/audio.sh I
-/opt/muos/device/"$(GET_VAR "device" "board/name")"/input/combo/bright.sh I
+/opt/muos/device/current/input/combo/audio.sh I
+/opt/muos/device/current/input/combo/bright.sh I
 
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go

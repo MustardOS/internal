@@ -52,7 +52,7 @@ function command.run(settings, colors, double_colors)
         file:write(". /opt/muos/script/var/func.sh\n")
 
         -- Add the dynamic device-specific path with the correct arguments
-        file:write(string.format("/opt/muos/device/\"$(GET_VAR \"device\" \"board/name\")\"/script/led_control.sh %s\n", commandArgs))
+        file:write(string.format("/opt/muos/device/current/script/led_control.sh %s\n", commandArgs))
 
         file:close()
         print("Command saved to: " .. commandFile)
@@ -61,7 +61,7 @@ function command.run(settings, colors, double_colors)
     end
 
     -- Print the final command to the console for debugging
-    print("Running command: /opt/muos/device/\"$(GET_VAR \"device\" \"board/name\")\"/script/led_control.sh " .. commandArgs)
+    print("Running command: /opt/muos/device/current/script/led_control.sh " .. commandArgs)
 
     -- Execute the command in the system shell
     os.execute("/run/muos/storage/theme/active/rgb/rgbconf.sh")

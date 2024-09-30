@@ -11,7 +11,7 @@ SLEEP() {
 
 	DEV_BOARD=$(GET_VAR "device" "board/name")
 	case "$DEV_BOARD" in
-		rg40xx*) /opt/muos/device/"$DEV_BOARD"/script/led_control.sh 1 0 0 0 0 0 0 0 ;;
+		rg40xx*) /opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0 ;;
 		*) ;;
 	esac
 
@@ -34,7 +34,7 @@ RESUME() {
 			if [ -f "$RGBCONF_SCRIPT" ]; then
 				"$RGBCONF_SCRIPT"
 			else
-				/opt/muos/device/"$DEV_BOARD"/script/led_control.sh 1 0 0 0 0 0 0 0
+				/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
 			fi
 			;;
 		*) ;;

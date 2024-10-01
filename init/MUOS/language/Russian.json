@@ -14,6 +14,7 @@
     "Launch": "Запуск",
     "Load": "Загрузить",
     "Next": "Следующий",
+    "No Help Information Found": "No Help Information Found",
     "Open": "Открыть",
     "Previous": "Предыдущий",
     "Recursive": "Рекурсивный",
@@ -103,11 +104,12 @@
   "muxnetwork": {
     "Cannot modify while connected!": "Невозможно выполнить изменение при подключении!",
     "Changes Saved": "Изменения сохранены",
-    "Connect": "Подключено",
+    "Connect": "Подключить",
     "Connected": "Подключено",
     "DHCP": "DHCP",
     "DNS Server": "DNS сервер",
     "Device IP": "IP устройства",
+    "Disconnect": "Отключить",
     "Encrypting Password...": "Шифрование пароля...",
     "Gateway IP": "IP шлюз",
     "Identifier": "Идентификатор",
@@ -123,6 +125,10 @@
     "Subnet CIDR": "Подсеть CIDR",
     "Trying to Connect...": "Попытка соединения...",
     "WI-FI NETWORK": "WI-FI СЕТЬ"
+  },
+  "muxoption": {
+    "Assign Core": "Assign Core",
+    "System Governor": "System Governor"
   },
   "muxpass": {
     "PASSCODE": "ПАРОЛЬ"
@@ -331,9 +337,10 @@
     "Middle + Behind": "Сбоку + Сзади",
     "Middle + Front": "Сбоку + Спереди",
     "Network": "Сеть",
-    "Remove [ ]": "Удалить [ ]",
     "Remove ( )": "Удалить ( )",
+    "Remove [ ]": "Удалить [ ]",
     "Remove [ ] and ( )": "Удалить [ ] и ( )",
+    "Title Include Root Drive": "Title Include Root Drive",
     "Top + Behind": "Сверху + Сзади",
     "Top + Front": "Сверху + Спереди"
   },

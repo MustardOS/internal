@@ -2,7 +2,7 @@
   "generic": {
     "Back": "Geri",
     "Confirm": "Onayla",
-    "Directory": "Dizin",
+    "Directory": "Klasör",
     "Disabled": "Devre dışı",
     "Enabled": "Etkin",
     "External": "Harici",
@@ -13,10 +13,11 @@
     "Internal": "Dahili",
     "Launch": "Başlat",
     "Load": "Yükle",
-    "Next": "Sıradaki",
+    "Next": "Sonraki",
+    "No Help Information Found": "No Help Information Found",
     "Open": "Aç",
     "Previous": "Önceki",
-    "Recursive": "Yinelge",
+    "Recursive": "Yinelenmiş",
     "Remove": "Kaldır",
     "Save": "Kaydet",
     "Saving Changes": "Değişiklikler kaydediliyor",
@@ -29,7 +30,7 @@
     "APPLICATIONS": "UYGULAMALAR",
     "Archive Manager": "Arşiv Yöneticisi",
     "Dingux Commander": "Dingux Commander",
-    "Flip Clock": "Çevirmeli Saat",
+    "Flip Clock": "Masa Saati",
     "GMU Music Player": "GMU Müzik Çalar",
     "Loading Application": "Uygulama yükleniyor",
     "Moonlight": "Moonlight",
@@ -42,19 +43,19 @@
   },
   "muxarchive": {
     "ARCHIVE MANAGER": "ARŞİV YÖNETİCİSİ",
-    "INSTALLED": "KURULDU",
+    "INSTALLED": "YÜKLÜ",
     "No Archives Found": "Arşiv bulunamadı"
   },
   "muxassign": {
     "ASSIGN": "ATA",
     "ASSIGN CORE": "ÇEKİRDEK ATA",
-    "No Cores Found...": "Çekirdek bulunamadı..."
+    "No Cores Found...": "Çekirdek bulunamadı…"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "Sistem önyükleniyor - Lütfen bekleyin...",
+    "Booting System - Please Wait...": "Sistem yükleniyor - Lütfen bekleyin...",
     "Capacity": "Kapasite",
     "Health": "Sağlık",
-    "Press POWER button to continue booting...": "Önyüklemeye devam etmek için GÜÇ düğmesine basın...",
+    "Press POWER button to continue booting...": "Yüklemeye devam etmek için GÜÇ düğmesine basın…",
     "Voltage": "Voltaj"
   },
   "muxconfig": {
@@ -63,19 +64,19 @@
     "General Settings": "Genel ayarlar",
     "Language": "Dil",
     "Theme Picker": "Tema seçici",
-    "Web Services": "Web hizmetleri",
+    "Web Services": "Web servisleri",
     "Wi-Fi Network": "Wi-Fi ağı"
   },
   "muxinfo": {
     "Activity Tracker": "Etkinlik izleyici",
     "INFORMATION": "BİLGİ",
-    "Input Tester": "Input Tester",
-    "Supporters": "Destekçiler",
+    "Input Tester": "Tuş testi",
+    "Supporters": "Destekleyenler",
     "System Details": "Sistem ayrıntıları"
   },
   "muxlanguage": {
     "LANGUAGES": "DİLLER",
-    "No Languages Found...": "Dil bulunamadı...",
+    "No Languages Found...": "Dil bulunamadı…",
     "Saving Language": "Dil kaydediliyor"
   },
   "muxlaunch": {
@@ -90,7 +91,7 @@
     "Shutdown": "Kapat"
   },
   "muxnetprofile": {
-    "Loading Network Profiles...": "Ağ profilleri yükleniyor...",
+    "Loading Network Profiles...": "Ağ profilleri yükleniyor…",
     "NETWORK PROFILE": "AĞ PROFİLİ",
     "No Saved Network Profiles Found": "Kayıtlı ağ profili bulunamadı"
   },
@@ -98,7 +99,7 @@
     "NETWORK SCAN": "AĞ TARAMASI",
     "No Wi-Fi Networks Found": "Wi-Fi ağı bulunamadı",
     "Rescan": "Yeniden tara",
-    "Scanning for Wi-Fi Networks...": "Wi-Fi ağları taranıyor..."
+    "Scanning for Wi-Fi Networks...": "Wi-Fi ağları taranıyor…"
   },
   "muxnetwork": {
     "Cannot modify while connected!": "Bağlıyken değiştirilemez!",
@@ -106,9 +107,10 @@
     "Connect": "Bağlan",
     "Connected": "Bağlı",
     "DHCP": "DHCP",
-    "DNS Server": "DNS Sunucusu",
+    "DNS Server": "DNS sunucusu",
     "Device IP": "Cihaz IP'si",
-    "Encrypting Password...": "Parola şifreleniyor...",
+    "Disconnect": "Bağlantıyı kes",
+    "Encrypting Password...": "Parola şifreleniyor…",
     "Gateway IP": "IP ağ geçidi",
     "Identifier": "Ağ adı",
     "Network Disabled": "Ağ devre dışı",
@@ -121,17 +123,21 @@
     "Static": "Statik",
     "Status": "Durum",
     "Subnet CIDR": "Alt ağ CIDR",
-    "Trying to Connect...": "Bağlanmaya çalışıyor...",
+    "Trying to Connect...": "Bağlanmaya çalışıyor…",
     "WI-FI NETWORK": "WI-FI AĞI"
+  },
+  "muxoption": {
+    "Assign Core": "Assign Core",
+    "System Governor": "System Governor"
   },
   "muxpass": {
     "PASSCODE": "ŞİFRE"
   },
   "muxplore": {
-    "Added to Favourites": "Favorilere ekle",
+    "Added to Favourites": "Favorilere eklendi",
     "Could not load content - No core is associated": "İçerik yüklenemedi - Çekirdek ilişkilendirilmemiş",
     "Could not load content!": "İçerik yüklenemedi!",
-    "Directories cannot be added to Favourites": "Dizinler, Favorilere eklenemez",
+    "Directories cannot be added to Favourites": "Klasörler, Favorilere eklenemez",
     "EXPLORE": "KEŞFET",
     "EXPLORE (SD1)": "KEŞFET (SD1)",
     "EXPLORE (SD2)": "KEŞFET (SD2)",
@@ -141,7 +147,7 @@
     "Favourite": "Favori",
     "HISTORY": "GEÇMİŞ",
     "Info": "Bilgi",
-    "Loading...": "Yükleniyor...",
+    "Loading...": "Yükleniyor…",
     "Refresh": "Yenile"
   },
   "muxrtc": {
@@ -181,7 +187,7 @@
     "Device Type": "Cihaz türü",
     "Linux Kernel": "Linux Kernel",
     "RAM Usage": "RAM kullanımı",
-    "Running Services": "Çalışan hizmetler",
+    "Running Services": "Çalışan servisler",
     "SYSTEM DETAILS": "SİSTEM AYRINTILARI",
     "System Uptime": "Sistem çalışma süresi",
     "Temperature": "Sıcaklık",
@@ -192,9 +198,9 @@
     "TASK TOOLKIT": "TASK TOOLKIT"
   },
   "muxtester": {
-    "INPUT TESTER": "INPUT TESTER",
+    "INPUT TESTER": "TUŞ TESTİ",
     "Press POWER to finish testing": "Testi bitirmek için GÜÇ düğmesine basın",
-    "Press any button to start input testing!": "Girdi testini başlatmak için herhangi bir düğmeye basın!"
+    "Press any button to start input testing!": "Tuş testini başlatmak için herhangi bir düğmeye basın!"
   },
   "muxtheme": {
     "Loading Theme": "Tema yükleniyor",
@@ -202,7 +208,7 @@
     "THEME PICKER": "TEMA SEÇİCİ"
   },
   "muxtimezone": {
-    "No Timezones Found...": "Zaman dilimi bulunamadı...",
+    "No Timezones Found...": "Zaman dilimi bulunamadı…",
     "Saving Timezone": "Zaman dilimi kaydediliyor",
     "TIMEZONE": "ZAMAN DİLİMİ"
   },
@@ -211,11 +217,11 @@
     "ADVANCED SETTINGS": "GELİŞMİŞ AYARLAR",
     "Android Debug Bridge": "Android Hata Ayıklama Köprüsü",
     "Battery Offset": "Pil ofseti",
-    "Brightness On Boot": "Açılışta parlaklık",
+    "Brightness On Boot": "Açılış parlaklığı",
     "Device Rumble": "Cihaz titreşimi",
     "HDMI Audio Output": "HDMI ses çıkışı",
     "High": "Yüksek",
-    "Interface Font Type": "Arayüz font tipi",
+    "Interface Font Type": "Arayüz yazı tipi",
     "LED During Play": "Oyun sırasında LED",
     "Language": "Dil",
     "Loud": "Yüksek sesli",
@@ -239,7 +245,7 @@
     "Thermal Zone Control": "Termal bölge kontrolü",
     "USB Function": "USB fonksiyonu",
     "Verbose Messages": "Ayrıntılı mesajlar",
-    "Volume On Boot": "Açılışta ses seviyesi"
+    "Volume On Boot": "Açılış ses seviyesi"
   },
   "muxtweakgen": {
     "1080i + 50hz": "1080i + 50hz",
@@ -285,7 +291,7 @@
     "Idle Input Display Timeout": "Eylemsizlik ekran zaman aşımı",
     "Idle Input Sleep Timeout": "Eylemsizlik uyku modu zaman aşımı",
     "Instant Shutdown": "Anında kapat",
-    "Interface Options": "Arayüz ayarları",
+    "Interface Options": "Arayüz seçenekleri",
     "Last Game": "Son oyun",
     "Low Battery Indicator": "Düşük pil göstergesi",
     "Main Menu": "Ana menü",
@@ -325,7 +331,7 @@
     "Full Name": "Tam isim",
     "Fullscreen + Behind": "Tam ekran + Arka",
     "Fullscreen + Front": "Tam ekran + Ön",
-    "INTERFACE OPTIONS": "ARAYÜZ AYARLARI",
+    "INTERFACE OPTIONS": "ARAYÜZ SEÇENEKLERİ",
     "Menu Counter File": "Menü sayaç dosyası",
     "Menu Counter Folder": "Menü sayaç klasörü",
     "Middle + Behind": "Orta + Arka",
@@ -334,16 +340,17 @@
     "Remove ( )": "Kaldır ( )",
     "Remove [ ]": "Kaldır [ ]",
     "Remove [ ] and ( )": "Kaldır [ ] ve ( )",
+    "Title Include Root Drive": "Title Include Root Drive",
     "Top + Behind": "Üst + Arka",
     "Top + Front": "Üst + Ön"
   },
   "muxwebserv": {
-    "Network Time Sync": "Network Time Sync",
+    "Network Time Sync": "Ağ zaman senkronizasyonu",
     "Resilio": "Resilio",
     "SFTP + Filebrowser": "SFTP + Filebrowser",
     "Secure Shell": "Secure Shell",
     "Syncthing": "Syncthing",
     "Virtual Terminal": "Virtual Terminal",
-    "WEB SERVICES": "AĞ HİZMETLERİ"
+    "WEB SERVICES": "AĞ SERVİSLERİ"
   }
 }

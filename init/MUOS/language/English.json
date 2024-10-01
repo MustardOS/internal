@@ -14,6 +14,7 @@
     "Launch": "Launch",
     "Load": "Load",
     "Next": "Next",
+    "No Help Information Found": "No Help Information Found",
     "Open": "Open",
     "Previous": "Previous",
     "Recursive": "Recursive",
@@ -48,13 +49,13 @@
   "muxassign": {
     "ASSIGN": "ASSIGN",
     "ASSIGN CORE": "ASSIGN CORE",
-    "No Cores Found...": "No Cores Found..."
+    "No Cores Found...": "No Cores Found…"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "Booting System - Please Wait...",
+    "Booting System - Please Wait...": "Booting System - Please Wait…",
     "Capacity": "Capacity",
     "Health": "Health",
-    "Press POWER button to continue booting...": "Press POWER button to continue booting...",
+    "Press POWER button to continue booting...": "Press POWER button to continue booting…",
     "Voltage": "Voltage"
   },
   "muxconfig": {
@@ -75,7 +76,7 @@
   },
   "muxlanguage": {
     "LANGUAGES": "LANGUAGES",
-    "No Languages Found...": "No Languages Found...",
+    "No Languages Found...": "No Languages Found…",
     "Saving Language": "Saving Language"
   },
   "muxlaunch": {
@@ -90,7 +91,7 @@
     "Shutdown": "Shutdown"
   },
   "muxnetprofile": {
-    "Loading Network Profiles...": "Loading Network Profiles...",
+    "Loading Network Profiles...": "Loading Network Profiles…",
     "NETWORK PROFILE": "NETWORK PROFILE",
     "No Saved Network Profiles Found": "No Saved Network Profiles Found"
   },
@@ -98,7 +99,7 @@
     "NETWORK SCAN": "NETWORK SCAN",
     "No Wi-Fi Networks Found": "No Wi-Fi Networks Found",
     "Rescan": "Rescan",
-    "Scanning for Wi-Fi Networks...": "Scanning for Wi-Fi Networks..."
+    "Scanning for Wi-Fi Networks...": "Scanning for Wi-Fi Networks…"
   },
   "muxnetwork": {
     "Cannot modify while connected!": "Cannot modify while connected!",
@@ -108,7 +109,8 @@
     "DHCP": "DHCP",
     "DNS Server": "DNS Server",
     "Device IP": "Device IP",
-    "Encrypting Password...": "Encrypting Password...",
+    "Disconnect": "Disconnect",
+    "Encrypting Password...": "Encrypting Password…",
     "Gateway IP": "Gateway IP",
     "Identifier": "Identifier",
     "Network Disabled": "Network Disabled",
@@ -121,8 +123,12 @@
     "Static": "Static",
     "Status": "Status",
     "Subnet CIDR": "Subnet CIDR",
-    "Trying to Connect...": "Trying to Connect...",
+    "Trying to Connect...": "Trying to Connect…",
     "WI-FI NETWORK": "WI-FI NETWORK"
+  },
+  "muxoption": {
+    "Assign Core": "Assign Core",
+    "System Governor": "System Governor"
   },
   "muxpass": {
     "PASSCODE": "PASSCODE"
@@ -141,7 +147,7 @@
     "Favourite": "Favourite",
     "HISTORY": "HISTORY",
     "Info": "Info",
-    "Loading...": "Loading...",
+    "Loading...": "Loading…",
     "Refresh": "Refresh"
   },
   "muxrtc": {
@@ -202,7 +208,7 @@
     "THEME PICKER": "THEME PICKER"
   },
   "muxtimezone": {
-    "No Timezones Found...": "No Timezones Found...",
+    "No Timezones Found...": "No Timezones Found…",
     "Saving Timezone": "Saving Timezone",
     "TIMEZONE": "TIMEZONE"
   },
@@ -334,6 +340,7 @@
     "Remove ( )": "Remove ( )",
     "Remove [ ]": "Remove [ ]",
     "Remove [ ] and ( )": "Remove [ ] and ( )",
+    "Title Include Root Drive": "Title Include Root Drive",
     "Top + Behind": "Top + Behind",
     "Top + Front": "Top + Front"
   },

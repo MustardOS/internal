@@ -14,6 +14,7 @@
     "Launch": "Starten",
     "Load": "Laden",
     "Next": "Nächste",
+    "No Help Information Found": "Keine Hilfe-Information gefunden",
     "Open": "Öffnen",
     "Previous": "Bisherige",
     "Recursive": "Rekursiv",
@@ -48,13 +49,13 @@
   "muxassign": {
     "ASSIGN": "ZUWEISEN",
     "ASSIGN CORE": "KERN ZUWEISEN",
-    "No Cores Found...": "Keine Kerne gefunden..."
+    "No Cores Found...": "Keine Kerne gefunden…"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "System wird gestartet - Bitte warten...",
+    "Booting System - Please Wait...": "System wird gestartet - Bitte warten…",
     "Capacity": "Kapazität",
     "Health": "Zustand",
-    "Press POWER button to continue booting...": "POWER-Taste gedruckt halten, um hochzufahren...",
+    "Press POWER button to continue booting...": "POWER-Taste gedruckt halten, um hochzufahren…",
     "Voltage": "Spannung"
   },
   "muxconfig": {
@@ -75,7 +76,7 @@
   },
   "muxlanguage": {
     "LANGUAGES": "SPRACHE",
-    "No Languages Found...": "Keine Sprachen gefunden...",
+    "No Languages Found...": "Keine Sprachen gefunden…",
     "Saving Language": "Sprache wird übernommen"
   },
   "muxlaunch": {
@@ -90,7 +91,7 @@
     "Shutdown": "Herunterfahren"
   },
   "muxnetprofile": {
-    "Loading Network Profiles...": "Lade Netzwerk Profile...",
+    "Loading Network Profiles...": "Lade Netzwerk Profile…",
     "NETWORK PROFILE": "NETZWERK PROFILE",
     "No Saved Network Profiles Found": "Keine gespeicherten Netzwerkprofile gefunden"
   },
@@ -98,7 +99,7 @@
     "NETWORK SCAN": "NETZWERKSUCHE",
     "No Wi-Fi Networks Found": "Keine Wi-Fi Netzwerke gefunden",
     "Rescan": "Erneut suchen",
-    "Scanning for Wi-Fi Networks...": "Suche nach Wi-Fi Netzwerken..."
+    "Scanning for Wi-Fi Networks...": "Suche nach Wi-Fi Netzwerken…"
   },
   "muxnetwork": {
     "Cannot modify while connected!": "Änderungen während der Verbindung nicht möglich!",
@@ -106,10 +107,10 @@
     "Connect": "Verbinden",
     "Connected": "Verbunden",
     "DHCP": "DHCP",
-    "Disconnect": "Verbindung trennen",
     "DNS Server": "DNS Server",
     "Device IP": "Geräte IP",
-    "Encrypting Password...": "Passwort wird verschlüsselt...",
+    "Disconnect": "Verbindung trennen",
+    "Encrypting Password...": "Passwort wird verschlüsselt…",
     "Gateway IP": "Gateway IP",
     "Identifier": "Netzwerkname",
     "Network Disabled": "Netzwerk deaktiviert",
@@ -122,8 +123,12 @@
     "Static": "Statisch",
     "Status": "Status",
     "Subnet CIDR": "Subnetz CIDR",
-    "Trying to Connect...": "Verbindung wird hergestellt...",
+    "Trying to Connect...": "Verbindung wird hergestellt…",
     "WI-FI NETWORK": "WI-FI NETZWERK"
+  },
+  "muxoption": {
+    "Assign Core": "Kern zuweisen",
+    "System Governor": "System Governor"
   },
   "muxpass": {
     "PASSCODE": "PASSWORT"
@@ -142,7 +147,7 @@
     "Favourite": "Favorisieren",
     "HISTORY": "VERLAUF",
     "Info": "Info",
-    "Loading...": "Laden...",
+    "Loading...": "Laden…",
     "Refresh": "Aktualisieren"
   },
   "muxrtc": {
@@ -189,7 +194,7 @@
     "muOS Version": "muOS Version"
   },
   "muxtask": {
-    "No Tasks Found": "Keine Aufgaben gefunden...",
+    "No Tasks Found": "Keine Aufgaben gefunden",
     "TASK TOOLKIT": "SYSTEMVERWALTUNG"
   },
   "muxtester": {
@@ -199,11 +204,11 @@
   },
   "muxtheme": {
     "Loading Theme": "Theme lädt",
-    "No Themes Found": "Keine Themes gefunden...",
+    "No Themes Found": "Keine Themes gefunden",
     "THEME PICKER": "THEME AUSWAHL"
   },
   "muxtimezone": {
-    "No Timezones Found...": "Keine Zeitzonen gefunden...",
+    "No Timezones Found...": "Keine Zeitzonen gefunden…",
     "Saving Timezone": "Zeitzone wird übernommen",
     "TIMEZONE": "ZEITZONE"
   },
@@ -335,6 +340,7 @@
     "Remove ( )": "Entferne ( )",
     "Remove [ ]": "Entferne [ ]",
     "Remove [ ] and ( )": "Entferne [ ] und ( )",
+    "Title Include Root Drive": "Speicherort im Titel",
     "Top + Behind": "Oben + Hinten",
     "Top + Front": "Oben + Vorne"
   },

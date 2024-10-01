@@ -14,6 +14,7 @@
     "Launch": "Starten",
     "Load": "Laden",
     "Next": "Volgende",
+    "No Help Information Found": "No Help Information Found",
     "Open": "Openen",
     "Previous": "Vorige",
     "Recursive": "Recursief",
@@ -48,13 +49,13 @@
   "muxassign": {
     "ASSIGN": "TOEWIJZEN",
     "ASSIGN CORE": "CORE TOEWIJZEN",
-    "No Cores Found...": "Geen cores gevonden..."
+    "No Cores Found...": "Geen cores gevonden…"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "Opstarten - Een ogenblik geduld...",
+    "Booting System - Please Wait...": "Opstarten - Een ogenblik geduld…",
     "Capacity": "Capaciteit",
     "Health": "Levensduur",
-    "Press POWER button to continue booting...": "Press POWER button to continue booting...",
+    "Press POWER button to continue booting...": "Druk op de AAN/UIT knop om verder te gaan met opstarten…",
     "Voltage": "Spanning"
   },
   "muxconfig": {
@@ -75,7 +76,7 @@
   },
   "muxlanguage": {
     "LANGUAGES": "TALEN",
-    "No Languages Found...": "Geen talen gevonden...",
+    "No Languages Found...": "Geen talen gevonden…",
     "Saving Language": "Taal opslaan"
   },
   "muxlaunch": {
@@ -90,7 +91,7 @@
     "Shutdown": "Uitschakelen"
   },
   "muxnetprofile": {
-    "Loading Network Profiles...": "Netwerkprofielen laden...",
+    "Loading Network Profiles...": "Netwerkprofielen laden…",
     "NETWORK PROFILE": "NETWERKPROFIEL",
     "No Saved Network Profiles Found": "Geen netwerkprofiel gevonden"
   },
@@ -98,7 +99,7 @@
     "NETWORK SCAN": "NETWERKSCAN",
     "No Wi-Fi Networks Found": "Geen netwerken gevonden",
     "Rescan": "Opniew scannen",
-    "Scanning for Wi-Fi Networks...": "Netwerken scannen..."
+    "Scanning for Wi-Fi Networks...": "Netwerken scannen…"
   },
   "muxnetwork": {
     "Cannot modify while connected!": "Wijzigingen tijdens de verbinding zijn niet mogelijk!",
@@ -106,10 +107,10 @@
     "Connect": "Verbind",
     "Connected": "Verbonden",
     "DHCP": "DHCP",
-    "Disconnect": "Ontkoppelen",
     "DNS Server": "DNS-server",
     "Device IP": "IP-adres",
-    "Encrypting Password...": "Wachtwoord versleutelen...",
+    "Disconnect": "Verbinding verbreken",
+    "Encrypting Password...": "Wachtwoord versleutelen…",
     "Gateway IP": "Gateway",
     "Identifier": "Netwerknaam",
     "Network Disabled": "Netwerk uitgeschakeld",
@@ -122,8 +123,12 @@
     "Static": "Statisch",
     "Status": "Status",
     "Subnet CIDR": "Subnet CIDR",
-    "Trying to Connect...": "Verbinding aan het maken...",
+    "Trying to Connect...": "Verbinding aan het maken…",
     "WI-FI NETWORK": "NETWERK"
+  },
+  "muxoption": {
+    "Assign Core": "Assign Core",
+    "System Governor": "System Governor"
   },
   "muxpass": {
     "PASSCODE": "PINCODE"
@@ -142,7 +147,7 @@
     "Favourite": "Favoriet",
     "HISTORY": "GESCHIEDENIS",
     "Info": "Info",
-    "Loading...": "Laden...",
+    "Loading...": "Laden…",
     "Refresh": "Verversen"
   },
   "muxrtc": {
@@ -161,7 +166,7 @@
     "AUTO": "AUTO",
     "Background Music": "Achtergrondmuziek",
     "Content Management": "Mediabeheer",
-    "Languages": "Languages",
+    "Languages": "Talen",
     "Metadata Catalogue": "Metadatacatalogus",
     "Network Profiles": "Netwerk Profielen",
     "RetroArch BIOS": "RetroArch-BIOS",
@@ -195,7 +200,7 @@
   "muxtester": {
     "INPUT TESTER": "TEST BESTURING",
     "Press POWER to finish testing": "Druk de AAN-knop om te stoppen met testen",
-    "Press any button to start input testing!": "Press any button to start input testing!"
+    "Press any button to start input testing!": "Druk op een knop om de besturing te testen!"
   },
   "muxtheme": {
     "Loading Theme": "Thema wordt geladen",
@@ -203,7 +208,7 @@
     "THEME PICKER": "THEMABEHEER"
   },
   "muxtimezone": {
-    "No Timezones Found...": "Geen tijdzones gevonden...",
+    "No Timezones Found...": "Geen tijdzones gevonden…",
     "Saving Timezone": "Tijdzone opslaan",
     "TIMEZONE": "TIJDZONE"
   },
@@ -218,7 +223,7 @@
     "High": "Hoog",
     "Interface Font Type": "Lettertype interface",
     "LED During Play": "LED tijdens spelen",
-    "Language": "Language",
+    "Language": "Taal",
     "Loud": "Hard",
     "Low": "Laag",
     "Menu Acceleration": "Menu scrolsnelheid",
@@ -270,8 +275,8 @@
     "Brightness": "Helderheid",
     "Candlelight Yellow (128)": "Candlelight Yellow (128)",
     "Colour Temperature": "Kleurtemperatuur",
-    "Cool Glacier (-160)": "Cool Glacier (-160)",
     "Content Explorer": "Mediaverkenner",
+    "Cool Glacier (-160)": "Cool Glacier (-160)",
     "Daylight White (32)": "Daylight White (32)",
     "Deep Arctic (-256)": "Deep Arctic (-256)",
     "Deep Ember (256)": "Deep Ember (256)",
@@ -321,8 +326,8 @@
     "Content Dash Replacement": "Streepjesvervanging voor inhoud",
     "Content Name Scheme": "Naamschema voor inhoud",
     "Display Title Reformatting": "Titelopmaak",
-    "Folder Item Count": "Folder Item Count",
-    "Friendly Folder Names": "Friendly Folder Names",
+    "Folder Item Count": "Aantal map items",
+    "Friendly Folder Names": "Gebruikersvriendelijke mapnamen",
     "Full Name": "Volledige Naam",
     "Fullscreen + Behind": "Schermvullend en Achter",
     "Fullscreen + Front": "Schermvullend en Voor",
@@ -332,9 +337,10 @@
     "Middle + Behind": "Midden en Achter",
     "Middle + Front": "Midden en Voor",
     "Network": "Netwerk",
-    "Remove [ ]": "Verwijder [ ]",
     "Remove ( )": "Verwijder ( )",
+    "Remove [ ]": "Verwijder [ ]",
     "Remove [ ] and ( )": "Verwijder [ ] en ( )",
+    "Title Include Root Drive": "Opslaglocatie weergeven in titel",
     "Top + Behind": "Boven en Achter",
     "Top + Front": "Boven en Voor"
   },

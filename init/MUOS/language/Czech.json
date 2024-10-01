@@ -1,5 +1,5 @@
 {
-    "generic": {
+  "generic": {
     "Back": "Zpět",
     "Confirm": "Potvrdit",
     "Directory": "Adresář",
@@ -14,6 +14,7 @@
     "Launch": "Spustit",
     "Load": "Nahrát",
     "Next": "Další",
+    "No Help Information Found": "No Help Information Found",
     "Open": "Otevřít",
     "Previous": "Předchozí",
     "Recursive": "Rekurzivní",
@@ -24,7 +25,7 @@
     "True": "Ano",
     "Use": "Použijte",
     "Visible": "Viditelné"
-  },  
+  },
   "muxapp": {
     "APPLICATIONS": "APLIKACE",
     "Archive Manager": "Správce archivu",
@@ -46,8 +47,8 @@
     "No Archives Found": "Nebyly nalezeny žádné archivy"
   },
   "muxassign": {
-    "ASSIGN CORE": "PŘIŘADIT JÁDRO",
     "ASSIGN": "PŘIŘADIT",
+    "ASSIGN CORE": "PŘIŘADIT JÁDRO",
     "No Cores Found...": "Nebyla nalezena žádná jádra..."
   },
   "muxcharge": {
@@ -108,11 +109,12 @@
     "DHCP": "DHCP",
     "DNS Server": "Server DNS",
     "Device IP": "IP adresa zařízení",
+    "Disconnect": "Disconnect",
     "Encrypting Password...": "Šifrování hesla...",
     "Gateway IP": "Brána IP",
     "Identifier": "SSID",
     "Network Disabled": "Vypnutá síť",
-    "Network Type": "Typ sítě",    
+    "Network Type": "Typ sítě",
     "Not Connected": "Nepřipojeno",
     "Password": "Heslo",
     "Please check network settings": "Zkontrolujte nastavení sítě",
@@ -124,6 +126,10 @@
     "Trying to Connect...": "Pokus o připojení...",
     "WI-FI NETWORK": "WI-FI SÍŤ"
   },
+  "muxoption": {
+    "Assign Core": "Assign Core",
+    "System Governor": "System Governor"
+  },
   "muxpass": {
     "PASSCODE": "HESLO"
   },
@@ -132,10 +138,10 @@
     "Could not load content - No core is associated": "Nelze načíst obsah - není přidruženo žádné jádro",
     "Could not load content!": "Obsah se nepodařilo načíst!",
     "Directories cannot be added to Favourites": "Adresáře nelze přidat do oblíbených položek",
+    "EXPLORE": "PROZKOUMAT",
     "EXPLORE (SD1)": "PROZKOUMAT (SD1)",
     "EXPLORE (SD2)": "PROZKOUMAT (SD2)",
     "EXPLORE (USB)": "PROZKOUMAT (USB)",
-    "EXPLORE": "PROZKOUMAT",
     "Error adding to Favourites": "Chyba při přidávání do oblíbených",
     "FAVOURITES": "OBLÍBENÉ",
     "Favourite": "Oblíbené",
@@ -213,7 +219,7 @@
     "Battery Offset": "Posunutí baterie",
     "Brightness On Boot": "Jas při spuštění",
     "Device Rumble": "Vybrace zařízení",
-    "HDMI Audio Output": "HDMI audio výstup",    
+    "HDMI Audio Output": "HDMI audio výstup",
     "High": "Vysoký",
     "Interface Font Type": "Typ písma rozhraní",
     "LED During Play": "LED během hraní",
@@ -229,13 +235,13 @@
     "Shutdown": "Vypnutí",
     "Shutdown + Sleep": "Vypnutí + Spánek",
     "Sleep": "Spánek",
-    "Startup": "Spuštění",    
+    "Startup": "Spuštění",
     "Startup + Shutdown": "Spuštění + Vypnutí",
     "Startup + Sleep": "Spuštění + Spánek",
     "Storage Preference": "Předvolba úložiště",
     "Suspend Power State": "Pozastavit stav napájení",
-    "Theme Controlled": "Řízené Tématem",
     "Theme": "Téma",
+    "Theme Controlled": "Řízené Tématem",
     "Thermal Zone Control": "Ovládání tepelné zóny",
     "USB Function": "Funkce USB",
     "Verbose Messages": "Podrobné zprávy",
@@ -310,7 +316,7 @@
     "Winter Sky (-96)": "Zimní obloha (-96)"
   },
   "muxvisual": {
-    "Background Animation": "Animace pozadí",    
+    "Background Animation": "Animace pozadí",
     "Battery": "Baterie",
     "Bluetooth": "Bluetooth",
     "Bottom + Behind": "Dole + V pozadí",
@@ -332,8 +338,9 @@
     "Middle + Front": "Střed + Na popředí",
     "Network": "Síť",
     "Remove ( )": "Odstranit ( )",
-    "Remove [ ] and ( )": "Odstranit [ ] a ( )",
     "Remove [ ]": "Odstranit [ ]",
+    "Remove [ ] and ( )": "Odstranit [ ] a ( )",
+    "Title Include Root Drive": "Title Include Root Drive",
     "Top + Behind": "Nahoře + V pozadí",
     "Top + Front": "Nahoře + Na popředí"
   },

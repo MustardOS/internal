@@ -14,6 +14,7 @@
     "Launch": "起動する",
     "Load": "設定を読み込む",
     "Next": "次へ",
+    "No Help Information Found": "No Help Information Found",
     "Open": "開く",
     "Previous": "前回の設定を使用",
     "Recursive": "再帰的に指定",
@@ -54,7 +55,7 @@
     "Booting System - Please Wait...": "システムを起動しています - お待ちください...",
     "Capacity": "容量",
     "Health": "状態",
-    "Press POWER button to continue booting...": "起動を続けるには電源ボタンを押してください...",
+    "Press POWER button to continue booting...": "起動を続けるには電源ボタンを押してください…",
     "Voltage": "電圧"
   },
   "muxconfig": {
@@ -75,7 +76,7 @@
   },
   "muxlanguage": {
     "LANGUAGES": "言語",
-    "No Languages Found...": "言語が見つかりませんでした...",
+    "No Languages Found...": "言語が見つかりませんでした…",
     "Saving Language": "言語を設定しています"
   },
   "muxlaunch": {
@@ -90,7 +91,7 @@
     "Shutdown": "電源を切る"
   },
   "muxnetprofile": {
-    "Loading Network Profiles...": "ネットワーク設定を読み込み中...",
+    "Loading Network Profiles...": "ネットワーク設定を読み込み中…",
     "NETWORK PROFILE": "ネットワーク設定",
     "No Saved Network Profiles Found": "保存されているネットワーク設定が見つかりませんでした"
   },
@@ -98,7 +99,7 @@
     "NETWORK SCAN": "ネットワーク検索",
     "No Wi-Fi Networks Found": "Wi-Fi ネットワークが見つかりませんでした",
     "Rescan": "再検索",
-    "Scanning for Wi-Fi Networks...": "Wi-Fi ネットワークを検索中..."
+    "Scanning for Wi-Fi Networks...": "Wi-Fi ネットワークを検索中…"
   },
   "muxnetwork": {
     "Cannot modify while connected!": "接続中は変更出来ません!",
@@ -106,10 +107,10 @@
     "Connect": "接続する",
     "Connected": "接続済み",
     "DHCP": "DHCP",
-    "Disconnect": "接続を切る",
     "DNS Server": "DNS サーバー",
     "Device IP": "デバイス IP",
-    "Encrypting Password...": "パスワードを暗号化しています...",
+    "Disconnect": "接続を切る",
+    "Encrypting Password...": "パスワードを暗号化しています…",
     "Gateway IP": "ゲートウェイ IP",
     "Identifier": "ネットワーク名",
     "Network Disabled": "ネットワークを無効にする",
@@ -122,8 +123,12 @@
     "Static": "静的",
     "Status": "状態",
     "Subnet CIDR": "サブネット CIDR",
-    "Trying to Connect...": "接続しています...",
+    "Trying to Connect...": "接続しています…",
     "WI-FI NETWORK": "WI-FI ネットワーク"
+  },
+  "muxoption": {
+    "Assign Core": "Assign Core",
+    "System Governor": "System Governor"
   },
   "muxpass": {
     "PASSCODE": "パスコード"
@@ -142,7 +147,7 @@
     "Favourite": "お気に入りに追加",
     "HISTORY": "履歴",
     "Info": "情報",
-    "Loading...": "読み込み中...",
+    "Loading...": "読み込み中…",
     "Refresh": "再読み込み"
   },
   "muxrtc": {
@@ -203,7 +208,7 @@
     "THEME PICKER": "テーマ選択"
   },
   "muxtimezone": {
-    "No Timezones Found...": "タイムゾーンが見つかりませんでした...",
+    "No Timezones Found...": "タイムゾーンが見つかりませんでした…",
     "Saving Timezone": "タイムゾーンを保存しています",
     "TIMEZONE": "タイムゾーン"
   },
@@ -335,6 +340,7 @@
     "Remove ( )": "( )を省略",
     "Remove [ ]": "[ ]を省略",
     "Remove [ ] and ( )": "[ ] と ( )を省略",
+    "Title Include Root Drive": "Title Include Root Drive",
     "Top + Behind": "上部 + 背面",
     "Top + Front": "上部 + 前面"
   },

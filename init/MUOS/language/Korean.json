@@ -14,6 +14,7 @@
     "Launch": "실행",
     "Load": "로드",
     "Next": "다음",
+    "No Help Information Found": "No Help Information Found",
     "Open": "열기",
     "Previous": "이전 상태",
     "Recursive": "하위 디렉터리 포함",
@@ -70,8 +71,8 @@
     "Activity Tracker": "액티비티 트래커",
     "INFORMATION": "정보",
     "Input Tester": "인풋 테스트기",
-    "System Details": "시스템 상세정보",
-    "Supporters": "후원 감사의 말"
+    "Supporters": "후원 감사의 말",
+    "System Details": "시스템 상세정보"
   },
   "muxlanguage": {
     "LANGUAGES": "언어",
@@ -108,6 +109,7 @@
     "DHCP": "DHCP",
     "DNS Server": "DNS 서버",
     "Device IP": "디바이스 IP",
+    "Disconnect": "Disconnect",
     "Encrypting Password...": "비밀번호 암호화중...",
     "Gateway IP": "게이트웨이 IP",
     "Identifier": "네트워크 식별자",
@@ -123,6 +125,10 @@
     "Subnet CIDR": "서브넷 CIDR",
     "Trying to Connect...": "연결 시도중...",
     "WI-FI NETWORK": "WI-FI 네트워크"
+  },
+  "muxoption": {
+    "Assign Core": "Assign Core",
+    "System Governor": "System Governor"
   },
   "muxpass": {
     "PASSCODE": "패스코드"
@@ -334,6 +340,7 @@
     "Remove ( )": "( ) 제거",
     "Remove [ ]": "[ ] 제거",
     "Remove [ ] and ( )": "[ ] ( ) 모두 제거",
+    "Title Include Root Drive": "Title Include Root Drive",
     "Top + Behind": "상단 + 뒤에",
     "Top + Front": "상단 + 앞에"
   },

@@ -14,6 +14,7 @@
     "Launch": "Lancer",
     "Load": "Charger",
     "Next": "Suivant",
+    "No Help Information Found": "No Help Information Found",
     "Open": "Ouvrir",
     "Previous": "Précédent",
     "Recursive": "Récursif",
@@ -53,9 +54,9 @@
   "muxcharge": {
     "Booting System - Please Wait...": "Démarrage du système - Merci de patienter...",
     "Capacity": "Capacité",
-    "Voltage": "Tension",
     "Health": "Santé",
-    "Press POWER button to continue booting...": "Appuyez sur POWER pour démarrer..."
+    "Press POWER button to continue booting...": "Appuyez sur POWER pour démarrer...",
+    "Voltage": "Tension"
   },
   "muxconfig": {
     "CONFIGURATION": "CONFIGURATION",
@@ -106,9 +107,9 @@
     "Connect": "Connecter",
     "Connected": "Connecté",
     "DHCP": "DHCP",
-    "Disconnect": "Déconnecter",
     "DNS Server": "Serveur DNS",
     "Device IP": "IP de la console",
+    "Disconnect": "Déconnecter",
     "Encrypting Password...": "Chiffrement du mot de passe...",
     "Gateway IP": "IP de la passerelle",
     "Identifier": "Identifiant",
@@ -124,6 +125,10 @@
     "Subnet CIDR": "CIDR du sous-réseau",
     "Trying to Connect...": "Connexion en cours...",
     "WI-FI NETWORK": "RÉSEAU WI-FI"
+  },
+  "muxoption": {
+    "Assign Core": "Assign Core",
+    "System Governor": "System Governor"
   },
   "muxpass": {
     "PASSCODE": "MOT DE PASSE"
@@ -168,7 +173,7 @@
     "RetroArch Configs": "Configurations RetroArch",
     "SD1": "SD1",
     "SD2": "SD2",
-    "STORAGE PREFERENCE": "PRÉFÉRENCE DE STOCKAGE",
+    "STORAGE PREFERENCE": "PRÉFÉRENCES DE STOCKAGE",
     "Save Games + Save States": "Sauvegarde du jeu + Sauvegarde d'état",
     "Screenshots": "Captures d'écran",
     "Themes": "Thèmes"
@@ -180,13 +185,12 @@
     "CPU Information": "Information CPU",
     "CPU Speed": "Fréquence CPU",
     "Device Type": "Type de console",
+    "Linux Kernel": "Noyau Linux",
     "RAM Usage": "Utilisation RAM",
     "Running Services": "Services en cours d'exécution",
     "SYSTEM DETAILS": "DÉTAILS DU SYSTÈME",
-    "Linux Kernel": "Noyau Linux",
     "System Uptime": "Durée de fonctionnement",
     "Temperature": "Température",
-    "Thank you for using muOS!": "Merci d'utiliser muOS!",
     "muOS Version": "Version de muOS"
   },
   "muxtask": {
@@ -295,21 +299,21 @@
     "Neutral White (0)": "Blanc neutre (0)",
     "Resume Game": "Jeu en cours",
     "Show Hidden Content": "Afficher le contenu caché",
-    "Sleep 10s + Shutdown": "Veille pendant 10s + Extinction",
-    "Sleep 30s + Shutdown": "Veille pendant 30s + Extinction",
-    "Sleep 60s + Shutdown": "Veille pendant 60s + Extinction",
-    "Sleep 2m + Shutdown": "Veille pendant 2m + Extinction",
-    "Sleep 5m + Shutdown": "Veille pendant 5m + Extinction",
     "Sleep 10m + Shutdown": "Veille pendant 10m + Extinction",
+    "Sleep 10s + Shutdown": "Veille pendant 10s + Extinction",
+    "Sleep 2m + Shutdown": "Veille pendant 2m + Extinction",
     "Sleep 30m + Shutdown": "Veille pendant 30m + Extinction",
+    "Sleep 30s + Shutdown": "Veille pendant 30s + Extinction",
+    "Sleep 5m + Shutdown": "Veille pendant 5m + Extinction",
     "Sleep 60m + Shutdown": "Veille pendant 60m + Extinction",
+    "Sleep 60s + Shutdown": "Veille pendant 60s + Extinction",
     "Sleep Function": "Fonction de veille",
     "Sleep Suspend": "Mise en veille",
     "Soft Ivory (96)": "Ivoire (96)",
     "Sunset Orange (192)": "Orange coucher de soleil (192)",
     "Warm Glow (160)": "Lueur chaude (160)",
-    "Winter Sky (-96)": "Ciel d'hiver (-96)",
-    "Warm White (64)": "Blanc chaud (64)"
+    "Warm White (64)": "Blanc chaud (64)",
+    "Winter Sky (-96)": "Ciel d'hiver (-96)"
   },
   "muxvisual": {
     "Background Animation": "Animation d'arrière-plan",
@@ -333,9 +337,10 @@
     "Middle + Behind": "Milieu + Derrière",
     "Middle + Front": "Milieu + Devant",
     "Network": "Réseau",
-    "Remove [ ]": "Retirer les [ ]",
     "Remove ( )": "Retirer les ( )",
+    "Remove [ ]": "Retirer les [ ]",
     "Remove [ ] and ( )": "Retirer les [ ] et les ( )",
+    "Title Include Root Drive": "Title Include Root Drive",
     "Top + Behind": "Haut + Derrière",
     "Top + Front": "Haut + Devant"
   },

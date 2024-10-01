@@ -9,7 +9,8 @@ This repository holds all of the key infrastructure of mustardOS (muOS):
 * `script`: Various POSIX compliant script files which is the backbone of muOS
 * `theme`: The default theme which is a fallback for many of the muX modules
 ## Language Translation
-This project is supported by [Weblate](https://weblate.org) and translations can be found here: https://hosted.weblate.org/projects/muos/mux/
+This project is supported by [Weblate](https://weblate.org) and translations can be found by clicking the image below!
+### Translation Status
 <a href="https://hosted.weblate.org/engage/muos/">
-<img src="https://hosted.weblate.org/widget/muos/mux/multi-auto.svg" alt="Translation status" />
+<img src="https://hosted.weblate.org/widget/muos/mux/multi-auto.svg" alt="Translation Status" />
 </a>

@@ -1,0 +1,5 @@
+[font]
+FONT_LIST_PAD_RIGHT=-1
+
+[misc]
+CONTENT_WIDTH=-1

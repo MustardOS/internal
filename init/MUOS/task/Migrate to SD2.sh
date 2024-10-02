@@ -340,13 +340,15 @@ fi
 sleep 1
 rsync $RSYNC_OPTS "$SD1_SCREENSHOT" "$SD2_SCREENSHOT"
 
+# Migrate themes to SD2
+# Themes on Pre-Banana versions are not migrated due to theme engine changes.
 echo -e "\nCopying Themes to SD Card 2"
 if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e "Copying Themes to SD Card 2\n" >/tmp/muxlog_info
+	echo -e "Skipping theme migration to SD Card 2\n" >/tmp/muxlog_info
+else
+	sleep 1
+	rsync $RSYNC_OPTS "$SD1_THEME" "$SD2_THEME"
 fi
-sleep 1
-rsync $RSYNC_OPTS "$SD1_THEME" "$SD2_THEME"
-
 
 if [ -d "$SD1_OPENBOR_SAVE" ]; then
 	echo -e "\nCopying OpenBOR Saves and Screenshots to SD Card 2"

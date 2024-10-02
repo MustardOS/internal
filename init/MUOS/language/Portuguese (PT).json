@@ -14,7 +14,7 @@
     "Launch": "Abrir",
     "Load": "Carregar",
     "Next": "Próximo",
-    "No Help Information Found": "No Help Information Found",
+    "No Help Information Found": "Não encontrada nenhuma informação de ajuda",
     "Open": "Abrir",
     "Previous": "Anterior",
     "Recursive": "Recursivo",
@@ -52,7 +52,7 @@
     "No Cores Found...": "Nenhum core encontrado..."
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "A iniciar sistema - Por favor, aguarde...",
+    "Booting System - Please Wait...": "A iniciar sistema - Por favor, aguarde…",
     "Capacity": "Capacidade",
     "Health": "Saúde",
     "Press POWER button to continue booting...": "Pressione o botão POWER para continuar o arranque...",
@@ -127,7 +127,7 @@
     "WI-FI NETWORK": "REDE WI-FI"
   },
   "muxoption": {
-    "Assign Core": "Assign Core",
+    "Assign Core": "Atribuir Core",
     "System Governor": "System Governor"
   },
   "muxpass": {

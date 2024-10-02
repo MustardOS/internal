@@ -1,7 +1,7 @@
 {
   "generic": {
     "Back": "Terug",
-    "Confirm": "Gereed",
+    "Confirm": "Bevestig",
     "Directory": "Map",
     "Disabled": "Uit",
     "Enabled": "Aan",
@@ -14,7 +14,7 @@
     "Launch": "Starten",
     "Load": "Laden",
     "Next": "Volgende",
-    "No Help Information Found": "No Help Information Found",
+    "No Help Information Found": "Geen Hulp Informatie Gevonden",
     "Open": "Openen",
     "Previous": "Vorige",
     "Recursive": "Recursief",
@@ -34,7 +34,7 @@
     "GMU Music Player": "GMU Music Player",
     "Loading Application": "Applicatie wordt geladen",
     "Moonlight": "Moonlight",
-    "No Applications Found": "Geen applicaties gevonden",
+    "No Applications Found": "Geen Applicaties Gevonden",
     "PPSSPP": "PPSSPP",
     "PortMaster": "PortMaster",
     "RetroArch": "RetroArch",
@@ -108,7 +108,7 @@
     "Connected": "Verbonden",
     "DHCP": "DHCP",
     "DNS Server": "DNS-server",
-    "Device IP": "IP-adres",
+    "Device IP": "IP-Adres",
     "Disconnect": "Verbinding verbreken",
     "Encrypting Password...": "Wachtwoord versleutelen…",
     "Gateway IP": "Gateway",
@@ -127,7 +127,7 @@
     "WI-FI NETWORK": "NETWERK"
   },
   "muxoption": {
-    "Assign Core": "Assign Core",
+    "Assign Core": "Core Toewijzen",
     "System Governor": "System Governor"
   },
   "muxpass": {
@@ -138,10 +138,10 @@
     "Could not load content - No core is associated": "Kon media niet laden - Geen Core toegewezen",
     "Could not load content!": "Kon media niet Laden!",
     "Directories cannot be added to Favourites": "Mappen kunnen niet aan Favorieten toegevoegd worden",
-    "EXPLORE": "DOORZOEKEN",
-    "EXPLORE (SD1)": "DOORZOEKEN (SD1)",
-    "EXPLORE (SD2)": "DOORZOEKEN (SD2)",
-    "EXPLORE (USB)": "DOORZOEKEN (USB)",
+    "EXPLORE": "VERKENNEN",
+    "EXPLORE (SD1)": "VERKENNEN (SD1)",
+    "EXPLORE (SD2)": "VERKENNEN (SD2)",
+    "EXPLORE (USB)": "VERKENNEN (USB)",
     "Error adding to Favourites": "Fout bij toevoegen aan Favorieten",
     "FAVOURITES": "FAVORIETEN",
     "Favourite": "Favoriet",

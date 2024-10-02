@@ -14,7 +14,7 @@
     "Launch": "Spustit",
     "Load": "Nahrát",
     "Next": "Další",
-    "No Help Information Found": "No Help Information Found",
+    "No Help Information Found": "Nebyly nalezeny žádné informace nápovědy",
     "Open": "Otevřít",
     "Previous": "Předchozí",
     "Recursive": "Rekurzivní",
@@ -49,13 +49,13 @@
   "muxassign": {
     "ASSIGN": "PŘIŘADIT",
     "ASSIGN CORE": "PŘIŘADIT JÁDRO",
-    "No Cores Found...": "Nebyla nalezena žádná jádra..."
+    "No Cores Found...": "Nebyla nalezena žádná jádra…"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "Zavádění systému - čekejte prosím...",
+    "Booting System - Please Wait...": "Zavádění systému - čekejte prosím…",
     "Capacity": "Kapacita",
     "Health": "Zdraví",
-    "Press POWER button to continue booting...": "Stisknutím tlačítka NAPÁJENÍ pokračujte v bootovaní...",
+    "Press POWER button to continue booting...": "Stisknutím tlačítka NAPÁJENÍ pokračujte v bootovaní…",
     "Voltage": "Napětí"
   },
   "muxconfig": {
@@ -120,14 +120,14 @@
     "Please check network settings": "Zkontrolujte nastavení sítě",
     "Profiles": "Profily",
     "Scan": "Skenovat",
-    "Static": "Statická ",
+    "Static": "Statická",
     "Status": "Stav",
     "Subnet CIDR": "Podsíť CIDR",
     "Trying to Connect...": "Pokus o připojení...",
     "WI-FI NETWORK": "WI-FI SÍŤ"
   },
   "muxoption": {
-    "Assign Core": "Assign Core",
+    "Assign Core": "Přiřadit Core",
     "System Governor": "System Governor"
   },
   "muxpass": {

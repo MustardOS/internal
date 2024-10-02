@@ -14,7 +14,7 @@
     "Launch": "Запуск",
     "Load": "Загрузить",
     "Next": "Следующий",
-    "No Help Information Found": "No Help Information Found",
+    "No Help Information Found": "Справочная информация не найдена",
     "Open": "Открыть",
     "Previous": "Предыдущий",
     "Recursive": "Рекурсивный",
@@ -49,13 +49,13 @@
   "muxassign": {
     "ASSIGN": "НАЗНАЧИТЬ",
     "ASSIGN CORE": "НАЗНАЧЕНИЕ ЯДЕР",
-    "No Cores Found...": "Ядра не найдены..."
+    "No Cores Found...": "Ядра не найдены…"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "Перезагрузка системы - пожалуйста, подождите...",
+    "Booting System - Please Wait...": "Перезагрузка системы - пожалуйста, подождите…",
     "Capacity": "Емкость",
     "Health": "Здоровье",
-    "Press POWER button to continue booting...": "Нажмите кнопку питания для продолжения запуска...",
+    "Press POWER button to continue booting...": "Нажмите кнопку питания для продолжения запуска…",
     "Voltage": "Напряжение"
   },
   "muxconfig": {
@@ -76,7 +76,7 @@
   },
   "muxlanguage": {
     "LANGUAGES": "ЯЗЫКИ",
-    "No Languages Found...": "Языки не найдены...",
+    "No Languages Found...": "Языки не найдены…",
     "Saving Language": "Сохранение языка"
   },
   "muxlaunch": {
@@ -91,7 +91,7 @@
     "Shutdown": "Выключение"
   },
   "muxnetprofile": {
-    "Loading Network Profiles...": "Загрузка интернет профилей...",
+    "Loading Network Profiles...": "Загрузка интернет профилей…",
     "NETWORK PROFILE": "ИНТЕРНЕТ ПРОФИЛЬ",
     "No Saved Network Profiles Found": "Сохраненные сетевые профили не найдены"
   },
@@ -110,7 +110,7 @@
     "DNS Server": "DNS сервер",
     "Device IP": "IP устройства",
     "Disconnect": "Отключить",
-    "Encrypting Password...": "Шифрование пароля...",
+    "Encrypting Password...": "Шифрование пароля…",
     "Gateway IP": "IP шлюз",
     "Identifier": "Идентификатор",
     "Network Disabled": "Сеть отключена",
@@ -123,12 +123,12 @@
     "Static": "Статичный",
     "Status": "Статус",
     "Subnet CIDR": "Подсеть CIDR",
-    "Trying to Connect...": "Попытка соединения...",
+    "Trying to Connect...": "Попытка соединения…",
     "WI-FI NETWORK": "WI-FI СЕТЬ"
   },
   "muxoption": {
-    "Assign Core": "Assign Core",
-    "System Governor": "System Governor"
+    "Assign Core": "Присвоить ядро",
+    "System Governor": "Системный говернор"
   },
   "muxpass": {
     "PASSCODE": "ПАРОЛЬ"
@@ -136,7 +136,7 @@
   "muxplore": {
     "Added to Favourites": "Добавлено в избранное",
     "Could not load content - No core is associated": "Ядро не выбрано",
-    "Could not load content!": "Не удалось загрузить контент",
+    "Could not load content!": "Не удалось загрузить контент!",
     "Directories cannot be added to Favourites": "Пути не могут быть добавлены в Избранное",
     "EXPLORE": "БИБЛИОТЕКА",
     "EXPLORE (SD1)": "БИБЛИОТЕКА (SD1)",
@@ -147,7 +147,7 @@
     "Favourite": "Избранное",
     "HISTORY": "ИСТОРИЯ",
     "Info": "Информация",
-    "Loading...": "Загрузка...",
+    "Loading...": "Загрузка…",
     "Refresh": "Обновить"
   },
   "muxrtc": {
@@ -200,7 +200,7 @@
   "muxtester": {
     "INPUT TESTER": "ПРОВЕРКА КНОПОК",
     "Press POWER to finish testing": "Нажмите кнопку питания для завершения проверки",
-    "Press any button to start input testing!": "Нажмите любую кнопку для запуска проверки"
+    "Press any button to start input testing!": "Нажмите любую кнопку для запуска проверки!"
   },
   "muxtheme": {
     "Loading Theme": "Загрузка темы",
@@ -208,7 +208,7 @@
     "THEME PICKER": "ВЫБОР ТЕМЫ"
   },
   "muxtimezone": {
-    "No Timezones Found...": "Часовые пояса не найдены...",
+    "No Timezones Found...": "Часовые пояса не найдены…",
     "Saving Timezone": "Сохранение часового пояса",
     "TIMEZONE": "ЧАСОВОЙ ПОЯС"
   },
@@ -340,7 +340,7 @@
     "Remove ( )": "Удалить ( )",
     "Remove [ ]": "Удалить [ ]",
     "Remove [ ] and ( )": "Удалить [ ] и ( )",
-    "Title Include Root Drive": "Title Include Root Drive",
+    "Title Include Root Drive": "Название включает в себя корневой диск",
     "Top + Behind": "Сверху + Сзади",
     "Top + Front": "Сверху + Спереди"
   },

@@ -14,7 +14,7 @@
     "Launch": "Lancer",
     "Load": "Charger",
     "Next": "Suivant",
-    "No Help Information Found": "No Help Information Found",
+    "No Help Information Found": "Aucune information d'aide trouvée",
     "Open": "Ouvrir",
     "Previous": "Précédent",
     "Recursive": "Récursif",
@@ -49,13 +49,13 @@
   "muxassign": {
     "ASSIGN": "ASSIGNER",
     "ASSIGN CORE": "ASSIGNER UN CORE",
-    "No Cores Found...": "Aucun core trouvé..."
+    "No Cores Found...": "Aucun core trouvé…"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "Démarrage du système - Merci de patienter...",
+    "Booting System - Please Wait...": "Démarrage du système - Merci de patienter…",
     "Capacity": "Capacité",
     "Health": "Santé",
-    "Press POWER button to continue booting...": "Appuyez sur POWER pour démarrer...",
+    "Press POWER button to continue booting...": "Appuyez sur POWER pour démarrer…",
     "Voltage": "Tension"
   },
   "muxconfig": {
@@ -76,7 +76,7 @@
   },
   "muxlanguage": {
     "LANGUAGES": "LANGUES",
-    "No Languages Found...": "Aucune langue trouvée...",
+    "No Languages Found...": "Aucune langue trouvée…",
     "Saving Language": "Sauvegarde de la langue"
   },
   "muxlaunch": {
@@ -91,7 +91,7 @@
     "Shutdown": "Éteindre"
   },
   "muxnetprofile": {
-    "Loading Network Profiles...": "Chargement des profils réseau...",
+    "Loading Network Profiles...": "Chargement des profils réseau…",
     "NETWORK PROFILE": "PROFIL RÉSEAU",
     "No Saved Network Profiles Found": "Aucun profil réseau enregistré trouvé"
   },
@@ -99,7 +99,7 @@
     "NETWORK SCAN": "SCAN DES RÉSEAUX",
     "No Wi-Fi Networks Found": "Aucun réseau Wi-Fi trouvé",
     "Rescan": "Rescanner",
-    "Scanning for Wi-Fi Networks...": "Scan des réseaux Wi-Fi en cours..."
+    "Scanning for Wi-Fi Networks...": "Scan des réseaux Wi-Fi en cours…"
   },
   "muxnetwork": {
     "Cannot modify while connected!": "Modification impossible en étant connecté!",
@@ -110,7 +110,7 @@
     "DNS Server": "Serveur DNS",
     "Device IP": "IP de la console",
     "Disconnect": "Déconnecter",
-    "Encrypting Password...": "Chiffrement du mot de passe...",
+    "Encrypting Password...": "Chiffrement du mot de passe…",
     "Gateway IP": "IP de la passerelle",
     "Identifier": "Identifiant",
     "Network Disabled": "Réseau désactivé",
@@ -123,12 +123,12 @@
     "Static": "Statique",
     "Status": "Statut",
     "Subnet CIDR": "CIDR du sous-réseau",
-    "Trying to Connect...": "Connexion en cours...",
+    "Trying to Connect...": "Connexion en cours…",
     "WI-FI NETWORK": "RÉSEAU WI-FI"
   },
   "muxoption": {
-    "Assign Core": "Assign Core",
-    "System Governor": "System Governor"
+    "Assign Core": "Assigner un core",
+    "System Governor": "Gouverneur système"
   },
   "muxpass": {
     "PASSCODE": "MOT DE PASSE"
@@ -340,7 +340,7 @@
     "Remove ( )": "Retirer les ( )",
     "Remove [ ]": "Retirer les [ ]",
     "Remove [ ] and ( )": "Retirer les [ ] et les ( )",
-    "Title Include Root Drive": "Title Include Root Drive",
+    "Title Include Root Drive": "Périphérique de stockage dans le titre",
     "Top + Behind": "Haut + Derrière",
     "Top + Front": "Haut + Devant"
   },

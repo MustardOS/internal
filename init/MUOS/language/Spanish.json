@@ -14,7 +14,7 @@
     "Launch": "Lanzar",
     "Load": "Cargar",
     "Next": "Siguiente",
-    "No Help Information Found": "No Help Information Found",
+    "No Help Information Found": "No se encontró información de ayuda",
     "Open": "Abrir",
     "Previous": "Anterior",
     "Recursive": "Recursivo",
@@ -52,7 +52,7 @@
     "No Cores Found...": "No se encontraron núcleos…"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "Arrancando sistema - Por favor, espere...",
+    "Booting System - Please Wait...": "Arrancando sistema - Por favor, espere…",
     "Capacity": "Capacidad",
     "Health": "Estado",
     "Press POWER button to continue booting...": "Presione el botón POWER para continuar el arranque…",
@@ -127,8 +127,8 @@
     "WI-FI NETWORK": "RED WI-FI"
   },
   "muxoption": {
-    "Assign Core": "Assign Core",
-    "System Governor": "System Governor"
+    "Assign Core": "Asignar núcleo",
+    "System Governor": "Gobernador del sistema"
   },
   "muxpass": {
     "PASSCODE": "CÓDIGO DE ACCESO"
@@ -340,7 +340,7 @@
     "Remove ( )": "Eliminar paréntesis ( )",
     "Remove [ ]": "Eliminar corchetes [ ]",
     "Remove [ ] and ( )": "Eliminar corchetes [ ] y paréntesis ( )",
-    "Title Include Root Drive": "Title Include Root Drive",
+    "Title Include Root Drive": "Mostrar unidad en el título",
     "Top + Behind": "Arriba + Detrás",
     "Top + Front": "Arriba + Delante"
   },

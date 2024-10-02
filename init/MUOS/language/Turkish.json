@@ -14,7 +14,7 @@
     "Launch": "Başlat",
     "Load": "Yükle",
     "Next": "Sonraki",
-    "No Help Information Found": "No Help Information Found",
+    "No Help Information Found": "Yardım bilgisi bulunamadı",
     "Open": "Aç",
     "Previous": "Önceki",
     "Recursive": "Yinelenmiş",
@@ -52,7 +52,7 @@
     "No Cores Found...": "Çekirdek bulunamadı…"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "Sistem yükleniyor - Lütfen bekleyin...",
+    "Booting System - Please Wait...": "Sistem yükleniyor - Lütfen bekleyin…",
     "Capacity": "Kapasite",
     "Health": "Sağlık",
     "Press POWER button to continue booting...": "Yüklemeye devam etmek için GÜÇ düğmesine basın…",
@@ -127,8 +127,8 @@
     "WI-FI NETWORK": "WI-FI AĞI"
   },
   "muxoption": {
-    "Assign Core": "Assign Core",
-    "System Governor": "System Governor"
+    "Assign Core": "Çekirdek ata",
+    "System Governor": "Sistem yöneticisi"
   },
   "muxpass": {
     "PASSCODE": "ŞİFRE"
@@ -340,7 +340,7 @@
     "Remove ( )": "Kaldır ( )",
     "Remove [ ]": "Kaldır [ ]",
     "Remove [ ] and ( )": "Kaldır [ ] ve ( )",
-    "Title Include Root Drive": "Title Include Root Drive",
+    "Title Include Root Drive": "Başlık Root Sürücüyü İçerir",
     "Top + Behind": "Üst + Arka",
     "Top + Front": "Üst + Ön"
   },

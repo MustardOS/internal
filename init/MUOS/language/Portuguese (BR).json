@@ -14,7 +14,7 @@
     "Launch": "Iniciar",
     "Load": "Carregar",
     "Next": "Próximo",
-    "No Help Information Found": "No Help Information Found",
+    "No Help Information Found": "Informações de Ajuda Não Encontradas",
     "Open": "Abrir",
     "Previous": "Anterior",
     "Recursive": "Recursivo",
@@ -52,7 +52,7 @@
     "No Cores Found...": "Nenhum Núcleo Encontrado..."
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "Iniciando Sistema - Por Favor Aguarde...",
+    "Booting System - Please Wait...": "Iniciando Sistema - Por Favor Aguarde…",
     "Capacity": "Capacidade",
     "Health": "Saúde",
     "Press POWER button to continue booting...": "Pressione o botão POWER(Ligar) para iniciar o sistema...",
@@ -109,7 +109,7 @@
     "DHCP": "DHCP",
     "DNS Server": "Servidor DNS",
     "Device IP": "IP do Dispositivo",
-    "Disconnect": "Disconnect",
+    "Disconnect": "Desconectar",
     "Encrypting Password...": "Criptografando senha...",
     "Gateway IP": "IP do Gateway",
     "Identifier": "Identificador",
@@ -127,8 +127,8 @@
     "WI-FI NETWORK": "REDE WI-FI"
   },
   "muxoption": {
-    "Assign Core": "Assign Core",
-    "System Governor": "System Governor"
+    "Assign Core": "Associar Núcleo",
+    "System Governor": "Governador de Sistema"
   },
   "muxpass": {
     "PASSCODE": "SENHA"
@@ -340,7 +340,7 @@
     "Remove ( )": "Remover ( )",
     "Remove [ ]": "Remover [ ]",
     "Remove [ ] and ( )": "Remover [ ] e ( )",
-    "Title Include Root Drive": "Title Include Root Drive",
+    "Title Include Root Drive": "Título Inclui Unidade Raiz",
     "Top + Behind": "Acima + Ao Fundo",
     "Top + Front": "Acima + À Frente"
   },

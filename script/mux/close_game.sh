@@ -103,7 +103,7 @@ HALT_SYSTEM() {
 
 	# When "verbose messages" setting is enabled, run the underlying halt
 	# script in fbpad so its output is visible on screen.
-	if [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 1 ]; then
+	if [ "$HALT_SRC" = frontend ] && [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 1 ]; then
 		/opt/muos/bin/fbpad /opt/muos/script/system/halt.sh "$HALT_CMD" </dev/null
 	else
 		/opt/muos/script/system/halt.sh "$HALT_CMD"

@@ -2,6 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
+killall muhotkey # (input.sh will restart it)
+
 C_BRIGHT="$(cat /opt/muos/config/brightness.txt)"
 if [ "$C_BRIGHT" -lt 1 ]; then
 	/opt/muos/device/current/input/combo/bright.sh U

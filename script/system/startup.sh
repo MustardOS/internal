@@ -73,7 +73,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	done
 
 	LOGGER "$0" "FACTORY RESET" "Starting Input Reader"
-	/opt/muos/device/current/input/input.sh
+	/opt/muos/device/current/input/input.sh &
 	/usr/bin/mpg123 -q /opt/muos/factory.mp3 &
 
 	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then

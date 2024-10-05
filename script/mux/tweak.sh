@@ -27,3 +27,6 @@ else
 fi
 
 /opt/muos/script/system/usb.sh &
+
+# Set the device specific SDL Controller Map
+/opt/muos/script/mux/sdl_map.sh &

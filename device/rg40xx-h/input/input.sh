@@ -14,6 +14,8 @@ READ_HOTKEYS() {
 	# Restart muhotkey if it exits. (tweak.sh kills it on config changes.)
 	# Order matters! Only the first matching combo will trigger.
 	while true; do
+		# Don't enable hold for RGB combos since rgbcli is a bit slow
+		# and allowing holds makes the input loop unresponsive.
 		/opt/muos/extra/muhotkey \
 			-C OSF=POWER_LONG+L1+L2+R1+R2 \
 			-C SLEEP=POWER_LONG \
@@ -22,6 +24,11 @@ READ_HOTKEYS() {
 			-H VOL_UP=VOL_UP \
 			-H BRIGHT_DOWN=VOL_DOWN+MENU_LONG \
 			-H VOL_DOWN=VOL_DOWN \
+			-C RGB_MODE=R3+MENU_LONG \
+			-C RGB_BRIGHT_UP=RS_UP+MENU_LONG \
+			-C RGB_BRIGHT_DOWN=RS_DOWN+MENU_LONG \
+			-C RGB_COLOR_PREV=RS_LEFT+MENU_LONG \
+			-C RGB_COLOR_NEXT=RS_RIGHT+MENU_LONG \
 			-C RETROWAIT_IGNORE=START \
 			-C RETROWAIT_MENU=SELECT
 	done
@@ -47,6 +54,13 @@ HANDLE_HOTKEY() {
 		VOL_UP) /opt/muos/device/current/input/combo/audio.sh U ;;
 		BRIGHT_DOWN) /opt/muos/device/current/input/combo/bright.sh D ;;
 		VOL_DOWN) /opt/muos/device/current/input/combo/audio.sh D ;;
+
+		# Stick combos:
+		RGB_MODE) RGB_CLI -m up ;;
+		RGB_BRIGHT_UP) RGB_CLI -b up ;;
+		RGB_BRIGHT_DOWN) RGB_CLI -b down ;;
+		RGB_COLOR_PREV) RGB_CLI -c down ;;
+		RGB_COLOR_NEXT) RGB_CLI -c up ;;
 
 		# Misc combos:
 		RETROWAIT_IGNORE)
@@ -111,6 +125,12 @@ SLEEP() {
 			fi
 			;;
 	esac
+}
+
+RGB_CLI() {
+	RGB_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.rgbcontroller"
+	LD_LIBRARY_PATH="$RGB_DIR/libs:$LD_LIBRARY_PATH" \
+		"$RGB_DIR/love" "$RGB_DIR/rgbcli" "$@"
 }
 
 mkdir -p /tmp/trigger

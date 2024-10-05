@@ -14,7 +14,7 @@
     "Launch": "실행",
     "Load": "로드",
     "Next": "다음",
-    "No Help Information Found": "No Help Information Found",
+    "No Help Information Found": "도움말 정보가 없음",
     "Open": "열기",
     "Previous": "이전 상태",
     "Recursive": "하위 디렉터리 포함",
@@ -49,13 +49,13 @@
   "muxassign": {
     "ASSIGN": "할당",
     "ASSIGN CORE": "코어 할당하기",
-    "No Cores Found...": "코어 없음..."
+    "No Cores Found...": "코어 없음…"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "시스템 부팅중 - 기다려주세요...",
+    "Booting System - Please Wait...": "시스템 부팅중 - 기다려주세요…",
     "Capacity": "배터리 용량",
     "Health": "배터리 상태",
-    "Press POWER button to continue booting...": "부팅을 계속하려면 전원 버튼을 누르세요...",
+    "Press POWER button to continue booting...": "부팅을 계속하려면 전원 버튼을 누르세요…",
     "Voltage": "배터리 전압"
   },
   "muxconfig": {
@@ -76,7 +76,7 @@
   },
   "muxlanguage": {
     "LANGUAGES": "언어",
-    "No Languages Found...": "언어 설정 없음...",
+    "No Languages Found...": "언어 설정 없음…",
     "Saving Language": "언어 저장중"
   },
   "muxlaunch": {
@@ -91,7 +91,7 @@
     "Shutdown": "시스템 종료"
   },
   "muxnetprofile": {
-    "Loading Network Profiles...": "네트워크 프로필 로드중...",
+    "Loading Network Profiles...": "네트워크 프로필 로드중…",
     "NETWORK PROFILE": "네트워크 프로필",
     "No Saved Network Profiles Found": "저장된 네트워크 프로필을 찾을 수 없음"
   },
@@ -99,18 +99,18 @@
     "NETWORK SCAN": "네트워크 스캔",
     "No Wi-Fi Networks Found": "Wi-Fi 네트워크를 찾을 수 없음",
     "Rescan": "재스캔",
-    "Scanning for Wi-Fi Networks...": "Wi-Fi 네트워크 스캔 중..."
+    "Scanning for Wi-Fi Networks...": "Wi-Fi 네트워크 스캔 중…"
   },
   "muxnetwork": {
     "Cannot modify while connected!": "연결된 상태에서는 변경이 불가!",
     "Changes Saved": "변경 저장됨",
     "Connect": "연결",
     "Connected": "연결됨",
-    "DHCP": "DHCP",
+    "DHCP": "DHCP 방식",
     "DNS Server": "DNS 서버",
     "Device IP": "디바이스 IP",
-    "Disconnect": "Disconnect",
-    "Encrypting Password...": "비밀번호 암호화중...",
+    "Disconnect": "연결 해제",
+    "Encrypting Password...": "비밀번호 암호화중…",
     "Gateway IP": "게이트웨이 IP",
     "Identifier": "네트워크 식별자",
     "Network Disabled": "네트워크 비활성화",
@@ -120,15 +120,15 @@
     "Please check network settings": "네트워크 설정을 확인하세요",
     "Profiles": "프로필",
     "Scan": "스캔",
-    "Static": "Static",
+    "Static": "Static 방식",
     "Status": "연결 상태",
     "Subnet CIDR": "서브넷 CIDR",
-    "Trying to Connect...": "연결 시도중...",
+    "Trying to Connect...": "연결 시도중…",
     "WI-FI NETWORK": "WI-FI 네트워크"
   },
   "muxoption": {
-    "Assign Core": "Assign Core",
-    "System Governor": "System Governor"
+    "Assign Core": "코어 할당",
+    "System Governor": "시스템 거버너"
   },
   "muxpass": {
     "PASSCODE": "패스코드"
@@ -147,8 +147,33 @@
     "Favourite": "즐겨찾기",
     "HISTORY": "최근 실행",
     "Info": "정보",
-    "Loading...": "로드 중...",
+    "Loading...": "로드 중…",
     "Refresh": "새로고침"
+  },
+  "muxpower": {
+    "10m": "10m",
+    "10s": "10s",
+    "15m": "15m",
+    "2m": "2m",
+    "30m": "30m",
+    "30s": "30s",
+    "5m": "5m",
+    "60s": "60s",
+    "Idle Input Display Timeout": "Idle Input Display Timeout",
+    "Idle Input Sleep Timeout": "Idle Input Sleep Timeout",
+    "Instant Shutdown": "Instant Shutdown",
+    "Low Battery Indicator": "Low Battery Indicator",
+    "POWER SETTINGS": "POWER SETTINGS",
+    "Sleep 10m + Shutdown": "Sleep 10m + Shutdown",
+    "Sleep 10s + Shutdown": "Sleep 10s + Shutdown",
+    "Sleep 2m + Shutdown": "Sleep 2m + Shutdown",
+    "Sleep 30m + Shutdown": "Sleep 30m + Shutdown",
+    "Sleep 30s + Shutdown": "Sleep 30s + Shutdown",
+    "Sleep 5m + Shutdown": "Sleep 5m + Shutdown",
+    "Sleep 60m + Shutdown": "Sleep 60m + Shutdown",
+    "Sleep 60s + Shutdown": "Sleep 60s + Shutdown",
+    "Sleep Function": "Sleep Function",
+    "Sleep Suspend": "Sleep Suspend"
   },
   "muxrtc": {
     "12 Hour": "12 시간제",
@@ -208,7 +233,7 @@
     "THEME PICKER": "테마 피커"
   },
   "muxtimezone": {
-    "No Timezones Found...": "타임존 발견되지 않음...",
+    "No Timezones Found...": "타임존 발견되지 않음…",
     "Saving Timezone": "타임존 저장중",
     "TIMEZONE": "타임존"
   },
@@ -253,18 +278,10 @@
     "1080p + 24hz": "1080p + 24hz",
     "1080p + 50hz": "1080p + 50hz",
     "1080p + 60hz": "1080p + 60hz",
-    "10m": "10분",
-    "10s": "10초",
-    "15m": "15분",
-    "2m": "2분",
-    "30m": "30분",
-    "30s": "30초",
     "480i": "480i",
     "480p": "480p",
     "576i": "576i",
     "576p": "576p",
-    "5m": "5분",
-    "60s": "60초",
     "720p + 50hz": "720p + 50hz",
     "720p + 60hz": "720p + 60hz",
     "Advanced Settings": "고급 설정",
@@ -288,27 +305,13 @@
     "HDMI Output": "HDMI 출력",
     "History": "최근 실행",
     "Icy Chill (-224)": "Icy Chill (-224)",
-    "Idle Input Display Timeout": "디스플레이 입력 대기 시간",
-    "Idle Input Sleep Timeout": "슬립 기능 입력 대기 시간",
-    "Instant Shutdown": "즉시 시스템 종료",
     "Interface Options": "인터페이스 옵션",
     "Last Game": "마지막 실행 게임",
-    "Low Battery Indicator": "배터리 부족 표시",
     "Main Menu": "메인 메뉴",
     "Navigation Sound": "이동 효과음",
     "Neutral White (0)": "Neutral White (0)",
     "Resume Game": "게임 재개",
     "Show Hidden Content": "숨긴 콘텐츠 보기",
-    "Sleep 10m + Shutdown": "슬립 10분 이후 시스템 종료",
-    "Sleep 10s + Shutdown": "슬립 10초 이후 시스템 종료",
-    "Sleep 2m + Shutdown": "슬립 2분 이후 시스템 종료",
-    "Sleep 30m + Shutdown": "슬립 30분 이후 시스템 종료",
-    "Sleep 30s + Shutdown": "슬립 30초 이후 시스템 종료",
-    "Sleep 5m + Shutdown": "슬립 5분 이후 시스템 종료",
-    "Sleep 60m + Shutdown": "슬립 60분 이후 시스템 종료",
-    "Sleep 60s + Shutdown": "슬립 60초 이후 시스템 종료",
-    "Sleep Function": "슬립 기능",
-    "Sleep Suspend": "슬립 지속",
     "Soft Ivory (96)": "Soft Ivory (96)",
     "Sunset Orange (192)": "Sunset Orange (192)",
     "Warm Glow (160)": "Warm Glow (160)",
@@ -340,7 +343,7 @@
     "Remove ( )": "( ) 제거",
     "Remove [ ]": "[ ] 제거",
     "Remove [ ] and ( )": "[ ] ( ) 모두 제거",
-    "Title Include Root Drive": "Title Include Root Drive",
+    "Title Include Root Drive": "제목에 드라이브 표시",
     "Top + Behind": "상단 + 뒤에",
     "Top + Front": "상단 + 앞에"
   },

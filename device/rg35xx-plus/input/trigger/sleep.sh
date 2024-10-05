@@ -20,7 +20,7 @@ while true; do
 		SLEEP_TIMER_VAL=0
 	fi
 
-	if [ "$SLEEP_TIMER_VAL" -eq "$(GET_VAR "global" "settings/general/shutdown")" ]; then
+	if [ "$SLEEP_TIMER_VAL" -eq "$(GET_VAR "global" "settings/power/shutdown")" ]; then
 		/opt/muos/script/system/suspend.sh resume
 		HALT_SYSTEM sleep poweroff
 	fi

@@ -90,7 +90,7 @@ DISPLAY_ACTIVE() {
 }
 
 SLEEP() {
-	case "$(GET_VAR global settings/general/shutdown)" in
+	case "$(GET_VAR global settings/power/shutdown)" in
 		# Disabled:
 		-2) ;;
 		# Sleep Suspend:

@@ -5,7 +5,7 @@
 while :; do
 	CHA="$(cat "$(GET_VAR "device" "battery/charger")")"
 	CAP="$(cat "$(GET_VAR "device" "battery/capacity")")"
-	LOW=$(GET_VAR "global" "settings/general/low_battery")
+	LOW=$(GET_VAR "global" "settings/power/low_battery")
 
 	printf "[BATTERY]\tCAPACITY: %s\tLOW INDICATOR: %s\n" "$CAP" "$LOW"
 

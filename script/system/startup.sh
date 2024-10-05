@@ -126,12 +126,26 @@ LOGGER "$0" "BOOTING" "Detecting Charge Mode"
 LOGGER "$0" "BOOTING" "Setting Device Controls"
 /opt/muos/device/current/script/control.sh &
 
+# Set the device specific SDL Controller Map
 LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
+GCDB_X="gamecontrollerdb_xbox.txt"
+GCDB="gamecontrollerdb.txt"
+if [ -f "/run/muos/global/settings/advanced/swap" ]; then
+	CTRLSWAP=$(< "/run/muos/global/settings/advanced/swap")
+else
+	CTRLSWAP=0
+fi
 for LIB_D in lib lib32; do
-	GCDB="gamecontrollerdb.txt"
-	if [ ! -f "/usr/$LIB_D/$GCDB" ]; then
-		ln -s "/opt/muos/device/current/control/$GCDB" "/usr/$LIB_D/$GCDB" &
-	fi
+if [ -f "/usr/$LIB_D/$GCDB" ]; then
+	rm -f "/usr/$LIB_D/$GCDB"
+fi
+
+# Check if user have requested controls be swapped to Xbox style
+if [ $CTRLSWAP -eq 0 ]; then
+	ln -s "/opt/muos/device/current/control/$GCDB" "/usr/$LIB_D/$GCDB" &
+else
+	ln -s "/opt/muos/device/current/control/$GCDB_X" "/usr/$LIB_D/$GCDB" &
+fi
 done
 
 LOGGER "$0" "BOOTING" "Checking for passcode lock"

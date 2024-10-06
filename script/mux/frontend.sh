@@ -1,8 +1,8 @@
 #!/bin/sh
 
 case ":$LD_LIBRARY_PATH:" in
-  *":/opt/muos/extra/lib:"*) ;;
-  *) export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH" ;;
+	*":/opt/muos/extra/lib:"*) ;;
+	*) export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH" ;;
 esac
 
 . /opt/muos/script/var/func.sh
@@ -78,7 +78,18 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 				OIP=$((OIP + 1))
 				if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
 					LOGGER "$0" "FRONTEND" "Network connected"
-					/opt/muos/extra/muxstart "Network connected... Booting content!"
+					/opt/muos/extra/muxstart "Network connected"
+
+					PIP=0
+					while ! ping -c 1 -W 5 8.8.8.8 >/dev/null 2>&1; do
+						PIP=$((PIP + 1))
+						LOGGER "$0" "FRONTEND" "Verifying connectivity..."
+						/opt/muos/extra/muxstart "Verifying connectivity... (%s)" "$PIP"
+						sleep 1
+					done
+
+					LOGGER "$0" "FRONTEND" "Connectivity verified!"
+					/opt/muos/extra/muxstart "Connectivity verified! Booting content!"
 					break
 				fi
 				if [ "$(cat "$NET_START")" = "ignore" ]; then

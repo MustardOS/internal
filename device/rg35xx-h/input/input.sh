@@ -54,15 +54,20 @@ HANDLE_HOTKEY() {
 	esac
 }
 
-MONITOR_FG_PROC() {
+MONITOR_IDLE_INHIBIT() {
 	# Monitor for specific programs that should inhibit idle timeout and
 	# prevent us from dimming the display or going to sleep.
 	while true; do
 		case "$(GET_VAR system foreground_process)" in
-			# TODO: Use SET_VAR 0/1 instead of touch/rm.
-			fbpad | muxcharge | muxcredits | muxstart) touch /run/muos/system/idle_inhibit ;;
-			*) rm -f /run/muos/system/idle_inhibit ;;
+			fbpad | muxcharge | muxcredits | muxstart) IDLE_INHIBIT=1 ;;
+			*) IDLE_INHIBIT=0 ;;
 		esac
+		# evsieve grabs input devices for exclusive access, preventing muhotkey from detecting
+		# activity. Disable idle entirely while it's running.
+		if pgrep -x evsieve >/dev/null; then
+			IDLE_INHIBIT=1
+		fi
+		SET_VAR system idle_inhibit "$IDLE_INHIBIT"
 		sleep 5
 	done
 }
@@ -117,7 +122,7 @@ if [ "$(GET_VAR global boot/factory_reset)" -eq 0 ]; then
 	/opt/muos/device/current/input/trigger/sleep.sh &
 fi
 
-MONITOR_FG_PROC &
+MONITOR_IDLE_INHIBIT &
 
 READ_HOTKEYS | while read -r HOTKEY; do
 	# Don't respond to any hotkeys while in charge mode.

@@ -126,13 +126,9 @@ LOGGER "$0" "BOOTING" "Detecting Charge Mode"
 LOGGER "$0" "BOOTING" "Setting Device Controls"
 /opt/muos/device/current/script/control.sh &
 
+# Set the device specific SDL Controller Map
 LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
-for LIB_D in lib lib32; do
-	GCDB="gamecontrollerdb.txt"
-	if [ ! -f "/usr/$LIB_D/$GCDB" ]; then
-		ln -s "/opt/muos/device/current/control/$GCDB" "/usr/$LIB_D/$GCDB" &
-	fi
-done
+/opt/muos/script/mux/sdl_map.sh &
 
 LOGGER "$0" "BOOTING" "Checking for passcode lock"
 HAS_UNLOCK=0

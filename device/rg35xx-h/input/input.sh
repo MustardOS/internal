@@ -49,13 +49,7 @@ HANDLE_HOTKEY() {
 		VOL_DOWN) /opt/muos/device/current/input/combo/audio.sh D ;;
 
 		# Misc combos:
-		RETROWAIT_IGNORE)
-			[ "$(GET_VAR global settings/advanced/retrowait)" -eq 1 ] && printf "ignore" >"/tmp/net_start"
-			# TODO: Add a handler for this in muxcredits instead.
-			if pgrep -f "muxcredits" >/dev/null; then
-				killall -q "muxcredits"
-			fi
-			;;
+		RETROWAIT_IGNORE) [ "$(GET_VAR global settings/advanced/retrowait)" -eq 1 ] && printf "ignore" >"/tmp/net_start" ;;
 		RETROWAIT_MENU) [ "$(GET_VAR global settings/advanced/retrowait)" -eq 1 ] && printf "menu" >"/tmp/net_start" ;;
 	esac
 }
@@ -65,7 +59,8 @@ MONITOR_FG_PROC() {
 	# prevent us from dimming the display or going to sleep.
 	while true; do
 		case "$(GET_VAR system foreground_process)" in
-			fbpad | muxcharge | muxstart) touch /run/muos/system/idle_inhibit ;;
+			# TODO: Use SET_VAR 0/1 instead of touch/rm.
+			fbpad | muxcharge | muxcredits | muxstart) touch /run/muos/system/idle_inhibit ;;
 			*) rm -f /run/muos/system/idle_inhibit ;;
 		esac
 		sleep 5

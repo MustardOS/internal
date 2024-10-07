@@ -100,22 +100,28 @@ GET_SIZE() {
 }
 
 # Add sizes of individual directories
-TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_BIOS")))
-echo "Size of BIOS Folder: $(GET_SIZE "$SD1_BIOS") MB"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e ""Size of BIOS Folder: $(GET_SIZE "$SD1_BIOS") MB"\n" >/tmp/muxlog_info
+if [ -d $SD1_BIOS ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_BIOS")))
+	echo "Size of BIOS Folder: $(GET_SIZE "$SD1_BIOS") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of BIOS Folder: $(GET_SIZE "$SD1_BIOS") MB"\n" >/tmp/muxlog_info
+	fi
 fi
 
-TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_CATALOGUE")))
-echo "Size of Catalogue Folder: $(GET_SIZE "$SD1_CATALOGUE") MB"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e ""Size of Catalogue Folder: $(GET_SIZE "$SD1_CATALOGUE") MB"\n" >/tmp/muxlog_info
+if [ -d $SD1_CATALOGUE ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_CATALOGUE")))
+	echo "Size of Catalogue Folder: $(GET_SIZE "$SD1_CATALOGUE") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of Catalogue Folder: $(GET_SIZE "$SD1_CATALOGUE") MB"\n" >/tmp/muxlog_info
+	fi
 fi
 
-TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_CONFIG")))
-echo "Size of Config Folder: $(GET_SIZE "$SD1_CONFIG") MB"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e ""Size of Config Folder: $(GET_SIZE "$SD1_CONFIG") MB"\n" >/tmp/muxlog_info
+if [ -d $SD1_CONFIG ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_CONFIG")))
+	echo "Size of Config Folder: $(GET_SIZE "$SD1_CONFIG") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of Config Folder: $(GET_SIZE "$SD1_CONFIG") MB"\n" >/tmp/muxlog_info
+	fi
 fi
 
 if [ -d $SD1_LANGUAGE ]; then
@@ -142,22 +148,28 @@ if [ -d $SD1_NAME ]; then
 	fi
 fi
 
-TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_SAVE")))
-echo "Size of Save Folder: $(GET_SIZE "$SD1_SAVE") MB"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e ""Size of Save Folder: $(GET_SIZE "$SD1_SAVE") MB"\n" >/tmp/muxlog_info
+if [ -d $SD1_SAVE ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_SAVE")))
+	echo "Size of Save Folder: $(GET_SIZE "$SD1_SAVE") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of Save Folder: $(GET_SIZE "$SD1_SAVE") MB"\n" >/tmp/muxlog_info
+	fi
 fi
 
-TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_SCREENSHOT")))
-echo "Size of Screenshot Folder: $(GET_SIZE "$SD1_SCREENSHOT") MB"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e ""Size of Screenshot Folder: $(GET_SIZE "$SD1_SCREENSHOT") MB"\n" >/tmp/muxlog_info
+if [ -d $SD1_SCREENSHOT ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_SCREENSHOT")))
+	echo "Size of Screenshot Folder: $(GET_SIZE "$SD1_SCREENSHOT") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of Screenshot Folder: $(GET_SIZE "$SD1_SCREENSHOT") MB"\n" >/tmp/muxlog_info
+	fi
 fi
 
-TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_THEME")))
-echo "Size of Theme Folder: $(GET_SIZE "$SD1_THEME") MB"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e ""Size of Theme Folder: $(GET_SIZE "$SD1_THEME") MB"\n" >/tmp/muxlog_info
+if [ -d $SD1_THEME ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_THEME")))
+	echo "Size of Theme Folder: $(GET_SIZE "$SD1_THEME") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of Theme Folder: $(GET_SIZE "$SD1_THEME") MB"\n" >/tmp/muxlog_info
+	fi
 fi
 
 if [ -d $SD1_OPENBOR_SAVE ]; then
@@ -166,7 +178,9 @@ if [ -d $SD1_OPENBOR_SAVE ]; then
 	if [ $CURRENT_VER = "PREBANANA" ]; then
 		echo -e ""Size of OpenBOR Save Folder: $(GET_SIZE "$SD1_OPENBOR_SAVE") MB"\n" >/tmp/muxlog_info
 	fi
+fi
 
+if [ -d $SD1_OPENBOR_SCREENSHOT ]; then
 	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_OPENBOR_SCREENSHOT")))
 	echo "Size of OpenBOR Screenshot Folder: $(GET_SIZE "$$SD1_OPENBOR_SCREENSHOT") MB"
 	if [ $CURRENT_VER = "PREBANANA" ]; then
@@ -181,23 +195,28 @@ if [ -d $SD1_PICO8 ]; then
 		echo -e ""Size of PICO-8 Folder: $(GET_SIZE "$SD1_PICO8") MB"\n" >/tmp/muxlog_info
 	fi
 fi
-
-TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_PPSSPP_SAVE")))
-echo "Size of PPSSPP Save Folder: $(GET_SIZE "$$SD1_PPSSPP_SAVE") MB"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e ""Size of PPSSPP Save Folder: $(GET_SIZE "$SD1_PPSSPP_SAVE") MB"\n" >/tmp/muxlog_info
+if [ -d $SD1_PPSSPP_SAVE ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_PPSSPP_SAVE")))
+	echo "Size of PPSSPP Save Folder: $(GET_SIZE "$$SD1_PPSSPP_SAVE") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of PPSSPP Save Folder: $(GET_SIZE "$SD1_PPSSPP_SAVE") MB"\n" >/tmp/muxlog_info
+	fi
 fi
 
-TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_PPSSPP_STATE")))
-echo "Size of PPSSPP State Folder: $(GET_SIZE "$$SD1_PPSSPP_STATE") MB"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e ""Size of PPSSPP State Folder: $(GET_SIZE "$SD1_PPSSPP_STATE") MB"\n" >/tmp/muxlog_info
+if [ -d $SD1_PPSSPP_STATE ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_PPSSPP_STATE")))
+	echo "Size of PPSSPP State Folder: $(GET_SIZE "$$SD1_PPSSPP_STATE") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of PPSSPP State Folder: $(GET_SIZE "$SD1_PPSSPP_STATE") MB"\n" >/tmp/muxlog_info
+	fi
 fi
 
-TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_DRASTIC_SAVE")))
-echo "Size of DraStic Save Folder: $(GET_SIZE "$$SD1_PPSSPP_SAVE") MB"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e ""Size of DraStic Save Folder: $(GET_SIZE "$SD1_DRASTIC_SAVE") MB"\n" >/tmp/muxlog_info
+if [ -d $SD1_DRASTIC_SAVE ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_DRASTIC_SAVE")))
+	echo "Size of DraStic Save Folder: $(GET_SIZE "$SD1_DRASTIC_SAVE") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of DraStic Save Folder: $(GET_SIZE "$SD1_DRASTIC_SAVE") MB"\n" >/tmp/muxlog_info
+	fi
 fi
 
 # Loop through SD1_CONTENT directories

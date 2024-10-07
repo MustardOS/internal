@@ -5,7 +5,7 @@
 CURRENT_IP="/opt/muos/config/address.txt"
 : >"$CURRENT_IP"
 
-killall -q dhcpcd wpa_supplicant sshd sftpgo gotty rslsync syncthing ntp.sh
+killall -q dhcpcd wpa_supplicant
 
 ip addr flush dev "$(GET_VAR "device" "network/iface")"
 ip link set "$(GET_VAR "device" "network/iface")" down
@@ -16,6 +16,10 @@ if [ "$(GET_VAR "device" "network/iface")" = "wlan0" ]; then
 	if [ "$(GET_VAR "global" "network/enabled")" -eq 0 ]; then
 		rmmod "$(GET_VAR "device" "network/module")"
 		: >/etc/wpa_supplicant.conf
+
+		# Stop all the web services because there isn't any point!
+		/opt/muos/script/web/service.sh &
+
 		exit
 	fi
 
@@ -62,4 +66,5 @@ if [ "$(cat "$CURRENT_IP")" = "0.0.0.0" ]; then
 	exit
 fi
 
+# Only start the web services if we have a proper IP address... hopefully!
 /opt/muos/script/web/service.sh &

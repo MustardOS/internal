@@ -33,15 +33,19 @@ chmod +x "$EMUDIR"/scummvm
 
 cd "$EMUDIR" || exit
 
+echo "SCVM var is $SCVM" > "$EMUDIR/log.txt"
+
 if [ "$SCVM" = "grim:grim" ]; then
 	GRIMINI="$EMUDIR"/.config/scummvm/grimm.ini
 	sed -i "s|^path=.*$|path=$ROMPATH/$SUBFOLDER|" "$GRIMINI"
 	if ! grep -q "\[grim-win\]" "$EMUDIR"/.config/scummvm/scummvm.ini; then
 		cat "$EMUDIR"/.config/scummvm/grimm.ini >>"$EMUDIR"/.config/scummvm/scummvm.ini
 	fi
-	HOME="$EMUDIR" SDL_ASSERT=always_ignore nice --20 ./scummvm --themepath="$THEME" --aspect-ratio -f "grim-win"
+    echo "Game found: $SCVM - Grim Detected!" >> "$EMUDIR/log.txt"
+	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --joystick=0 --themepath="$THEME" --aspect-ratio -f "grim-win"
 else
-	HOME="$EMUDIR" SDL_ASSERT=always_ignore nice --20 ./scummvm --aspect-ratio -f --extrapath="$EXTRA" --themepath="$THEME" --savepath="$SAVE" -p "$ROMPATH/$SUBFOLDER" "$SCVM"
+	echo "Game found: $SCVM - Grim NOT Detected!" >> "$EMUDIR/log.txt"
+	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --joystick=0 --aspect-ratio -f --extrapath="$EXTRA" --themepath="$THEME" --savepath="$SAVE" -p "$ROMPATH/$SUBFOLDER" "$SCVM"
 fi
 
 unset SDL_HQ_SCALER

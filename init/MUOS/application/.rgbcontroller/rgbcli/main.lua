@@ -8,7 +8,7 @@ local menu = tables.menu
 
 -- Load the settings from a file
 function loadSettings()
-    local filePath = "/mnt/mmc/MUOS/theme/active/rgb/settings.txt"
+    local filePath = "/run/muos/storage/theme/active/rgb/settings.txt"
     local file = io.open(filePath, "r")
     
     if file then
@@ -51,7 +51,7 @@ local function saveSettings()
         settings.speed
     )
     
-    local filePath = "/mnt/mmc/MUOS/theme/active/rgb/settings.txt"
+    local filePath = "/run/muos/storage/theme/active/rgb/settings.txt"
     local file = io.open(filePath, "w")
     
     if file then

@@ -8,6 +8,9 @@ BRIGHT_FILE=/opt/muos/config/brightness.txt
 SLEEP_STATE_FILE=/tmp/sleep_state
 POWER_LONG_FILE=/tmp/trigger/POWER_LONG
 
+RGBCONTROLLER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.rgbcontroller"
+RGBCONF_SCRIPT=/run/muos/storage/theme/active/rgb/rgbconf.sh
+
 RESUME_UPTIME="$(UPTIME)"
 
 READ_HOTKEYS() {
@@ -90,6 +93,7 @@ DISPLAY_IDLE() {
 	if [ "$(DISPLAY_READ lcd0 getbl)" -gt 10 ]; then
 		DISPLAY_WRITE lcd0 setbl 10
 	fi
+	/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
 }
 
 DISPLAY_ACTIVE() {
@@ -97,6 +101,7 @@ DISPLAY_ACTIVE() {
 	if [ "$(DISPLAY_READ lcd0 getbl)" -ne "$BL" ]; then
 		DISPLAY_WRITE lcd0 setbl "$BL"
 	fi
+	[ -x "$RGBCONF_SCRIPT" ] && "$RGBCONF_SCRIPT"
 }
 
 SLEEP() {
@@ -128,9 +133,8 @@ SLEEP() {
 }
 
 RGB_CLI() {
-	RGB_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.rgbcontroller"
-	LD_LIBRARY_PATH="$RGB_DIR/libs:$LD_LIBRARY_PATH" \
-		"$RGB_DIR/love" "$RGB_DIR/rgbcli" "$@"
+	LD_LIBRARY_PATH="$RGBCONTROLLER_DIR/libs:$LD_LIBRARY_PATH" \
+		"$RGBCONTROLLER_DIR/love" "$RGBCONTROLLER_DIR/rgbcli" "$@"
 }
 
 mkdir -p /tmp/trigger

@@ -33,18 +33,23 @@ chmod +x "$EMUDIR"/scummvm
 
 cd "$EMUDIR" || exit
 
-echo "SCVM var is $SCVM" > "$EMUDIR/log.txt"
-
 if [ "$SCVM" = "grim:grim" ]; then
 	GRIMINI="$EMUDIR"/.config/scummvm/grimm.ini
 	sed -i "s|^path=.*$|path=$ROMPATH/$SUBFOLDER|" "$GRIMINI"
 	if ! grep -q "\[grim-win\]" "$EMUDIR"/.config/scummvm/scummvm.ini; then
 		cat "$EMUDIR"/.config/scummvm/grimm.ini >>"$EMUDIR"/.config/scummvm/scummvm.ini
 	fi
-    echo "Game found: $SCVM - Grim Detected!" >> "$EMUDIR/log.txt"
 	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --joystick=0 --themepath="$THEME" --aspect-ratio -f "grim-win"
 else
-	echo "Game found: $SCVM - Grim NOT Detected!" >> "$EMUDIR/log.txt"
+	# Switch analogue<>dpad for stickless devices
+	case "$(GET_VAR "device" "board/name")" in
+    	rg28xx|rg35xx-2024|rg35xx-plus|rg35xx-sp)
+        	echo 2 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+        	;;
+    	*)
+       		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+        	;;
+	esac
 	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --joystick=0 --aspect-ratio -f --extrapath="$EXTRA" --themepath="$THEME" --savepath="$SAVE" -p "$ROMPATH/$SUBFOLDER" "$SCVM"
 fi
 

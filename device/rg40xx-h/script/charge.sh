@@ -16,4 +16,5 @@ if [ "$(cat "$(GET_VAR "device" "battery/boot_mode")")" -eq 1 ] && [ "$(GET_VAR 
 	fi
 
 	echo "performance" >"$(GET_VAR "device" "cpu/governor")"
+	echo 1 >"$(GET_VAR "device" "led/normal")"
 fi

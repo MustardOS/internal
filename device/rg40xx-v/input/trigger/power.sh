@@ -34,7 +34,7 @@ DEV_WAKE() {
 
 DEV_SLEEP() {
 	FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
-	case "$(cat "$FG_PROC_VAL")" in
+	case "$FG_PROC_VAL" in
 		fbpad | muxcharge | muxstart) ;;
 		*)
 			echo "off" >"$TMP_POWER_LONG"

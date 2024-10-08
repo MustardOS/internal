@@ -32,6 +32,12 @@ else
 	CRITICAL_FAILURE device "$(GET_VAR "device" "storage/rom/mount")" "/dev/$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")"
 fi
 
+BACK_UP_INIT() {
+	# Only back up a few configs since we want to leave free space on /.
+	LOGGER "FACTORY RESET" "Backing Up Default Configs"
+	rsync --archive --checksum /opt/muos/init/MUOS/info/config/ /opt/muos/backup/MUOS/info/config/
+}
+
 RESTORE_ROM_FS() {
 	LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
 	rsync --archive --checksum --remove-source-files /opt/muos/init/ "$(GET_VAR "device" "storage/rom/mount")"/ &
@@ -43,13 +49,14 @@ RESTORE_ROM_FS() {
 	done
 }
 
+LOGGER "$0" "FACTORY RESET" "Checking Init Directory"
 if [ "$(find /opt/muos/init -type f | wc -l)" -gt 0 ]; then
-	LOGGER "$0" "FACTORY RESET" "Checking init directory"
+	BACK_UP_INIT
 	RESTORE_ROM_FS
 	sleep 1
 fi
 
-LOGGER "$0" "FACTORY RESET" "Purging init directory"
+LOGGER "$0" "FACTORY RESET" "Purging Init Directory"
 rm -rf /opt/muos/init
 
 LOGGER "$0" "FACTORY RESET" "Binding Storage Mounts"

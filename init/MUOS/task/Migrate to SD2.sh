@@ -35,6 +35,7 @@ SD1_CONTENT="/mnt/mmc/MUOS/info/core /mnt/mmc/MUOS/info/favourite /mnt/mmc/MUOS/
 SD1_LANGUAGE="/mnt/mmc/MUOS/language"
 SD1_MUSIC="/mnt/mmc/MUOS/music"
 SD1_NAME="/mnt/mmc/MUOS/info/name"
+SD1_NETWORK="/mnt/mmc/MUOS/network"
 SD1_SAVE="/mnt/mmc/MUOS/save"
 SD1_SCREENSHOT="/mnt/mmc/MUOS/screenshot"
 SD1_THEME="/mnt/mmc/MUOS/theme"
@@ -57,6 +58,7 @@ SD2_CONTENT="/mnt/sdcard/MUOS/info"
 SD2_LANGUAGE="/mnt/sdcard/MUOS"
 SD2_MUSIC="/mnt/sdcard/MUOS"
 SD2_NAME="/mnt/sdcard/MUOS/info"
+SD2_NETWORK="/mnt/sdcard/MUOS"
 SD2_SAVE="/mnt/sdcard/MUOS"
 SD2_SCREENSHOT="/mnt/sdcard/MUOS"
 SD2_THEME="/mnt/sdcard/MUOS"
@@ -145,6 +147,14 @@ if [ -d $SD1_NAME ]; then
 	echo "Size of Name Folder: $(GET_SIZE "$SD1_NAME") MB"
 	if [ $CURRENT_VER = "PREBANANA" ]; then
 		echo -e ""Size of Name Folder: $(GET_SIZE "$SD1_NAME") MB"\n" >/tmp/muxlog_info
+	fi
+fi
+
+if [ -d $SD1_NETWORK ]; then
+	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_NETWORK")))
+	echo "Size of Name Folder: $(GET_SIZE "$SD1_NETWORK") MB"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e ""Size of Name Folder: $(GET_SIZE "$SD1_NETWORK") MB"\n" >/tmp/muxlog_info
 	fi
 fi
 
@@ -343,6 +353,17 @@ if [ -d "$SD1_NAME" ]; then
 	rsync $RSYNC_OPTS "$SD1_NAME" "$SD2_NAME"
 else
 	echo -e "\nNo names folder exists, skipping."
+fi
+
+if [ -d "$SD1_NETWORK" ]; then
+	echo -e "\nCopying Network Profiles to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Copying Network Profiles to SD Card 2\n" >/tmp/muxlog_info
+	fi
+	sleep 1
+	rsync $RSYNC_OPTS "$SD1_NETWORK" "$SD2_NETWORK"
+else
+	echo -e "\nNo Networl Profile folder exists, skipping."
 fi
 
 echo -e "\nCopying Saves to SD Card 2"

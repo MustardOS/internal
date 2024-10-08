@@ -24,8 +24,8 @@ else
 fi
 
 EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/scummvm"
-EXTRA="$EMUDIR/Extra"
-THEME="$EMUDIR/Theme"
+CONFIG="$EMUDIR/.config/scummvm/scummvm.ini"
+LOGPATH="/mnt/mmc/MUOS/log/scummvm/log.txt"
 SAVE="/run/muos/storage/save/file/ScummVM-Ext"
 
 mkdir -p "$SAVE"
@@ -39,7 +39,7 @@ if [ "$SCVM" = "grim:grim" ]; then
 	if ! grep -q "\[grim-win\]" "$EMUDIR"/.config/scummvm/scummvm.ini; then
 		cat "$EMUDIR"/.config/scummvm/grimm.ini >>"$EMUDIR"/.config/scummvm/scummvm.ini
 	fi
-	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --joystick=0 --themepath="$THEME" --aspect-ratio -f "grim-win"
+	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" "grim-win"
 else
 	# Switch analogue<>dpad for stickless devices
 	case "$(GET_VAR "device" "board/name")" in
@@ -50,7 +50,7 @@ else
        		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
         	;;
 	esac
-	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --joystick=0 --aspect-ratio -f --extrapath="$EXTRA" --themepath="$THEME" --savepath="$SAVE" -p "$ROMPATH/$SUBFOLDER" "$SCVM"
+	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$ROMPATH/$SUBFOLDER" "$SCVM"
 fi
 
 unset SDL_HQ_SCALER

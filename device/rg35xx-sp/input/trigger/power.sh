@@ -95,8 +95,11 @@ while true; do
 		DEV_WAKE
 	fi
 
-	# update lid closed flag and sleep state when lid is closed
-	if [ "$HALL_KEY_VAL" = "0" ]; then
+	# update lid closed flag and sleep state when lid is closed and asleep
+	#
+	# this lets us track lid state transitions (not just current state) and
+	# only wake up on lid open if the lid was previously closed
+	if [ "$HALL_KEY_VAL" = "0" ] && [ "$SLEEP_STATE_VAL" != awake ]; then
 		echo "1" >"$LID_CLOSED_FLAG"
 		echo "sleep-closed" >"$SLEEP_STATE"
 	fi

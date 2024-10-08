@@ -11,8 +11,6 @@ POWER_LONG_FILE=/tmp/trigger/POWER_LONG
 RGBCONTROLLER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.rgbcontroller"
 RGBCONF_SCRIPT=/run/muos/storage/theme/active/rgb/rgbconf.sh
 
-RESUME_UPTIME="$(UPTIME)"
-
 READ_HOTKEYS() {
 	# Restart muhotkey if it exits. (tweak.sh kills it on config changes.)
 	# Order matters! Only the first matching combo will trigger.
@@ -110,13 +108,12 @@ SLEEP() {
 		-2) ;;
 		# Sleep Suspend:
 		-1)
-			if [ "$(echo "$(UPTIME) - $RESUME_UPTIME >= .1" | bc)" -eq 1 ]; then
+			if [ "$(echo "$(UPTIME) - $(GET_VAR system resume_uptime) >= .1" | bc)" -eq 1 ]; then
 				# When the user wakes the device from the mem
 				# power state with a long press, we receive that
 				# event right after resuming. Avoid suspending
 				# again by ignoring power presses within 100ms.
 				/opt/muos/script/system/suspend.sh power
-				RESUME_UPTIME="$(UPTIME)"
 			fi
 			;;
 		# Instant Shutdown:

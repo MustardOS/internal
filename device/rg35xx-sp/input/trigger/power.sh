@@ -2,6 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
+. /opt/muos/script/mux/close_game.sh
+
 TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
 
 HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
@@ -72,11 +74,33 @@ while true; do
 
 	# power button OR lid closed
 	if { [ "$TMP_POWER_LONG_VAL" = "off" ] || [ "$HALL_KEY_VAL" = "0" ]; } && [ "$SLEEP_STATE_VAL" = "awake" ]; then
-		if pgrep -f "playbgm.sh" >/dev/null; then
-			pkill -STOP "playbgm.sh"
-			killall -q "mpg123"
-		fi
-		DEV_SLEEP
+		# HACK: We duplicate this logic from input.sh, but only for the
+		# SP. On other devices, power.sh only handles the "Sleep XXs +
+		# Shutdown" mode, and input.sh handles the other modes directly.
+		#
+		# But the SP's lid switch is read via a file (hallkey) that
+		# requires polling, whereas the input loop spends most of its
+		# time blocked waiting for evdev events. On the SP, power.sh
+		# handles *all* shutdown settings in response to lid close.
+		#
+		# We should move the hallkey polling elsewhere (into muhotkey?)
+		# and rework power.sh to only handle "soft sleep" again.
+		case "$(GET_VAR global settings/power/shutdown)" in
+			# Disabled:
+			-2) ;;
+			# Sleep Suspend:
+			-1) /opt/muos/script/system/suspend.sh power ;;
+			# Instant Shutdown:
+			2) HALT_SYSTEM sleep poweroff ;;
+			# Sleep XXs + Shutdown:
+			*)
+				if pgrep -f "playbgm.sh" >/dev/null; then
+					pkill -STOP "playbgm.sh"
+					killall -q "mpg123"
+				fi
+				DEV_SLEEP
+				;;
+		esac
 	fi
 
 	# power button with lid open

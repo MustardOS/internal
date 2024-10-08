@@ -61,7 +61,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	esac
 
 	LOGGER "$0" "FACTORY RESET" "Setting date time to default"
-	date 090100002024
+	date 101100002024
 	hwclock -w
 
 	/opt/muos/extra/muxtimezone

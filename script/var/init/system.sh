@@ -17,3 +17,4 @@ export GLOBAL_CONFIG DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR XDG_RUNTIME_D
 mkdir -p "/run/muos/system"
 touch "/run/muos/system/foreground_process"
 echo 0 >"/run/muos/system/idle_inhibit"
+echo 0 >"/run/muos/system/resume_uptime"

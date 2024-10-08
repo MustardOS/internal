@@ -55,6 +55,7 @@ case "$1" in
 		GET_VAR "global" "settings/advanced/state" >"/sys/power/state"
 		sleep 0.1
 		RESUME
+		SET_VAR "system" "resume_uptime" "$(UPTIME)"
 		;;
 	sleep)
 		for PROC in $SUSPEND_PROC; do

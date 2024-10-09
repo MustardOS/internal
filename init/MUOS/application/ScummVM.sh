@@ -4,6 +4,8 @@
 
 . /opt/muos/script/var/func.sh
 
+echo app >/tmp/act_go
+
 export HOME=$(GET_VAR "device" "board/home")
 
 export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
@@ -32,7 +34,6 @@ case "$(GET_VAR "device" "board/name")" in
        	;;
 esac
 HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG"
-fi
 
 unset SDL_HQ_SCALER
 unset SDL_ROTATION

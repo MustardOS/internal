@@ -43,7 +43,7 @@
   },
   "muxarchive": {
     "ARCHIVE MANAGER": "ARCHIEFBEHEER",
-    "Archive items can be found and installed here - Save games and states, updates, themes etc": "Archive items can be found and installed here - Save games and states, updates, themes etc",
+    "Archive items can be found and installed here - Save games and states, updates, themes etc": "Archiefitems kunnen hier worden gevonden en geïnstalleerd - savegames en -states, updates, thema's enz.",
     "INSTALLED": "GEINSTALLEERD",
     "No Archives Found": "Geen archieven gevonden"
   },
@@ -51,7 +51,7 @@
     "ASSIGN": "TOEWIJZEN",
     "ASSIGN CORE": "CORE TOEWIJZEN",
     "No Cores Found...": "Geen cores gevonden…",
-    "This is where you can assign a core or external emulator to content": "This is where you can assign a core or external emulator to content"
+    "This is where you can assign a core or external emulator to content": "Hier kun je een core of externe emulator toewijzen aan inhoud"
   },
   "muxcharge": {
     "Booting System - Please Wait...": "Opstarten - Een ogenblik geduld…",
@@ -62,47 +62,47 @@
   },
   "muxconfig": {
     "CONFIGURATION": "CONFIGURATIE",
-    "Change your current date, time, and timezone": "Change your current date, time, and timezone",
-    "Connect to a Wi-Fi network manually or via a saved profile": "Connect to a Wi-Fi network manually or via a saved profile",
+    "Change your current date, time, and timezone": "Je huidige datum, tijd en tijdzone wijzigen",
+    "Connect to a Wi-Fi network manually or via a saved profile": "Maak handmatig of via een opgeslagen profiel verbinding met een Wi-Fi-netwerk",
     "Date and Time": "Datum en tijd",
-    "Device specific and muOS frontend settings can be found here": "Device specific and muOS frontend settings can be found here",
+    "Device specific and muOS frontend settings can be found here": "Apparaat specifieke en muOS frontend instellingen kunnen hier worden gevonden",
     "General Settings": "Algemene instellingen",
     "Language": "Taal",
-    "Select a muOS supported theme": "Select a muOS supported theme",
-    "Select your preferred language": "Select your preferred language",
+    "Select a muOS supported theme": "Selecteer een door muOS ondersteund thema",
+    "Select your preferred language": "Selecteer de gewenste taal",
     "Theme Picker": "Themabeheer",
-    "Toggle a range of configurable services you can access via an active network": "Toggle a range of configurable services you can access via an active network",
+    "Toggle a range of configurable services you can access via an active network": "Opties voor configureerbare services waartoe je toegang hebt via een actief netwerk",
     "Web Services": "Webdiensten",
     "Wi-Fi Network": "Netwerk"
   },
   "muxgov": {
-    "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance",
+    "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "CPU-governors configureren om de CPU-frequentie dynamisch aan te passen en energieverbruik en prestaties op elkaar af te stemmen",
     "GOVERNOR": "GOVERNOR",
-    "No Governors Found...": "No Governors Found…"
+    "No Governors Found...": "Geen Governors Gevonden…"
   },
   "muxinfo": {
-    "Access statistics of played content and other activity": "Access statistics of played content and other activity",
-    "Access version information and system details": "Access version information and system details",
+    "Access statistics of played content and other activity": "Bekijk statistieken van afgespeelde inhoud en andere activiteiten",
+    "Access version information and system details": "Toegang tot versie-informatie en systeemdetails",
     "Activity Tracker": "Activiteitstracker",
     "INFORMATION": "INFORMATIE",
     "Input Tester": "Test besturing",
     "Supporters": "Supporters",
     "System Details": "Systeemdetails",
-    "Test the controls of the device": "Test the controls of the device",
-    "View all of the current muOS supporters": "View all of the current muOS supporters"
+    "Test the controls of the device": "De bediening van het apparaat testen",
+    "View all of the current muOS supporters": "Bekijk alle huidige muOS-supporters"
   },
   "muxlanguage": {
     "LANGUAGES": "TALEN",
     "No Languages Found...": "Geen talen gevonden…",
     "Saving Language": "Taal opslaan",
-    "Select your preferred language": "Select your preferred language"
+    "Select your preferred language": "Selecteer de gewenste taal"
   },
   "muxlaunch": {
     "Applications": "Applicaties",
     "Configuration": "Configuratie",
-    "Content marked as favourite can be found and launched here": "Content marked as favourite can be found and launched here",
-    "Content on storage devices (SD1/SD2/USB) can be found and launched here": "Content on storage devices (SD1/SD2/USB) can be found and launched here",
-    "Content previously launched can be found and launched here": "Content previously launched can be found and launched here",
+    "Content marked as favourite can be found and launched here": "Inhoud die is gemarkeerd als favoriet kan hier worden gevonden en gestart",
+    "Content on storage devices (SD1/SD2/USB) can be found and launched here": "Inhoud op opslagapparaten (SD1/SD2/USB) kan hier worden gevonden en gestart",
+    "Content previously launched can be found and launched here": "Eerder gestarte inhoud kan hier gevonden en gelanceerd worden.",
     "Explore Content": "Media verkennen",
     "Favourites": "Favorieten",
     "History": "Geschiedenis",
@@ -112,7 +112,7 @@
     "Reboot your device safely": "Reboot your device safely",
     "Shut down your device safely": "Shut down your device safely",
     "Shutdown": "Uitschakelen",
-    "Various applications can be found and launched here": "Various applications can be found and launched here",
+    "Various applications can be found and launched here": "Diverse toepassingen kunnen hier worden gevonden en gestart.",
     "Various configurations can be changed here": "Various configurations can be changed here",
     "Various information can be found and launched here": "Various information can be found and launched here"
   },

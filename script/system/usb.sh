@@ -80,6 +80,14 @@ START() {
 }
 
 UPDATE_UMTPRD_CONF() {
+	# Hide SD2 folder if unmounted. Checking here doesn't handle the user
+	# (un)plugging SD2 with the device running, but that's likely uncommon.
+	if [ "$(GET_VAR "device" "storage/sdcard/active")" -eq 1 ]; then
+		sed 's|^#storage "/mnt/sdcard"|storage "/mnt/sdcard"|' -i /etc/umtprd/umtprd.conf
+	else
+		sed 's|^storage "/mnt/sdcard"|#storage "/mnt/sdcard"|' -i /etc/umtprd/umtprd.conf
+	fi
+
 	sed \
 		-e "s/^usb_vendor_id .*/usb_vendor_id \"$(USB_VID)\"/" \
 		-e "s/^usb_product_id .*/usb_product_id \"$(USB_PID)\"/" \

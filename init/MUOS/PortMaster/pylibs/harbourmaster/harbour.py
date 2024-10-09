@@ -102,8 +102,10 @@ class HarbourMaster():
 
         if self.device['name'].lower() in HM_PLATFORMS:
             self.platform = HM_PLATFORMS[self.device['name'].lower()](self)
+            self.platform_name = self.device['name'].lower()
         else:
             self.platform = HM_PLATFORMS['default'](self)
+            self.platform_name = 'default'
 
         self.callback = callback
         self.ports = []
@@ -926,6 +928,8 @@ class HarbourMaster():
         rtr = port_info.get('attr', {}).get('rtr', False)
         if rtr:
             add_list_unique(attrs, 'rtr')
+        else:
+            add_list_unique(attrs, '!rtr')
 
         exp = port_info.get('attr', {}).get('exp', False)
         if exp:
@@ -1789,7 +1793,7 @@ class HarbourMaster():
         if port_name.startswith('http'):
             if self.config['offline']:
                 cprint(f"Unable to download {port_name} when offline")
-                self.callback.message_box(_("Unable do download a port when in offline mode."))
+                self.callback.message_box(_("Unable to download in offline mode."))
                 return 255
 
             download_info = raw_download(self.temp_dir, port_name, callback=self.callback, md5_source=md5_source)
@@ -1868,7 +1872,7 @@ class HarbourMaster():
 
             if self.config['offline']:
                 cprint(f"Unable to download {port_name} when offline")
-                self.callback.message_box(_("Unable do download a port when in offline mode."))
+                self.callback.message_box(_("Unable to download in offline mode."))
                 return 255
 
             download_info = source.download(source.clean_name(port_name))

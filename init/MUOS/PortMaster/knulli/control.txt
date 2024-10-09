@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# TODO: check this
+CUR_TTY=/dev/tty0
+
 directory="userdata/roms"
 
 ESUDO=""
@@ -20,8 +23,8 @@ get_controls() {
   LOWRES="N"
 }
 
-if [ -f "$controlfolder/cwtbe_flag" ]; then
-  GPTOKEYB="$ESUDO $controlfolder/gptokeyb2 $ESUDOKILL"
-else
-  GPTOKEYB="$ESUDO $controlfolder/gptokeyb $ESUDOKILL"
-fi
+source $controlfolder/device_info.txt
+source $controlfolder/funcs.txt
+
+GPTOKEYB2="$ESUDO env LD_PRELOAD=$controlfolder/libinterpose.${DEVICE_ARCH}.so $controlfolder/gptokeyb2 $ESUDOKILL"
+GPTOKEYB="$ESUDO $controlfolder/gptokeyb $ESUDOKILL"

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ## -- BEGIN PORTMASTER INFO --
-PORTMASTER_VERSION = '2024.07.17-1125'
+PORTMASTER_VERSION = '2024.10.09-1027'
 PORTMASTER_RELEASE_CHANNEL = 'stable'
 ## -- END PORTMASTER INFO --
 
@@ -518,6 +518,7 @@ class PortMasterGUI(pySDL2gui.GUI, harbourmaster.Callback):
         logger.info(f"TTF DLL: {sdl2.sdlttf.get_dll_file()}, {nice_version(sdl2.sdlttf.TTF_Linked_Version()[0])}")
         logger.info(f"IMG DLL: {sdl2.sdlimage.get_dll_file()}, {nice_version(sdl2.sdlimage.IMG_Linked_Version()[0])}")
         logger.info(f"MIX DLL: {sdl2.sdlmixer.get_dll_file()}, {nice_version(sdl2.sdlmixer.Mix_Linked_Version()[0])}")
+        logger.info(f"HM_TESTING: {harbourmaster.HM_TESTING}")
 
         # Load controller.
         count = sdl2.SDL_NumJoysticks()
@@ -717,6 +718,9 @@ class PortMasterGUI(pySDL2gui.GUI, harbourmaster.Callback):
         if self.hm is not None:
             if self.hm.platform.WANT_XBOX_FIX:
                 self.events.fix_xbox_mode()
+
+            if self.hm.platform_name in ('retrodeck', ):
+                self.events.fix_retrodeck_mode()
 
             self.SWAP_BUTTONS = self.hm.platform.WANT_SWAP_BUTTONS
 

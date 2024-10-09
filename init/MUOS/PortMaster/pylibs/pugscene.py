@@ -1793,6 +1793,8 @@ class PortInfoPopup(BaseScene):
 
             self.config['buttons'] = {
                 'DOWN': 'pop_scene',
+                'L_DOWN': 'pop_scene',
+                'R_DOWN': 'pop_scene',
                 }
 
         if 'installed' in self.parent_info_scene.port_attrs:
@@ -1863,14 +1865,27 @@ class PortInfoScene(BaseScene):
 
                 self.config['buttons'] = {
                     'UP': 'port_info_popup',
+                    'L_UP': 'port_info_popup',
+                    'R_UP': 'port_info_popup',
+
                     'LEFT': 'prev_port',
+                    'L_LEFT': 'prev_port',
+                    'R_LEFT': 'prev_port',
+
                     'RIGHT': 'next_port',
+                    'L_RIGHT': 'next_port',
+                    'R_RIGHT': 'next_port',
                     }
 
             else:
                 self.config['buttons'] = {
                     'UP': 'prev_port',
+                    'L_UP': 'prev_port',
+                    'R_UP': 'prev_port',
+
                     'DOWN': 'next_port',
+                    'L_DOWN': 'next_port',
+                    'R_DOWN': 'next_port',
                     }
 
         if 'installed' in self.port_attrs:
@@ -1992,6 +2007,7 @@ class FiltersScene(BaseScene):
 
             # Attrs.
             "rtr":              _("Ready to Run"),
+            "!rtr":             _("Files Required"),
             "exp":              _("Experimental"),
             "not installed":    _("Not Installed"),
             "update available": _("Update Available"),
@@ -2008,6 +2024,11 @@ class FiltersScene(BaseScene):
             "mono":             _("{runtime_name} Runtime").format(runtime_name="Mono"),
             "rlvm":             _("{runtime_name} Runtime").format(runtime_name="RLVM"),
             "solarus":          _("{runtime_name} Runtime").format(runtime_name="Solarus"),
+
+            # Architecture
+            "armhf":            _("ARM 32bit"),
+            "aarch64":          _("ARM 64bit"),
+            "x86_64":           _("x86 64bit"),
             }
 
         # Hack to make other appear last, by default the order will be 0, you can set it to -1 for it to appear at the top.
@@ -2034,6 +2055,7 @@ class FiltersScene(BaseScene):
             'attr',
             # 'status',
             'genres',
+            # 'architecture',
             'porters',
             ]
 
@@ -2100,7 +2122,7 @@ class FiltersScene(BaseScene):
                         selected_offset = len(self.tags['filter_list'].options) - 1
 
             elif display_order == 'attr':
-                for hm_genre in ['rtr', 'mono', 'godot', 'solarus', 'rlvm', 'exp', 'not installed', 'update available', 'broken']:
+                for hm_genre in ['rtr', '!rtr', 'mono', 'godot', 'solarus', 'rlvm', 'exp', 'not installed', 'update available', 'broken']:
                     if hm_genre in self.locked_genres:
                         continue
 
@@ -2121,6 +2143,35 @@ class FiltersScene(BaseScene):
                         if add_blank:
                             self.tags['filter_list'].add_option(None, "")
                         self.tags['filter_list'].add_option(None, _("Attributes:"))
+                        first_add = False
+
+                    self.tags['filter_list'].add_option(hm_genre, text)
+
+                    if selected_option == hm_genre:
+                        selected_offset = len(self.tags['filter_list'].options) - 1
+
+            elif display_order == 'architecture':
+                for hm_genre in ['armhf', 'aarch64', 'x86_64']:
+                    if hm_genre in self.locked_genres:
+                        continue
+
+                    if hm_genre in self.list_scene.options['skip_genres']:
+                        continue
+
+                    if hm_genre in genres:
+                        ports = total_ports
+                        text = ["    ", "_CHECKED", f"  {filter_translation.get(hm_genre, hm_genre)}", None, "    ", f"  {ports}"]
+                    else:
+                        ports = len(self.gui.hm.list_ports(genres + [hm_genre]))
+                        text = ["    ", "_UNCHECKED", f"  {filter_translation.get(hm_genre, hm_genre)}", None, "    ", f"  {ports}"]
+
+                    if ports == 0:
+                        continue
+
+                    if first_add:
+                        if add_blank:
+                            self.tags['filter_list'].add_option(None, "")
+                        self.tags['filter_list'].add_option(None, _("Architecture:"))
                         first_add = False
 
                     self.tags['filter_list'].add_option(hm_genre, text)

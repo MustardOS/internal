@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Restore RetroArch Configuration
+# HELP: Restore the default RetroArch global settings and hotkeys (retroarch.cfg). Per-system core overrides will not be modified.
 # ICON: retroarch
 
 . /opt/muos/script/var/func.sh

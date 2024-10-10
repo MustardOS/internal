@@ -42,6 +42,7 @@ SD1_THEME="/mnt/mmc/MUOS/theme"
 SD1_OPENBOR_SAVE="/mnt/mmc/MUOS/emulator/openbor/userdata/saves/openbor/"
 SD1_OPENBOR_SCREENSHOT="/mnt/mmc/MUOS/emulator/openbor/userdata/screenshots/openbor/"
 SD1_PICO8="/mnt/mmc/MUOS/pico8/.lexaloffle/pico-8/"
+SD1_PICO8_BIOS="/mnt/mmc/MUOS/emulator/pico8/pico8_64 /mnt/mmc/MUOS/emulator/pico8/pico8.dat"
 SD1_PPSSPP_SAVE="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SAVEDATA/"
 SD1_PPSSPP_STATE="/mnt/mmc/MUOS/emulator/ppsspp/.config/ppsspp/PSP/PPSSPP_STATE/"
 if [ $CURRENT_VER = "PREBANANA" ]; then
@@ -65,6 +66,7 @@ SD2_THEME="/mnt/sdcard/MUOS"
 SD2_OPENBOR_SAVE="/mnt/sdcard/MUOS/save/file/OpenBOR-Ext"
 SD2_OPENBOR_SCREENSHOT="/mnt/sdcard/MUOS/screenshot"
 SD2_PICO8="/mnt/sdcard/MUOS/save/pico8"
+SD2_PICO8_BIOS="/mnt/sdcard/MUOS/bios"
 SD2_PPSSPP_SAVE="/mnt/sdcard/MUOS/save/file/PPSSPP-Ext"
 SD2_PPSSPP_STATE="/mnt/sdcard/MUOS/save/state/PPSSPP-Ext"
 SD2_DRASTIC_SAVE="/mnt/sdcard/MUOS/save/drastic/backup"
@@ -184,7 +186,7 @@ fi
 
 if [ -d $SD1_OPENBOR_SAVE ]; then
 	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_OPENBOR_SAVE")))
-	echo "Size of OpenBOR Save Folder: $(GET_SIZE "$$SD1_OPENBOR_SAVE") MB"
+	echo "Size of OpenBOR Save Folder: $(GET_SIZE "$SD1_OPENBOR_SAVE") MB"
 	if [ $CURRENT_VER = "PREBANANA" ]; then
 		echo -e ""Size of OpenBOR Save Folder: $(GET_SIZE "$SD1_OPENBOR_SAVE") MB"\n" >/tmp/muxlog_info
 	fi
@@ -192,7 +194,7 @@ fi
 
 if [ -d $SD1_OPENBOR_SCREENSHOT ]; then
 	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_OPENBOR_SCREENSHOT")))
-	echo "Size of OpenBOR Screenshot Folder: $(GET_SIZE "$$SD1_OPENBOR_SCREENSHOT") MB"
+	echo "Size of OpenBOR Screenshot Folder: $(GET_SIZE "$SD1_OPENBOR_SCREENSHOT") MB"
 	if [ $CURRENT_VER = "PREBANANA" ]; then
 		echo -e ""Size of OpenBOR Screenshot Folder: $(GET_SIZE "$SD1_OPENBOR_SCREENSHOT") MB"\n" >/tmp/muxlog_info
 	fi
@@ -200,14 +202,25 @@ fi
 
 if [ -d $SD1_PICO8 ]; then
 	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_PICO8")))
-	echo "Size of PICO-8 Folder: $(GET_SIZE "$$SD1_PICO8") MB"
+	echo "Size of PICO-8 Folder: $(GET_SIZE "$SD1_PICO8") MB"
 	if [ $CURRENT_VER = "PREBANANA" ]; then
 		echo -e ""Size of PICO-8 Folder: $(GET_SIZE "$SD1_PICO8") MB"\n" >/tmp/muxlog_info
 	fi
 fi
+
+for PICOFILE in $SD1_PICO8_BIOS; do
+	if [ -f $PICOFILE ]; then
+		TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$PICOFILE")))
+		echo "Size of $PICOFILE: $(GET_SIZE "$PICOFILE") MB"
+		if [ $CURRENT_VER = "PREBANANA" ]; then
+			echo -e ""Size of $PICOFILE: $(GET_SIZE "$PICOFILE") MB"\n" >/tmp/muxlog_info
+		fi
+	fi
+done
+
 if [ -d $SD1_PPSSPP_SAVE ]; then
 	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_PPSSPP_SAVE")))
-	echo "Size of PPSSPP Save Folder: $(GET_SIZE "$$SD1_PPSSPP_SAVE") MB"
+	echo "Size of PPSSPP Save Folder: $(GET_SIZE "$SD1_PPSSPP_SAVE") MB"
 	if [ $CURRENT_VER = "PREBANANA" ]; then
 		echo -e ""Size of PPSSPP Save Folder: $(GET_SIZE "$SD1_PPSSPP_SAVE") MB"\n" >/tmp/muxlog_info
 	fi
@@ -215,7 +228,7 @@ fi
 
 if [ -d $SD1_PPSSPP_STATE ]; then
 	TOTAL_SIZE=$((TOTAL_SIZE + $(GET_SIZE "$SD1_PPSSPP_STATE")))
-	echo "Size of PPSSPP State Folder: $(GET_SIZE "$$SD1_PPSSPP_STATE") MB"
+	echo "Size of PPSSPP State Folder: $(GET_SIZE "$SD1_PPSSPP_STATE") MB"
 	if [ $CURRENT_VER = "PREBANANA" ]; then
 		echo -e ""Size of PPSSPP State Folder: $(GET_SIZE "$SD1_PPSSPP_STATE") MB"\n" >/tmp/muxlog_info
 	fi
@@ -292,26 +305,32 @@ EOF
 RSYNC_OPTS="--verbose --archive --checksum --exclude-from=$MUX_TEMP/sync_exclude.txt"
 
 # Migrate all folders.
-echo "Copying BIOS to SD Card 2"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e "Copying BIOS to SD Card 2\n" >/tmp/muxlog_info
+if [ -d $SD1_BIOS ]; then
+	echo "Copying BIOS to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Copying BIOS to SD Card 2\n" >/tmp/muxlog_info
+	fi
+	sleep 1
+	rsync $RSYNC_OPTS "$SD1_BIOS" "$SD2_BIOS"
 fi
-sleep 1
-rsync $RSYNC_OPTS "$SD1_BIOS" "$SD2_BIOS"
 
-echo -e "\nCopying Catalogue to SD Card 2"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e "Copying Catalogue to SD Card 2\n" >/tmp/muxlog_info
+if [ -d $SD1_CATALOGUE ]; then
+	echo -e "\nCopying Catalogue to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Copying Catalogue to SD Card 2\n" >/tmp/muxlog_info
+	fi
+	sleep 1
+	rsync $RSYNC_OPTS "$SD1_CATALOGUE" "$SD2_CATALOGUE"
 fi
-sleep 1
-rsync $RSYNC_OPTS "$SD1_CATALOGUE" "$SD2_CATALOGUE"
 
-echo -e "\nCopying Config to SD Card 2"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e "Copying Config to SD Card 2\n" >/tmp/muxlog_info
+if [ -d $SD1_CONFIG ]; then
+	echo -e "\nCopying Config to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Copying Config to SD Card 2\n" >/tmp/muxlog_info
+	fi
+	sleep 1
+	rsync $RSYNC_OPTS "$SD1_CONFIG" "$SD2_CONFIG"
 fi
-sleep 1
-rsync $RSYNC_OPTS "$SD1_CONFIG" "$SD2_CONFIG"
 
 echo -e "\nCopying Content to SD Card 2"
 if [ $CURRENT_VER = "PREBANANA" ]; then
@@ -319,7 +338,9 @@ if [ $CURRENT_VER = "PREBANANA" ]; then
 fi
 sleep 1
 for DIR in $SD1_CONTENT; do
-	rsync $RSYNC_OPTS "$DIR" "$SD2_CONTENT"
+	if [ -d $DIR ]; then
+		rsync $RSYNC_OPTS "$DIR" "$SD2_CONTENT"
+	fi
 done
 
 if [ -d "$SD1_LANGUAGE" ]; then
@@ -366,28 +387,34 @@ else
 	echo -e "\nNo Networl Profile folder exists, skipping."
 fi
 
-echo -e "\nCopying Saves to SD Card 2"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e "Copying Saves to SD Card 2\n" >/tmp/muxlog_info
-fi
-sleep 1
-rsync $RSYNC_OPTS "$SD1_SAVE" "$SD2_SAVE"
-
-echo -e "\nCopying Screenshots to SD Card 2"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e "Copying Screenshots to SD Card 2\n" >/tmp/muxlog_info
-fi
-sleep 1
-rsync $RSYNC_OPTS "$SD1_SCREENSHOT" "$SD2_SCREENSHOT"
-
-# Migrate themes to SD2
-# Themes on Pre-Banana versions are not migrated due to theme engine changes.
-echo -e "\nCopying Themes to SD Card 2"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e "Skipping theme migration to SD Card 2\n" >/tmp/muxlog_info
-else
+if [ -d $SD1_SAVE ]; then
+	echo -e "\nCopying Saves to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Copying Saves to SD Card 2\n" >/tmp/muxlog_info
+	fi
 	sleep 1
-	rsync $RSYNC_OPTS "$SD1_THEME" "$SD2_THEME"
+	rsync $RSYNC_OPTS "$SD1_SAVE" "$SD2_SAVE"
+fi
+
+if [ -d $SD1_SCREENSHOT ]; then
+	echo -e "\nCopying Screenshots to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Copying Screenshots to SD Card 2\n" >/tmp/muxlog_info
+	fi
+	sleep 1
+	rsync $RSYNC_OPTS "$SD1_SCREENSHOT" "$SD2_SCREENSHOT"
+fi
+
+if [ -d $SD1_THEME ]; then
+	# Migrate themes to SD2
+	# Themes on Pre-Banana versions are not migrated due to theme engine changes.
+	echo -e "\nCopying Themes to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Skipping theme migration to SD Card 2\n" >/tmp/muxlog_info
+	else
+		sleep 1
+		rsync $RSYNC_OPTS "$SD1_THEME" "$SD2_THEME"
+	fi
 fi
 
 if [ -d "$SD1_OPENBOR_SAVE" ]; then
@@ -402,20 +429,37 @@ else
 	echo -e "\nNo OpenBOR folder exists, skipping."
 fi
 
-echo -e "\nCopying PICO-8 Files to SD Card 2"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e "Copying PICO-8 Files to SD Card 2\n" >/tmp/muxlog_info
+if [ -d $SD1_PICO8 ]; then
+	echo -e "\nCopying PICO-8 Files to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Copying PICO-8 Files to SD Card 2\n" >/tmp/muxlog_info
+	fi
+	sleep 1
+	rsync $RSYNC_OPTS "$SD1_PICO8" "$SD2_PICO8"
 fi
-sleep 1
-rsync $RSYNC_OPTS "$SD1_PICO8" "$SD2_PICO8"
+
+for PICOFILE in $SD1_PICO8_BIOS; do
+	if [ -f $PICOFILE ]; then
+		echo -e "\nCopying PICO-8 Files to SD Card 2"
+		if [ $CURRENT_VER = "PREBANANA" ]; then
+			echo -e "Copying PICO-8 Files to SD Card 2\n" >/tmp/muxlog_info
+		fi
+		sleep 1
+		rsync $RSYNC_OPTS "$PICOFILE" "$SD2_PICO8_BIOS"
+	fi
+done
 
 echo -e "\nCopying PPSSPP Saves to SD Card 2"
 if [ $CURRENT_VER = "PREBANANA" ]; then
 	echo -e "Copying PPSSPP Saves to SD Card 2\n" >/tmp/muxlog_info
 fi
 sleep 1
-rsync $RSYNC_OPTS "$SD1_PPSSPP_SAVE" "$SD2_PPSSPP_SAVE"
-rsync $RSYNC_OPTS "$SD1_PPSSPP_STATE" "$SD2_PPSSPP_STATE"
+if [ -d $SD1_PPSSPP_SAVE ]; then
+	rsync $RSYNC_OPTS "$SD1_PPSSPP_SAVE" "$SD2_PPSSPP_SAVE"
+fi
+if [ -d $SD1_PPSSPP_STATE ]; then
+	rsync $RSYNC_OPTS "$SD1_PPSSPP_STATE" "$SD2_PPSSPP_STATE"
+fi
 
 echo -e "\nCopying DraStic Saves to SD Card 2"
 if [ $CURRENT_VER = "PREBANANA" ]; then

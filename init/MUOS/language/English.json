@@ -1,7 +1,6 @@
 {
   "generic": {
     "Back": "Back",
-    "Confirm": "Confirm",
     "Directory": "Directory",
     "Disabled": "Disabled",
     "Enabled": "Enabled",
@@ -13,7 +12,6 @@
     "Internal": "Internal",
     "Launch": "Launch",
     "Load": "Load",
-    "Next": "Next",
     "No Help Information Found": "No Help Information Found",
     "Open": "Open",
     "Previous": "Previous",
@@ -24,7 +22,8 @@
     "Select": "Select",
     "True": "True",
     "Use": "Use",
-    "Visible": "Visible"
+    "Visible": "Visible",
+    "Rescan": "Rescan"
   },
   "muxapp": {
     "APPLICATIONS": "APPLICATIONS",
@@ -49,14 +48,12 @@
   },
   "muxassign": {
     "ASSIGN": "ASSIGN",
-    "ASSIGN CORE": "ASSIGN CORE",
     "No Cores Found...": "No Cores Found…",
     "This is where you can assign a core or external emulator to content": "This is where you can assign a core or external emulator to content."
   },
   "muxcharge": {
     "Booting System - Please Wait...": "Booting System - Please Wait…",
     "Capacity": "Capacity",
-    "Health": "Health",
     "Press POWER button to continue booting...": "Press POWER button to continue booting…",
     "Voltage": "Voltage"
   },
@@ -120,12 +117,14 @@
     "Loading Network Profiles...": "Loading Network Profiles…",
     "NETWORK PROFILE": "NETWORK PROFILE",
     "No Saved Network Profiles Found": "No Saved Network Profiles Found",
-    "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Quickly switch between different Wi-Fi configurations based on your location or network preferences."
+    "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Quickly switch between different Wi-Fi configurations based on your location or network preferences.",
+    "Invalid SSID": "Invalid SSID",
+    "Password must be 8..63 characters!": "Password must be 8..63 characters!",
+    "Invalid Network Settings": "Invalid Network Settings"
   },
   "muxnetscan": {
     "NETWORK SCAN": "NETWORK SCAN",
     "No Wi-Fi Networks Found": "No Wi-Fi Networks Found",
-    "Rescan": "Rescan",
     "Scanning for Wi-Fi Networks...": "Scanning for Wi-Fi Networks…",
     "Detect, display and connect to available Wi-Fi networks": "Detect, display and connect to available Wi-Fi networks."
   },
@@ -166,7 +165,8 @@
     "Assign Core": "Assign Core",
     "System Governor": "System Governor",
     "Set the system core or external emulator for the selected content or directory": "Set the system core or external emulator for the selected content or directory.",
-    "Set the CPU governor for the selected content or directory": "Set the CPU governor for the selected content or directory."
+    "Set the CPU governor for the selected content or directory": "Set the CPU governor for the selected content or directory.",
+    "CONTENT OPTION": "CONTENT OPTION"
   },
   "muxpass": {
     "PASSCODE": "PASSCODE"
@@ -177,16 +177,14 @@
     "Could not load content!": "Could not load content!",
     "Directories cannot be added to Favourites": "Directories cannot be added to Favourites",
     "EXPLORE": "EXPLORE",
-    "EXPLORE (SD1)": "EXPLORE (SD1)",
-    "EXPLORE (SD2)": "EXPLORE (SD2)",
-    "EXPLORE (USB)": "EXPLORE (USB)",
     "Error adding to Favourites": "Error adding to Favourites",
     "FAVOURITES": "FAVOURITES",
     "Favourite": "Favourite",
     "HISTORY": "HISTORY",
     "Info": "Info",
     "Loading...": "Loading…",
-    "Refresh": "Refresh"
+    "Refresh": "Refresh",
+    "Removed from Favourites": "Removed from Favourites"
   },
   "muxpower": {
     "10m": "10m",
@@ -245,17 +243,17 @@
     "Save Games + Save States": "Save Games + Save States",
     "Screenshots": "Screenshots",
     "Themes": "Themes",
-    "Change where muOS looks for RetroArch BIOS": "Change where muOS looks for RetroArch BIOS.",
-    "Change where muOS looks for RetroArch Configurations": "Change where muOS looks for RetroArch Configurations.",
-    "Change where muOS looks for content images and text": "Change where muOS looks for content images and text.",
-    "Change where muOS looks for favourites, history, and assigned content": "Change where muOS looks for favourites, history, and assigned content.",
-    "Change where muOS looks for background music": "Change where muOS looks for background music.",
-    "Change where muOS looks for save states and files": "Change where muOS looks for save states and files.",
-    "Change where muOS saves screenshots": "Change where muOS saves screenshots.",
-    "Change where muOS looks for themes": "Change where muOS looks for themes.",
-    "Change where muOS looks for Language files": "Change where muOS looks for Language files.",
-    "Change where muOS looks for Network Profiles": "Change where muOS looks for Network Profiles.",
-    "Leave on AUTO to look on SD2 first and fall back to SD1": "Leave on AUTO to look on SD2 first and fall back to SD1."
+    "Change where muOS looks for RetroArch BIOS.": "Change where muOS looks for RetroArch BIOS.",
+    "Change where muOS looks for RetroArch Configurations.": "Change where muOS looks for RetroArch Configurations.",
+    "Change where muOS looks for content images and text.": "Change where muOS looks for content images and text.",
+    "Change where muOS looks for favourites, history, and assigned content.": "Change where muOS looks for favourites, history, and assigned content.",
+    "Change where muOS looks for background music.": "Change where muOS looks for background music.",
+    "Change where muOS looks for save states and files.": "Change where muOS looks for save states and files.",
+    "Change where muOS saves screenshots.": "Change where muOS saves screenshots.",
+    "Change where muOS looks for themes.": "Change where muOS looks for themes.",
+    "Change where muOS looks for Language files.": "Change where muOS looks for Language files.",
+    "Change where muOS looks for Network Profiles.": "Change where muOS looks for Network Profiles.",
+    "Leave on AUTO to look on SD2 first and fall back to SD1.": "Leave on AUTO to look on SD2 first and fall back to SD1."
   },
   "muxsysinfo": {
     "Battery Capacity": "Battery Capacity",
@@ -296,18 +294,17 @@
   "muxtheme": {
     "Loading Theme": "Loading Theme",
     "No Themes Found": "No Themes Found",
-    "THEME PICKER": "THEME PICKER"
+    "THEME PICKER": "THEME PICKER",
+    "This theme has no attributed credits!": "This theme has no attributed credits!"
   },
   "muxtimezone": {
     "No Timezones Found...": "No Timezones Found…",
     "Saving Timezone": "Saving Timezone",
     "TIMEZONE": "TIMEZONE",
-    "Select your preferred timezone": "Select your preferred timezone."
+    "Select your preferred timezone.": "Select your preferred timezone."
   },
   "muxtweakadv": {
-    "A+B Button Swap": "A+B Button Swap",
     "ADVANCED SETTINGS": "ADVANCED SETTINGS",
-    "Android Debug Bridge": "Android Debug Bridge",
     "Battery Offset": "Battery Offset",
     "Brightness On Boot": "Brightness On Boot",
     "Device Rumble": "Device Rumble",
@@ -319,7 +316,6 @@
     "Loud": "Loud",
     "Low": "Low",
     "Menu Acceleration": "Menu Acceleration",
-    "Noto Sans": "Noto Sans",
     "Passcode Lock": "Passcode Lock",
     "Quiet": "Quiet",
     "Random Theme on Boot": "Random Theme on Boot",
@@ -333,7 +329,6 @@
     "Storage Preference": "Storage Preference",
     "Suspend Power State": "Suspend Power State",
     "Theme": "Theme",
-    "Theme Controlled": "Theme Controlled",
     "Thermal Zone Control": "Thermal Zone Control",
     "USB Function": "USB Function",
     "Verbose Messages": "Verbose Messages",
@@ -354,7 +349,10 @@
     "Toggle startup and shutdown verbose messages used for debugging faults": "Toggle startup and shutdown verbose messages used for debugging faults.",
     "Toggle vibration for device startup, sleep, and shutdown": "Toggle vibration for device startup, sleep, and shutdown.",
     "Switch between device speaker or external monitor audio via HDMI connection": "Switch between device speaker or external monitor audio via HDMI connection.",
-    "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!": "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!"
+    "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!": "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!",
+    "Button Swap": "Button Swap",
+    "Retro": "Retro",
+    "Modern": "Modern"
   },
   "muxtweakgen": {
     "1080i + 50hz": "1080i + 50hz",
@@ -410,14 +408,13 @@
     "Toggle the HDMI output to a specific resolution and frequency": "Toggle the HDMI output to a specific resolution and frequency.",
     "Settings to change the power features of the device": "Settings to change the power features of the device.",
     "Settings to change the visual aspects of the frontend": "Settings to change the visual aspects of the frontend.",
-    "Settings that should only be changed by those who know what they are doing!": "Settings that should only be changed by those who know what they are doing!"
+    "Settings that should only be changed by those who know what they are doing!": "Settings that should only be changed by those who know what they are doing!",
+    "Power Settings": "Power Settings"
   },
   "muxvisual": {
     "Background Animation": "Background Animation",
     "Battery": "Battery",
     "Bluetooth": "Bluetooth",
-    "Bottom + Behind": "Bottom + Behind",
-    "Bottom + Front": "Bottom + Front",
     "Clock": "Clock",
     "Content Box Art": "Content Box Art",
     "Content Dash Replacement": "Content Dash Replacement",
@@ -431,15 +428,11 @@
     "INTERFACE OPTIONS": "INTERFACE OPTIONS",
     "Menu Counter File": "Menu Counter File",
     "Menu Counter Folder": "Menu Counter Folder",
-    "Middle + Behind": "Middle + Behind",
-    "Middle + Front": "Middle + Front",
     "Network": "Network",
     "Remove ( )": "Remove ( )",
     "Remove [ ]": "Remove [ ]",
     "Remove [ ] and ( )": "Remove [ ] and ( )",
     "Title Include Root Drive": "Title Include Root Drive",
-    "Top + Behind": "Top + Behind",
-    "Top + Front": "Top + Front",
     "Toggle the visibility of the battery glyph": "Toggle the visibility of the battery glyph.",
     "Toggle the visibility of the network glyph": "Toggle the visibility of the network glyph.",
     "Toggle the visibility of the bluetooth glyph": "Toggle the visibility of the bluetooth glyph.",
@@ -454,7 +447,19 @@
     "Toggle the visibility of the item count within folders in Explore Content": "Toggle the visibility of the item count within folders in Explore Content.",
     "Toggle the visibility of currently selected folder along with total in Explore Content": "Toggle the visibility of currently selected folder along with total in Explore Content.",
     "Toggle the visibility of currently selected file along with total in Explore Content": "Toggle the visibility of currently selected file along with total in Explore Content.",
-    "Toggle the background animation of the current selected theme": "Toggle the background animation of the current selected theme."
+    "Toggle the background animation of the current selected theme": "Toggle the background animation of the current selected theme.",
+    "Content Box Art Alignment": "Content Box Art Alignment",
+    "Behind": "Behind",
+    "Front": "Front",
+    "Top Left": "Top Left",
+    "Top Middle": "Top Middle",
+    "Top Right": "Top Right",
+    "Bottom Left": "Bottom Left",
+    "Bottom Middle": "Bottom Middle",
+    "Bottom Right": "Bottom Right",
+    "Middle Left": "Middle Left",
+    "Middle Right": "Middle Right",
+    "Center": "Center"
   },
   "muxwebserv": {
     "Network Time Sync": "Network Time Sync",

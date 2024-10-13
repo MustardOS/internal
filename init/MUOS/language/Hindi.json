@@ -1,7 +1,6 @@
 {
   "generic": {
     "Back": "वापस जाएँ",
-    "Confirm": "पुष्टि",
     "Directory": "डायरेक्टरी",
     "Disabled": "अक्षम है",
     "Enabled": "योग्य है",
@@ -13,12 +12,12 @@
     "Internal": "Internal",
     "Launch": "शुरू करना",
     "Load": "लोड",
-    "Next": "अगला",
     "No Help Information Found": "No Help Information Found",
     "Open": "खोलो",
     "Previous": "पिछला",
     "Recursive": "पुनरावर्ती",
     "Remove": "हटाना",
+    "Rescan": "Rescan",
     "Save": "इकट्ठा",
     "Saving Changes": "परिवर्तन सहेजा जा रहा है",
     "Select": "चुनना",
@@ -37,7 +36,9 @@
     "No Applications Found": "कोई एप्लिकेशन नहीं मिला",
     "PPSSPP": "PPSSPP",
     "PortMaster": "PortMaster",
+    "RGB Controller": "RGB Controller",
     "RetroArch": "RetroArch",
+    "ScummVM": "ScummVM",
     "Simple Terminal": "Simple Terminal",
     "Task Toolkit": "कार्य टूलकिट"
   },
@@ -49,14 +50,12 @@
   },
   "muxassign": {
     "ASSIGN": "सौंपना",
-    "ASSIGN CORE": "कोर असाइन करें",
     "No Cores Found...": "कोई कोर नहीं मिला...",
     "This is where you can assign a core or external emulator to content": "This is where you can assign a core or external emulator to content"
   },
   "muxcharge": {
     "Booting System - Please Wait...": "बूटिंग सिस्टम - कृपया प्रतीक्षा करें...",
     "Capacity": "क्षमता",
-    "Health": "स्वास्थ्य",
     "Press POWER button to continue booting...": "बूटिंग जारी रखने के लिए पावर बटन दबाएँ...",
     "Voltage": "वोल्टेज"
   },
@@ -117,16 +116,21 @@
     "Various information can be found and launched here": "Various information can be found and launched here"
   },
   "muxnetprofile": {
+    "Invalid Network Settings": "Invalid Network Settings",
+    "Invalid SSID": "Invalid SSID",
     "Loading Network Profiles...": "नेटवर्क प्रोफ़ाइल लोड हो रही है...",
     "NETWORK PROFILE": "नेटवर्क प्रोफ़ाइल",
     "No Saved Network Profiles Found": "कोई सहेजी गई नेटवर्क प्रोफ़ाइल नहीं मिली",
+    "Password must be 8": {
+      "63 characters!": "Password must be 8..63 characters!"
+    },
+    "Password must be 8..63 characters!": "Password must be 8..63 characters!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Quickly switch between different Wi-Fi configurations based on your location or network preferences"
   },
   "muxnetscan": {
     "Detect, display and connect to available Wi-Fi networks": "Detect, display and connect to available Wi-Fi networks",
     "NETWORK SCAN": "नेटवर्क स्कैन",
     "No Wi-Fi Networks Found": "कोई वाई-फ़ाई नेटवर्क नहीं मिला",
-    "Rescan": "पुन: स्कैन",
     "Scanning for Wi-Fi Networks...": "वाई-फाई नेटवर्क के लिए स्कैनिंग..."
   },
   "muxnetwork": {
@@ -164,6 +168,7 @@
   },
   "muxoption": {
     "Assign Core": "Assign Core",
+    "CONTENT OPTION": "CONTENT OPTION",
     "Set the CPU governor for the selected content or directory": "Set the CPU governor for the selected content or directory",
     "Set the system core or external emulator for the selected content or directory": "Set the system core or external emulator for the selected content or directory",
     "System Governor": "System Governor"
@@ -177,16 +182,14 @@
     "Could not load content!": "सामग्री लोड नहीं हो सकी!",
     "Directories cannot be added to Favourites": "निर्देशिकाओं को पसंदीदा में नहीं जोड़ा जा सकता",
     "EXPLORE": "एक्सप्लोर",
-    "EXPLORE (SD1)": "एक्सप्लोर (SD1)",
-    "EXPLORE (SD2)": "एक्सप्लोर (SD2)",
-    "EXPLORE (USB)": "एक्सप्लोर (USB)",
     "Error adding to Favourites": "पसंदीदा में जोड़ने में त्रुटि",
     "FAVOURITES": "पसंदीदा",
     "Favourite": "पसंदीदा",
     "HISTORY": "इतिहास",
     "Info": "जानकारी",
     "Loading...": "लोड हो रहा है...",
-    "Refresh": "रिफ्रेश"
+    "Refresh": "रिफ्रेश",
+    "Removed from Favourites": "Removed from Favourites"
   },
   "muxpower": {
     "10m": "10m",
@@ -245,7 +248,8 @@
     "Change where muOS saves screenshots": "Change where muOS saves screenshots",
     "Content Management": "सामग्री प्रबंधन",
     "Languages": "भाषाएँ",
-    "Leave on AUTO to look on SD2 first and fall back to SD1": "Leave on AUTO to look on SD2 first and fall back to SD1",
+    "Leave on AUTO to look on SD2 first and fall back to SD1": "Leave on AUTO to look on SD2 first and fall back to SD1।",
+    "Leave on AUTO to look on SD2 first and fall back to SD1.": "Leave on AUTO to look on SD2 first and fall back to SD1।",
     "Metadata Catalogue": "मेटाडेटा कैटलॉग",
     "Network Profiles": "Network Profiles",
     "RetroArch BIOS": "रेट्रोआर्क BIOS",
@@ -296,21 +300,22 @@
   "muxtheme": {
     "Loading Theme": "थीम लोड हो रहा है",
     "No Themes Found": "कोई थीम नहीं मिली",
-    "THEME PICKER": "थीम चयनकर्ता"
+    "THEME PICKER": "थीम चयनकर्ता",
+    "This theme has no attributed credits!": "This theme has no attributed credits!"
   },
   "muxtimezone": {
     "No Timezones Found...": "कोई समयक्षेत्र नहीं मिला...",
     "Saving Timezone": "समयक्षेत्र सहेजा जा रहा है",
-    "Select your preferred timezone": "Select your preferred timezone",
+    "Select your preferred timezone": "Select your preferred timezone।",
+    "Select your preferred timezone.": "Select your preferred timezone।",
     "TIMEZONE": "समयक्षेत्र"
   },
   "muxtweakadv": {
-    "A+B Button Swap": "A+B बटन स्वैप",
     "ADVANCED SETTINGS": "एडवांस सेटिंग",
     "Adjust the rate of speed when holding navigation keys down": "Adjust the rate of speed when holding navigation keys down",
-    "Android Debug Bridge": "एंड्रॉइड डीबग ब्रिज",
     "Battery Offset": "बैटरी ऑफसेट",
     "Brightness On Boot": "बूट पर चमक",
+    "Button Swap": "Button Swap",
     "Change how the device buttons work globally": "Change how the device buttons work globally",
     "Change how the font type works in the frontend - 'Theme' will ensure frontend will use fonts within themes with a fallback to language fonts - 'Language' will specifically use language based font": "Change how the font type works in the frontend - 'Theme' will ensure frontend will use fonts within themes with a fallback to language fonts - 'Language' will specifically use language based font",
     "Change the default audio level that the device will use each time it starts up": "Change the default audio level that the device will use each time it starts up",
@@ -327,10 +332,11 @@
     "Loud": "ऊँचा स्वर",
     "Low": "कम",
     "Menu Acceleration": "मेनू त्वरण",
-    "Noto Sans": "नोटो संस",
+    "Modern": "Modern",
     "Passcode Lock": "पासकोड लौक",
     "Quiet": "शांत",
     "Random Theme on Boot": "बूट पर रैंडम थीम",
+    "Retro": "Retro",
     "RetroArch Network Wait": "RetroArch नेटवर्क प्रतीक्षा करें",
     "Shutdown": "शटडाउन",
     "Shutdown + Sleep": "शटडाउन + स्लीप",
@@ -343,7 +349,6 @@
     "Switch between device speaker or external monitor audio via HDMI connection": "Switch between device speaker or external monitor audio via HDMI connection",
     "Switch between system sleep suspend states": "Switch between system sleep suspend states",
     "Theme": "थीम",
-    "Theme Controlled": "थीम नियंत्रित",
     "Thermal Zone Control": "थर्मल जोन नियंत्रण",
     "Toggle a delayed start of RetroArch until a network connection is established": "Toggle a delayed start of RetroArch until a network connection is established",
     "Toggle between ADB and MTP USB functionality": "Toggle between ADB and MTP USB functionality",
@@ -397,6 +402,7 @@
     "Main Menu": "मुख्य मेन्यू",
     "Navigation Sound": "नेविगेशन ध्वनि",
     "Neutral White (0)": "तटस्थ सफेद (0)",
+    "Power Settings": "Power Settings",
     "Resume Game": "गेम फिर से शुरू करें",
     "Settings that should only be changed by those who know what they are doing!": "Settings that should only be changed by those who know what they are doing!",
     "Settings to change the power features of the device": "Settings to change the power features of the device",
@@ -415,27 +421,32 @@
   "muxvisual": {
     "Background Animation": "Background Animation",
     "Battery": "बैटरी",
+    "Behind": "Behind",
     "Bluetooth": "ब्लूटूथ",
-    "Bottom + Behind": "नीचे + पीछे",
-    "Bottom + Front": "नीचे + सामने",
+    "Bottom Left": "Bottom Left",
+    "Bottom Middle": "Bottom Middle",
+    "Bottom Right": "Bottom Right",
+    "Center": "Center",
     "Change the display priority of the content images": "Change the display priority of the content images",
     "Change the screen alignment of the content images": "Change the screen alignment of the content images",
     "Changes the top title label in Explore Content to show current storage device along with folder name": "Changes the top title label in Explore Content to show current storage device along with folder name",
     "Clock": "घड़ी",
     "Content Box Art": "सामग्री बॉक्स कला",
+    "Content Box Art Alignment": "Content Box Art Alignment",
     "Content Dash Replacement": "सामग्री डैश प्रतिस्थापन",
     "Content Name Scheme": "सामग्री नाम योजना",
     "Display Title Reformatting": "प्रदर्शन शीर्षक पुन: स्वरूपण",
     "Folder Item Count": "फ़ोल्डर आइटम गिनती",
     "Friendly Folder Names": "Friendly Folder Names",
+    "Front": "Front",
     "Full Name": "पूरा नाम",
     "Fullscreen + Behind": "फ़ुलस्क्रीन + पीछे",
     "Fullscreen + Front": "फ़ुलस्क्रीन + सामने",
     "INTERFACE OPTIONS": "इंटरफ़ेस विकल्प",
     "Menu Counter File": "मेनू काउंटर फ़ाइल",
     "Menu Counter Folder": "मेनू काउंटर फ़ोल्डर",
-    "Middle + Behind": "मध्य + पीछे",
-    "Middle + Front": "मध्य + सामने",
+    "Middle Left": "Middle Left",
+    "Middle Right": "Middle Right",
     "Network": "नेटवर्क",
     "Rearranges the label of content to move the 'The' label to the front - For example, 'Batman and Robin, The' to 'The Batman and Robin'": "Rearranges the label of content to move the 'The' label to the front - For example, 'Batman and Robin, The' to 'The Batman and Robin'",
     "Remove ( )": "हटाना ( )",
@@ -453,8 +464,9 @@
     "Toggle the visibility of the clock": "Toggle the visibility of the clock",
     "Toggle the visibility of the item count within folders in Explore Content": "Toggle the visibility of the item count within folders in Explore Content",
     "Toggle the visibility of the network glyph": "Toggle the visibility of the network glyph",
-    "Top + Behind": "शीर्ष + पीछे",
-    "Top + Front": "शीर्ष + सामने"
+    "Top Left": "Top Left",
+    "Top Middle": "Top Middle",
+    "Top Right": "Top Right"
   },
   "muxwebserv": {
     "Network Time Sync": "नेटवर्क समय सिंक",

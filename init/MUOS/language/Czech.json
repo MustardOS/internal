@@ -1,7 +1,6 @@
 {
   "generic": {
     "Back": "Zpět",
-    "Confirm": "Potvrdit",
     "Directory": "Adresář",
     "Disabled": "Zakázáno",
     "Enabled": "Povoleno",
@@ -13,12 +12,12 @@
     "Internal": "Interní",
     "Launch": "Spustit",
     "Load": "Nahrát",
-    "Next": "Další",
     "No Help Information Found": "Nebyly nalezeny žádné informace nápovědy",
     "Open": "Otevřít",
     "Previous": "Předchozí",
     "Recursive": "Rekurzivní",
     "Remove": "Odstranit",
+    "Rescan": "Znovu proskenovat",
     "Save": "Uložit",
     "Saving Changes": "Ukládání změn",
     "Select": "Vybrat",
@@ -37,7 +36,9 @@
     "No Applications Found": "Nebyly nalezeny žádné aplikace",
     "PPSSPP": "PPSSPP",
     "PortMaster": "PortMaster",
+    "RGB Controller": "Ovladač RGB",
     "RetroArch": "RetroArch",
+    "ScummVM": "ScummVM",
     "Simple Terminal": "Jednoduchý Terminál",
     "Task Toolkit": "Sada nástrojů"
   },
@@ -49,14 +50,12 @@
   },
   "muxassign": {
     "ASSIGN": "PŘIŘADIT",
-    "ASSIGN CORE": "PŘIŘADIT JÁDRO",
     "No Cores Found...": "Nebyla nalezena žádná jádra…",
     "This is where you can assign a core or external emulator to content": "Zde můžete přiřadit jádro nebo externí emulátor."
   },
   "muxcharge": {
     "Booting System - Please Wait...": "Zavádění systému - čekejte prosím…",
     "Capacity": "Kapacita",
-    "Health": "Zdraví",
     "Press POWER button to continue booting...": "Stisknutím tlačítka NAPÁJENÍ pokračujte v bootovaní…",
     "Voltage": "Napětí"
   },
@@ -117,16 +116,21 @@
     "Various information can be found and launched here": "Zde lze nalézt a spustit různé informace."
   },
   "muxnetprofile": {
+    "Invalid Network Settings": "Neplatná nastavení sítě",
+    "Invalid SSID": "Neplatné SSID",
     "Loading Network Profiles...": "Načítání síťových profilů…",
     "NETWORK PROFILE": "SÍŤOVÝ PROFIL",
     "No Saved Network Profiles Found": "Nebyly nalezeny žádné uložené síťové profily",
+    "Password must be 8": {
+      "63 characters!": "Heslo musí mít 8..63 znaků!"
+    },
+    "Password must be 8..63 characters!": "Heslo musí mít 8-63 znaků!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Rychle přepínejte mezi různými konfiguracemi Wi-Fi na základě vaší polohy nebo předvoleb sítě."
   },
   "muxnetscan": {
     "Detect, display and connect to available Wi-Fi networks": "Detekce, zobrazení a připojení k dostupným sítím Wi-Fi.",
     "NETWORK SCAN": "SKENOVÁNÍ SÍŤĚ",
     "No Wi-Fi Networks Found": "Nebyly nalezeny žádné sítě Wi-Fi",
-    "Rescan": "Proskenovat",
     "Scanning for Wi-Fi Networks...": "Vyhledávání sítí Wi-Fi…"
   },
   "muxnetwork": {
@@ -164,6 +168,7 @@
   },
   "muxoption": {
     "Assign Core": "Přiřadit Core",
+    "CONTENT OPTION": "MOŽNOST OBSAHU",
     "Set the CPU governor for the selected content or directory": "Nastavte regulátor CPU pro vybraný obsah nebo adresář.",
     "Set the system core or external emulator for the selected content or directory": "Nastavte jádro systému nebo externí emulátor pro vybraný obsah nebo adresář.",
     "System Governor": "Regulátor systému"
@@ -177,16 +182,14 @@
     "Could not load content!": "Obsah se nepodařilo načíst!",
     "Directories cannot be added to Favourites": "Adresáře nelze přidat do oblíbených položek",
     "EXPLORE": "PROZKOUMAT",
-    "EXPLORE (SD1)": "PROZKOUMAT (SD1)",
-    "EXPLORE (SD2)": "PROZKOUMAT (SD2)",
-    "EXPLORE (USB)": "PROZKOUMAT (USB)",
     "Error adding to Favourites": "Chyba při přidávání do oblíbených",
     "FAVOURITES": "OBLÍBENÉ",
     "Favourite": "Oblíbené",
     "HISTORY": "HISTORIE",
     "Info": "Info",
     "Loading...": "Načítání…",
-    "Refresh": "Obnovit"
+    "Refresh": "Obnovit",
+    "Removed from Favourites": "Odebráno z oblíbených"
   },
   "muxpower": {
     "10m": "10m",
@@ -245,7 +248,8 @@
     "Change where muOS saves screenshots": "Změňte, kde muOS hledá obrázky a soubory uložení.",
     "Content Management": "Správa obsahu",
     "Languages": "Jazyky",
-    "Leave on AUTO to look on SD2 first and fall back to SD1": "Nechte na AUTO, chcete-li se nejprve podívat na SD2 a vrátit se zpět na SD1.",
+    "Leave on AUTO to look on SD2 first and fall back to SD1": "Nechte na AUTO, chcete-li prohledat SD2 a potom SD1.",
+    "Leave on AUTO to look on SD2 first and fall back to SD1.": "Nechte na AUTO, chcete-li nejprve prohledat SD2 a potom SD1.",
     "Metadata Catalogue": "Katalog metadat",
     "Network Profiles": "Síťové profily",
     "RetroArch BIOS": "RetroArch - BIOS",
@@ -296,21 +300,22 @@
   "muxtheme": {
     "Loading Theme": "Načítání tématu",
     "No Themes Found": "Nebyla nalezena žádná témata",
-    "THEME PICKER": "VÝBĚR TÉMATU"
+    "THEME PICKER": "VÝBĚR TÉMATU",
+    "This theme has no attributed credits!": "Toto téma nemá žádné přidělené kredity!"
   },
   "muxtimezone": {
     "No Timezones Found...": "Nebyla nalezena žádná časová pásma…",
     "Saving Timezone": "Ukládání časového pásma",
     "Select your preferred timezone": "Vyberte preferované časové pásmo.",
+    "Select your preferred timezone.": "Vyberte preferované časové pásmo.",
     "TIMEZONE": "ČASOVÉ PÁSMO"
   },
   "muxtweakadv": {
-    "A+B Button Swap": "Výměna tlačítek A+B",
     "ADVANCED SETTINGS": "POKROČILÉ NASTAVENÍ",
     "Adjust the rate of speed when holding navigation keys down": "Upravte rychlost při podržení navigačních kláves",
-    "Android Debug Bridge": "Android Debug Bridge",
     "Battery Offset": "Posunutí baterie",
     "Brightness On Boot": "Jas při spuštění",
+    "Button Swap": "Výměna tlačítek",
     "Change how the device buttons work globally": "Změňte způsob fungování tlačítek zařízení globálně",
     "Change how the font type works in the frontend - 'Theme' will ensure frontend will use fonts within themes with a fallback to language fonts - 'Language' will specifically use language based font": "Změňte způsob fungování typu písma v rozhraní frontend. 'Téma' zajistí, že frontend bude používat písma v tématech s přechodem na jazyková písma. 'Jazyk' bude konkrétně používat jazyk založený na písmu.",
     "Change the default audio level that the device will use each time it starts up": "Změňte výchozí úroveň zvuku, kterou zařízení použije při každém spuštění.",
@@ -327,10 +332,11 @@
     "Loud": "Hlasitý",
     "Low": "Nízký",
     "Menu Acceleration": "Nabídka Akcelerace",
-    "Noto Sans": "Noto Sans",
+    "Modern": "Moderní",
     "Passcode Lock": "Zámek",
     "Quiet": "Klid",
     "Random Theme on Boot": "Náhodné téma při spouštění",
+    "Retro": "Retro",
     "RetroArch Network Wait": "RetroArch počká na Síť",
     "Shutdown": "Vypnutí",
     "Shutdown + Sleep": "Vypnutí + Spánek",
@@ -343,7 +349,6 @@
     "Switch between device speaker or external monitor audio via HDMI connection": "Přepínejte mezi reproduktorem zařízení nebo zvukem externího monitoru prostřednictvím připojení HDMI.",
     "Switch between system sleep suspend states": "Přepínání mezi stavy pozastavení spánku systému.",
     "Theme": "Téma",
-    "Theme Controlled": "Řízené Tématem",
     "Thermal Zone Control": "Ovládání tepelné zóny",
     "Toggle a delayed start of RetroArch until a network connection is established": "Přepněte odložený start RetroArch, dokud nebude navázáno síťové připojení.",
     "Toggle between ADB and MTP USB functionality": "Přepínání mezi funkcí ADB a MTP USB.",
@@ -397,6 +402,7 @@
     "Main Menu": "Hlavní menu",
     "Navigation Sound": "Zvuk navigace",
     "Neutral White (0)": "Neutrální bílá (0)",
+    "Power Settings": "Nastavení napájení",
     "Resume Game": "Pokračovat ve hře",
     "Settings that should only be changed by those who know what they are doing!": "Nastavení, která by měli měnit pouze ti, kteří vědí, co dělají!",
     "Settings to change the power features of the device": "Nastavení pro změnu funkcí napájení zařízení.",
@@ -415,27 +421,32 @@
   "muxvisual": {
     "Background Animation": "Animace pozadí",
     "Battery": "Baterie",
+    "Behind": "Za",
     "Bluetooth": "Bluetooth",
-    "Bottom + Behind": "Dole + V pozadí",
-    "Bottom + Front": "Dole + Na popředí",
+    "Bottom Left": "Vlevo dole",
+    "Bottom Middle": "Dole uprostřed",
+    "Bottom Right": "Vpravo dole",
+    "Center": "Střed",
     "Change the display priority of the content images": "Změňte prioritu zobrazení obrázků obsahu.",
     "Change the screen alignment of the content images": "Změňte zarovnání obrazovek obsahu.",
     "Changes the top title label in Explore Content to show current storage device along with folder name": "Změní štítek horního názvu v Prozkoumat obsah tak, aby zobrazoval aktuální úložné zařízení spolu s názvem složky.",
     "Clock": "Hodiny",
     "Content Box Art": "Obrázek Box Art",
+    "Content Box Art Alignment": "Zarovnání obsahu rámečku",
     "Content Dash Replacement": "Výměna pomlčky obsahu",
     "Content Name Scheme": "Schéma názvů obsahu",
     "Display Title Reformatting": "Přeformátování zobrazení titulků",
     "Folder Item Count": "Počet položek ve složce",
     "Friendly Folder Names": "Přátelské názvy složek",
+    "Front": "Přední",
     "Full Name": "Celé jméno",
     "Fullscreen + Behind": "Celá obrazovka + V pozadí",
     "Fullscreen + Front": "Celá obrazovka + Na popředí",
     "INTERFACE OPTIONS": "MOŽNOSTI ROZHRANÍ",
     "Menu Counter File": "Počítadlo Souborů",
     "Menu Counter Folder": "Počítadlo Složek",
-    "Middle + Behind": "Střed + V pozadí",
-    "Middle + Front": "Střed + Na popředí",
+    "Middle Left": "Uprostřed vlevo",
+    "Middle Right": "Uprostřed vpravo",
     "Network": "Síť",
     "Rearranges the label of content to move the 'The' label to the front - For example, 'Batman and Robin, The' to 'The Batman and Robin'": "Změní uspořádání štítku obsahu tak, aby se štítek 'The' se posunul dopředu. Například „Batman a Robin, The“ bude „The Batman and Robin“.",
     "Remove ( )": "Odstranit ( )",
@@ -453,8 +464,9 @@
     "Toggle the visibility of the clock": "Přepnout viditelnost hodin.",
     "Toggle the visibility of the item count within folders in Explore Content": "Přepínání viditelnosti počtu položek ve složkách v Prozkoumat obsah.",
     "Toggle the visibility of the network glyph": "Přepnout viditelnost symbolu sítě.",
-    "Top + Behind": "Nahoře + V pozadí",
-    "Top + Front": "Nahoře + Na popředí"
+    "Top Left": "Vlevo nahoře",
+    "Top Middle": "Nahoře uprostřed",
+    "Top Right": "Vpravo nahoře"
   },
   "muxwebserv": {
     "Network Time Sync": "Synchronizace času z Internetu",

@@ -1,7 +1,6 @@
 {
   "generic": {
     "Back": "戻る",
-    "Confirm": "決定",
     "Directory": "ディレクトリごと指定",
     "Disabled": "無効",
     "Enabled": "有効",
@@ -13,12 +12,12 @@
     "Internal": "内蔵",
     "Launch": "起動する",
     "Load": "設定を読み込む",
-    "Next": "次へ",
     "No Help Information Found": "ヘルプ情報が見つかりませんでした",
     "Open": "開く",
     "Previous": "前回の設定を使用",
     "Recursive": "再帰的に指定",
     "Remove": "削除する",
+    "Rescan": "Rescan",
     "Save": "保存して戻る",
     "Saving Changes": "変更を保存しています",
     "Select": "選択",
@@ -37,7 +36,9 @@
     "No Applications Found": "アプリケーションが見つかりませんでした",
     "PPSSPP": "PPSSPP",
     "PortMaster": "PortMaster",
+    "RGB Controller": "RGB Controller",
     "RetroArch": "RetroArch",
+    "ScummVM": "ScummVM",
     "Simple Terminal": "簡易ターミナル",
     "Task Toolkit": "タスクツール集"
   },
@@ -49,14 +50,12 @@
   },
   "muxassign": {
     "ASSIGN": "指定する",
-    "ASSIGN CORE": "コアを指定する",
     "No Cores Found...": "コアが見つかりませんでした",
     "This is where you can assign a core or external emulator to content": "コアまたは個別エミュレーターをコンテンツに関連づけます"
   },
   "muxcharge": {
     "Booting System - Please Wait...": "システムを起動しています - お待ちください…",
     "Capacity": "容量",
-    "Health": "状態",
     "Press POWER button to continue booting...": "起動を続けるには電源ボタンを押してください…",
     "Voltage": "電圧"
   },
@@ -117,16 +116,21 @@
     "Various information can be found and launched here": "様々な情報を確認します"
   },
   "muxnetprofile": {
+    "Invalid Network Settings": "Invalid Network Settings",
+    "Invalid SSID": "Invalid SSID",
     "Loading Network Profiles...": "ネットワーク設定を読み込み中…",
     "NETWORK PROFILE": "ネットワーク設定",
     "No Saved Network Profiles Found": "保存されているネットワーク設定が見つかりませんでした",
+    "Password must be 8": {
+      "63 characters!": "Password must be 8..63 characters!"
+    },
+    "Password must be 8..63 characters!": "Password must be 8..63 characters!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "現在地または保存された設定に合わせて Wi-Fi の設定を切り替えます"
   },
   "muxnetscan": {
     "Detect, display and connect to available Wi-Fi networks": "使用できる Wi-Fi ネットワークを表示して接続します",
     "NETWORK SCAN": "ネットワーク検索",
     "No Wi-Fi Networks Found": "Wi-Fi ネットワークが見つかりませんでした",
-    "Rescan": "再検索",
     "Scanning for Wi-Fi Networks...": "Wi-Fi ネットワークを検索中…"
   },
   "muxnetwork": {
@@ -164,6 +168,7 @@
   },
   "muxoption": {
     "Assign Core": "コアを設定する",
+    "CONTENT OPTION": "CONTENT OPTION",
     "Set the CPU governor for the selected content or directory": "選択したコンテンツまたはディレクトリに CPU ガナバーを設定します",
     "Set the system core or external emulator for the selected content or directory": "選択したコンテンツまたはディレクトリにコアまたは個別のエミュレーターを設定します。",
     "System Governor": "システムガバナー"
@@ -177,16 +182,14 @@
     "Could not load content!": "コンテンツを読み込めませんでした!",
     "Directories cannot be added to Favourites": "ディレクトリはお気に入りに追加できません",
     "EXPLORE": "一覧",
-    "EXPLORE (SD1)": "一覧 (SD1)",
-    "EXPLORE (SD2)": "一覧 (SD2)",
-    "EXPLORE (USB)": "一覧 (USB)",
     "Error adding to Favourites": "お気に入りに追加できませんでした",
     "FAVOURITES": "お気に入り",
     "Favourite": "お気に入りに追加",
     "HISTORY": "履歴",
     "Info": "情報",
     "Loading...": "読み込み中…",
-    "Refresh": "再読み込み"
+    "Refresh": "再読み込み",
+    "Removed from Favourites": "Removed from Favourites"
   },
   "muxpower": {
     "10m": "10分",
@@ -245,7 +248,8 @@
     "Change where muOS saves screenshots": "スクリーンショットの保存先を指定します",
     "Content Management": "コンテンツ管理",
     "Languages": "言語",
-    "Leave on AUTO to look on SD2 first and fall back to SD1": "AUTO に設定すると SD2 を優先します",
+    "Leave on AUTO to look on SD2 first and fall back to SD1": "Leave on AUTO to look on SD2 first and fall back to SD1.",
+    "Leave on AUTO to look on SD2 first and fall back to SD1.": "Leave on AUTO to look on SD2 first and fall back to SD1.",
     "Metadata Catalogue": "カタログデータ",
     "Network Profiles": "ネットワーク設定",
     "RetroArch BIOS": "RetroArch BIOS",
@@ -296,21 +300,22 @@
   "muxtheme": {
     "Loading Theme": "テーマを読み込み中",
     "No Themes Found": "テーマが見つがりませんでした",
-    "THEME PICKER": "テーマ選択"
+    "THEME PICKER": "テーマ選択",
+    "This theme has no attributed credits!": "This theme has no attributed credits!"
   },
   "muxtimezone": {
     "No Timezones Found...": "タイムゾーンが見つかりませんでした…",
     "Saving Timezone": "タイムゾーンを保存しています",
-    "Select your preferred timezone": "使用するタイムゾーンを設定します",
+    "Select your preferred timezone": "Select your preferred timezone.",
+    "Select your preferred timezone.": "Select your preferred timezone.",
     "TIMEZONE": "タイムゾーン"
   },
   "muxtweakadv": {
-    "A+B Button Swap": "A+Bボタンを入れ替える",
     "ADVANCED SETTINGS": "詳細設定",
     "Adjust the rate of speed when holding navigation keys down": "操作キーを押し続けた際の移動速度を調整します",
-    "Android Debug Bridge": "Android デバッグブリッジ",
     "Battery Offset": "バッテリー誤差修正",
     "Brightness On Boot": "起動時の画面の明るさ",
+    "Button Swap": "Button Swap",
     "Change how the device buttons work globally": "システム全体でボタンの挙動を切り替えます",
     "Change how the font type works in the frontend - 'Theme' will ensure frontend will use fonts within themes with a fallback to language fonts - 'Language' will specifically use language based font": "フロントエンド内で使用するフォントを切り替えます　「テーマ」に設定するとテーマに含まれるフォントを優先します　「言語」に設定すると言語に合わせてフォント使用します",
     "Change the default audio level that the device will use each time it starts up": "毎回デバイスを起動する際の音量を設定します",
@@ -327,10 +332,11 @@
     "Loud": "大きい",
     "Low": "暗い",
     "Menu Acceleration": "メニュー速度",
-    "Noto Sans": "Noto Sans",
+    "Modern": "Modern",
     "Passcode Lock": "パスコードロック",
     "Quiet": "小さい",
     "Random Theme on Boot": "起動時に無作為にテーマを切り替える",
+    "Retro": "Retro",
     "RetroArch Network Wait": "RetroArchのネットワーク接続待機",
     "Shutdown": "終了時",
     "Shutdown + Sleep": "終了時 + スリープ時",
@@ -343,7 +349,6 @@
     "Switch between device speaker or external monitor audio via HDMI connection": "HDMI 接続時の音声出力を内蔵スピーカーまたは外部モニターに切り替えます",
     "Switch between system sleep suspend states": "システム中断スリープの挙動を切り替えます",
     "Theme": "テーマ",
-    "Theme Controlled": "テーマの指定を使用",
     "Thermal Zone Control": "サーマルゾーン制御",
     "Toggle a delayed start of RetroArch until a network connection is established": "ネットワークに接続するまで RetroArch の起動を待機します",
     "Toggle between ADB and MTP USB functionality": "USB の挙動を ADB と MTP で切り替えます",
@@ -397,6 +402,7 @@
     "Main Menu": "メインメニュー",
     "Navigation Sound": "操作音",
     "Neutral White (0)": "Neutral White (0)",
+    "Power Settings": "Power Settings",
     "Resume Game": "中断しているゲームを再開",
     "Settings that should only be changed by those who know what they are doing!": "詳細を理解している人たちのための設定です!",
     "Settings to change the power features of the device": "デバイスの電力設定を変更します",
@@ -415,27 +421,32 @@
   "muxvisual": {
     "Background Animation": "背景アニメーション",
     "Battery": "バッテリー",
+    "Behind": "Behind",
     "Bluetooth": "Bluetooth",
-    "Bottom + Behind": "下部 + 背面",
-    "Bottom + Front": "下部 + 前面",
+    "Bottom Left": "Bottom Left",
+    "Bottom Middle": "Bottom Middle",
+    "Bottom Right": "Bottom Right",
+    "Center": "Center",
     "Change the display priority of the content images": "コンテンツ画像の表示を切り替えます",
     "Change the screen alignment of the content images": "コンテンツ画像の表示位置を設定します",
     "Changes the top title label in Explore Content to show current storage device along with folder name": "コンテンツ一覧のタイトルに現在のスロット名を表示します",
     "Clock": "時刻",
     "Content Box Art": "ボックスアート表示",
+    "Content Box Art Alignment": "Content Box Art Alignment",
     "Content Dash Replacement": "コンテンツ名のダッシュ(-)を置き換える",
     "Content Name Scheme": "コンテンツ名表示",
     "Display Title Reformatting": "タイトル名の表示を切り替える",
     "Folder Item Count": "フォルダー内のアイテム数",
     "Friendly Folder Names": "フォルダ名をわかりやすく",
+    "Front": "Front",
     "Full Name": "全表示",
     "Fullscreen + Behind": "フルスクリーン + 背面",
     "Fullscreen + Front": "フルスクリーン + 前面",
     "INTERFACE OPTIONS": "画面表示オプション",
     "Menu Counter File": "メニューにファイル数を表示",
     "Menu Counter Folder": "メニューにフォルダー数を表示",
-    "Middle + Behind": "中央 + 背面",
-    "Middle + Front": "中央 + 前面",
+    "Middle Left": "Middle Left",
+    "Middle Right": "Middle Right",
     "Network": "ネットワーク",
     "Rearranges the label of content to move the 'The' label to the front - For example, 'Batman and Robin, The' to 'The Batman and Robin'": "コンテンツ名の冠詞の位置を入れ替えます　例えば「'Batman and Robin, The」は「The Batman and Robin」となります",
     "Remove ( )": "( )を省略",
@@ -453,8 +464,9 @@
     "Toggle the visibility of the clock": "時計の表示を切り替えます",
     "Toggle the visibility of the item count within folders in Explore Content": "コンテンツ一覧でフォルダ内の項目数の表示を切り替えます",
     "Toggle the visibility of the network glyph": "Wi-Fi 接続アイコンの表示を切り替えます",
-    "Top + Behind": "上部 + 背面",
-    "Top + Front": "上部 + 前面"
+    "Top Left": "Top Left",
+    "Top Middle": "Top Middle",
+    "Top Right": "Top Right"
   },
   "muxwebserv": {
     "Network Time Sync": "ネットワーク時刻同期",

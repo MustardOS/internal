@@ -66,7 +66,7 @@ SD2_THEME="/mnt/sdcard/MUOS"
 SD2_OPENBOR_SAVE="/mnt/sdcard/MUOS/save/file/OpenBOR-Ext"
 SD2_OPENBOR_SCREENSHOT="/mnt/sdcard/MUOS/screenshot"
 SD2_PICO8="/mnt/sdcard/MUOS/save/pico8"
-SD2_PICO8_BIOS="/mnt/sdcard/MUOS/bios"
+SD2_PICO8_BIOS="/mnt/sdcard/MUOS/bios/pico8/"
 SD2_PPSSPP_SAVE="/mnt/sdcard/MUOS/save/file/PPSSPP-Ext"
 SD2_PPSSPP_STATE="/mnt/sdcard/MUOS/save/state/PPSSPP-Ext"
 SD2_DRASTIC_SAVE="/mnt/sdcard/MUOS/save/drastic/backup"
@@ -94,6 +94,8 @@ fi
 # Create temporary directory
 MUX_TEMP="/opt/muxtmp"
 mkdir "$MUX_TEMP"
+
+RSYNCLOG="/mnt/sdcard/migrate_log.txt"
 
 # Initialize total size of folders to migrate
 TOTAL_SIZE=0
@@ -302,7 +304,7 @@ cat <<EOF > $MUX_TEMP/sync_exclude.txt
 .stfolder/
 EOF
 
-RSYNC_OPTS="--verbose --archive --checksum --exclude-from=$MUX_TEMP/sync_exclude.txt"
+RSYNC_OPTS="--verbose --archive --checksum --exclude-from=$MUX_TEMP/sync_exclude.txt --log-file=$RSYNCLOG"
 
 # Migrate all folders.
 if [ -d $SD1_BIOS ]; then
@@ -457,16 +459,19 @@ sleep 1
 if [ -d $SD1_PPSSPP_SAVE ]; then
 	rsync $RSYNC_OPTS "$SD1_PPSSPP_SAVE" "$SD2_PPSSPP_SAVE"
 fi
+
 if [ -d $SD1_PPSSPP_STATE ]; then
 	rsync $RSYNC_OPTS "$SD1_PPSSPP_STATE" "$SD2_PPSSPP_STATE"
 fi
 
-echo -e "\nCopying DraStic Saves to SD Card 2"
-if [ $CURRENT_VER = "PREBANANA" ]; then
-	echo -e "Copying DraStic Saves to SD Card 2\n" >/tmp/muxlog_info
+if [ -d $SD1_DRASTIC_SAVE ]; then
+	echo -e "\nCopying DraStic Saves to SD Card 2"
+	if [ $CURRENT_VER = "PREBANANA" ]; then
+		echo -e "Copying DraStic Saves to SD Card 2\n" >/tmp/muxlog_info
+	fi
+	sleep 1
+	rsync $RSYNC_OPTS "$SD1_DRASTIC_SAVE" "$SD2_DRASTIC_SAVE"
 fi
-sleep 1
-rsync $RSYNC_OPTS "$SD1_DRASTIC_SAVE" "$SD2_DRASTIC_SAVE"
 
 # Set muOS Storage Pref to AUTO
 # Using AUTO instead of SD2 ensures it keeps working if they remove SD2

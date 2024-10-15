@@ -88,6 +88,9 @@ elif [ "$CORE" = ext-pico8 ]; then
 # DraStic External
 elif [ "$CORE" = ext-drastic ]; then
 	/opt/muos/script/launch/ext-drastic.sh "$NAME" "$CORE" "$ROM"
+# DraStic External - Legacy
+elif [ "$CORE" = ext-drastic-legacy ]; then
+	/opt/muos/script/launch/ext-drastic-legacy.sh "$NAME" "$CORE" "$ROM"
 # Mupen64Plus External
 elif [ "${CORE#ext-mupen64plus}" != "$CORE" ]; then
 	/opt/muos/script/launch/ext-mupen64plus.sh "$NAME" "$CORE" "$ROM"

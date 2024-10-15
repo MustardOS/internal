@@ -75,6 +75,10 @@ BIND_EMULATOR() {
 # Drastic
 BIND_EMULATOR save/drastic/backup drastic/backup
 
+#Drastic Legacy
+BIND_EMULATOR save/drastic-legacy/backup drastic-legacy/backup
+BIND_EMULATOR save/drastic-legacy/savestates drastic-legacy/savestates
+
 # OpenBOR
 BIND_EMULATOR save/file/OpenBOR-Ext openbor/userdata/saves/openbor
 BIND_EMULATOR screenshot openbor/userdata/screenshots/openbor

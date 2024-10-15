@@ -35,6 +35,12 @@ if [ ! -f "$DRASTIC_JSON" ]; then
 	cp -f "$DEVICE_CONTROL_DIR/drastic.json" "$DRASTIC_JSON"
 fi
 
+# Move DraStic Legacy config
+DRASTIC_CFG="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-legacy/config/drastic.cfg"
+if [ ! -f "$DRASTIC_CFG" ]; then
+	cp -f "$DEVICE_CONTROL_DIR/drastic.cfg" "$DRASTIC_CFG"
+fi
+
 # Move OpenBOR config
 for file in "$DEVICE_CONTROL_DIR/openbor/"*.ini; do
 	if [ ! -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/openbor/userdata/system/configs/openbor/$(basename "$file")" ]; then

@@ -77,7 +77,7 @@ BIND_EMULATOR save/drastic/backup drastic/backup
 
 #Drastic Legacy
 BIND_EMULATOR save/drastic-legacy/backup drastic-legacy/backup
-BIND_EMULATOR save/drastic-legacy/savestates drastic_legacy/savestates
+BIND_EMULATOR save/drastic-legacy/savestates drastic-legacy/savestates
 
 # OpenBOR
 BIND_EMULATOR save/file/OpenBOR-Ext openbor/userdata/saves/openbor

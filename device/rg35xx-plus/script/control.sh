@@ -36,7 +36,7 @@ if [ ! -f "$DRASTIC_JSON" ]; then
 fi
 
 # Move DraStic Legacy config
-DRASTIC_CFG=="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-legacy/config/drastic.cfg"
+DRASTIC_CFG="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-legacy/config/drastic.cfg"
 if [ ! -f "$DRASTIC_CFG" ]; then
 	cp -f "$DEVICE_CONTROL_DIR/drastic.cfg" "$DRASTIC_CFG"
 fi

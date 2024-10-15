@@ -28,6 +28,9 @@ CONFIG="$EMUDIR/.config/scummvm/scummvm.ini"
 LOGPATH="/mnt/mmc/MUOS/log/scummvm/log.txt"
 SAVE="/run/muos/storage/save/file/ScummVM-Ext"
 
+# Create log folder if it doesn't exist
+mkdir -p "/mnt/mmc/MUOS/log/scummvm"
+
 mkdir -p "$SAVE"
 chmod +x "$EMUDIR"/scummvm
 

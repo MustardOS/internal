@@ -28,7 +28,7 @@ DISPLAY_ACTIVE() {
 # from dimming the display or going to sleep.
 while true; do
 	case "$(GET_VAR system foreground_process)" in
-		fbpad | muxcharge | muxcredits | muxstart) IDLE_INHIBIT=1 ;;
+		fbpad | ffplay | muxcharge | muxcredits | muxstart) IDLE_INHIBIT=1 ;;
 		*) IDLE_INHIBIT=0 ;;
 	esac
 	# evsieve grabs input devices for exclusive access, preventing muhotkey

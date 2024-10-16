@@ -3,13 +3,13 @@
 . /opt/muos/script/var/func.sh
 
 . /opt/muos/script/mux/close_game.sh
+. /opt/muos/script/mux/idle.sh
 
 BRIGHT_FILE=/opt/muos/config/brightness.txt
 SLEEP_STATE_FILE=/tmp/sleep_state
 POWER_LONG_FILE=/tmp/trigger/POWER_LONG
 
 RGBCONTROLLER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.rgbcontroller"
-RGBCONF_SCRIPT=/run/muos/storage/theme/active/rgb/rgbconf.sh
 
 READ_HOTKEYS() {
 	# Restart muhotkey if it exits. (tweak.sh kills it on config changes.)
@@ -69,39 +69,6 @@ HANDLE_HOTKEY() {
 	esac
 }
 
-MONITOR_IDLE_INHIBIT() {
-	# Monitor for specific programs that should inhibit idle timeout and
-	# prevent us from dimming the display or going to sleep.
-	while true; do
-		case "$(GET_VAR system foreground_process)" in
-			fbpad | muxcharge | muxcredits | muxstart) IDLE_INHIBIT=1 ;;
-			*) IDLE_INHIBIT=0 ;;
-		esac
-		# evsieve grabs input devices for exclusive access, preventing muhotkey from detecting
-		# activity. Disable idle entirely while it's running.
-		if pgrep -x evsieve >/dev/null; then
-			IDLE_INHIBIT=1
-		fi
-		SET_VAR system idle_inhibit "$IDLE_INHIBIT"
-		sleep 5
-	done
-}
-
-DISPLAY_IDLE() {
-	if [ "$(DISPLAY_READ lcd0 getbl)" -gt 10 ]; then
-		DISPLAY_WRITE lcd0 setbl 10
-	fi
-	/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
-}
-
-DISPLAY_ACTIVE() {
-	BL="$(cat "$BRIGHT_FILE")"
-	if [ "$(DISPLAY_READ lcd0 getbl)" -ne "$BL" ]; then
-		DISPLAY_WRITE lcd0 setbl "$BL"
-	fi
-	[ -x "$RGBCONF_SCRIPT" ] && "$RGBCONF_SCRIPT"
-}
-
 SLEEP() {
 	case "$(GET_VAR global settings/power/shutdown)" in
 		# Disabled:
@@ -142,8 +109,6 @@ if [ "$(GET_VAR global boot/factory_reset)" -eq 0 ]; then
 	/opt/muos/device/current/input/trigger/power.sh &
 	/opt/muos/device/current/input/trigger/sleep.sh &
 fi
-
-MONITOR_IDLE_INHIBIT &
 
 READ_HOTKEYS | while read -r HOTKEY; do
 	# Don't respond to any hotkeys while in charge mode.

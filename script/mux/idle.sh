@@ -31,11 +31,6 @@ while true; do
 		fbpad | ffplay | muxcharge | muxcredits | muxstart) IDLE_INHIBIT=1 ;;
 		*) IDLE_INHIBIT=0 ;;
 	esac
-	# evsieve grabs input devices for exclusive access, preventing muhotkey
-	# from detecting activity. Disable idle entirely while it's running.
-	if pgrep -x evsieve >/dev/null; then
-		IDLE_INHIBIT=1
-	fi
 	SET_VAR system idle_inhibit "$IDLE_INHIBIT"
 	sleep 5
 done &

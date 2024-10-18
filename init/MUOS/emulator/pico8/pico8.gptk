@@ -1,4 +1,26 @@
+[config]
+repeat_delay = 500
+repeat_rate = 60
+mouse_slow_scale = 50
+deadzone_mode = axial
+deadzone_scale = 7
+deadzone_x = 1000
+deadzone_y = 1000
+deadzone_triggers = 3000
+dpad_mouse_normalize = true
+
+[controls]
 back = esc
 start = p
 l1 = z
 r1 = x
+
+l2 = push_state dpadmouse
+
+[controls:dpadmouse]
+l2 = pop_state
+a = mouse_left
+b = mouse_right
+
+dpad = mouse_movement
+left_analog = mouse_movement

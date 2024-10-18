@@ -23,6 +23,13 @@ if [ ! -f "$EMU" ]; then
 	EMU="$EMUDIR/pico8_64"
 fi
 
+# Did the user select standard or Pixel Perfect scaler?
+if [ "$CORE" = "ext-pico8-scale" ]; then
+	PICO_FLAGS="-windowed 0"
+elif [ "$CORE" = "ext-pico8-pixel" ]; then
+	PICO_FLAGS="-windowed 0 -pixel_perfect 1"
+fi
+
 chmod +x "$EMUDIR"/wget
 chmod +x "$EMU"
 
@@ -34,14 +41,14 @@ if [ "$NAME" = "Splore" ]; then
 	$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
 	PATH="$EMUDIR:$PATH" \
 	HOME="$EMUDIR" \
-	"$EMU" -windowed 0 -root_path "$ROMDIR" -splore
+	"$EMU" $PICO_FLAGS -root_path "$ROMDIR" -splore
 else
 	SDL_ASSERT=always_ignore \
 	SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") \
 	$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
 	PATH="$EMUDIR:$PATH" \
 	HOME="$EMUDIR" \
-	"$EMU" -windowed 0 -root_path "$ROMDIR" -run "$ROM"
+	"$EMU" $PICO_FLAGS -root_path "$ROMDIR" -run "$ROM"
 fi
 
 kill -9 "$(pidof pico8_64)" "$(pidof gptokeyb2)"

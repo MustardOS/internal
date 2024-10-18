@@ -83,7 +83,7 @@ elif [ "${CORE#ext-openbor}" != "$CORE" ]; then
 elif [ "$CORE" = ext-ppsspp ]; then
 	/opt/muos/script/launch/ext-ppsspp.sh "$NAME" "$CORE" "$ROM"
 # PICO-8 External
-elif [ "$CORE" = ext-pico8 ]; then
+elif [ "${CORE#ext-pico8}" != "$CORE" ]; then
 	/opt/muos/script/launch/ext-pico8.sh "$NAME" "$CORE" "$ROM"
 # DraStic External
 elif [ "$CORE" = ext-drastic ]; then

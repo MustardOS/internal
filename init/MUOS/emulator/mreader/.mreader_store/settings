@@ -1,0 +1,6 @@
+shoulder_keymap=LR
+font_size=22
+font_name=resources/fonts/DejaVuSans.ttf
+color_theme=mustard
+show_title_bar=false
+progress_reporting=global

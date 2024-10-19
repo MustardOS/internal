@@ -76,6 +76,9 @@ elif [ "$CORE" = ext-flycast ]; then
 # Video Player (ffplay)
 elif [ "$CORE" = ext-ffplay ]; then
 	/opt/muos/script/launch/ext-ffplay.sh "$NAME" "$CORE" "$ROM"
+# Book Reader (mreader)
+elif [ "${CORE#ext-mreader}" != "$CORE" ]; then
+	/opt/muos/script/launch/ext-mreader.sh "$NAME" "$CORE" "$ROM"
 # OpenBOR External
 elif [ "${CORE#ext-openbor}" != "$CORE" ]; then
 	/opt/muos/script/launch/ext-openbor.sh "$NAME" "$CORE" "$ROM"

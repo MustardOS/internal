@@ -227,37 +227,62 @@ while true; do
 			"explore")
 				echo launcher >$ACT_GO
 				echo "$LAST_INDEX_SYS" >/tmp/lisys
-				SET_VAR "system" "foreground_process" "muxassign"
-				nice --20 /opt/muos/extra/muxassign -a 1 -c "$ROM_NAME" -d "$(cat /tmp/explore_dir)" -s none
-				SET_VAR "system" "foreground_process" "muxgov"
-				nice --20 /opt/muos/extra/muxgov -a 1 -c "$ROM_NAME" -d "$(cat /tmp/explore_dir)" -s none
+
+				# Check to see if we are somewhere other than the storage selection or content root
+				EXPLORE_DIR=$(cat /tmp/explore_dir 2>/dev/null)
+				if [ -n "$EXPLORE_DIR" ] && [ "${EXPLORE_DIR##*/}" != "ROMS" ]; then
+					SET_VAR "system" "foreground_process" "muxassign"
+					nice --20 /opt/muos/extra/muxassign -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
+					SET_VAR "system" "foreground_process" "muxgov"
+					nice --20 /opt/muos/extra/muxgov -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
+				fi
+
 				SET_VAR "system" "foreground_process" "muxplore"
 				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m "$(cat $EX_CARD)"
 				;;
 			"explore_alt")
 				if [ "$EC" -gt 0 ]; then echo launcher >"$ACT_GO"; fi
-				SD1_COUNT=$(find "$(GET_VAR "device" "storage/rom/mount")"/ROMS -mindepth 1 -maxdepth 1 -type d | wc -l)
-				SD2_COUNT=$(find "$(GET_VAR "device" "storage/sdcard/mount")"/ROMS -mindepth 1 -maxdepth 1 -type d | wc -l)
-				USB_COUNT=$(find "$(GET_VAR "device" "storage/usb/mount")"/ROMS -mindepth 1 -maxdepth 1 -type d | wc -l)
-				if { [ "$SD1_COUNT" -gt 1 ] && [ "$SD2_COUNT" -gt 1 ]; } ||
-					{ [ "$SD1_COUNT" -gt 1 ] && [ "$USB_COUNT" -gt 1 ]; } ||
-					{ [ "$SD2_COUNT" -gt 1 ] && [ "$USB_COUNT" -gt 1 ]; }; then
+
+				SD1_COUNT=$(find "$(GET_VAR "device" "storage/rom/mount")"/ROMS \
+					-mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+				SD1_COUNT=${SD1_COUNT:-0}
+
+				SD2_COUNT=$(find "$(GET_VAR "device" "storage/sdcard/mount")"/ROMS \
+					-mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+				SD2_COUNT=${SD2_COUNT:-0}
+
+				USB_COUNT=$(find "$(GET_VAR "device" "storage/usb/mount")"/ROMS \
+					-mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+				USB_COUNT=${USB_COUNT:-0}
+
+				printf "STORAGE COUNT:\tSD1:%s\tSD2:%s\tUSB:%s\n" "$SD1_COUNT" "$SD2_COUNT" "$USB_COUNT"
+
+				if { [ "$SD1_COUNT" -gt 0 ] && [ "$SD2_COUNT" -gt 0 ]; } ||
+					{ [ "$SD1_COUNT" -gt 0 ] && [ "$USB_COUNT" -gt 0 ]; } ||
+					{ [ "$SD2_COUNT" -gt 0 ] && [ "$USB_COUNT" -gt 0 ]; }; then
+					echo "EXPLORE LOADING ROOT"
 					echo "root" >"$EX_CARD"
-				elif [ "$SD1_COUNT" -gt 1 ]; then
+				elif [ "$SD1_COUNT" -gt 0 ]; then
+					echo "EXPLORE LOADING SD1 ONLY"
 					echo "mmc" >"$EX_CARD"
 					touch "/tmp/single_card"
-				elif [ "$SD2_COUNT" -gt 1 ]; then
+				elif [ "$SD2_COUNT" -gt 0 ]; then
+					echo "EXPLORE LOADING SD2 ONLY"
 					echo "sdcard" >"$EX_CARD"
 					touch "/tmp/single_card"
-				elif [ "$USB_COUNT" -gt 1 ]; then
+				elif [ "$USB_COUNT" -gt 0 ]; then
+					echo "EXPLORE LOADING USB ONLY"
 					echo "usb" >"$EX_CARD"
 					touch "/tmp/single_card"
 				else
+					echo "EXPLORE LOADING FAILURE"
 					echo launcher >"$ACT_GO"
 					continue
 				fi
+
 				SET_VAR "system" "foreground_process" "muxplore"
 				nice --20 /opt/muos/extra/muxplore -i 0 -m "$(cat $EX_CARD)"
+
 				EC=$((EC + 1))
 				;;
 			"app")

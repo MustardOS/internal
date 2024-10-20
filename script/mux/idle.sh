@@ -28,7 +28,7 @@ DISPLAY_ACTIVE() {
 # from dimming the display or going to sleep.
 while true; do
 	case "$(GET_VAR system foreground_process)" in
-		fbpad | ffplay | muxcharge | muxcredits | muxstart) IDLE_INHIBIT=1 ;;
+		fbpad | mpv | ffplay | muxcharge | muxcredits | muxstart) IDLE_INHIBIT=1 ;;
 		*) IDLE_INHIBIT=0 ;;
 	esac
 	SET_VAR system idle_inhibit "$IDLE_INHIBIT"

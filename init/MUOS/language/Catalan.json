@@ -9,9 +9,11 @@
     "False": "Fals",
     "Hidden": "Amagat",
     "Individual": "Individual",
+    "Info": "Info",
     "Internal": "Intern",
     "Launch": "Iniciar",
     "Load": "Carregar",
+    "No Content Found...": "No Content Found...",
     "No Help Information Found": "No s'ha trobat informació d'ajuda",
     "Open": "Obrir",
     "Previous": "Anterior",
@@ -21,6 +23,8 @@
     "Save": "Guardar",
     "Saving Changes": "Guardant els canvis",
     "Select": "Seleccionar",
+    "Switch to Information": "Switch to Information",
+    "Switch to Preview Image": "Switch to Preview Image",
     "True": "Veritat",
     "Use": "Utilitzar",
     "Visible": "Visible"
@@ -50,13 +54,13 @@
   },
   "muxassign": {
     "ASSIGN": "ASSIGNAR",
-    "No Cores Found...": "No s'han trobat nuclis...",
+    "No Cores Found...": "No s'han trobat nuclis…",
     "This is where you can assign a core or external emulator to content": "Aquí pots assignar un nucli o un emulador extern al contingut."
   },
   "muxcharge": {
     "Booting System - Please Wait...": "Arrencant sistema - Un moment, si us plau...",
     "Capacity": "Capacitat",
-    "Press POWER button to continue booting...": "Prem el botó POWER per continuar arrencant...",
+    "Press POWER button to continue booting...": "Prem el botó POWER per continuar arrencant…",
     "Voltage": "Voltatge"
   },
   "muxconfig": {
@@ -64,7 +68,7 @@
     "Change your current date, time, and timezone": "Modifica la data actual, l'hora i la zona horària.",
     "Connect to a Wi-Fi network manually or via a saved profile": "Connecta't a una xarxa Wi-Fi manualment o mitjançant un perfil guardat.",
     "Date and Time": "Data i hora",
-    "Device specific and muOS frontend settings can be found here": "Aquí es pot configurar el dispositiu i la interfície de muOS.",
+    "Device specific and muOS frontend settings can be found here": "Aquí es pot trobar configuració específica del dispositiu i de la interfície de muOS.",
     "General Settings": "Configuració general",
     "Language": "Idioma",
     "Select a muOS supported theme": "Selecciona un tema compatible amb muOS.",
@@ -92,7 +96,7 @@
   },
   "muxlanguage": {
     "LANGUAGES": "IDIOMES",
-    "No Languages Found...": "No s'han trobat idiomes...",
+    "No Languages Found...": "No s'han trobat idiomes…",
     "Saving Language": "Guardant idioma",
     "Select your preferred language": "Tria l'idioma que prefereixes."
   },
@@ -108,8 +112,8 @@
     "Information": "Informació",
     "MAIN MENU": "MENÚ PRINCIPAL",
     "Reboot": "Reiniciar",
-    "Reboot your device safely": "Reinicia amb seguretat el dispositiu.",
-    "Shut down your device safely": "Apaga amb seguretat el dispositiu.",
+    "Reboot your device safely": "Reiniciar de forma segura.",
+    "Shut down your device safely": "Apagar de forma segura.",
     "Shutdown": "Apagar",
     "Various applications can be found and launched here": "Aquí es poden trobar aplicacions diverses.",
     "Various configurations can be changed here": "Aquí es poden modificar configuracions diverses.",
@@ -118,7 +122,7 @@
   "muxnetprofile": {
     "Invalid Network Settings": "Opcions de xarxa invàlides.",
     "Invalid SSID": "SSID invàlid.",
-    "Loading Network Profiles...": "Carregant perfils de xarxa...",
+    "Loading Network Profiles...": "Carregant perfils de xarxa…",
     "NETWORK PROFILE": "PERFIL DE XARXA",
     "No Saved Network Profiles Found": "No s'han trobat perfils de xarxa guardats",
     "Password must be 8": {
@@ -131,7 +135,7 @@
     "Detect, display and connect to available Wi-Fi networks": "Detecta, mostra i connecta't a xarxes Wi-Fi disponibles.",
     "NETWORK SCAN": "ESCÀNER DE XARXA",
     "No Wi-Fi Networks Found": "No s'han trobat xarxes Wi-Fi",
-    "Scanning for Wi-Fi Networks...": "Buscant xarxes Wi-Fi..."
+    "Scanning for Wi-Fi Networks...": "Buscant xarxes Wi-Fi…"
   },
   "muxnetwork": {
     "Cannot modify while connected!": "No es pot modificar mentre estàs connectat!",
@@ -200,10 +204,10 @@
     "30s": "30s",
     "5m": "5m",
     "60s": "60s",
-    "Configure how the power button functions on long press (2 seconds)": "Configura com funciona el botó POWER al mantenir-lo premut (2 segons).",
-    "Configure the time the device will sleep when no input is detected": "Configure the time the device will sleep when no input is detected",
-    "Configure the time the screen will dim when no input is detected": "Configure the time the screen will dim when no input is detected",
-    "Configure when the red LED will display based on the current capacity percentage": "Configure when the red LED will display based on the current capacity percentage",
+    "Configure how the power button functions on long press (2 seconds)": "Configura com funciona el botó POWER en mantenir-lo premut (2 segons).",
+    "Configure the time the device will sleep when no input is detected": "Configura el temps d'espera per a que el dispositiu es suspengui en no prémer cap tecla.",
+    "Configure the time the screen will dim when no input is detected": "Configura el temps d'espera per a que la pantalla s'enfosqueixi en no prémer cap tecla.",
+    "Configure when the red LED will display based on the current capacity percentage": "Configura l'encesa del LED vermell segons el percentatge de bateria actual.",
     "Idle Input Display Timeout": "Temps d'inactivitat per enfosquir pantalla",
     "Idle Input Sleep Timeout": "Temps d'inactivitat per suspensió",
     "Instant Shutdown": "Apagat instantani",
@@ -223,7 +227,7 @@
   "muxrtc": {
     "12 Hour": "12 hores",
     "24 Hour": "24 hores",
-    "Change your current date, time, and timezone": "Change your current date, time, and timezone",
+    "Change your current date, time, and timezone": "Canvia la data actual, l'hora i la zona horària.",
     "DATE AND TIME": "DATA I HORA",
     "Day": "Dia",
     "Hour": "Hora",
@@ -236,11 +240,11 @@
   "muxstorage": {
     "AUTO": "AUTO",
     "Background Music": "Música de fons",
-    "Change where muOS looks for Language files": "Change where muOS looks for Language files",
-    "Change where muOS looks for Network Profiles": "Change where muOS looks for Network Profiles",
-    "Change where muOS looks for RetroArch BIOS": "Change where muOS looks for RetroArch BIOS",
-    "Change where muOS looks for RetroArch Configurations": "Change where muOS looks for RetroArch Configurations",
-    "Change where muOS looks for background music": "Change where muOS looks for background music",
+    "Change where muOS looks for Language files": "Canvia on vols que muOS cerqui arxius d'idioma.",
+    "Change where muOS looks for Network Profiles": "Canvia on vols que muOS cerqui perfils de xarxa.",
+    "Change where muOS looks for RetroArch BIOS": "Canvia on vols que muOS cerqui BIOS per RetroArch.",
+    "Change where muOS looks for RetroArch Configurations": "Canvia on vols que muOS cerqui Configuracions de RetroArch.",
+    "Change where muOS looks for background music": "Canvia on vols que muOS cerqui música de fons.",
     "Change where muOS looks for content images and text": "Change where muOS looks for content images and text",
     "Change where muOS looks for favourites, history, and assigned content": "Change where muOS looks for favourites, history, and assigned content",
     "Change where muOS looks for save states and files": "Change where muOS looks for save states and files",
@@ -249,7 +253,6 @@
     "Content Management": "Gestió de contingut",
     "Languages": "Idiomes",
     "Leave on AUTO to look on SD2 first and fall back to SD1": "Deixar en AUTO per buscar a SD2 primer i SD1 després.",
-    "Leave on AUTO to look on SD2 first and fall back to SD1.": "Deixar en AUTO per buscar a SD2 primer i SD1 després.",
     "Metadata Catalogue": "Catàleg de metadades",
     "Network Profiles": "Perfils de xarxa",
     "RetroArch BIOS": "BIOS de RetroArch",
@@ -304,7 +307,7 @@
     "This theme has no attributed credits!": "Aquest tema no té crèdits atribuïts!"
   },
   "muxtimezone": {
-    "No Timezones Found...": "No s'han trobat zones horàries...",
+    "No Timezones Found...": "No s'han trobat zones horàries…",
     "Saving Timezone": "Guardant zona horària",
     "Select your preferred timezone": "Tria la teva zona horària de preferència.",
     "Select your preferred timezone.": "Tria la teva zona horària de preferència.",

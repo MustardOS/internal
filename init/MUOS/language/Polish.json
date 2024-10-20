@@ -9,9 +9,11 @@
     "False": "Nie",
     "Hidden": "Ukryty",
     "Individual": "Pojedynczy",
+    "Info": "Informacje",
     "Internal": "Wewnętrzny",
     "Launch": "Uruchom",
     "Load": "Wczytaj",
+    "No Content Found...": "Nie znaleziono zawartości…",
     "No Help Information Found": "Nie znaleziono informacji pomocy",
     "Open": "Otwórz",
     "Previous": "Poprzedni",
@@ -21,6 +23,8 @@
     "Save": "Zapisz",
     "Saving Changes": "Zapisywanie zmian",
     "Select": "Wybierz",
+    "Switch to Information": "Zmień na informacje",
+    "Switch to Preview Image": "Zmień na obraz podglądu",
     "True": "Tak",
     "Use": "Użyj",
     "Visible": "Widoczny"
@@ -50,18 +54,18 @@
   },
   "muxassign": {
     "ASSIGN": "PRZYPISZ",
-    "No Cores Found...": "Nie znaleziono rdzeni...",
+    "No Cores Found...": "Nie znaleziono rdzeni…",
     "This is where you can assign a core or external emulator to content": "Tutaj możesz przypisać rdzeń lub zewnętrzny emulator do zawartości"
   },
   "muxcharge": {
     "Booting System - Please Wait...": "Uruchamianie systemu - Proszę czekać...",
     "Capacity": "Pojemność",
-    "Press POWER button to continue booting...": "Wciśnij POWER, aby kontynuować uruchamianie...",
+    "Press POWER button to continue booting...": "Wciśnij POWER, aby kontynuować uruchamianie…",
     "Voltage": "Napięcie"
   },
   "muxconfig": {
     "CONFIGURATION": "KONFIGURACJA",
-    "Change your current date, time, and timezone": "Zmień aktualną datę, czas i strefę czasową",
+    "Change your current date, time, and timezone": "Zmień bieżącą datę, czas i strefę czasową",
     "Connect to a Wi-Fi network manually or via a saved profile": "Połącz się z siecią Wi-Fi ręcznie lub przez zapisany profil",
     "Date and Time": "Data i czas",
     "Device specific and muOS frontend settings can be found here": "Znajdziesz tutaj ustawienia specyficzne dla urządzenia i interfejsu muOS",
@@ -77,7 +81,7 @@
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Skonfiguruj regulatory CPU, aby dynamicznie dostosować częstotliwość CPU i pomóc zrównoważyć zużycie energii i wydajność",
     "GOVERNOR": "REGULATOR",
-    "No Governors Found...": "Nie znaleziono regulatorów..."
+    "No Governors Found...": "Nie znaleziono regulatorów…"
   },
   "muxinfo": {
     "Access statistics of played content and other activity": "Zobacz statystyki zawartości i innych aktywności",
@@ -92,7 +96,7 @@
   },
   "muxlanguage": {
     "LANGUAGES": "JĘZYKI",
-    "No Languages Found...": "Nie znaleziono języków...",
+    "No Languages Found...": "Nie znaleziono języków…",
     "Saving Language": "Zapisywanie języka",
     "Select your preferred language": "Wybierz swój preferowany język"
   },
@@ -118,7 +122,7 @@
   "muxnetprofile": {
     "Invalid Network Settings": "Niepoprawne ustawienia sieciowe",
     "Invalid SSID": "Niepoprawne SSID",
-    "Loading Network Profiles...": "Ładowanie profili sieciowych...",
+    "Loading Network Profiles...": "Ładowanie profili sieciowych…",
     "NETWORK PROFILE": "PROFIL SIECIOWY",
     "No Saved Network Profiles Found": "Nie znaleziono zapisanych profilów sieciowych",
     "Password must be 8": {
@@ -131,7 +135,7 @@
     "Detect, display and connect to available Wi-Fi networks": "Wyszukaj, wyświetl i połącz się z dostępnymi sieciami Wi-Fi",
     "NETWORK SCAN": "SKANOWANIE SIECI",
     "No Wi-Fi Networks Found": "Nie znaleziono sieci Wi-Fi",
-    "Scanning for Wi-Fi Networks...": "Skanowanie sieci Wi-Fi..."
+    "Scanning for Wi-Fi Networks...": "Skanowanie sieci Wi-Fi…"
   },
   "muxnetwork": {
     "Cannot modify while connected!": "Nie można zmodyfikować będąc połączonym!",
@@ -143,7 +147,7 @@
     "DNS Server": "Serwer DNS",
     "Device IP": "IP urządzenia",
     "Disconnect": "Rozłącz",
-    "Encrypting Password...": "Szyfrowanie hasła...",
+    "Encrypting Password...": "Szyfrowanie hasła…",
     "Enter the device IP address here (Static only)": "Wpisz adres IP urządzenia (Tylko statyczne)",
     "Enter the device Subnet (CIDR) number here (Static only)": "Wpisz numer podsieci urządzenia(CIDR) (Tylko statyczne)",
     "Enter the network gateway address here (Static only)": "Wpisz adres bramy sieciowej (Tylko statyczne)",
@@ -163,7 +167,7 @@
     "Subnet CIDR": "CIDR podsieci",
     "Toggle between DHCP and Static network types": "Wybierz między DHCP, a statycznym typem sieci",
     "Toggle the Wi-Fi network on and off": "Włącz lub wyłącz sieć Wi-Fi",
-    "Trying to Connect...": "Próba połączenia...",
+    "Trying to Connect...": "Próba połączenia…",
     "WI-FI NETWORK": "SIEĆ WI-FI"
   },
   "muxoption": {
@@ -187,7 +191,7 @@
     "Favourite": "Do ulubionych",
     "HISTORY": "HISTORIA",
     "Info": "Info",
-    "Loading...": "Wczytywanie...",
+    "Loading...": "Wczytywanie…",
     "Refresh": "Odśwież",
     "Removed from Favourites": "Usunięto z ulubionych"
   },
@@ -203,7 +207,7 @@
     "Configure how the power button functions on long press (2 seconds)": "Skonfiguruj zachowanie przycisku zasilania dla długiego wciśnięcia (2 sekundy)",
     "Configure the time the device will sleep when no input is detected": "Skonfiguruj, kiedy uśpić urządzenie, jeśli nie wykryto żadnej interakcji",
     "Configure the time the screen will dim when no input is detected": "Skonfiguruj, kiedy ekran ma się ściemnić, jeśli nie wykryto żadnej interakcji",
-    "Configure when the red LED will display based on the current capacity percentage": "Skonfiguruj, kiedy ma zapalić się czerwona dioda LED na podstawie aktualnej pojemności baterii",
+    "Configure when the red LED will display based on the current capacity percentage": "Skonfiguruj, kiedy ma zapalić się czerwona dioda LED na podstawie bieżącej pojemności baterii",
     "Idle Input Display Timeout": "Czas wyświetlania podczas bezczynności",
     "Idle Input Sleep Timeout": "Czas do uśpienia po bezczynności",
     "Instant Shutdown": "Zamknij od razu",
@@ -223,7 +227,7 @@
   "muxrtc": {
     "12 Hour": "12-godzinny",
     "24 Hour": "24-godzinny",
-    "Change your current date, time, and timezone": "Zmień swoją aktualną datę, czas i strefę czasową",
+    "Change your current date, time, and timezone": "Zmień swoją bieżącą datę, czas i strefę czasową",
     "DATE AND TIME": "DATA I CZAS",
     "Day": "Dzień",
     "Hour": "Godzina",
@@ -248,8 +252,7 @@
     "Change where muOS saves screenshots": "Zmień lokację, w której muOS ma zapisywać zrzuty ekranu",
     "Content Management": "Zarządzanie zawartością",
     "Languages": "Języki",
-    "Leave on AUTO to look on SD2 first and fall back to SD1": "Pozostaw na AUTO, by najpierw szukać na SD2 i w ostateczności na SD1.",
-    "Leave on AUTO to look on SD2 first and fall back to SD1.": "Zostaw na AUTO, by najpierw szukać na SD2 i w ostateczności na SD1.",
+    "Leave on AUTO to look on SD2 first and fall back to SD1": "Pozostaw na AUTO, by najpierw szukać na SD2 i w ostateczności na SD1",
     "Metadata Catalogue": "Katalog metadanych",
     "Network Profiles": "Profile sieciowe",
     "RetroArch BIOS": "BIOS RetroArch",
@@ -274,16 +277,16 @@
     "SYSTEM DETAILS": "SZCZEGÓŁY SYSTEMU",
     "System Uptime": "Czas działania systemu",
     "Temperature": "Temperatura",
-    "The current CPU frequency of the device": "Aktualna częstotliwość CPU urządzenia",
-    "The current Linux kernel": "Aktualne jądro Linuxa",
-    "The current detected battery capacity": "Aktualna pojemność baterii",
-    "The current detected battery voltage": "Aktualne napięcie baterii",
-    "The current detected temperature of the device": "Aktualna temperatura urządzenia",
-    "The current device type detected and configured": "Aktualny i skonfigurowany typ urządzenia",
+    "The current CPU frequency of the device": "Bieżąca częstotliwość CPU urządzenia",
+    "The current Linux kernel": "Bieżące jądro Linuxa",
+    "The current detected battery capacity": "Bieżąca pojemność baterii",
+    "The current detected battery voltage": "Bieżące napięcie baterii",
+    "The current detected temperature of the device": "Bieżąca temperatura urządzenia",
+    "The current device type detected and configured": "Bieżący i skonfigurowany typ urządzenia",
     "The current running governor of the device": "Aktywny regulator CPU urządzenia",
     "The current running time of the system": "Czas od włączenia urządzenia",
-    "The current version of muOS running on the device": "Aktualna wersja muOS na urządzeniu",
-    "The current, and total, memory usage of the device": "Aktualne i całkowite zużycie pamięci urządzenia",
+    "The current version of muOS running on the device": "Bieżąca wersja muOS na urządzeniu",
+    "The current, and total, memory usage of the device": "Bieżące i całkowite zużycie pamięci urządzenia",
     "The detected CPU type of the device": "Wykryty typ CPU urządzenia",
     "The number of processes currently running on the system": "Liczba procesów aktualnie działających w systemie",
     "muOS Version": "Wersja muOS"
@@ -304,7 +307,7 @@
     "This theme has no attributed credits!": "Ten motyw nie ma przypisanych autorów!"
   },
   "muxtimezone": {
-    "No Timezones Found...": "Nie znaleziono stref czasowych...",
+    "No Timezones Found...": "Nie znaleziono stref czasowych…",
     "Saving Timezone": "Zapisywanie strefy czasowej",
     "Select your preferred timezone": "Wybierz swoją preferowaną strefę czasową.",
     "Select your preferred timezone.": "Wybierz swoją preferowaną strefę czasową.",
@@ -345,7 +348,7 @@
     "Startup + Shutdown": "Uruchomienie + Zamknięcie",
     "Startup + Sleep": "Uruchomienie + Uśpienie",
     "Storage Preference": "Preferencje przechowywania",
-    "Suspend Power State": "Wstrzymanie stanu baterii",
+    "Suspend Power State": "Typ trybu wstrzymania",
     "Switch between device speaker or external monitor audio via HDMI connection": "Wybierz między głośnikiem urządzenia, a dźwiękiem zewnętrznego ekranu po HDMI",
     "Switch between system sleep suspend states": "Wybierz tryb uśpienia systemu",
     "Theme": "Motyw",
@@ -413,7 +416,7 @@
     "Toggle hidden content displayed in Explore Content - Place a '.' or '_' character at the start of a file or folder name to hide it": "Włącz wyświetlanie ukrytej zawartości podczas przeglądania zawartości - Dodaj '.' lub '_' na początku nazwy pliku lub folderu, by go ukryć",
     "Toggle the HDMI output to a specific resolution and frequency": "Włącz wyjście HDMI o określonej rozdzielczości i częstotliwości",
     "Toggle the background music of the frontend - This will stop if content is launched": "Włącz muzykę w tle interfejsu. Zatrzyma się, jeśli uruchomi się zawartość",
-    "Toggle the navigation sound of the frontend if the current theme supports it": "Włącz dźwięk nawigacji w interfejsie, jeśli aktualny motyw go wspiera",
+    "Toggle the navigation sound of the frontend if the current theme supports it": "Włącz dźwięk nawigacji w interfejsie, jeśli bieżący motyw go wspiera",
     "Warm Glow (160)": "Ciepły blask (160)",
     "Warm White (64)": "Ciepły biały (64)",
     "Winter Sky (-96)": "Zimowe niebo (-96)"
@@ -429,7 +432,7 @@
     "Center": "Środek",
     "Change the display priority of the content images": "Zmień priorytet wyświetlania obrazów zawartości",
     "Change the screen alignment of the content images": "Zmień ułożenie obrazów zawartości na ekranie",
-    "Changes the top title label in Explore Content to show current storage device along with folder name": "Zmienia górny tytuł w Przeglądaniu zawartości, by pokazywał aktualne urządzenie pamięci i nazwę folderu",
+    "Changes the top title label in Explore Content to show current storage device along with folder name": "Zmienia górny tytuł w Przeglądaniu zawartości, by pokazywał bieżące urządzenie pamięci i nazwę folderu",
     "Clock": "Zegar",
     "Content Box Art": "Grafiki okładek zawartości",
     "Content Box Art Alignment": "Położenie okładek zawartości",

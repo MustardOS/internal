@@ -9,9 +9,11 @@
     "False": "Falso",
     "Hidden": "Oculto",
     "Individual": "Individual",
+    "Info": "Info",
     "Internal": "Interno",
     "Launch": "Iniciar",
     "Load": "Carregar",
+    "No Content Found...": "No Content Found...",
     "No Help Information Found": "Informações de Ajuda Não Encontradas",
     "Open": "Abrir",
     "Previous": "Anterior",
@@ -21,6 +23,8 @@
     "Save": "Salvar",
     "Saving Changes": "Salvando Alterções",
     "Select": "Selecionar",
+    "Switch to Information": "Switch to Information",
+    "Switch to Preview Image": "Switch to Preview Image",
     "True": "Verdadeiro",
     "Use": "Usar",
     "Visible": "Visível"
@@ -50,13 +54,13 @@
   },
   "muxassign": {
     "ASSIGN": "ASSOCIAR",
-    "No Cores Found...": "Nenhum Núcleo Encontrado...",
+    "No Cores Found...": "Nenhum Núcleo Encontrado…",
     "This is where you can assign a core or external emulator to content": "Aqui você pode atribuir um core ou emulador externo ao conteúdo"
   },
   "muxcharge": {
     "Booting System - Please Wait...": "Iniciando Sistema - Por Favor Aguarde…",
     "Capacity": "Capacidade",
-    "Press POWER button to continue booting...": "Pressione o botão POWER(Ligar) para iniciar o sistema...",
+    "Press POWER button to continue booting...": "Pressione o botão POWER(Ligar) para iniciar o sistema…",
     "Voltage": "Voltagem"
   },
   "muxconfig": {
@@ -92,7 +96,7 @@
   },
   "muxlanguage": {
     "LANGUAGES": "IDIOMAS",
-    "No Languages Found...": "Nenhum Idioma Encontrado...",
+    "No Languages Found...": "Nenhum Idioma Encontrado…",
     "Saving Language": "Salvando Idioma",
     "Select your preferred language": "Selecione seu idioma preferido"
   },
@@ -118,7 +122,7 @@
   "muxnetprofile": {
     "Invalid Network Settings": "Configuração de Rede Inválida",
     "Invalid SSID": "SSID Inválido",
-    "Loading Network Profiles...": "Carregando Perfis de Rede...",
+    "Loading Network Profiles...": "Carregando Perfis de Rede…",
     "NETWORK PROFILE": "PERFIL DE REDE",
     "No Saved Network Profiles Found": "Nenhum Perfil de Rede Salvo",
     "Password must be 8": {
@@ -131,7 +135,7 @@
     "Detect, display and connect to available Wi-Fi networks": "Detecte, exiba e conecte-se a redes Wi-Fi disponíveis",
     "NETWORK SCAN": "PROCURAR REDE",
     "No Wi-Fi Networks Found": "Nenhuma Rede Wi-Fi Encontrada",
-    "Scanning for Wi-Fi Networks...": "Procurando Redes Wi-Fi..."
+    "Scanning for Wi-Fi Networks...": "Procurando Redes Wi-Fi…"
   },
   "muxnetwork": {
     "Cannot modify while connected!": "Não é possível modificar enquanto conectado!",
@@ -143,7 +147,7 @@
     "DNS Server": "Servidor DNS",
     "Device IP": "IP do Dispositivo",
     "Disconnect": "Desconectar",
-    "Encrypting Password...": "Criptografando senha...",
+    "Encrypting Password...": "Criptografando senha…",
     "Enter the device IP address here (Static only)": "Enter the device IP address here (Static only)",
     "Enter the device Subnet (CIDR) number here (Static only)": "Enter the device Subnet (CIDR) number here (Static only)",
     "Enter the network gateway address here (Static only)": "Enter the network gateway address here (Static only)",
@@ -163,7 +167,7 @@
     "Subnet CIDR": "Subnet CIDR",
     "Toggle between DHCP and Static network types": "Toggle between DHCP and Static network types",
     "Toggle the Wi-Fi network on and off": "Toggle the Wi-Fi network on and off",
-    "Trying to Connect...": "Tentativa de conexão...",
+    "Trying to Connect...": "Tentativa de conexão…",
     "WI-FI NETWORK": "REDE WI-FI"
   },
   "muxoption": {
@@ -187,7 +191,7 @@
     "Favourite": "Favorito",
     "HISTORY": "HISTÓRICO",
     "Info": "Informação",
-    "Loading...": "Carregando...",
+    "Loading...": "Carregando…",
     "Refresh": "Atualizar",
     "Removed from Favourites": "Removido dos Favoritos"
   },
@@ -249,7 +253,6 @@
     "Content Management": "Gerenciamento de Conteúdo",
     "Languages": "Idiomas",
     "Leave on AUTO to look on SD2 first and fall back to SD1": "Leave on AUTO to look on SD2 first and fall back to SD1.",
-    "Leave on AUTO to look on SD2 first and fall back to SD1.": "Leave on AUTO to look on SD2 first and fall back to SD1.",
     "Metadata Catalogue": "Metadados do Catálogo",
     "Network Profiles": "Perfis de Rede",
     "RetroArch BIOS": "BIOS do RetroArch",
@@ -274,18 +277,18 @@
     "SYSTEM DETAILS": "DETALHES DO SISTEMA",
     "System Uptime": "Tempo de Atividade do Sistema",
     "Temperature": "Temperatura",
-    "The current CPU frequency of the device": "The current CPU frequency of the device",
-    "The current Linux kernel": "The current Linux kernel",
-    "The current detected battery capacity": "The current detected battery capacity",
-    "The current detected battery voltage": "The current detected battery voltage",
-    "The current detected temperature of the device": "The current detected temperature of the device",
-    "The current device type detected and configured": "The current device type detected and configured",
-    "The current running governor of the device": "The current running governor of the device",
-    "The current running time of the system": "The current running time of the system",
-    "The current version of muOS running on the device": "The current version of muOS running on the device",
-    "The current, and total, memory usage of the device": "The current, and total, memory usage of the device",
-    "The detected CPU type of the device": "The detected CPU type of the device",
-    "The number of processes currently running on the system": "The number of processes currently running on the system",
+    "The current CPU frequency of the device": "A frequência atual da CPU do dispositivo",
+    "The current Linux kernel": "O kernel do Linux sendo utilizado",
+    "The current detected battery capacity": "A capacidade atual detectada da bateria",
+    "The current detected battery voltage": "A voltagem atual detectada da bateria",
+    "The current detected temperature of the device": "A temperatura atual detectada do dispositivo",
+    "The current device type detected and configured": "A tipo atual detectado e configurado de dispositivo",
+    "The current running governor of the device": "O governador de performance atual do dispositivo",
+    "The current running time of the system": "O tempo atual do sistema",
+    "The current version of muOS running on the device": "A versão atual do muOS rodando no dispositivo",
+    "The current, and total, memory usage of the device": "A memória total e atual do dispositivo",
+    "The detected CPU type of the device": "O tipo de CPU detectado do dispositivo",
+    "The number of processes currently running on the system": "A quantidade de processos sendo executados no momento",
     "muOS Version": "Versão do muOS"
   },
   "muxtask": {
@@ -301,28 +304,28 @@
     "Loading Theme": "Carregando Tema",
     "No Themes Found": "Nenhum Tema Encontrado",
     "THEME PICKER": "SELECIONAR TEMA",
-    "This theme has no attributed credits!": "This theme has no attributed credits!"
+    "This theme has no attributed credits!": "Não foram atribuídos créditos a este tema!"
   },
   "muxtimezone": {
-    "No Timezones Found...": "Nenhum Fuso Horário Encontrado...",
+    "No Timezones Found...": "Nenhum Fuso Horário Encontrado…",
     "Saving Timezone": "Salvando Fuso Horário",
-    "Select your preferred timezone": "Select your preferred timezone.",
-    "Select your preferred timezone.": "Select your preferred timezone.",
+    "Select your preferred timezone": "Selecione seu fuso horário.",
+    "Select your preferred timezone.": "Seleciona seu fuso horário.",
     "TIMEZONE": "FUSO HORÁRIO"
   },
   "muxtweakadv": {
     "ADVANCED SETTINGS": "CONFIGURAÇÕES AVANÇADAS",
-    "Adjust the rate of speed when holding navigation keys down": "Adjust the rate of speed when holding navigation keys down",
+    "Adjust the rate of speed when holding navigation keys down": "Ajusta a velocidade quando segurando as teclas de navegação",
     "Battery Offset": "Ajuste do Desvio de Bateria",
     "Brightness On Boot": "Brilho ao Ligar",
-    "Button Swap": "Button Swap",
-    "Change how the device buttons work globally": "Change how the device buttons work globally",
-    "Change how the font type works in the frontend - 'Theme' will ensure frontend will use fonts within themes with a fallback to language fonts - 'Language' will specifically use language based font": "Change how the font type works in the frontend - 'Theme' will ensure frontend will use fonts within themes with a fallback to language fonts - 'Language' will specifically use language based font",
-    "Change the default audio level that the device will use each time it starts up": "Change the default audio level that the device will use each time it starts up",
+    "Button Swap": "Troca de Botões",
+    "Change how the device buttons work globally": "Troca como os botões do dispositivo funcionam de maneira global.",
+    "Change how the font type works in the frontend - 'Theme' will ensure frontend will use fonts within themes with a fallback to language fonts - 'Language' will specifically use language based font": "Muda como a fonte funciona no frontend - 'Tema' garante que as fontes dos temas serão usadas , mudando para a fonte dos idiomas se ausente, - 'Idioma' vai utilizar a fonte específica do idioma.",
+    "Change the default audio level that the device will use each time it starts up": "Muda o volume em que o dispositivo vai usar sempre que iniciar",
     "Change the default brightness level that the device will use each time it starts up": "Change the default brightness level that the device will use each time it starts up",
     "Change the default theme used for the next device launch": "Change the default theme used for the next device launch",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading",
-    "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!": "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!",
+    "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!": "Seleciona o dispositivo de armazenamento aonde o muOS procura por conteúdo - Alterar estas opções pode levar a falhas críticas, faça apenas se souber o que está fazendo!",
     "Device Rumble": "Vibração do Dispositivo",
     "HDMI Audio Output": "Opções de Áudio HDMI",
     "High": "Alto",
@@ -346,8 +349,8 @@
     "Startup + Sleep": "Inicializar + Suspender",
     "Storage Preference": "Opções de Armazenamento",
     "Suspend Power State": "Tipo do Estado de Suspensão",
-    "Switch between device speaker or external monitor audio via HDMI connection": "Switch between device speaker or external monitor audio via HDMI connection",
-    "Switch between system sleep suspend states": "Switch between system sleep suspend states",
+    "Switch between device speaker or external monitor audio via HDMI connection": "Trocar entre alto falante interno e áudio via HDMI",
+    "Switch between system sleep suspend states": "Trocar entre estados de suspensão do sistema",
     "Theme": "Tema",
     "Thermal Zone Control": "Controle de Zona Térmica",
     "Toggle a delayed start of RetroArch until a network connection is established": "Toggle a delayed start of RetroArch until a network connection is established",

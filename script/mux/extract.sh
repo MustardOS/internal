@@ -62,8 +62,6 @@ fi
 echo "Sync Filesystem"
 sync
 
-/opt/muos/script/mux/sync_storage.sh theme &
-
 echo "All Done!"
 touch "$(GET_VAR "device" "storage/rom/mount")/MUOS/update/installed/$ARCHIVE_NAME.done"
 sleep 2

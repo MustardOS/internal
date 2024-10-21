@@ -7,7 +7,7 @@
 pkill -STOP muxtask
 
 echo "Restoring RetroArch Overrides"
-rsync --archive --checksum --delete --exclude /retroarch.cfg /opt/muos/backup/MUOS/info/config/ /run/muos/storage/info/config/
+rsync --archive --checksum --delete --exclude /retroarch.cfg /opt/muos/default/MUOS/info/config/ /run/muos/storage/info/config/
 /opt/muos/device/current/script/control.sh
 
 echo "Sync Filesystem"

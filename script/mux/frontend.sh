@@ -108,7 +108,7 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 		if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ] || [ "$(cat "$NET_START")" = "ignore" ] || [ "$(GET_VAR "global" "network/enabled")" -eq 0 ] || [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 0 ]; then
 			LOGGER "$0" "FRONTEND" "Booting to last launched content"
 			cat "$LAST_PLAY" >"$ROM_GO"
-			/opt/muos/script/mux/launch.sh
+			/opt/muos/script/mux/launch.sh last
 		fi
 	fi
 	echo launcher >$ACT_GO
@@ -172,7 +172,7 @@ while true; do
 	# Content Loader
 	if [ -s "$ROM_GO" ]; then
 		KILL_BGM
-		/opt/muos/script/mux/launch.sh
+		/opt/muos/script/mux/launch.sh list
 	fi
 
 	# Application Loader

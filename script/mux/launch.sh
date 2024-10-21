@@ -29,6 +29,7 @@ fi
 
 cat "$ROM_GO" >"$ROM_LAST"
 
+SOURCE=$1
 NAME=$(sed -n '1p' "$ROM_GO")
 CORE=$(sed -n '2p' "$ROM_GO" | tr -d '\n')
 R_DIR=$(sed -n '5p' "$ROM_GO")$(sed -n '6p' "$ROM_GO")
@@ -93,6 +94,11 @@ elif [ "${CORE#ext-pico8}" != "$CORE" ]; then
 	/opt/muos/script/launch/ext-pico8.sh "$NAME" "$CORE" "$ROM"
 # DraStic External
 elif [ "$CORE" = ext-drastic ]; then
+	if [ "$SOURCE" = last ]; then
+		# HACK: Drastic-Steward hangs when restarting right after boot.
+		# Possibly a muOS bug, but no other emulator has this issue....
+		sleep 1
+	fi
 	/opt/muos/script/launch/ext-drastic.sh "$NAME" "$CORE" "$ROM"
 # DraStic External - Legacy
 elif [ "$CORE" = ext-drastic-legacy ]; then

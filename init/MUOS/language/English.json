@@ -13,6 +13,7 @@
     "Internal": "Internal",
     "Launch": "Launch",
     "Load": "Load",
+    "Migrate to SD2": "Migrate to SD2",
     "No Content Found...": "No Content Found…",
     "No Help Information Found": "No Help Information Found",
     "Open": "Open",
@@ -54,11 +55,13 @@
   },
   "muxassign": {
     "ASSIGN": "ASSIGN",
+    "Assigned to directory": "Assigned to directory",
+    "Assigned to file": "Assigned to file",
     "No Cores Found...": "No Cores Found…",
     "This is where you can assign a core or external emulator to content": "This is where you can assign a core or external emulator to content"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "Booting System - Please Wait...",
+    "Booting System - Please Wait...": "Booting System - Please Wait…",
     "Capacity": "Capacity",
     "Press POWER button to continue booting...": "Press POWER button to continue booting…",
     "Voltage": "Voltage"
@@ -69,10 +72,12 @@
     "Connect to a Wi-Fi network manually or via a saved profile": "Connect to a Wi-Fi network manually or via a saved profile",
     "Date and Time": "Date and Time",
     "Device specific and muOS frontend settings can be found here": "Device specific and muOS frontend settings can be found here",
+    "Find out what storage device core settings and configurations are mounted": "Find out what storage device core settings and configurations are mounted",
     "General Settings": "General Settings",
     "Language": "Language",
     "Select a muOS supported theme": "Select a muOS supported theme",
     "Select your preferred language": "Select your preferred language",
+    "Storage": "Storage",
     "Theme Picker": "Theme Picker",
     "Toggle a range of configurable services you can access via an active network": "Toggle a range of configurable services you can access via an active network",
     "Web Services": "Web Services",
@@ -81,7 +86,7 @@
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance",
     "GOVERNOR": "GOVERNOR",
-    "No Governors Found...": "No Governors Found…"
+    "No Governors Found...": "No Governors Found..."
   },
   "muxinfo": {
     "Access statistics of played content and other activity": "Access statistics of played content and other activity",
@@ -125,9 +130,6 @@
     "Loading Network Profiles...": "Loading Network Profiles…",
     "NETWORK PROFILE": "NETWORK PROFILE",
     "No Saved Network Profiles Found": "No Saved Network Profiles Found",
-    "Password must be 8": {
-      "63 characters!": "Password must be 8..63 characters!"
-    },
     "Password must be 8..63 characters!": "Password must be 8..63 characters!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Quickly switch between different Wi-Fi configurations based on your location or network preferences"
   },
@@ -135,7 +137,7 @@
     "Detect, display and connect to available Wi-Fi networks": "Detect, display and connect to available Wi-Fi networks",
     "NETWORK SCAN": "NETWORK SCAN",
     "No Wi-Fi Networks Found": "No Wi-Fi Networks Found",
-    "Scanning for Wi-Fi Networks...": "Scanning for Wi-Fi Networks…"
+    "Scanning for Wi-Fi Networks...": "Scanning for Wi-Fi Networks..."
   },
   "muxnetwork": {
     "Cannot modify while connected!": "Cannot modify while connected!",
@@ -238,31 +240,39 @@
     "Year": "Year"
   },
   "muxstorage": {
-    "AUTO": "AUTO",
+    "Assigned Core/Governor System": "Assigned Core/Governor System",
     "Background Music": "Background Music",
-    "Change where muOS looks for Language files": "Change where muOS looks for Language files",
-    "Change where muOS looks for Network Profiles": "Change where muOS looks for Network Profiles",
-    "Change where muOS looks for RetroArch BIOS": "Change where muOS looks for RetroArch BIOS",
-    "Change where muOS looks for RetroArch Configurations": "Change where muOS looks for RetroArch Configurations",
-    "Change where muOS looks for background music": "Change where muOS looks for background music",
-    "Change where muOS looks for content images and text": "Change where muOS looks for content images and text",
-    "Change where muOS looks for favourites, history, and assigned content": "Change where muOS looks for favourites, history, and assigned content",
-    "Change where muOS looks for save states and files": "Change where muOS looks for save states and files",
-    "Change where muOS looks for themes": "Change where muOS looks for themes",
-    "Change where muOS saves screenshots": "Change where muOS saves screenshots",
-    "Content Management": "Content Management",
+    "Favourites": "Favourites",
+    "Friendly Name System": "Friendly Name System",
+    "History": "History",
     "Languages": "Languages",
-    "Leave on AUTO to look on SD2 first and fall back to SD1": "Leave on AUTO to look on SD2 first and fall back to SD1",
+    "Location of Language files": "Location of Language files",
+    "Location of Network Profiles": "Location of Network Profiles",
+    "Location of RetroArch configurations": "Location of RetroArch configurations",
+    "Location of Syncthing configurations": "Location of Syncthing configurations",
+    "Location of assigned core and governor configurations": "Location of assigned core and governor configurations",
+    "Location of background music": "Location of background music",
+    "Location of content images and text": "Location of content images and text",
+    "Location of favourites": "Location of favourites",
+    "Location of friendly name configurations": "Location of friendly name configurations",
+    "Location of history": "Location of history",
+    "Location of save states and files": "Location of save states and files",
+    "Location of screenshots": "Location of screenshots",
+    "Location of system BIOS files": "Location of system BIOS files",
+    "Location of the RetroArch emulator": "Location of the RetroArch emulator",
+    "Location of themes": "Location of themes",
     "Metadata Catalogue": "Metadata Catalogue",
+    "Migrating to SD2...": "Migrating to SD2…",
     "Network Profiles": "Network Profiles",
-    "RetroArch BIOS": "RetroArch BIOS",
     "RetroArch Configs": "RetroArch Configs",
-    "SD1": "SD1",
-    "SD2": "SD2",
-    "STORAGE PREFERENCE": "STORAGE PREFERENCE",
+    "RetroArch System": "RetroArch System",
+    "STORAGE": "STORAGE",
     "Save Games + Save States": "Save Games + Save States",
     "Screenshots": "Screenshots",
-    "Themes": "Themes"
+    "Syncthing Configs": "Syncthing Configs",
+    "System BIOS": "System BIOS",
+    "Themes": "Themes",
+    "This storage element is already on SD2": "This storage element is already on SD2"
   },
   "muxsysinfo": {
     "Battery Capacity": "Battery Capacity",
@@ -309,8 +319,7 @@
   "muxtimezone": {
     "No Timezones Found...": "No Timezones Found…",
     "Saving Timezone": "Saving Timezone",
-    "Select your preferred timezone": "Select your preferred timezone.",
-    "Select your preferred timezone.": "Select your preferred timezone.",
+    "Select your preferred timezone": "Select your preferred timezone",
     "TIMEZONE": "TIMEZONE"
   },
   "muxtweakadv": {
@@ -325,7 +334,6 @@
     "Change the default brightness level that the device will use each time it starts up": "Change the default brightness level that the device will use each time it starts up",
     "Change the default theme used for the next device launch": "Change the default theme used for the next device launch",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading",
-    "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!": "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!",
     "Device Rumble": "Device Rumble",
     "HDMI Audio Output": "HDMI Audio Output",
     "High": "High",
@@ -347,7 +355,6 @@
     "Startup": "Startup",
     "Startup + Shutdown": "Startup + Shutdown",
     "Startup + Sleep": "Startup + Sleep",
-    "Storage Preference": "Storage Preference",
     "Suspend Power State": "Suspend Power State",
     "Switch between device speaker or external monitor audio via HDMI connection": "Switch between device speaker or external monitor audio via HDMI connection",
     "Switch between system sleep suspend states": "Switch between system sleep suspend states",

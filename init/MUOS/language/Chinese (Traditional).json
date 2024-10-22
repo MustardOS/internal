@@ -162,7 +162,7 @@
     "Please check network settings": "請檢查網路設定",
     "Profiles": "描述檔",
     "Scan": "掃描",
-    "Static": "固定",
+    "Static": "靜態",
     "Status": "狀態",
     "Subnet CIDR": "子網路CIDR",
     "Toggle between DHCP and Static network types": "在DHCP和靜態網路類型之間切換",

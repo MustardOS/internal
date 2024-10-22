@@ -1,0 +1,16 @@
+[
+  {"name": "OSF", "action": "press", "inputs": ["POWER_LONG", "L1", "L2", "R1", "R2"]},
+  {"name": "SLEEP", "action": "press", "inputs": ["POWER_LONG"]},
+  {"name": "SCREENSHOT", "action": "press", "inputs": ["POWER_SHORT", "MENU_LONG"]},
+  {"name": "BRIGHT_UP", "action": "hold", "inputs": ["VOL_UP", "MENU_LONG"]},
+  {"name": "VOL_UP", "action": "hold", "inputs": ["VOL_UP"]},
+  {"name": "BRIGHT_DOWN", "action": "hold", "inputs": ["VOL_DOWN", "MENU_LONG"]},
+  {"name": "VOL_DOWN", "action": "hold", "inputs": ["VOL_DOWN"]},
+  {"name": "RGB_MODE", "action": "press", "inputs": ["R3", "MENU_LONG"]},
+  {"name": "RGB_BRIGHT_UP", "action": "press", "inputs": ["RS_UP", "MENU_LONG"]},
+  {"name": "RGB_BRIGHT_DOWN", "action": "press", "inputs": ["RS_DOWN", "MENU_LONG"]},
+  {"name": "RGB_COLOR_PREV", "action": "press", "inputs": ["RS_LEFT", "MENU_LONG"]},
+  {"name": "RGB_COLOR_NEXT", "action": "press", "inputs": ["RS_RIGHT", "MENU_LONG"]},
+  {"name": "RETROWAIT_IGNORE", "action": "press", "inputs": ["START"]},
+  {"name": "RETROWAIT_MENU", "action": "press", "inputs": ["SELECT"]}
+]

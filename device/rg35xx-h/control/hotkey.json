@@ -1,0 +1,11 @@
+[
+  {"name": "OSF", "action": "press", "inputs": ["POWER_LONG", "L1", "L2", "R1", "R2"]},
+  {"name": "SLEEP", "action": "press", "inputs": ["POWER_LONG"]},
+  {"name": "SCREENSHOT", "action": "press", "inputs": ["POWER_SHORT", "MENU_LONG"]},
+  {"name": "BRIGHT_UP", "action": "hold", "inputs": ["VOL_UP", "MENU_LONG"]},
+  {"name": "VOL_UP", "action": "hold", "inputs": ["VOL_UP"]},
+  {"name": "BRIGHT_DOWN", "action": "hold", "inputs": ["VOL_DOWN", "MENU_LONG"]},
+  {"name": "VOL_DOWN", "action": "hold", "inputs": ["VOL_DOWN"]},
+  {"name": "RETROWAIT_IGNORE", "action": "press", "inputs": ["START"]},
+  {"name": "RETROWAIT_MENU", "action": "press", "inputs": ["SELECT"]}
+]

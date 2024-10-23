@@ -51,6 +51,3 @@ echo always_on >/sys/devices/platform/gpu/power_policy &
 
 # Work around swapped speaker channels
 /opt/muos/device/current/script/spk.sh &
-
-/opt/muos/device/current/input/input.sh &
-/opt/muos/device/current/input/idle.sh &

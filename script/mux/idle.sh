@@ -6,6 +6,8 @@ INHIBIT_NONE=0
 INHIBIT_BOTH=1
 INHIBIT_SLEEP=2
 
+BRIGHT_FILE=/opt/muos/config/brightness.txt
+
 LED_CONTROL=/opt/muos/device/current/script/led_control.sh
 RGBCONF=/run/muos/storage/theme/active/rgb/rgbconf.sh
 

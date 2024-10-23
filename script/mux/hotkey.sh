@@ -5,34 +5,26 @@
 . /opt/muos/script/mux/close_game.sh
 . /opt/muos/script/mux/idle.sh
 
-BRIGHT_FILE=/opt/muos/config/brightness.txt
+HOTKEY_JSON_FILE=/opt/muos/config/hotkey.json
 SLEEP_STATE_FILE=/tmp/sleep_state
 POWER_LONG_FILE=/tmp/trigger/POWER_LONG
 
-RGBCONTROLLER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.rgbcontroller"
-RGBCONF_SCRIPT=/run/muos/storage/theme/active/rgb/rgbconf.sh
+DPAD_FILE=/sys/class/power_supply/axp2202-battery/nds_pwrkey
+HALL_KEY_FILE=/sys/class/power_supply/axp2202-battery/hallkey
+
+RGBCONTROLLER_DIR="$(GET_VAR device storage/rom/mount)/MUOS/application/.rgbcontroller"
 
 READ_HOTKEYS() {
 	# Restart muhotkey if it exits. (tweak.sh kills it on config changes.)
-	# Order matters! Only the first matching combo will trigger.
 	while true; do
-		# Don't enable hold for RGB combos since rgbcli is a bit slow
-		# and allowing holds makes the input loop unresponsive.
-		/opt/muos/extra/muhotkey \
-			-C OSF=POWER_LONG+L1+L2+R1+R2 \
-			-C SLEEP=POWER_LONG \
-			-C SCREENSHOT=POWER_SHORT+MENU_LONG \
-			-H BRIGHT_UP=VOL_UP+MENU_LONG \
-			-H VOL_UP=VOL_UP \
-			-H BRIGHT_DOWN=VOL_DOWN+MENU_LONG \
-			-H VOL_DOWN=VOL_DOWN \
-			-C RGB_MODE=L3+MENU_LONG \
-			-C RGB_BRIGHT_UP=LS_UP+MENU_LONG \
-			-C RGB_BRIGHT_DOWN=LS_DOWN+MENU_LONG \
-			-C RGB_COLOR_PREV=LS_LEFT+MENU_LONG \
-			-C RGB_COLOR_NEXT=LS_RIGHT+MENU_LONG \
-			-C RETROWAIT_IGNORE=START \
-			-C RETROWAIT_MENU=SELECT
+		# Restore default hotkey.json if missing.
+		if [ ! -f "$HOTKEY_JSON_FILE" ]; then
+			cp /opt/muos/device/current/control/hotkey.json "$HOTKEY_JSON_FILE"
+		fi
+
+		# TODO: Parse JSON in muhotkey instead of converting it here.
+		jq -r '.[] | [{press: "-C", hold: "-H"}[.action], "\(.name)=\(.inputs | join("+"))"] | .[]' "$HOTKEY_JSON_FILE" \
+			| xargs /opt/muos/extra/muhotkey
 	done
 }
 
@@ -44,29 +36,37 @@ HANDLE_HOTKEY() {
 		IDLE_DISPLAY) DISPLAY_IDLE ;;
 		IDLE_SLEEP) SLEEP ;;
 
-		# Power long combos:
+		# Power combos:
 		OSF) HALT_SYSTEM osf reboot ;;
 		SLEEP) SLEEP ;;
 
-		# Power short combos:
+		# Utility combos:
 		SCREENSHOT) /opt/muos/device/current/input/combo/screenshot.sh ;;
+		DPAD_TOGGLE) DPAD_TOGGLE ;;
 
-		# Volume combos:
+		# Brightness/volume combos:
 		BRIGHT_UP) /opt/muos/device/current/input/combo/bright.sh U ;;
 		VOL_UP) /opt/muos/device/current/input/combo/audio.sh U ;;
 		BRIGHT_DOWN) /opt/muos/device/current/input/combo/bright.sh D ;;
 		VOL_DOWN) /opt/muos/device/current/input/combo/audio.sh D ;;
 
-		# Stick combos:
-		RGB_MODE) RGB_CLI -m up ;;
-		RGB_BRIGHT_UP) RGB_CLI -b up ;;
-		RGB_BRIGHT_DOWN) RGB_CLI -b down ;;
-		RGB_COLOR_PREV) RGB_CLI -c down ;;
-		RGB_COLOR_NEXT) RGB_CLI -c up ;;
+		# RGB combos:
+		RGB_MODE) RGBCLI -m up ;;
+		RGB_BRIGHT_UP) RGBCLI -b up ;;
+		RGB_BRIGHT_DOWN) RGBCLI -b down ;;
+		RGB_COLOR_PREV) RGBCLI -c down ;;
+		RGB_COLOR_NEXT) RGBCLI -c up ;;
 
-		# Misc combos:
-		RETROWAIT_IGNORE) [ "$(GET_VAR global settings/advanced/retrowait)" -eq 1 ] && printf "ignore" >"/tmp/net_start" ;;
-		RETROWAIT_MENU) [ "$(GET_VAR global settings/advanced/retrowait)" -eq 1 ] && printf "menu" >"/tmp/net_start" ;;
+		# "RetroArch Network Wait" combos:
+		RETROWAIT_IGNORE) [ "$(GET_VAR global settings/advanced/retrowait)" -eq 1 ] && echo ignore >/tmp/net_start ;;
+		RETROWAIT_MENU) [ "$(GET_VAR global settings/advanced/retrowait)" -eq 1 ] && echo menu >/tmp/net_start ;;
+	esac
+}
+
+LID_CLOSED() {
+	case "$(GET_VAR device board/name)" in
+		rg35xx-sp) [ "$(cat "$HALL_KEY_FILE")" -eq 0 ] ;;
+		*) false ;;
 	esac
 }
 
@@ -97,7 +97,27 @@ SLEEP() {
 	esac
 }
 
-RGB_CLI() {
+DPAD_TOGGLE() {
+	case "$(GET_VAR system foreground_process)" in
+		mux*) ;;
+		*)
+			case "$(cat "$DPAD_FILE")" in
+				0)
+					echo 2 >"$DPAD_FILE"
+					RUMBLE "$(GET_VAR device board/rumble)" .1
+					;;
+				2)
+					echo 0 >"$DPAD_FILE"
+					RUMBLE "$(GET_VAR device board/rumble)" .1
+					sleep .1
+					RUMBLE "$(GET_VAR device board/rumble)" .1
+					;;
+			esac
+			;;
+	esac
+}
+
+RGBCLI() {
 	LD_LIBRARY_PATH="$RGBCONTROLLER_DIR/libs:$LD_LIBRARY_PATH" \
 		"$RGBCONTROLLER_DIR/love" "$RGBCONTROLLER_DIR/rgbcli" "$@"
 }
@@ -112,8 +132,8 @@ if [ "$(GET_VAR global boot/factory_reset)" -eq 0 ]; then
 fi
 
 READ_HOTKEYS | while read -r HOTKEY; do
-	# Don't respond to any hotkeys while in charge mode.
-	if [ "$(GET_VAR system foreground_process)" = muxcharge ]; then
+	# Don't respond to any hotkeys while in charge mode or with lid closed.
+	if [ "$(GET_VAR system foreground_process)" = muxcharge ] || LID_CLOSED; then
 		continue
 	fi
 

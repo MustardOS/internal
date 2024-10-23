@@ -72,8 +72,8 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 		fi
 	done
 
-	LOGGER "$0" "FACTORY RESET" "Starting Input Reader"
-	/opt/muos/device/current/input/input.sh &
+	LOGGER "$0" "FACTORY RESET" "Starting Hotkey Daemon"
+	/opt/muos/script/mux/hotkey.sh &
 	/usr/bin/mpg123 -q /opt/muos/factory.mp3 &
 
 	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
@@ -81,7 +81,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 		/opt/openssh/bin/ssh-keygen -A &
 	fi
 
-	LOGGER "$0" "BOOTING" "Setting ARMHF Requirements"
+	LOGGER "$0" "FACTORY RESET" "Setting ARMHF Requirements"
 	if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
 		LOGGER "$0" "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
 		ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
@@ -95,7 +95,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	SET_VAR "global" "boot/factory_reset" "0"
 	SET_VAR "global" "settings/advanced/rumble" "0"
 
-	killall -q "input.sh" "mpg123"
+	killall -q "hotkey.sh" "mpg123"
 	rm -f "/opt/muos/factory.mp3"
 
 	/opt/muos/extra/muxcredits
@@ -112,6 +112,9 @@ ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/preload.txt &
 
 LOGGER "$0" "BOOTING" "Running Device Specifics"
 /opt/muos/device/current/script/start.sh
+
+LOGGER "$0" "BOOTING" "Starting Hotkey Daemon"
+/opt/muos/script/mux/hotkey.sh &
 
 # Block on storage mounts as late as possible to reduce boot time. Must wait
 # before charger detection since muxcharge expects the theme to be mounted.

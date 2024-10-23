@@ -48,6 +48,3 @@ echo on >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
 
 # Switch GPU power policy
 echo always_on >/sys/devices/platform/gpu/power_policy &
-
-/opt/muos/device/current/input/input.sh &
-/opt/muos/device/current/input/idle.sh &

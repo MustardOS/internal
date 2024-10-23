@@ -74,9 +74,9 @@ while true; do
 
 	# power button OR lid closed
 	if { [ "$TMP_POWER_LONG_VAL" = "off" ] || [ "$HALL_KEY_VAL" = "0" ]; } && [ "$SLEEP_STATE_VAL" = "awake" ]; then
-		# HACK: We duplicate this logic from input.sh, but only for the
+		# HACK: We duplicate this logic from hotkey.sh, but only for the
 		# SP. On other devices, power.sh only handles the "Sleep XXs +
-		# Shutdown" mode, and input.sh handles the other modes directly.
+		# Shutdown" mode, and hotkey.sh handles the other modes directly.
 		#
 		# But the SP's lid switch is read via a file (hallkey) that
 		# requires polling, whereas the input loop spends most of its

@@ -1,4 +1,5 @@
 a_hk = esc
+select = esc
 
 a = space
 x = shift

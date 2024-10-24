@@ -5,7 +5,6 @@
 . /opt/muos/script/mux/close_game.sh
 . /opt/muos/script/mux/idle.sh
 
-HOTKEY_JSON_FILE=/opt/muos/config/hotkey.json
 SLEEP_STATE_FILE=/tmp/sleep_state
 POWER_LONG_FILE=/tmp/trigger/POWER_LONG
 
@@ -17,14 +16,7 @@ RGBCONTROLLER_DIR="$(GET_VAR device storage/rom/mount)/MUOS/application/.rgbcont
 READ_HOTKEYS() {
 	# Restart muhotkey if it exits. (tweak.sh kills it on config changes.)
 	while true; do
-		# Restore default hotkey.json if missing.
-		if [ ! -f "$HOTKEY_JSON_FILE" ]; then
-			cp /opt/muos/device/current/control/hotkey.json "$HOTKEY_JSON_FILE"
-		fi
-
-		# TODO: Parse JSON in muhotkey instead of converting it here.
-		jq -r '.[] | [{press: "-C", hold: "-H"}[.action], "\(.name)=\(.inputs | join("+"))"] | .[]' "$HOTKEY_JSON_FILE" \
-			| xargs /opt/muos/extra/muhotkey
+		/opt/muos/extra/muhotkey /opt/muos/device/current/control/hotkey.json
 	done
 }
 

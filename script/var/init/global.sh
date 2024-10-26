@@ -26,11 +26,10 @@ NETWORK_VARS="enabled type ssid pass address gateway subnet dns"
 SETTINGS_ADVANCED_VARS="accelerate swap thermal font verbose rumble volume brightness offset lock led random_theme retrowait usb_function state hdmi_output"
 SETTINGS_GENERAL_VARS="hidden bgm sound startup colour brightness hdmi language"
 SETTINGS_POWER_VARS="low_battery shutdown idle_display idle_sleep"
-STORAGE_VARS="bios config catalogue content music save screenshot theme language network"
 VISUAL_VARS="battery network bluetooth clock boxart boxartalign name dash friendlyfolder thetitleformat titleincluderootdrive counterfolder counterfile folderitemcount backgroundanimation"
 WEB_VARS="shell browser terminal syncthing resilio ntp"
 
-for INIT in boot clock network settings/advanced settings/general settings/power storage visual web; do
+for INIT in boot clock network settings/advanced settings/general settings/power visual web; do
 	case "$INIT" in
 		boot) VARS="$BOOT_VARS" ;;
 		clock) VARS="$CLOCK_VARS" ;;
@@ -38,7 +37,6 @@ for INIT in boot clock network settings/advanced settings/general settings/power
 		settings/advanced) VARS="$SETTINGS_ADVANCED_VARS" ;;
 		settings/general) VARS="$SETTINGS_GENERAL_VARS" ;;
 		settings/power) VARS="$SETTINGS_POWER_VARS" ;;
-		storage) VARS="$STORAGE_VARS" ;;
 		visual) VARS="$VISUAL_VARS" ;;
 		web) VARS="$WEB_VARS" ;;
 		*)

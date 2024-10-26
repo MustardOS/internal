@@ -15,6 +15,14 @@ SET_VAR "system" "foreground_process" "pico8_64"
 
 GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
 EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8"
+CTRL_TYPE="$(GET_VAR "global" "settings/advanced/swap")"
+
+# Set appropriate sdl controller file
+if [ "$CTRL_TYPE" = 0 ]; then
+	export SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_modern.txt")
+else
+	export SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_retro.txt")
+fi
 
 # First look for emulator in BIOS directory, which allows it to follow the
 # user's storage preference. Fall back on the old path for compatibility.
@@ -37,14 +45,12 @@ cd "$EMUDIR" || exit
 
 if [ "$NAME" = "Splore" ]; then
 	SDL_ASSERT=always_ignore \
-	SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") \
 	$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
 	PATH="$EMUDIR:$PATH" \
 	HOME="$EMUDIR" \
 	"$EMU" $PICO_FLAGS -root_path "$ROMDIR" -splore
 else
 	SDL_ASSERT=always_ignore \
-	SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") \
 	$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
 	PATH="$EMUDIR:$PATH" \
 	HOME="$EMUDIR" \

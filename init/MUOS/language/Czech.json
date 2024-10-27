@@ -13,6 +13,7 @@
     "Internal": "Interní",
     "Launch": "Spustit",
     "Load": "Nahrát",
+    "Migrate to SD2": "Migrujte na SD2",
     "No Content Found...": "Nebyl nalezen žádný obsah…",
     "No Help Information Found": "Nebyly nalezeny žádné informace nápovědy",
     "Open": "Otevřít",
@@ -54,6 +55,8 @@
   },
   "muxassign": {
     "ASSIGN": "PŘIŘADIT",
+    "Assigned to directory": "Přiřazeno do adresáře",
+    "Assigned to file": "Přiřazeno k souboru",
     "No Cores Found...": "Nebyla nalezena žádná jádra…",
     "This is where you can assign a core or external emulator to content": "Zde můžete přiřadit jádro nebo externí emulátor"
   },
@@ -69,10 +72,12 @@
     "Connect to a Wi-Fi network manually or via a saved profile": "Připojte se k síti Wi-Fi ručně nebo prostřednictvím uloženého profilu",
     "Date and Time": "Datum a čas",
     "Device specific and muOS frontend settings can be found here": "Specifické nastavení pro zařízení a muOS frontend naleznete zde",
+    "Find out what storage device core settings and configurations are mounted": "Zjistěte, jaká základní nastavení a konfigurace úložného zařízení jsou připojeny",
     "General Settings": "Nastavení",
     "Language": "Jazyk",
     "Select a muOS supported theme": "Vyberte motiv pro muOS",
     "Select your preferred language": "Vyberte preferovaný jazyk",
+    "Storage": "Uložiště",
     "Theme Picker": "Výběr motivu",
     "Toggle a range of configurable services you can access via an active network": "Přepínejte řadu konfigurovatelných služeb, ke kterým máte přístup prostřednictvím aktivní sítě",
     "Web Services": "Síťové služby",
@@ -81,7 +86,7 @@
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Nakonfigurujte regulátory CPU tak, aby dynamicky upravovaly frekvenci CPU a pomáhaly vyvážit spotřebu energie a výkon",
     "GOVERNOR": "REGULÁTOR",
-    "No Governors Found...": "Nebyl nalezen žádný regulátor…"
+    "No Governors Found...": "Nebyl nalezen žádný regulátor..."
   },
   "muxinfo": {
     "Access statistics of played content and other activity": "Přístup ke statistikám přehrávaného obsahu a další aktivity",
@@ -125,9 +130,6 @@
     "Loading Network Profiles...": "Načítání síťových profilů…",
     "NETWORK PROFILE": "SÍŤOVÝ PROFIL",
     "No Saved Network Profiles Found": "Nebyly nalezeny žádné uložené síťové profily",
-    "Password must be 8": {
-      "63 characters!": "Heslo musí mít 8..63 znaků!"
-    },
     "Password must be 8..63 characters!": "Heslo musí mít 8-63 znaků!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Rychle přepínejte mezi různými konfiguracemi Wi-Fi na základě vaší polohy nebo předvoleb sítě"
   },
@@ -135,7 +137,7 @@
     "Detect, display and connect to available Wi-Fi networks": "Detekce, zobrazení a připojení k dostupným sítím Wi-Fi",
     "NETWORK SCAN": "SKENOVÁNÍ SÍŤĚ",
     "No Wi-Fi Networks Found": "Nebyly nalezeny žádné sítě Wi-Fi",
-    "Scanning for Wi-Fi Networks...": "Vyhledávání sítí Wi-Fi…"
+    "Scanning for Wi-Fi Networks...": "Vyhledávání sítí Wi-Fi..."
   },
   "muxnetwork": {
     "Cannot modify while connected!": "Během připojení nelze upravovat!",
@@ -238,31 +240,39 @@
     "Year": "Rok"
   },
   "muxstorage": {
-    "AUTO": "AUTO",
+    "Assigned Core/Governor System": "Přiřazené jádro/Regulátor systému",
     "Background Music": "Hudba na pozadí",
-    "Change where muOS looks for Language files": "Změňte, kde muOS hledá jazykové soubory",
-    "Change where muOS looks for Network Profiles": "Změňte, kde muOS hledá síťové profily",
-    "Change where muOS looks for RetroArch BIOS": "Změňte, kde muOS hledá RetroArch BIOS",
-    "Change where muOS looks for RetroArch Configurations": "Změňte, kde muOS hledá konfigurace RetroArch",
-    "Change where muOS looks for background music": "Změňte, kde muOS hledá hudbu na pozadí",
-    "Change where muOS looks for content images and text": "Změňte, kde muOS hledá obrázky obsahu a text",
-    "Change where muOS looks for favourites, history, and assigned content": "Změňte, kde muOS hledá oblíbené položky, historii a přiřazený obsah",
-    "Change where muOS looks for save states and files": "Změňte, kde muOS hledá stavy uložení a soubory",
-    "Change where muOS looks for themes": "Změňte, kde muOS hledá témata",
-    "Change where muOS saves screenshots": "Změňte, kde muOS hledá obrázky a soubory uložení",
-    "Content Management": "Správa obsahu",
+    "Favourites": "Oblíbené",
+    "Friendly Name System": "Přátelský systém jmen",
+    "History": "Historie",
     "Languages": "Jazyky",
-    "Leave on AUTO to look on SD2 first and fall back to SD1": "Nechte na AUTO, chcete-li prohledat SD2 a potom SD1",
+    "Location of Language files": "Umístění jazykových souborů",
+    "Location of Network Profiles": "Umístění síťových profilů",
+    "Location of RetroArch configurations": "Umístění konfigurací RetroArch",
+    "Location of Syncthing configurations": "Umístění konfigurace Syncthing",
+    "Location of assigned core and governor configurations": "Umístění přiřazených konfigurací jádra a regulátoru",
+    "Location of background music": "Umístění hudby na pozadí",
+    "Location of content images and text": "Umístění obrázků a textu obsahu",
+    "Location of favourites": "Umístění oblíbených",
+    "Location of friendly name configurations": "Umístění konfigurací popisných názvů",
+    "Location of history": "Umístění historie",
+    "Location of save states and files": "Umístění stavů uložení a souborů",
+    "Location of screenshots": "Umístění snímků obrazovky",
+    "Location of system BIOS files": "Umístění souborů systému BIOS",
+    "Location of the RetroArch emulator": "Umístění emulátoru RetroArch",
+    "Location of themes": "Umístění témat",
     "Metadata Catalogue": "Katalog metadat",
+    "Migrating to SD2...": "Migrace na SD2…",
     "Network Profiles": "Síťové profily",
-    "RetroArch BIOS": "RetroArch - BIOS",
     "RetroArch Configs": "RetroArch - Konfigurace",
-    "SD1": "SD1",
-    "SD2": "SD2",
-    "STORAGE PREFERENCE": "ULOŽIŠTĚ",
+    "RetroArch System": "RetroArch Systém",
+    "STORAGE": "ULOŽIŠTĚ",
     "Save Games + Save States": "Uložení hry + Uložit States",
     "Screenshots": "Snímky obrazovky",
-    "Themes": "Témata"
+    "Syncthing Configs": "Konfigurace Syncthing",
+    "System BIOS": "Systém BIOS",
+    "Themes": "Témata",
+    "This storage element is already on SD2": "Tento úložný prvek je již na SD2"
   },
   "muxsysinfo": {
     "Battery Capacity": "Kapacita baterie",
@@ -310,7 +320,6 @@
     "No Timezones Found...": "Nebyla nalezena žádná časová pásma…",
     "Saving Timezone": "Ukládání časového pásma",
     "Select your preferred timezone": "Vyberte preferované časové pásmo.",
-    "Select your preferred timezone.": "Vyberte preferované časové pásmo.",
     "TIMEZONE": "ČASOVÉ PÁSMO"
   },
   "muxtweakadv": {
@@ -325,7 +334,6 @@
     "Change the default brightness level that the device will use each time it starts up": "Změňte výchozí úroveň jasu, kterou zařízení použije při každém spuštění",
     "Change the default theme used for the next device launch": "Změňte výchozí motiv použitý pro příští spuštění zařízení",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Změňte zobrazené procento baterie, abyste zlepšili přesnost na základě kalibrace nebo známých odchylek odečtu kapacity baterie",
-    "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!": "Změňte úložné zařízení, kde muOS hledá uživatelský obsah – Změna těchto nastavení může způsobit kritická selhání, změňte je pouze tehdy, pokud víte, co děláte!",
     "Device Rumble": "Vibrace zařízení",
     "HDMI Audio Output": "HDMI audio výstup",
     "High": "Vysoký",
@@ -347,7 +355,6 @@
     "Startup": "Spuštění",
     "Startup + Shutdown": "Spuštění + Vypnutí",
     "Startup + Sleep": "Spuštění + Spánek",
-    "Storage Preference": "Předvolba úložiště",
     "Suspend Power State": "Pozastavit stav napájení",
     "Switch between device speaker or external monitor audio via HDMI connection": "Přepínejte mezi reproduktorem zařízení nebo zvukem externího monitoru prostřednictvím připojení HDMI",
     "Switch between system sleep suspend states": "Přepínání mezi stavy pozastavení spánku systému",

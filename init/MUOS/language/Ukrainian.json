@@ -13,6 +13,7 @@
     "Internal": "Внутрішній",
     "Launch": "Запустити",
     "Load": "Завантажити",
+    "Migrate to SD2": "Мігрувати на SD2",
     "No Content Found...": "Контенту Не Знайдено…",
     "No Help Information Found": "Довідкової Інформації Не Знайдено",
     "Open": "Відкрити",
@@ -54,6 +55,8 @@
   },
   "muxassign": {
     "ASSIGN": "ПРИЗНАЧИТИ",
+    "Assigned to directory": "Прив'язаний до директорії",
+    "Assigned to file": "Прив'язаний до файлу",
     "No Cores Found...": "Ядра не знайдено…",
     "This is where you can assign a core or external emulator to content": "Тут Ви можете призначити контенту ядро або зовнішній емулятор"
   },
@@ -69,10 +72,12 @@
     "Connect to a Wi-Fi network manually or via a saved profile": "Приєднатися до мережі Wi-Fi вруічну, або за допомогою збереженого профілю",
     "Date and Time": "Дата та Час",
     "Device specific and muOS frontend settings can be found here": "Тут можна знайти налаштування пристрою та інтерфейсу muOS",
+    "Find out what storage device core settings and configurations are mounted": "Визначити які основні налаштування та конфігурація сховища змонтовано",
     "General Settings": "Загальні Налаштування",
     "Language": "Мова",
     "Select a muOS supported theme": "Виберіть підтримувану тему muOS",
     "Select your preferred language": "Вибрати бажану мову",
+    "Storage": "Сховище",
     "Theme Picker": "Вибрати Тему",
     "Toggle a range of configurable services you can access via an active network": "Активувати набір конфігурованих сервісів, до яких можна під'єднатися через поточну мережу",
     "Web Services": "Веб Сервіси",
@@ -81,7 +86,7 @@
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Налаштувати CPU менеджер, щоб динамічно керувати частотою процесора зберігаючи баланс між споживанням енергії та швидкодією",
     "GOVERNOR": "CPU МЕНЕДЖЕР",
-    "No Governors Found...": "Не Знайдено…"
+    "No Governors Found...": "Не Знайдено..."
   },
   "muxinfo": {
     "Access statistics of played content and other activity": "Доступ до статистики ігор та інших активностей",
@@ -125,9 +130,6 @@
     "Loading Network Profiles...": "Завантажуються Профілі Мережі…",
     "NETWORK PROFILE": "ПРОФІЛЬ МЕРЕЖІ",
     "No Saved Network Profiles Found": "Збережених Профілів Мережі Не Знайдено",
-    "Password must be 8": {
-      "63 characters!": "Пароль має бути 8..63 символів!"
-    },
     "Password must be 8..63 characters!": "Пароль має бути 8..63 символів!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Швидке перемикання між різними конфігураціями Wi-Fi в залежності від вашої локації або налаштувань мережі"
   },
@@ -135,7 +137,7 @@
     "Detect, display and connect to available Wi-Fi networks": "Визначити, показати та приєднатися до наявних Wi-Fi мереж",
     "NETWORK SCAN": "СКАНУВАННЯ МЕРЕЖІ",
     "No Wi-Fi Networks Found": "Не Знайдено Wi-Fi Мереж",
-    "Scanning for Wi-Fi Networks...": "Сканування Wi-Fi Мереж…"
+    "Scanning for Wi-Fi Networks...": "Сканування Wi-Fi Мереж..."
   },
   "muxnetwork": {
     "Cannot modify while connected!": "Не можна змінювати при підключенні!",
@@ -238,31 +240,39 @@
     "Year": "Рік"
   },
   "muxstorage": {
-    "AUTO": "АВТО",
+    "Assigned Core/Governor System": "Призначене ядро/Системний Менеджер",
     "Background Music": "Фонова Музика",
-    "Change where muOS looks for Language files": "Вказати де muOS шукатиме файли мов",
-    "Change where muOS looks for Network Profiles": "Вказати де muOS шукатиме Профілі Мережі",
-    "Change where muOS looks for RetroArch BIOS": "Вказати де muOS шукатиме BIOS файли для RetroArch",
-    "Change where muOS looks for RetroArch Configurations": "Вказати де muOS шукатиме файли Конфігурацій для RetroArch",
-    "Change where muOS looks for background music": "Вказати де muOS шукатиме фонову музику",
-    "Change where muOS looks for content images and text": "Вказати де muOS шукатиме контентні зображення та текст",
-    "Change where muOS looks for favourites, history, and assigned content": "Вказати де muOS шукатиме улюблене, історію та призначений контент",
-    "Change where muOS looks for save states and files": "Вказати де muOS шукатиме збережені стани та файли",
-    "Change where muOS looks for themes": "Вказати де muOS шукатиме теми",
-    "Change where muOS saves screenshots": "Вказати де muOS зберігає знімки екрану",
-    "Content Management": "Менеджер Контенту",
+    "Favourites": "Улюблене",
+    "Friendly Name System": "Система Дружніх Імен",
+    "History": "Історія",
     "Languages": "Мови",
-    "Leave on AUTO to look on SD2 first and fall back to SD1": "Залишити АВТО щоб в першу чергу шукати на SD2 і лише потім на SD1 у разі невдачі",
+    "Location of Language files": "Розташування мовних файлів",
+    "Location of Network Profiles": "Розташування мережевих профілів",
+    "Location of RetroArch configurations": "Розташування еонфігурацій RetroArch",
+    "Location of Syncthing configurations": "Розташування конфігурацій Syncthing",
+    "Location of assigned core and governor configurations": "Розташування конфігурації призначеного ядра та менеджера",
+    "Location of background music": "Розташування фонової музики",
+    "Location of content images and text": "Розташування контентних зображень та тексту",
+    "Location of favourites": "Розташування улюбленого",
+    "Location of friendly name configurations": "Розташування конфігурації дружніх імен",
+    "Location of history": "Розташування історії",
+    "Location of save states and files": "Розташування файлів збереження та станів",
+    "Location of screenshots": "Розташування знімків екрану",
+    "Location of system BIOS files": "Розташування системних файлів BIOS",
+    "Location of the RetroArch emulator": "Розташування емулятора RetroArch",
+    "Location of themes": "Розташування тем",
     "Metadata Catalogue": "Каталог Метаданих",
+    "Migrating to SD2...": "Мігрування на SD2…",
     "Network Profiles": "Профілі Мережі",
-    "RetroArch BIOS": "RetroArch BIOS",
     "RetroArch Configs": "Налаштування RetroArch",
-    "SD1": "SD1",
-    "SD2": "SD2",
-    "STORAGE PREFERENCE": "НАЛАШТУВАННЯ СХОВИЩА",
+    "RetroArch System": "Система RetroArch",
+    "STORAGE": "СХОВИЩЕ",
     "Save Games + Save States": "Збереження Гри + Збереження Стану",
     "Screenshots": "Знімки Екрану",
-    "Themes": "Теми"
+    "Syncthing Configs": "Налаштування Syncthing",
+    "System BIOS": "Системний BIOS",
+    "Themes": "Теми",
+    "This storage element is already on SD2": "Цей елемент сховища уже на SD2"
   },
   "muxsysinfo": {
     "Battery Capacity": "Ємність Батареї",
@@ -309,8 +319,7 @@
   "muxtimezone": {
     "No Timezones Found...": "Часових Поясів Не Знайдено…",
     "Saving Timezone": "Збереження Часового Поясу",
-    "Select your preferred timezone": "Виберіть бажаний часовий пояс.",
-    "Select your preferred timezone.": "Виберіть бажаний часовий пояс.",
+    "Select your preferred timezone": "Виберіть бажаний часовий пояс",
     "TIMEZONE": "ЧАСОВИЙ ПОЯС"
   },
   "muxtweakadv": {
@@ -325,7 +334,6 @@
     "Change the default brightness level that the device will use each time it starts up": "Змінити рівень яскравості за замовчуванням, який встановиться при завантаженні пристрою",
     "Change the default theme used for the next device launch": "Визначити тему за замовчуванням, яка встановиться при наступному запуску пристрою",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Змінити відображений відсоток залишку батареї, щоб покращити точність базуючись на калібруванні або відомому відхиленні у зчитуванні ємності батареї",
-    "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!": "Змінити пристрій зберігання, де muOS шукатиме користувацький контент\n- Зміна цих параметрів може спричинити критичні помилки, змінюйте лише якщо Ви впевнені у своїх діях!",
     "Device Rumble": "Вібро-відклик Пристрою",
     "HDMI Audio Output": "HDMI Аудіо Вихід",
     "High": "Висока",
@@ -347,7 +355,6 @@
     "Startup": "Запуск",
     "Startup + Shutdown": "Запуск + Вимкнення",
     "Startup + Sleep": "Запуск + Сон",
-    "Storage Preference": "Налаштування Сховища",
     "Suspend Power State": "Стани Призупинення Живлення",
     "Switch between device speaker or external monitor audio via HDMI connection": "Перемикання між динаміками пристрою та підключеним по HDMI монітором",
     "Switch between system sleep suspend states": "Перемикання між станами системи під час сну",

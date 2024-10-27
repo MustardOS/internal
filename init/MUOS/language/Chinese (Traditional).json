@@ -13,6 +13,7 @@
     "Internal": "內部",
     "Launch": "啟動",
     "Load": "讀取",
+    "Migrate to SD2": "遷移到SD2",
     "No Content Found...": "找不到內容…",
     "No Help Information Found": "找不到幫助信息",
     "Open": "開啟",
@@ -54,11 +55,13 @@
   },
   "muxassign": {
     "ASSIGN": "分配",
+    "Assigned to directory": "分配給目錄",
+    "Assigned to file": "分配給文件",
     "No Cores Found...": "找不到核心…",
     "This is where you can assign a core or external emulator to content": "您可以在此處為內容指派核心或外部模擬器"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "開機中 - 請稍等...",
+    "Booting System - Please Wait...": "引導系統中 - 請稍候…",
     "Capacity": "容量",
     "Press POWER button to continue booting...": "按下電源鍵以繼續啟動…",
     "Voltage": "電壓"
@@ -69,10 +72,12 @@
     "Connect to a Wi-Fi network manually or via a saved profile": "手動或透過儲存的設定檔連接到Wi-Fi網路",
     "Date and Time": "日期與時間",
     "Device specific and muOS frontend settings can be found here": "設備具體設定和muOS前端設定可以在這裡找到",
+    "Find out what storage device core settings and configurations are mounted": "找出已掛載哪些儲存設備核心設定和配置",
     "General Settings": "通用設定",
     "Language": "語言",
     "Select a muOS supported theme": "選擇一個 muOS 支援的主題",
     "Select your preferred language": "選擇您的首要語言",
+    "Storage": "儲存裝置",
     "Theme Picker": "主題選擇器",
     "Toggle a range of configurable services you can access via an active network": "切換透過活動網路存取的一系列服務",
     "Web Services": "Web服務",
@@ -81,7 +86,7 @@
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "配置CPU調控方案，動態調整CPU頻率，幫助平衡功耗與效能",
     "GOVERNOR": "調控方案",
-    "No Governors Found...": "找不到調控方案…"
+    "No Governors Found...": "找不到調控方案..."
   },
   "muxinfo": {
     "Access statistics of played content and other activity": "已遊玩內容和其他活動的統計數據",
@@ -107,7 +112,7 @@
     "Content on storage devices (SD1/SD2/USB) can be found and launched here": "可以在此處找到並啟動儲存裝置 (SD1/SD2/USB) 上的內容",
     "Content previously launched can be found and launched here": "可以在此處找到並啟動已遊玩過的內容",
     "Explore Content": "瀏覽內容",
-    "Favourites": "收藏",
+    "Favourites": "收藏夾",
     "History": "歷史",
     "Information": "資訊",
     "MAIN MENU": "主選單",
@@ -125,9 +130,6 @@
     "Loading Network Profiles...": "讀取網路描述檔…",
     "NETWORK PROFILE": "網路描述檔",
     "No Saved Network Profiles Found": "找不到已儲存的網路描述檔",
-    "Password must be 8": {
-      "63 characters!": "密碼必須是8到63個字元！"
-    },
     "Password must be 8..63 characters!": "密碼必須是8到63個字元！",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "根據您的位置或網路偏好在不同的Wi-Fi配置之間快速切換"
   },
@@ -135,7 +137,7 @@
     "Detect, display and connect to available Wi-Fi networks": "偵測、顯示並連接到可用的Wi-Fi網路",
     "NETWORK SCAN": "掃描網路",
     "No Wi-Fi Networks Found": "找不到Wi-Fi網路",
-    "Scanning for Wi-Fi Networks...": "正在掃描Wi-Fi網路…"
+    "Scanning for Wi-Fi Networks...": "正在掃描Wi-Fi網路..."
   },
   "muxnetwork": {
     "Cannot modify while connected!": "連線時無法修改！",
@@ -181,19 +183,19 @@
     "PASSCODE": "密碼"
   },
   "muxplore": {
-    "Added to Favourites": "新增至收藏",
+    "Added to Favourites": "已新增至收藏夾",
     "Could not load content - No core is associated": "無法讀取內容 - 沒有關聯的核心",
     "Could not load content!": "無法讀取內容！",
-    "Directories cannot be added to Favourites": "目錄無法新增到收藏",
+    "Directories cannot be added to Favourites": "目錄無法新增到收藏夾",
     "EXPLORE": "瀏覽",
-    "Error adding to Favourites": "新增到收藏時出錯",
-    "FAVOURITES": "收藏",
+    "Error adding to Favourites": "新增到收藏夾時出錯",
+    "FAVOURITES": "收藏夾",
     "Favourite": "收藏",
     "HISTORY": "歷史",
     "Info": "資訊",
     "Loading...": "讀取中…",
     "Refresh": "重新整理",
-    "Removed from Favourites": "從收藏移除"
+    "Removed from Favourites": "已從收藏夾移除"
   },
   "muxpower": {
     "10m": "10分鐘",
@@ -222,7 +224,7 @@
     "Sleep 60m + Shutdown": "休眠60分鐘後關機",
     "Sleep 60s + Shutdown": "休眠60秒後關機",
     "Sleep Function": "電源鍵設定(休眠功能)",
-    "Sleep Suspend": "休眠暫停"
+    "Sleep Suspend": "休眠待機"
   },
   "muxrtc": {
     "12 Hour": "12時制",
@@ -238,31 +240,39 @@
     "Year": "年"
   },
   "muxstorage": {
-    "AUTO": "自動",
+    "Assigned Core/Governor System": "分配 核心/調控方案 系統",
     "Background Music": "背景音樂",
-    "Change where muOS looks for Language files": "更改muOS語言檔案的位置",
-    "Change where muOS looks for Network Profiles": "更改muOS網路設定檔的位置",
-    "Change where muOS looks for RetroArch BIOS": "更改RetroArch BIOS的位置",
-    "Change where muOS looks for RetroArch Configurations": "更改RetroArch設定檔的位置",
-    "Change where muOS looks for background music": "改變muOS背景音樂的位置",
-    "Change where muOS looks for content images and text": "更改muOS內容圖像和文字的位置",
-    "Change where muOS looks for favourites, history, and assigned content": "更改muOS收藏夾、歷史記錄和指定內容的位置",
-    "Change where muOS looks for save states and files": "更改muOS遊戲存檔和即時存檔的位置",
-    "Change where muOS looks for themes": "更改muOS主題的位置",
-    "Change where muOS saves screenshots": "更改muOS儲存螢幕截圖的位置",
-    "Content Management": "內容管理",
+    "Favourites": "收藏夾",
+    "Friendly Name System": "友善名稱系統",
+    "History": "歷史",
     "Languages": "語言",
-    "Leave on AUTO to look on SD2 first and fall back to SD1": "AUTO模式 - 先查看SD2，然後再查看SD1",
+    "Location of Language files": "語言檔案路徑",
+    "Location of Network Profiles": "網路設定檔路徑",
+    "Location of RetroArch configurations": "RetroArch配置文件路徑",
+    "Location of Syncthing configurations": "Syncthing配置文件路徑",
+    "Location of assigned core and governor configurations": "分配核心和調控方案的配置文件路徑",
+    "Location of background music": "背景音樂檔案路徑",
+    "Location of content images and text": "內容圖像和文字的檔案路徑",
+    "Location of favourites": "收藏夾路徑",
+    "Location of friendly name configurations": "友善名稱配置文件路徑",
+    "Location of history": "歷史路徑",
+    "Location of save states and files": "遊戲存檔與即時存檔的檔案路徑",
+    "Location of screenshots": "螢幕截圖保存路徑",
+    "Location of system BIOS files": "系統BIOS檔案路徑",
+    "Location of the RetroArch emulator": "RetroArch模擬器路徑",
+    "Location of themes": "主題存放路徑",
     "Metadata Catalogue": "Metadata目錄",
+    "Migrating to SD2...": "正在遷移到SD2…",
     "Network Profiles": "網路設定檔",
-    "RetroArch BIOS": "RetroArch BIOS",
     "RetroArch Configs": "RetroArch配置",
-    "SD1": "SD1",
-    "SD2": "SD2",
-    "STORAGE PREFERENCE": "存儲偏好",
+    "RetroArch System": "RetroArch系統",
+    "STORAGE": "儲存裝置",
     "Save Games + Save States": "遊戲存檔 + 即時存檔",
     "Screenshots": "螢幕截圖",
-    "Themes": "主題"
+    "Syncthing Configs": "Syncthing配置",
+    "System BIOS": "系統BIOS",
+    "Themes": "主題",
+    "This storage element is already on SD2": "該儲存元素已位於SD2上"
   },
   "muxsysinfo": {
     "Battery Capacity": "電池容量",
@@ -310,7 +320,6 @@
     "No Timezones Found...": "找不到時區…",
     "Saving Timezone": "儲存時區設定",
     "Select your preferred timezone": "選擇您的當前時區",
-    "Select your preferred timezone.": "選擇您的當前時區",
     "TIMEZONE": "時區"
   },
   "muxtweakadv": {
@@ -325,7 +334,6 @@
     "Change the default brightness level that the device will use each time it starts up": "更改設備每次啟動時預設的亮度級別",
     "Change the default theme used for the next device launch": "設備啟動時使用隨機主題",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "根據校準或電池容量讀數的已知偏差更改顯示的電池百分比以提高準確性",
-    "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!": "更改muOS查找內容的儲存裝置 - 更改這些設定可能會導致嚴重故障，只有您知道自己在做什麼的情況下才能更改!",
     "Device Rumble": "震動提示",
     "HDMI Audio Output": "HDMI音源輸出",
     "High": "高",
@@ -347,7 +355,6 @@
     "Startup": "啟動",
     "Startup + Shutdown": "啟動+關機",
     "Startup + Sleep": "啟動+休眠",
-    "Storage Preference": "存儲偏好",
     "Suspend Power State": "待機電源狀態",
     "Switch between device speaker or external monitor audio via HDMI connection": "切換HDMI連接時音訊輸出到裝置揚聲器或外部顯示器",
     "Switch between system sleep suspend states": "切換系統待機掛載的狀態",
@@ -393,7 +400,7 @@
     "Deep Arctic (-256)": "北極深處 (-256)",
     "Deep Ember (256)": "深燼 (256)",
     "Device Startup": "設備啟動",
-    "Favourites": "收藏",
+    "Favourites": "收藏夾",
     "Frostbite Blue (-64)": "霜寒藍 (-64)",
     "Frosty Breeze (-192)": "霜凍微風 (-192)",
     "GENERAL SETTINGS": "通用設定",

@@ -13,6 +13,7 @@
     "Internal": "内部",
     "Launch": "启动",
     "Load": "加载",
+    "Migrate to SD2": "迁移至SD卡2",
     "No Content Found...": "找不到内容…",
     "No Help Information Found": "找不到帮助信息",
     "Open": "打开",
@@ -54,11 +55,13 @@
   },
   "muxassign": {
     "ASSIGN": "分配",
+    "Assigned to directory": "分配至目录",
+    "Assigned to file": "分配至文件",
     "No Cores Found...": "找不到核心…",
     "This is where you can assign a core or external emulator to content": "在此分配RA核心或独立模拟器"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "启动系统中 - 请稍等……",
+    "Booting System - Please Wait...": "启动系统中 - 请稍等…",
     "Capacity": "容量",
     "Press POWER button to continue booting...": "按开关机键进入系统…",
     "Voltage": "电压"
@@ -69,10 +72,12 @@
     "Connect to a Wi-Fi network manually or via a saved profile": "手动链接，或通过载入配置文件连接Wi-Fi网络",
     "Date and Time": "日期和时间",
     "Device specific and muOS frontend settings can be found here": "在此调节设备与muOS前端的设置选项",
+    "Find out what storage device core settings and configurations are mounted": "Find out what storage device core settings and configurations are mounted",
     "General Settings": "常规设置",
     "Language": "语言",
     "Select a muOS supported theme": "选择muOS支持的主题",
     "Select your preferred language": "选择您使用的语言",
+    "Storage": "储存",
     "Theme Picker": "主题选择",
     "Toggle a range of configurable services you can access via an active network": "设置一系列可选网络服务，通过已启用的网络连接使用",
     "Web Services": "网络服务",
@@ -125,9 +130,6 @@
     "Loading Network Profiles...": "加载网络配置文件中…",
     "NETWORK PROFILE": "网络配置文件",
     "No Saved Network Profiles Found": "找不到保存的网络配置文件",
-    "Password must be 8": {
-      "63 characters!": "密码必须是8到63个字符！"
-    },
     "Password must be 8..63 characters!": "密码必须是8到63个字符！",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "快速切换Wi-Fi配置，以适应机器所在的特定位置或联网状态"
   },
@@ -135,7 +137,7 @@
     "Detect, display and connect to available Wi-Fi networks": "扫描、显示并连接可用Wi-Fi热点",
     "NETWORK SCAN": "网络扫描",
     "No Wi-Fi Networks Found": "找不到 Wi-Fi 网络",
-    "Scanning for Wi-Fi Networks...": "扫描 Wi-Fi 网络中…"
+    "Scanning for Wi-Fi Networks...": "扫描 Wi-Fi 网络中..."
   },
   "muxnetwork": {
     "Cannot modify while connected!": "连接时不能更改！",
@@ -238,31 +240,39 @@
     "Year": "年"
   },
   "muxstorage": {
-    "AUTO": "自动",
+    "Assigned Core/Governor System": "Assigned Core/Governor System",
     "Background Music": "背景音乐",
-    "Change where muOS looks for Language files": "设置muOS加载语言文件的位置",
-    "Change where muOS looks for Network Profiles": "设置muOS加载网络配置文件的位置",
-    "Change where muOS looks for RetroArch BIOS": "设置muOS加载RetroArch的BIOS文件的位置",
-    "Change where muOS looks for RetroArch Configurations": "设置muOS加载RetroArch模拟器配置文件的位置",
-    "Change where muOS looks for background music": "设置muOS加载背景音乐的位置",
-    "Change where muOS looks for content images and text": "设置muOS加载内容封面和介绍文本的位置",
-    "Change where muOS looks for favourites, history, and assigned content": "设置muOS加载收藏夹、历史、核心分配配置的位置",
-    "Change where muOS looks for save states and files": "设置muOS加载模拟器存档的位置",
-    "Change where muOS looks for themes": "设置muOS加载主题文件的位置",
-    "Change where muOS saves screenshots": "设置muOS保存截图的位置",
-    "Content Management": "内容管理",
+    "Favourites": "Favourites",
+    "Friendly Name System": "Friendly Name System",
+    "History": "历史",
     "Languages": "语言",
-    "Leave on AUTO to look on SD2 first and fall back to SD1": "设置为自动，则优先从SD2加载，失败则回落至SD1",
+    "Location of Language files": "语言文件路径",
+    "Location of Network Profiles": "网络配置路径",
+    "Location of RetroArch configurations": "RA模拟器设定文件路径",
+    "Location of Syncthing configurations": "Syncthing设定文件路径",
+    "Location of assigned core and governor configurations": "Location of assigned core and governor configurations",
+    "Location of background music": "背景音乐路径",
+    "Location of content images and text": "Location of content images and text",
+    "Location of favourites": "收藏路径",
+    "Location of friendly name configurations": "Location of friendly name configurations",
+    "Location of history": "历史路径",
+    "Location of save states and files": "Location of save states and files",
+    "Location of screenshots": "截图保存路径",
+    "Location of system BIOS files": "BIOS文件路径",
+    "Location of the RetroArch emulator": "RA模拟器路径",
+    "Location of themes": "主题路径",
     "Metadata Catalogue": "元数据编集",
+    "Migrating to SD2...": "Migrating to SD2…",
     "Network Profiles": "网络配置文件",
-    "RetroArch BIOS": "RetroArch BIOS文件",
     "RetroArch Configs": "RetroArch 配置",
-    "SD1": "SD1",
-    "SD2": "SD2",
-    "STORAGE PREFERENCE": "存储位置偏好",
+    "RetroArch System": "RetroArch System",
+    "STORAGE": "STORAGE",
     "Save Games + Save States": "游戏存档 + 即时存档",
     "Screenshots": "截图",
-    "Themes": "主题"
+    "Syncthing Configs": "Syncthing Configs",
+    "System BIOS": "System BIOS",
+    "Themes": "主题",
+    "This storage element is already on SD2": "This storage element is already on SD2"
   },
   "muxsysinfo": {
     "Battery Capacity": "电池容量",
@@ -309,8 +319,7 @@
   "muxtimezone": {
     "No Timezones Found...": "找不到时区…",
     "Saving Timezone": "保存时区中",
-    "Select your preferred timezone": "设置您使用的时区。",
-    "Select your preferred timezone.": "设置您使用的时区。",
+    "Select your preferred timezone": "设置您使用的时区",
     "TIMEZONE": "时区"
   },
   "muxtweakadv": {
@@ -325,7 +334,6 @@
     "Change the default brightness level that the device will use each time it starts up": "设置开机时的默认亮度",
     "Change the default theme used for the next device launch": "设置是否下次开机时另选主题",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "设置电池容量计数偏移值以满足对本机电池容量的准确计数",
-    "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!": "切换muOS用于加载用户文件的存储设备。【谨慎使用！操作不当可能导致系统损坏！】",
     "Device Rumble": "设备振动",
     "HDMI Audio Output": "HDMI音频输出",
     "High": "高",
@@ -347,7 +355,6 @@
     "Startup": "开机",
     "Startup + Shutdown": "开机、关机",
     "Startup + Sleep": "开机、睡眠",
-    "Storage Preference": "存储位置偏好",
     "Suspend Power State": "待机电源状态",
     "Switch between device speaker or external monitor audio via HDMI connection": "切换音频输出通道为本机扬声器或HDMI显示器音频",
     "Switch between system sleep suspend states": "切换系统睡眠状态",

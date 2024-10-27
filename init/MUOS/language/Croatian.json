@@ -13,6 +13,7 @@
     "Internal": "Unutarnje",
     "Launch": "Pokreni",
     "Load": "Učitaj",
+    "Migrate to SD2": "Migriraj na SD2",
     "No Content Found...": "Sadržaj Nije Pronađen…",
     "No Help Information Found": "Informacija o Pomoći Nije Pronađena",
     "Open": "Otvori",
@@ -54,11 +55,13 @@
   },
   "muxassign": {
     "ASSIGN": "ODREDI",
+    "Assigned to directory": "Zadano na direktoriju",
+    "Assigned to file": "Zadano na datoteku",
     "No Cores Found...": "Nisu Pronađeni Cores…",
     "This is where you can assign a core or external emulator to content": "Ovdje može se odrediti core ili vanjski emulator za sadržaj"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "Pokretanje Sistema - Molimo Pričekajte...",
+    "Booting System - Please Wait...": "Pokretanje Sistema - Molimo Pričekajte…",
     "Capacity": "Kapacitet",
     "Press POWER button to continue booting...": "Pritisni gumb za napajanje da nastavite pokretanje…",
     "Voltage": "Voltaža"
@@ -69,10 +72,12 @@
     "Connect to a Wi-Fi network manually or via a saved profile": "Spoji se na Wi-Fi mrežu ručno ili preko spremljenog profila",
     "Date and Time": "Datum i Vrijeme",
     "Device specific and muOS frontend settings can be found here": "Specifično za uređaj i muOS sučeljne postavkese nalaze ovdje",
+    "Find out what storage device core settings and configurations are mounted": "Saznaj gdje core postavke za uređaj pohrane i konfiguracije su montirane",
     "General Settings": "Opće Postavke",
     "Language": "Jezik",
     "Select a muOS supported theme": "Odaberi muOS podržanu temu",
     "Select your preferred language": "Odaberi svoj preferiran jezik",
+    "Storage": "Pohrana",
     "Theme Picker": "Picker Teme",
     "Toggle a range of configurable services you can access via an active network": "Odaberi niz od konfigurabilne servise koje možete pristupiti s aktivnom mrežom",
     "Web Services": "Web Usluge",
@@ -81,7 +86,7 @@
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Konfiguriraj CPU upravitelje da dinamično prilagodi CPU frekvenciju da pomaže balancirati učinkovitost baterije i performanse",
     "GOVERNOR": "UPRAVITELJ",
-    "No Governors Found...": "Upravitelji Nisu Pronađeni…"
+    "No Governors Found...": "Upravitelji Nisu Pronađeni..."
   },
   "muxinfo": {
     "Access statistics of played content and other activity": "Pristupi statistice igranog sadržaja i drugih aktivnosti",
@@ -125,9 +130,6 @@
     "Loading Network Profiles...": "Učitavanje Mrežnih Profila…",
     "NETWORK PROFILE": "MREŽNI PROFIL",
     "No Saved Network Profiles Found": "Spremljeni Mrežni Profili Nisu Pronađeni",
-    "Password must be 8": {
-      "63 characters!": "Lozinka mora biti 8..63 slova!"
-    },
     "Password must be 8..63 characters!": "Lozinka mora biti 8..63 slova!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Brzo prebaci se između drugačijih Wi-Fi konfiguracija na temelju vaše lokacije ili mrežnih preferenca"
   },
@@ -135,7 +137,7 @@
     "Detect, display and connect to available Wi-Fi networks": "Detektiraj, prikaži i spoji se slobodnim Wi-Fi mrežama",
     "NETWORK SCAN": "SKENIRANJE MREŽE",
     "No Wi-Fi Networks Found": "Wi-Fi Mreže Nisu Pronađene",
-    "Scanning for Wi-Fi Networks...": "Skeniranje za Wi-Fi Mreže…"
+    "Scanning for Wi-Fi Networks...": "Skeniranje za Wi-Fi Mreže..."
   },
   "muxnetwork": {
     "Cannot modify while connected!": "Nije moguće mijenjati dok ste povezani!",
@@ -238,31 +240,39 @@
     "Year": "Godina"
   },
   "muxstorage": {
-    "AUTO": "AUTO",
+    "Assigned Core/Governor System": "Zadani Core/Upravitelj Sistema",
     "Background Music": "Pozadinska Glazba",
-    "Change where muOS looks for Language files": "Promijeni gdje muOS traži datoteke za jezik",
-    "Change where muOS looks for Network Profiles": "Promijeni gdje muOS traži profile za mrežu",
-    "Change where muOS looks for RetroArch BIOS": "Promijeni gdje muOS traži za RetroArch BIOS",
-    "Change where muOS looks for RetroArch Configurations": "Promijeni gdje muOS traži za RetroArch Konfiguracije",
-    "Change where muOS looks for background music": "Promijeni gdje muOS traži za pozadinsku glazbu",
-    "Change where muOS looks for content images and text": "Promijeni gdje muOS traži za sadržaj slika i teksta",
-    "Change where muOS looks for favourites, history, and assigned content": "Promijeni gdje muOS traži za favorite, povijest i određeni sadržaj",
-    "Change where muOS looks for save states and files": "Promijeni gdje muOS traži save state i datoteke",
-    "Change where muOS looks for themes": "Promijeni gdje muOS traži teme",
-    "Change where muOS saves screenshots": "Promijeni gdje muOS sprema slike zaslona",
-    "Content Management": "Upravitelj Sadržaja",
+    "Favourites": "Favoriti",
+    "Friendly Name System": "Sistem Prijateljskog Imenovanja",
+    "History": "Povijest",
     "Languages": "Jezici",
-    "Leave on AUTO to look on SD2 first and fall back to SD1": "Ostavi AUTO da traži na SD2 prvo i onda na SD1",
+    "Location of Language files": "Lokacije datoteka za jezik",
+    "Location of Network Profiles": "Lokacija Profila za Mrežu",
+    "Location of RetroArch configurations": "Lokacija RetroArch konfiguracija",
+    "Location of Syncthing configurations": "Lokacija Syncthing konfiguracija",
+    "Location of assigned core and governor configurations": "Lokacija zadanih core i upraviteljskih konfiguracija",
+    "Location of background music": "Lokacija pozadinske glazbe",
+    "Location of content images and text": "Lokacija sadžajnih slika i teksta",
+    "Location of favourites": "Lokacija favorita",
+    "Location of friendly name configurations": "Lokacija konfiguracija prijateljskog imenovanja",
+    "Location of history": "Lokacija povijesti",
+    "Location of save states and files": "Lokacija save stanja i datoteka",
+    "Location of screenshots": "Lokacija slike zaslona",
+    "Location of system BIOS files": "Lokacija sistemskih BIOS datoteka",
+    "Location of the RetroArch emulator": "Lokacija RetroArch emulatora",
+    "Location of themes": "Lokacija tema",
     "Metadata Catalogue": "Metadata Katalog",
+    "Migrating to SD2...": "Migriranja na SD2…",
     "Network Profiles": "Mrežni Profili",
-    "RetroArch BIOS": "RetroArch BIOS",
     "RetroArch Configs": "RetroArch Konfiguracije",
-    "SD1": "SD1",
-    "SD2": "SD2",
-    "STORAGE PREFERENCE": "PREFERENCE POHRANE",
+    "RetroArch System": "RetroArch System",
+    "STORAGE": "POHRANA",
     "Save Games + Save States": "Save Igre + Save Stanja",
     "Screenshots": "Snimke Zaslona",
-    "Themes": "Teme"
+    "Syncthing Configs": "Syncthing Konfiguracije",
+    "System BIOS": "BIOS Sistema",
+    "Themes": "Teme",
+    "This storage element is already on SD2": "Ovaj element pohrane je već na SD2"
   },
   "muxsysinfo": {
     "Battery Capacity": "Kapacitet Baterije",
@@ -309,8 +319,7 @@
   "muxtimezone": {
     "No Timezones Found...": "Vremenske Zone Nisu Pronađene…",
     "Saving Timezone": "Spremanje Vremenske Zone",
-    "Select your preferred timezone": "Odaberi svoju preferiranu vremensku zonu.",
-    "Select your preferred timezone.": "Odaberi svoju preferiranu vremensku zonu.",
+    "Select your preferred timezone": "Odaberi svoju preferiranu vremensku zonu",
     "TIMEZONE": "VREMENSKA ZONA"
   },
   "muxtweakadv": {
@@ -325,7 +334,6 @@
     "Change the default brightness level that the device will use each time it starts up": "Promijeni zadanu vrijednost svjetline koji će uređaj koristiti svaki put kada se pokrene",
     "Change the default theme used for the next device launch": "Promijeni zadanu temu korištenu za sljedeće pokretanje uređaja",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Promijeni prikazani postotak baterija da se poboljša točnost na temelju kalibracije ili poznatom odstupanju u čitanju kapaciteta batteije",
-    "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!": "Promijeni uređaj pohrane gdje muOS traži korisnički sadržaja - Mijenjanje ovih postavki može uzrokovati kritikalne greške, samo promijenite ako znate što radite!",
     "Device Rumble": "Vibracije Uređaja",
     "HDMI Audio Output": "HDMI Audio Output",
     "High": "Visoko",
@@ -347,7 +355,6 @@
     "Startup": "Pokretanje",
     "Startup + Shutdown": "Pokretanje + Isključivanje",
     "Startup + Sleep": "Pokretanje + Spavanje",
-    "Storage Preference": "Preferenca Pohrane",
     "Suspend Power State": "Suspendaj Stanje Napajanja",
     "Switch between device speaker or external monitor audio via HDMI connection": "Odredi između uređajnog zvučnika ili zvuk vanjskog monitora preko HDMI veze",
     "Switch between system sleep suspend states": "Odredi između suspendanog stanja tijekom spavanja uređaja",

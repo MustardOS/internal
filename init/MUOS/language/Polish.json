@@ -13,6 +13,7 @@
     "Internal": "Wewnętrzny",
     "Launch": "Uruchom",
     "Load": "Wczytaj",
+    "Migrate to SD2": "Migruj do SD2",
     "No Content Found...": "Nie znaleziono zawartości…",
     "No Help Information Found": "Nie znaleziono informacji pomocy",
     "Open": "Otwórz",
@@ -54,11 +55,13 @@
   },
   "muxassign": {
     "ASSIGN": "PRZYPISZ",
+    "Assigned to directory": "Przypisane do katalogu",
+    "Assigned to file": "Przypisane do pliku",
     "No Cores Found...": "Nie znaleziono rdzeni…",
     "This is where you can assign a core or external emulator to content": "Tutaj możesz przypisać rdzeń lub zewnętrzny emulator do zawartości"
   },
   "muxcharge": {
-    "Booting System - Please Wait...": "Uruchamianie systemu - Proszę czekać...",
+    "Booting System - Please Wait...": "Uruchamianie systemu - Proszę czekać…",
     "Capacity": "Pojemność",
     "Press POWER button to continue booting...": "Wciśnij POWER, aby kontynuować uruchamianie…",
     "Voltage": "Napięcie"
@@ -69,10 +72,12 @@
     "Connect to a Wi-Fi network manually or via a saved profile": "Połącz się z siecią Wi-Fi ręcznie lub przez zapisany profil",
     "Date and Time": "Data i czas",
     "Device specific and muOS frontend settings can be found here": "Znajdziesz tutaj ustawienia specyficzne dla urządzenia i interfejsu muOS",
+    "Find out what storage device core settings and configurations are mounted": "Sprawdź, na którym urządzeniu pamięci zamontowane są ustawienia rdzeni i konfiguracje",
     "General Settings": "Ustawienia ogólne",
     "Language": "Język",
     "Select a muOS supported theme": "Wybierz wspierany przez muOS motyw",
     "Select your preferred language": "Wybierz preferowany język",
+    "Storage": "Pamięć",
     "Theme Picker": "Wybór motywu",
     "Toggle a range of configurable services you can access via an active network": "Włącz wiele konfigurowalnych serwisów dostępnych poprzez aktywną sieć",
     "Web Services": "Usługi sieciowe",
@@ -81,7 +86,7 @@
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Skonfiguruj regulatory CPU, aby dynamicznie dostosować częstotliwość CPU i pomóc zrównoważyć zużycie energii i wydajność",
     "GOVERNOR": "REGULATOR",
-    "No Governors Found...": "Nie znaleziono regulatorów…"
+    "No Governors Found...": "Nie znaleziono regulatorów..."
   },
   "muxinfo": {
     "Access statistics of played content and other activity": "Zobacz statystyki zawartości i innych aktywności",
@@ -125,9 +130,6 @@
     "Loading Network Profiles...": "Ładowanie profili sieciowych…",
     "NETWORK PROFILE": "PROFIL SIECIOWY",
     "No Saved Network Profiles Found": "Nie znaleziono zapisanych profilów sieciowych",
-    "Password must be 8": {
-      "63 characters!": "Hasło musi mieć od 8 do 63 znaków!"
-    },
     "Password must be 8..63 characters!": "Hasło musi mieć od 8 do 63 znaków!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Szybko zmień pomiędzy różnymi konfiguracjami Wi-Fi na podstawie twojej lokalizacji lub preferencji sieciowych"
   },
@@ -135,7 +137,7 @@
     "Detect, display and connect to available Wi-Fi networks": "Wyszukaj, wyświetl i połącz się z dostępnymi sieciami Wi-Fi",
     "NETWORK SCAN": "SKANOWANIE SIECI",
     "No Wi-Fi Networks Found": "Nie znaleziono sieci Wi-Fi",
-    "Scanning for Wi-Fi Networks...": "Skanowanie sieci Wi-Fi…"
+    "Scanning for Wi-Fi Networks...": "Skanowanie sieci Wi-Fi..."
   },
   "muxnetwork": {
     "Cannot modify while connected!": "Nie można zmodyfikować będąc połączonym!",
@@ -238,31 +240,39 @@
     "Year": "Rok"
   },
   "muxstorage": {
-    "AUTO": "AUTO",
+    "Assigned Core/Governor System": "Przypisany rdzeń/system regulatora",
     "Background Music": "Muzyka w tle",
-    "Change where muOS looks for Language files": "Zmień lokację, w której muOS ma szukać plików języków",
-    "Change where muOS looks for Network Profiles": "Zmień lokację, w której muOS ma szukać profilów sieciowych",
-    "Change where muOS looks for RetroArch BIOS": "Zmień lokację, w której muOS ma szukać plików BIOS RetroArcha",
-    "Change where muOS looks for RetroArch Configurations": "Zmień lokację, w której muOS ma szukać konfiguracji RetroArcha",
-    "Change where muOS looks for background music": "Zmień lokację, w której muOS ma szukać muzyki tła",
-    "Change where muOS looks for content images and text": "Zmień lokację, w której muOS ma szukać obrazów i tekstów zawartości",
-    "Change where muOS looks for favourites, history, and assigned content": "Zmień lokację, w której muOS ma szukać ulubionych, historii i przypisanej zawartości",
-    "Change where muOS looks for save states and files": "Zmień lokację, w której muOS ma szukać zapisów oraz plików",
-    "Change where muOS looks for themes": "Zmień lokację, w której muOS ma szukać motywów",
-    "Change where muOS saves screenshots": "Zmień lokację, w której muOS ma zapisywać zrzuty ekranu",
-    "Content Management": "Zarządzanie zawartością",
+    "Favourites": "Ulubione",
+    "Friendly Name System": "System przyjaznych nazw",
+    "History": "Historia",
     "Languages": "Języki",
-    "Leave on AUTO to look on SD2 first and fall back to SD1": "Pozostaw na AUTO, by najpierw szukać na SD2 i w ostateczności na SD1",
+    "Location of Language files": "Lokalizacja plików językowych",
+    "Location of Network Profiles": "Lokalizacja profilów sieciowych",
+    "Location of RetroArch configurations": "Lokalizacja konfiguracji RetroArcha",
+    "Location of Syncthing configurations": "Lokalizacja konfiguracji Syncthing",
+    "Location of assigned core and governor configurations": "Lokalizacja konfiguracji przypisanych rdzeni oraz regulatorów",
+    "Location of background music": "Lokalizacja muzyki w tle",
+    "Location of content images and text": "Lokalizacja obrazów i tekstów zawartości",
+    "Location of favourites": "Lokalizacja ulubionych",
+    "Location of friendly name configurations": "Lokalizacja konfiguracji przyjaznych nazw",
+    "Location of history": "Lokalizacja historii",
+    "Location of save states and files": "Lokalizacja stanów zapisu i plików zapisu",
+    "Location of screenshots": "Lokalizacja zrzutów ekranu",
+    "Location of system BIOS files": "Lokalizacja plików BIOS systemów",
+    "Location of the RetroArch emulator": "Lokalizacja emulatora RetroArch",
+    "Location of themes": "Lokalizacja motywów",
     "Metadata Catalogue": "Katalog metadanych",
+    "Migrating to SD2...": "Migrowanie do SD2…",
     "Network Profiles": "Profile sieciowe",
-    "RetroArch BIOS": "BIOS RetroArch",
     "RetroArch Configs": "Konfiguracje RetroArch",
-    "SD1": "SD1",
-    "SD2": "SD2",
-    "STORAGE PREFERENCE": "PREFERENCJE PRZECHOWYWANIA",
+    "RetroArch System": "System RetroArch",
+    "STORAGE": "PAMIĘĆ",
     "Save Games + Save States": "Zapisy i stany zapisu",
     "Screenshots": "Zrzuty ekranu",
-    "Themes": "Motywy"
+    "Syncthing Configs": "Konfiguracje Syncthing",
+    "System BIOS": "BIOS systemu",
+    "Themes": "Motywy",
+    "This storage element is already on SD2": "Ten element pamięci jest już na SD2"
   },
   "muxsysinfo": {
     "Battery Capacity": "Pojemność baterii",
@@ -309,8 +319,7 @@
   "muxtimezone": {
     "No Timezones Found...": "Nie znaleziono stref czasowych…",
     "Saving Timezone": "Zapisywanie strefy czasowej",
-    "Select your preferred timezone": "Wybierz swoją preferowaną strefę czasową.",
-    "Select your preferred timezone.": "Wybierz swoją preferowaną strefę czasową.",
+    "Select your preferred timezone": "Wybierz swoją preferowaną strefę czasową",
     "TIMEZONE": "STREFA CZASOWA"
   },
   "muxtweakadv": {
@@ -325,7 +334,6 @@
     "Change the default brightness level that the device will use each time it starts up": "Zmień domyślny poziom jasności przy uruchomieniu urządzenia",
     "Change the default theme used for the next device launch": "Zmień domyślny motyw przy następnym uruchomieniu urządzenia",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Zmień wyświetlany poziom procentowy baterii, by zwiększyć dokładność na podstawie kalibracji lub znanych odchyleń w odczycie pojemności",
-    "Change the storage device where muOS looks for user content - Changing these settings can cause critical failures, only change if you know what you are doing!": "Zmień urządzenie przechowywania, w którym muOS ma szukać zawartości użytkownika - Zmiana tych ustawień może powodować krytyczne błędy, zmień je tylko, jeśli wiesz, co robisz!",
     "Device Rumble": "Wibracje urządzenia",
     "HDMI Audio Output": "Wyjście audio HDMI",
     "High": "Wysoka",
@@ -347,7 +355,6 @@
     "Startup": "Uruchomienie",
     "Startup + Shutdown": "Uruchomienie + Zamknięcie",
     "Startup + Sleep": "Uruchomienie + Uśpienie",
-    "Storage Preference": "Preferencje przechowywania",
     "Suspend Power State": "Typ trybu wstrzymania",
     "Switch between device speaker or external monitor audio via HDMI connection": "Wybierz między głośnikiem urządzenia, a dźwiękiem zewnętrznego ekranu po HDMI",
     "Switch between system sleep suspend states": "Wybierz tryb uśpienia systemu",

@@ -5,7 +5,7 @@ pkill -STOP muxarchive
 if [ "$#" -ne 1 ]; then
 	echo "Usage: $0 <archive>"
 	sleep 2
-	
+
 	pkill -CONT muxarchive
 	exit 1
 fi
@@ -13,7 +13,7 @@ fi
 if [ ! -e "$1" ]; then
 	echo "Error: Archive '$1' not found"
 	sleep 2
-	
+
 	pkill -CONT muxarchive
 	exit 1
 fi
@@ -33,18 +33,13 @@ if unzip -l "$1" | awk '$NF ~ /^'"$SCHEME_FOLDER"'\// && $NF ~ /\/'"$SCHEME_FILE
 else
 	MUX_TEMP="/opt/muxtmp"
 	mkdir "$MUX_TEMP"
-	unzip -o "$1" -d "$MUX_TEMP/" 
 
-	echo "Moving Files"
-	find "$MUX_TEMP" -mindepth 1 -type f -exec sh -c '
-		for SOURCE; do
-			DIR_NAME=$(dirname "$SOURCE")
-			DEST="${DIR_NAME#'"$MUX_TEMP"'}"
-			echo "Moving $SOURCE to $DEST"
-			mkdir -p "$DEST" && mv "$SOURCE" "$DEST"
-		done
-	' sh {} +
-	
+	echo "Extracting files..."
+	unzip -o "$1" -d "$MUX_TEMP/"
+
+	echo "Moving files..."
+	rsync --archive --ignore-times --remove-source-files --verbose "$MUX_TEMP/" /
+
 	rm -rf "$MUX_TEMP"
 fi
 

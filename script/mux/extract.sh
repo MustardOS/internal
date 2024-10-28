@@ -31,14 +31,17 @@ if unzip -l "$1" | awk '$NF ~ /^'"$SCHEME_FOLDER"'\// && $NF ~ /\/'"$SCHEME_FILE
 	echo "Copying unextracted archive to theme folder"
 	cp -f "$1" "/run/muos/storage/theme/"
 else
+	FILE_COUNT="$(unzip -Z1 "$1" | grep -cv '/$')"
 	MUX_TEMP="/opt/muxtmp"
 	mkdir "$MUX_TEMP"
 
 	echo "Extracting files..."
-	unzip -o "$1" -d "$MUX_TEMP/"
+	unzip -o "$1" -d "$MUX_TEMP/" \
+		| grep --line-buffered -E '^ *(extracting|inflating):' | /opt/muos/bin/pv -pels "$FILE_COUNT" >/dev/null
 
 	echo "Moving files..."
-	rsync --archive --ignore-times --remove-source-files --verbose "$MUX_TEMP/" /
+	rsync --archive --ignore-times --remove-source-files --itemize-changes --outbuf=L "$MUX_TEMP/" / \
+		| grep --line-buffered '^>f' | /opt/muos/bin/pv -pels "$FILE_COUNT" >/dev/null
 
 	rm -rf "$MUX_TEMP"
 fi

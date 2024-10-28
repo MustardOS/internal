@@ -37,21 +37,23 @@ else
 
 	echo "Extracting files..."
 	unzip -o "$1" -d "$MUX_TEMP/" \
-		| grep --line-buffered -E '^ *(extracting|inflating):' | /opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+		| grep --line-buffered -E '^ *(extracting|inflating):' \
+		| /opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
 
 	echo "Moving files..."
 	rsync --archive --ignore-times --remove-source-files --itemize-changes --outbuf=L "$MUX_TEMP/" / \
-		| grep --line-buffered '^>f' | /opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+		| grep --line-buffered '^>f' \
+		| /opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
 
 	rm -rf "$MUX_TEMP"
 fi
 
-echo "Correcting Permissions"
+echo "Correcting permissions..."
 chmod -R 755 /opt/muos
 
 UPDATE_SCRIPT=/opt/update.sh
 if [ -s "$UPDATE_SCRIPT" ]; then
-	echo "Running Update Script"
+	echo "Running update script..."
 	chmod 755 "$UPDATE_SCRIPT"
 	${UPDATE_SCRIPT}
 	rm "$UPDATE_SCRIPT"

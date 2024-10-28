@@ -31,7 +31,11 @@ if unzip -l "$1" | awk '$NF ~ /^'"$SCHEME_FOLDER"'\// && $NF ~ /\/'"$SCHEME_FILE
 	echo "Copying unextracted archive to theme folder"
 	cp -f "$1" "/run/muos/storage/theme/"
 else
+	# Count total files in archive to show progress bar for unzip and rsync.
+	# Not as precise as monitoring bytes decompressed, but much easier, and
+	# still gives a high-level indication how far along the process is.
 	FILE_COUNT="$(unzip -Z1 "$1" | grep -cv '/$')"
+
 	MUX_TEMP="/opt/muxtmp"
 	mkdir "$MUX_TEMP"
 

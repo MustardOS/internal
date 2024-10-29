@@ -137,7 +137,7 @@
     "Detect, display and connect to available Wi-Fi networks": "사용 가능한 Wi-Fi 네트워크를 감지, 표시 및 연결",
     "NETWORK SCAN": "네트워크 스캔",
     "No Wi-Fi Networks Found": "Wi-Fi 네트워크를 찾을 수 없음",
-    "Scanning for Wi-Fi Networks...": "Wi-Fi 네트워크 스캔 중..…"
+    "Scanning for Wi-Fi Networks...": "Wi-Fi 네트워크 스캔 중…"
   },
   "muxnetwork": {
     "Cannot modify while connected!": "연결된 상태에서는 변경이 불가!",

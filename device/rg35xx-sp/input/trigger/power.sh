@@ -2,8 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/mux/close_game.sh
-
 TMP_POWER_LONG="/tmp/trigger/POWER_LONG"
 
 HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
@@ -91,7 +89,7 @@ while true; do
 			# Sleep Suspend:
 			-1) /opt/muos/script/system/suspend.sh power ;;
 			# Instant Shutdown:
-			2) HALT_SYSTEM sleep poweroff ;;
+			2) /opt/muos/script/mux/quit.sh poweroff sleep ;;
 			# Sleep XXs + Shutdown:
 			*)
 				if pgrep -f "playbgm.sh" >/dev/null; then

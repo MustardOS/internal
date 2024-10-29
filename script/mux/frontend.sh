@@ -6,7 +6,6 @@ case ":$LD_LIBRARY_PATH:" in
 esac
 
 . /opt/muos/script/var/func.sh
-. /opt/muos/script/mux/close_game.sh
 
 DEV_BOARD=$(GET_VAR "device" "board/name")
 case "$DEV_BOARD" in
@@ -434,10 +433,10 @@ while true; do
 				nice --20 /opt/muos/extra/muxcredits
 				;;
 			"reboot")
-				HALT_SYSTEM frontend reboot
+				/opt/muos/script/mux/quit.sh reboot frontend
 				;;
 			"shutdown")
-				HALT_SYSTEM frontend poweroff
+				/opt/muos/script/mux/quit.sh poweroff frontend
 				;;
 		esac
 	fi

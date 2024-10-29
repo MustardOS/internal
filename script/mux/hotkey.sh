@@ -2,7 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/mux/close_game.sh
 . /opt/muos/script/mux/idle.sh
 
 SLEEP_STATE_FILE=/tmp/sleep_state
@@ -29,7 +28,7 @@ HANDLE_HOTKEY() {
 		IDLE_SLEEP) SLEEP ;;
 
 		# Power combos:
-		OSF) HALT_SYSTEM osf reboot ;;
+		OSF) /opt/muos/script/mux/quit.sh reboot osf ;;
 		SLEEP) SLEEP ;;
 
 		# Utility combos:
@@ -77,7 +76,7 @@ SLEEP() {
 			fi
 			;;
 		# Instant Shutdown:
-		2) HALT_SYSTEM sleep poweroff ;;
+		2) /opt/muos/script/mux/quit.sh poweroff sleep ;;
 		# Sleep XXs + Shutdown:
 		*)
 			if [ ! -e "$POWER_LONG_FILE" ] || [ "$(cat "$POWER_LONG_FILE")" = off ]; then

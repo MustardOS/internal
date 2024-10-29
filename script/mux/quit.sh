@@ -2,6 +2,11 @@
 
 . /opt/muos/script/var/func.sh
 
+USAGE() {
+	printf 'Usage: %s close|poweroff|reboot frontend|osf|sleep\n' "$0" >&2
+	exit 1
+}
+
 # Attempts to cleanly close the current foreground process, resuming it first
 # if it's stopped. Waits five seconds before giving up.
 CLOSE_CONTENT() {
@@ -42,23 +47,21 @@ CLEAR_LAST_PLAY() {
 
 # Cleanly halts, shuts down, or reboots the device.
 #
-# Usage: HALT_SYSTEM SRC CMD
+# Usage: HALT_SYSTEM CMD SRC
 #
-# SRC allows specific based on how the halt was triggered. Current values are
-# "frontend" (from launcher UI), "osf" (emergency reboot hotkey), and "sleep"
-# (sleep timeout, possibly while playing content).
+# CMD is "poweroff" or "reboot".
 #
-# CMD is one of "halt", "poweroff", or "reboot" and corresponds to the usual
-# meaning of those programs.
+# SRC specifies how the halt was triggered. Current values are "frontend" (from
+# launcher UI), "osf" (emergency reboot hotkey), and "sleep" (sleep timeout).
 HALT_SYSTEM() {
-	HALT_SRC="$1"
-	HALT_CMD="$2"
+	HALT_CMD="$1"
+	HALT_SRC="$2"
 
 	{
-		printf 'Halting system (source %s, command %s)\n' "$HALT_SRC" "$HALT_CMD"
+		printf 'Halting system (command %s, source %s)\n' "$HALT_CMD" "$HALT_SRC"
 
 		case "$HALT_CMD" in
-			halt | poweroff) SPLASH_IMG=shutdown ;;
+			poweroff) SPLASH_IMG=shutdown ;;
 			reboot) SPLASH_IMG=reboot ;;
 		esac
 
@@ -88,10 +91,9 @@ HALT_SYSTEM() {
 				fi
 				;;
 			osf)
-				DISPLAY_BLANK
-
 				# Never relaunch content after failsafe reboot
 				# since it may have been what hung or crashed.
+				DISPLAY_BLANK
 				CLEAR_LAST_PLAY
 				;;
 			sleep)
@@ -101,11 +103,24 @@ HALT_SYSTEM() {
 		esac
 	} 2>&1 | ts '%Y-%m-%d %H:%M:%S' >>/opt/muos/halt.log
 
-	# When "verbose messages" setting is enabled, run the underlying halt
-	# script in fbpad so its output is visible on screen.
 	if [ "$HALT_SRC" = frontend ] && [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 1 ]; then
-		/opt/muos/bin/fbpad /opt/muos/script/system/halt.sh "$HALT_CMD" </dev/null
+		# When "verbose messages" setting is enabled, run the underlying
+		# halt script in fbpad so its output is visible on screen.
+		#
+		# Fork into a new session to avoid fbpad getting killed early.
+		# Redirect input so it doesn't get dumped onto fbpad's TTY.
+		exec setsid -fw /opt/muos/bin/fbpad /opt/muos/script/system/halt.sh "$HALT_CMD" </dev/null
 	else
-		/opt/muos/script/system/halt.sh "$HALT_CMD"
+		# Redirect output so it doesn't draw over the splash screen if
+		# we're currently running inside a terminal.
+		exec /opt/muos/script/system/halt.sh "$HALT_CMD" >/dev/null 2>&1
 	fi
 }
+
+[ "$#" -eq 2 ] || USAGE
+
+case "$1" in
+	close) CLOSE_CONTENT ;;
+	poweroff | reboot) HALT_SYSTEM "$1" "$2" ;;
+	*) USAGE ;;
+esac

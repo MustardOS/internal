@@ -99,9 +99,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	rm -f "/opt/muos/factory.mp3"
 
 	/opt/muos/extra/muxcredits
-
-	. /opt/muos/script/mux/close_game.sh
-	HALT_SYSTEM frontend reboot
+	/opt/muos/script/mux/quit.sh reboot frontend
 fi
 
 LOGGER "$0" "BOOTING" "Starting Low Power Indicator"

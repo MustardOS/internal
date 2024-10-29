@@ -1,7 +1,6 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
-. /opt/muos/script/mux/close_game.sh
 
 SLEEP_STATE="/tmp/sleep_state"
 SLEEP_TIMER="/tmp/sleep_timer"
@@ -22,7 +21,7 @@ while true; do
 
 	if [ "$SLEEP_TIMER_VAL" -eq "$(GET_VAR "global" "settings/power/shutdown")" ]; then
 		/opt/muos/script/system/suspend.sh resume
-		HALT_SYSTEM sleep poweroff
+		/opt/muos/script/mux/quit.sh poweroff sleep
 	fi
 
 	sleep 1

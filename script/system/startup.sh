@@ -16,8 +16,7 @@ case "$(GET_VAR "global" "settings/advanced/rumble")" in
 	*) ;;
 esac
 
-DEV_BOARD=$(GET_VAR "device" "board/name")
-[ ! -L /opt/muos/device/current ] && ln -s "$DEV_BOARD" /opt/muos/device/current
+[ ! -L /opt/muos/device/current ] && ln -s "$(GET_VAR "device" "board/name")" /opt/muos/device/current
 
 echo "pipewire" >"$AUDIO_SRC"
 
@@ -55,10 +54,9 @@ LOGGER "$0" "BOOTING" "Starting Pipewire"
 /opt/muos/script/system/pipewire.sh &
 
 if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
-	case "$DEV_BOARD" in
-		rg40xx*) /opt/muos/device/current/script/led_control.sh 2 255 225 173 1 ;;
-		*) ;;
-	esac
+	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
+		/opt/muos/device/current/script/led_control.sh 2 255 225 173 1
+	fi
 
 	LOGGER "$0" "FACTORY RESET" "Setting date time to default"
 	date 101100002024

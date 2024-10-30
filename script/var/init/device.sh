@@ -82,7 +82,7 @@ for INIT in audio battery cpu board input input/code/dpad input/code/analog/left
 		save)
 			KEY_VALUES=""
 			for VAR in $VARS; do
-				if [ -f "/run/muos/$(basename "$0" .sh)/$INIT" ]; then
+				if [ -f "/run/muos/$(basename "$0" .sh)/$INIT/$VAR" ]; then
 					VALUE=$(GET_VAR "$(basename "$0" .sh)/$INIT" "$VAR")
 				else
 					# Use default value for newly added var.

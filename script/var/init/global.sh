@@ -57,7 +57,7 @@ for INIT in boot clock network settings/advanced settings/general settings/power
 		save)
 			KEY_VALUES=""
 			for VAR in $VARS; do
-				if [ -f "/run/muos/$(basename "$0" .sh)/$INIT" ]; then
+				if [ -f "/run/muos/$(basename "$0" .sh)/$INIT/$VAR" ]; then
 					VALUE=$(GET_VAR "$(basename "$0" .sh)/$INIT" "$VAR")
 				else
 					# Use default value for newly added var.

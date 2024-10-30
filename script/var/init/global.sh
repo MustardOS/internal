@@ -25,7 +25,7 @@ NETWORK_VARS="enabled type ssid pass address gateway subnet dns"
 SETTINGS_ADVANCED_VARS="accelerate swap thermal font verbose rumble volume brightness offset lock led random_theme retrowait usb_function state hdmi_output"
 SETTINGS_GENERAL_VARS="hidden bgm sound startup colour brightness hdmi language"
 SETTINGS_POWER_VARS="low_battery shutdown idle_display idle_sleep"
-VISUAL_VARS="battery network bluetooth clock boxart boxartalign name dash friendlyfolder thetitleformat titleincluderootdrive counterfolder counterfile folderitemcount backgroundanimation"
+VISUAL_VARS="battery network bluetooth clock boxart boxartalign name dash friendlyfolder thetitleformat titleincluderootdrive counterfolder counterfile folderitemcount folderempty backgroundanimation"
 WEB_VARS="shell browser terminal syncthing resilio ntp"
 
 for INIT in boot clock network settings/advanced settings/general settings/power visual web; do

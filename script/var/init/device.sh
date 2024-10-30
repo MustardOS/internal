@@ -17,7 +17,6 @@ esac
 
 ACTION="$1"
 
-CONFIG_CLEARED=0
 CONFIG_FILE="$DEVICE_CONFIG"
 
 AUDIO_VARS="pf_internal ob_internal pf_external ob_external control channel min max"
@@ -81,21 +80,25 @@ for INIT in audio battery cpu board input input/code/dpad input/code/analog/left
 			chmod -R 755 "$BASE_DIR"
 			;;
 		save)
-			if [ $CONFIG_CLEARED -eq 0 ]; then
-				: >"$CONFIG_FILE"
-				CONFIG_CLEARED=1
-			fi
 			KEY_VALUES=""
 			for VAR in $VARS; do
-				VALUE=$(GET_VAR "$(basename "$0" .sh)/$INIT" "$VAR")
+				if [ -f "/run/muos/$(basename "$0" .sh)/$INIT" ]; then
+					VALUE=$(GET_VAR "$(basename "$0" .sh)/$INIT" "$VAR")
+				else
+					# Use default value for newly added var.
+					# (Happens when installing a patch).
+					VALUE=$(PARSE_INI "$CONFIG_FILE" "$(echo "$INIT" | sed 's/\//./g')" "$VAR")
+				fi
 				KEY_VALUES=$(printf "%s\n%s" "$KEY_VALUES" "$VAR = $VALUE")
 			done
-			printf "[%s]%s\n\n" "$(echo "$INIT" | sed 's/\//./g')" "$KEY_VALUES" >>"$CONFIG_FILE"
+			printf "[%s]%s\n\n" "$(echo "$INIT" | sed 's/\//./g')" "$KEY_VALUES" >>"$CONFIG_FILE.sav"
 			;;
 	esac
 done
 
 if [ "$ACTION" = save ]; then
+	mv -f "$CONFIG_FILE.sav" "$CONFIG_FILE"
+
 	case "$(GET_VAR "global" "settings/advanced/rumble")" in
 		2 | 4 | 6) RUMBLE "$(GET_VAR "device" "board/rumble")" 0.3 ;;
 		*) ;;

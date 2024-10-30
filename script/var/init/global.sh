@@ -17,7 +17,6 @@ esac
 
 ACTION="$1"
 
-CONFIG_CLEARED=0
 CONFIG_FILE="$GLOBAL_CONFIG"
 
 BOOT_VARS="factory_reset device_setup clock_setup firmware_done"
@@ -56,16 +55,22 @@ for INIT in boot clock network settings/advanced settings/general settings/power
 			chmod -R 755 "$BASE_DIR"
 			;;
 		save)
-			if [ $CONFIG_CLEARED -eq 0 ]; then
-				: >"$CONFIG_FILE"
-				CONFIG_CLEARED=1
-			fi
 			KEY_VALUES=""
 			for VAR in $VARS; do
-				VALUE=$(GET_VAR "$(basename "$0" .sh)/$INIT" "$VAR")
+				if [ -f "/run/muos/$(basename "$0" .sh)/$INIT" ]; then
+					VALUE=$(GET_VAR "$(basename "$0" .sh)/$INIT" "$VAR")
+				else
+					# Use default value for newly added var.
+					# (Happens when installing a patch).
+					VALUE=$(PARSE_INI "$CONFIG_FILE" "$(echo "$INIT" | sed 's/\//./g')" "$VAR")
+				fi
 				KEY_VALUES=$(printf "%s\n%s" "$KEY_VALUES" "$VAR = $VALUE")
 			done
-			printf "[%s]%s\n\n" "$(echo "$INIT" | sed 's/\//./g')" "$KEY_VALUES" >>"$CONFIG_FILE"
+			printf "[%s]%s\n\n" "$(echo "$INIT" | sed 's/\//./g')" "$KEY_VALUES" >>"$CONFIG_FILE.sav"
 			;;
 	esac
 done
+
+if [ "$ACTION" = save ]; then
+	mv -f "$CONFIG_FILE.sav" "$CONFIG_FILE"
+fi

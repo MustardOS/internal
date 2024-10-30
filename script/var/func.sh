@@ -62,9 +62,9 @@ GET_VAR() {
 
 LOGGER() {
 	if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
-		/opt/muos/extra/muxstart "$(printf "%s\n\n%s\n" "$2" "$3")" && sleep 0.5
+		/opt/muos/extra/muxstart "$2" "$(printf "%s\n\n%s\n" "$3" "$4")" && sleep 0.5
 	fi
-	printf "%s\t[%s] :: %s - %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "$1" "$2" "$3" >>"$MUOS_BOOT_LOG"
+	printf "%s\t[%s] :: %s - %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "$1" "$3" "$4" >>"$MUOS_BOOT_LOG"
 }
 
 CRITICAL_FAILURE() {

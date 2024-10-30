@@ -9,11 +9,9 @@ SLEEP() {
 		echo 0 >"/sys/devices/system/cpu/cpu${C}/online"
 	done
 
-	DEV_BOARD=$(GET_VAR "device" "board/name")
-	case "$DEV_BOARD" in
-		rg40xx*) /opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0 ;;
-		*) ;;
-	esac
+	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
+		/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
+	fi
 
 	case "$(GET_VAR "global" "settings/advanced/rumble")" in
     	3 | 5 | 6) RUMBLE "$(GET_VAR "device" "board/rumble")" 0.3 ;;
@@ -27,18 +25,14 @@ RESUME() {
 		echo 1 >"/sys/devices/system/cpu/cpu${C}/online"
 	done
 
-	DEV_BOARD=$(GET_VAR "device" "board/name")
-	case "$DEV_BOARD" in
-		rg40xx*)
-			RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
-			if [ -f "$RGBCONF_SCRIPT" ]; then
-				"$RGBCONF_SCRIPT"
-			else
-				/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
-			fi
-			;;
-		*) ;;
-	esac
+	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
+		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
+		if [ -f "$RGBCONF_SCRIPT" ]; then
+			"$RGBCONF_SCRIPT"
+		else
+			/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
+		fi
+	fi
 }
 
 if [ "$#" -ne 1 ]; then

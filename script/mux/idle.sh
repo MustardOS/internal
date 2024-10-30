@@ -15,9 +15,9 @@ DISPLAY_IDLE() {
 	if [ "$(DISPLAY_READ lcd0 getbl)" -gt 10 ]; then
 		DISPLAY_WRITE lcd0 setbl 10
 	fi
-	case "$(GET_VAR device board/name)" in
-		rg40xx*) "$LED_CONTROL" 1 0 0 0 0 0 0 0 ;;
-	esac
+	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
+		"$LED_CONTROL" 1 0 0 0 0 0 0 0
+	fi
 }
 
 DISPLAY_ACTIVE() {
@@ -25,9 +25,9 @@ DISPLAY_ACTIVE() {
 	if [ "$(DISPLAY_READ lcd0 getbl)" -ne "$BL" ]; then
 		DISPLAY_WRITE lcd0 setbl "$BL"
 	fi
-	case "$(GET_VAR device board/name)" in
-		rg40xx*) [ -x "$RGBCONF" ] && "$RGBCONF" ;;
-	esac
+	if [ "$(GET_VAR device led/rgb)" -eq 1 ] && [ -x "$RGBCONF" ]; then
+		"$RGBCONF"
+	fi
 }
 
 # Monitor for specific programs that should inhibit idle timeout.

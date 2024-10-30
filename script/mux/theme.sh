@@ -23,18 +23,14 @@ done
 
 unzip "$THEME" -d "$THEME_DIR/active"
 
-DEV_BOARD=$(GET_VAR "device" "board/name")
-case "$DEV_BOARD" in
-	rg40xx*)
-		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
-		if [ -f "$RGBCONF_SCRIPT" ]; then
-			"$RGBCONF_SCRIPT"
-		else
-			/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
-		fi
-		;;
-	*) ;;
-esac
+if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
+	RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
+	if [ -f "$RGBCONF_SCRIPT" ]; then
+		"$RGBCONF_SCRIPT"
+	else
+		/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
+	fi
+fi
 
 if [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 0 ]; then
 	if [ -f "$BOOTLOGO_NEW" ]; then

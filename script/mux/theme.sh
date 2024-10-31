@@ -11,7 +11,6 @@ fi
 THEME_DIR="/run/muos/storage/theme"
 
 BOOTLOGO_DEF="/opt/muos/device/current/bootlogo.bmp"
-BOOTLOGO_NEW="$THEME_DIR/active/image/bootlogo.bmp"
 
 cp "$BOOTLOGO_DEF" "$(GET_VAR "device" "storage/boot/mount")/bootlogo.bmp"
 
@@ -22,6 +21,11 @@ while [ -d "$THEME_DIR/active" ]; do
 done
 
 unzip "$THEME" -d "$THEME_DIR/active"
+
+BOOTLOGO_NEW="$THEME_DIR/active/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/bootlogo.bmp"
+if [ ! -f "$BOOTLOGO_NEW" ]; then
+	BOOTLOGO_NEW="$THEME_DIR/active/image/bootlogo.bmp"
+fi
 
 if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
 	RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"

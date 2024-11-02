@@ -19,7 +19,7 @@ export SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt"
 
 SET_VAR "system" "foreground_process" "mpv"
 
-if [ "$CORE" = "ext-mpv" ]; then
+if [ "$CORE" = "ext-mpv-general" ]; then
 	$GPTOKEYB "mpv" -c "$MPV_DIR/general.gptk" &
 	/usr/bin/mpv "$ROM"
 elif [ "$CORE" = "ext-mpv-livetv" ]; then

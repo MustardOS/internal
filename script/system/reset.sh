@@ -32,15 +32,22 @@ else
 	CRITICAL_FAILURE device "$(GET_VAR "device" "storage/rom/mount")" "/dev/$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")"
 fi
 
+PROGRESS_DIALOG() {
+	I=0
+	while read -r PROGRESS; do
+		if [ "$I" -eq 0 ]; then
+			MESSAGE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
+		fi
+		I="$(((I + 1) % 4))"
+		/opt/muos/extra/muxstart "$PROGRESS" "$MESSAGE"
+	done
+}
+
 RESTORE_ROM_FS() {
 	LOGGER "FACTORY RESET" "Restoring ROM Filesystem"
-	rsync --archive --checksum --remove-source-files /opt/muos/init/ "$(GET_VAR "device" "storage/rom/mount")"/ &
-
-	while pgrep -f "rsync" >/dev/null; do
-		RANDOM_LINE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
-		/opt/muos/extra/muxstart 0 "$(printf "FACTORY RESET\n\n%s\n" "$RANDOM_LINE")"
-		sleep 4
-	done
+	rsync --archive --checksum --remove-source-files --itemize-changes --outbuf=L /opt/muos/init/ "$(GET_VAR "device" "storage/rom/mount")"/ 2>/dev/null \
+		| /opt/muos/bin/pv -nls "$(find /opt/muos/init -type f | wc -l)" 2>&1 >/dev/null \
+		| PROGRESS_DIALOG
 }
 
 LOGGER "$0" 0 "FACTORY RESET" "Checking Init Directory"

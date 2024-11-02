@@ -13,7 +13,7 @@ for INI_FILE in $ASSIGN_DIR; do
 	CORE_CATALOGUE=$(PARSE_INI "$INI_FILE" "global" "catalogue")
 	BASE_DIR="/run/muos/storage/info/catalogue/$CORE_CATALOGUE"
 	if [ ! -d "$BASE_DIR" ]; then
-		mkdir -p "$BASE_DIR/box" "$BASE_DIR/preview" "$BASE_DIR/text"
+		mkdir -p "$BASE_DIR/box" "$BASE_DIR/preview" "$BASE_DIR/text" "$BASE_DIR/splash"
 	fi
 done
 

@@ -44,13 +44,13 @@ KILL_BGM() {
 }
 
 if [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 1 ]; then
-	LOGGER "$0" 0 "FRONTEND" "Changing to a random theme"
+	LOG_INFO "$0" 0 "FRONTEND" "Changing to a random theme"
 	/opt/muos/script/mux/theme.sh "?R"
 fi
 
 LAST_PLAY="/opt/muos/config/lastplay.txt"
 
-LOGGER "$0" 0 "FRONTEND" "Setting default CPU governor"
+LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
 DEF_GOV=$(GET_VAR "device" "cpu/default")
 printf '%s\n' "$DEF_GOV" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 if [ "$DEF_GOV" = ondemand ]; then
@@ -60,10 +60,10 @@ if [ "$DEF_GOV" = ondemand ]; then
 	GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
 fi
 
-LOGGER "$0" 0 "FRONTEND" "Checking for last or resume startup"
+LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"
 if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR "global" "settings/general/startup")" = "resume" ]; then
 	if [ -s "$LAST_PLAY" ]; then
-		LOGGER "$0" 0 "FRONTEND" "Checking for network and retrowait"
+		LOG_INFO "$0" 0 "FRONTEND" "Checking for network and retrowait"
 		if [ "$(GET_VAR "global" "network/enabled")" -eq 1 ] && [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
 			NET_START="/tmp/net_start"
 			OIP=0
@@ -72,28 +72,28 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 				/opt/muos/extra/muxstart "$NW_MSG"
 				OIP=$((OIP + 1))
 				if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
-					LOGGER "$0" 0 "FRONTEND" "Network connected"
+					LOG_SUCCESS "$0" 0 "FRONTEND" "Network connected"
 					/opt/muos/extra/muxstart "Network connected"
 
 					PIP=0
 					while ! ping -c 1 -W 5 8.8.8.8 >/dev/null 2>&1; do
 						PIP=$((PIP + 1))
-						LOGGER "$0" 0 "FRONTEND" "Verifying connectivity..."
+						LOG_INFO "$0" 0 "FRONTEND" "Verifying connectivity..."
 						/opt/muos/extra/muxstart "Verifying connectivity... (%s)" "$PIP"
 						sleep 1
 					done
 
-					LOGGER "$0" 0 "FRONTEND" "Connectivity verified!"
+					LOG_SUCCESS "$0" 0 "FRONTEND" "Connectivity verified!"
 					/opt/muos/extra/muxstart "Connectivity verified! Booting content!"
 					break
 				fi
 				if [ "$(cat "$NET_START")" = "ignore" ]; then
-					LOGGER "$0" 0 "FRONTEND" "Ignoring network connection"
+					LOG_SUCCESS "$0" 0 "FRONTEND" "Ignoring network connection"
 					/opt/muos/extra/muxstart "Ignoring network connection... Booting content!"
 					break
 				fi
 				if [ "$(cat "$NET_START")" = "menu" ]; then
-					LOGGER "$0" 0 "FRONTEND" "Booting to main menu"
+					LOG_SUCCESS "$0" 0 "FRONTEND" "Booting to main menu"
 					/opt/muos/extra/muxstart "Booting to main menu!"
 					break
 				fi
@@ -101,7 +101,7 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 			done
 		fi
 		if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ] || [ "$(cat "$NET_START")" = "ignore" ] || [ "$(GET_VAR "global" "network/enabled")" -eq 0 ] || [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 0 ]; then
-			LOGGER "$0" 0 "FRONTEND" "Booting to last launched content"
+			LOG_INFO "$0" 0 "FRONTEND" "Booting to last launched content"
 			cat "$LAST_PLAY" >"$ROM_GO"
 			/opt/muos/script/mux/launch.sh last
 		fi
@@ -111,7 +111,7 @@ fi
 
 /opt/muos/script/mux/golden.sh &
 
-LOGGER "$0" 0 "FRONTEND" "Starting frontend launcher"
+LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
 while true; do

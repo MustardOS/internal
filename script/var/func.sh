@@ -2,6 +2,9 @@
 
 . /opt/muos/script/var/init/system.sh
 
+ESC=$(printf '\x1b')
+CSI="${ESC}[38;5;"
+
 FB_SWITCH() {
 	WIDTH="$1"
 	HEIGHT="$2"
@@ -60,12 +63,33 @@ GET_VAR() {
 	cat "/run/muos/$1/$2"
 }
 
-LOGGER() {
+LOG() {
+	SYMBOL="$1"               # The symbol for the specific log type
+	MODULE="$(basename "$2")" # This is the name of the calling script without the full path
+	PROGRESS="$3"             # Used mainly for muxstart to show the progress line
+	TITLE="$4"                # The header of what is being logged - generally for sorting purposes
+	shift 4
+
+	# Extract the message format string since we can add things like %s %d etc
+	MSG="$1"
+	shift
+
+	# Time is of the essence!
+	TIME=$(date '+%Y-%m-%d %H:%M:%S')
+
 	if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
-		/opt/muos/extra/muxstart "$2" "$(printf "%s\n\n%s\n" "$3" "$4")" && sleep 0.5
+		/opt/muos/extra/muxstart "$PROGRESS" "$(printf "%s\n\n${MSG}\n" "$TITLE" "$@")" && sleep 0.5
 	fi
-	printf "%s\t[%s] :: %s - %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "$1" "$3" "$4" >>"$MUOS_BOOT_LOG"
+
+	# Print to console and log file and ensure the message is formatted correctly with printf options
+	printf "[%s] [%s${ESC}[0m] [%s] %s - ${MSG}\n" "$TIME" "$SYMBOL" "$MODULE" "$TITLE" "$@" | tee -a "$MUOS_BOOT_LOG"
 }
+
+LOG_INFO() { LOG "${CSI}33m*" "$@"; }
+LOG_WARN() { LOG "${CSI}226m!" "$@"; }
+LOG_ERROR() { LOG "${CSI}196m-" "$@"; }
+LOG_SUCCESS() { LOG "${CSI}46m+" "$@"; }
+LOG_DEBUG() { LOG "${CSI}202m?" "$@"; }
 
 CRITICAL_FAILURE() {
 	case "$1" in

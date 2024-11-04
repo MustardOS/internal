@@ -257,10 +257,6 @@ while true; do
 					{ [ "$SD2_COUNT" -gt 0 ] && [ "$USB_COUNT" -gt 0 ]; }; then
 					echo "EXPLORE LOADING ROOT"
 					echo "root" >"$EX_CARD"
-				elif [ "$SD1_COUNT" -gt 0 ]; then
-					echo "EXPLORE LOADING SD1 ONLY"
-					echo "mmc" >"$EX_CARD"
-					touch "/tmp/single_card"
 				elif [ "$SD2_COUNT" -gt 0 ]; then
 					echo "EXPLORE LOADING SD2 ONLY"
 					echo "sdcard" >"$EX_CARD"
@@ -270,9 +266,9 @@ while true; do
 					echo "usb" >"$EX_CARD"
 					touch "/tmp/single_card"
 				else
-					echo "EXPLORE LOADING FAILURE"
-					echo launcher >"$ACT_GO"
-					continue
+					echo "EXPLORE LOADING SD1 ONLY"
+					echo "mmc" >"$EX_CARD"
+					touch "/tmp/single_card"
 				fi
 
 				SET_VAR "system" "foreground_process" "muxplore"

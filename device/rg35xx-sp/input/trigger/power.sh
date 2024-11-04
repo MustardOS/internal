@@ -29,6 +29,7 @@ DEV_WAKE() {
 				pkill -CONT "$FG_PROC_VAL"
 			fi
 
+			UPDATE_DISPLAY "$(cat $LED_STATE)" 0 3 # This needs to be here to kick in the device display... yeah!
 			UPDATE_DISPLAY "$(cat $LED_STATE)" 0 "$(GET_VAR "global" "settings/general/brightness")"
 			;;
 	esac

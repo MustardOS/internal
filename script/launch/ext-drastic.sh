@@ -14,7 +14,7 @@ export SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
 
 SET_VAR "system" "foreground_process" "drastic"
 
-EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic"
+EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-trngaje"
 
 chmod +x "$EMUDIR"/launch.sh
 cd "$EMUDIR" || exit

@@ -30,10 +30,14 @@ if [ ! -f "$RA_CONF" ]; then
 	cp /run/muos/storage/retroarch/retroarch.default.cfg "$RA_CONF"
 fi
 
-# Move DraStic config
-DRASTIC_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/resources/settings.json"
-if [ ! -f "$DRASTIC_JSON" ]; then
-	cp -f "$DEVICE_CONTROL_DIR/drastic.json" "$DRASTIC_JSON"
+# Move Drastic trngaje config
+DRASTIC_T_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-trngaje/resources/settings.json"
+DRASTIC_T_CFG="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-trngaje/config/drastic.cfg"
+if [ ! -f "$DRASTIC_T_JSON" ]; then
+	cp -f "$DEVICE_CONTROL_DIR/drastic-trngaje/settings.json" "$DRASTIC_T_JSON"
+fi
+if [ ! -f "$DRASTIC_T_CFG" ]; then
+	cp -f "$DEVICE_CONTROL_DIR/drastic-trngaje/drastic.cfg" "$DRASTIC_T_CFG"
 fi
 
 # Move DraStic Legacy config

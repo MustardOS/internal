@@ -172,5 +172,7 @@ LOG_INFO "$0" 0 "BOOTING" "Backing up global configuration"
 LOG_INFO "$0" 0 "BOOTING" "Starting muX frontend"
 /opt/muos/script/mux/frontend.sh &
 
-LOG_INFO "$0" 0 "BOOTING" "Starting user initialisation scripts"
-/opt/muos/script/system/user_init.sh &
+if [ "$(GET_VAR "global" "settings/advanced/user_init")" -eq 1 ]; then
+	LOG_INFO "$0" 0 "BOOTING" "Starting user initialisation scripts"
+	/opt/muos/script/system/user_init.sh &
+fi

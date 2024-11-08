@@ -1,0 +1,3 @@
+snes9x_2010_overclock = "10 MHz (Default)"
+snes9x_2010_overclock_cycles = "disabled"
+snes9x_2010_reduce_sprite_flicker = "disabled"

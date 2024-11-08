@@ -41,12 +41,6 @@ BIND_EMULATOR() {
 	mount --bind "$TARGET" "$MOUNT" || CRITICAL_FAILURE directory "$TARGET" "$MOUNT"
 }
 
-# Drastic
-#BIND_EMULATOR save/drastic/backup drastic/backup
-
-# Drastic
-BIND_EMULATOR save/drastic/backup drastic-trngaje/backup
-
 # Drastic Legacy
 BIND_EMULATOR save/drastic-legacy/backup drastic-legacy/backup
 BIND_EMULATOR save/drastic-legacy/savestates drastic-legacy/savestates

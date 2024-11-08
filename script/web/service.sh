@@ -55,6 +55,20 @@ MANAGE_WEBSERV() {
 	esac
 }
 
+TIMEOUT=30
+WAIT=0
+
+while ! ping -c 1 -W 1 8.8.8.8 >/dev/null 2>&1; do
+	if [ "$WAIT" -ge "$TIMEOUT" ]; then
+		LOG_ERROR "$0" 0 "WEB SERVICES" "Network connection timed out after %d seconds" "$TIMEOUT"
+		break
+	fi
+
+	WAIT=$((WAIT + 1))
+	LOG_INFO "$0" 0 "WEB SERVICES" "Waiting for network connection... (%d)" "$WAIT"
+	sleep 1
+done
+
 for WEBSRV in shell browser terminal syncthing resilio ntp; do
 	if [ "$(GET_VAR "global" "network/enabled")" -eq 1 ] && [ "$(GET_VAR "global" "web/$WEBSRV")" -eq 1 ]; then
 		MANAGE_WEBSERV start "$WEBSRV" &

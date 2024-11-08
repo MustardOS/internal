@@ -132,6 +132,7 @@
     "NETWORK PROFILE": "NETWORK PROFILE",
     "No Saved Network Profiles Found": "No Saved Network Profiles Found",
     "Password must be 8..63 characters!": "Password must be 8..63 characters!",
+    "Password must be unset or 8..63 characters!": "Password must be unset or 8..63 characters!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Quickly switch between different Wi-Fi configurations based on your location or network preferences"
   },
   "muxnetscan": {
@@ -156,6 +157,7 @@
     "Enter the network gateway address here (Static only)": "Enter the network gateway address here (Static only)",
     "Enter the network identifier (SSID) here": "Enter the network identifier (SSID) here",
     "Enter the network password here": "Enter the network password here",
+    "Enter the network password here (optional)": "Enter the network password here (optional)",
     "Gateway IP": "Gateway IP",
     "Identifier": "Identifier",
     "Network Active": "Network Active",
@@ -253,6 +255,7 @@
     "Location of Network Profiles": "Location of Network Profiles",
     "Location of RetroArch configurations": "Location of RetroArch configurations",
     "Location of Syncthing configurations": "Location of Syncthing configurations",
+    "Location of User Initialisation scripts": "Location of User Initialisation scripts",
     "Location of assigned core and governor configurations": "Location of assigned core and governor configurations",
     "Location of background music": "Location of background music",
     "Location of content images and text": "Location of content images and text",
@@ -275,7 +278,8 @@
     "Syncthing Configs": "Syncthing Configs",
     "System BIOS": "System BIOS",
     "Themes": "Themes",
-    "This storage element is already on SD2": "This storage element is already on SD2"
+    "This storage element is already on SD2": "This storage element is already on SD2",
+    "User Init Scripts": "User Init Scripts"
   },
   "muxsysinfo": {
     "Battery Capacity": "Battery Capacity",
@@ -366,11 +370,13 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Toggle a delayed start of RetroArch until a network connection is established",
     "Toggle between ADB and MTP USB functionality": "Toggle between ADB and MTP USB functionality",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Toggle startup and shutdown verbose messages used for debugging faults",
+    "Toggle the functionality of the user initialisation scripts on device startup": "Toggle the functionality of the user initialisation scripts on device startup",
     "Toggle the passcode lock - More information can be found on the muOS website": "Toggle the passcode lock - More information can be found on the muOS website",
     "Toggle the power LED during content launch": "Toggle the power LED during content launch",
     "Toggle the system ability to automatically shut the device down due high temperature": "Toggle the system ability to automatically shut the device down due high temperature",
     "Toggle vibration for device startup, sleep, and shutdown": "Toggle vibration for device startup, sleep, and shutdown",
     "USB Function": "USB Function",
+    "User Init Scripts": "User Init Scripts",
     "Verbose Messages": "Verbose Messages",
     "Volume On Boot": "Volume On Boot"
   },

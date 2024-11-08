@@ -3,7 +3,7 @@
 . /opt/muos/script/var/func.sh
 
 # Storage locations within the MUOS directory that need to be central bind mounted
-STORAGE_LOCS="bios info/catalogue info/name retroarch info/config info/core info/favourite info/history music save screenshot theme language network syncthing"
+STORAGE_LOCS="bios init info/catalogue info/name retroarch info/config info/core info/favourite info/history music save screenshot theme language network syncthing"
 
 # Unmount storage before remounting (e.g., on SD card insert/eject).
 if [ -f /run/muos/storage/mounted ]; then

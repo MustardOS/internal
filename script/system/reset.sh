@@ -44,7 +44,7 @@ PROGRESS_DIALOG() {
 }
 
 RESTORE_ROM_FS() {
-	LOG_INFO "FACTORY RESET" "Restoring ROM Filesystem"
+	LOG_INFO "$0" 0 "FACTORY RESET" "Restoring ROM Filesystem"
 	rsync --archive --checksum --remove-source-files --itemize-changes --outbuf=L /opt/muos/init/ "$(GET_VAR "device" "storage/rom/mount")"/ 2>/dev/null |
 		/opt/muos/bin/pv -nls "$(find /opt/muos/init -type f | wc -l)" 2>&1 >/dev/null |
 		PROGRESS_DIALOG

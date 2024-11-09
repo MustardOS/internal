@@ -26,7 +26,7 @@ SETTINGS_ADVANCED_VARS="accelerate swap thermal font verbose rumble volume brigh
 SETTINGS_GENERAL_VARS="hidden bgm sound startup colour brightness hdmi language"
 SETTINGS_POWER_VARS="low_battery shutdown idle_display idle_sleep"
 VISUAL_VARS="battery network bluetooth clock boxart boxartalign name dash friendlyfolder thetitleformat titleincluderootdrive counterfolder counterfile folderitemcount folderempty backgroundanimation launchsplash blackfade"
-WEB_VARS="shell browser terminal syncthing resilio ntp"
+WEB_VARS="sshd sftpgo gotty syncthing rslsync ntp"
 
 for INIT in boot clock network settings/advanced settings/general settings/power visual web; do
 	case "$INIT" in

@@ -9,68 +9,64 @@ MANAGE_WEBSERV() {
 
 	case "$ACT" in
 		"start")
-			if [ -z "$PID" ]; then
-				case "$SRV" in
-					"shell")
-						chmod -R 700 /opt/openssh/var /opt/openssh/etc
-						nice -2 /opt/openssh/sbin/sshd >/dev/null &
-						;;
-					"browser")
-						nice -2 /opt/sftpgo/sftpgo serve -c \
-							/opt/sftpgo >/dev/null &
-						;;
-					"terminal")
-						nice -2 /opt/muos/bin/gotty \
-							--config /opt/muos/config/gotty \
-							--width 0 \
-							--height 0 \
-							/bin/sh >/dev/null &
-						;;
-					"syncthing")
-						nice -2 /opt/muos/bin/syncthing serve \
-							--home=/run/muos/storage/syncthing \
-							--skip-port-probing \
-							--gui-address="0.0.0.0:7070" \
-							--no-browser \
-							--no-default-folder >/dev/null &
-						;;
-					"resilio")
-						nice -2 /opt/muos/bin/rslsync \
-							--webui.listen 0.0.0.0:6060 >/dev/null &
-						;;
-					"ntp")
-						nice -2 /opt/muos/script/web/ntp.sh &
-						;;
-					*)
-						echo "Unknown Web Service: $SRV"
-						;;
-				esac
-			fi
+			[ -z "$PID" ] && case "$SRV" in
+				"sshd")
+					chmod -R 700 /opt/openssh/var /opt/openssh/etc
+					nice -2 /opt/openssh/sbin/sshd >/dev/null &
+					;;
+				"sftpgo")
+					nice -2 /opt/sftpgo/sftpgo serve -c \
+						/opt/sftpgo >/dev/null &
+					;;
+				"gotty")
+					nice -2 /opt/muos/bin/gotty \
+						--config /opt/muos/config/gotty \
+						--width 0 \
+						--height 0 \
+						/bin/sh >/dev/null &
+					;;
+				"syncthing")
+					nice -2 /opt/muos/bin/syncthing serve \
+						--home=/run/muos/storage/syncthing \
+						--skip-port-probing \
+						--gui-address="0.0.0.0:7070" \
+						--no-browser \
+						--no-default-folder >/dev/null &
+					;;
+				"rslsync")
+					nice -2 /opt/muos/bin/rslsync \
+						--webui.listen 0.0.0.0:6060 >/dev/null &
+					;;
+				"ntp")
+					nice -2 /opt/muos/script/web/ntp.sh &
+					;;
+				*)
+					echo "Unknown Web Service: $SRV"
+					;;
+			esac
 			;;
 		"stop")
-			if [ -n "$PID" ]; then
-				kill "$PID"
-			fi
+			[ -n "$PID" ] && kill "$PID"
 			;;
 	esac
 }
 
-TIMEOUT=30
-WAIT=0
-
-while ! ping -c 1 -W 1 8.8.8.8 >/dev/null 2>&1; do
-	if [ "$WAIT" -ge "$TIMEOUT" ]; then
-		LOG_ERROR "$0" 0 "WEB SERVICES" "Network connection timed out after %d seconds" "$TIMEOUT"
-		break
-	fi
-
-	WAIT=$((WAIT + 1))
-	LOG_INFO "$0" 0 "WEB SERVICES" "Waiting for network connection... (%d)" "$WAIT"
-	sleep 1
-done
-
-for WEBSRV in shell browser terminal syncthing resilio ntp; do
+for WEBSRV in sshd sftpgo gotty syncthing rslsync ntp; do
 	if [ "$(GET_VAR "global" "network/enabled")" -eq 1 ] && [ "$(GET_VAR "global" "web/$WEBSRV")" -eq 1 ]; then
+		TIMEOUT=30
+		WAIT=0
+
+		while ! ping -c 1 -W 1 8.8.8.8 >/dev/null 2>&1; do
+			if [ "$WAIT" -ge "$TIMEOUT" ]; then
+				LOG_ERROR "$0" 0 "WEB SERVICES" "Network connection timed out after %d seconds" "$TIMEOUT"
+				break
+			fi
+
+			WAIT=$((WAIT + 1))
+			LOG_INFO "$0" 0 "WEB SERVICES" "Waiting for network connection... (%d)" "$WAIT"
+			sleep 1
+		done
+
 		MANAGE_WEBSERV start "$WEBSRV" &
 	else
 		MANAGE_WEBSERV stop "$WEBSRV" &

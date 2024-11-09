@@ -26,7 +26,7 @@
   "half_vol":0,
   "splash":3,
   "hotkey":0,
-  "states":"\/run\/muos\/storage\/save\/drastic",
+  "states":"/run/muos/storage/save/drastic",
   "menu_bg":0,
   "menu_cursor":1,
   "fast_forward":6,

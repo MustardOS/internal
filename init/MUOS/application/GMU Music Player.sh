@@ -33,5 +33,3 @@ unset SDL_GAMECONTROLLERCONFIG_FILE
 unset LD_LIBRARY_PATH
 unset PIPEWIRE_MODULE_DIR
 unset SPA_PLUGIN_DIR
-
-/opt/muos/script/mux/golden.sh &

@@ -18,7 +18,6 @@ if grep -q 'PORT_32BIT="Y"' "$ROM"; then
 fi
 
 if [ $IS_32BIT -eq 1 ]; then
-	killall -q "golden.sh" "pw-play"
 	export PIPEWIRE_MODULE_DIR="/usr/lib32/pipewire-0.3"
     export SPA_PLUGIN_DIR="/usr/lib32/spa-0.2"
 fi
@@ -30,5 +29,3 @@ unset SDL_ROTATION
 unset SDL_BLITTER_DISABLED
 unset PIPEWIRE_MODULE_DIR
 unset SPA_PLUGIN_DIR
-
-/opt/muos/script/mux/golden.sh &

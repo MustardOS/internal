@@ -40,7 +40,7 @@ if [ "$#" -ne 1 ]; then
 	exit 1
 fi
 
-SUSPEND_PROC="golden.sh adbd pipewire sshd sftpgo gotty syncthing"
+SUSPEND_PROC="adbd pipewire sshd sftpgo gotty syncthing rslsync"
 
 case "$1" in
 	power)

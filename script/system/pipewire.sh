@@ -17,7 +17,7 @@ if [ ! -e /run/dbus/system_bus_socket ]; then
 fi
 
 if ! pgrep -x "pipewire" >/dev/null; then
-	pipewire &
+	pipewire -c "/opt/muos/config/pipewire.conf" &
 	printf "Starting PipeWire\n"
 else
 	printf "PipeWire is already running\n"

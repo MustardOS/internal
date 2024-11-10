@@ -131,7 +131,8 @@
     "Loading Network Profiles...": "加载网络配置文件中…",
     "NETWORK PROFILE": "网络配置文件",
     "No Saved Network Profiles Found": "找不到保存的网络配置文件",
-    "Password must be 8..63 characters!": "密码必须是8到63个字符！",
+    "Password must be 8..63 characters!": "密码必须是8至63个字符！",
+    "Password must be unset or 8..63 characters!": "密码必须是空或8至63个字符！",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "快速切换Wi-Fi配置，以适应机器所在的特定位置或联网状态"
   },
   "muxnetscan": {
@@ -156,11 +157,13 @@
     "Enter the network gateway address here (Static only)": "输入网关地址（仅适用于静态分配）",
     "Enter the network identifier (SSID) here": "输入网络名称（SSID）",
     "Enter the network password here": "输入网络密码",
+    "Enter the network password here (optional)": "在此输入网络密码（可选）",
     "Gateway IP": "网关IP",
     "Identifier": "名称",
     "Network Active": "网络已启用",
     "Network Disabled": "网络已关闭",
     "Network Type": "网络类型",
+    "No Password Detected...": "No Password Detected…",
     "Not Connected": "未连接",
     "Password": "密码",
     "Please check network settings": "请检查网络设置",
@@ -253,6 +256,7 @@
     "Location of Network Profiles": "网络配置路径",
     "Location of RetroArch configurations": "RetroArch设置文件路径",
     "Location of Syncthing configurations": "Syncthing设置文件路径",
+    "Location of User Initialisation scripts": "用户初始化脚本路径",
     "Location of assigned core and governor configurations": "分配核心和调度方案的设置路径",
     "Location of background music": "背景音乐路径",
     "Location of content images and text": "内容图片和文字路径",
@@ -275,7 +279,8 @@
     "Syncthing Configs": "Syncthing设置",
     "System BIOS": "系统BIOS",
     "Themes": "主题",
-    "This storage element is already on SD2": "此存储元素已位于SD卡2"
+    "This storage element is already on SD2": "此存储元素已位于SD卡2",
+    "User Init Scripts": "用户初始化脚本"
   },
   "muxsysinfo": {
     "Battery Capacity": "电池容量",
@@ -366,11 +371,13 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "设置是否在确认联网前暂缓RetroArch启动",
     "Toggle between ADB and MTP USB functionality": "切换USB连接功能为ADB或MTP",
     "Toggle startup and shutdown verbose messages used for debugging faults": "设置开关机时是否输出日志消息",
+    "Toggle the functionality of the user initialisation scripts on device startup": "设置在设备启动时切换用户初始化脚本的功能",
     "Toggle the passcode lock - More information can be found on the muOS website": "设置密码锁 - 详情查看muOS官网",
     "Toggle the power LED during content launch": "设置内容启动时的LED行为",
     "Toggle the system ability to automatically shut the device down due high temperature": "设置是否过热时自动关机",
     "Toggle vibration for device startup, sleep, and shutdown": "设置开关机及睡眠时是否振动",
     "USB Function": "USB功能",
+    "User Init Scripts": "用户初始化脚本",
     "Verbose Messages": "详细消息",
     "Volume On Boot": "开机时音量"
   },

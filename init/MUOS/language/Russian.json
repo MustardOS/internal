@@ -132,6 +132,7 @@
     "NETWORK PROFILE": "СЕТЕВОЙ ПРОФИЛЬ",
     "No Saved Network Profiles Found": "Сохраненные сетевые профили не найдены",
     "Password must be 8..63 characters!": "Пароль должен состоять из 8...63 символов!",
+    "Password must be unset or 8..63 characters!": "Пароль должен состоять из 8...63 символов либо отсутствовать!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Быстрое переключение между конфигурациями Wi-Fi в зависимости от вашего местоположения или сетевых настроек"
   },
   "muxnetscan": {
@@ -156,11 +157,13 @@
     "Enter the network gateway address here (Static only)": "Введите адрес сетевого шлюза здесь (только для статического)",
     "Enter the network identifier (SSID) here": "Введите идентификатор сети (SSID) здесь",
     "Enter the network password here": "Введите пароль здесь",
+    "Enter the network password here (optional)": "Введите пароль от сети здесь (опционально)",
     "Gateway IP": "IP шлюз",
     "Identifier": "Идентификатор",
     "Network Active": "Активность сети",
     "Network Disabled": "Сеть отключена",
     "Network Type": "Тип сети",
+    "No Password Detected...": "No Password Detected…",
     "Not Connected": "Не подключено",
     "Password": "Пароль",
     "Please check network settings": "Проверьте настройки сети",
@@ -253,6 +256,7 @@
     "Location of Network Profiles": "Расположение сетевых профилей",
     "Location of RetroArch configurations": "Расположение конфигураций RetroArch",
     "Location of Syncthing configurations": "Расположение конфигураций Syncthing",
+    "Location of User Initialisation scripts": "Расположение пользовательских скриптов инициализации",
     "Location of assigned core and governor configurations": "Расположение назначенного ядра и конфигураций говернора",
     "Location of background music": "Расположение фоновой музыки",
     "Location of content images and text": "Расположение обложек и текста",
@@ -275,7 +279,8 @@
     "Syncthing Configs": "Настройки Syncthing",
     "System BIOS": "BIOS",
     "Themes": "Темы",
-    "This storage element is already on SD2": "Этот элемент уже есть на SD2"
+    "This storage element is already on SD2": "Этот элемент уже есть на SD2",
+    "User Init Scripts": "Пользовательские скрипты"
   },
   "muxsysinfo": {
     "Battery Capacity": "Емкость аккумулятора",
@@ -366,11 +371,13 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Настройка отложенного запуска RetroArch до установления сетевого соединения",
     "Toggle between ADB and MTP USB functionality": "Переключение между функциями ADB и MTP USB",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Настройка подробных сообщений при запуске и завершении работы системы, используемых для отладки",
+    "Toggle the functionality of the user initialisation scripts on device startup": "Настройка работы пользовательских скриптов инициализации при запуске устройства",
     "Toggle the passcode lock - More information can be found on the muOS website": "Включение блокировки паролем (дополнительную информацию можно найти на веб-сайте muOS)",
     "Toggle the power LED during content launch": "Настройка светодиода питания во время запуска приложений",
     "Toggle the system ability to automatically shut the device down due high temperature": "Настройка автоматического отключения устройства из-за высокой температуры",
     "Toggle vibration for device startup, sleep, and shutdown": "Настройка вибрации при запуске, переходе в спящий режим и выключении устройства",
     "USB Function": "Функция USB",
+    "User Init Scripts": "Пользовательские скрипты",
     "Verbose Messages": "Подробные сообщения",
     "Volume On Boot": "Громкость при включении"
   },

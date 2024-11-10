@@ -132,6 +132,7 @@
     "NETWORK PROFILE": "HỒ SƠ MẠNG",
     "No Saved Network Profiles Found": "Không có hồ sơ mạng được lưu",
     "Password must be 8..63 characters!": "Mật khẩu từ 8...63 ký tự!",
+    "Password must be unset or 8..63 characters!": "Password must be unset or 8..63 characters!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Quickly switch between different Wi-Fi configurations based on your location or network preferences"
   },
   "muxnetscan": {
@@ -156,11 +157,13 @@
     "Enter the network gateway address here (Static only)": "Nhập địa chỉ cổng mạng ở đây (Static only)",
     "Enter the network identifier (SSID) here": "Nhập tên mạng (SSID) ở đây",
     "Enter the network password here": "Nhập mật khẩu mạng ở đây",
+    "Enter the network password here (optional)": "Enter the network password here (optional)",
     "Gateway IP": "IP cổng",
     "Identifier": "Tên mạng",
     "Network Active": "Mạng hoạt động",
     "Network Disabled": "Mạng bị tắt",
     "Network Type": "Loại mạng",
+    "No Password Detected...": "No Password Detected…",
     "Not Connected": "Chưa kết nối",
     "Password": "Mật khẩu",
     "Please check network settings": "Vui lòng kiểm tra cài đặt mạng",
@@ -253,6 +256,7 @@
     "Location of Network Profiles": "Location of Network Profiles",
     "Location of RetroArch configurations": "Location of RetroArch configurations",
     "Location of Syncthing configurations": "Location of Syncthing configurations",
+    "Location of User Initialisation scripts": "Location of User Initialisation scripts",
     "Location of assigned core and governor configurations": "Location of assigned core and governor configurations",
     "Location of background music": "Location of background music",
     "Location of content images and text": "Location of content images and text",
@@ -275,7 +279,8 @@
     "Syncthing Configs": "Đồng bộ cấu hình",
     "System BIOS": "System BIOS",
     "Themes": "Chủ đề",
-    "This storage element is already on SD2": "Phần tử lưu trữ này đã có trên SD2"
+    "This storage element is already on SD2": "Phần tử lưu trữ này đã có trên SD2",
+    "User Init Scripts": "User Init Scripts"
   },
   "muxsysinfo": {
     "Battery Capacity": "Dung lượng pin",
@@ -366,11 +371,13 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Toggle a delayed start of RetroArch until a network connection is established",
     "Toggle between ADB and MTP USB functionality": "Chuyển đổi tính năng kết nối USB giữa ADB và MTP",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Toggle startup and shutdown verbose messages used for debugging faults",
+    "Toggle the functionality of the user initialisation scripts on device startup": "Toggle the functionality of the user initialisation scripts on device startup",
     "Toggle the passcode lock - More information can be found on the muOS website": "Toggle the passcode lock - More information can be found on the muOS website",
     "Toggle the power LED during content launch": "Toggle the power LED during content launch",
     "Toggle the system ability to automatically shut the device down due high temperature": "Toggle the system ability to automatically shut the device down due high temperature",
     "Toggle vibration for device startup, sleep, and shutdown": "Toggle vibration for device startup, sleep, and shutdown",
     "USB Function": "USB Function",
+    "User Init Scripts": "User Init Scripts",
     "Verbose Messages": "Tin nhắn chi tiết",
     "Volume On Boot": "Âm lượng khi khởi động"
   },

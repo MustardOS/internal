@@ -132,6 +132,7 @@
     "NETWORK PROFILE": "PROFILO DI RETE",
     "No Saved Network Profiles Found": "Nessun Profilo di Rete Salvato Trovato",
     "Password must be 8..63 characters!": "La password deve contenere da 8 a 63 caratteri!",
+    "Password must be unset or 8..63 characters!": "La password non deve essere impostata oppure deve contenere da 8 a 63 caratteri!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Cambia rapidamente tra diverse configurazioni Wi-Fi in base alla tua posizione o alle tue preferenze di rete"
   },
   "muxnetscan": {
@@ -156,11 +157,13 @@
     "Enter the network gateway address here (Static only)": "Inserisci qui l'indirizzo del gateway di rete (solo statico)",
     "Enter the network identifier (SSID) here": "Inserisci qui l'identificatore di rete (SSID)",
     "Enter the network password here": "Inserisci qui la password di rete",
+    "Enter the network password here (optional)": "Inserisci qui la password della rete (opzionale)",
     "Gateway IP": "IP Gateway",
     "Identifier": "Identificatore",
     "Network Active": "Rete Attiva",
     "Network Disabled": "Rete Disabilitata",
     "Network Type": "Tipo di Rete",
+    "No Password Detected...": "Nessuna Password Individuata…",
     "Not Connected": "Non Connesso",
     "Password": "Password",
     "Please check network settings": "Per favore, controlla le impostazioni di rete",
@@ -253,6 +256,7 @@
     "Location of Network Profiles": "Posizione dei Profili di Rete",
     "Location of RetroArch configurations": "Posizione delle configurazioni di RetroArch",
     "Location of Syncthing configurations": "Posizione delle configurazioni del Syncthing",
+    "Location of User Initialisation scripts": "Posizione degli script di Inizializzazione Utente",
     "Location of assigned core and governor configurations": "Posizione delle configurazioni dei core e dei governor assegnati",
     "Location of background music": "Posizione della musica di sottofondo",
     "Location of content images and text": "Posizione di immagini e testi dei contenuti",
@@ -275,7 +279,8 @@
     "Syncthing Configs": "Configurazioni Syncthing",
     "System BIOS": "BIOS dei Sistemi",
     "Themes": "Temi",
-    "This storage element is already on SD2": "Questo elemento è già su SD2"
+    "This storage element is already on SD2": "Questo elemento è già su SD2",
+    "User Init Scripts": "Script di Inizializzazione Utente"
   },
   "muxsysinfo": {
     "Battery Capacity": "Capacità della Batteria",
@@ -366,11 +371,13 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Attiva/disattiva l'avvio ritardato di RetroArch fino a quando non viene stabilita una connessione di rete",
     "Toggle between ADB and MTP USB functionality": "Cambia tra la funzionalità USB ADB e MTP",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Attiva/disattiva i messaggi dettagliati di avvio e spegnimento utilizzati per il debug degli errori",
+    "Toggle the functionality of the user initialisation scripts on device startup": "Attiva/disattiva la funzionalità degli script di inizializzazione utente all'avvio del dispositivo",
     "Toggle the passcode lock - More information can be found on the muOS website": "Attiva/disattiva il blocco con codice di accesso - Maggiori informazioni possono essere trovate sul sito di muOS",
     "Toggle the power LED during content launch": "Attiva/disattiva il LED di alimentazione durante il lancio del contenuto",
     "Toggle the system ability to automatically shut the device down due high temperature": "Attiva/disattiva la capacità del sistema di spegnere automaticamente il dispositivo a causa di alte temperature",
     "Toggle vibration for device startup, sleep, and shutdown": "Attiva/disattiva la vibrazione per l'avvio, la sospensione e lo spegnimento del dispositivo",
     "USB Function": "Funzione USB",
+    "User Init Scripts": "Script di Inizializzazione Utente",
     "Verbose Messages": "Messaggi Dettagliati",
     "Volume On Boot": "Volume all'Avvio"
   },

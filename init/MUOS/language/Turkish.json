@@ -132,6 +132,7 @@
     "NETWORK PROFILE": "AĞ PROFİLİ",
     "No Saved Network Profiles Found": "Kayıtlı ağ profili bulunamadı",
     "Password must be 8..63 characters!": "Şifre en az 8, en fazla 63 karakter olmalı!",
+    "Password must be unset or 8..63 characters!": "Password must be unset or 8..63 characters!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Konumunuza veya ağ tercihlerinize göre farklı Wi-Fi yapılandırmaları arasında hızla geçiş yapın"
   },
   "muxnetscan": {
@@ -156,11 +157,13 @@
     "Enter the network gateway address here (Static only)": "Ağ geçidi adresini buraya girin. (Sadece statik)",
     "Enter the network identifier (SSID) here": "Ağ tanımlayıcısını (SSID) buraya gir",
     "Enter the network password here": "Ağ şifresini buraya gir",
+    "Enter the network password here (optional)": "Enter the network password here (optional)",
     "Gateway IP": "IP ağ geçidi",
     "Identifier": "Ağ adı",
     "Network Active": "Network Active",
     "Network Disabled": "Ağ devre dışı",
     "Network Type": "Ağ türü",
+    "No Password Detected...": "No Password Detected…",
     "Not Connected": "Bağlı değil",
     "Password": "Şifre",
     "Please check network settings": "Lütfen ağ ayarlarını kontrol edin",
@@ -253,6 +256,7 @@
     "Location of Network Profiles": "Ağ profillerinin konumu",
     "Location of RetroArch configurations": "RetroArch yapılandırmalarının konumu",
     "Location of Syncthing configurations": "Syncthing yapılandırmalarının konumu",
+    "Location of User Initialisation scripts": "Location of User Initialisation scripts",
     "Location of assigned core and governor configurations": "Atanmış çekirdek ve yönetici yapılandırmalarının konumu",
     "Location of background music": "Arkaplan müziğinin konumu",
     "Location of content images and text": "İçerik görsellerinin ve metinlerin konumu",
@@ -275,7 +279,8 @@
     "Syncthing Configs": "Syncthing konfigürasyonları",
     "System BIOS": "BIOS sistemi",
     "Themes": "Temalar",
-    "This storage element is already on SD2": "Bu depolama elemanı zaten SD2'de"
+    "This storage element is already on SD2": "Bu depolama elemanı zaten SD2'de",
+    "User Init Scripts": "User Init Scripts"
   },
   "muxsysinfo": {
     "Battery Capacity": "Pil kapasitesi",
@@ -366,11 +371,13 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Bir ağ bağlantısı kurulana kadar RetroArch'ın gecikmeli başlatılmasını aç/kapat",
     "Toggle between ADB and MTP USB functionality": "ADB ve MTP USB özellikleri arasında geçiş yap",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Açılış ve kapanışta hata ayıklama için kullanılan sistem mesajlarını aç/kapat",
+    "Toggle the functionality of the user initialisation scripts on device startup": "Toggle the functionality of the user initialisation scripts on device startup",
     "Toggle the passcode lock - More information can be found on the muOS website": "Parola kilidini aç - Daha fazla bilgi muOS web sitesinde bulunabilir",
     "Toggle the power LED during content launch": "İçerik başlatılırken güç LED'ini aç/kapat",
     "Toggle the system ability to automatically shut the device down due high temperature": "Yüksek sıcaklık nedeniyle cihazın otomatik olarak kapatılması siztem özelliğini açıp kapatın",
     "Toggle vibration for device startup, sleep, and shutdown": "Cihazın başlatılması, uykuya alınması ve kapatılması için titreşimi aç/kapat",
     "USB Function": "USB fonksiyonu",
+    "User Init Scripts": "User Init Scripts",
     "Verbose Messages": "Sistem mesajları",
     "Volume On Boot": "Açılış ses seviyesi"
   },

@@ -132,6 +132,7 @@
     "NETWORK PROFILE": "PERFIL DE REDE",
     "No Saved Network Profiles Found": "Nenhum perfil de rede guardado encontrado",
     "Password must be 8..63 characters!": "Password must be 8..63 characters!",
+    "Password must be unset or 8..63 characters!": "Password must be unset or 8..63 characters!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Alterne rapidamente entre diferentes definições Wi-Fi com base na sua localização ou preferências de rede."
   },
   "muxnetscan": {
@@ -156,11 +157,13 @@
     "Enter the network gateway address here (Static only)": "Introduza aqui o endereço do gateway de rede. (apenas estático)",
     "Enter the network identifier (SSID) here": "Introduza aqui o identificador de rede (SSID).",
     "Enter the network password here": "Introduza aqui a senha da rede.",
+    "Enter the network password here (optional)": "Enter the network password here (optional)",
     "Gateway IP": "IP do Gateway",
     "Identifier": "Identificador",
     "Network Active": "Network Active",
     "Network Disabled": "Rede Desativada",
     "Network Type": "Tipo de Rede",
+    "No Password Detected...": "No Password Detected…",
     "Not Connected": "Não Conectado",
     "Password": "Palavra-passe",
     "Please check network settings": "Verifique as definições de rede",
@@ -253,6 +256,7 @@
     "Location of Network Profiles": "Location of Network Profiles",
     "Location of RetroArch configurations": "Location of RetroArch configurations",
     "Location of Syncthing configurations": "Location of Syncthing configurations",
+    "Location of User Initialisation scripts": "Location of User Initialisation scripts",
     "Location of assigned core and governor configurations": "Location of assigned core and governor configurations",
     "Location of background music": "Location of background music",
     "Location of content images and text": "Location of content images and text",
@@ -275,7 +279,8 @@
     "Syncthing Configs": "Syncthing Configs",
     "System BIOS": "System BIOS",
     "Themes": "Temas",
-    "This storage element is already on SD2": "This storage element is already on SD2"
+    "This storage element is already on SD2": "This storage element is already on SD2",
+    "User Init Scripts": "User Init Scripts"
   },
   "muxsysinfo": {
     "Battery Capacity": "Capacidade da Bateria",
@@ -366,11 +371,13 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Alterne o início atrasado do RetroArch até que seja estabelecida uma ligação de rede.",
     "Toggle between ADB and MTP USB functionality": "Alternar entre a funcionalidade ADB e MTP USB.",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Alternar mensagens detalhadas de inicialização e desligamento usadas para depuração de falhas.",
+    "Toggle the functionality of the user initialisation scripts on device startup": "Toggle the functionality of the user initialisation scripts on device startup",
     "Toggle the passcode lock - More information can be found on the muOS website": "Alterne o bloqueio por palavra-passe. Mais informações podem ser encontradas no site do muOS.",
     "Toggle the power LED during content launch": "Alterne o LED de alimentação durante a inicialização do conteúdo.",
     "Toggle the system ability to automatically shut the device down due high temperature": "Alterne a capacidade do sistema de desligar automaticamente o dispositivo devido à elevada temperatura",
     "Toggle vibration for device startup, sleep, and shutdown": "Toggle vibration for device startup, sleep, and shutdown",
     "USB Function": "Função USB",
+    "User Init Scripts": "User Init Scripts",
     "Verbose Messages": "Mensagens Detalhadas",
     "Volume On Boot": "Volume no Arranque"
   },

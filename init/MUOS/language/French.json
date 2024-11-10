@@ -131,7 +131,8 @@
     "Loading Network Profiles...": "Chargement des profils réseau…",
     "NETWORK PROFILE": "PROFIL RÉSEAU",
     "No Saved Network Profiles Found": "Aucun profil réseau enregistré trouvé",
-    "Password must be 8..63 characters!": "Le mot de passe doit être composé de 8 à 63 caractères !",
+    "Password must be 8..63 characters!": "Le mot de passe doit contenir 8 à 63 caractères !",
+    "Password must be unset or 8..63 characters!": "Le mot de passe doit être non défini ou contenir 8 à 63 caractères !",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Basculez rapidement entre différentes configurations Wi-Fi en fonction de votre emplacement ou de vos préférences réseau"
   },
   "muxnetscan": {
@@ -156,11 +157,13 @@
     "Enter the network gateway address here (Static only)": "Entrez ici l'adresse de la passerelle réseau (Statique uniquement)",
     "Enter the network identifier (SSID) here": "Entrez ici l'identifiant du réseau (SSID)",
     "Enter the network password here": "Entrez le mot de passe du réseau ici",
+    "Enter the network password here (optional)": "Entrez le mot de passe du réseau ici (facultatif)",
     "Gateway IP": "IP de la passerelle",
     "Identifier": "Identifiant",
     "Network Active": "Réseau actif",
     "Network Disabled": "Réseau désactivé",
     "Network Type": "Type de réseau",
+    "No Password Detected...": "No Password Detected…",
     "Not Connected": "Non connecté",
     "Password": "Mot de passe",
     "Please check network settings": "Veuillez vérifier les paramètres réseau",
@@ -253,6 +256,7 @@
     "Location of Network Profiles": "Emplacement des profils réseau",
     "Location of RetroArch configurations": "Emplacement des configurations RetroArch",
     "Location of Syncthing configurations": "Emplacement des configurations Syncthing",
+    "Location of User Initialisation scripts": "Emplacement des scripts d'initialisation utilisateur",
     "Location of assigned core and governor configurations": "Emplacement des configurations des émulateurs et gouverneurs assignés",
     "Location of background music": "Emplacement de la musique de fond",
     "Location of content images and text": "Emplacement des images et du texte du contenu",
@@ -275,7 +279,8 @@
     "Syncthing Configs": "Configurations Syncthing",
     "System BIOS": "BIOS systèmes",
     "Themes": "Thèmes",
-    "This storage element is already on SD2": "Cet élément de stockage est déjà sur SD2"
+    "This storage element is already on SD2": "Cet élément de stockage est déjà sur SD2",
+    "User Init Scripts": "Scripts d'initialisation utilisateur"
   },
   "muxsysinfo": {
     "Battery Capacity": "Capacité de la batterie",
@@ -366,11 +371,13 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Activez/désactivez un démarrage différé de RetroArch jusqu'à ce qu'une connexion réseau soit établie",
     "Toggle between ADB and MTP USB functionality": "Basculez entre les fonctionnalités USB ADB et MTP",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Activez/désactivez les messages détaillés de démarrage et d'arrêt utilisés pour le débogage des erreurs",
+    "Toggle the functionality of the user initialisation scripts on device startup": "Activez/désactivez la fonctionnalité des scripts d'initialisation utilisateur au démarrage de la console",
     "Toggle the passcode lock - More information can be found on the muOS website": "Activez/désactivez le verrouillage par mot de passe. Plus d’informations peuvent être trouvées sur le site Web de muOS",
     "Toggle the power LED during content launch": "Activez/désactivez le voyant d'alimentation pendant le lancement du contenu",
     "Toggle the system ability to automatically shut the device down due high temperature": "Activez/désactivez la capacité du système à arrêter automatiquement la console en raison d'une température élevée",
     "Toggle vibration for device startup, sleep, and shutdown": "Activez/désactivez les vibrations au démarrage, à la mise en veille et à l'arrêt de la console",
     "USB Function": "Fonction USB",
+    "User Init Scripts": "Scripts d'initialisation utilisateur",
     "Verbose Messages": "Messages détaillés",
     "Volume On Boot": "Volume au démarrage"
   },

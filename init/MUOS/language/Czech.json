@@ -132,6 +132,7 @@
     "NETWORK PROFILE": "SÍŤOVÝ PROFIL",
     "No Saved Network Profiles Found": "Nebyly nalezeny žádné uložené síťové profily",
     "Password must be 8..63 characters!": "Heslo musí mít 8-63 znaků!",
+    "Password must be unset or 8..63 characters!": "Heslo musí být nenastavené nebo 8..63 znaků!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Rychle přepínejte mezi různými konfiguracemi Wi-Fi na základě vaší polohy nebo předvoleb sítě"
   },
   "muxnetscan": {
@@ -156,11 +157,13 @@
     "Enter the network gateway address here (Static only)": "Zde zadejte adresu síťové brány. (Pouze statické)",
     "Enter the network identifier (SSID) here": "Zde zadejte identifikátor sítě (SSID)",
     "Enter the network password here": "Zde zadejte síťové heslo",
+    "Enter the network password here (optional)": "Zde zadejte síťové heslo (volitelné)",
     "Gateway IP": "Brána IP",
     "Identifier": "SSID",
     "Network Active": "Síť je aktivní",
     "Network Disabled": "Vypnutá síť",
     "Network Type": "Typ sítě",
+    "No Password Detected...": "No Password Detected…",
     "Not Connected": "Nepřipojeno",
     "Password": "Heslo",
     "Please check network settings": "Zkontrolujte nastavení sítě",
@@ -253,6 +256,7 @@
     "Location of Network Profiles": "Umístění síťových profilů",
     "Location of RetroArch configurations": "Umístění konfigurací RetroArch",
     "Location of Syncthing configurations": "Umístění konfigurace Syncthing",
+    "Location of User Initialisation scripts": "Umístění uživatelských inicializačních skriptů",
     "Location of assigned core and governor configurations": "Umístění přiřazených konfigurací jádra a regulátoru",
     "Location of background music": "Umístění hudby na pozadí",
     "Location of content images and text": "Umístění obrázků a textu obsahu",
@@ -275,7 +279,8 @@
     "Syncthing Configs": "Konfigurace Syncthing",
     "System BIOS": "Systém BIOS",
     "Themes": "Témata",
-    "This storage element is already on SD2": "Tento úložný prvek je již na SD2"
+    "This storage element is already on SD2": "Tento úložný prvek je již na SD2",
+    "User Init Scripts": "Uživatelské inicializační skripty"
   },
   "muxsysinfo": {
     "Battery Capacity": "Kapacita baterie",
@@ -366,11 +371,13 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Přepněte odložený start RetroArch, dokud nebude navázáno síťové připojení",
     "Toggle between ADB and MTP USB functionality": "Přepínání mezi funkcí ADB a MTP USB",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Zapnout a vypnout podrobné zprávy používané pro ladění chyb",
+    "Toggle the functionality of the user initialisation scripts on device startup": "Přepínání funkcí uživatelských inicializačních skriptů při spuštění zařízení",
     "Toggle the passcode lock - More information can be found on the muOS website": "Přepněte zámek hesla. Více informací naleznete na stránkách muOS",
     "Toggle the power LED during content launch": "Během spouštění obsahu přepněte kontrolku napájení",
     "Toggle the system ability to automatically shut the device down due high temperature": "Přepněte schopnost systému automaticky vypnout zařízení kvůli vysoké teplotě",
     "Toggle vibration for device startup, sleep, and shutdown": "Přepínání vibrací pro spouštění, spánek a vypínání zařízení",
     "USB Function": "Funkce USB",
+    "User Init Scripts": "Uživatelské inicializační skripty",
     "Verbose Messages": "Podrobné zprávy",
     "Volume On Boot": "Hlasitost při spuštění"
   },

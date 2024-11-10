@@ -132,6 +132,7 @@
     "NETWORK PROFILE": "PROFIL SIECIOWY",
     "No Saved Network Profiles Found": "Nie znaleziono zapisanych profilów sieciowych",
     "Password must be 8..63 characters!": "Hasło musi mieć od 8 do 63 znaków!",
+    "Password must be unset or 8..63 characters!": "Hasło musi być puste lub mieć od 8 do 63 znaków!",
     "Quickly switch between different Wi-Fi configurations based on your location or network preferences": "Szybko zmień pomiędzy różnymi konfiguracjami Wi-Fi na podstawie twojej lokalizacji lub preferencji sieciowych"
   },
   "muxnetscan": {
@@ -156,11 +157,13 @@
     "Enter the network gateway address here (Static only)": "Wpisz adres bramy sieciowej (Tylko statyczne)",
     "Enter the network identifier (SSID) here": "Wpisz identyfikator sieci (SSID)",
     "Enter the network password here": "Wpisz hasło sieciowe",
+    "Enter the network password here (optional)": "Wpisz hasło sieci (opcjonalne)",
     "Gateway IP": "IP bramy",
     "Identifier": "Identyfikator",
     "Network Active": "Sieć aktywna",
     "Network Disabled": "Sieć wyłączona",
     "Network Type": "Typ sieci",
+    "No Password Detected...": "No Password Detected…",
     "Not Connected": "Nie połączono",
     "Password": "Hasło",
     "Please check network settings": "Sprawdź ustawienia sieciowe",
@@ -253,6 +256,7 @@
     "Location of Network Profiles": "Lokalizacja profilów sieciowych",
     "Location of RetroArch configurations": "Lokalizacja konfiguracji RetroArcha",
     "Location of Syncthing configurations": "Lokalizacja konfiguracji Syncthing",
+    "Location of User Initialisation scripts": "Lokalizacja skryptów inicjalizacji użytkownika",
     "Location of assigned core and governor configurations": "Lokalizacja konfiguracji przypisanych rdzeni oraz regulatorów",
     "Location of background music": "Lokalizacja muzyki w tle",
     "Location of content images and text": "Lokalizacja obrazów i tekstów zawartości",
@@ -275,7 +279,8 @@
     "Syncthing Configs": "Konfiguracje Syncthing",
     "System BIOS": "BIOS systemu",
     "Themes": "Motywy",
-    "This storage element is already on SD2": "Ten element pamięci jest już na SD2"
+    "This storage element is already on SD2": "Ten element pamięci jest już na SD2",
+    "User Init Scripts": "Skrypty inicjalizacji użytkownika"
   },
   "muxsysinfo": {
     "Battery Capacity": "Pojemność baterii",
@@ -366,11 +371,13 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Włącz opóźnienie uruchomienia RetroArcha do momentu połączenia z siecią",
     "Toggle between ADB and MTP USB functionality": "Wybierz między ADB, a MTP USB",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Włącz pełne wiadomości systemu podczas uruchamiania i zamykania dla debuggowania błędów",
+    "Toggle the functionality of the user initialisation scripts on device startup": "Włącz funkcjonalność skryptów inicjalizacji użytkownika podczas uruchamiania",
     "Toggle the passcode lock - More information can be found on the muOS website": "Włącz blokowanie hasłem - Więcej informacji znajdziesz na stronie muOS",
     "Toggle the power LED during content launch": "Włącz diodę LED podczas uruchamiania zawartości",
     "Toggle the system ability to automatically shut the device down due high temperature": "Włącz automatyczne zamknięcie urządzenia przez zbyt wysoką temperaturę",
     "Toggle vibration for device startup, sleep, and shutdown": "Włącz wibracje dla włączenia, uśpienia i zamknięcia urządzenia",
     "USB Function": "Funkcja USB",
+    "User Init Scripts": "Skrypty inicjalizacji użytkownika",
     "Verbose Messages": "Pełne wiadomości",
     "Volume On Boot": "Głośność przy uruchomieniu"
   },

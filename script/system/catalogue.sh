@@ -17,10 +17,10 @@ for INI_FILE in $ASSIGN_DIR; do
 	fi
 done
 
-EXTRA_DIRS="Folder Root"
+EXTRA_DIRS="Application Archive Folder Root Task"
 for EXTRA_DIR in $EXTRA_DIRS; do
 	BASE_DIR="/run/muos/storage/info/catalogue/$EXTRA_DIR"
 	if [ ! -d "$BASE_DIR" ]; then
-		mkdir -p "$BASE_DIR/box" "$BASE_DIR/preview" "$BASE_DIR/text"
+		mkdir -p "$BASE_DIR/box" "$BASE_DIR/preview" "$BASE_DIR/text" "$BASE_DIR/splash"
 	fi
 done

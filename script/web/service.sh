@@ -18,11 +18,11 @@ MANAGE_WEBSERV() {
 					nice -2 /opt/sftpgo/sftpgo serve -c \
 						/opt/sftpgo >/dev/null &
 					;;
-				"gotty")
-					nice -2 /opt/muos/bin/gotty \
-						--config /opt/muos/config/gotty \
-						--width 0 \
-						--height 0 \
+				"ttyd")
+					nice -2 /opt/muos/bin/ttyd \
+						--port 8080 \
+						--url-arg \
+						--writable \
 						/bin/sh >/dev/null &
 					;;
 				"syncthing")
@@ -51,7 +51,7 @@ MANAGE_WEBSERV() {
 	esac
 }
 
-for WEBSRV in sshd sftpgo gotty syncthing rslsync ntp; do
+for WEBSRV in sshd sftpgo ttyd syncthing rslsync ntp; do
 	if [ "$(GET_VAR "global" "network/enabled")" -eq 1 ] && [ "$(GET_VAR "global" "web/$WEBSRV")" -eq 1 ]; then
 		TIMEOUT=30
 		WAIT=0

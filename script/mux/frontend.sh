@@ -37,12 +37,6 @@ EC=0
 
 echo "root" >$EX_CARD
 
-KILL_BGM() {
-	if pgrep -f "playbgm.sh" >/dev/null; then
-		killall -q "playbgm.sh" "mpg123"
-	fi
-}
-
 if [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 1 ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Changing to a random theme"
 	/opt/muos/script/mux/theme.sh "?R"

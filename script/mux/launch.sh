@@ -54,9 +54,7 @@ if [ -f "$EVSIEVE_CONFDIR/$CORE.evs.sh" ]; then
 	"$EVSIEVE_CONFDIR/$CORE.evs.sh"
 fi
 
-if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mpg123"
-fi
+KILL_BGM
 
 GET_VAR "global" "settings/advanced/led" >"$(GET_VAR "device" "led/normal")"
 GET_VAR "global" "settings/advanced/led" >/tmp/work_led_state

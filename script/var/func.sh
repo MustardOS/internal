@@ -109,3 +109,9 @@ RUMBLE() {
 	sleep "$2"
 	echo 0 >"$1"
 }
+
+KILL_BGM() {
+	if pgrep -f "playbgm.sh" >/dev/null; then
+		killall -q "playbgm.sh" "mpg123"
+	fi
+}

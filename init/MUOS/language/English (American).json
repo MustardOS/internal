@@ -500,12 +500,14 @@
     "SFTP + Filebrowser": "SFTP + Filebrowser",
     "Secure Shell": "Secure Shell",
     "Syncthing": "Syncthing",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "Toggle Resilio - WebUI can be found on port 6060",
     "Toggle SFTP support - WebUI can be found on port 9090": "Toggle SFTP support - WebUI can be found on port 9090",
     "Toggle SSH support - Access via port 22": "Toggle SSH support - Access via port 22",
     "Toggle Syncthing - WebUI can be found on port 7070": "Toggle Syncthing - WebUI can be found on port 7070",
     "Toggle network time protocol for active network connections": "Toggle network time protocol for active network connections",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Toggle virtual terminal - WebUI can be found on port 8080",
+    "Toggle Tailscale - Need to login via SSH first": "Toggle Tailscale - Need to login via SSH first",
     "Virtual Terminal": "Virtual Terminal",
     "WEB SERVICES": "WEB SERVICES"
   }

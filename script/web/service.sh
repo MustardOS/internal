@@ -41,6 +41,9 @@ MANAGE_WEBSERV() {
 				"ntp")
 					nice -2 /opt/muos/script/web/ntp.sh &
 					;;
+				"tailscaled")
+					nice -2 /opt/muos/bin/tailscaled >/dev/null &
+					;;
 				*)
 					echo "Unknown Web Service: $SRV"
 					;;
@@ -52,7 +55,7 @@ MANAGE_WEBSERV() {
 	esac
 }
 
-for WEBSRV in sshd sftpgo ttyd syncthing rslsync ntp; do
+for WEBSRV in sshd sftpgo ttyd syncthing rslsync ntp tailscaled; do
 	if [ "$(GET_VAR "global" "network/enabled")" -eq 1 ] && [ "$(GET_VAR "global" "web/$WEBSRV")" -eq 1 ]; then
 		TIMEOUT=30
 		WAIT=0

@@ -8,7 +8,7 @@ USAGE() {
 }
 
 # Attempts to cleanly close the current foreground process, resuming it first
-# if it's stopped. Waits five seconds before giving up.
+# if it's stopped. Waits ten seconds before giving up.
 CLOSE_CONTENT() {
 	FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 	FG_PROC_PID="$(pidof "$FG_PROC_VAL")"
@@ -22,7 +22,7 @@ CLOSE_CONTENT() {
 		sleep .01
 		kill "$FG_PROC_PID" 2>/dev/null
 
-		for _ in $(seq 1 20); do
+		for _ in $(seq 1 40); do
 			if ! kill -0 "$FG_PROC_PID" 2>/dev/null; then
 				printf 'done\n'
 				return

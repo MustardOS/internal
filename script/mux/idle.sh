@@ -31,7 +31,7 @@ DISPLAY_ACTIVE() {
 }
 
 # Monitor for specific programs that should inhibit idle timeout.
-while true; do
+while :; do
 	INHIBIT="$INHIBIT_NONE"
 	# Inhibit idle sleep while charging.
 	if [ "$(cat "$(GET_VAR device battery/charger)")" -eq 1 ]; then

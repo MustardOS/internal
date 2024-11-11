@@ -43,7 +43,7 @@ MOUNT_DEVICE() {
 HAS_DEVICE && MOUNT_DEVICE
 
 # Asynchronously monitor insertion/eject, adjusting storage mounts as needed.
-while true; do
+while :; do
 	sleep 2
 	if HAS_DEVICE; then
 		if ! MOUNTED; then

@@ -32,7 +32,7 @@ MOUNT_DEVICE() {
 }
 
 # Asynchronously monitor insertion/eject.
-while true; do
+while :; do
 	sleep 2
 	if HAS_DEVICE; then
 		! MOUNTED && MOUNT_DEVICE

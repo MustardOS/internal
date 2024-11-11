@@ -82,7 +82,9 @@ LOG() {
 	fi
 
 	# Print to console and log file and ensure the message is formatted correctly with printf options
-	printf "[%s] [%s${ESC}[0m] [%s] %s - ${MSG}\n" "$TIME" "$SYMBOL" "$MODULE" "$TITLE" "$@" | tee -a "$MUOS_BOOT_LOG"
+	SPACER="$TITLE - "
+	[ -z "$TITLE" ] && SPACER=""
+	printf "[%s] [%s${ESC}[0m] [%s] %s${MSG}\n" "$TIME" "$SYMBOL" "$MODULE" "$SPACER" "$@" | tee -a "$MUOS_BOOT_LOG"
 }
 
 LOG_INFO() { LOG "${CSI}33m*" "$@"; }

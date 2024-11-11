@@ -2,7 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
-killall muhotkey # (hotkey.sh will restart it)
+# hotkey.sh will restart it
+killall muhotkey
 
 C_BRIGHT="$(cat /opt/muos/config/brightness.txt)"
 if [ "$C_BRIGHT" -lt 1 ]; then

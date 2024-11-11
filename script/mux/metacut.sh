@@ -7,12 +7,18 @@ fi
 
 . /opt/muos/script/var/func.sh
 
-SCHEME="/run/muos/storage/theme/active/scheme/default.txt"
-METACUT=$(PARSE_INI "$SCHEME" "meta" "META_CUT")
+# Define the base directory for the theme schemes
+SCHEME_DIR="/run/muos/storage/theme/active/scheme"
 
-if [ -z "$METACUT" ]; then
-	METACUT=40
+# Set SCHEME to muxplore.txt if it exists, otherwise revert to default.txt
+if [ -f "$SCHEME_DIR/muxplore.txt" ]; then
+	SCHEME="$SCHEME_DIR/muxplore.txt"
+else
+	SCHEME="$SCHEME_DIR/default.txt"
 fi
+
+METACUT=$(PARSE_INI "$SCHEME" "meta" "META_CUT")
+[ -z "$METACUT" ] && METACUT=40
 
 awk -v meta_cut="$METACUT" '
 BEGIN { RS = " "; ORS = ""; }

@@ -61,7 +61,7 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 		if [ "$(GET_VAR "global" "network/enabled")" -eq 1 ] && [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
 			NET_START="/tmp/net_start"
 			OIP=0
-			while true; do
+			while :; do
 				NW_MSG=$(printf "Waiting for network to connect... (%s)\n\nPress START to continue loading\nPress SELECT to go to main menu" "$OIP")
 				/opt/muos/extra/muxstart "$NW_MSG"
 				OIP=$((OIP + 1))
@@ -106,7 +106,7 @@ fi
 LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
-while true; do
+while :; do
 	# Reset DPAD<>ANALOGUE switch for H700 devices
 	case "$(GET_VAR "device" "board/name")" in
 		rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;

@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-while true; do
+while :; do
 	if [ "$(GET_VAR "global" "web/ntp")" -eq 1 ]; then
 		nice -2 ntpdate -b "$(GET_VAR "global" "clock/pool")" >/dev/null &
 		NTP_PID=$!

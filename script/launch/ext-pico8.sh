@@ -5,11 +5,17 @@
 NAME=$1
 CORE=$2
 ROM=$3
-ROMDIR="$(dirname "$ROM")"
 
-export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
-export SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
-export SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
+
+HOME="$(GET_VAR "device" "board/home")"
+export HOME
+
+SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+
+export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 SET_VAR "system" "foreground_process" "pico8_64"
 
@@ -19,10 +25,11 @@ CTRL_TYPE="$(GET_VAR "global" "settings/advanced/swap")"
 
 # Set appropriate sdl controller file
 if [ "$CTRL_TYPE" = 0 ]; then
-	export SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_modern.txt")
+	SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_modern.txt")
 else
-	export SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_retro.txt")
+	SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_retro.txt")
 fi
+export SDL_GAMECONTROLLERCONFIG
 
 # First look for emulator in BIOS directory, which allows it to follow the
 # user's storage preference. Fall back on the old path for compatibility.
@@ -42,6 +49,7 @@ chmod +x "$EMUDIR"/wget
 chmod +x "$EMU"
 
 cd "$EMUDIR" || exit
+ROMDIR="$(dirname "$ROM")"
 
 if [ "$NAME" = "Splore" ]; then
 	SDL_ASSERT=always_ignore \

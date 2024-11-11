@@ -1,14 +1,21 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
 NAME=$1
 CORE=$2
 ROM=$3
 
-. /opt/muos/script/var/func.sh
+LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
 
-export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
-export SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
-export SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+HOME="$(GET_VAR "device" "board/home")"
+export HOME
+
+SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+
+export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 # Our OpenBOR builds hardcode Batocera /userdata paths. :( For example:
 # https://github.com/batocera-linux/batocera.linux/blob/master/package/batocera/emulators/openbor/openbor7530/002-adjust-paths.patch
@@ -33,8 +40,8 @@ SET_VAR "system" "foreground_process" "$BOR_BIN"
 
 EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/openbor"
 
-chmod +x $EMUDIR/"$BOR_BIN"
-cd $EMUDIR || continue
+chmod +x "$EMUDIR"/"$BOR_BIN"
+cd "$EMUDIR" || exit 1
 
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./"$BOR_BIN" "$ROM"
 

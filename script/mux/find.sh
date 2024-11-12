@@ -12,6 +12,7 @@ fi
 . /opt/muos/script/var/func.sh
 
 RESULTS_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/search.json"
+SKIP_FILE="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/skip.ini"
 
 SDIR="$1"
 STERM="$2"
@@ -22,7 +23,7 @@ TMP_JSON=$(mktemp)
 echo "{\"lookup\": \"$STERM\", \"directory\": \"$SDIR\", \"folders\": {}}" >"$TMP_JSON"
 
 # Process search results and build directory structure within folders key
-/opt/muos/bin/rg --files "$SDIR" 2>&1 |
+/opt/muos/bin/rg --files "$SDIR" --ignore-file "$SKIP_FILE" 2>&1 |
 	/opt/muos/bin/rg --pcre2 -i "\/(?!.*\/).*$STERM" |
 	sed "s|^$SDIR/||" |
 	while IFS= read -r RESULT; do

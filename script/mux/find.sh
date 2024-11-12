@@ -1,17 +1,27 @@
 #!/bin/sh
 
+USAGE() {
+	echo "Usage: $0 <directory> <search term>"
+	exit 1
+}
+
+if [ "$#" -ne 2 ]; then
+	USAGE "$0"
+fi
+
 . /opt/muos/script/var/func.sh
 
-if [ -d "$(GET_VAR "device" "storage/rom/mount")/ROMS" ]; then
-	ROMPATH="$(GET_VAR "device" "storage/rom/mount")/ROMS"
-fi
+MUXRESULT="/tmp/muxresult"
 
-if [ -d "$(GET_VAR "device" "storage/sdcard/mount")/ROMS" ]; then
-	ROMPATH="${ROMPATH} /$(GET_VAR "device" "storage/sdcard/mount")/ROMS"
-fi
+SDIR="$1"
+STERM="$2"
 
-if [ -d "$(GET_VAR "device" "storage/usb/mount")/ROMS" ]; then
-	ROMPATH="${ROMPATH} /$(GET_VAR "device" "storage/usb/mount")/ROMS"
-fi
+[ -d "$MUXRESULT" ] && rm -rf "$MUXRESULT"
 
-/opt/muos/bin/rg --files "${ROMPATH}" 2>&1 | /opt/muos/bin/rg --pcre2 -i "\/(?!.*\/).*$1"
+/opt/muos/bin/rg --files "$SDIR" 2>&1 |
+	/opt/muos/bin/rg --pcre2 -i "\/(?!.*\/).*$STERM" |
+	sed "s|^$SDIR/||" |
+	while IFS= read -r RESULT; do
+		mkdir -p "$MUXRESULT/$(dirname "$RESULT")"
+		touch "$MUXRESULT/$RESULT"
+	done

@@ -201,6 +201,11 @@ while :; do
 				SET_VAR "system" "foreground_process" "muxoption"
 				nice --20 /opt/muos/extra/muxoption
 				;;
+			"search")
+				echo option >$ACT_GO
+				SET_VAR "system" "foreground_process" "muxsearch"
+				nice --20 /opt/muos/extra/muxsearch -d "$ROM_DIR"
+				;;
 			"assign")
 				echo option >$ACT_GO
 				SET_VAR "system" "foreground_process" "muxassign"

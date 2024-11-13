@@ -24,6 +24,7 @@ APP_GO=/tmp/app_go
 ASS_GO=/tmp/ass_go
 GOV_GO=/tmp/gov_go
 ROM_GO=/tmp/rom_go
+RES_GO=/tmp/res_go
 
 EX_CARD=/tmp/explore_card
 
@@ -205,6 +206,14 @@ while :; do
 				echo option >$ACT_GO
 				SET_VAR "system" "foreground_process" "muxsearch"
 				nice --20 /opt/muos/extra/muxsearch -d "$ROM_DIR"
+				if [ -s "$RES_GO" ]; then
+					basename "$(cat "$RES_GO")" >/tmp/explore_name
+					dirname "$(cat "$RES_GO")" >/tmp/explore_dir
+					printf "%s" "$(sed 's|.*/\([^/]*\)/ROMS.*|\1|' "$RES_GO")" >$EX_CARD
+
+					SET_VAR "system" "foreground_process" "muxplore"
+					nice --20 /opt/muos/extra/muxplore -i 0 -m "$(cat $EX_CARD)"
+				fi
 				;;
 			"assign")
 				echo option >$ACT_GO

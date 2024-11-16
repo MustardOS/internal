@@ -3,11 +3,11 @@
 set -eu
 
 USAGE() {
-	printf "Usage: %s <directory> <search term>\n" "$0"
+	printf "Usage: %s <search term> <directory1> [directory2 ...]\n" "$0"
 	exit 1
 }
 
-[ "$#" -ne 2 ] && USAGE
+[ "$#" -lt 2 ] && USAGE
 
 . /opt/muos/script/var/func.sh
 
@@ -24,8 +24,10 @@ TMP_FRIENDLY_FILES="$TMP_DIR/f_files.txt"
 TMP_FILES="$TMP_DIR/files.txt"
 TMP_RESULTS="$TMP_DIR/results.json"
 
-S_DIR="$1"
-S_TERM="$2"
+S_TERM="$1"
+
+# Shift one argument over so we are left with only directories to search
+shift
 
 # Generate friendly name JSON so we can use that for the search results for quicker parsing
 if [ -f "$FRIENDLY_JSON" ]; then
@@ -38,29 +40,37 @@ else
 fi
 
 RG_SEARCH() {
-	/opt/muos/bin/rg --files "$S_DIR" --ignore-file "$SKIP_FILE" 2>/dev/null |
-		/opt/muos/bin/rg --pcre2 -i "/(?!.*\/).*$1" |
-		sed "s|^$S_DIR/||"
+	S_TERM="$1"
+	shift
+	for S_DIR in "$@"; do
+		/opt/muos/bin/rg --files "$S_DIR" --ignore-file "$SKIP_FILE" 2>/dev/null |
+			/opt/muos/bin/rg --pcre2 -i "/(?!.*\/).*$S_TERM" |
+			sed "s|^$S_DIR/||"
+	done
 }
 
 {
 	while IFS= read -r F_NAME; do
-		RG_SEARCH "$F_NAME"
+		RG_SEARCH "$F_NAME" "$@"
 	done <"$TMP_FRIENDLY_FILES"
-	RG_SEARCH "$S_TERM"
+	RG_SEARCH "$S_TERM" "$@"
 } | sort -u >"$TMP_FILES"
 
 # Create and populate JSON structure for parsing in muxsearch
-jq -n --arg lookup "$S_TERM" --arg directory "$S_DIR" '
-    {lookup: $lookup, directory: $directory, folders: {}}
-' >"$TMP_RESULTS"
+jq -n --arg lookup "$S_TERM" '{lookup: $lookup, directories: [], folders: {}}' >"$TMP_RESULTS"
+
+for S_DIR in "$@"; do
+	jq --arg dir "$S_DIR" '.directories += [$dir]' "$TMP_RESULTS" >"$TMP_RESULTS.dirlist"
+	mv "$TMP_RESULTS.dirlist" "$TMP_RESULTS"
+done
 
 while IFS= read -r RESULT; do
-	jq --arg dir "$(dirname "$RESULT")" --arg file "$(basename "$RESULT")" '
-        (.folders[$dir].content += [$file]) //
-        (.folders[$dir] = { content: [$file] })
-    ' "$TMP_RESULTS" >"$TMP_RESULTS.tmp"
-	mv "$TMP_RESULTS.tmp" "$TMP_RESULTS"
+	jq --arg dir "$(dirname "$RESULT")" --arg file "$(basename "$RESULT")" \
+		'(.folders[$dir].content += [$file]) //(.folders[$dir] = { content: [$file] })' \
+		"$TMP_RESULTS" >"$TMP_RESULTS.result"
+	mv "$TMP_RESULTS.result" "$TMP_RESULTS"
 done <"$TMP_FILES"
+
+cat "$RESULTS_JSON"
 
 jq '.folders |= (to_entries | sort_by(.key) | from_entries)' "$TMP_RESULTS" >"$RESULTS_JSON"

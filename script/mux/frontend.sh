@@ -207,7 +207,7 @@ while :; do
 			"search")
 				echo option >$ACT_GO
 				SET_VAR "system" "foreground_process" "muxsearch"
-				nice --20 /opt/muos/extra/muxsearch -d "$ROM_DIR"
+				nice --20 /opt/muos/extra/muxsearch -d "$(cat $EX_DIR 2>/dev/null)"
 				if [ -s "$RES_GO" ]; then
 					basename "$(cat "$RES_GO")" >$EX_NAME
 					dirname "$(cat "$RES_GO")" >$EX_DIR
@@ -216,8 +216,6 @@ while :; do
 					SET_VAR "system" "foreground_process" "muxplore"
 					nice --20 /opt/muos/extra/muxplore -i 0 -m "$(cat $EX_CARD)"
 				fi
-				EXPLORE_DIR=$(cat $EX_DIR 2>/dev/null)
-				[ "${EXPLORE_DIR##*/}" = "ROMS" ] && echo explore >$ACT_GO
 				;;
 			"assign")
 				echo option >$ACT_GO

@@ -71,6 +71,4 @@ while IFS= read -r RESULT; do
 	mv "$TMP_RESULTS.result" "$TMP_RESULTS"
 done <"$TMP_FILES"
 
-cat "$RESULTS_JSON"
-
 jq '.folders |= (to_entries | sort_by(.key) | from_entries)' "$TMP_RESULTS" >"$RESULTS_JSON"

@@ -39,31 +39,20 @@ else
 	: >"$TMP_FRIENDLY_FILES"
 fi
 
-RG_SEARCH() {
-	S_TERM="$1"
-	shift
-	for S_DIR in "$@"; do
-		/opt/muos/bin/rg --files "$S_DIR" --ignore-file "$SKIP_FILE" 2>/dev/null |
-			/opt/muos/bin/rg --pcre2 -i "/(?!.*\/).*$S_TERM" |
-			sed "s|^$S_DIR/||"
-	done
-}
-
-{
-	while IFS= read -r F_NAME; do
-		RG_SEARCH "$F_NAME" "$@"
-	done <"$TMP_FRIENDLY_FILES"
-	RG_SEARCH "$S_TERM" "$@"
-} | sort -u >"$TMP_FILES"
-
 # Create and populate JSON structure for parsing in muxsearch
 jq -n --arg lookup "$S_TERM" '{lookup: $lookup, directories: [], folders: {}}' >"$TMP_RESULTS"
 
+# Okay now we'll go through each of the requested directories and find content based on the search term
 for S_DIR in "$@"; do
+	/opt/muos/bin/rg --files "$S_DIR" --ignore-file "$SKIP_FILE" 2>/dev/null |
+		/opt/muos/bin/rg --pcre2 -i "/(?!.*\/).*$S_TERM" |
+		sed "s|^$S_DIR/||" | sort -fu >>"$TMP_FILES" # yeah sort fuck you too
+
 	jq --arg dir "$S_DIR" '.directories += [$dir]' "$TMP_RESULTS" >"$TMP_RESULTS.dirlist"
 	mv "$TMP_RESULTS.dirlist" "$TMP_RESULTS"
 done
 
+# Time to make the JSON results file with everything above!
 while IFS= read -r RESULT; do
 	jq --arg dir "$(dirname "$RESULT")" --arg file "$(basename "$RESULT")" \
 		'(.folders[$dir].content += [$file]) //(.folders[$dir] = { content: [$file] })' \
@@ -71,4 +60,5 @@ while IFS= read -r RESULT; do
 	mv "$TMP_RESULTS.result" "$TMP_RESULTS"
 done <"$TMP_FILES"
 
+# And now we'll sort out the entries within each key
 jq '.folders |= (to_entries | sort_by(.key) | from_entries)' "$TMP_RESULTS" >"$RESULTS_JSON"

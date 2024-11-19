@@ -1,7 +1,7 @@
 {
   "generic": {
     "Back": "Назад",
-    "Clear": "Clear",
+    "Clear": "Очистить",
     "Directory": "Папка",
     "Disabled": "Выкл",
     "Enabled": "Вкл",
@@ -181,8 +181,8 @@
   "muxoption": {
     "Assign Core": "Присвоить ядро",
     "CONTENT OPTION": "НАСТРОЙКА ПРИЛОЖЕНИЙ",
-    "Search Content": "Search Content",
-    "Search for content within the selected directory": "Search for content within the selected directory",
+    "Search Content": "Поиск",
+    "Search for content within the selected directory": "Поиск приложений в выбранной папке",
     "Set the CPU governor for the selected content or directory": "Настройка говернора процессора для выбранного приложения или папки",
     "Set the system core or external emulator for the selected content or directory": "Выберите ядро или внешний эмулятор для выбранного приложения или папки",
     "System Governor": "Системный говернор"
@@ -249,14 +249,14 @@
     "Year": "Год"
   },
   "muxsearch": {
-    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
-    "Lookup": "Lookup",
-    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
-    "SEARCH CONTENT": "SEARCH CONTENT",
-    "Search Global": "Search Global",
-    "Search Local": "Search Local",
-    "Search all current active storage devices": "Search all current active storage devices",
-    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
+    "Enter in the name of the content you are looking for": "Введите имя приложения",
+    "Lookup": "Поиск",
+    "Lookup has to be 3 characters or more!": "Запрос должен содержать минимум 3 символа!",
+    "SEARCH CONTENT": "ПОИСК ПРИЛОЖЕНИЙ",
+    "Search Global": "Глобальный поиск",
+    "Search Local": "Локальный поиск",
+    "Search all current active storage devices": "Поиск во всех текущих устройствах хранения данных",
+    "Search within the current selected folder and folders within": "Поиск в текущей выбранной папке и папках внутри"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Назначенное ядро/говернор системы",

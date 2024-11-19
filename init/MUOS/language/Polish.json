@@ -1,7 +1,7 @@
 {
   "generic": {
     "Back": "Wróć",
-    "Clear": "Clear",
+    "Clear": "Wyczyść",
     "Directory": "Katalog",
     "Disabled": "Wyłączony",
     "Enabled": "Włączony",
@@ -181,8 +181,8 @@
   "muxoption": {
     "Assign Core": "Przypisz rdzeń",
     "CONTENT OPTION": "OPCJE ZAWARTOŚCI",
-    "Search Content": "Search Content",
-    "Search for content within the selected directory": "Search for content within the selected directory",
+    "Search Content": "Szukaj zawartości",
+    "Search for content within the selected directory": "Szukaj zawartości w wybranym folderze",
     "Set the CPU governor for the selected content or directory": "Ustaw regulator CPU dla wybranej zawartości lub folderu",
     "Set the system core or external emulator for the selected content or directory": "Ustaw rdzeń lub zewnętrzny emulator dla wybranej zawartości lub folderu",
     "System Governor": "Regulator systemu"
@@ -249,14 +249,14 @@
     "Year": "Rok"
   },
   "muxsearch": {
-    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
-    "Lookup": "Lookup",
-    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
-    "SEARCH CONTENT": "SEARCH CONTENT",
-    "Search Global": "Search Global",
-    "Search Local": "Search Local",
-    "Search all current active storage devices": "Search all current active storage devices",
-    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
+    "Enter in the name of the content you are looking for": "Wpisz nazwę zawartości, której szukasz",
+    "Lookup": "Zapytanie",
+    "Lookup has to be 3 characters or more!": "Zapytanie musi mieć 3 znaki lub więcej!",
+    "SEARCH CONTENT": "SZUKAJ ZAWARTOŚCI",
+    "Search Global": "Szukaj globalnie",
+    "Search Local": "Szukaj lokalnie",
+    "Search all current active storage devices": "Wyszukaj we wszystkich aktywnych urządzeniach przechowywania",
+    "Search within the current selected folder and folders within": "Wyszukaj w wybranym folderze i folderach wewnątrz"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Przypisany rdzeń/system regulatora",

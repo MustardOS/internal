@@ -1,7 +1,7 @@
 {
   "generic": {
     "Back": "Zpět",
-    "Clear": "Clear",
+    "Clear": "Čistý",
     "Directory": "Adresář",
     "Disabled": "Zakázáno",
     "Enabled": "Povoleno",
@@ -181,8 +181,8 @@
   "muxoption": {
     "Assign Core": "Přiřadit Core",
     "CONTENT OPTION": "MOŽNOST OBSAHU",
-    "Search Content": "Search Content",
-    "Search for content within the selected directory": "Search for content within the selected directory",
+    "Search Content": "Hledat obsah",
+    "Search for content within the selected directory": "Vyhledejte obsah ve vybraném adresáři",
     "Set the CPU governor for the selected content or directory": "Nastavte regulátor CPU pro vybraný obsah nebo adresář",
     "Set the system core or external emulator for the selected content or directory": "Nastavte jádro systému nebo externí emulátor pro vybraný obsah nebo adresář",
     "System Governor": "Regulátor systému"
@@ -249,14 +249,14 @@
     "Year": "Rok"
   },
   "muxsearch": {
-    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
-    "Lookup": "Lookup",
-    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
-    "SEARCH CONTENT": "SEARCH CONTENT",
-    "Search Global": "Search Global",
-    "Search Local": "Search Local",
-    "Search all current active storage devices": "Search all current active storage devices",
-    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
+    "Enter in the name of the content you are looking for": "Zadejte název obsahu, který hledáte",
+    "Lookup": "Vyhledávání",
+    "Lookup has to be 3 characters or more!": "Vyhledávání musí mít 3 nebo více znaků!",
+    "SEARCH CONTENT": "HLEDAT OBSAH",
+    "Search Global": "Hledat globálně",
+    "Search Local": "Hledat Místní",
+    "Search all current active storage devices": "Prohledejte všechna aktuální aktivní úložná zařízení",
+    "Search within the current selected folder and folders within": "Hledat v aktuálně vybrané složce a složkách uvnitř"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Přiřazené jádro/Regulátor systému",

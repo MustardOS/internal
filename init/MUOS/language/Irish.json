@@ -1,7 +1,7 @@
 {
   "generic": {
     "Back": "Ar ais",
-    "Clear": "Clear",
+    "Clear": "Glan",
     "Directory": "Comhadlann",
     "Disabled": "Díchumasaithe",
     "Enabled": "Cumasaithe",
@@ -181,8 +181,8 @@
   "muxoption": {
     "Assign Core": "Tabhair Croí",
     "CONTENT OPTION": "ROGHA INNEACHAIR",
-    "Search Content": "Search Content",
-    "Search for content within the selected directory": "Search for content within the selected directory",
+    "Search Content": "Cuardaigh Ábhar",
+    "Search for content within the selected directory": "Cuardaigh inneachar laistigh den eolaire roghnaithe",
     "Set the CPU governor for the selected content or directory": "Socraigh gobharnóir an LAP don inneachar nó don chomhadlann roghnaithe",
     "Set the system core or external emulator for the selected content or directory": "Socraigh croí an chórais nó aithriseoir seachtrach don inneachar nó don chomhadlann roghnaithe",
     "System Governor": "Gobharnóir an Chórais"
@@ -249,14 +249,14 @@
     "Year": "Bliain"
   },
   "muxsearch": {
-    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
-    "Lookup": "Lookup",
-    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
-    "SEARCH CONTENT": "SEARCH CONTENT",
-    "Search Global": "Search Global",
-    "Search Local": "Search Local",
-    "Search all current active storage devices": "Search all current active storage devices",
-    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
+    "Enter in the name of the content you are looking for": "Cuir isteach in ainm an ábhair atá á lorg agat",
+    "Lookup": "Cuardach",
+    "Lookup has to be 3 characters or more!": "Caithfidh 3 charachtar nó níos mó a bheith i gcuardach!",
+    "SEARCH CONTENT": "ÁBHAR CUARDACH",
+    "Search Global": "Cuardach Domhanda",
+    "Search Local": "Cuardach Áitiúil",
+    "Search all current active storage devices": "Cuardaigh gach gléas stórála gníomhach reatha",
+    "Search within the current selected folder and folders within": "Cuardaigh laistigh den fhillteán roghnaithe reatha agus fillteáin laistigh"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Córas Croí/Gobharnóir Sannta",

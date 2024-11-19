@@ -1,6 +1,7 @@
 {
   "generic": {
     "Back": "戻る",
+    "Clear": "Clear",
     "Directory": "ディレクトリごと指定",
     "Disabled": "無効",
     "Enabled": "有効",
@@ -180,6 +181,8 @@
   "muxoption": {
     "Assign Core": "コアを設定する",
     "CONTENT OPTION": "CONTENT OPTION",
+    "Search Content": "Search Content",
+    "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "選択したコンテンツまたはディレクトリに CPU ガナバーを設定します",
     "Set the system core or external emulator for the selected content or directory": "選択したコンテンツまたはディレクトリにコアまたは個別のエミュレーターを設定します。",
     "System Governor": "システムガバナー"
@@ -244,6 +247,16 @@
     "Set Timezone": "タイムゾーン設定",
     "Time Notation": "時間表記",
     "Year": "年"
+  },
+  "muxsearch": {
+    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
+    "Lookup": "Lookup",
+    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
+    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Search Global": "Search Global",
+    "Search Local": "Search Local",
+    "Search all current active storage devices": "Search all current active storage devices",
+    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Assigned Core/Governor System",
@@ -342,6 +355,7 @@
     "Change the default brightness level that the device will use each time it starts up": "毎回デバイスを起動する際の画面の明るさを設定します",
     "Change the default theme used for the next device launch": "次回起動時に使用するテーマを設定します",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "バッテリー残量表示の精度を向上させるために\n較正やデバイス個別の偏差値に基づいて修正します",
+    "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "デバイスを振動",
     "HDMI Audio Output": "HDMI 音声出力",
     "High": "明るい",
@@ -371,6 +385,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "ネットワークに接続するまで RetroArch の起動を待機します",
     "Toggle between ADB and MTP USB functionality": "USB の挙動を ADB と MTP で切り替えます",
     "Toggle startup and shutdown verbose messages used for debugging faults": "システムの起動・終了時の詳細表示を切り替えます\n（デバッグ用途）",
+    "Toggle the functionality of the power button to switch DPAD mode": "Toggle the functionality of the power button to switch DPAD mode",
     "Toggle the functionality of the user initialisation scripts on device startup": "Toggle the functionality of the user initialisation scripts on device startup",
     "Toggle the passcode lock - More information can be found on the muOS website": "パスコードロックを切り替えます\n詳細は muOS のホームページをご覧ください",
     "Toggle the power LED during content launch": "コンテンツ起動中の LED 点灯を切り替えます",
@@ -500,10 +515,12 @@
     "SFTP + Filebrowser": "SFTP + ファイルブラウザ",
     "Secure Shell": "Secure Shell (SSH)",
     "Syncthing": "Syncthing",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "Resilio を切り替えます - 6060番ポートでWebUIに接続してください",
     "Toggle SFTP support - WebUI can be found on port 9090": "SFTP を切り替えます - 9090番ポートからWebUIに接続してください",
     "Toggle SSH support - Access via port 22": "SSH を切り替えます - 22番ポートで接続してください",
     "Toggle Syncthing - WebUI can be found on port 7070": "Syncthing を切り替えます - 7070番ポートでWebUIに接続してください",
+    "Toggle Tailscale - Need to login via SSH first": "Toggle Tailscale - Need to login via SSH first",
     "Toggle network time protocol for active network connections": "有効なネットワーク使用時に\nネットワークタイムサーバーに接続します",
     "Toggle virtual terminal - WebUI can be found on port 8080": "仮想ターミナルを切り替えます - 8080番ポートで接続してください",
     "Virtual Terminal": "仮想ターミナル",

@@ -1,6 +1,7 @@
 {
   "generic": {
     "Back": "Voltar",
+    "Clear": "Clear",
     "Directory": "Directório",
     "Disabled": "Desativado",
     "Enabled": "Ativado",
@@ -180,6 +181,8 @@
   "muxoption": {
     "Assign Core": "Atribuir Core",
     "CONTENT OPTION": "CONTENT OPTION",
+    "Search Content": "Search Content",
+    "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Defina o controlador do CPU para o conteúdo ou diretório selecionado.",
     "Set the system core or external emulator for the selected content or directory": "Defina o núcleo do sistema ou emulador externo para o conteúdo ou diretório selecionado.",
     "System Governor": "Controlador do sistema"
@@ -244,6 +247,16 @@
     "Set Timezone": "Definir Fuso Horário",
     "Time Notation": "Notação de Hora",
     "Year": "Ano"
+  },
+  "muxsearch": {
+    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
+    "Lookup": "Lookup",
+    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
+    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Search Global": "Search Global",
+    "Search Local": "Search Local",
+    "Search all current active storage devices": "Search all current active storage devices",
+    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Assigned Core/Governor System",
@@ -342,6 +355,7 @@
     "Change the default brightness level that the device will use each time it starts up": "Altere o nível de brilho padrão que o dispositivo irá utilizar sempre que for inicializado.",
     "Change the default theme used for the next device launch": "Altere o tema padrão utilizado na próxima inicialização do dispositivo.",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Altere a percentagem apresentada da bateria para melhorar a precisão com base na calibração ou em desvios conhecidos na leitura da capacidade da bateria.",
+    "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "Vibração do equipamento",
     "HDMI Audio Output": "Saída de áudio HDMI",
     "High": "Alto",
@@ -371,6 +385,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Alterne o início atrasado do RetroArch até que seja estabelecida uma ligação de rede.",
     "Toggle between ADB and MTP USB functionality": "Alternar entre a funcionalidade ADB e MTP USB.",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Alternar mensagens detalhadas de inicialização e desligamento usadas para depuração de falhas.",
+    "Toggle the functionality of the power button to switch DPAD mode": "Toggle the functionality of the power button to switch DPAD mode",
     "Toggle the functionality of the user initialisation scripts on device startup": "Toggle the functionality of the user initialisation scripts on device startup",
     "Toggle the passcode lock - More information can be found on the muOS website": "Alterne o bloqueio por palavra-passe. Mais informações podem ser encontradas no site do muOS.",
     "Toggle the power LED during content launch": "Alterne o LED de alimentação durante a inicialização do conteúdo.",
@@ -500,10 +515,12 @@
     "SFTP + Filebrowser": "SFTP + Explorador de Ficheiros",
     "Secure Shell": "Shell Seguro",
     "Syncthing": "Syncthing",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "Toggle Resilio - WebUI can be found on port 6060",
     "Toggle SFTP support - WebUI can be found on port 9090": "Toggle SFTP support - WebUI can be found on port 9090",
     "Toggle SSH support - Access via port 22": "Toggle SSH support - Access via port 22",
     "Toggle Syncthing - WebUI can be found on port 7070": "Toggle Syncthing - WebUI can be found on port 7070",
+    "Toggle Tailscale - Need to login via SSH first": "Toggle Tailscale - Need to login via SSH first",
     "Toggle network time protocol for active network connections": "Toggle network time protocol for active network connections",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Toggle virtual terminal - WebUI can be found on port 8080",
     "Virtual Terminal": "Terminal Virtual",

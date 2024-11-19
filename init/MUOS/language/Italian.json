@@ -1,6 +1,7 @@
 {
   "generic": {
     "Back": "Indietro",
+    "Clear": "Clear",
     "Directory": "Cartella",
     "Disabled": "Disabilitato",
     "Enabled": "Abilitato",
@@ -180,6 +181,8 @@
   "muxoption": {
     "Assign Core": "Assegna Core",
     "CONTENT OPTION": "OPZIONI CONTENUTO",
+    "Search Content": "Search Content",
+    "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Imposta il governor della CPU per il contenuto o la directory selezionati",
     "Set the system core or external emulator for the selected content or directory": "Imposta il core di sistema o l'emulatore esterno per il contenuto o la directory selezionati",
     "System Governor": "Governor di Sistema"
@@ -244,6 +247,16 @@
     "Set Timezone": "Imposta Fuso Orario",
     "Time Notation": "Formato dell'Ora",
     "Year": "Anno"
+  },
+  "muxsearch": {
+    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
+    "Lookup": "Lookup",
+    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
+    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Search Global": "Search Global",
+    "Search Local": "Search Local",
+    "Search all current active storage devices": "Search all current active storage devices",
+    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Core assegnato/Governor di Sistema",
@@ -342,6 +355,7 @@
     "Change the default brightness level that the device will use each time it starts up": "Cambia il livello di luminosità predefinito che il dispositivo utilizzerà ogni volta che si avvia",
     "Change the default theme used for the next device launch": "Cambia il tema predefinito utilizzato per il prossimo avvio del dispositivo",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Cambia la percentuale di batteria visualizzata per migliorare l'accuratezza basata sulla calibrazione o sulle deviazioni note nella lettura della capacità della batteria",
+    "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "Vibrazione del Dispositivo",
     "HDMI Audio Output": "Uscita Audio HDMI",
     "High": "Alto",
@@ -371,6 +385,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Attiva/disattiva l'avvio ritardato di RetroArch fino a quando non viene stabilita una connessione di rete",
     "Toggle between ADB and MTP USB functionality": "Cambia tra la funzionalità USB ADB e MTP",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Attiva/disattiva i messaggi dettagliati di avvio e spegnimento utilizzati per il debug degli errori",
+    "Toggle the functionality of the power button to switch DPAD mode": "Toggle the functionality of the power button to switch DPAD mode",
     "Toggle the functionality of the user initialisation scripts on device startup": "Attiva/disattiva la funzionalità degli script di inizializzazione utente all'avvio del dispositivo",
     "Toggle the passcode lock - More information can be found on the muOS website": "Attiva/disattiva il blocco con codice di accesso - Maggiori informazioni possono essere trovate sul sito di muOS",
     "Toggle the power LED during content launch": "Attiva/disattiva il LED di alimentazione durante il lancio del contenuto",
@@ -500,10 +515,12 @@
     "SFTP + Filebrowser": "SFTP + Filebrowser",
     "Secure Shell": "Secure Shell",
     "Syncthing": "Syncthing",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "Attiva/disattiva Resilio - L'interfaccia WebUI è disponibile sulla porta 6060",
     "Toggle SFTP support - WebUI can be found on port 9090": "Attiva/disattiva il supporto SFTP - L'interfaccia WebUI è disponibile sulla porta 9090",
     "Toggle SSH support - Access via port 22": "Attiva/disattiva il supporto SSH - Accesso tramite la porta 22",
     "Toggle Syncthing - WebUI can be found on port 7070": "Attiva/disattiva Syncthing - L'interfaccia WebUI è disponibile sulla porta 7070",
+    "Toggle Tailscale - Need to login via SSH first": "Toggle Tailscale - Need to login via SSH first",
     "Toggle network time protocol for active network connections": "Attiva/disattiva il protocollo di tempo di rete per le connessioni di rete attive",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Attiva/disattiva il terminale virtuale - L'interfaccia WebUI è disponibile sulla porta 8080",
     "Virtual Terminal": "Terminale Virtuale",

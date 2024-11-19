@@ -1,6 +1,7 @@
 {
   "generic": {
     "Back": "Retour",
+    "Clear": "Clear",
     "Directory": "Répertoire",
     "Disabled": "Désactivé",
     "Enabled": "Activé",
@@ -163,7 +164,7 @@
     "Network Active": "Réseau actif",
     "Network Disabled": "Réseau désactivé",
     "Network Type": "Type de réseau",
-    "No Password Detected...": "No Password Detected…",
+    "No Password Detected...": "Aucun mot de passe détecté…",
     "Not Connected": "Non connecté",
     "Password": "Mot de passe",
     "Please check network settings": "Veuillez vérifier les paramètres réseau",
@@ -180,6 +181,8 @@
   "muxoption": {
     "Assign Core": "Assigner un émulateur",
     "CONTENT OPTION": "OPTION DU CONTENU",
+    "Search Content": "Search Content",
+    "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Définissez le gouverneur du processeur pour le contenu ou le répertoire sélectionné",
     "Set the system core or external emulator for the selected content or directory": "Définissez l'émulateur principal ou externe pour le contenu ou le répertoire sélectionné",
     "System Governor": "Gouverneur système"
@@ -244,6 +247,16 @@
     "Set Timezone": "Régler le fuseau horaire",
     "Time Notation": "Affichage de l'heure",
     "Year": "Année"
+  },
+  "muxsearch": {
+    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
+    "Lookup": "Lookup",
+    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
+    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Search Global": "Search Global",
+    "Search Local": "Search Local",
+    "Search all current active storage devices": "Search all current active storage devices",
+    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Émulateurs/Gouverneurs systèmes assignés",
@@ -342,6 +355,7 @@
     "Change the default brightness level that the device will use each time it starts up": "Modifiez le niveau de luminosité par défaut que la console utilisera à chaque démarrage",
     "Change the default theme used for the next device launch": "Modifiez le thème par défaut utilisé pour le prochain lancement de la console",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Modifiez le pourcentage de batterie affiché pour améliorer la précision en fonction de l'étalonnage ou des écarts connus dans la lecture de la capacité de la batterie",
+    "DPAD Swap Function": "Fonctionnalité de bascule DPAD",
     "Device Rumble": "Vibration de la console",
     "HDMI Audio Output": "Sortie audio HDMI",
     "High": "Haute",
@@ -371,6 +385,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Activez/désactivez un démarrage différé de RetroArch jusqu'à ce qu'une connexion réseau soit établie",
     "Toggle between ADB and MTP USB functionality": "Basculez entre les fonctionnalités USB ADB et MTP",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Activez/désactivez les messages détaillés de démarrage et d'arrêt utilisés pour le débogage des erreurs",
+    "Toggle the functionality of the power button to switch DPAD mode": "Activez/désactivez la fonctionnalité du bouton d'alimentation pour changer le mode DPAD",
     "Toggle the functionality of the user initialisation scripts on device startup": "Activez/désactivez la fonctionnalité des scripts d'initialisation utilisateur au démarrage de la console",
     "Toggle the passcode lock - More information can be found on the muOS website": "Activez/désactivez le verrouillage par mot de passe. Plus d’informations peuvent être trouvées sur le site Web de muOS",
     "Toggle the power LED during content launch": "Activez/désactivez le voyant d'alimentation pendant le lancement du contenu",
@@ -500,10 +515,12 @@
     "SFTP + Filebrowser": "SFTP + Navigateur de fichiers",
     "Secure Shell": "Shell sécurisé",
     "Syncthing": "Syncthing",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "Activez/désactivez Resilio - WebUI peut être trouvé sur le port 6060",
     "Toggle SFTP support - WebUI can be found on port 9090": "Activez/désactivez la prise en charge SFTP - WebUI peut être trouvé sur le port 9090",
     "Toggle SSH support - Access via port 22": "Activez/désactivez la prise en charge de SSH - Accès via le port 22",
     "Toggle Syncthing - WebUI can be found on port 7070": "Activez/désactivez Syncthing - WebUI peut être trouvé sur le port 7070",
+    "Toggle Tailscale - Need to login via SSH first": "Activez/désactivez Tailscale - Vous devez d'abord vous connecter via SSH",
     "Toggle network time protocol for active network connections": "Activez/désactivez le protocole d’heure réseau pour les connexions réseau actives",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Activez/désactivez le terminal virtuel - WebUI se trouve sur le port 8080",
     "Virtual Terminal": "Terminal virtuel",

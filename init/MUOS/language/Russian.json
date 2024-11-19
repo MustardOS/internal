@@ -1,6 +1,7 @@
 {
   "generic": {
     "Back": "Назад",
+    "Clear": "Clear",
     "Directory": "Папка",
     "Disabled": "Выкл",
     "Enabled": "Вкл",
@@ -163,7 +164,7 @@
     "Network Active": "Активность сети",
     "Network Disabled": "Сеть отключена",
     "Network Type": "Тип сети",
-    "No Password Detected...": "No Password Detected…",
+    "No Password Detected...": "Пароль не обнаружен…",
     "Not Connected": "Не подключено",
     "Password": "Пароль",
     "Please check network settings": "Проверьте настройки сети",
@@ -180,6 +181,8 @@
   "muxoption": {
     "Assign Core": "Присвоить ядро",
     "CONTENT OPTION": "НАСТРОЙКА ПРИЛОЖЕНИЙ",
+    "Search Content": "Search Content",
+    "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Настройка говернора процессора для выбранного приложения или папки",
     "Set the system core or external emulator for the selected content or directory": "Выберите ядро или внешний эмулятор для выбранного приложения или папки",
     "System Governor": "Системный говернор"
@@ -244,6 +247,16 @@
     "Set Timezone": "Часовой пояс",
     "Time Notation": "Формат времени",
     "Year": "Год"
+  },
+  "muxsearch": {
+    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
+    "Lookup": "Lookup",
+    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
+    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Search Global": "Search Global",
+    "Search Local": "Search Local",
+    "Search all current active storage devices": "Search all current active storage devices",
+    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Назначенное ядро/говернор системы",
@@ -342,6 +355,7 @@
     "Change the default brightness level that the device will use each time it starts up": "Уровень яркости по умолчанию, который будет выбран при каждом запуске устройства",
     "Change the default theme used for the next device launch": "Изменение темы по умолчанию, используемой при следующем запуске устройства",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Корректировка отображаемого процента заряда аккумулятора на основе калибровки или других известных отклонений в показаниях",
+    "DPAD Swap Function": "Эмуляция аналогового стика",
     "Device Rumble": "Вибрация",
     "HDMI Audio Output": "Аудиовыход HDMI",
     "High": "Максимальный",
@@ -371,6 +385,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Настройка отложенного запуска RetroArch до установления сетевого соединения",
     "Toggle between ADB and MTP USB functionality": "Переключение между функциями ADB и MTP USB",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Настройка подробных сообщений при запуске и завершении работы системы, используемых для отладки",
+    "Toggle the functionality of the power button to switch DPAD mode": "Переключение режима работы крестовины (DPAD/аналоговый стик) при нажатии на кнопку питания",
     "Toggle the functionality of the user initialisation scripts on device startup": "Настройка работы пользовательских скриптов инициализации при запуске устройства",
     "Toggle the passcode lock - More information can be found on the muOS website": "Включение блокировки паролем (дополнительную информацию можно найти на веб-сайте muOS)",
     "Toggle the power LED during content launch": "Настройка светодиода питания во время запуска приложений",
@@ -500,10 +515,12 @@
     "SFTP + Filebrowser": "SFTP + Файловый менеджер",
     "Secure Shell": "Secure Shell",
     "Syncthing": "Syncthing",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "Настройка Resilio (WebUI через порт 6060)",
     "Toggle SFTP support - WebUI can be found on port 9090": "Настройка доступности SFTP (WebUI через порт 9090)",
     "Toggle SSH support - Access via port 22": "Настройка доступности SSH (доступ через порт 22)",
     "Toggle Syncthing - WebUI can be found on port 7070": "Настройка Syncthing (WebUI через порт 7070)",
+    "Toggle Tailscale - Need to login via SSH first": "Включение Tailscale (сначала необходимо залогиниться через SSH)",
     "Toggle network time protocol for active network connections": "Настройка протокола сетевого времени для активных сетевых соединений",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Настройка виртуального терминала (WebUI через порт 8080)",
     "Virtual Terminal": "Виртуальный терминал",

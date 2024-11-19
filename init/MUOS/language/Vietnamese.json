@@ -1,6 +1,7 @@
 {
   "generic": {
     "Back": "Quay lại",
+    "Clear": "Clear",
     "Directory": "Thư mục",
     "Disabled": "Tắt",
     "Enabled": "Bật",
@@ -180,6 +181,8 @@
   "muxoption": {
     "Assign Core": "Gán Lõi",
     "CONTENT OPTION": "CONTENT OPTION",
+    "Search Content": "Search Content",
+    "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Set the CPU governor for the selected content or directory",
     "Set the system core or external emulator for the selected content or directory": "Set the system core or external emulator for the selected content or directory",
     "System Governor": "System Governor"
@@ -244,6 +247,16 @@
     "Set Timezone": "Đặt múi giờ",
     "Time Notation": "Định dạng giờ",
     "Year": "Năm"
+  },
+  "muxsearch": {
+    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
+    "Lookup": "Lookup",
+    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
+    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Search Global": "Search Global",
+    "Search Local": "Search Local",
+    "Search all current active storage devices": "Search all current active storage devices",
+    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Assigned Core/Governor System",
@@ -342,6 +355,7 @@
     "Change the default brightness level that the device will use each time it starts up": "Change the default brightness level that the device will use each time it starts up",
     "Change the default theme used for the next device launch": "Change the default theme used for the next device launch",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading",
+    "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "Device Rumble",
     "HDMI Audio Output": "HDMI Audio Output",
     "High": "Cao",
@@ -371,6 +385,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Toggle a delayed start of RetroArch until a network connection is established",
     "Toggle between ADB and MTP USB functionality": "Chuyển đổi tính năng kết nối USB giữa ADB và MTP",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Toggle startup and shutdown verbose messages used for debugging faults",
+    "Toggle the functionality of the power button to switch DPAD mode": "Toggle the functionality of the power button to switch DPAD mode",
     "Toggle the functionality of the user initialisation scripts on device startup": "Toggle the functionality of the user initialisation scripts on device startup",
     "Toggle the passcode lock - More information can be found on the muOS website": "Toggle the passcode lock - More information can be found on the muOS website",
     "Toggle the power LED during content launch": "Toggle the power LED during content launch",
@@ -500,10 +515,12 @@
     "SFTP + Filebrowser": "SFTP + Filebrowser",
     "Secure Shell": "Secure Shell",
     "Syncthing": "Đồng bộ hóa",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "Toggle Resilio - WebUI có thể truy cập ở port 6060",
     "Toggle SFTP support - WebUI can be found on port 9090": "Toggle SFTP support - WebUI có thể truy cập ở port 9090",
     "Toggle SSH support - Access via port 22": "Toggle SSH support - Truy cập qua port 22",
     "Toggle Syncthing - WebUI can be found on port 7070": "Toggle Syncthing - WebUI có thể truy cập ở port 7070",
+    "Toggle Tailscale - Need to login via SSH first": "Toggle Tailscale - Need to login via SSH first",
     "Toggle network time protocol for active network connections": "Toggle network time protocol for active network connections",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Toggle virtual terminal - WebUI có thể truy cập ở port 8080",
     "Virtual Terminal": "Terminal ảo",

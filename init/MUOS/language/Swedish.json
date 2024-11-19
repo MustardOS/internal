@@ -1,6 +1,7 @@
 {
   "generic": {
     "Back": "Tillbaka",
+    "Clear": "Clear",
     "Directory": "Katalog",
     "Disabled": "Inaktiverad",
     "Enabled": "Aktiverad",
@@ -180,6 +181,8 @@
   "muxoption": {
     "Assign Core": "Tilldela Kärna",
     "CONTENT OPTION": "CONTENT OPTION",
+    "Search Content": "Search Content",
+    "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Ställ in CPU-regleraren för det valda innehållet eller katalogen.",
     "Set the system core or external emulator for the selected content or directory": "Ställ in systemkärnan eller extern emulator för det valda innehållet eller katalogen.",
     "System Governor": "Systemreglerare"
@@ -244,6 +247,16 @@
     "Set Timezone": "Ställ in tidszon",
     "Time Notation": "Tidsnotering",
     "Year": "År"
+  },
+  "muxsearch": {
+    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
+    "Lookup": "Lookup",
+    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
+    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Search Global": "Search Global",
+    "Search Local": "Search Local",
+    "Search all current active storage devices": "Search all current active storage devices",
+    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Assigned Core/Governor System",
@@ -342,6 +355,7 @@
     "Change the default brightness level that the device will use each time it starts up": "Ändra den förvalda ljusstyrkan som enheten kommer att använda vid varje start.",
     "Change the default theme used for the next device launch": "Ändra det förvalda temat som används vid nästa enhetsstart.",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Ändra den visade batteriprocenten för att förbättra noggrannheten baserat på kalibrering eller kända avvikelser i batterikapacitetsavläsningen.",
+    "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "Enhetsvibration",
     "HDMI Audio Output": "HDMI Ljudutgång",
     "High": "Hög",
@@ -371,6 +385,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Växla en fördröjd start av RetroArch tills en nätverksanslutning är upprättad.",
     "Toggle between ADB and MTP USB functionality": "Växla mellan ADB- och MTP USB-funktionalitet.",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Växla start- och avstängningsmeddelanden som används för felsökning.",
+    "Toggle the functionality of the power button to switch DPAD mode": "Toggle the functionality of the power button to switch DPAD mode",
     "Toggle the functionality of the user initialisation scripts on device startup": "Toggle the functionality of the user initialisation scripts on device startup",
     "Toggle the passcode lock - More information can be found on the muOS website": "Växla lösenkodslåset - Mer information finns på muOS-webbplatsen.",
     "Toggle the power LED during content launch": "Växla ström-LED under innehållsstart.",
@@ -500,10 +515,12 @@
     "SFTP + Filebrowser": "SFTP + Filbläddrare",
     "Secure Shell": "Secure Shell",
     "Syncthing": "Syncthing",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "Växla Resilio - WebUI finns på port 6060",
     "Toggle SFTP support - WebUI can be found on port 9090": "Växla SFTP-stöd - WebUI finns på port 9090",
     "Toggle SSH support - Access via port 22": "Växla SSH-stöd - Åtkomst via port 22",
     "Toggle Syncthing - WebUI can be found on port 7070": "Växla Syncthing - WebUI finns på port 7070",
+    "Toggle Tailscale - Need to login via SSH first": "Toggle Tailscale - Need to login via SSH first",
     "Toggle network time protocol for active network connections": "Växla nätverkstidsprotokoll för aktiva nätverksanslutningar.",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Växla virtuell terminal - WebUI finns på port 8080",
     "Virtual Terminal": "Virtuell Terminal",

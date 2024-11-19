@@ -1,6 +1,7 @@
 {
   "generic": {
     "Back": "Wróć",
+    "Clear": "Clear",
     "Directory": "Katalog",
     "Disabled": "Wyłączony",
     "Enabled": "Włączony",
@@ -163,7 +164,7 @@
     "Network Active": "Sieć aktywna",
     "Network Disabled": "Sieć wyłączona",
     "Network Type": "Typ sieci",
-    "No Password Detected...": "No Password Detected…",
+    "No Password Detected...": "Nie wykryto hasła…",
     "Not Connected": "Nie połączono",
     "Password": "Hasło",
     "Please check network settings": "Sprawdź ustawienia sieciowe",
@@ -180,6 +181,8 @@
   "muxoption": {
     "Assign Core": "Przypisz rdzeń",
     "CONTENT OPTION": "OPCJE ZAWARTOŚCI",
+    "Search Content": "Search Content",
+    "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Ustaw regulator CPU dla wybranej zawartości lub folderu",
     "Set the system core or external emulator for the selected content or directory": "Ustaw rdzeń lub zewnętrzny emulator dla wybranej zawartości lub folderu",
     "System Governor": "Regulator systemu"
@@ -244,6 +247,16 @@
     "Set Timezone": "Ustaw strefę czasową",
     "Time Notation": "Zapis czasu",
     "Year": "Rok"
+  },
+  "muxsearch": {
+    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
+    "Lookup": "Lookup",
+    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
+    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Search Global": "Search Global",
+    "Search Local": "Search Local",
+    "Search all current active storage devices": "Search all current active storage devices",
+    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Przypisany rdzeń/system regulatora",
@@ -342,6 +355,7 @@
     "Change the default brightness level that the device will use each time it starts up": "Zmień domyślny poziom jasności przy uruchomieniu urządzenia",
     "Change the default theme used for the next device launch": "Zmień domyślny motyw przy następnym uruchomieniu urządzenia",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Zmień wyświetlany poziom procentowy baterii, by zwiększyć dokładność na podstawie kalibracji lub znanych odchyleń w odczycie pojemności",
+    "DPAD Swap Function": "Funkcja zamiany DPADa",
     "Device Rumble": "Wibracje urządzenia",
     "HDMI Audio Output": "Wyjście audio HDMI",
     "High": "Wysoka",
@@ -371,6 +385,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Włącz opóźnienie uruchomienia RetroArcha do momentu połączenia z siecią",
     "Toggle between ADB and MTP USB functionality": "Wybierz między ADB, a MTP USB",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Włącz pełne wiadomości systemu podczas uruchamiania i zamykania dla debuggowania błędów",
+    "Toggle the functionality of the power button to switch DPAD mode": "Włącz funkcjonalność przycisku POWER, by zmieniać tryby DPADa",
     "Toggle the functionality of the user initialisation scripts on device startup": "Włącz funkcjonalność skryptów inicjalizacji użytkownika podczas uruchamiania",
     "Toggle the passcode lock - More information can be found on the muOS website": "Włącz blokowanie hasłem - Więcej informacji znajdziesz na stronie muOS",
     "Toggle the power LED during content launch": "Włącz diodę LED podczas uruchamiania zawartości",
@@ -500,10 +515,12 @@
     "SFTP + Filebrowser": "SFTP + Przeglądarka plików",
     "Secure Shell": "Secure Shell (SSH)",
     "Syncthing": "Syncthing",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "Włącz Resilio - WebUI można znaleźć na porcie 6060",
     "Toggle SFTP support - WebUI can be found on port 9090": "Włącz SFTP - WebUI można znaleźć na porcie 9090",
     "Toggle SSH support - Access via port 22": "Włącz SSH - Dostęp przez port 22",
     "Toggle Syncthing - WebUI can be found on port 7070": "Włącz Syncthing - WebUI można znaleźć na porcie 7070",
+    "Toggle Tailscale - Need to login via SSH first": "Włącz Tailscale - Trzeba najpierw zalogować się przez SSH",
     "Toggle network time protocol for active network connections": "Włącz protokół czasu sieciowego dla aktywnych połączeń sieciowych",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Włącz wirtualny terminal - WebUI można znaleźć na porcie 8080",
     "Virtual Terminal": "Wirtualny terminal",

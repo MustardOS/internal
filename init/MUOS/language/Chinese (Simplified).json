@@ -1,6 +1,7 @@
 {
   "generic": {
     "Back": "返回",
+    "Clear": "Clear",
     "Directory": "目录",
     "Disabled": "关闭",
     "Enabled": "开启",
@@ -163,7 +164,7 @@
     "Network Active": "网络已启用",
     "Network Disabled": "网络已关闭",
     "Network Type": "网络类型",
-    "No Password Detected...": "No Password Detected…",
+    "No Password Detected...": "未检测到密码…",
     "Not Connected": "未连接",
     "Password": "密码",
     "Please check network settings": "请检查网络设置",
@@ -180,6 +181,8 @@
   "muxoption": {
     "Assign Core": "分配核心",
     "CONTENT OPTION": "内容选项",
+    "Search Content": "Search Content",
+    "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "为选中的内容或文件夹设置CPU调度方案",
     "Set the system core or external emulator for the selected content or directory": "为选中的内容或文件夹分配RetroArch核心或独立模拟器",
     "System Governor": "系统调度方案"
@@ -244,6 +247,16 @@
     "Set Timezone": "设置时区",
     "Time Notation": "时间格式",
     "Year": "年"
+  },
+  "muxsearch": {
+    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
+    "Lookup": "Lookup",
+    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
+    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Search Global": "Search Global",
+    "Search Local": "Search Local",
+    "Search all current active storage devices": "Search all current active storage devices",
+    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "分配核心/调度方案系统",
@@ -342,6 +355,7 @@
     "Change the default brightness level that the device will use each time it starts up": "设置开机时的默认亮度",
     "Change the default theme used for the next device launch": "设置是否下次开机时更换默认主题",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "设置电池容量计数偏移值以满足对电池容量的准确计数",
+    "DPAD Swap Function": "方向键交换功能",
     "Device Rumble": "设备振动",
     "HDMI Audio Output": "HDMI音频输出",
     "High": "高",
@@ -371,6 +385,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "设置是否在确认联网前暂缓RetroArch启动",
     "Toggle between ADB and MTP USB functionality": "切换USB连接功能为ADB或MTP",
     "Toggle startup and shutdown verbose messages used for debugging faults": "设置开关机时是否输出日志消息",
+    "Toggle the functionality of the power button to switch DPAD mode": "Toggle the functionality of the power button to switch DPAD mode",
     "Toggle the functionality of the user initialisation scripts on device startup": "设置在设备启动时切换用户初始化脚本的功能",
     "Toggle the passcode lock - More information can be found on the muOS website": "设置密码锁 - 详情查看muOS官网",
     "Toggle the power LED during content launch": "设置内容启动时的LED行为",
@@ -500,10 +515,12 @@
     "SFTP + Filebrowser": "SFTP + 文件浏览器",
     "Secure Shell": "安全Shell（SSH）",
     "Syncthing": "Syncthing文件同步",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "设置Resilio同步 - 通过端口6060进入WebUI界面",
     "Toggle SFTP support - WebUI can be found on port 9090": "设置SFTP支持 - 通过端口9090连接",
     "Toggle SSH support - Access via port 22": "设置SSH支持 - 通过端口22连接",
     "Toggle Syncthing - WebUI can be found on port 7070": "设置Syncthing同步 - 通过端口7070进入WebUI界面",
+    "Toggle Tailscale - Need to login via SSH first": "Toggle Tailscale - Need to login via SSH first",
     "Toggle network time protocol for active network connections": "对于激活的网络链接设置网络时间协议支持",
     "Toggle virtual terminal - WebUI can be found on port 8080": "设置虚拟终端 - 通过端口8080进入WebUI界面",
     "Virtual Terminal": "虚拟终端",

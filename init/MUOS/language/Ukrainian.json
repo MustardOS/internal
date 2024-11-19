@@ -1,6 +1,7 @@
 {
   "generic": {
     "Back": "Повернутись",
+    "Clear": "Clear",
     "Directory": "Директорія",
     "Disabled": "Вимкнено",
     "Enabled": "Увімкнено",
@@ -163,7 +164,7 @@
     "Network Active": "Мережа Активна",
     "Network Disabled": "Мережа Вимкнена",
     "Network Type": "Тип Мережі",
-    "No Password Detected...": "No Password Detected…",
+    "No Password Detected...": "Пароль не виявлено…",
     "Not Connected": "Не Приєднано",
     "Password": "Пароль",
     "Please check network settings": "Будь ласка, перевірте налаштування мережі",
@@ -180,6 +181,8 @@
   "muxoption": {
     "Assign Core": "Призначити Ядро",
     "CONTENT OPTION": "ВАРІАНТ КОНТЕНТУ",
+    "Search Content": "Search Content",
+    "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Встановити CPU менеджер для обраного контенту або директорії",
     "Set the system core or external emulator for the selected content or directory": "Встановити системне ядро або зовнішній емулятор для обраного контенту або директорії",
     "System Governor": "Системний Менеджер"
@@ -244,6 +247,16 @@
     "Set Timezone": "Встановити Часовий Пояс",
     "Time Notation": "Формат Часу",
     "Year": "Рік"
+  },
+  "muxsearch": {
+    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
+    "Lookup": "Lookup",
+    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
+    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Search Global": "Search Global",
+    "Search Local": "Search Local",
+    "Search all current active storage devices": "Search all current active storage devices",
+    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Призначене ядро/Системний Менеджер",
@@ -342,6 +355,7 @@
     "Change the default brightness level that the device will use each time it starts up": "Змінити рівень яскравості за замовчуванням, який встановиться при завантаженні пристрою",
     "Change the default theme used for the next device launch": "Визначити тему за замовчуванням, яка встановиться при наступному запуску пристрою",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Змінити відображений відсоток залишку батареї, щоб покращити точність базуючись на калібруванні або відомому відхиленні у зчитуванні ємності батареї",
+    "DPAD Swap Function": "Функція заміни DPAD",
     "Device Rumble": "Вібро-відклик Пристрою",
     "HDMI Audio Output": "HDMI Аудіо Вихід",
     "High": "Висока",
@@ -371,6 +385,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Включити відкладений старт RetroArch до встановлення з\"єднання з мережею",
     "Toggle between ADB and MTP USB functionality": "Перемикання між ADB та MTP USB режимами",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Вмикати детальні повідомлення при запуску та вимкненні, що використовуються при відладці",
+    "Toggle the functionality of the power button to switch DPAD mode": "Вмикання функціоналу кнопки живлення для перемикання режиму DPAD",
     "Toggle the functionality of the user initialisation scripts on device startup": "Вмикання функціоналу виконання користувацьких скриптів під час запуску пристрою",
     "Toggle the passcode lock - More information can be found on the muOS website": "Вмикати блокування паролем - Більше інформації можна знайти на сайті muOS",
     "Toggle the power LED during content launch": "Вмикати LED-індикацію під час завантаження контенту",
@@ -500,10 +515,12 @@
     "SFTP + Filebrowser": "SFTP + Провідник",
     "Secure Shell": "Secure Shell",
     "Syncthing": "Syncthing",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "Увімкнути Resilio - WebUI можна знайти на порті 6060",
     "Toggle SFTP support - WebUI can be found on port 9090": "Увімкнути підтримку SFTP - WebUI можна знайти на порті 9090",
     "Toggle SSH support - Access via port 22": "Увімкнути підтримку SSH - Доступ через порт 22",
     "Toggle Syncthing - WebUI can be found on port 7070": "Увімкнути Syncthing - WebUI можна знайти на порті 7070",
+    "Toggle Tailscale - Need to login via SSH first": "Вмикання Tailscale - Спочатку потрібно увійти через SSH",
     "Toggle network time protocol for active network connections": "Увімкнути протокол мережевого часу для активних підключень",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Увімкнути Віртуальний Термінал - WebUI можна знайти на порті 8080",
     "Virtual Terminal": "Віртуальний Термінал",

@@ -1,6 +1,7 @@
 {
   "generic": {
     "Back": "Geri",
+    "Clear": "Clear",
     "Directory": "Klasör",
     "Disabled": "Devre dışı",
     "Enabled": "Etkin",
@@ -180,6 +181,8 @@
   "muxoption": {
     "Assign Core": "Çekirdek ata",
     "CONTENT OPTION": "CONTENT OPTION",
+    "Search Content": "Search Content",
+    "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Seçili içerik veya dizin için CPU yöneticisini ayarla",
     "Set the system core or external emulator for the selected content or directory": "Seçili içerik veya dizin için sistem çekirdeğini veya harici emülatörü ayarla",
     "System Governor": "Sistem yöneticisi"
@@ -244,6 +247,16 @@
     "Set Timezone": "Zaman dilimini ayarla",
     "Time Notation": "Zaman gösterimi",
     "Year": "Yıl"
+  },
+  "muxsearch": {
+    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
+    "Lookup": "Lookup",
+    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
+    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Search Global": "Search Global",
+    "Search Local": "Search Local",
+    "Search all current active storage devices": "Search all current active storage devices",
+    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Atanmış Çekirdek/Yönetici sistemi",
@@ -342,6 +355,7 @@
     "Change the default brightness level that the device will use each time it starts up": "Cihazın her başlatıldığında kullanacağı varsayılan parlaklık seviyesini değiştir",
     "Change the default theme used for the next device launch": "Bir sonraki cihaz başlatmasında kullanılan varsayılan temayı değiştir",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Kalibrasyona veya pil kapasitesi olçülmesindeki bilinen sapmalara bağlı olarak doğruluğu artırmak için görüntülenen pil yüzdesini değiştir",
+    "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "Cihaz titreşimi",
     "HDMI Audio Output": "HDMI ses çıkışı",
     "High": "Yüksek",
@@ -371,6 +385,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Bir ağ bağlantısı kurulana kadar RetroArch'ın gecikmeli başlatılmasını aç/kapat",
     "Toggle between ADB and MTP USB functionality": "ADB ve MTP USB özellikleri arasında geçiş yap",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Açılış ve kapanışta hata ayıklama için kullanılan sistem mesajlarını aç/kapat",
+    "Toggle the functionality of the power button to switch DPAD mode": "Toggle the functionality of the power button to switch DPAD mode",
     "Toggle the functionality of the user initialisation scripts on device startup": "Toggle the functionality of the user initialisation scripts on device startup",
     "Toggle the passcode lock - More information can be found on the muOS website": "Parola kilidini aç - Daha fazla bilgi muOS web sitesinde bulunabilir",
     "Toggle the power LED during content launch": "İçerik başlatılırken güç LED'ini aç/kapat",
@@ -500,10 +515,12 @@
     "SFTP + Filebrowser": "SFTP + Dosya yöneticisi",
     "Secure Shell": "Secure Shell",
     "Syncthing": "Syncthing",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "Resilio'yu aç/kapa - WebUI, 6060 numaralı bağlantı noktasında bulunabilir",
     "Toggle SFTP support - WebUI can be found on port 9090": "SFTP desteğini aç/kapat - WebUI 9090 numaralı portta bulunabilir",
     "Toggle SSH support - Access via port 22": "SSH desteğini aç/kapat - 22 numaralı port üzerinden erişim",
     "Toggle Syncthing - WebUI can be found on port 7070": "Syncthing'i değiştir - WebUI 7070 portunda bulunabilir",
+    "Toggle Tailscale - Need to login via SSH first": "Toggle Tailscale - Need to login via SSH first",
     "Toggle network time protocol for active network connections": "Etkin ağ bağlantıları için ağ zaman protokolünü aç/kapat",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Virtual terminal'i aç/kapat - WebUI 8080 portunda bulunabilir",
     "Virtual Terminal": "Virtual Terminal",

@@ -1,6 +1,7 @@
 {
   "generic": {
     "Back": "Nazad",
+    "Clear": "Clear",
     "Directory": "Folder",
     "Disabled": "Onemogućeno",
     "Enabled": "Omogućeno",
@@ -163,7 +164,7 @@
     "Network Active": "Mreža je aktivna",
     "Network Disabled": "Mreža onemogućena",
     "Network Type": "Vrsta mreže",
-    "No Password Detected...": "No Password Detected…",
+    "No Password Detected...": "Lozinka nije pronađena…",
     "Not Connected": "Nije povezano",
     "Password": "Lozinka",
     "Please check network settings": "Proverite mrežna podešavanja",
@@ -180,6 +181,8 @@
   "muxoption": {
     "Assign Core": "Dodeli jezgro (Core)",
     "CONTENT OPTION": "OPCIJE SADRŽAJA",
+    "Search Content": "Search Content",
+    "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Postavite CPU upravljača za odabrani sadržaj ili folder",
     "Set the system core or external emulator for the selected content or directory": "Podesite sistemsku jezgru (core) ili eksterni emulator za izabrani sadržaj ili folder",
     "System Governor": "Kontrolor sistema"
@@ -244,6 +247,16 @@
     "Set Timezone": "Podesi vremensku zonu",
     "Time Notation": "Format vremena",
     "Year": "Godina"
+  },
+  "muxsearch": {
+    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
+    "Lookup": "Lookup",
+    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
+    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Search Global": "Search Global",
+    "Search Local": "Search Local",
+    "Search all current active storage devices": "Search all current active storage devices",
+    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Dodeljeno jezgro (core)/Upravljački sistem",
@@ -342,6 +355,7 @@
     "Change the default brightness level that the device will use each time it starts up": "Promenite podrazumevani nivo jačine osvetljenja koji će uređaj koristiti pri svakom pokretanju",
     "Change the default theme used for the next device launch": "Promenite podrazumevanu temu koja će biti korišćena pri sledećem pokretanju uređaja",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Izmenite prikazani procenat baterije radi poboljšanja tačnosti na osnovu kalibracije ili poznatih odstupanja u očitavanju kapaciteta baterije",
+    "DPAD Swap Function": "Zamena DPAD tastera",
     "Device Rumble": "Vibracija uređaja",
     "HDMI Audio Output": "HDMI Audio izlaz",
     "High": "Visoko",
@@ -371,6 +385,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Omogućite odloženo pokretanje RetroArch-a dok se ne uspostavi mrežna konekcija",
     "Toggle between ADB and MTP USB functionality": "Odaberite između ADB i MTP funkcionalnosti putem USB-a",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Aktivirajte ili deaktivirajte detaljne poruke pri pokretanju i gašenju sistema koje se koriste za otklanjanje grešaka",
+    "Toggle the functionality of the power button to switch DPAD mode": "Uključi/isključi funkciju dugmeta za paljenje za promenu DPAD režima",
     "Toggle the functionality of the user initialisation scripts on device startup": "Uključi/isključi funkcionalnost korisničkih skripti za inicijalizaciju pri pokretanju uređaja",
     "Toggle the passcode lock - More information can be found on the muOS website": "Aktivirajte ili deaktivirajte zaključavanje šifrom – Više informacija možete pronaći na muOS vebsajtu",
     "Toggle the power LED during content launch": "Aktivirajte ili deaktivirajte LED lampicu napajanja tokom pokretanja sadržaja",
@@ -500,10 +515,12 @@
     "SFTP + Filebrowser": "SFTP + Filebrowser",
     "Secure Shell": "Secure Shell",
     "Syncthing": "Syncthing",
+    "Tailscale": "Tailscale",
     "Toggle Resilio - WebUI can be found on port 6060": "Uključi/isključi Resilio - WebUI se može pronaći na portu 6060",
     "Toggle SFTP support - WebUI can be found on port 9090": "Uključi/isključi SFTP podršku - WebUI se može pronaći na portu 9090",
     "Toggle SSH support - Access via port 22": "Uključi/isključi SSH podršku - Pristup preko porta 22",
     "Toggle Syncthing - WebUI can be found on port 7070": "Uključi/isključi Syncthing - WebUI se može pronaći na portu 7070",
+    "Toggle Tailscale - Need to login via SSH first": "Uključi/isključi Tailscale – Prvo je potrebno prijaviti se putem SSH-a",
     "Toggle network time protocol for active network connections": "Uključi/isključi mrežni vremenski protokol (NTP) za aktivne mrežne konekcije",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Uključi/isključi virtuelni terminal - WebUI se može pronaći na portu 8080",
     "Virtual Terminal": "Virtualni Terminal",

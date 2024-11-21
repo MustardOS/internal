@@ -20,6 +20,15 @@ done
 
 unzip "$THEME" -d "$THEME_DIR/active"
 
+# Extract the file name without path and extension
+THEME_NAME=$(basename "$THEME" .zip)
+
+# Remove the timestamp if present (format: YYYY-MM-DD_HH-MM-SS)
+CLEANED_THEME_NAME=$(echo "$THEME_NAME" | sed -E 's/-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}$//')
+
+# Save the file name to theme_name.txt
+echo "$CLEANED_THEME_NAME" > "$THEME_DIR/active/theme_name.txt"
+
 BOOTLOGO_NEW="$THEME_DIR/active/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/bootlogo.bmp"
 [ ! -f "$BOOTLOGO_NEW" ] && BOOTLOGO_NEW="$THEME_DIR/active/image/bootlogo.bmp"
 

@@ -45,6 +45,12 @@ if [ ! -f "$DRASTIC_CFG" ]; then
 	cp -f "$DEVICE_CONTROL_DIR/drastic.cfg" "$DRASTIC_CFG"
 fi
 
+# Move YabaSanshiro config
+YABASANSHIRO="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/yabasanshiro/.emulationstation/es_temporaryinput.cfg"
+if [ ! -f "$YABASANSHIRO" ]; then
+    cp "$DEVICE_CONTROL_DIR/yabasanshiro/es_temporaryinput.cfg" "$YABASANSHIRO"
+fi
+
 # Move OpenBOR config
 for file in "$DEVICE_CONTROL_DIR/openbor/"*.ini; do
 	if [ ! -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/openbor/userdata/system/configs/openbor/$(basename "$file")" ]; then

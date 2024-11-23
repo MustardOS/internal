@@ -107,6 +107,9 @@ elif [ "${CORE#ext-mupen64plus}" != "$CORE" ]; then
 # ScummVM External
 elif [ "$CORE" = ext-scummvm ]; then
 	/opt/muos/script/launch/ext-scummvm.sh "$NAME" "$CORE" "$ROM"
+# Yabasanshiro External
+elif [ "${CORE#ext-yabasanshiro}" != "$CORE" ]; then
+	/opt/muos/script/launch/ext-yabasanshiro.sh "$NAME" "$CORE" "$ROM"
 # Flycast Extreme LibRetro
 elif [ "$CORE" = flycast_xtreme_libretro.so ]; then
 	/opt/muos/script/launch/lr-flycastx.sh "$NAME" "$CORE" "$ROM"

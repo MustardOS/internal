@@ -12,10 +12,6 @@ rm -f /run/muos/storage/info/config/retroarch.cfg
 # control.sh recreates retroarch.cfg from retroarch.default.cfg.
 /opt/muos/device/current/script/control.sh
 
-# Modify the default RetroArch configuration
-RA_CONV=/opt/muos/device/current/script/ra_convert.sh
-[ -f "$RA_CONV" ] && "$RA_CONV"
-
 echo "Sync Filesystem"
 sync
 

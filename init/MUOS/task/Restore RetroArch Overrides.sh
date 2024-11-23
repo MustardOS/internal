@@ -12,6 +12,10 @@ rsync --archive --checksum --delete --exclude /retroarch.cfg /opt/muos/default/M
 # control.sh recreates device-specific RetroArch core overrides and remaps.
 /opt/muos/device/current/script/control.sh
 
+# Modify the default RetroArch configuration
+RA_CONV=/opt/muos/device/current/script/ra_convert.sh
+[ -f "$RA_CONV" ] && "$RA_CONV"
+
 echo "Sync Filesystem"
 sync
 

@@ -27,6 +27,10 @@ fi
 # Move RetroArch configuration
 RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 if [ ! -f "$RA_CONF" ]; then
+	# Modify the default RetroArch configuration
+	RA_CONV=/opt/muos/device/current/script/ra_convert.sh
+	[ -f "$RA_CONV" ] && "$RA_CONV"
+
 	cp /run/muos/storage/retroarch/retroarch.default.cfg "$RA_CONF"
 fi
 

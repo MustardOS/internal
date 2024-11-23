@@ -27,7 +27,9 @@ fi
 # Move RetroArch configuration
 RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 if [ ! -f "$RA_CONF" ]; then
-	cp /run/muos/storage/retroarch/retroarch.default.cfg "$RA_CONF"
+    # FOR CUBEXX ONLY!
+    sed -i '/video_threaded/d' /run/muos/storage/retroarch/retroarch.default.cfg
+    cp /run/muos/storage/retroarch/retroarch.default.cfg "$RA_CONF"
 fi
 
 # Move Drastic trngaje config

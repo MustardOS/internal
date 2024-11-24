@@ -23,6 +23,7 @@ ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
 ASS_GO=/tmp/ass_go
 GOV_GO=/tmp/gov_go
+PIK_GO=/tmp/pik_go
 ROM_GO=/tmp/rom_go
 RES_GO=/tmp/res_go
 
@@ -42,7 +43,7 @@ echo "root" >$EX_CARD
 
 if [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 1 ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Changing to a random theme"
-	/opt/muos/script/mux/theme.sh "?R"
+	/opt/muos/script/package/theme.sh "?R"
 fi
 
 LAST_PLAY="/opt/muos/config/lastplay.txt"
@@ -342,10 +343,15 @@ while :; do
 				SET_VAR "system" "foreground_process" "muxtweakadv"
 				nice --20 /opt/muos/extra/muxtweakadv
 				;;
-			"theme")
+			"picker")
+				echo custom >$ACT_GO
+				SET_VAR "system" "foreground_process" "muxpicker"
+				nice --20 /opt/muos/extra/muxpicker -m "$(cat $PIK_GO)"
+				;;
+			"custom")
 				echo config >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxtheme"
-				nice --20 /opt/muos/extra/muxtheme
+				SET_VAR "system" "foreground_process" "muxcustom"
+				nice --20 /opt/muos/extra/muxcustom
 				;;
 			"visual")
 				echo tweakgen >$ACT_GO

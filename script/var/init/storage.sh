@@ -50,9 +50,7 @@ BIND_EMULATOR save/file/OpenBOR-Ext openbor/userdata/saves/openbor
 BIND_EMULATOR screenshot openbor/userdata/screenshots/openbor
 
 # PICO-8
-for DIR in bbs cdata cstore desktop; do
-	BIND_EMULATOR "save/pico8/$DIR" "pico8/.lexaloffle/pico-8/$DIR"
-done
+BIND_EMULATOR "save/pico8" "pico8/.lexaloffle/pico-8"
 
 # PPSSPP
 BIND_EMULATOR save/file/PPSSPP-Ext ppsspp/.config/ppsspp/PSP/SAVEDATA

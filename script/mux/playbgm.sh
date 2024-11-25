@@ -17,4 +17,4 @@ while :; do
 	mpv --no-video "$BGM_FILE" >/dev/null 2>&1
 
 	sleep 1
-done
+done &

@@ -72,6 +72,8 @@
     "CONFIGURATION": "YAPILANDIRMA",
     "Change your current date, time, and timezone": "Mevcut tarihinizi, saatinizi ve zaman diliminizi değiştirin",
     "Connect to a Wi-Fi network manually or via a saved profile": "Bir Wi-Fi ağına elle veya kayıtlı bir profil aracılığıyla bağlanın",
+    "Customisation": "Customisation",
+    "Customise your muOS setup with user created packages": "Customise your muOS setup with user created packages",
     "Date and Time": "Tarih ve saat",
     "Device specific and muOS frontend settings can be found here": "Cihaza özel ve muOS arayüz ayarları burada bulunabilir",
     "Find out what storage device core settings and configurations are mounted": "Hangi depolama aygıtı çekirdek ayarlarının ve yapılandırmalarının monte edildiğini öğrenin",
@@ -84,6 +86,15 @@
     "Toggle a range of configurable services you can access via an active network": "Etkin bir ağ üzerinden erişebileceğiniz bir dizi yapılandırılabilir hizmeti değiştirin",
     "Web Services": "Web servisleri",
     "Wi-Fi Network": "Wi-Fi ağı"
+  },
+  "muxcustom": {
+    "CUSTOMISATION": "CUSTOMISATION",
+    "Catalogue Sets": "Catalogue Sets",
+    "Change the appearance of the muOS frontend launcher": "Change the appearance of the muOS frontend launcher",
+    "Load user created RetroArch configurations": "Load user created RetroArch configurations",
+    "Load user created artwork catalogue for content": "Load user created artwork catalogue for content",
+    "RetroArch Configurations": "RetroArch Configurations",
+    "muOS Themes": "muOS Themes"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "CPU frekansını dinamik olarak ayarlamak ve güç tüketimi ile performansı dengelemeye yardımcı olmak için CPU yöneticilerini yapılandırın",
@@ -189,6 +200,17 @@
   },
   "muxpass": {
     "PASSCODE": "ŞİFRE"
+  },
+  "muxpicker": {
+    "CATALOGUE PICKER": "CATALOGUE PICKER",
+    "CONFIG PICKER": "CONFIG PICKER",
+    "CUSTOM PICKER": "CUSTOM PICKER",
+    "No Catalogue Packages Found": "No Catalogue Packages Found",
+    "No Configuration Packages Found": "No Configuration Packages Found",
+    "No Custom Packages Found": "No Custom Packages Found",
+    "No Theme Packages Found": "No Theme Packages Found",
+    "THEME PICKER": "THEME PICKER",
+    "There are no attributed credits!": "There are no attributed credits!"
   },
   "muxplore": {
     "Added to Favourites": "Favorilere eklendi",

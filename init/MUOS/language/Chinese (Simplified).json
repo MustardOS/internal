@@ -72,6 +72,8 @@
     "CONFIGURATION": "系统设置",
     "Change your current date, time, and timezone": "设置您目前的日期、时间和时区",
     "Connect to a Wi-Fi network manually or via a saved profile": "手动链接，或通过载入配置文件连接Wi-Fi网络",
+    "Customisation": "Customisation",
+    "Customise your muOS setup with user created packages": "Customise your muOS setup with user created packages",
     "Date and Time": "日期和时间",
     "Device specific and muOS frontend settings can be found here": "在此调节设备与muOS前端的设置选项",
     "Find out what storage device core settings and configurations are mounted": "找出已安装了哪些存储设备核心设置和配置",
@@ -84,6 +86,15 @@
     "Toggle a range of configurable services you can access via an active network": "设置一系列可选网络服务，通过已启用的网络连接使用",
     "Web Services": "网络服务",
     "Wi-Fi Network": "Wi-Fi网络"
+  },
+  "muxcustom": {
+    "CUSTOMISATION": "CUSTOMISATION",
+    "Catalogue Sets": "Catalogue Sets",
+    "Change the appearance of the muOS frontend launcher": "Change the appearance of the muOS frontend launcher",
+    "Load user created RetroArch configurations": "Load user created RetroArch configurations",
+    "Load user created artwork catalogue for content": "Load user created artwork catalogue for content",
+    "RetroArch Configurations": "RetroArch Configurations",
+    "muOS Themes": "muOS Themes"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "设置CPU调度方案，以动态调整CPU频率并针对能耗和性能优化",
@@ -189,6 +200,17 @@
   },
   "muxpass": {
     "PASSCODE": "密码"
+  },
+  "muxpicker": {
+    "CATALOGUE PICKER": "CATALOGUE PICKER",
+    "CONFIG PICKER": "CONFIG PICKER",
+    "CUSTOM PICKER": "CUSTOM PICKER",
+    "No Catalogue Packages Found": "No Catalogue Packages Found",
+    "No Configuration Packages Found": "No Configuration Packages Found",
+    "No Custom Packages Found": "No Custom Packages Found",
+    "No Theme Packages Found": "No Theme Packages Found",
+    "THEME PICKER": "THEME PICKER",
+    "There are no attributed credits!": "There are no attributed credits!"
   },
   "muxplore": {
     "Added to Favourites": "已添加至收藏夹",

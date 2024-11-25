@@ -72,6 +72,8 @@
     "CONFIGURATION": "KONFIGURACJA",
     "Change your current date, time, and timezone": "Zmień bieżącą datę, czas i strefę czasową",
     "Connect to a Wi-Fi network manually or via a saved profile": "Połącz się z siecią Wi-Fi ręcznie lub przez zapisany profil",
+    "Customisation": "Personalizacja",
+    "Customise your muOS setup with user created packages": "Spersonalizuj muOS dzięki paczkom stworzonym przez użytkowników",
     "Date and Time": "Data i czas",
     "Device specific and muOS frontend settings can be found here": "Znajdziesz tutaj ustawienia specyficzne dla urządzenia i interfejsu muOS",
     "Find out what storage device core settings and configurations are mounted": "Sprawdź, na którym urządzeniu pamięci zamontowane są ustawienia rdzeni i konfiguracje",
@@ -84,6 +86,15 @@
     "Toggle a range of configurable services you can access via an active network": "Włącz wiele konfigurowalnych serwisów dostępnych poprzez aktywną sieć",
     "Web Services": "Usługi sieciowe",
     "Wi-Fi Network": "Sieć Wi-Fi"
+  },
+  "muxcustom": {
+    "CUSTOMISATION": "PERSONALIZACJA",
+    "Catalogue Sets": "Zbiory okładek i opisów",
+    "Change the appearance of the muOS frontend launcher": "Zmień wygląd programu uruchamiającego frontend muOS",
+    "Load user created RetroArch configurations": "Wczytaj konfiguracje RetroArch stworzone przez użytkownika",
+    "Load user created artwork catalogue for content": "Wczytaj katalog okładek stworzony przez użytkownika",
+    "RetroArch Configurations": "Konfiguracje RetroArch",
+    "muOS Themes": "Motywy muOS"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Skonfiguruj regulatory CPU, aby dynamicznie dostosować częstotliwość CPU i pomóc zrównoważyć zużycie energii i wydajność",
@@ -189,6 +200,17 @@
   },
   "muxpass": {
     "PASSCODE": "HASŁO"
+  },
+  "muxpicker": {
+    "CATALOGUE PICKER": "WYBÓR OKŁADEK",
+    "CONFIG PICKER": "WYBÓR KONFIGURACJI",
+    "CUSTOM PICKER": "WYBÓR PACZKI UŻYTKOWNIKA",
+    "No Catalogue Packages Found": "Nie znaleziono paczek z okładkami",
+    "No Configuration Packages Found": "Nie znaleziono paczek z konfiguracjami",
+    "No Custom Packages Found": "Nie znaleziono paczek użytkownika",
+    "No Theme Packages Found": "Nie znaleziono paczek motywów",
+    "THEME PICKER": "WYBÓR MOTYWU",
+    "There are no attributed credits!": "Nie przypisano autora!"
   },
   "muxplore": {
     "Added to Favourites": "Dodano do Ulubionych",

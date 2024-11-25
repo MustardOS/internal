@@ -72,6 +72,8 @@
     "CONFIGURATION": "CUMRAÍOCHT",
     "Change your current date, time, and timezone": "Athraigh do dháta, am agus crios ama reatha",
     "Connect to a Wi-Fi network manually or via a saved profile": "Ceangail le líonra Wi-Fi de láimh nó trí phróifíl shábháilte",
+    "Customisation": "Saincheapadh",
+    "Customise your muOS setup with user created packages": "Saincheap do shocrú muOS le pacáistí cruthaithe ag úsáideoirí",
     "Date and Time": "Dáta agus Am",
     "Device specific and muOS frontend settings can be found here": "Is féidir socruithe tosaigh gléas ar leith agus muOS a fháil anseo",
     "Find out what storage device core settings and configurations are mounted": "Faigh amach cad iad na socruithe agus cumraíochtaí lárnacha gléis stórála atá suite",
@@ -84,6 +86,15 @@
     "Toggle a range of configurable services you can access via an active network": "Scoránaigh réimse seirbhísí inchumraithe ar féidir leat rochtain a fháil orthu trí líonra gníomhach",
     "Web Services": "Seirbhísí Gréasáin",
     "Wi-Fi Network": "Líonra Wi-Fi"
+  },
+  "muxcustom": {
+    "CUSTOMISATION": "CUSTUMAIS",
+    "Catalogue Sets": "Tacair Chatalóg",
+    "Change the appearance of the muOS frontend launcher": "Athraigh cuma an lainseála tosaigh muOS",
+    "Load user created RetroArch configurations": "Íoslódáil cumraíochtaí RetroArch a chruthaigh an t-úsáideoir",
+    "Load user created artwork catalogue for content": "Luchtaigh catalóg saothair ealaíne cruthaithe ag an úsáideoir don ábhar",
+    "RetroArch Configurations": "Cumraíochtaí RetroArch",
+    "muOS Themes": "Téamaí muOS"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Cumraigh gobharnóirí LAP chun minicíocht an LAP a choigeartú go dinimiciúil agus cabhrú le tomhaltas agus feidhmíocht cumhachta a chothromú",
@@ -189,6 +200,17 @@
   },
   "muxpass": {
     "PASSCODE": "PASCHÓD"
+  },
+  "muxpicker": {
+    "CATALOGUE PICKER": "PIOCADH CATALÓG",
+    "CONFIG PICKER": "ROGHNÓIR CUMRAÍOCHTA",
+    "CUSTOM PICKER": "ROGHNÓIR SAINRÉITHE",
+    "No Catalogue Packages Found": "Níor Aimsíodh Pacáistí Catalóga",
+    "No Configuration Packages Found": "Níor aimsíodh aon Phacáistí Cumraíochta",
+    "No Custom Packages Found": "Níor aimsíodh aon Phacáistí Saincheaptha",
+    "No Theme Packages Found": "Níor aimsíodh aon Phacáistí Téama",
+    "THEME PICKER": "ROGHNÓIR TÉAMA",
+    "There are no attributed credits!": "Níl aon creidmheasanna leithdháilte!"
   },
   "muxplore": {
     "Added to Favourites": "Curtha le Ceanáin",

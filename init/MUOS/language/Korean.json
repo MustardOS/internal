@@ -1,7 +1,7 @@
 {
   "generic": {
     "Back": "이전",
-    "Clear": "Clear",
+    "Clear": "지우기",
     "Directory": "디렉터리",
     "Disabled": "비활성화",
     "Enabled": "활성화됨",
@@ -72,6 +72,8 @@
     "CONFIGURATION": "구성",
     "Change your current date, time, and timezone": "날짜, 시간, 타임존을 변경",
     "Connect to a Wi-Fi network manually or via a saved profile": "수동으로 또는 저장된 프로필을 통해 Wi-Fi 네트워크에 연결",
+    "Customisation": "맞춤화",
+    "Customise your muOS setup with user created packages": "사용자가 만든 패키지로 muOS 설정을 맞춤화함",
     "Date and Time": "날짜와 시간",
     "Device specific and muOS frontend settings can be found here": "장치 특이 설정과 muOS 설정을 찾을 수 있음",
     "Find out what storage device core settings and configurations are mounted": "어떤 저장 장치에 코어 설정 및 구성이 마운트되어 있는지 확인",
@@ -84,6 +86,15 @@
     "Toggle a range of configurable services you can access via an active network": "네트워크 활성을 통해 액세스할 수 있는 구성 가능한 서비스를 토글",
     "Web Services": "웹 서비스",
     "Wi-Fi Network": "Wi-Fi 네트워크"
+  },
+  "muxcustom": {
+    "CUSTOMISATION": "맞춤화",
+    "Catalogue Sets": "카탈로그 세트",
+    "Change the appearance of the muOS frontend launcher": "muOS 프런트엔드 런처의 모양 변경",
+    "Load user created RetroArch configurations": "사용자가 생성한 레트로아크 구성을 로드함",
+    "Load user created artwork catalogue for content": "사용자가 생성한 콘텐츠 아트워크 카탈로그를 로드함",
+    "RetroArch Configurations": "레트로아크 구성",
+    "muOS Themes": "muOS 테마"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "CPU 주파수를 동적으로 조정하고 전력 소비와 성능의 균형을 유지하도록 CPU 거버너를 구성",
@@ -181,14 +192,25 @@
   "muxoption": {
     "Assign Core": "코어 할당",
     "CONTENT OPTION": "콘텐츠 옵션",
-    "Search Content": "Search Content",
-    "Search for content within the selected directory": "Search for content within the selected directory",
+    "Search Content": "콘텐츠 검색",
+    "Search for content within the selected directory": "선택한 디렉토리 내의 콘텐츠 검색",
     "Set the CPU governor for the selected content or directory": "선택한 콘텐츠 또는 디렉터리에 대한 CPU 거버너를 설정",
     "Set the system core or external emulator for the selected content or directory": "선택한 콘텐츠 또는 디렉터리에 대한 시스템 코어 또는 외부 에뮬레이터 설정",
     "System Governor": "시스템 거버너"
   },
   "muxpass": {
     "PASSCODE": "패스코드"
+  },
+  "muxpicker": {
+    "CATALOGUE PICKER": "카탈로그 피커",
+    "CONFIG PICKER": "구성 피커",
+    "CUSTOM PICKER": "맞춤 피커",
+    "No Catalogue Packages Found": "카탈로그 패키지가 없음",
+    "No Configuration Packages Found": "구성 패키지가 없음",
+    "No Custom Packages Found": "맞춤 패키지가 없음",
+    "No Theme Packages Found": "테마 패키지가 없음",
+    "THEME PICKER": "테마 피커",
+    "There are no attributed credits!": "기여 크레딧이 없음!"
   },
   "muxplore": {
     "Added to Favourites": "즐겨찾기에 추가함",
@@ -249,14 +271,14 @@
     "Year": "연"
   },
   "muxsearch": {
-    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
-    "Lookup": "Lookup",
-    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
-    "SEARCH CONTENT": "SEARCH CONTENT",
-    "Search Global": "Search Global",
-    "Search Local": "Search Local",
-    "Search all current active storage devices": "Search all current active storage devices",
-    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
+    "Enter in the name of the content you are looking for": "찾고 있는 콘텐츠의 이름을 입력",
+    "Lookup": "조회",
+    "Lookup has to be 3 characters or more!": "조회는 3 글자 이상!",
+    "SEARCH CONTENT": "콘텐츠 검색",
+    "Search Global": "전체 검색",
+    "Search Local": "로컬 검색",
+    "Search all current active storage devices": "현재 활성화된 모든 저장소 검색",
+    "Search within the current selected folder and folders within": "현재 선택된 폴더 및 그 안에 있는 폴더 내에서 검색"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "할당된 코어/거버너 시스템",
@@ -355,7 +377,7 @@
     "Change the default brightness level that the device will use each time it starts up": "장치가 시작될 때마다 사용할 기본 밝기 수준을 변경",
     "Change the default theme used for the next device launch": "다음번에 장치 구동 시 사용될 기본 테마 변경",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "배터리 용량 판독의 보정이나 알려진 편차를 기반으로 정확도를 향상 시키기 위해 표시된 배터리 백분율을 변경",
-    "DPAD Swap Function": "DPAD Swap Function",
+    "DPAD Swap Function": "DPAD 스왑 기능",
     "Device Rumble": "장치 진동",
     "HDMI Audio Output": "HDMI 오디오 출력",
     "High": "높음",
@@ -385,7 +407,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "네트워크 연결이 설정될 때까지 레트로아크의 시작 지연 여부 토글",
     "Toggle between ADB and MTP USB functionality": "USB의 기능을 ADB 또는 MTP 로 전환",
     "Toggle startup and shutdown verbose messages used for debugging faults": "시작과 종료 시에 오류 디버깅 용도의 메시지 출력 여부 토글",
-    "Toggle the functionality of the power button to switch DPAD mode": "Toggle the functionality of the power button to switch DPAD mode",
+    "Toggle the functionality of the power button to switch DPAD mode": "전원 버튼으로 DPAD 모드 기능을 토글",
     "Toggle the functionality of the user initialisation scripts on device startup": "장치 시작 시 사용자 초기화 스크립트 기능 사용 여부 토글",
     "Toggle the passcode lock - More information can be found on the muOS website": "패스코드 락을 토글\n- 자세한 내용은 muOS 웹사이트에서 확인 가능",
     "Toggle the power LED during content launch": "콘텐츠 실행 중에 전원 LED 켜짐 토글",
@@ -515,12 +537,12 @@
     "SFTP + Filebrowser": "SFTP + 파일브라우저",
     "Secure Shell": "시큐어 셸",
     "Syncthing": "싱크띵",
-    "Tailscale": "Tailscale",
+    "Tailscale": "테일스케일",
     "Toggle Resilio - WebUI can be found on port 6060": "레실리오 토글 - 웹UI는 포트 6060 에서 찾음",
     "Toggle SFTP support - WebUI can be found on port 9090": "SFTP 지원 토글 - 웹UI는 포트 9090 에서 찾음",
     "Toggle SSH support - Access via port 22": "SSH 지원 토글 - 포트 22 로 액세스",
     "Toggle Syncthing - WebUI can be found on port 7070": "싱크띵 토글 - 웹UI는 포트 7070 에서 찾음",
-    "Toggle Tailscale - Need to login via SSH first": "Toggle Tailscale - Need to login via SSH first",
+    "Toggle Tailscale - Need to login via SSH first": "테일스케일 토글 - SSH 로그인이 우선적으로 필요",
     "Toggle network time protocol for active network connections": "원활한 네트워크 연결을 위한 네트워크 시간 프로토콜 토글",
     "Toggle virtual terminal - WebUI can be found on port 8080": "버추얼 터미널 토글 - 웹UI는 포트 8080 에서 찾음",
     "Virtual Terminal": "버추얼 터미널",

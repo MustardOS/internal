@@ -1,7 +1,7 @@
 {
   "generic": {
     "Back": "Retour",
-    "Clear": "Clear",
+    "Clear": "Effacer",
     "Directory": "Répertoire",
     "Disabled": "Désactivé",
     "Enabled": "Activé",
@@ -72,18 +72,29 @@
     "CONFIGURATION": "CONFIGURATION",
     "Change your current date, time, and timezone": "Modifiez votre date, heure et fuseau horaire actuels",
     "Connect to a Wi-Fi network manually or via a saved profile": "Connectez-vous à un réseau Wi-Fi manuellement ou à l'aide d'un profil enregistré",
+    "Customisation": "Personnalisation",
+    "Customise your muOS setup with user created packages": "Modifiez votre configuration muOS avec des packages personnalisés",
     "Date and Time": "Date et heure",
     "Device specific and muOS frontend settings can be found here": "Les paramètres spécifiques à la console et à l'interface muOS peuvent être trouvés ici",
     "Find out what storage device core settings and configurations are mounted": "Découvrez quels paramètres et configurations de base du périphérique de stockage sont montés",
     "General Settings": "Paramètres généraux",
     "Language": "Langue",
-    "Select a muOS supported theme": "Sélectionnez un thème pris en charge par MuOS",
+    "Select a muOS supported theme": "Sélectionnez un thème pris en charge par muOS",
     "Select your preferred language": "Sélectionnez votre langue préférée",
     "Storage": "Stockage",
     "Theme Picker": "Sélecteur de thème",
     "Toggle a range of configurable services you can access via an active network": "Activez une gamme de services configurables auxquels vous pouvez accéder via un réseau actif",
     "Web Services": "Services Web",
     "Wi-Fi Network": "Réseau Wi-Fi"
+  },
+  "muxcustom": {
+    "CUSTOMISATION": "PERSONNALISATION",
+    "Catalogue Sets": "Catalogues d'illustrations",
+    "Change the appearance of the muOS frontend launcher": "Changez l'apparence de l'interface de muOS",
+    "Load user created RetroArch configurations": "Chargez les configurations RetroArch personnalisées",
+    "Load user created artwork catalogue for content": "Chargez le catalogue d'illustrations personnalisé",
+    "RetroArch Configurations": "Configurations RetroArch",
+    "muOS Themes": "Thèmes muOS"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Configurez les gouverneurs du processeur pour ajuster dynamiquement la fréquence du processeur et aider à équilibrer la consommation d'énergie et les performances",
@@ -181,14 +192,25 @@
   "muxoption": {
     "Assign Core": "Assigner un émulateur",
     "CONTENT OPTION": "OPTION DU CONTENU",
-    "Search Content": "Search Content",
-    "Search for content within the selected directory": "Search for content within the selected directory",
+    "Search Content": "Rechercher du contenu",
+    "Search for content within the selected directory": "Rechercher du contenu dans le répertoire sélectionné",
     "Set the CPU governor for the selected content or directory": "Définissez le gouverneur du processeur pour le contenu ou le répertoire sélectionné",
     "Set the system core or external emulator for the selected content or directory": "Définissez l'émulateur principal ou externe pour le contenu ou le répertoire sélectionné",
     "System Governor": "Gouverneur système"
   },
   "muxpass": {
     "PASSCODE": "MOT DE PASSE"
+  },
+  "muxpicker": {
+    "CATALOGUE PICKER": "SELECTEUR DE CATALOGUE",
+    "CONFIG PICKER": "SELECTEUR DE CONFIGURATION",
+    "CUSTOM PICKER": "SELECTEUR DE PERSONNALISATION",
+    "No Catalogue Packages Found": "Aucun package de catalogue trouvé",
+    "No Configuration Packages Found": "Aucun package de configuration trouvé",
+    "No Custom Packages Found": "Aucun package de personnalisation trouvé",
+    "No Theme Packages Found": "Aucun package de thème trouvé",
+    "THEME PICKER": "SELECTEUR DE THEME",
+    "There are no attributed credits!": "Il n’y a aucun crédit attribué !"
   },
   "muxplore": {
     "Added to Favourites": "Ajouté aux favoris",
@@ -249,14 +271,14 @@
     "Year": "Année"
   },
   "muxsearch": {
-    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
-    "Lookup": "Lookup",
-    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
-    "SEARCH CONTENT": "SEARCH CONTENT",
-    "Search Global": "Search Global",
-    "Search Local": "Search Local",
-    "Search all current active storage devices": "Search all current active storage devices",
-    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
+    "Enter in the name of the content you are looking for": "Entrez le nom du contenu que vous recherchez",
+    "Lookup": "Rechercher",
+    "Lookup has to be 3 characters or more!": "La recherche doit comporter 3 caractères ou plus !",
+    "SEARCH CONTENT": "RECHERCHE DE CONTENU",
+    "Search Global": "Recherche globale",
+    "Search Local": "Recherche locale",
+    "Search all current active storage devices": "Rechercher sur tous les périphériques de stockage actifs actuels",
+    "Search within the current selected folder and folders within": "Rechercher dans le dossier sélectionné et dans ses sous dossiers"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Émulateurs/Gouverneurs systèmes assignés",
@@ -269,7 +291,7 @@
     "Location of Network Profiles": "Emplacement des profils réseau",
     "Location of RetroArch configurations": "Emplacement des configurations RetroArch",
     "Location of Syncthing configurations": "Emplacement des configurations Syncthing",
-    "Location of User Initialisation scripts": "Emplacement des scripts d'initialisation utilisateur",
+    "Location of User Initialisation scripts": "Emplacement des scripts d'initialisation personnalisés",
     "Location of assigned core and governor configurations": "Emplacement des configurations des émulateurs et gouverneurs assignés",
     "Location of background music": "Emplacement de la musique de fond",
     "Location of content images and text": "Emplacement des images et du texte du contenu",
@@ -293,7 +315,7 @@
     "System BIOS": "BIOS systèmes",
     "Themes": "Thèmes",
     "This storage element is already on SD2": "Cet élément de stockage est déjà sur SD2",
-    "User Init Scripts": "Scripts d'initialisation utilisateur"
+    "User Init Scripts": "Scripts d'initialisation personnalisés"
   },
   "muxsysinfo": {
     "Battery Capacity": "Capacité de la batterie",
@@ -386,13 +408,13 @@
     "Toggle between ADB and MTP USB functionality": "Basculez entre les fonctionnalités USB ADB et MTP",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Activez/désactivez les messages détaillés de démarrage et d'arrêt utilisés pour le débogage des erreurs",
     "Toggle the functionality of the power button to switch DPAD mode": "Activez/désactivez la fonctionnalité du bouton d'alimentation pour changer le mode DPAD",
-    "Toggle the functionality of the user initialisation scripts on device startup": "Activez/désactivez la fonctionnalité des scripts d'initialisation utilisateur au démarrage de la console",
+    "Toggle the functionality of the user initialisation scripts on device startup": "Activez/désactivez la fonctionnalité des scripts d'initialisation personnalisés au démarrage de la console",
     "Toggle the passcode lock - More information can be found on the muOS website": "Activez/désactivez le verrouillage par mot de passe. Plus d’informations peuvent être trouvées sur le site Web de muOS",
     "Toggle the power LED during content launch": "Activez/désactivez le voyant d'alimentation pendant le lancement du contenu",
     "Toggle the system ability to automatically shut the device down due high temperature": "Activez/désactivez la capacité du système à arrêter automatiquement la console en raison d'une température élevée",
     "Toggle vibration for device startup, sleep, and shutdown": "Activez/désactivez les vibrations au démarrage, à la mise en veille et à l'arrêt de la console",
     "USB Function": "Fonction USB",
-    "User Init Scripts": "Scripts d'initialisation utilisateur",
+    "User Init Scripts": "Scripts d'initialisation personnalisés",
     "Verbose Messages": "Messages détaillés",
     "Volume On Boot": "Volume au démarrage"
   },

@@ -72,6 +72,8 @@
     "CONFIGURATION": "НАСТРОЙКИ",
     "Change your current date, time, and timezone": "Изменение текущей даты, времени и часового пояса",
     "Connect to a Wi-Fi network manually or via a saved profile": "Подключение к сети Wi-Fi вручную или через сохраненный профиль",
+    "Customisation": "Customisation",
+    "Customise your muOS setup with user created packages": "Customise your muOS setup with user created packages",
     "Date and Time": "Дата и время",
     "Device specific and muOS frontend settings can be found here": "Настройки фронтенда muOS для конкретного устройства можно найти здесь",
     "Find out what storage device core settings and configurations are mounted": "Узнайте какие параметры ядра и системы выбраны",
@@ -84,6 +86,15 @@
     "Toggle a range of configurable services you can access via an active network": "Настройка ряда сервисов, доступ к которым можно получить через сеть",
     "Web Services": "Web-сервисы",
     "Wi-Fi Network": "Wi-Fi подключение"
+  },
+  "muxcustom": {
+    "CUSTOMISATION": "CUSTOMISATION",
+    "Catalogue Sets": "Catalogue Sets",
+    "Change the appearance of the muOS frontend launcher": "Change the appearance of the muOS frontend launcher",
+    "Load user created RetroArch configurations": "Load user created RetroArch configurations",
+    "Load user created artwork catalogue for content": "Load user created artwork catalogue for content",
+    "RetroArch Configurations": "RetroArch Configurations",
+    "muOS Themes": "muOS Themes"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Настройка говернора процессора позволяющая динамически регулировать частоту ЦП для обеспечения баланса между энергопотреблением и производительностью",
@@ -189,6 +200,17 @@
   },
   "muxpass": {
     "PASSCODE": "ПАРОЛЬ"
+  },
+  "muxpicker": {
+    "CATALOGUE PICKER": "CATALOGUE PICKER",
+    "CONFIG PICKER": "CONFIG PICKER",
+    "CUSTOM PICKER": "CUSTOM PICKER",
+    "No Catalogue Packages Found": "No Catalogue Packages Found",
+    "No Configuration Packages Found": "No Configuration Packages Found",
+    "No Custom Packages Found": "No Custom Packages Found",
+    "No Theme Packages Found": "No Theme Packages Found",
+    "THEME PICKER": "THEME PICKER",
+    "There are no attributed credits!": "There are no attributed credits!"
   },
   "muxplore": {
     "Added to Favourites": "Добавлено в избранное",

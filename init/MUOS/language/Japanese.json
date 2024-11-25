@@ -72,6 +72,8 @@
     "CONFIGURATION": "設定",
     "Change your current date, time, and timezone": "日付と時刻、タイムゾーンを設定します",
     "Connect to a Wi-Fi network manually or via a saved profile": "手動または保存済みの設定で Wi-Fi ネットワークに接続します",
+    "Customisation": "Customisation",
+    "Customise your muOS setup with user created packages": "Customise your muOS setup with user created packages",
     "Date and Time": "日付と時刻",
     "Device specific and muOS frontend settings can be found here": "デバイスと muOS の設定を行います",
     "Find out what storage device core settings and configurations are mounted": "Find out what storage device core settings and configurations are mounted",
@@ -84,6 +86,15 @@
     "Toggle a range of configurable services you can access via an active network": "ネットワーク関連サービスを切り替えます",
     "Web Services": "ウェブサービス",
     "Wi-Fi Network": "Wi-Fi ネットワーク"
+  },
+  "muxcustom": {
+    "CUSTOMISATION": "CUSTOMISATION",
+    "Catalogue Sets": "Catalogue Sets",
+    "Change the appearance of the muOS frontend launcher": "Change the appearance of the muOS frontend launcher",
+    "Load user created RetroArch configurations": "Load user created RetroArch configurations",
+    "Load user created artwork catalogue for content": "Load user created artwork catalogue for content",
+    "RetroArch Configurations": "RetroArch Configurations",
+    "muOS Themes": "muOS Themes"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "CPU周波数を動的に管理し、消費電力と処理能力を調節するガバナーを設定します",
@@ -189,6 +200,17 @@
   },
   "muxpass": {
     "PASSCODE": "パスコード"
+  },
+  "muxpicker": {
+    "CATALOGUE PICKER": "CATALOGUE PICKER",
+    "CONFIG PICKER": "CONFIG PICKER",
+    "CUSTOM PICKER": "CUSTOM PICKER",
+    "No Catalogue Packages Found": "No Catalogue Packages Found",
+    "No Configuration Packages Found": "No Configuration Packages Found",
+    "No Custom Packages Found": "No Custom Packages Found",
+    "No Theme Packages Found": "No Theme Packages Found",
+    "THEME PICKER": "THEME PICKER",
+    "There are no attributed credits!": "There are no attributed credits!"
   },
   "muxplore": {
     "Added to Favourites": "お気に入りに追加しました",

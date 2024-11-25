@@ -1,7 +1,7 @@
 {
   "generic": {
     "Back": "Nazad",
-    "Clear": "Clear",
+    "Clear": "Izbriši",
     "Directory": "Folder",
     "Disabled": "Onemogućeno",
     "Enabled": "Omogućeno",
@@ -72,6 +72,8 @@
     "CONFIGURATION": "PODEŠAVANJE",
     "Change your current date, time, and timezone": "Promeni trenutni datum, vreme i vremensku zonu",
     "Connect to a Wi-Fi network manually or via a saved profile": "Konektuj se ručno na Wi-Fi mrežu ili preko sačuvanih podešavanja",
+    "Customisation": "Prilagođavanje",
+    "Customise your muOS setup with user created packages": "Prilagodite svoj muOS pomoću korisnički kreiranih paketa",
     "Date and Time": "Datum i vreme",
     "Device specific and muOS frontend settings can be found here": "Podešavanja specifična za uređaj i muOS korisnički interfejs mogu se pronaći ovde",
     "Find out what storage device core settings and configurations are mounted": "Saznajte koja su podešavanja i konfiguracije skladišnog uređaja montirana",
@@ -84,6 +86,15 @@
     "Toggle a range of configurable services you can access via an active network": "Omogućite ili onemogućite niz podesivih servisa kojima možete pristupiti preko aktivne mreže",
     "Web Services": "Web servisi",
     "Wi-Fi Network": "Wi-Fi Mreža"
+  },
+  "muxcustom": {
+    "CUSTOMISATION": "PRILAGOĐAVANJE",
+    "Catalogue Sets": "Kolekcije kataloga",
+    "Change the appearance of the muOS frontend launcher": "Prilagodite izgled početnog interfejsa muOS-a",
+    "Load user created RetroArch configurations": "Učitaj korisnički kreirane RetroArch konfiguracije",
+    "Load user created artwork catalogue for content": "Učitaj katalog sa ilustracijama sadržaja koji je kreirao korisnik",
+    "RetroArch Configurations": "RetroArch podešavanja",
+    "muOS Themes": "muOS teme"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Podesite upravljače procesora (CPU governors) da dinamički prilagođavaju frekvenciju procesora i pomognu u balansiranju potrošnje energije i performansi",
@@ -181,14 +192,25 @@
   "muxoption": {
     "Assign Core": "Dodeli jezgro (Core)",
     "CONTENT OPTION": "OPCIJE SADRŽAJA",
-    "Search Content": "Search Content",
-    "Search for content within the selected directory": "Search for content within the selected directory",
+    "Search Content": "Pretraži sadržaj",
+    "Search for content within the selected directory": "Pretraži sadržaj u odabranom folderu",
     "Set the CPU governor for the selected content or directory": "Postavite CPU upravljača za odabrani sadržaj ili folder",
     "Set the system core or external emulator for the selected content or directory": "Podesite sistemsku jezgru (core) ili eksterni emulator za izabrani sadržaj ili folder",
     "System Governor": "Kontrolor sistema"
   },
   "muxpass": {
     "PASSCODE": "LOZINKA"
+  },
+  "muxpicker": {
+    "CATALOGUE PICKER": "IZBOR KATALOGA",
+    "CONFIG PICKER": "IZBOR KONFIGURACIJA",
+    "CUSTOM PICKER": "IZBOR PRILAGOĐENOG PODEŠAVANJA",
+    "No Catalogue Packages Found": "Nema pronađenih paketa kataloga",
+    "No Configuration Packages Found": "Nema pronađenih paketa konfiguracija",
+    "No Custom Packages Found": "Nema dostupnih prilagođenih paketa",
+    "No Theme Packages Found": "Nema pronađenih paketa tema",
+    "THEME PICKER": "IZBOR TEMA",
+    "There are no attributed credits!": "Nema dodeljenih kredita ili priznanja!"
   },
   "muxplore": {
     "Added to Favourites": "Dodato u omiljeno",
@@ -249,14 +271,14 @@
     "Year": "Godina"
   },
   "muxsearch": {
-    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
-    "Lookup": "Lookup",
-    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
-    "SEARCH CONTENT": "SEARCH CONTENT",
-    "Search Global": "Search Global",
-    "Search Local": "Search Local",
-    "Search all current active storage devices": "Search all current active storage devices",
-    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
+    "Enter in the name of the content you are looking for": "Unesite naziv sadržaja koji tražite",
+    "Lookup": "Pretraga",
+    "Lookup has to be 3 characters or more!": "Pretraga mora sadržati najmanje 3 karaktera!",
+    "SEARCH CONTENT": "PRETRAŽI SADRŽAJ",
+    "Search Global": "Globalna pretraga",
+    "Search Local": "Lokalna pretraga",
+    "Search all current active storage devices": "Pretraži sve trenutno aktivne uređaje za skladištenje",
+    "Search within the current selected folder and folders within": "Pretraži unutar trenutno odabranog foldera i njegovih podfoldera"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Dodeljeno jezgro (core)/Upravljački sistem",

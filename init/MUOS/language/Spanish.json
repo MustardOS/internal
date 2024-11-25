@@ -1,7 +1,7 @@
 {
   "generic": {
     "Back": "Atrás",
-    "Clear": "Clear",
+    "Clear": "Limpiar",
     "Directory": "Directorio",
     "Disabled": "Deshabilitado",
     "Enabled": "Habilitado",
@@ -72,6 +72,8 @@
     "CONFIGURATION": "CONFIGURACIÓN",
     "Change your current date, time, and timezone": "Cambia tu fecha, hora y zona horaria actuales",
     "Connect to a Wi-Fi network manually or via a saved profile": "Conéctate a una red Wi-Fi manualmente o a través de un perfil guardado",
+    "Customisation": "Personalización",
+    "Customise your muOS setup with user created packages": "Personaliza tu configuración de muOS con paquetes creados por el usuario",
     "Date and Time": "Fecha y hora",
     "Device specific and muOS frontend settings can be found here": "Aquí se pueden encontrar los ajustes específicos del dispositivo y del frontend muOS",
     "Find out what storage device core settings and configurations are mounted": "Averigüe qué ajustes y configuraciones del núcleo del dispositivo de almacenamiento están montados",
@@ -84,6 +86,15 @@
     "Toggle a range of configurable services you can access via an active network": "Activa o desactiva una serie de servicios configurables a los que puedes acceder a través de una red activa",
     "Web Services": "Servicios web",
     "Wi-Fi Network": "Red Wi-Fi"
+  },
+  "muxcustom": {
+    "CUSTOMISATION": "PERSONALIZACIÓN",
+    "Catalogue Sets": "Conjuntos de catálogos",
+    "Change the appearance of the muOS frontend launcher": "Cambiar la apariencia del iniciador de interfaz de muOS",
+    "Load user created RetroArch configurations": "Cargar configuraciones de RetroArch creadas por el usuario",
+    "Load user created artwork catalogue for content": "Cargar el catálogo de material gráfico creado por el usuario para el contenido",
+    "RetroArch Configurations": "Configuraciones RetroArch",
+    "muOS Themes": "Temas muOS"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Configura los gobernadores de la CPU para ajustar dinámicamente la frecuencia de la CPU y ayudar a equilibrar el consumo de energía y el rendimiento",
@@ -181,14 +192,25 @@
   "muxoption": {
     "Assign Core": "Asignar núcleo",
     "CONTENT OPTION": "CONTENT OPTION",
-    "Search Content": "Search Content",
-    "Search for content within the selected directory": "Search for content within the selected directory",
+    "Search Content": "Buscar contenido",
+    "Search for content within the selected directory": "Buscar contenido dentro del directorio seleccionado",
     "Set the CPU governor for the selected content or directory": "Configura el gobernador de la CPU para el contenido o directorio seleccionado",
     "Set the system core or external emulator for the selected content or directory": "Configura el núcleo del sistema o el emulador externo para el contenido o directorio seleccionado",
     "System Governor": "Gobernador del sistema"
   },
   "muxpass": {
     "PASSCODE": "CÓDIGO DE ACCESO"
+  },
+  "muxpicker": {
+    "CATALOGUE PICKER": "SELECTOR DE CATÁLOGO",
+    "CONFIG PICKER": "SELECTOR DE CONFIGURACIÓN",
+    "CUSTOM PICKER": "SELECCIONADOR PERSONALIZADO",
+    "No Catalogue Packages Found": "No se han encontrado paquetes de catálogo",
+    "No Configuration Packages Found": "No se han encontrado paquetes de configuración",
+    "No Custom Packages Found": "No se han encontrado paquetes personalizados",
+    "No Theme Packages Found": "No se han encontrado paquetes temáticos",
+    "THEME PICKER": "SELECCIONADOR DE TEMA",
+    "There are no attributed credits!": "¡No hay créditos atribuidos!"
   },
   "muxplore": {
     "Added to Favourites": "Añadido a Favoritos",
@@ -249,14 +271,14 @@
     "Year": "Año"
   },
   "muxsearch": {
-    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
-    "Lookup": "Lookup",
-    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
-    "SEARCH CONTENT": "SEARCH CONTENT",
-    "Search Global": "Search Global",
-    "Search Local": "Search Local",
-    "Search all current active storage devices": "Search all current active storage devices",
-    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
+    "Enter in the name of the content you are looking for": "Ingresa el nombre del contenido que estás buscando",
+    "Lookup": "Buscar",
+    "Lookup has to be 3 characters or more!": "¡La búsqueda debe tener 3 caracteres o más!",
+    "SEARCH CONTENT": "BUSCAR CONTENIDO",
+    "Search Global": "Búsqueda global",
+    "Search Local": "Búsqueda local",
+    "Search all current active storage devices": "Buscar todos los dispositivos de almacenamiento activos actuales",
+    "Search within the current selected folder and folders within": "Buscar dentro de la carpeta seleccionada actualmente y las carpetas dentro de ella"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Núcleo asignado/Sistema Gobernador",
@@ -355,7 +377,7 @@
     "Change the default brightness level that the device will use each time it starts up": "Cambia el nivel de brillo predeterminado que usará el dispositivo cada vez que se inicie",
     "Change the default theme used for the next device launch": "Cambia el tema predeterminado utilizado para el próximo inicio del dispositivo",
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Cambia el porcentaje de batería mostrado para mejorar la precisión según la calibración o las desviaciones conocidas en la lectura de la capacidad de la batería",
-    "DPAD Swap Function": "DPAD Swap Function",
+    "DPAD Swap Function": "Función de intercambio de DPAD",
     "Device Rumble": "Vibración del dispositivo",
     "HDMI Audio Output": "Salida de audio HDMI",
     "High": "Alto",
@@ -385,7 +407,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Activa o desactiva un inicio retrasado de RetroArch hasta que se establezca una conexión de red",
     "Toggle between ADB and MTP USB functionality": "Cambia entre la funcionalidad USB de ADB y MTP",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Activa o desactiva los mensajes detallados de inicio y apagado utilizados para depurar errores",
-    "Toggle the functionality of the power button to switch DPAD mode": "Toggle the functionality of the power button to switch DPAD mode",
+    "Toggle the functionality of the power button to switch DPAD mode": "Alternar la funcionalidad del botón de encendido para cambiar el modo DPAD",
     "Toggle the functionality of the user initialisation scripts on device startup": "Activar o desactivar la funcionalidad de los scripts de inicialización del usuario al iniciar el dispositivo",
     "Toggle the passcode lock - More information can be found on the muOS website": "Activa o desactiva el bloqueo con código de acceso - Puedes encontrar más información en el sitio web de muOS",
     "Toggle the power LED during content launch": "Activa o desactiva el LED de encendido durante el lanzamiento de contenido",
@@ -520,7 +542,7 @@
     "Toggle SFTP support - WebUI can be found on port 9090": "Activa o desactiva el soporte de SFTP - La interfaz web se encuentra en el puerto 9090",
     "Toggle SSH support - Access via port 22": "Activa o desactiva el soporte de SSH - Accede a través del puerto 22",
     "Toggle Syncthing - WebUI can be found on port 7070": "Activa o desactiva Syncthing - La interfaz web se encuentra en el puerto 7070",
-    "Toggle Tailscale - Need to login via SSH first": "Toggle Tailscale - Need to login via SSH first",
+    "Toggle Tailscale - Need to login via SSH first": "Activar o desactivar Tailscale: primero es necesario iniciar sesión a través de SSH",
     "Toggle network time protocol for active network connections": "Activa o desactiva el protocolo de tiempo de red para las conexiones de red activas",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Activa o desactiva la terminal virtual - La interfaz web se encuentra en el puerto 8080",
     "Virtual Terminal": "Terminal virtual",

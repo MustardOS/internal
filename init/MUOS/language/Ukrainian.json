@@ -1,7 +1,7 @@
 {
   "generic": {
     "Back": "Повернутись",
-    "Clear": "Clear",
+    "Clear": "Очистити",
     "Directory": "Директорія",
     "Disabled": "Вимкнено",
     "Enabled": "Увімкнено",
@@ -72,6 +72,8 @@
     "CONFIGURATION": "КОНФІГУРАЦІЯ",
     "Change your current date, time, and timezone": "Змінити поточну дату, час і часовий пояс",
     "Connect to a Wi-Fi network manually or via a saved profile": "Приєднатися до мережі Wi-Fi вруічну, або за допомогою збереженого профілю",
+    "Customisation": "Customisation",
+    "Customise your muOS setup with user created packages": "Customise your muOS setup with user created packages",
     "Date and Time": "Дата та Час",
     "Device specific and muOS frontend settings can be found here": "Тут можна знайти налаштування пристрою та інтерфейсу muOS",
     "Find out what storage device core settings and configurations are mounted": "Визначити які основні налаштування та конфігурація сховища змонтовано",
@@ -84,6 +86,15 @@
     "Toggle a range of configurable services you can access via an active network": "Активувати набір конфігурованих сервісів, до яких можна під'єднатися через поточну мережу",
     "Web Services": "Веб Сервіси",
     "Wi-Fi Network": "Мережа Wi-Fi"
+  },
+  "muxcustom": {
+    "CUSTOMISATION": "CUSTOMISATION",
+    "Catalogue Sets": "Catalogue Sets",
+    "Change the appearance of the muOS frontend launcher": "Change the appearance of the muOS frontend launcher",
+    "Load user created RetroArch configurations": "Load user created RetroArch configurations",
+    "Load user created artwork catalogue for content": "Load user created artwork catalogue for content",
+    "RetroArch Configurations": "RetroArch Configurations",
+    "muOS Themes": "muOS Themes"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Налаштувати CPU менеджер, щоб динамічно керувати частотою процесора зберігаючи баланс між споживанням енергії та швидкодією",
@@ -181,14 +192,25 @@
   "muxoption": {
     "Assign Core": "Призначити Ядро",
     "CONTENT OPTION": "ВАРІАНТ КОНТЕНТУ",
-    "Search Content": "Search Content",
-    "Search for content within the selected directory": "Search for content within the selected directory",
+    "Search Content": "Шукати Вміст",
+    "Search for content within the selected directory": "Шукати вміст у вибраній директорії",
     "Set the CPU governor for the selected content or directory": "Встановити CPU менеджер для обраного контенту або директорії",
     "Set the system core or external emulator for the selected content or directory": "Встановити системне ядро або зовнішній емулятор для обраного контенту або директорії",
     "System Governor": "Системний Менеджер"
   },
   "muxpass": {
     "PASSCODE": "ПАРОЛЬ"
+  },
+  "muxpicker": {
+    "CATALOGUE PICKER": "CATALOGUE PICKER",
+    "CONFIG PICKER": "CONFIG PICKER",
+    "CUSTOM PICKER": "CUSTOM PICKER",
+    "No Catalogue Packages Found": "No Catalogue Packages Found",
+    "No Configuration Packages Found": "No Configuration Packages Found",
+    "No Custom Packages Found": "No Custom Packages Found",
+    "No Theme Packages Found": "No Theme Packages Found",
+    "THEME PICKER": "THEME PICKER",
+    "There are no attributed credits!": "There are no attributed credits!"
   },
   "muxplore": {
     "Added to Favourites": "Додано в Улюблені",
@@ -249,14 +271,14 @@
     "Year": "Рік"
   },
   "muxsearch": {
-    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
-    "Lookup": "Lookup",
-    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
-    "SEARCH CONTENT": "SEARCH CONTENT",
-    "Search Global": "Search Global",
-    "Search Local": "Search Local",
-    "Search all current active storage devices": "Search all current active storage devices",
-    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within"
+    "Enter in the name of the content you are looking for": "Введіть назву вмісту, який Ви шукаєте",
+    "Lookup": "Огляд",
+    "Lookup has to be 3 characters or more!": "Введіть 3 або більше символів!",
+    "SEARCH CONTENT": "ПОШУК ВМІСТУ",
+    "Search Global": "Глобальний Пошук",
+    "Search Local": "Локальний Пошук",
+    "Search all current active storage devices": "Шукати на всіх активних пристроях збереження",
+    "Search within the current selected folder and folders within": "Шукати у поточній вибраній папці та у вкладених"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Призначене ядро/Системний Менеджер",

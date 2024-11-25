@@ -30,7 +30,7 @@ CURR_CONSOLE="$(GET_VAR "device" "board/name")"
 
 export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 export SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
-export SDL_BLITTER_DISABLED=0
+export SDL_BLITTER_DISABLED=1
 
 SET_VAR "system" "foreground_process" "yabasanshiro"
 

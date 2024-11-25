@@ -7,6 +7,8 @@ BGM_THEME_DIR="/run/muos/storage/theme/active/music"
 
 BGM_TYPE=$(GET_VAR "global" "settings/general/bgm")
 
+killall "mpv"
+
 while :; do
 	case $BGM_TYPE in
 		0) exit 0 ;;

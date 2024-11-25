@@ -38,14 +38,14 @@ OLD_BGM_TYPE=$(cat "/tmp/bgm_type" 2>/dev/null || echo 0)
 
 printf "%s" "$NEW_BGM_TYPE" >"/tmp/bgm_type"
 
-if [ "$NEW_BGM_TYPE" -eq 0 ]; then
+if [ $NEW_BGM_TYPE -eq 0 ]; then
 	killall "playbgm.sh" "mpv"
 else
-	if [ "$NEW_BGM_TYPE" -ne "$OLD_BGM_TYPE" ]; then
+	if [ $NEW_BGM_TYPE -ne $OLD_BGM_TYPE ]; then
 		killall "playbgm.sh" "mpv"
 		wait
 	fi
-	if [ ! pgrep -f "playbgm.sh" ] >/dev/null || [ ! pgrep -f "mpv" ] >/dev/null; then
+	if ! pgrep "playbgm.sh" >/dev/null || ! pgrep "mpv" >/dev/null; then
 		/opt/muos/script/mux/playbgm.sh &
 	fi
 fi

@@ -32,4 +32,15 @@ fi
 # Set the device specific SDL Controller Map
 /opt/muos/script/mux/sdl_map.sh &
 
-/opt/muos/script/mux/playbgm.sh &
+# Check to see if BGM is playing, if it is and we've disabled it, kill the script and any mpv processes
+NEW_BGM_TYPE=$(GET_VAR "global" "settings/general/bgm")
+OLD_BGM_TYPE=$(cat "/tmp/bgm_type" 2>/dev/null || echo 0)
+
+printf "%s" "$NEW_BGM_TYPE" >"/tmp/bgm_type"
+
+if [ "$NEW_BGM_TYPE" -eq 0 ]; then
+	killall "playbgm.sh" "mpv"
+else
+	[ "$NEW_BGM_TYPE" -ne "$OLD_BGM_TYPE" ] || ! pgrep -f "playbgm.sh" >/dev/null && killall "playbgm.sh" "mpv"
+	/opt/muos/script/mux/playbgm.sh &
+fi

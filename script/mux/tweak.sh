@@ -31,3 +31,5 @@ fi
 
 # Set the device specific SDL Controller Map
 /opt/muos/script/mux/sdl_map.sh &
+
+/opt/muos/script/mux/playbgm.sh &

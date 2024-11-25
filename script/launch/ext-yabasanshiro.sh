@@ -30,7 +30,7 @@ CURR_CONSOLE="$(GET_VAR "device" "board/name")"
 
 export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 export SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
-export SDL_BLITTER_DISABLED=0
+export SDL_BLITTER_DISABLED=1
 
 SET_VAR "system" "foreground_process" "yabasanshiro"
 
@@ -49,6 +49,19 @@ if [ "$CURR_CONSOLE" = "rg28xx" ] && [ ! -f "$EMUDIR/.yabasanshiro/$ROMNAME.conf
     cp -f "$CONF_28XX" "$EMUDIR/.yabasanshiro/$ROMNAME.config"
 fi
 
+# Memory cards fill out so fake one card per game.
+# If we don't exit gracefully, save file may still exist as backup.bin, if so make a copy.
+# We only keep one recovered backup
+if [ -f "$SAVE_DIR/backup.bin" ]; then
+	cp -f "$SAVE_DIR/backup.bin" "$SAVE_DIR/recovered.backup.bin"
+	rm -f "$SAVE_DIR/backup.bin"
+fi
+
+# If a game specific save exists, copy to backup.bin
+if [ -f "$SAVE_DIR/$ROMNAME.backup.bin" ]; then
+	cp -f "$SAVE_DIR/$ROMNAME.backup.bin" "$SAVE_DIR/backup.bin"
+fi
+
 chmod +x "$EMUDIR"/yabasanshiro
 
 cd "$EMUDIR" || exit
@@ -56,6 +69,12 @@ cd "$EMUDIR" || exit
 export LD_LIBRARY_PATH="$EMUDIR/libsark:$LD_LIBRARY_PATH"
 
 SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") SDL_ASSERT=always_ignore $YABA_BIN "$ROM"
+
+# Copy backup.bin to game specific save
+if [ -f "$SAVE_DIR/backup.bin" ]; then
+	cp -f "$SAVE_DIR/backup.bin" "$SAVE_DIR/$ROMNAME.backup.bin"
+	rm -f "$SAVE_DIR/backup.bin"
+fi
 
 unset SDL_HQ_SCALER
 unset SDL_ROTATION

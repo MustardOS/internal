@@ -51,7 +51,7 @@ if [ "$SCVM" = "grim:grim" ]; then
 else
 	# Switch analogue<>dpad for stickless devices
 	case "$(GET_VAR "device" "board/name")" in
-    	rg28xx|rg35xx-2024|rg35xx-plus|rg35xx-sp)
+    	rg28xx-h|rg35xx-2024|rg35xx-plus|rg35xx-sp)
         	echo 2 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
         	;;
     	*)

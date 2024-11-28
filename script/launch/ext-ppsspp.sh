@@ -25,7 +25,7 @@ chmod +x "$EMUDIR"/ppsspp
 cd "$EMUDIR" || exit
 
 case "$(GET_VAR "device" "board/name")" in
-	rg28xx)
+	rg28xx-h)
 		FB_SWITCH 720 960 32
 		;;
 	*)

@@ -17,7 +17,7 @@ export LD_LIBRARY_PATH=/usr/lib32
 export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 
 case "$(GET_VAR "device" "board/name")" in
-	rg28xx)
+	rg28xx-h)
 		export SDL_ROTATION=0
 		;;
 	*)

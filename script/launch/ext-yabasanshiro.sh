@@ -45,7 +45,7 @@ ROMNAME=$(basename "$ROM")
 # YabaSanshiro appears to rotate on a game config level.
 # This copies a rotation enabled game config as game specific before launch.
 # NOTE: Menu rotation is currently still wrong.
-if [ "$CURR_CONSOLE" = "rg28xx" ] && [ ! -f "$EMUDIR/.yabasanshiro/$ROMNAME.config" ]; then
+if [ "$CURR_CONSOLE" = "rg28xx-h" ] && [ ! -f "$EMUDIR/.yabasanshiro/$ROMNAME.config" ]; then
     cp -f "$CONF_28XX" "$EMUDIR/.yabasanshiro/$ROMNAME.config"
 fi
 

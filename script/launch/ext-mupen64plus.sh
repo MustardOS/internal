@@ -20,7 +20,7 @@ export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 SET_VAR "system" "foreground_process" "mupen64plus"
 
 case "$(GET_VAR "device" "board/name")" in
-	rg28xx)
+	rg28xx-h)
 		FB_SWITCH 240 320 32
 		;;
 	*)

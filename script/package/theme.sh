@@ -40,7 +40,7 @@ if [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 0 ]; then
 	if [ -f "$BOOTLOGO_NEW" ]; then
 		cp "$BOOTLOGO_NEW" "$(GET_VAR "device" "storage/boot/mount")/bootlogo.bmp"
 		case "$(GET_VAR "device" "board/name")" in
-			rg28xx) convert "$(GET_VAR "device" "storage/boot/mount")/bootlogo.bmp" -rotate 270 "$(GET_VAR "device" "storage/boot/mount")/bootlogo.bmp" ;;
+			rg28xx-h) convert "$(GET_VAR "device" "storage/boot/mount")/bootlogo.bmp" -rotate 270 "$(GET_VAR "device" "storage/boot/mount")/bootlogo.bmp" ;;
 			*) ;;
 		esac
 	fi

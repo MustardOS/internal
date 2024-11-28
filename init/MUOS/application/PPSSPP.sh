@@ -22,7 +22,7 @@ cd "$PPSSPP_DIR" || exit
 SET_VAR "system" "foreground_process" "PPSSPP"
 
 case "$(GET_VAR "device" "board/name")" in
-	rg28xx)
+	rg28xx-h)
 		FB_SWITCH 720 960 32
 		;;
 	*)

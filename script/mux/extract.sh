@@ -26,7 +26,7 @@ SCHEME_FOLDER="scheme"
 SCHEME_FILE="default.txt"
 echo "Inspecting archive..."
 
-if unzip -l "$1" | awk '$NF ~ /^'"$SCHEME_FOLDER"'\// && $NF ~ /\/'"$SCHEME_FILE"'$/ {print $NF}' | grep -q ""; then
+if unzip -l "$1" | awk '$NF ~ /^(('"$SCHEME_FOLDER"'|640x480\/'"$SCHEME_FOLDER"'|720x720\/'"$SCHEME_FOLDER"'))\// && $NF ~ /\/'"$SCHEME_FILE"'$/ {print $NF}' | grep -q ""; then
 	echo "Archive contents indicate it is NOT an installable theme file"
 	echo "Copying unextracted archive to theme folder"
 	cp -f "$1" "/run/muos/storage/theme/"

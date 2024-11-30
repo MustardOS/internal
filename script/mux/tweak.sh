@@ -14,6 +14,12 @@ fi
 
 GET_VAR "global" "settings/general/colour" >/sys/class/disp/disp/attr/color_temperature
 
+if [ "$(GET_VAR "global" "settings/advanced/overdrive")" -eq 1 ]; then
+	SET_VAR "device" "audio/max" "200"
+else
+	SET_VAR "device" "audio/max" "100"
+fi
+
 /opt/muos/script/system/usb.sh &
 
 # Set the device specific SDL Controller Map

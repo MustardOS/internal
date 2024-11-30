@@ -2,11 +2,16 @@
 
 . /opt/muos/script/var/func.sh
 
+WIDTH="$(GET_VAR "device" "screen/width")"
+HEIGHT="$(GET_VAR "device" "screen/height")"
+
 SWITCHED_ON=0
 SWITCHED_OFF=0
 
 HAS_PLUGGED=/tmp/hdmi_has_plugged
 DO_REFRESH=/tmp/hdmi_do_refresh
+
+killall -q "hdmi_start.sh"
 
 while true; do
 	if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ]; then
@@ -21,18 +26,11 @@ while true; do
 		SWITCHED_OFF=0
 
 		if [ $SWITCHED_ON -eq 0 ]; then
-			printf 0 >/run/muos/device/screen/rotate
-			printf 640 >/run/muos/device/screen/width
-			printf 480 >/run/muos/device/screen/height
-			printf 0 >/run/muos/device/sdl/rotation
-			printf 0 >/run/muos/device/sdl/scaler
-			printf 1 >/run/muos/device/sdl/blitter_disabled
-
-			DISPLAY_WRITE disp0 switch "4 $(GET_VAR "global" "settings/general/hdmi") 0 0 0x4 0x201 0 1 0 8"
+			DISPLAY_WRITE disp0 switch1 "4 $(GET_VAR "global" "settings/hdmi/resolution") $(GET_VAR "global" "settings/hdmi/space") $(GET_VAR "global" "settings/hdmi/depth") 0x4 0x101 0 $(GET_VAR "global" "settings/hdmi/range") $(GET_VAR "global" "settings/hdmi/scan") $(GET_VAR "global" "settings/hdmi/aspect")"
 
 			FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 			case "$FG_PROC_VAL" in
-				mux*) FB_SWITCH 640 480 32 ;;
+				mux*) FB_SWITCH "$WIDTH" "$HEIGHT" 32 ;;
 				*) ;;
 			esac
 
@@ -47,18 +45,11 @@ while true; do
 			SWITCHED_ON=0
 
 			if [ $SWITCHED_OFF -eq 0 ]; then
-				printf 1 >/run/muos/device/screen/rotate
-				printf 480 >/run/muos/device/screen/width
-				printf 640 >/run/muos/device/screen/height
-				printf 1 >/run/muos/device/sdl/rotation
-				printf 1 >/run/muos/device/sdl/scaler
-				printf 0 >/run/muos/device/sdl/blitter_disabled
-
 				DISPLAY_WRITE disp0 switch "1 0"
 
 				FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
 				case "$FG_PROC_VAL" in
-					mux*) FB_SWITCH 480 640 32 ;;
+					mux*) FB_SWITCH "$WIDTH" "$HEIGHT" 32 ;;
 					*) ;;
 				esac
 
@@ -68,4 +59,4 @@ while true; do
 		fi
 	fi
 	sleep 2
-done
+done &

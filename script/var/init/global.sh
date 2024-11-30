@@ -22,19 +22,21 @@ CONFIG_FILE="$GLOBAL_CONFIG"
 BOOT_VARS="factory_reset device_setup clock_setup firmware_done"
 CLOCK_VARS="notation pool"
 NETWORK_VARS="enabled type ssid pass address gateway subnet dns"
-SETTINGS_ADVANCED_VARS="accelerate swap thermal font verbose rumble volume brightness offset lock led random_theme retrowait usb_function state hdmi_output user_init dpad_swap"
-SETTINGS_GENERAL_VARS="hidden bgm sound startup colour brightness hdmi language"
+SETTINGS_ADVANCED_VARS="accelerate swap thermal font verbose rumble volume brightness offset lock led random_theme retrowait usb_function state user_init dpad_swap overdrive"
+SETTINGS_GENERAL_VARS="hidden bgm sound startup colour brightness language"
+SETTINGS_HDMI_VARS="enabled resolution space depth range scan audio"
 SETTINGS_POWER_VARS="low_battery shutdown idle_display idle_sleep"
 VISUAL_VARS="battery network bluetooth clock boxart boxartalign name dash friendlyfolder thetitleformat titleincluderootdrive counterfolder counterfile folderitemcount folderempty backgroundanimation launchsplash blackfade"
 WEB_VARS="sshd sftpgo gotty syncthing rslsync ntp tailscaled"
 
-for INIT in boot clock network settings/advanced settings/general settings/power visual web; do
+for INIT in boot clock network settings/advanced settings/general settings/hdmi settings/power visual web; do
 	case "$INIT" in
 		boot) VARS="$BOOT_VARS" ;;
 		clock) VARS="$CLOCK_VARS" ;;
 		network) VARS="$NETWORK_VARS" ;;
 		settings/advanced) VARS="$SETTINGS_ADVANCED_VARS" ;;
 		settings/general) VARS="$SETTINGS_GENERAL_VARS" ;;
+		settings/hdmi) VARS="$SETTINGS_HDMI_VARS" ;;
 		settings/power) VARS="$SETTINGS_POWER_VARS" ;;
 		visual) VARS="$VISUAL_VARS" ;;
 		web) VARS="$WEB_VARS" ;;

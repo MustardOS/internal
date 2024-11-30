@@ -328,6 +328,11 @@ while :; do
 				SET_VAR "system" "foreground_process" "muxinfo"
 				nice --20 /opt/muos/extra/muxinfo
 				;;
+			"hdmi")
+				echo tweakgen >$ACT_GO
+				SET_VAR "system" "foreground_process" "muxhdmi"
+				nice --20 /opt/muos/extra/muxhdmi
+				;;
 			"power")
 				echo tweakgen >$ACT_GO
 				SET_VAR "system" "foreground_process" "muxpower"

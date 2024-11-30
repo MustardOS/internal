@@ -16,7 +16,10 @@ case "$(GET_VAR "global" "settings/advanced/rumble")" in
 	*) ;;
 esac
 
-[ ! -L /opt/muos/device/current ] && ln -s "$(GET_VAR "device" "board/name")" /opt/muos/device/current
+DEVICE_CURRENT="/opt/muos/device/current"
+[ -L "$DEVICE_CURRENT" ] && rm -rf "$DEVICE_CURRENT"
+mkdir -p "$DEVICE_CURRENT"
+mount --bind "/opt/muos/device/$(GET_VAR "device" "board/name")" "$DEVICE_CURRENT"
 
 echo "pipewire" >"$AUDIO_SRC"
 

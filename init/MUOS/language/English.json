@@ -197,6 +197,7 @@
     "Enter the network identifier (SSID) here": "Enter the network identifier (SSID) here",
     "Enter the network password here (optional)": "Enter the network password here (optional)",
     "Gateway IP": "Gateway IP",
+    "Hidden Network": "Hidden Network",
     "Identifier": "Identifier",
     "Network Active": "Network Active",
     "Network Disabled": "Network Disabled",
@@ -211,6 +212,7 @@
     "Subnet CIDR": "Subnet CIDR",
     "Toggle between DHCP and Static network types": "Toggle between DHCP and Static network types",
     "Toggle the Wi-Fi network on and off": "Toggle the Wi-Fi network on and off",
+    "Toggle whether or not to try and connect to a hidden SSID broadcast": "Toggle whether or not to try and connect to a hidden SSID broadcast",
     "Trying to Connect...": "Trying to Connect…",
     "WI-FI NETWORK": "WI-FI NETWORK"
   },
@@ -385,6 +387,7 @@
   "muxtweakadv": {
     "ADVANCED SETTINGS": "ADVANCED SETTINGS",
     "Adjust the rate of speed when holding navigation keys down": "Adjust the rate of speed when holding navigation keys down",
+    "Audio Overdrive": "Audio Overdrive",
     "Battery Offset": "Battery Offset",
     "Brightness On Boot": "Brightness On Boot",
     "Button Swap": "Button Swap",
@@ -422,6 +425,7 @@
     "Toggle a delayed start of RetroArch until a network connection is established": "Toggle a delayed start of RetroArch until a network connection is established",
     "Toggle between ADB and MTP USB functionality": "Toggle between ADB and MTP USB functionality",
     "Toggle startup and shutdown verbose messages used for debugging faults": "Toggle startup and shutdown verbose messages used for debugging faults",
+    "Toggle the audio overdrive moving it from 100% to 200%": "Toggle the audio overdrive moving it from 100% to 200%",
     "Toggle the functionality of the power button to switch DPAD mode": "Toggle the functionality of the power button to switch DPAD mode",
     "Toggle the functionality of the user initialisation scripts on device startup": "Toggle the functionality of the user initialisation scripts on device startup",
     "Toggle the passcode lock - More information can be found on the muOS website": "Toggle the passcode lock - More information can be found on the muOS website",

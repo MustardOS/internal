@@ -8,7 +8,7 @@ SLEEP_STATE="/tmp/sleep_state"
 
 GET_CURRENT() {
 	wpctl get-volume "$(GET_VAR "audio" "nid_internal")" |
-		awk '{for (i=1; i<=NF; i++) if ($i ~ /^[0-9.]+$/) print int($i * '"$(GET_VAR "device" "audio/max")"')}'
+		awk '{for (i=1; i<=NF; i++) if ($i ~ /^[0-9.]+$/) print int($i * 100)}'
 }
 
 SET_CURRENT() {
@@ -16,9 +16,13 @@ SET_CURRENT() {
 	MAX=$(GET_VAR "device" "audio/max")
 	VALUE="$1"
 
-	PERCENTAGE=$(((VALUE - MIN) * 100 / (MAX - MIN)))
+	[ "$VALUE" -lt "$MIN" ] && VALUE="$MIN"
+	[ "$VALUE" -gt "$MAX" ] && VALUE="$MAX"
+
+	# Fuck you percentages!
+	PERCENTAGE=$(((VALUE - MIN) * MAX / (MAX - MIN)))
 	[ "$PERCENTAGE" -lt 0 ] && PERCENTAGE=0
-	[ "$PERCENTAGE" -gt 100 ] && PERCENTAGE=100
+	[ "$PERCENTAGE" -gt "$MAX" ] && PERCENTAGE="$MAX"
 
 	XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$PERCENTAGE%"
 

@@ -31,8 +31,6 @@ R_DIR=$(sed -n '5p' "$ROM_GO")$(sed -n '6p' "$ROM_GO")
 ROM="$R_DIR"/$(sed -n '7p' "$ROM_GO")
 PC_IP="$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/pc_ip.txt"
 
-printf "\tLAUNCH INITIATED\n\tNAME: %s\n\tCORE: %s\n\tR_DIR: %s\n\tROM: %s\n" "$NAME" "$CORE" "$R_DIR" "$ROM"
-
 if [ -s "$PC_IP" ]; then
 	python "$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/discord_presence_handheld.py" "$(cat "$PC_IP")" \
 		"On my $(GET_VAR "device" "board/name") with muOS $(cat /opt/muos/config/version.txt)!" "Playing $NAME"

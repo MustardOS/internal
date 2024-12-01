@@ -23,6 +23,7 @@ ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
 ASS_GO=/tmp/ass_go
 GOV_GO=/tmp/gov_go
+GVR_GO=/tmp/gvr_go
 PIK_GO=/tmp/pik_go
 ROM_GO=/tmp/rom_go
 RES_GO=/tmp/res_go
@@ -46,7 +47,7 @@ if [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 1 ]; then
 	/opt/muos/script/package/theme.sh "?R"
 fi
 
-LAST_PLAY="/opt/muos/config/lastplay.txt"
+LAST_PLAY=$(cat "/opt/muos/config/lastplay.txt")
 
 LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
 DEF_GOV=$(GET_VAR "device" "cpu/default")
@@ -60,7 +61,7 @@ fi
 
 LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"
 if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR "global" "settings/general/startup")" = "resume" ]; then
-	if [ -s "$LAST_PLAY" ]; then
+	if [ -n "$LAST_PLAY" ]; then
 		LOG_INFO "$0" 0 "FRONTEND" "Checking for network and retrowait"
 		if [ "$(GET_VAR "global" "network/enabled")" -eq 1 ] && [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
 			NET_START="/tmp/net_start"
@@ -101,6 +102,19 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 		if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ] || [ "$(cat "$NET_START")" = "ignore" ] || [ "$(GET_VAR "global" "network/enabled")" -eq 0 ] || [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 0 ]; then
 			LOG_INFO "$0" 0 "FRONTEND" "Booting to last launched content"
 			cat "$LAST_PLAY" >"$ROM_GO"
+
+			CONTENT_GOV="$(basename "$LAST_PLAY" .cfg).gov"
+			if [ -e "$CONTENT_GOV" ]; then
+				printf "%s" "$(cat "$CONTENT_GOV")" >$GVR_GO
+			else
+				CONTENT_GOV="$(dirname "$LAST_PLAY")/core.gov"
+				if [ -e "$CONTENT_GOV" ]; then
+					printf "%s" "$(cat "$CONTENT_GOV")" >$GVR_GO
+				else
+					LOG_INFO "$0" 0 "FRONTEND" "No governor found for launched content"
+				fi
+			fi
+
 			/opt/muos/script/mux/launch.sh last
 		fi
 	fi

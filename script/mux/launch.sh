@@ -15,9 +15,6 @@ export EVSIEVE_BIN=evsieve
 export EVSIEVE_DIR="/opt/muos/bin"
 export EVSIEVE_CONFDIR="/opt/muos/config/evsieve"
 
-LAST_PLAY="/opt/muos/config/lastplay.txt"
-ROM_LAST=/tmp/rom_last
-
 if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 	nice --20 /opt/muos/extra/muxpass -t launch
 	if [ "$?" = 2 ]; then
@@ -26,8 +23,6 @@ if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 		exit
 	fi
 fi
-
-cat "$ROM_GO" >"$ROM_LAST"
 
 SOURCE=$1
 NAME=$(sed -n '1p' "$ROM_GO")
@@ -59,7 +54,6 @@ KILL_BGM
 GET_VAR "global" "settings/advanced/led" >"$(GET_VAR "device" "led/normal")"
 GET_VAR "global" "settings/advanced/led" >/tmp/work_led_state
 
-cat "$ROM_LAST" >"$LAST_PLAY"
 cat "$GVR_GO" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
 # External Script

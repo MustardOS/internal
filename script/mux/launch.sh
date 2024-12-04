@@ -47,7 +47,7 @@ if [ -f "$EVSIEVE_CONFDIR/$CORE.evs.sh" ]; then
 	"$EVSIEVE_CONFDIR/$CORE.evs.sh"
 fi
 
-KILL_BGM
+STOP_BGM
 
 GET_VAR "global" "settings/advanced/led" >"$(GET_VAR "device" "led/normal")"
 GET_VAR "global" "settings/advanced/led" >/tmp/work_led_state
@@ -121,6 +121,8 @@ elif [ "$CORE" = nxengine_libretro.so ]; then
 else
 	/opt/muos/script/launch/lr-general.sh "$NAME" "$CORE" "$ROM"
 fi
+
+CHECK_BGM
 
 DEF_GOV=$(GET_VAR "device" "cpu/default")
 printf '%s\n' "$DEF_GOV" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor

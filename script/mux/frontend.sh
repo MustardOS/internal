@@ -126,20 +126,13 @@ LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
 while :; do
+	CHECK_BGM
+
 	# Reset DPAD<>ANALOGUE switch for H700 devices
 	case "$(GET_VAR "device" "board/name")" in
 		rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
 		*) ;;
 	esac
-
-	# Background Music
-	if [ "$(GET_VAR "global" "settings/general/bgm")" -eq 1 ]; then
-		if ! pgrep -f "playbgm.sh" >/dev/null; then
-			/opt/muos/script/mux/playbgm.sh &
-		fi
-	else
-		KILL_BGM
-	fi
 
 	# Content Association
 	if [ -s "$ASS_GO" ]; then
@@ -177,16 +170,19 @@ while :; do
 
 	# Content Loader
 	if [ -s "$ROM_GO" ]; then
-		KILL_BGM
 		/opt/muos/script/mux/launch.sh list
 	fi
 
 	# Application Loader
 	if [ -s "$APP_GO" ]; then
-		KILL_BGM
-		RUN_APP=$(cat $APP_GO)
+		RUN_APP=$(cat "$APP_GO")
+		case "$RUN_APP" in
+			*"Archive Manager"* | *"Task Toolkit"*) ;;
+			*) STOP_BGM ;;
+		esac
 		"$RUN_APP"
 		rm "$APP_GO"
+		CHECK_BGM
 		continue
 	fi
 

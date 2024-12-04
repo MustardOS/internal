@@ -112,8 +112,29 @@ RUMBLE() {
 	echo 0 >"$1"
 }
 
-KILL_BGM() {
+STOP_BGM() {
 	if pgrep -f "playbgm.sh" >/dev/null; then
-		killall -q "playbgm.sh" "mpg123"
+		killall -q "playbgm.sh" "mpv"
+		printf "%d" "-1" >"/tmp/bgm_type"
+	fi
+}
+
+START_BGM() {
+	NEW_BGM_TYPE=$(GET_VAR "global" "settings/general/bgm")
+	OLD_BGM_TYPE=$(cat "/tmp/bgm_type" 2>/dev/null || echo "-1")
+	if [ "$NEW_BGM_TYPE" -ne "$OLD_BGM_TYPE" ]; then
+		STOP_BGM
+		case $NEW_BGM_TYPE in
+			1) nohup /opt/muos/script/mux/playbgm.sh "/run/muos/storage/music" & ;;
+			2) nohup /opt/muos/script/mux/playbgm.sh "/run/muos/storage/theme/active/music" & ;;
+			*) ;;
+		esac
+		printf "%s" "$NEW_BGM_TYPE" >"/tmp/bgm_type"
+	fi
+}
+
+CHECK_BGM() {
+	if ! pgrep -f "playbgm.sh" >/dev/null; then
+		START_BGM
 	fi
 }

@@ -24,6 +24,7 @@ APP_GO=/tmp/app_go
 ASS_GO=/tmp/ass_go
 GOV_GO=/tmp/gov_go
 GVR_GO=/tmp/gvr_go
+IDX_GO=/tmp/idx_go
 PIK_GO=/tmp/pik_go
 ROM_GO=/tmp/rom_go
 RES_GO=/tmp/res_go
@@ -191,9 +192,9 @@ while :; do
 
 	# Get Last ROM Index
 	if [ "$(cat $ACT_GO)" = explore ] || [ "$(cat $ACT_GO)" = favourite ] || [ "$(cat $ACT_GO)" = history ]; then
-		if [ -s "/tmp/idx_go" ]; then
-			LAST_INDEX_ROM=$(cat "/tmp/idx_go")
-			rm "/tmp/idx_go"
+		if [ -s "$IDX_GO" ]; then
+			LAST_INDEX_ROM=$(cat "$IDX_GO")
+			rm "$IDX_GO"
 		else
 			LAST_INDEX_ROM=0
 		fi

@@ -25,4 +25,6 @@ fi
 # Set the device specific SDL Controller Map
 /opt/muos/script/mux/sdl_map.sh &
 
+/opt/muos/script/system/swapfile.sh &
+
 START_BGM

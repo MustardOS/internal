@@ -42,6 +42,9 @@ fi
 LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"
 cp -f "/opt/muos/device/current/control/asound.conf" "/etc/asound.conf"
 
+LOG_INFO "$0" 0 "BOOTING" "Checking Swapfile Requirements"
+/opt/muos/script/system/swapfile.sh &
+
 if [ -s "$ALSA_CONFIG" ]; then
 	LOG_INFO "$0" 0 "BOOTING" "ALSA Config Check Passed"
 else

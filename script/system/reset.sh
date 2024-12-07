@@ -28,7 +28,7 @@ if mount -t "$(GET_VAR "device" "storage/rom/type")" -o rw,utf8,noatime,nofail \
 	"$(GET_VAR "device" "storage/rom/mount")"; then
 	SET_VAR "device" "storage/rom/active" "1"
 else
-	killall -q "mpg123"
+	killall -q "mpv"
 	CRITICAL_FAILURE device "$(GET_VAR "device" "storage/rom/mount")" "/dev/$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")"
 fi
 

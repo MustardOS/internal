@@ -78,7 +78,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 
 	LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
 	/opt/muos/script/mux/hotkey.sh &
-	/usr/bin/mpg123 -q /opt/muos/factory.mp3 &
+	/usr/bin/mpv /opt/muos/factory.mp3 &
 
 	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
 		LOG_INFO "$0" 0 "FACTORY RESET" "Generating SSH Host Keys"
@@ -99,8 +99,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	SET_VAR "global" "boot/factory_reset" "0"
 	SET_VAR "global" "settings/advanced/rumble" "0"
 
-	killall -q "hotkey.sh" "mpg123"
-	rm -f "/opt/muos/factory.mp3"
+	killall -q "hotkey.sh" "mpv"
 
 	/opt/muos/extra/muxcredits
 	/opt/muos/script/mux/quit.sh reboot frontend

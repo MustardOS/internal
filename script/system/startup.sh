@@ -124,6 +124,19 @@ while [ ! -f /run/muos/storage/mounted ]; do
 	sleep 0.25
 done
 
+# Check for a file at MUOS/kiosk.ini on SD1 - if found lets process and remove it!
+KIOSK_HARD_CONFIG="/opt/muos/config/kiosk.ini"
+KIOSK_USER_CONFIG="$(GET_VAR "device" "storage/rom/mount")"/MUOS/kiosk.ini
+if [ -f "/opt/muos/kiosk_unlock" ]; then
+	rm -f "/opt/muos/kiosk_unlock"
+else
+	if [ -f "$KIOSK_USER_CONFIG" ] && [ ! -f "$KIOSK_HARD_CONFIG" ]; then
+		cp "$KIOSK_USER_CONFIG" "$KIOSK_HARD_CONFIG"
+		/opt/muos/script/var/init/kiosk.sh init
+		rm -f "$KIOSK_USER_CONFIG"
+	fi
+fi
+
 LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
 /opt/muos/device/current/script/charge.sh
 

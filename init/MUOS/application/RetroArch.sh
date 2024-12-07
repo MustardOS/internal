@@ -4,9 +4,7 @@
 
 . /opt/muos/script/var/func.sh
 
-if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mpg123"
-fi
+STOP_BGM
 
 echo app >/tmp/act_go
 
@@ -24,3 +22,5 @@ sed -n -e '/^#include /!p' \
 	-i "$RA_CONF"
 
 nice --20 /usr/bin/retroarch -v -f -c "$RA_CONF"
+
+CHECK_BGM

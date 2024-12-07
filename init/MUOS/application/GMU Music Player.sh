@@ -4,9 +4,7 @@
 
 . /opt/muos/script/var/func.sh
 
-if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mpg123"
-fi
+STOP_BGM
 
 echo app >/tmp/act_go
 
@@ -33,3 +31,5 @@ unset SDL_GAMECONTROLLERCONFIG_FILE
 unset LD_LIBRARY_PATH
 unset PIPEWIRE_MODULE_DIR
 unset SPA_PLUGIN_DIR
+
+CHECK_BGM

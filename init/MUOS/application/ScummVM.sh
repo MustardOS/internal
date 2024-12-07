@@ -1,8 +1,10 @@
 #!/bin/sh
-# HELP: scummvm
+# HELP: Script Creation Utility for Maniac Mansion Virtual Machine (ScummVM)
 # ICON: scummvm
 
 . /opt/muos/script/var/func.sh
+
+STOP_BGM
 
 echo app >/tmp/act_go
 
@@ -38,3 +40,5 @@ HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay
 unset SDL_HQ_SCALER
 unset SDL_ROTATION
 unset SDL_BLITTER_DISABLED
+
+CHECK_BGM

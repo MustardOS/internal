@@ -4,9 +4,7 @@
 
 . /opt/muos/script/var/func.sh
 
-if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mpg123"
-fi
+STOP_BGM
 
 echo app >/tmp/act_go
 
@@ -26,3 +24,5 @@ export LD_LIBRARY_PATH="$LOVEDIR/libs:$LD_LIBRARY_PATH"
 $GPTOKEYB "love" &
 ./love rgbcontroller
 kill -9 "$(pidof gptokeyb2.armhf)"
+
+CHECK_BGM

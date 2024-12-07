@@ -4,9 +4,7 @@
 
 . /opt/muos/script/var/func.sh
 
-if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mpg123"
-fi
+STOP_BGM
 
 echo app >/tmp/act_go
 
@@ -27,3 +25,5 @@ cd "$MOONDIR" || exit
 COMMAND=$(cat command.txt)
 eval "./moonlight $COMMAND"
 rm -f "command.txt"
+
+CHECK_BGM

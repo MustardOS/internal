@@ -4,9 +4,7 @@
 
 . /opt/muos/script/var/func.sh
 
-if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mpg123"
-fi
+STOP_BGM
 
 echo app >/tmp/act_go
 
@@ -21,3 +19,5 @@ SET_VAR "system" "foreground_process" "terminal"
 LD_LIBRARY_PATH=/usr/lib32 HOME="$TERM_DIR" SDL_ASSERT=always_ignore ./terminal -f ./res/SourceCodePro-Regular.ttf -s 14
 
 unset SDL_HQ_SCALER
+
+CHECK_BGM

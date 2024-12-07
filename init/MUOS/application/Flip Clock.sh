@@ -4,9 +4,7 @@
 
 . /opt/muos/script/var/func.sh
 
-if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mpg123"
-fi
+STOP_BGM
 
 echo app >/tmp/act_go
 
@@ -40,3 +38,5 @@ kill -9 "$(pidof gptokeyb2)"
 unset SDL_HQ_SCALER
 unset SDL_ROTATION
 unset LD_LIBRARY_PATH
+
+CHECK_BGM

@@ -21,7 +21,7 @@ CONFIG_FILE="$KIOSK_CONFIG"
 
 APPLICATION_VARS="archive task"
 CONFIG_VARS="custom language network storage webserv"
-CONTENT_VARS="core governor option search"
+CONTENT_VARS="core governor option retroarch search"
 CUSTOM_VARS="catalogue configuration theme"
 DATETIME_VARS="clock timezone"
 LAUNCH_VARS="application config explore favourite history info"

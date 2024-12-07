@@ -39,6 +39,19 @@ LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/nxe.log"
 
 RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 
+# Include default button mappings from retroarch.device.cfg. (Settings
+# in the retroarch.cfg will take precedence. Modified settings will save
+# to the main retroarch.cfg, not the included retroarch.device.cfg.)
+sed -n -e '/^#include /!p' \
+	-e '$a#include "/opt/muos/device/current/control/retroarch.device.cfg"' \
+	-i "$RA_CONF"
+
+if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ]; then
+	sed -i 's/^kiosk_mode_enable = "false"$/kiosk_mode_enable = "true"/' "$RA_CONF"
+else
+	sed -i 's/^kiosk_mode_enable = "true"$/kiosk_mode_enable = "false"/' "$RA_CONF"
+fi
+
 if [ -e "$DOUK" ]; then
 	retroarch -v -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$DOUK" &
 	RA_PID=$!
@@ -82,13 +95,6 @@ else
 	else
 		echo "Did extraction fail?" >>"$LOGPATH"
 	fi
-
-	# Include default button mappings from retroarch.device.cfg. (Settings
-	# in the retroarch.cfg will take precedence. Modified settings will save
-	# to the main retroarch.cfg, not the included retroarch.device.cfg.)
-	sed -n -e '/^#include /!p' \
-		-e '$a#include "/opt/muos/device/current/control/retroarch.device.cfg"' \
-		-i "$RA_CONF"
 
 	retroarch -v -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$DOUK" &
 	RA_PID=$!

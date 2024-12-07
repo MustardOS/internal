@@ -43,6 +43,12 @@ sed -n -e '/^#include /!p' \
 	-e '$a#include "/opt/muos/device/current/control/retroarch.device.cfg"' \
 	-i "$RA_CONF"
 
+if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ]; then
+	sed -i 's/^kiosk_mode_enable = "false"$/kiosk_mode_enable = "true"/' "$RA_CONF"
+else
+	sed -i 's/^kiosk_mode_enable = "true"$/kiosk_mode_enable = "false"/' "$RA_CONF"
+fi
+
 retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/prboom_libretro.so" "$ROMPATH/.$NAME/$IWAD" &
 RA_PID=$!
 

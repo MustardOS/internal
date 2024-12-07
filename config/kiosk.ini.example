@@ -13,6 +13,7 @@ webserv = 0
 core = 0
 governor = 0
 option = 0
+retroarch = 0
 search = 0
 
 [custom]

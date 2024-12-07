@@ -4,8 +4,6 @@
 
 . /opt/muos/script/var/func.sh
 
-STOP_BGM
-
 echo app >/tmp/act_go
 
 export HOME=$(GET_VAR "device" "board/home")
@@ -22,5 +20,3 @@ sed -n -e '/^#include /!p' \
 	-i "$RA_CONF"
 
 nice --20 /usr/bin/retroarch -v -f -c "$RA_CONF"
-
-CHECK_BGM

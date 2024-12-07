@@ -4,8 +4,6 @@
 
 . /opt/muos/script/var/func.sh
 
-STOP_BGM
-
 echo app >/tmp/act_go
 
 LOVEDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.moonlight"
@@ -25,5 +23,3 @@ cd "$MOONDIR" || exit
 COMMAND=$(cat command.txt)
 eval "./moonlight $COMMAND"
 rm -f "command.txt"
-
-CHECK_BGM

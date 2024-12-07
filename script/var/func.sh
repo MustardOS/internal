@@ -134,7 +134,13 @@ START_BGM() {
 }
 
 CHECK_BGM() {
-	if ! pgrep -f "playbgm.sh" >/dev/null; then
-		START_BGM
+	if [ "$1" = "ignore" ]; then
+		! pgrep -f "playbgm.sh" >/dev/null && START_BGM
+	else
+		FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
+		case "$FG_PROC_VAL" in
+			mux*) ! pgrep -f "playbgm.sh" >/dev/null && START_BGM ;;
+			*) ;;
+		esac
 	fi
 }

@@ -122,7 +122,7 @@ else
 	/opt/muos/script/launch/lr-general.sh "$NAME" "$CORE" "$ROM"
 fi
 
-CHECK_BGM
+CHECK_BGM ignore
 
 DEF_GOV=$(GET_VAR "device" "cpu/default")
 printf '%s\n' "$DEF_GOV" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor

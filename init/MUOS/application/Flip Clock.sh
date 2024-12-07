@@ -4,8 +4,6 @@
 
 . /opt/muos/script/var/func.sh
 
-STOP_BGM
-
 echo app >/tmp/act_go
 
 GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
@@ -38,5 +36,3 @@ kill -9 "$(pidof gptokeyb2)"
 unset SDL_HQ_SCALER
 unset SDL_ROTATION
 unset LD_LIBRARY_PATH
-
-CHECK_BGM

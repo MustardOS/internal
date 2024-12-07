@@ -126,7 +126,7 @@ LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
 while :; do
-	CHECK_BGM
+	CHECK_BGM ignore
 
 	# Reset DPAD<>ANALOGUE switch for H700 devices
 	case "$(GET_VAR "device" "board/name")" in
@@ -182,7 +182,7 @@ while :; do
 		esac
 		"$RUN_APP"
 		rm "$APP_GO"
-		CHECK_BGM
+		CHECK_BGM ignore
 		continue
 	fi
 

@@ -4,8 +4,6 @@
 
 . /opt/muos/script/var/func.sh
 
-STOP_BGM
-
 echo app >/tmp/act_go
 
 PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp"
@@ -45,5 +43,3 @@ esac
 unset SDL_HQ_SCALER
 unset SDL_ROTATION
 unset SDL_BLITTER_DISABLED
-
-CHECK_BGM

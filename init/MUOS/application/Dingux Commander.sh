@@ -4,8 +4,6 @@
 
 . /opt/muos/script/var/func.sh
 
-STOP_BGM
-
 echo app >/tmp/act_go
 
 export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
@@ -28,5 +26,3 @@ SET_VAR "system" "foreground_process" "dingux"
 SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") ./dingux --config "$DINGUX_DIR/dingux.cfg"
 
 unset SDL_HQ_SCALER
-
-CHECK_BGM

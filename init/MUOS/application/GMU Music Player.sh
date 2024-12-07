@@ -4,8 +4,6 @@
 
 . /opt/muos/script/var/func.sh
 
-STOP_BGM
-
 echo app >/tmp/act_go
 
 AUDIO_SRC="/tmp/mux_audio_src"
@@ -31,5 +29,3 @@ unset SDL_GAMECONTROLLERCONFIG_FILE
 unset LD_LIBRARY_PATH
 unset PIPEWIRE_MODULE_DIR
 unset SPA_PLUGIN_DIR
-
-CHECK_BGM

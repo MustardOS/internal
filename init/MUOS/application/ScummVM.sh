@@ -4,8 +4,6 @@
 
 . /opt/muos/script/var/func.sh
 
-STOP_BGM
-
 echo app >/tmp/act_go
 
 export HOME=$(GET_VAR "device" "board/home")
@@ -40,5 +38,3 @@ HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay
 unset SDL_HQ_SCALER
 unset SDL_ROTATION
 unset SDL_BLITTER_DISABLED
-
-CHECK_BGM

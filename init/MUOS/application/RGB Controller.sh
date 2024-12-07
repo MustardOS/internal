@@ -4,8 +4,6 @@
 
 . /opt/muos/script/var/func.sh
 
-STOP_BGM
-
 echo app >/tmp/act_go
 
 # Define paths and commands
@@ -24,5 +22,3 @@ export LD_LIBRARY_PATH="$LOVEDIR/libs:$LD_LIBRARY_PATH"
 $GPTOKEYB "love" &
 ./love rgbcontroller
 kill -9 "$(pidof gptokeyb2.armhf)"
-
-CHECK_BGM

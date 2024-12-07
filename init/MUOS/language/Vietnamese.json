@@ -387,6 +387,7 @@
   "muxtweakadv": {
     "ADVANCED SETTINGS": "CÀI ĐẶT NÂNG CAO",
     "Adjust the rate of speed when holding navigation keys down": "Adjust the rate of speed when holding navigation keys down",
+    "Adjust the system swapfile if required by certain content": "Adjust the system swapfile if required by certain content",
     "Audio Overdrive": "Audio Overdrive",
     "Battery Offset": "Hiệu chỉnh hiển thị pin",
     "Brightness On Boot": "Độ sáng khi khởi động",
@@ -420,6 +421,7 @@
     "Startup + Sleep": "Startup + Sleep",
     "Suspend Power State": "Trạng thái ngủ",
     "Switch between system sleep suspend states": "Switch between system sleep suspend states",
+    "System Swapfile": "System Swapfile",
     "Theme": "Chủ đề",
     "Thermal Zone Control": "Kiểm soát vùng nhiệt",
     "Toggle a delayed start of RetroArch until a network connection is established": "Toggle a delayed start of RetroArch until a network connection is established",

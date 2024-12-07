@@ -387,6 +387,7 @@
   "muxtweakadv": {
     "ADVANCED SETTINGS": "CONFIGURAÇÕES AVANÇADAS",
     "Adjust the rate of speed when holding navigation keys down": "Ajusta a velocidade quando segurando as teclas de navegação",
+    "Adjust the system swapfile if required by certain content": "Adjust the system swapfile if required by certain content",
     "Audio Overdrive": "Audio Overdrive",
     "Battery Offset": "Ajuste do Desvio de Bateria",
     "Brightness On Boot": "Brilho ao Ligar",
@@ -420,6 +421,7 @@
     "Startup + Sleep": "Inicializar + Suspender",
     "Suspend Power State": "Tipo do Estado de Suspensão",
     "Switch between system sleep suspend states": "Trocar entre estados de suspensão do sistema",
+    "System Swapfile": "System Swapfile",
     "Theme": "Tema",
     "Thermal Zone Control": "Controle de Zona Térmica",
     "Toggle a delayed start of RetroArch until a network connection is established": "Toggle a delayed start of RetroArch until a network connection is established",

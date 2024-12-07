@@ -387,6 +387,7 @@
   "muxtweakadv": {
     "ADVANCED SETTINGS": "詳細設定",
     "Adjust the rate of speed when holding navigation keys down": "操作キーを押し続けた際の移動速度を調整します",
+    "Adjust the system swapfile if required by certain content": "Adjust the system swapfile if required by certain content",
     "Audio Overdrive": "Audio Overdrive",
     "Battery Offset": "バッテリー誤差修正",
     "Brightness On Boot": "起動時の画面の明るさ",
@@ -420,6 +421,7 @@
     "Startup + Sleep": "起動時 + スリープ時",
     "Suspend Power State": "中断スリープの設定",
     "Switch between system sleep suspend states": "システム中断スリープの挙動を切り替えます",
+    "System Swapfile": "System Swapfile",
     "Theme": "テーマ",
     "Thermal Zone Control": "サーマルゾーン制御",
     "Toggle a delayed start of RetroArch until a network connection is established": "ネットワークに接続するまで RetroArch の起動を待機します",

@@ -387,6 +387,7 @@
   "muxtweakadv": {
     "ADVANCED SETTINGS": "एडवांस सेटिंग",
     "Adjust the rate of speed when holding navigation keys down": "Adjust the rate of speed when holding navigation keys down",
+    "Adjust the system swapfile if required by certain content": "Adjust the system swapfile if required by certain content",
     "Audio Overdrive": "Audio Overdrive",
     "Battery Offset": "बैटरी ऑफसेट",
     "Brightness On Boot": "बूट पर चमक",
@@ -420,6 +421,7 @@
     "Startup + Sleep": "चालू होना + स्लीप",
     "Suspend Power State": "बिजली की स्थिति को निलंबित करें",
     "Switch between system sleep suspend states": "Switch between system sleep suspend states",
+    "System Swapfile": "System Swapfile",
     "Theme": "थीम",
     "Thermal Zone Control": "थर्मल जोन नियंत्रण",
     "Toggle a delayed start of RetroArch until a network connection is established": "Toggle a delayed start of RetroArch until a network connection is established",

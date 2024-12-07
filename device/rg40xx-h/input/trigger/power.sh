@@ -60,17 +60,12 @@ while true; do
 	SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 
 	if [ "$TMP_POWER_LONG_VAL" = "off" ] && [ "$SLEEP_STATE_VAL" = "awake" ]; then
-		if pgrep -f "playbgm.sh" >/dev/null; then
-			pkill -STOP "playbgm.sh"
-			killall -q "mpg123"
-		fi
+		STOP_BGM
 		DEV_SLEEP
 	fi
 
 	if [ "$TMP_POWER_LONG_VAL" = "on" ] && [ "$SLEEP_STATE_VAL" != "awake" ]; then
-		if pgrep -f "playbgm.sh" >/dev/null; then
-			pkill -CONT "playbgm.sh"
-		fi
+		CHECK_BGM
 		DEV_WAKE
 	fi
 

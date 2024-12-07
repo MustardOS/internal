@@ -93,10 +93,7 @@ while true; do
 			2) /opt/muos/script/mux/quit.sh poweroff sleep ;;
 			# Sleep XXs + Shutdown:
 			*)
-				if pgrep -f "playbgm.sh" >/dev/null; then
-					pkill -STOP "playbgm.sh"
-					killall -q "mpg123"
-				fi
+				STOP_BGM
 				DEV_SLEEP
 				;;
 		esac
@@ -104,17 +101,13 @@ while true; do
 
 	# power button with lid open
 	if [ "$TMP_POWER_LONG_VAL" = "on" ] && [ "$HALL_KEY_VAL" = "1" ] && [ "$SLEEP_STATE_VAL" != "awake" ]; then
-		if pgrep -f "playbgm.sh" >/dev/null; then
-			pkill -CONT "playbgm.sh"
-		fi
+		CHECK_BGM
 		DEV_WAKE
 	fi
 
 	# lid open after sleep-closed and the lid was previously closed
 	if [ "$HALL_KEY_VAL" = "1" ] && [ "$SLEEP_STATE_VAL" = "sleep-closed" ] && [ "$LID_CLOSED_FLAG_VAL" = "1" ]; then
-		if pgrep -f "playbgm.sh" >/dev/null; then
-			pkill -CONT "playbgm.sh"
-		fi
+		CHECK_BGM
 		DEV_WAKE
 	fi
 

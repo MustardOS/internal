@@ -45,12 +45,5 @@ if [ "$(GET_VAR "global" "settings/advanced/thermal")" -eq 1 ]; then
 	done
 fi
 
-BLK_ID4=""
-for D in /sys/devices/platform/soc/sdc0/mmc_host/mmc0/mmc0:*; do
-	[ -d "$D" ] && BLK_ID4="${D##*/}" && break
-done
-echo noop >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/mmc0:"$BLK_ID4"/block/mmcblk0/queue/scheduler
-echo on >/sys/devices/platform/soc/sdc0/mmc_host/mmc0/power/control
-
 # Switch GPU power policy
 echo always_on >/sys/devices/platform/gpu/power_policy &

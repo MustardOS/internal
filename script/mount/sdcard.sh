@@ -19,11 +19,6 @@ MOUNT_DEVICE() {
 	FS_TYPE="$(blkid -o value -s TYPE "/dev/$DEVICE")"
 	FS_LABEL="$(blkid -o value -s LABEL "/dev/$DEVICE")"
 
-	BLK_ID4=""
-	for D in /sys/devices/platform/soc/sdc0/mmc_host/mmc0/mmc0:*; do
-		[ -d "$D" ] && BLK_ID4="${D##*/}" && break
-	done
-
 	case "$FS_TYPE" in
 		vfat | exfat) FS_OPTS=rw,utf8,noatime,nofail ;;
 		ext4) FS_OPTS=defaults,noatime,nofail ;;
@@ -33,9 +28,18 @@ MOUNT_DEVICE() {
 	if mount -t "$FS_TYPE" -o "$FS_OPTS" "/dev/$DEVICE" "$MOUNT"; then
 		SET_VAR "device" "storage/sdcard/active" "1"
 		SET_VAR "device" "storage/sdcard/label" "$FS_LABEL"
-		echo noop >/sys/devices/platform/soc/sdc2/mmc_host/mmc1/mmc1:"$BLK_ID4"/block/mmcblk1/queue/scheduler
-		echo on >/sys/devices/platform/soc/sdc2/mmc_host/mmc1/power/control
 	fi
+
+	if [ "$(GET_VAR "global" "settings/advanced/cardmode")" = "noop" ]; then
+		echo "noop" >"/sys/block/$(GET_VAR "device" "storage/sdcard/dev")/queue/scheduler"
+		echo "write back" >"/sys/block/$(GET_VAR "device" "storage/sdcard/dev")/queue/write_cache"
+	else
+		echo "deadline" >"/sys/block/$(GET_VAR "device" "storage/sdcard/dev")/queue/scheduler"
+		echo "write through" >"/sys/block/$(GET_VAR "device" "storage/sdcard/dev")/queue/write_cache"
+	fi
+
+	# Create ROMS directory if it doesn't exist
+	[ ! -d "$MOUNT/ROMS" ] && mkdir -p "$MOUNT/ROMS"
 }
 
 # Synchronously mount SD card (if media is inserted) so it's available as a

@@ -29,6 +29,17 @@ MOUNT_DEVICE() {
 		SET_VAR "device" "storage/usb/active" "1"
 		SET_VAR "device" "storage/usb/label" "$FS_LABEL"
 	fi
+
+	if [ "$(GET_VAR "global" "settings/advanced/cardmode")" = "noop" ]; then
+		echo "noop" >"/sys/block/$(GET_VAR "device" "storage/usb/dev")/queue/scheduler"
+		echo "write back" >"/sys/block/$(GET_VAR "device" "storage/usb/dev")/queue/write_cache"
+	else
+		echo "deadline" >"/sys/block/$(GET_VAR "device" "storage/usb/dev")/queue/scheduler"
+		echo "write through" >"/sys/block/$(GET_VAR "device" "storage/usb/dev")/queue/write_cache"
+	fi
+
+	# Create ROMS directory if it doesn't exist
+	[ ! -d "$MOUNT/ROMS" ] && mkdir -p "$MOUNT/ROMS"
 }
 
 # Asynchronously monitor insertion/eject.

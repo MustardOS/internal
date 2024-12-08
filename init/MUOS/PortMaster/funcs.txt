@@ -5,13 +5,19 @@ if [ ! -z "$PM_FUNCS_VERSION" ]; then
     return
 fi
 
-export PM_FUNCS_VERSION=1
+export PM_FUNCS_VERSION=2
 
-export PM_SCRIPTNAME="$(basename ${PM_SCRIPTNAME:-$0})"
+export PM_SCRIPTNAME="$(basename "${PM_SCRIPTNAME:-$0}")"
 export PM_PORTNAME="${PM_PORTNAME:-${PM_SCRIPTNAME%.sh}}"
 export PM_VERSION="$(cat "$controlfolder/version")"
 export PM_RESOURCE_DIR="$controlfolder/resources"
 export PM_CAN_MOUNT="${PM_CAN_MOUNT:-Y}"
+
+# muOS stuff.
+if [[ "$CFW_NAME" == "muOS" ]]; then
+    export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH"
+fi
+
 
 # Extract the latest NotoSans.tar.xz
 if [ -f "$controlfolder/pylibs/resources/NotoSans.tar.xz" ]; then
@@ -31,7 +37,7 @@ fi
 
 
 bind_directories() {
-    # Usage: bind_directories $GAMEDIR/savedata ~/.config/StardewValley
+    # Usage: bind_directories ~/.config/StardewValley $GAMEDIR/savedata
     # 
     # Reason: some platforms (batocera) use exfat for the home directory, so we can't use symbolic links
     # We then instead use bind mount, however retrodeck cannot bind mount because it does not run in root.
@@ -39,12 +45,12 @@ bind_directories() {
     if [ "$PM_CAN_MOUNT" = "Y" ]; then
         [[ -L "$1" ]] && rm -f "$1"
         mkdir -p "$1"
-        $ESUDO umount -q "$1"
+        $ESUDO umount "$1"
         $ESUDO mount --bind "$2" "$1"
     else
         # RetroDECK cant use bind mount without root.
-        rm -rf "$2"
-        ln -sfv "$1" "$2"
+        rm -f "$1"
+        ln -sfv "$2" "$1"
     fi
 }
 
@@ -99,9 +105,24 @@ pm_end_splash() {
 }
 
 
-pm_finish() {
+pm_message() {
+    # Usage: pm_message "Some message here."
+    if [[ "$CFW_NAME" == "muOS" ]]; then
+        /opt/muos/extra/muxstart "$1"
+    else
+        echo "$1" > $CUR_TTY
+    fi
+}
+
+
+pm_gptokeyb_finish() {
     $ESUDO pkill -f gptokeyb
     $ESUDO pkill -f gptokeyb2
+}
+
+
+pm_finish() {
+    pm_gptokeyb_finish
 
     $ESUDO systemctl restart oga_events 2> /dev/null &
 

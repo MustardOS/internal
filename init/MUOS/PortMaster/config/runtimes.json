@@ -267,16 +267,16 @@
     "rlvm.squashfs": {
         "local": {
             "arch": "aarch64",
-            "md5": "c9beb62f1ca594cda8bb285d20baa1aa",
+            "md5": "7e971304ec52e53c4b9c447d8db442b9",
             "status": "Verified"
         },
         "name": "Real Live VM",
         "remote": {
             "aarch64": {
-                "md5": "c9beb62f1ca594cda8bb285d20baa1aa",
+                "md5": "7e971304ec52e53c4b9c447d8db442b9",
                 "name": "Real Live VM",
-                "size": 10678272,
-                "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-07-21_2233/rlvm.squashfs"
+                "size": 8335360,
+                "url": "https://github.com/PortsMaster/PortMaster-New/releases/download/2024-11-12_1249/rlvm.squashfs"
             }
         },
         "status": "Unknown"

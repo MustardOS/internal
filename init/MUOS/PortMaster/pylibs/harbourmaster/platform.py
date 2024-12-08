@@ -346,7 +346,7 @@ class PlatformJELOS(PlatformBase):
 
 
 class PlatformROCKNIX(PlatformJELOS):
-    ...
+    ES_NAME = 'weston'
 
 
 class PlatformBatocera(PlatformBase):
@@ -377,8 +377,8 @@ class PlatformBatocera(PlatformBase):
 
     def loaded(self):
         self.WANT_SWAP_BUTTONS = not self.get_invert_buttons_value()
-        if self.WANT_SWAP_BUTTONS:
-            self.WANT_XBOX_FIX = not self.WANT_XBOX_FIX
+        # if self.WANT_SWAP_BUTTONS:
+            # self.WANT_XBOX_FIX = not self.WANT_XBOX_FIX
 
     def gamelist_file(self):
         return self.hm.ports_dir / 'gamelist.xml'
@@ -407,8 +407,29 @@ class PlatformBatocera(PlatformBase):
         TASK_SET.touch()
 
 
+class PlatformREGLinux(PlatformBatocera):
+    ...
+
+
 class PlatformKnulli(PlatformBatocera):
     WANT_XBOX_FIX = True
+
+    def portmaster_install(self):
+        """
+        Move files into place.
+        """
+        TL_DIR = self.hm.tools_dir / "PortMaster"
+        BC_DIR = TL_DIR / "knulli"
+
+        # ACTIVATE THE CONTROL
+        logger.debug(f'Copy {BC_DIR / "control.txt"} -> {TL_DIR / "control.txt"}')
+        shutil.copy(BC_DIR / "control.txt", TL_DIR / "control.txt")
+
+        TASK_SET = TL_DIR / "tasksetter"
+        if TASK_SET.is_file():
+            TASK_SET.unlink()
+
+        TASK_SET.touch()
 
 
 class PlatformArkOS(PlatformGCD_PortMaster, PlatformBase):
@@ -950,6 +971,7 @@ HM_PLATFORMS = {
     'jelos':     PlatformJELOS,
     'rocknix':   PlatformROCKNIX,
     'batocera':  PlatformBatocera,
+    'reglinux':  PlatformREGLinux,
     'knulli':    PlatformKnulli,
     'muos':      PlatformmuOS,
     'trimui':    PlatformTrimUI,

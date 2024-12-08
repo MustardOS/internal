@@ -3,7 +3,7 @@
     "api": "PortMasterV3",
     "name": "PortMaster Multiverse",
     "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/latest/download/ports.json",
-    "last_checked": "2024-10-09T20:42:00.685981",
+    "last_checked": "2024-12-08T16:32:54.093017",
     "version": 2,
     "data": {
         "ports": [
@@ -12,12 +12,15 @@
             "gtavc.zip",
             "loderunneronline.zip",
             "pocketcrystalleague.zip",
+            "reborn.zip",
+            "rejuvenation.zip",
             "render96ex.zip",
             "soh.zip",
             "soh2.zip",
             "super.mario.war.zip",
             "smworld.zip",
             "sm.zip",
+            "zeldadoi.zip",
             "zeldaxd-mercurischess.zip",
             "zelda-mercurischest.zip",
             "zelda-mysteryofsolarusdx.zip",
@@ -28,6 +31,7 @@
             "zeldoschallenge2.zip",
             "thextech.zip",
             "tunics.zip",
+            "vdrift.zip",
             "wipeout.zip",
             "zelda3.zip",
             "ziiaol.zip",
@@ -70,23 +74,35 @@
                 "md5": "8dbd959e140f310ba5e4b69df8b19306",
                 "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-07_0119/pocketcrystalleague.zip"
             },
+            "reborn.zip": {
+                "name": "reborn.zip",
+                "size": 12413994,
+                "md5": "ebc8d78f200c6114c8b21d97fbb4fcb3",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-11_1249/reborn.zip"
+            },
+            "rejuvenation.zip": {
+                "name": "rejuvenation.zip",
+                "size": 20254299,
+                "md5": "55f4616196cda8e3d7db9450f21a21b6",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-11_1249/rejuvenation.zip"
+            },
             "render96ex.zip": {
                 "name": "render96ex.zip",
-                "size": 145147383,
-                "md5": "86b06b0abd214bc513cc3bb68abbf427",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-08-18_0624/render96ex.zip"
+                "size": 153579905,
+                "md5": "82f3f02fdf78bda359d29fb953ba68c0",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-12-05_1405/render96ex.zip"
             },
             "soh.zip": {
                 "name": "soh.zip",
-                "size": 25569522,
-                "md5": "dddc5c3661ff063836f85f961fa90ab7",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-27_1617/soh.zip"
+                "size": 24853688,
+                "md5": "d44454dc713d7f6690085a8acde09f9b",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-23_0518/soh.zip"
             },
             "soh2.zip": {
                 "name": "soh2.zip",
-                "size": 21170947,
-                "md5": "321b0f8e700c4af2036db6038b86cb29",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-27_1617/soh2.zip"
+                "size": 11550218,
+                "md5": "713f70958e70a78f60224ddc305fb198",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-27_0140/soh2.zip"
             },
             "super.mario.war.zip": {
                 "name": "super.mario.war.zip",
@@ -106,65 +122,77 @@
                 "md5": "126446e019c6473352e5b85f39d600eb",
                 "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-04-09_1309/sm.zip"
             },
+            "zeldadoi.zip": {
+                "name": "zeldadoi.zip",
+                "size": 45939526,
+                "md5": "8d419a438201ab6521c46605b75f86ea",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-12-03_1532/zeldadoi.zip"
+            },
             "zeldaxd-mercurischess.zip": {
                 "name": "zeldaxd-mercurischess.zip",
-                "size": 281039,
-                "md5": "ecf9e1bb71e6dbede36b8b75ae35eabc",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zeldaxd-mercurischess.zip"
+                "size": 281034,
+                "md5": "efec279d1ba43c066a6ea5e0dd438722",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zeldaxd-mercurischess.zip"
             },
             "zelda-mercurischest.zip": {
                 "name": "zelda-mercurischest.zip",
-                "size": 295542,
-                "md5": "5caf2dee79c33bf97f73ec68b8500070",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zelda-mercurischest.zip"
+                "size": 295537,
+                "md5": "5f3ed935638f52c0b96cac7ddaf699da",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zelda-mercurischest.zip"
             },
             "zelda-mysteryofsolarusdx.zip": {
                 "name": "zelda-mysteryofsolarusdx.zip",
-                "size": 373102,
-                "md5": "c84140d07749fcc367a335b80f3400bc",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zelda-mysteryofsolarusdx.zip"
+                "size": 373096,
+                "md5": "457b529f2dbad12f7a8bb18c697eecef",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zelda-mysteryofsolarusdx.zip"
             },
             "zelda-mysteryofsolarusxd.zip": {
                 "name": "zelda-mysteryofsolarusxd.zip",
-                "size": 279249,
-                "md5": "aa4284f0c12b92513857051e237eb25b",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zelda-mysteryofsolarusxd.zip"
+                "size": 279243,
+                "md5": "e0154aec77a86af6e13e52205aafcca2",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zelda-mysteryofsolarusxd.zip"
             },
             "zelda-roth-se.zip": {
                 "name": "zelda-roth-se.zip",
-                "size": 280999,
-                "md5": "b07253247fbf7720eac52365c1aa8d36",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zelda-roth-se.zip"
+                "size": 281012,
+                "md5": "80108fe5b7a42dfab35a5cb7231076ce",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zelda-roth-se.zip"
             },
             "zelda-bookofmudora.zip": {
                 "name": "zelda-bookofmudora.zip",
-                "size": 287360,
-                "md5": "d5fab8c255cba79f0eaaceb8d472f948",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zelda-bookofmudora.zip"
+                "size": 287352,
+                "md5": "054aeae2f66c18ff3655436adddfbc08",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zelda-bookofmudora.zip"
             },
             "zeldoschallenge.zip": {
                 "name": "zeldoschallenge.zip",
-                "size": 306855,
-                "md5": "faf829f572f6277ac1c3a206fcbf84a9",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zeldoschallenge.zip"
+                "size": 306851,
+                "md5": "d18ef72048db5b1c01e2e81ff954ba52",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zeldoschallenge.zip"
             },
             "zeldoschallenge2.zip": {
                 "name": "zeldoschallenge2.zip",
-                "size": 773251,
-                "md5": "24690919fcaa7da59e76483b711aae9c",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zeldoschallenge2.zip"
+                "size": 773246,
+                "md5": "77af5488c52cb90375bfeffccaba8e35",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zeldoschallenge2.zip"
             },
             "thextech.zip": {
                 "name": "thextech.zip",
-                "size": 4109591,
-                "md5": "ee488ed4b59c17132ea81d6fb8355e02",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-21_1909/thextech.zip"
+                "size": 3909210,
+                "md5": "f7f0b3b8d887da7e252c106e370fb355",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-12-01_1428/thextech.zip"
             },
             "tunics.zip": {
                 "name": "tunics.zip",
-                "size": 338814,
-                "md5": "e24d67d9427b8a3b71462270ed3ded33",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/tunics.zip"
+                "size": 338792,
+                "md5": "c1a86024c14321b049b71fbe6ff128d3",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/tunics.zip"
+            },
+            "vdrift.zip": {
+                "name": "vdrift.zip",
+                "size": 1802704078,
+                "md5": "53065d590fb5f722aa327773c0f55c36",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-16_0559/vdrift.zip"
             },
             "wipeout.zip": {
                 "name": "wipeout.zip",
@@ -180,9 +208,9 @@
             },
             "ziiaol.zip": {
                 "name": "ziiaol.zip",
-                "size": 11110973,
-                "md5": "c23d59624003955882d286105eed58f5",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/ziiaol.zip"
+                "size": 14775929,
+                "md5": "cca19c5230e59e0e75f8e4bbe132be36",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-26_1506/ziiaol.zip"
             },
             "zeldansq.zip": {
                 "name": "zeldansq.zip",
@@ -210,15 +238,15 @@
             },
             "gameinfo.zip": {
                 "name": "gameinfo.zip",
-                "size": 4392889,
-                "md5": "aca6b902b16b5769cb28ce15f2bb41a3",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/gameinfo.zip"
+                "size": 5098699,
+                "md5": "b01d609d1d0795fdcebe72ad953961dd",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-12-03_1532/gameinfo.zip"
             },
             "images.zip": {
                 "name": "images.zip",
-                "size": 2423471,
-                "md5": "5c5c429b8c273a3a1e1e6bb1c94647b0",
-                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/images.zip"
+                "size": 2736605,
+                "md5": "55a6c7eab1159764abf6c5bc9e8cd6d8",
+                "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-12-05_1405/images.zip"
             }
         },
         "info": {
@@ -264,8 +292,8 @@
                     "date_added": "2021-12-21",
                     "date_updated": "2024-10-01",
                     "md5": "cd86a99ec7f52fd13b88588050bbde9e",
-                    "size": 1474969,
                     "release_id": "2024-10-01_1015",
+                    "size": 1474969,
                     "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/am2r.zip"
                 }
             },
@@ -447,6 +475,100 @@
                     "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-07_0119/pocketcrystalleague.zip"
                 }
             },
+            "reborn.zip": {
+                "version": 3,
+                "name": "reborn.zip",
+                "items": [
+                    "Pokemon Reborn.sh",
+                    "reborn"
+                ],
+                "items_opt": null,
+                "attr": {
+                    "title": "Pokemon Reborn",
+                    "porter": [
+                        "JanTrueno"
+                    ],
+                    "desc": "Reborn is a free 3rd-gen style downloadable game featuring all content through Generation 7. Experience a never-before-seen layer of strategy with the all-original Field Effects, using the terrain to outplay and overwhelm your opponent! Collect, train and battle with all 807 species available in-game and take on Gym Leaders of all 18 types as you fight to restore Reborn to prosperity!\n\nAre you ready?",
+                    "desc_md": "Reborn is a free 3rd-gen style downloadable game featuring all content through Generation 7. Experience a never-before-seen layer of strategy with the all-original Field Effects, using the terrain to outplay and overwhelm your opponent! Collect, train and battle with all 807 species available in-game and take on Gym Leaders of all 18 types as you fight to restore Reborn to prosperity!\n\n \n*Are you ready?*",
+                    "inst": "Download the legacy Windows version of the game here: https://www.rebornevo.com/pr/download/. Install the game and copy all assets within the \"Pokemon Reborn\" folder to the \"reborn\" portfolder. The version has to be 19.16 or 19.17, this can be checked with the version file included with the game.",
+                    "inst_md": "Download the legacy Windows version of the game [here](https://www.rebornevo.com/pr/download/). Install the game and copy all assets within the \"Pokemon Reborn\" folder to the \"reborn\" portfolder. The version has to be 19.16 or 19.17, this can be checked with the version file included with the game.",
+                    "genres": [
+                        "adventure"
+                    ],
+                    "image": {
+                        "screenshot": "screenshot.png",
+                        "covers": [
+                            "cover.png"
+                        ],
+                        "thumbnail": null,
+                        "video": null
+                    },
+                    "rtr": false,
+                    "exp": false,
+                    "runtime": null,
+                    "reqs": [
+                        "power"
+                    ],
+                    "arch": [
+                        "aarch64"
+                    ]
+                },
+                "source": {
+                    "date_added": "2024-10-11",
+                    "date_updated": "2024-10-11",
+                    "md5": "ebc8d78f200c6114c8b21d97fbb4fcb3",
+                    "release_id": "2024-10-11_1249",
+                    "size": 12413994,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-11_1249/reborn.zip"
+                }
+            },
+            "rejuvenation.zip": {
+                "version": 3,
+                "name": "rejuvenation.zip",
+                "items": [
+                    "Pokemon Rejuvenation.sh",
+                    "rejuvenation"
+                ],
+                "items_opt": null,
+                "attr": {
+                    "title": "Pokemon Rejuvenation",
+                    "porter": [
+                        "JanTrueno"
+                    ],
+                    "desc": "Many decades ago, Aevium was once a united and strong blossoming region. However, the calamity known as Storm-9 tore the region apart.\n\nThe Aevium Region has lived a time of peace since then. People and the creatures inhabiting the lands band together to create a region worth living in. However, the dark and sinister organization, Team Xen, rises from the shadows to destroy what little peace the region has left.\n\nExplore the Aevium Region while also defending the land from Team Xen. Discover the dark secrets this world has kept hidden under the cracks that separate Aevium and shakes it to its very core. \n\nThis world needs you.\n\nWill you lend us your strength?",
+                    "desc_md": null,
+                    "inst": "Download the Windows version of the game here: https://www.rebornevo.com/rejuvdown/. Install the game and copy all assets within the \"Pokemon Rejuvenation\" folder to the \"rejuvenation\" portfolder. Version 13.5.0 is known to work, future updates may be incompatible.",
+                    "inst_md": "Download the Windows version of the game [here](https://www.rebornevo.com/rejuvdown/). Install the game and copy all assets within the \"Pokemon Rejuvenation\" folder to the \"rejuvenation\" portfolder. Version 13.5.0 is known to work, future updates may be incompatible.",
+                    "genres": [
+                        "adventure"
+                    ],
+                    "image": {
+                        "screenshot": "screenshot.png",
+                        "covers": [
+                            "cover.png"
+                        ],
+                        "thumbnail": null,
+                        "video": null
+                    },
+                    "rtr": false,
+                    "exp": false,
+                    "runtime": null,
+                    "reqs": [
+                        "power"
+                    ],
+                    "arch": [
+                        "aarch64"
+                    ]
+                },
+                "source": {
+                    "date_added": "2024-10-11",
+                    "date_updated": "2024-10-11",
+                    "md5": "55f4616196cda8e3d7db9450f21a21b6",
+                    "release_id": "2024-10-11_1249",
+                    "size": 20254299,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-11_1249/rejuvenation.zip"
+                }
+            },
             "render96ex.zip": {
                 "version": 3,
                 "name": "render96ex.zip",
@@ -462,7 +584,7 @@
                     ],
                     "desc": "Super Mario 64 is the first Super Mario game to feature 3D. Discover the precursor to Mario Odyssey in this boosted version with the support of enhanced 3d models, HD textures, HQ musics and sounds, 60 fps.",
                     "desc_md": null,
-                    "inst": "Super Mario 64 rom must be present in the render96ex folder during first launch to install the assets.",
+                    "inst": "Copy your Super Mario 64 USA rom in the render96ex folder and rename it to baserom.us.z64 (md5sum 20b854b239203baf6c961b850a4a51a2)",
                     "inst_md": null,
                     "genres": [
                         "platformer"
@@ -487,11 +609,11 @@
                 },
                 "source": {
                     "date_added": "2024-07-01",
-                    "date_updated": "2024-07-18",
-                    "md5": "86b06b0abd214bc513cc3bb68abbf427",
-                    "release_id": "2024-08-18_0624",
-                    "size": 145147383,
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-08-18_0624/render96ex.zip"
+                    "date_updated": "2024-12-05",
+                    "md5": "82f3f02fdf78bda359d29fb953ba68c0",
+                    "release_id": "2024-12-05_1405",
+                    "size": 153579905,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-12-05_1405/render96ex.zip"
                 }
             },
             "soh.zip": {
@@ -533,11 +655,11 @@
                 },
                 "source": {
                     "date_added": "2024-04-10",
-                    "date_updated": "2024-09-27",
-                    "md5": "dddc5c3661ff063836f85f961fa90ab7",
-                    "release_id": "2024-09-27_1617",
-                    "size": 25569522,
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-27_1617/soh.zip"
+                    "date_updated": "2024-10-23",
+                    "md5": "d44454dc713d7f6690085a8acde09f9b",
+                    "release_id": "2024-10-23_0518",
+                    "size": 24853688,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-23_0518/soh.zip"
                 }
             },
             "soh2.zip": {
@@ -550,11 +672,12 @@
                 "items_opt": null,
                 "attr": {
                     "title": "Ship of Harkinian 2",
+                    "min_glibc": "2.38",
                     "porter": [
                         "Jeod"
                     ],
                     "desc": "A source port of Majora's Mask. 2Ship2Harkinian (aka SoH2) features extensive and significant enhancements over the original game, such as improved performance, increased frame-rate, native ultra-widescreen support, and extensive mod support (especially compared to emulated versions of the original), among other features.",
-                    "inst": "Follow the guide in the readme to generate your mm.o2r file. Once created put in the ports/soh2 folder.",
+                    "inst": "Follow the guide in the readme to generate your mm.o2r file.",
                     "genres": [
                         "action",
                         "adventure"
@@ -579,11 +702,11 @@
                 },
                 "source": {
                     "date_added": "2024-06-10",
-                    "date_updated": "2024-09-27",
-                    "md5": "321b0f8e700c4af2036db6038b86cb29",
-                    "release_id": "2024-09-27_1617",
-                    "size": 21170947,
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-27_1617/soh2.zip"
+                    "date_updated": "2024-11-27",
+                    "md5": "713f70958e70a78f60224ddc305fb198",
+                    "release_id": "2024-11-27_0140",
+                    "size": 11550218,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-27_0140/soh2.zip"
                 }
             },
             "super.mario.war.zip": {
@@ -626,8 +749,8 @@
                     "date_added": "2021-12-21",
                     "date_updated": "2024-10-01",
                     "md5": "bb35768b14836a8f1f9b50444705f8d5",
-                    "size": 38505494,
                     "release_id": "2024-10-01_1015",
+                    "size": 38505494,
                     "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/super.mario.war.zip"
                 }
             },
@@ -652,8 +775,8 @@
                     "image": {
                         "screenshot": "screenshot.jpg",
                         "covers": [
-                            "cover.smb1.png",
-                            "cover.smbll.png"
+                            "cover.smbll.png",
+                            "cover.smb1.png"
                         ],
                         "thumbnail": null,
                         "video": null
@@ -724,6 +847,59 @@
                     "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-04-09_1309/sm.zip"
                 }
             },
+            "zeldadoi.zip": {
+                "version": 3,
+                "name": "zeldadoi.zip",
+                "items": [
+                    "Zelda Dungeons of Infinity.sh",
+                    "zeldadoi"
+                ],
+                "items_opt": null,
+                "attr": {
+                    "title": "The Legend of Zelda: Dungeons of Infinity",
+                    "porter": [
+                        "t0b10",
+                        "Shallow",
+                        "JanTrueno",
+                        "Jeod"
+                    ],
+                    "desc": "This game is a procedurally-generated rogue-like 'Link to the Past' dungeon crawler. It's not a rom hack, it was created in Gamemaker Studio from scratch using the original assets. Many new features and assets were added to this game, but special care was put in to ensure it still looks, feels, and plays like the original game.\nThe goal of the game is to descend through the many enemy-infested dungeons to defeat Link's nemesis, Aghanim. Along the way you will find many weapons, items, and treasures that will help you along your quest.",
+                    "desc_md": null,
+                    "inst": "Ready to run",
+                    "inst_md": null,
+                    "genres": [
+                        "action",
+                        "adventure",
+                        "rpg"
+                    ],
+                    "image": {
+                        "screenshot": "screenshot.png",
+                        "covers": [
+                            "cover.png"
+                        ],
+                        "thumbnail": null,
+                        "video": null
+                    },
+                    "rtr": true,
+                    "exp": false,
+                    "runtime": null,
+                    "reqs": [
+                        "4gb",
+                        "power"
+                    ],
+                    "arch": [
+                        "aarch64"
+                    ]
+                },
+                "source": {
+                    "date_added": "2024-12-03",
+                    "date_updated": "2024-12-03",
+                    "md5": "8d419a438201ab6521c46605b75f86ea",
+                    "release_id": "2024-12-03_1532",
+                    "size": 45939526,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-12-03_1532/zeldadoi.zip"
+                }
+            },
             "zeldaxd-mercurischess.zip": {
                 "version": 3,
                 "name": "zeldaxd-mercurischess.zip",
@@ -759,11 +935,11 @@
                 },
                 "source": {
                     "date_added": "2024-01-26",
-                    "date_updated": "2024-10-01",
-                    "md5": "ecf9e1bb71e6dbede36b8b75ae35eabc",
-                    "size": 281039,
-                    "release_id": "2024-10-01_1015",
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zeldaxd-mercurischess.zip"
+                    "date_updated": "2024-11-21",
+                    "md5": "efec279d1ba43c066a6ea5e0dd438722",
+                    "release_id": "2024-11-21_1538",
+                    "size": 281034,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zeldaxd-mercurischess.zip"
                 }
             },
             "zelda-mercurischest.zip": {
@@ -801,11 +977,11 @@
                 },
                 "source": {
                     "date_added": "2024-02-19",
-                    "date_updated": "2024-10-01",
-                    "md5": "5caf2dee79c33bf97f73ec68b8500070",
-                    "size": 295542,
-                    "release_id": "2024-10-01_1015",
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zelda-mercurischest.zip"
+                    "date_updated": "2024-11-21",
+                    "md5": "5f3ed935638f52c0b96cac7ddaf699da",
+                    "release_id": "2024-11-21_1538",
+                    "size": 295537,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zelda-mercurischest.zip"
                 }
             },
             "zelda-mysteryofsolarusdx.zip": {
@@ -845,11 +1021,11 @@
                 },
                 "source": {
                     "date_added": "2024-01-26",
-                    "date_updated": "2024-10-01",
-                    "md5": "c84140d07749fcc367a335b80f3400bc",
-                    "size": 373102,
-                    "release_id": "2024-10-01_1015",
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zelda-mysteryofsolarusdx.zip"
+                    "date_updated": "2024-11-21",
+                    "md5": "457b529f2dbad12f7a8bb18c697eecef",
+                    "release_id": "2024-11-21_1538",
+                    "size": 373096,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zelda-mysteryofsolarusdx.zip"
                 }
             },
             "zelda-mysteryofsolarusxd.zip": {
@@ -887,11 +1063,11 @@
                 },
                 "source": {
                     "date_added": "2024-01-26",
-                    "date_updated": "2024-10-01",
-                    "md5": "aa4284f0c12b92513857051e237eb25b",
-                    "size": 279249,
-                    "release_id": "2024-10-01_1015",
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zelda-mysteryofsolarusxd.zip"
+                    "date_updated": "2024-11-21",
+                    "md5": "e0154aec77a86af6e13e52205aafcca2",
+                    "release_id": "2024-11-21_1538",
+                    "size": 279243,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zelda-mysteryofsolarusxd.zip"
                 }
             },
             "zelda-roth-se.zip": {
@@ -929,11 +1105,11 @@
                 },
                 "source": {
                     "date_added": "2024-01-26",
-                    "date_updated": "2024-10-01",
-                    "md5": "b07253247fbf7720eac52365c1aa8d36",
-                    "size": 280999,
-                    "release_id": "2024-10-01_1015",
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zelda-roth-se.zip"
+                    "date_updated": "2024-11-21",
+                    "md5": "80108fe5b7a42dfab35a5cb7231076ce",
+                    "release_id": "2024-11-21_1538",
+                    "size": 281012,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zelda-roth-se.zip"
                 }
             },
             "zelda-bookofmudora.zip": {
@@ -971,11 +1147,11 @@
                 },
                 "source": {
                     "date_added": "2024-01-26",
-                    "date_updated": "2024-10-01",
-                    "md5": "d5fab8c255cba79f0eaaceb8d472f948",
-                    "size": 287360,
-                    "release_id": "2024-10-01_1015",
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zelda-bookofmudora.zip"
+                    "date_updated": "2024-11-21",
+                    "md5": "054aeae2f66c18ff3655436adddfbc08",
+                    "release_id": "2024-11-21_1538",
+                    "size": 287352,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zelda-bookofmudora.zip"
                 }
             },
             "zeldoschallenge.zip": {
@@ -1013,11 +1189,11 @@
                 },
                 "source": {
                     "date_added": "2024-01-26",
-                    "date_updated": "2024-10-01",
-                    "md5": "faf829f572f6277ac1c3a206fcbf84a9",
-                    "size": 306855,
-                    "release_id": "2024-10-01_1015",
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zeldoschallenge.zip"
+                    "date_updated": "2024-11-21",
+                    "md5": "d18ef72048db5b1c01e2e81ff954ba52",
+                    "release_id": "2024-11-21_1538",
+                    "size": 306851,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zeldoschallenge.zip"
                 }
             },
             "zeldoschallenge2.zip": {
@@ -1055,11 +1231,11 @@
                 },
                 "source": {
                     "date_added": "2024-01-26",
-                    "date_updated": "2024-10-01",
-                    "md5": "24690919fcaa7da59e76483b711aae9c",
-                    "size": 773251,
-                    "release_id": "2024-10-01_1015",
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zeldoschallenge2.zip"
+                    "date_updated": "2024-11-21",
+                    "md5": "77af5488c52cb90375bfeffccaba8e35",
+                    "release_id": "2024-11-21_1538",
+                    "size": 773246,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/zeldoschallenge2.zip"
                 }
             },
             "thextech.zip": {
@@ -1077,7 +1253,7 @@
                     ],
                     "desc": "This is a direct continuation of the SMBX 1.3 engine. Add assets, worlds and play Mario-style games with built-in world editor and many other features!",
                     "desc_md": null,
-                    "inst": "Download assets from https://github.com/TheXTech/TheXTech and unpack them to ./thextech/assets/<asset_pack_name>.\nCheck README for more details!",
+                    "inst": "Download assets from https://github.com/TheXTech/TheXTech/releases, file thextech-smbx13-assets-full.7z, unpack it to ./thextech/assets/smbx.\nCheck README for more details!",
                     "inst_md": null,
                     "genres": [
                         "platformer"
@@ -1098,11 +1274,11 @@
                 },
                 "source": {
                     "date_added": "2024-09-08",
-                    "date_updated": "2024-09-21",
-                    "md5": "ee488ed4b59c17132ea81d6fb8355e02",
-                    "release_id": "2024-09-21_1909",
-                    "size": 4109591,
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-09-21_1909/thextech.zip"
+                    "date_updated": "2024-12-01",
+                    "md5": "f7f0b3b8d887da7e252c106e370fb355",
+                    "release_id": "2024-12-01_1428",
+                    "size": 3909210,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-12-01_1428/thextech.zip"
                 }
             },
             "tunics.zip": {
@@ -1142,11 +1318,56 @@
                 },
                 "source": {
                     "date_added": "2024-01-26",
-                    "date_updated": "2024-10-01",
-                    "md5": "e24d67d9427b8a3b71462270ed3ded33",
-                    "size": 338814,
-                    "release_id": "2024-10-01_1015",
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/tunics.zip"
+                    "date_updated": "2024-11-21",
+                    "md5": "c1a86024c14321b049b71fbe6ff128d3",
+                    "release_id": "2024-11-21_1538",
+                    "size": 338792,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-21_1538/tunics.zip"
+                }
+            },
+            "vdrift.zip": {
+                "version": 3,
+                "name": "vdrift.zip",
+                "items": [
+                    "VDrift.sh",
+                    "vdrift"
+                ],
+                "items_opt": null,
+                "attr": {
+                    "title": "VDrift",
+                    "porter": [
+                        "Cebion"
+                    ],
+                    "desc": "Drift is a cross-platform, open source driving simulation made with drift racing in mind.",
+                    "desc_md": null,
+                    "inst": "Ready to run!",
+                    "inst_md": null,
+                    "genres": [
+                        "racing"
+                    ],
+                    "image": {
+                        "screenshot": "screenshot.jpg",
+                        "covers": [
+                            "cover.png"
+                        ],
+                        "thumbnail": null,
+                        "video": null
+                    },
+                    "rtr": true,
+                    "exp": false,
+                    "runtime": null,
+                    "reqs": [],
+                    "arch": [
+                        "aarch64"
+                    ]
+                },
+                "source": {
+                    "date_added": "2024-10-25",
+                    "date_updated": "2024-11-16",
+                    "md5": "53065d590fb5f722aa327773c0f55c36",
+                    "release_id": "2024-11-16_0559",
+                    "size": 1802704078,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-16_0559/vdrift.zip"
                 }
             },
             "wipeout.zip": {
@@ -1280,11 +1501,11 @@
                 },
                 "source": {
                     "date_added": "2024-08-06",
-                    "date_updated": "2024-10-01",
-                    "md5": "c23d59624003955882d286105eed58f5",
-                    "size": 11110973,
-                    "release_id": "2024-10-01_1015",
-                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/ziiaol.zip"
+                    "date_updated": "2024-11-26",
+                    "md5": "cca19c5230e59e0e75f8e4bbe132be36",
+                    "release_id": "2024-11-26_1506",
+                    "size": 14775929,
+                    "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-11-26_1506/ziiaol.zip"
                 }
             },
             "zeldansq.zip": {
@@ -1326,8 +1547,8 @@
                     "date_added": "2023-11-06",
                     "date_updated": "2024-10-01",
                     "md5": "cdf55095700bc1eaa48bbb0c8030e35a",
-                    "size": 21663234,
                     "release_id": "2024-10-01_1015",
+                    "size": 21663234,
                     "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zeldansq.zip"
                 }
             },
@@ -1370,8 +1591,8 @@
                     "date_added": "2023-11-06",
                     "date_updated": "2024-10-01",
                     "md5": "374abe87e49f43ea8df20d33261e4401",
-                    "size": 132427922,
                     "release_id": "2024-10-01_1015",
+                    "size": 132427922,
                     "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zeldaolb.zip"
                 }
             },
@@ -1414,8 +1635,8 @@
                     "date_added": "2023-11-06",
                     "date_updated": "2024-10-01",
                     "md5": "b94ed8500dc0af59570cd2ea82776a83",
-                    "size": 74527511,
                     "release_id": "2024-10-01_1015",
+                    "size": 74527511,
                     "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zelda_roth.zip"
                 }
             },
@@ -1458,8 +1679,8 @@
                     "date_added": "2023-11-06",
                     "date_updated": "2024-10-01",
                     "md5": "c1d0ef6c17b5a8e8169689bc0e4be588",
-                    "size": 31189414,
                     "release_id": "2024-10-01_1015",
+                    "size": 31189414,
                     "url": "https://github.com/PortsMaster-MV/PortMaster-MV-New/releases/download/2024-10-01_1015/zelda3t.zip"
                 }
             }

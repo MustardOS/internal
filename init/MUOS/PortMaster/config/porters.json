@@ -210,7 +210,7 @@
     "social": "",
     "support": "https://ko-fi.com/jantrueno",
     "webpage": "https://github.com/JanTrueno",
-    "image": ""
+    "image": "https://avatars.githubusercontent.com/u/159560609"
   },
   "Troidem": {
     "name": "Troidem",
@@ -281,5 +281,19 @@
     "support": "",
     "webpage": "https://github.com/EzDzzIt",
     "image": ""
-  }
+  },
+   "Slobters": {
+    "name": "Slobters",
+    "social": "",
+    "support": "",
+    "webpage": "https://github.com/slobters",
+    "image": "https://avatars.githubusercontent.com/u/132939843"
+  },
+  "kotzebuedog": {
+   "name": "kotzebuedog",
+   "social": "https://octodon.social/@cde",
+   "support": "https://ko-fi.com/kotzebuedog",
+   "webpage": "https://github.com/cdeletre",
+   "image": "https://filedn.com/lBqXsBfh35Xfmc9Q2rYVePY/PortMaster/kotzebuedog.png"
+ }
 }

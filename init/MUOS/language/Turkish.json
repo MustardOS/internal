@@ -23,6 +23,7 @@
     "Switch to Information": "Bilgiye geç",
     "Switch to Preview Image": "Önizleme resmine geç",
     "Sync to SD1": "SD1 ile senkronize et",
+    "This is disabled in kiosk mode!": "This is disabled in kiosk mode!",
     "Use": "Kullan"
   },
   "muxapp": {
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Kalibrasyona veya pil kapasitesi olçülmesindeki bilinen sapmalara bağlı olarak doğruluğu artırmak için görüntülenen pil yüzdesini değiştir",
     "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "Cihaz titreşimi",
+    "Disk Tuning": "Disk Tuning",
     "High": "Yüksek",
     "Interface Font Type": "Arayüz yazı tipi",
     "LED During Play": "Oyun sırasında LED",
@@ -420,6 +422,7 @@
     "Startup + Shutdown": "Başlat + Kapat",
     "Startup + Sleep": "Başlat + Uyku modu",
     "Suspend Power State": "Güç durumunu askıya al",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "Sistemin uyku, askıya alma durumları arasında geçiş yap",
     "System Swapfile": "System Swapfile",
     "Theme": "Tema",

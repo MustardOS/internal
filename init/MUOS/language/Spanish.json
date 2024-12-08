@@ -23,6 +23,7 @@
     "Switch to Information": "Cambiar a Información",
     "Switch to Preview Image": "Cambiar a vista previa",
     "Sync to SD1": "Sincronizar con SD1",
+    "This is disabled in kiosk mode!": "¡Esta función está deshabilitada en el modo quiosco!",
     "Use": "Usar"
   },
   "muxapp": {
@@ -387,7 +388,7 @@
   "muxtweakadv": {
     "ADVANCED SETTINGS": "CONFIGURACIÓN AVANZADA",
     "Adjust the rate of speed when holding navigation keys down": "Ajusta la velocidad al mantener presionadas las teclas de navegación",
-    "Adjust the system swapfile if required by certain content": "Adjust the system swapfile if required by certain content",
+    "Adjust the system swapfile if required by certain content": "Ajustar el archivo de intercambio del sistema si así lo requiere cierto contenido",
     "Audio Overdrive": "Saturación de audio",
     "Battery Offset": "Compensación de la batería",
     "Brightness On Boot": "Brillo al arrancar",
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Cambia el porcentaje de batería mostrado para mejorar la precisión según la calibración o las desviaciones conocidas en la lectura de la capacidad de la batería",
     "DPAD Swap Function": "Función de intercambio de DPAD",
     "Device Rumble": "Vibración del dispositivo",
+    "Disk Tuning": "Disk Tuning",
     "High": "Alto",
     "Interface Font Type": "Tipo de fuente de la interfaz",
     "LED During Play": "LED durante la reproducción",
@@ -420,8 +422,9 @@
     "Startup + Shutdown": "Inicio + Apagado",
     "Startup + Sleep": "Inicio + Suspensión",
     "Suspend Power State": "Estado de suspensión de energía",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "Cambia entre los estados de suspensión del sistema",
-    "System Swapfile": "System Swapfile",
+    "System Swapfile": "Archivo de intercambio del sistema",
     "Theme": "Tema",
     "Thermal Zone Control": "Control de zona térmica",
     "Toggle a delayed start of RetroArch until a network connection is established": "Activa o desactiva un inicio retrasado de RetroArch hasta que se establezca una conexión de red",

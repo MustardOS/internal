@@ -23,6 +23,7 @@
     "Switch to Information": "Zmień na informacje",
     "Switch to Preview Image": "Zmień na obraz podglądu",
     "Sync to SD1": "Synchronizacja do SD1",
+    "This is disabled in kiosk mode!": "This is disabled in kiosk mode!",
     "Use": "Użyj"
   },
   "muxapp": {
@@ -387,7 +388,7 @@
   "muxtweakadv": {
     "ADVANCED SETTINGS": "USTAWIENIA ZAAWANSOWANE",
     "Adjust the rate of speed when holding navigation keys down": "Dostosuj prędkość przy wciśnięciu przycisków nawigacyjnych",
-    "Adjust the system swapfile if required by certain content": "Adjust the system swapfile if required by certain content",
+    "Adjust the system swapfile if required by certain content": "Dostosuj systemowy plik swap, jeśli wymagany przez niektórą zawartość",
     "Audio Overdrive": "Przesterowanie audio",
     "Battery Offset": "Kompensacja baterii",
     "Brightness On Boot": "Jasność przy uruchomieniu",
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Zmień wyświetlany poziom procentowy baterii, by zwiększyć dokładność na podstawie kalibracji lub znanych odchyleń w odczycie pojemności",
     "DPAD Swap Function": "Funkcja zamiany DPADa",
     "Device Rumble": "Wibracje urządzenia",
+    "Disk Tuning": "Disk Tuning",
     "High": "Wysoka",
     "Interface Font Type": "Typ czcionki interfejsu",
     "LED During Play": "LED podczas gry",
@@ -420,8 +422,9 @@
     "Startup + Shutdown": "Uruchomienie + Zamknięcie",
     "Startup + Sleep": "Uruchomienie + Uśpienie",
     "Suspend Power State": "Typ trybu wstrzymania",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "Wybierz tryb uśpienia systemu",
-    "System Swapfile": "System Swapfile",
+    "System Swapfile": "Systemowy plik swap",
     "Theme": "Motyw",
     "Thermal Zone Control": "Kontrola strefy temperatur",
     "Toggle a delayed start of RetroArch until a network connection is established": "Włącz opóźnienie uruchomienia RetroArcha do momentu połączenia z siecią",

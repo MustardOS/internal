@@ -23,6 +23,7 @@
     "Switch to Information": "情報に切り替える",
     "Switch to Preview Image": "プレビュー画像に切り替える",
     "Sync to SD1": "Sync to SD1",
+    "This is disabled in kiosk mode!": "This is disabled in kiosk mode!",
     "Use": "接続する"
   },
   "muxapp": {
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "バッテリー残量表示の精度を向上させるために\n較正やデバイス個別の偏差値に基づいて修正します",
     "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "デバイスを振動",
+    "Disk Tuning": "Disk Tuning",
     "High": "明るい",
     "Interface Font Type": "画面表示フォント",
     "LED During Play": "ゲーム中のLED点灯",
@@ -420,6 +422,7 @@
     "Startup + Shutdown": "起動時 + 終了時",
     "Startup + Sleep": "起動時 + スリープ時",
     "Suspend Power State": "中断スリープの設定",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "システム中断スリープの挙動を切り替えます",
     "System Swapfile": "System Swapfile",
     "Theme": "テーマ",

@@ -23,6 +23,7 @@
     "Switch to Information": "Switch to Information",
     "Switch to Preview Image": "Switch to Preview Image",
     "Sync to SD1": "Sync to SD1",
+    "This is disabled in kiosk mode!": "This is disabled in kiosk mode!",
     "Use": "Använd"
   },
   "muxapp": {
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Ändra den visade batteriprocenten för att förbättra noggrannheten baserat på kalibrering eller kända avvikelser i batterikapacitetsavläsningen.",
     "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "Enhetsvibration",
+    "Disk Tuning": "Disk Tuning",
     "High": "Hög",
     "Interface Font Type": "Gränssnittets typsnitt",
     "LED During Play": "LED under spel",
@@ -420,6 +422,7 @@
     "Startup + Shutdown": "Start + Stäng av",
     "Startup + Sleep": "Start + Viloläge",
     "Suspend Power State": "Väntelägeskraft",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "Växla mellan systemets väntelägeskraft.",
     "System Swapfile": "System Swapfile",
     "Theme": "Tema",

@@ -23,6 +23,7 @@
     "Switch to Information": "Chuyển sang Thông tin",
     "Switch to Preview Image": "Chuyển sang Ảnh xem trước",
     "Sync to SD1": "Đồng bộ tới SD1",
+    "This is disabled in kiosk mode!": "This is disabled in kiosk mode!",
     "Use": "Sử dụng"
   },
   "muxapp": {
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading",
     "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "Device Rumble",
+    "Disk Tuning": "Disk Tuning",
     "High": "Cao",
     "Interface Font Type": "Kiểu phông chữ giao diện",
     "LED During Play": "Đèn báo nguồn trong khi chơi",
@@ -420,6 +422,7 @@
     "Startup + Shutdown": "Startup + Shutdown",
     "Startup + Sleep": "Startup + Sleep",
     "Suspend Power State": "Trạng thái ngủ",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "Switch between system sleep suspend states",
     "System Swapfile": "System Swapfile",
     "Theme": "Chủ đề",

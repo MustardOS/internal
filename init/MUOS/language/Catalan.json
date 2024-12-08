@@ -23,6 +23,7 @@
     "Switch to Information": "Switch to Information",
     "Switch to Preview Image": "Switch to Preview Image",
     "Sync to SD1": "Sync to SD1",
+    "This is disabled in kiosk mode!": "This is disabled in kiosk mode!",
     "Use": "Utilitzar"
   },
   "muxapp": {
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading",
     "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "Vibració del dispositiu",
+    "Disk Tuning": "Disk Tuning",
     "High": "Alt",
     "Interface Font Type": "Tipus de font de la interfície",
     "LED During Play": "LED durant la partida",
@@ -420,6 +422,7 @@
     "Startup + Shutdown": "Inici + Apagat",
     "Startup + Sleep": "Inici + Suspensió",
     "Suspend Power State": "Estat de suspensió d'energia",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "Switch between system sleep suspend states",
     "System Swapfile": "System Swapfile",
     "Theme": "Tema",

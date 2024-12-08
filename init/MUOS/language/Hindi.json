@@ -23,6 +23,7 @@
     "Switch to Information": "Switch to Information",
     "Switch to Preview Image": "Switch to Preview Image",
     "Sync to SD1": "Sync to SD1",
+    "This is disabled in kiosk mode!": "This is disabled in kiosk mode!",
     "Use": "उपयोग"
   },
   "muxapp": {
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading",
     "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "डिवाइस गड़गड़ाहट",
+    "Disk Tuning": "Disk Tuning",
     "High": "उच्च",
     "Interface Font Type": "इंटरफ़ेस फ़ॉन्ट प्रकार",
     "LED During Play": "खेल के दौरान LED",
@@ -420,6 +422,7 @@
     "Startup + Shutdown": "चालू होना + शटडाउन",
     "Startup + Sleep": "चालू होना + स्लीप",
     "Suspend Power State": "बिजली की स्थिति को निलंबित करें",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "Switch between system sleep suspend states",
     "System Swapfile": "System Swapfile",
     "Theme": "थीम",

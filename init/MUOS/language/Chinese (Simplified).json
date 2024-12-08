@@ -23,6 +23,7 @@
     "Switch to Information": "切换到文字信息",
     "Switch to Preview Image": "切换至封面图",
     "Sync to SD1": "同步至SD卡1",
+    "This is disabled in kiosk mode!": "This is disabled in kiosk mode!",
     "Use": "使用"
   },
   "muxapp": {
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "设置电池容量计数偏移值以满足对电池容量的准确计数",
     "DPAD Swap Function": "方向键交换功能",
     "Device Rumble": "设备振动",
+    "Disk Tuning": "Disk Tuning",
     "High": "高",
     "Interface Font Type": "界面字体类型",
     "LED During Play": "游戏中LED点亮",
@@ -420,6 +422,7 @@
     "Startup + Shutdown": "开机 + 关机",
     "Startup + Sleep": "开机 + 睡眠",
     "Suspend Power State": "待机电源状态",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "切换系统睡眠状态",
     "System Swapfile": "System Swapfile",
     "Theme": "跟随主题",

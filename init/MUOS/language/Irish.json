@@ -23,6 +23,7 @@
     "Switch to Information": "Athraigh go Faisnéis",
     "Switch to Preview Image": "Athraigh go hÍomhá Réamhamhairc",
     "Sync to SD1": "Sioncronaigh go SD1",
+    "This is disabled in kiosk mode!": "This is disabled in kiosk mode!",
     "Use": "Úsáid"
   },
   "muxapp": {
@@ -387,7 +388,7 @@
   "muxtweakadv": {
     "ADVANCED SETTINGS": "ARDSOCRUITHE",
     "Adjust the rate of speed when holding navigation keys down": "Coigeartaigh an ráta luais agus eochracha nascleanúna á gcoinneáil síos",
-    "Adjust the system swapfile if required by certain content": "Adjust the system swapfile if required by certain content",
+    "Adjust the system swapfile if required by certain content": "Coigeartaigh babhtáil an chórais más gá le hábhar áirithe",
     "Audio Overdrive": "Tiománaí fuaime Overdrive",
     "Battery Offset": "Fritháireamh Cadhnra",
     "Brightness On Boot": "Gile Ar Tosaithe",
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Athraigh an céatadán ceallraí a thaispeántar chun cruinneas a fheabhsú bunaithe ar chalabrú nó diallais aitheanta sa léamh acmhainne ceallraí",
     "DPAD Swap Function": "Feidhm Babhtála DPAD",
     "Device Rumble": "Tormán gléis",
+    "Disk Tuning": "Disk Tuning",
     "High": "Ard",
     "Interface Font Type": "Cineál Cló Comhéadain",
     "LED During Play": "LED Le linn Súgartha",
@@ -420,8 +422,9 @@
     "Startup + Shutdown": "Tosaithe + Múchadh",
     "Startup + Sleep": "Tosaithe + Codladh",
     "Suspend Power State": "Cuir Stát na Cumhachta ar Fionraí",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "Athraigh idir stáit ar fionraí codlata an chórais",
-    "System Swapfile": "System Swapfile",
+    "System Swapfile": "Babhtáil Chórais",
     "Theme": "Téama",
     "Thermal Zone Control": "Rialú Creasa Teirmeach",
     "Toggle a delayed start of RetroArch until a network connection is established": "Scoránaigh tús moillithe RetroArch go dtí go mbunaítear nasc líonra",

@@ -23,6 +23,7 @@
     "Switch to Information": "Přepněte na Informace",
     "Switch to Preview Image": "Přepněte na náhled obrázku",
     "Sync to SD1": "Synchronizovat na SD1",
+    "This is disabled in kiosk mode!": "Toto je zakázáno v režimu kiosku!",
     "Use": "Použijte"
   },
   "muxapp": {
@@ -387,7 +388,7 @@
   "muxtweakadv": {
     "ADVANCED SETTINGS": "POKROČILÉ NASTAVENÍ",
     "Adjust the rate of speed when holding navigation keys down": "Upravte rychlost při podržení navigačních kláves",
-    "Adjust the system swapfile if required by certain content": "Adjust the system swapfile if required by certain content",
+    "Adjust the system swapfile if required by certain content": "Upravte systémový odkládací soubor, pokud to vyžaduje určitý obsah",
     "Audio Overdrive": "Přesah zvuku",
     "Battery Offset": "Posunutí baterie",
     "Brightness On Boot": "Jas při spuštění",
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Změňte zobrazené procento baterie, abyste zlepšili přesnost na základě kalibrace nebo známých odchylek odečtu kapacity baterie",
     "DPAD Swap Function": "Funkce výměny DPAD",
     "Device Rumble": "Vibrace zařízení",
+    "Disk Tuning": "Disk Tuning",
     "High": "Vysoký",
     "Interface Font Type": "Typ písma rozhraní",
     "LED During Play": "LED během hraní",
@@ -420,8 +422,9 @@
     "Startup + Shutdown": "Spuštění + Vypnutí",
     "Startup + Sleep": "Spuštění + Spánek",
     "Suspend Power State": "Pozastavit stav napájení",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "Přepínání mezi stavy pozastavení spánku systému",
-    "System Swapfile": "System Swapfile",
+    "System Swapfile": "Systémový odkládací soubor",
     "Theme": "Téma",
     "Thermal Zone Control": "Ovládání tepelné zóny",
     "Toggle a delayed start of RetroArch until a network connection is established": "Přepněte odložený start RetroArch, dokud nebude navázáno síťové připojení",

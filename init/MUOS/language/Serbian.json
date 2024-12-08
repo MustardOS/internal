@@ -23,6 +23,7 @@
     "Switch to Information": "Promeni na informaciju",
     "Switch to Preview Image": "Promeni na Preview prikaz",
     "Sync to SD1": "Sinhronizacija na SD1",
+    "This is disabled in kiosk mode!": "Ovo je onemogućeno u kiosk režimu!",
     "Use": "Upotrebi"
   },
   "muxapp": {
@@ -387,7 +388,7 @@
   "muxtweakadv": {
     "ADVANCED SETTINGS": "NAPREDNA PODEŠAVANJA",
     "Adjust the rate of speed when holding navigation keys down": "Podesite brzinu listanja kada držite tastere za navigaciju",
-    "Adjust the system swapfile if required by certain content": "Adjust the system swapfile if required by certain content",
+    "Adjust the system swapfile if required by certain content": "Podesite sistemski swap fajl ukoliko je to potrebno za određeni sadržaj",
     "Audio Overdrive": "Pojačavanje zvučnog izlaza",
     "Battery Offset": "Odstupanje baterije",
     "Brightness On Boot": "Osvetljene prilikom startovanja",
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Izmenite prikazani procenat baterije radi poboljšanja tačnosti na osnovu kalibracije ili poznatih odstupanja u očitavanju kapaciteta baterije",
     "DPAD Swap Function": "Zamena DPAD tastera",
     "Device Rumble": "Vibracija uređaja",
+    "Disk Tuning": "Disk Tuning",
     "High": "Visoko",
     "Interface Font Type": "Font interfejsa",
     "LED During Play": "LED tokom igre",
@@ -420,8 +422,9 @@
     "Startup + Shutdown": "Pokretanje + Isključivanje",
     "Startup + Sleep": "Startovanje + Mirovanje",
     "Suspend Power State": "Stanje napajanja u režimu suspendovanja",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "Prebacivanje između stanja suspendovanja sistema i mirovanja",
-    "System Swapfile": "System Swapfile",
+    "System Swapfile": "Sistemski swap fajl",
     "Theme": "Teme",
     "Thermal Zone Control": "Kontrola temperature zone",
     "Toggle a delayed start of RetroArch until a network connection is established": "Omogućite odloženo pokretanje RetroArch-a dok se ne uspostavi mrežna konekcija",

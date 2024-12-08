@@ -23,6 +23,7 @@
     "Switch to Information": "Switch to Information",
     "Switch to Preview Image": "Switch to Preview Image",
     "Sync to SD1": "Sync to SD1",
+    "This is disabled in kiosk mode!": "This is disabled in kiosk mode!",
     "Use": "Selecteer"
   },
   "muxapp": {
@@ -400,6 +401,7 @@
     "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading": "Change the displayed battery percentage to improve accuracy based on calibration or known deviations in the battery capacity reading",
     "DPAD Swap Function": "DPAD Swap Function",
     "Device Rumble": "Trillingsinstelling",
+    "Disk Tuning": "Disk Tuning",
     "High": "Hoog",
     "Interface Font Type": "Lettertype interface",
     "LED During Play": "LED tijdens spelen",
@@ -420,6 +422,7 @@
     "Startup + Shutdown": "Opstart + Uitschakelen",
     "Startup + Sleep": "Opstart + Slaapstand",
     "Suspend Power State": "Uitgebreide energiebesparing",
+    "Switch between different storage tuning options": "Switch between different storage tuning options",
     "Switch between system sleep suspend states": "Switch between system sleep suspend states",
     "System Swapfile": "System Swapfile",
     "Theme": "Theme",

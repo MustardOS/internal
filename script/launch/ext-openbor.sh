@@ -23,8 +23,10 @@ export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 #
 # The patches try to make the savesDir configurable, but this doesn't actually
 # work consistently. Create a temporary /userdata symlink to work around this.
-[ -L /userdata ] && rm /userdata
-ln -s "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/openbor/userdata" /userdata
+U_DATA="/userdata"
+
+[ -d "$U_DATA" ] && rm -rf "$U_DATA"
+ln -s "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/openbor/userdata" "$U_DATA"
 
 if [ "$CORE" = "ext-openbor4432" ]; then
 	BOR_BIN="OpenBOR4432"
@@ -46,7 +48,7 @@ cd "$EMUDIR" || exit 1
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./"$BOR_BIN" "$ROM"
 
 # Clean up /userdata symlink when we're done since it's such a generic path.
-rm /userdata
+[ -d "$U_DATA" ] && rm -rf "$U_DATA"
 
 unset SDL_HQ_SCALER
 unset SDL_ROTATION

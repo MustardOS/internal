@@ -2,48 +2,80 @@
 
 . /opt/muos/script/var/func.sh
 
-if [ "$1" = "?R" ] && [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 1 ]; then
-	THEME=$(find "/run/muos/storage/theme" -name '*.zip' | shuf -n 1)
-else
-	THEME="/run/muos/storage/theme/$1.zip"
-fi
+COMMAND=$(basename "$0")
 
-cp "/opt/muos/device/current/bootlogo.bmp" "$(GET_VAR "device" "storage/boot/mount")/bootlogo.bmp"
+USAGE() {
+	printf "Usage: %s <install|save> <theme>\n" "$COMMAND"
+	exit 1
+}
 
+[ "$#" -lt 2 ] && USAGE
+
+MODE="$1"
+THEME_ARG="$2"
 THEME_DIR="/run/muos/storage/theme"
+THEME_ACTIVE_DIR="$THEME_DIR/active"
+BOOTLOGO_MOUNT="$(GET_VAR device storage/boot/mount)"
 
-while [ -d "$THEME_DIR/active" ]; do
-	rm -rf "$THEME_DIR/active"
-	sync
-	sleep 1
-done
-
-unzip "$THEME" -d "$THEME_DIR/active"
-
-THEME_NAME=$(basename "$THEME" .zip)
-CLEANED_THEME_NAME=$(echo "$THEME_NAME" | sed -E 's/-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}$//')
-echo "$CLEANED_THEME_NAME" >"$THEME_DIR/active/theme_name.txt"
-
-BOOTLOGO_NEW="$THEME_DIR/active/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/bootlogo.bmp"
-[ ! -f "$BOOTLOGO_NEW" ] && BOOTLOGO_NEW="$THEME_DIR/active/image/bootlogo.bmp"
-
-if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
-	RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
-	if [ -f "$RGBCONF_SCRIPT" ]; then
-		"$RGBCONF_SCRIPT"
+INSTALL() {
+	if [ "$THEME_ARG" = "?R" ] && [ "$(GET_VAR global settings/advanced/random_theme)" -eq 1 ]; then
+		THEME=$(find "$THEME_DIR" -name '*.zip' | shuf -n 1)
 	else
-		/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
+		THEME="$THEME_DIR/$THEME_ARG.zip"
 	fi
-fi
 
-if [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 0 ]; then
-	if [ -f "$BOOTLOGO_NEW" ]; then
-		cp "$BOOTLOGO_NEW" "$(GET_VAR "device" "storage/boot/mount")/bootlogo.bmp"
-		case "$(GET_VAR "device" "board/name")" in
-			rg28xx-h) convert "$(GET_VAR "device" "storage/boot/mount")/bootlogo.bmp" -rotate 270 "$(GET_VAR "device" "storage/boot/mount")/bootlogo.bmp" ;;
-			*) ;;
+	cp "/opt/muos/device/current/bootlogo.bmp" "$BOOTLOGO_MOUNT/bootlogo.bmp"
+
+	while [ -d "$THEME_ACTIVE_DIR" ]; do
+		rm -rf "$THEME_ACTIVE_DIR"
+		sync
+		sleep 1
+	done
+
+	unzip "$THEME" -d "$THEME_ACTIVE_DIR"
+
+	THEME_NAME=$(basename "$THEME" .zip)
+	echo "${THEME_NAME%-[0-9]*_[0-9]*}" >"$THEME_ACTIVE_DIR/theme_name.txt"
+
+	BOOTLOGO_NEW="$THEME_ACTIVE_DIR/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/bootlogo.bmp"
+	[ -f "$BOOTLOGO_NEW" ] || BOOTLOGO_NEW="$THEME_ACTIVE_DIR/image/bootlogo.bmp"
+
+	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
+		RGBCONF_SCRIPT="$THEME_ACTIVE_DIR/rgb/rgbconf.sh"
+		[ -f "$RGBCONF_SCRIPT" ] && "$RGBCONF_SCRIPT" || /opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
+	fi
+
+	if [ "$(GET_VAR global settings/advanced/random_theme)" -eq 0 ] && [ -f "$BOOTLOGO_NEW" ]; then
+		cp "$BOOTLOGO_NEW" "$BOOTLOGO_MOUNT/bootlogo.bmp"
+		case "$(GET_VAR device board/name)" in
+			rg28xx-h) convert "$BOOTLOGO_MOUNT/bootlogo.bmp" -rotate 270 "$BOOTLOGO_MOUNT/bootlogo.bmp" ;;
 		esac
 	fi
-fi
 
-sync
+	printf "Install complete\n"
+	sync
+}
+
+SAVE() {
+	if [ -f "$THEME_ACTIVE_DIR/theme_name.txt" ]; then
+		BASE_THEME_NAME=$(sed -n '1p' "$THEME_ACTIVE_DIR/theme_name.txt")
+	else
+		BASE_THEME_NAME="current_theme"
+		printf "Using default theme name: %s\n" "$BASE_THEME_NAME"
+	fi
+
+	TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+	DEST_FILE="$THEME_DIR/$BASE_THEME_NAME-$TIMESTAMP.zip"
+
+	printf "Backing up contents of %s to %s\n" "$THEME_ACTIVE_DIR" "$DEST_FILE"
+	cd "$THEME_ACTIVE_DIR" && zip -9r "$DEST_FILE" .
+
+	printf "Backup complete: %s\n" "$DEST_FILE"
+	sync
+}
+
+case "$MODE" in
+	install) INSTALL ;;
+	save) SAVE ;;
+	*) USAGE ;;
+esac

@@ -30,8 +30,9 @@
 COMPAT_ATTRIBUTE vec4 VertexCoord;
 COMPAT_ATTRIBUTE vec4 COLOR;
 COMPAT_ATTRIBUTE vec4 TexCoord;
-COMPAT_VARYING vec4 COL0;
-COMPAT_VARYING vec4 TEX0;
+COMPAT_VARYING vec2 pixel;
+COMPAT_VARYING vec2 scale;
+COMPAT_VARYING vec2 invscale;
 
 uniform mat4 MVPMatrix;
 uniform COMPAT_PRECISION int FrameDirection;
@@ -43,8 +44,9 @@ uniform COMPAT_PRECISION vec2 InputSize;
 void main()
 {
     gl_Position = MVPMatrix * VertexCoord;
-    COL0 = COLOR;
-    TEX0.xy = TexCoord.xy;
+    pixel = TexCoord.xy * OutputSize * TextureSize / InputSize;
+    scale = OutputSize / InputSize;
+    invscale = InputSize / OutputSize;
 }
 
 #elif defined(FRAGMENT)
@@ -76,36 +78,23 @@ uniform COMPAT_PRECISION vec2 OutputSize;
 uniform COMPAT_PRECISION vec2 TextureSize;
 uniform COMPAT_PRECISION vec2 InputSize;
 uniform sampler2D Texture;
-COMPAT_VARYING vec4 TEX0;
+COMPAT_VARYING vec2 pixel; // texel to pixel scale
+COMPAT_VARYING vec2 scale; // pixel to texel scale
+COMPAT_VARYING vec2 invscale;
 
 void main()
 {
-    vec2 pixel = TEX0.xy * OutputSize * TextureSize / InputSize;
-    vec2 pixel_floored = floor(pixel);
-    vec2 pixel_ceiled = ceil(pixel);
-    vec2 scale = OutputSize / InputSize.xy;
-    vec2 invscale = InputSize.xy / OutputSize;
-    vec2 texel_floored = floor(invscale * pixel_floored);
-    vec2 texel_ceiled = floor(invscale * pixel_ceiled);
+    // pixel: output screen pixels
+    // texel: input texels == game pixels
+    vec2 pixel_tl = floor(pixel);   // top-left of the pixel
+    vec2 pixel_br = ceil(pixel);    // bottom-right of the pixel
+    vec2 texel_tl = floor(invscale * pixel_tl); // texel the top-left of the pixel lies in
+    vec2 texel_br = floor(invscale * pixel_br); // texel the bottom-right of the pixel lies in
 
-    vec2 mod_texel;
-
-    if (texel_floored.x == texel_ceiled.x) {
-        // The square-pixel lies "completely in" a single column of square-texel
-        mod_texel.x = texel_ceiled.x + 0.5;
-    } else {
-        // The square-pixel lies across two neighboring columns and must be interpolated
-        mod_texel.x = texel_ceiled.x + 0.5 - (scale.x * texel_ceiled.x - pixel_floored.x);
-    }
-
-    if (texel_floored.y == texel_ceiled.y) {
-        // The square-pixel lies "completely in" a single row of square-texel
-        mod_texel.y = texel_ceiled.y + 0.5;   
-    } else {
-        // The square-pixel lies across two neighboring rows and must be interpolated
-        mod_texel.y = texel_ceiled.y + 0.5 - (scale.y * texel_ceiled.y - pixel_floored.y);
-    }
-
+    // the sampling point to get the correct box-filtered value
+    vec2 mod_texel = texel_br + vec2(0.5, 0.5);
+    mod_texel -= (vec2(1.0, 1.0) - step(texel_br, texel_tl)) * (scale * texel_br - pixel_tl);
+    
     FragColor = vec4(COMPAT_TEXTURE(Texture, mod_texel / TextureSize).rgb, 1.0);
 } 
 #endif

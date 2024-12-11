@@ -145,3 +145,29 @@ EOF
 else
 	echo "$LOG_DATE No file created. Remap existed at $SWAN_RMP" >>"$RMP_LOG"
 fi
+
+# Set device specific overlays
+# For now this just disables the 4:3 overlays
+SYSTEMS="gpSP
+mGBA
+Beetle GBA
+Beetle Lynx
+Beetle WonderSwan
+Gambatte
+Gearboy
+Handy
+SameBoy
+VBA Next
+VBA-M"
+
+echo "$SYSTEMS" | while IFS= read -r SYSTEM; do
+    CFG="/run/muos/storage/info/config/$SYSTEM/$SYSTEM.cfg"
+    BACKUP_CFG="$CFG.bak"
+    DEVICE_CFG="$DEVICE_CONTROL_DIR/$SYSTEM.cfg"
+
+    if [ ! -f "$BACKUP_CFG" ]; then
+        cp "$CFG" "$BACKUP_CFG"
+        cp -f "$DEVICE_CFG" "$CFG"
+    fi
+done
+

@@ -13,7 +13,7 @@ DO_REFRESH=/tmp/hdmi_do_refresh
 
 while true; do
 	if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ]; then
-		if [ "$(GET_VAR "global" "settings/advanced/hdmi_output")" -eq 0 ]; then
+		if [ "$(GET_VAR "global" "settings/hdmi/audio")" -eq 0 ]; then
 			XDG_RUNTIME_DIR="/var/run" wpctl set-default "$(GET_VAR "audio" "nid_external")"
 			XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_external")" 100%
 		else

@@ -162,7 +162,7 @@ VBA-M"
 
 echo "$SYSTEMS" | while IFS= read -r SYSTEM; do
     CFG="/run/muos/storage/info/config/$SYSTEM/$SYSTEM.cfg"
-    BACKUP_CFG="$CFG.bak"
+    BACKUP_CFG="$CFG.cubexx"
     DEVICE_CFG="$DEVICE_CONTROL_DIR/$SYSTEM.cfg"
 
     if [ ! -f "$BACKUP_CFG" ]; then

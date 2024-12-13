@@ -214,7 +214,7 @@ while :; do
 			"option")
 				echo explore >$ACT_GO
 				SET_VAR "system" "foreground_process" "muxoption"
-				nice --20 /opt/muos/extra/muxoption
+				nice --20 /opt/muos/extra/muxoption -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
 				;;
 			"search")
 				echo option >$ACT_GO

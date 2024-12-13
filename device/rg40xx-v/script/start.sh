@@ -10,7 +10,7 @@ if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
 fi
 
-if [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ] && [ "$(GET_VAR "global" "settings/general/hdmi")" -gt -1 ]; then
+if [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ] && [ "$(GET_VAR "global" "settings/hdmi/enabled")" -gt -1 ]; then
 	/opt/muos/device/current/script/hdmi_start.sh &
 fi
 

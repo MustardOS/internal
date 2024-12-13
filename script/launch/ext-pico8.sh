@@ -53,16 +53,16 @@ ROMDIR="$(dirname "$ROM")"
 
 if [ "$NAME" = "Splore" ]; then
 	SDL_ASSERT=always_ignore \
-	$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
+		$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
 	PATH="$EMUDIR:$PATH" \
-	HOME="$EMUDIR" \
-	"$EMU" $PICO_FLAGS -root_path "$ROMDIR" -splore
+		HOME="$EMUDIR" \
+		"$EMU" $PICO_FLAGS -root_path "$ROMDIR" -splore
 else
 	SDL_ASSERT=always_ignore \
-	$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
+		$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
 	PATH="$EMUDIR:$PATH" \
-	HOME="$EMUDIR" \
-	"$EMU" $PICO_FLAGS -root_path "$ROMDIR" -run "$ROM"
+		HOME="$EMUDIR" \
+		"$EMU" $PICO_FLAGS -root_path "$ROMDIR" -run "$ROM"
 fi
 
 kill -9 "$(pidof pico8_64)" "$(pidof gptokeyb2)"
@@ -70,3 +70,33 @@ kill -9 "$(pidof pico8_64)" "$(pidof gptokeyb2)"
 unset SDL_HQ_SCALER
 unset SDL_ROTATION
 unset SDL_BLITTER_DISABLED
+
+# SAVE THE FAVOURITES CHARLIE!
+SD1="$(GET_VAR "device" "storage/rom/mount")/ROMS"
+SD2="$(GET_VAR "device" "storage/sdcard/mount")/ROMS"
+USB="$(GET_VAR "device" "storage/usb/mount")/ROMS"
+
+P8_DIR=$(sed -n '2p' /run/muos/storage/info/core/pico-8/core.cfg)
+for DIR in "$USB" "$SD2" "$SD1"; do
+	[ -d "$DIR/$P8_DIR" ] && STORAGE_DIR="$DIR/$P8_DIR" && break
+done
+[ -z "$STORAGE_DIR" ] && exit 1
+
+FAVOURITE="/run/muos/storage/save/pico8/favourites.txt"
+CART_DIR="/run/muos/storage/save/pico8/bbs/carts"
+BOXART_DIR="/run/muos/storage/info/catalogue/PICO-8/box"
+
+# TODO: Work out what these other fields mean?! (maybe useful?)
+while IFS='|' read -r _ RAW_NAME _ _ _ GOOD_NAME; do
+	[ -z "$GOOD_NAME" ] || [ -z "$RAW_NAME" ] && continue
+	RAW_NAME=$(echo "$RAW_NAME" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[[:space:]]\+//g')
+	GOOD_NAME=$(echo "$GOOD_NAME" | sed -E 's/.*\|//; s/^[[:space:]]+|[[:space:]]+$//; s/\b(.)/\u\1/g')
+
+	P8_EXT="p8.png"
+	FAV_FILE="$CART_DIR/$RAW_NAME.$P8_EXT"
+	DEST_FILE="$STORAGE_DIR/$GOOD_NAME.$P8_EXT"
+	BOXART_FILE="$BOXART_DIR/$GOOD_NAME.$P8_EXT"
+
+	[ -f "$FAV_FILE" ] && [ ! -f "$DEST_FILE" ] && cp "$FAV_FILE" "$DEST_FILE"
+	[ -f "$FAV_FILE" ] && [ ! -f "$BOXART_FILE" ] && cp "$FAV_FILE" "$BOXART_FILE"
+done <"$FAVOURITE"

@@ -7,15 +7,16 @@ fi
 
 . /opt/muos/script/var/func.sh
 
-# Define the base directory for the theme schemes
-SCHEME_DIR="/run/muos/storage/theme/active/scheme"
+# Define base directory and resolution
+ACTIVE_DIR="/run/muos/storage/theme/active"
+DEVICE_RES="$(GET_VAR "device" "mux/width")x$(GET_VAR "device" "mux/height")"
 
-# Set SCHEME to muxplore.txt if it exists, otherwise revert to default.txt
-if [ -f "$SCHEME_DIR/muxplore.txt" ]; then
-	SCHEME="$SCHEME_DIR/muxplore.txt"
-else
-	SCHEME="$SCHEME_DIR/default.txt"
-fi
+# Determine SCHEME based on file availability
+DIR="$ACTIVE_DIR/$DEVICE_RES"
+[ ! -d "$DIR" ] && DIR="$ACTIVE_DIR"
+
+SCHEME="$DIR/scheme/muxplore.txt"
+[ ! -f "$SCHEME" ] && SCHEME="$DIR/scheme/default.txt"
 
 METACUT=$(PARSE_INI "$SCHEME" "meta" "META_CUT")
 [ -z "$METACUT" ] && METACUT=40

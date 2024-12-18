@@ -18,7 +18,7 @@ SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
 export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 IS_32BIT=0
-if grep -q 'PORT_32BIT="Y"' "$ROM"; then
+if grep -q '^[[:space:]]*[^#]*PORT_32BIT="Y"' "$ROM"; then
 	IS_32BIT=1
 fi
 

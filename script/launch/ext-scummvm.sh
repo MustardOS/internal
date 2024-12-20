@@ -20,7 +20,7 @@ export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 SET_VAR "system" "foreground_process" "scummvm"
 
 ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')
-SCVM=$(cat "$ROMPATH/$NAME.scummvm")
+SCVM=$(tr -d '[:space:]' <"$ROMPATH/$NAME.scummvm" | head -n 1)
 
 if [ -d "$ROMPATH/.$NAME" ]; then
 	SUBFOLDER=".$NAME"

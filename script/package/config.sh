@@ -48,6 +48,9 @@ SAVE() {
 		exit 1
 	}
 
+	# Let's remove retro achievement values just in case!
+	sed -i '/^cheevos_.*=/s/=.*/=""/' "$CONFIG_DIR/retroarch.cfg"
+
 	if [ -f "$CONFIG_DIR/config_name.txt" ]; then
 		BASE_CONFIG_NAME=$(sed -n '1p' "$CONFIG_DIR/config_name.txt")
 	else

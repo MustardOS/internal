@@ -11,6 +11,8 @@ esac
 /opt/muos/script/var/init/device.sh init
 /opt/muos/script/var/init/global.sh init
 
+printf "awake" >"/tmp/sleep_state"
+
 case "$(GET_VAR "global" "settings/advanced/rumble")" in
 	1 | 4 | 5) RUMBLE "$(GET_VAR "device" "board/rumble")" 0.3 ;;
 	*) ;;
@@ -114,9 +116,6 @@ ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/preload.txt &
 LOG_INFO "$0" 0 "BOOTING" "Running Device Specifics"
 /opt/muos/device/current/script/start.sh
 
-LOG_INFO "$0" 0 "BOOTING" "Starting Hotkey Daemon"
-/opt/muos/script/mux/hotkey.sh &
-
 # Block on storage mounts as late as possible to reduce boot time. Must wait
 # before charger detection since muxcharge expects the theme to be mounted.
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
@@ -124,14 +123,20 @@ while [ ! -f /run/muos/storage/mounted ]; do
 	sleep 0.25
 done
 
+LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
+/opt/muos/device/current/script/charge.sh
+
+LOG_INFO "$0" 0 "BOOTING" "Starting USB Function"
+/opt/muos/script/system/usb.sh &
+
 # Check for a kiosk configuration file on SD1
 KIOSK_HARD_CONFIG="/opt/muos/config/kiosk.ini"
 KIOSK_USER_CONFIG="$(GET_VAR "device" "storage/rom/mount")"/MUOS/kiosk.ini
 [ -f "$KIOSK_USER_CONFIG" ] && [ ! -f "$KIOSK_HARD_CONFIG" ] && mv "$KIOSK_USER_CONFIG" "$KIOSK_HARD_CONFIG"
 [ -f "$KIOSK_HARD_CONFIG" ] && /opt/muos/script/var/init/kiosk.sh init
 
-LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
-/opt/muos/device/current/script/charge.sh
+LOG_INFO "$0" 0 "BOOTING" "Starting Hotkey Daemon"
+/opt/muos/script/mux/hotkey.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Setting Device Controls"
 /opt/muos/device/current/script/control.sh &
@@ -149,9 +154,6 @@ if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 		HAS_UNLOCK="$?"
 	done
 fi
-
-LOG_INFO "$0" 0 "BOOTING" "Starting USB Function"
-/opt/muos/script/system/usb.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Bringing up localhost network"
 ifconfig lo up &

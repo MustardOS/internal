@@ -27,10 +27,6 @@ fi
 # Move RetroArch configuration
 RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 if [ ! -f "$RA_CONF" ]; then
-	# Modify the default RetroArch configuration
-	RA_CONV=/opt/muos/device/current/script/ra_convert.sh
-	[ -f "$RA_CONV" ] && "$RA_CONV"
-
 	cp /run/muos/storage/retroarch/retroarch.default.cfg "$RA_CONF"
 fi
 
@@ -53,7 +49,7 @@ fi
 # Move YabaSanshiro config
 YABASANSHIRO="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/yabasanshiro/.emulationstation/es_temporaryinput.cfg"
 if [ ! -f "$YABASANSHIRO" ]; then
-    cp "$DEVICE_CONTROL_DIR/yabasanshiro/es_temporaryinput.cfg" "$YABASANSHIRO"
+	cp "$DEVICE_CONTROL_DIR/yabasanshiro/es_temporaryinput.cfg" "$YABASANSHIRO"
 fi
 
 # Move OpenBOR config
@@ -63,15 +59,21 @@ for file in "$DEVICE_CONTROL_DIR/openbor/"*.ini; do
 	fi
 done
 
-# Set GBA SP Overlay as default in gpSP / mGBA
-GP_CFG="/run/muos/storage/info/config/gpSP/gpSP.cfg"
-if [ ! -f "$GP_CFG.bak" ]; then
-	cp "$GP_CFG" "$GP_CFG.bak"
-	cp -f "$DEVICE_CONTROL_DIR/gpSP.cfg" "$GP_CFG"
-fi
+# Set device-specific overlays
+# Automatically process all files in the ra-config directory if it exists
 
-MG_CFG="/run/muos/storage/info/config/mGBA/mGBA.cfg"
-if [ ! -f "$MG_CFG.bak" ]; then
-	cp "$MG_CFG" "$MG_CFG.bak"
-	cp -f "$DEVICE_CONTROL_DIR/mGBA.cfg" "$MG_CFG"
+RA_CONFIG_DIR="/run/muos/storage/info/config"
+DEVICE_CONFIG_DIR="$DEVICE_CONTROL_DIR/ra-config"
+
+if [ -d "$DEVICE_CONFIG_DIR" ]; then
+	for DEVICE_CFG in "$DEVICE_CONFIG_DIR"/*.cfg; do
+		[ -f "$DEVICE_CFG" ] || continue
+
+		SYSTEM=$(basename "$DEVICE_CFG" .cfg)
+		CFG="$RA_CONFIG_DIR/$SYSTEM/$SYSTEM.cfg"
+		BACKUP_CFG="$CFG.$(GET_VAR "device" "board/name")"
+
+		cp -f "$CFG" "$BACKUP_CFG"
+		cp -f "$DEVICE_CFG" "$CFG"
+	done
 fi

@@ -27,10 +27,6 @@ fi
 # Move RetroArch configuration
 RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 if [ ! -f "$RA_CONF" ]; then
-	# Modify the default RetroArch configuration
-	RA_CONV=/opt/muos/device/current/script/ra_convert.sh
-	[ -f "$RA_CONV" ] && "$RA_CONV"
-
 	cp /run/muos/storage/retroarch/retroarch.default.cfg "$RA_CONF"
 fi
 
@@ -53,7 +49,7 @@ fi
 # Move YabaSanshiro config
 YABASANSHIRO="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/yabasanshiro/.emulationstation/es_temporaryinput.cfg"
 if [ ! -f "$YABASANSHIRO" ]; then
-    cp "$DEVICE_CONTROL_DIR/yabasanshiro/es_temporaryinput.cfg" "$YABASANSHIRO"
+	cp "$DEVICE_CONTROL_DIR/yabasanshiro/es_temporaryinput.cfg" "$YABASANSHIRO"
 fi
 
 # Move OpenBOR config
@@ -146,28 +142,21 @@ else
 	echo "$LOG_DATE No file created. Remap existed at $SWAN_RMP" >>"$RMP_LOG"
 fi
 
-# Set device specific overlays
-# For now this just disables the 4:3 overlays
-SYSTEMS="gpSP
-mGBA
-Beetle GBA
-Beetle Lynx
-Beetle WonderSwan
-Gambatte
-Gearboy
-Handy
-SameBoy
-VBA Next
-VBA-M"
+# Set device-specific overlays
+# Automatically process all files in the ra-config directory if it exists
 
-echo "$SYSTEMS" | while IFS= read -r SYSTEM; do
-    CFG="/run/muos/storage/info/config/$SYSTEM/$SYSTEM.cfg"
-    BACKUP_CFG="$CFG.cubexx"
-    DEVICE_CFG="$DEVICE_CONTROL_DIR/$SYSTEM.cfg"
+RA_CONFIG_DIR="/run/muos/storage/info/config"
+DEVICE_CONFIG_DIR="$DEVICE_CONTROL_DIR/ra-config"
 
-    if [ ! -f "$BACKUP_CFG" ]; then
-        cp "$CFG" "$BACKUP_CFG"
-        cp -f "$DEVICE_CFG" "$CFG"
-    fi
-done
+if [ -d "$DEVICE_CONFIG_DIR" ]; then
+	for DEVICE_CFG in "$DEVICE_CONFIG_DIR"/*.cfg; do
+		[ -f "$DEVICE_CFG" ] || continue
 
+		SYSTEM=$(basename "$DEVICE_CFG" .cfg)
+		CFG="$RA_CONFIG_DIR/$SYSTEM/$SYSTEM.cfg"
+		BACKUP_CFG="$CFG.$(GET_VAR "device" "board/name")"
+
+		cp -f "$CFG" "$BACKUP_CFG"
+		cp -f "$DEVICE_CFG" "$CFG"
+	done
+fi

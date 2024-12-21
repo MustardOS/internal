@@ -45,8 +45,10 @@ if [ "$(GET_VAR "global" "settings/advanced/thermal")" -eq 1 ]; then
 	done
 fi
 
-# Switch GPU power policy
+# Switch GPU power policy and set to maximum frequency
 echo always_on >/sys/devices/platform/gpu/power_policy &
+echo 648000000 >/sys/devices/platform/gpu/devfreq/gpu/min_freq &
+echo 648000000 >/sys/devices/platform/gpu/devfreq/gpu/max_freq &
 
 # Work around swapped speaker channels
 /opt/muos/device/current/script/spk.sh &

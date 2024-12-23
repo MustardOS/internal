@@ -1,5 +1,12 @@
 #!/bin/sh
 
+if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
+	/opt/muos/script/system/video.sh
+	rm -rf "/opt/muos/startup.mp4"
+else
+	/opt/muos/script/system/video.sh &
+fi
+
 case ":$LD_LIBRARY_PATH:" in
 	*":/opt/muos/extra/lib:"*) ;;
 	*) export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH" ;;
@@ -122,6 +129,10 @@ LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
 while [ ! -f /run/muos/storage/mounted ]; do
 	sleep 0.25
 done
+
+LOG_INFO "$0" 0 "BOOTING" "Checking for Safety Script"
+OOPS="$(GET_VAR "device" "storage/rom/mount")/oops.sh"
+[ -e "$OOPS" ] && ./"$OOPS"
 
 LOG_INFO "$0" 0 "BOOTING" "Checking Disk Health"
 if dmesg | grep 'Please run fsck'; then

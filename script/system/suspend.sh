@@ -5,7 +5,7 @@
 SLEEP() {
 	cat "$(GET_VAR "device" "cpu/governor")" >/tmp/orig_cpu_gov
 	echo "powersave" >"$(GET_VAR "device" "cpu/governor")"
-	for C in $(seq 1 $((DC_CPU_CORES - 1))); do
+	for C in $(seq 1 $(($(nproc) - 1))); do
 		echo 0 >"/sys/devices/system/cpu/cpu${C}/online"
 	done
 
@@ -21,7 +21,7 @@ SLEEP() {
 
 RESUME() {
 	cat "/tmp/orig_cpu_gov" >"$(GET_VAR "device" "cpu/governor")"
-	for C in $(seq 1 $((DC_CPU_CORES - 1))); do
+	for C in $(seq 1 $(($(nproc) - 1))); do
 		echo 1 >"/sys/devices/system/cpu/cpu${C}/online"
 	done
 

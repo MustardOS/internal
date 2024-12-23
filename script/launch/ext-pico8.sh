@@ -90,13 +90,16 @@ BOXART_DIR="/run/muos/storage/info/catalogue/PICO-8/box"
 while IFS='|' read -r _ RAW_NAME _ _ _ GOOD_NAME; do
 	[ -z "$GOOD_NAME" ] || [ -z "$RAW_NAME" ] && continue
 	RAW_NAME=$(echo "$RAW_NAME" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[[:space:]]\+//g')
-	GOOD_NAME=$(echo "$GOOD_NAME" | sed -E 's/.*\|//; s/^[[:space:]]+|[[:space:]]+$//; s/\b(.)/\u\1/g')
+	GOOD_NAME=$(echo "$GOOD_NAME" | sed -E 's/.*\|//;s/^[[:space:]]+|[[:space:]]+$//;s/\b(.)/\u\1/g')
 
 	P8_EXT="p8.png"
 	FAV_FILE="$CART_DIR/$RAW_NAME.$P8_EXT"
 	DEST_FILE="$STORAGE_DIR/$GOOD_NAME.$P8_EXT"
 	BOXART_FILE="$BOXART_DIR/$GOOD_NAME.$P8_EXT"
 
-	[ -f "$FAV_FILE" ] && [ ! -f "$DEST_FILE" ] && cp "$FAV_FILE" "$DEST_FILE"
-	[ -f "$FAV_FILE" ] && [ ! -f "$BOXART_FILE" ] && cp "$FAV_FILE" "$BOXART_FILE"
+	[ ! -f "$FAV_FILE" ] && FAV_FILE="$CART_DIR/${RAW_NAME%${RAW_NAME#?}}/$RAW_NAME.$P8_EXT"
+	if [ -f "$FAV_FILE" ]; then
+		[ ! -f "$DEST_FILE" ] && cp "$FAV_FILE" "$DEST_FILE"
+		[ ! -f "$BOXART_FILE" ] && cp "$FAV_FILE" "$BOXART_FILE"
+	fi
 done <"$FAVOURITE"

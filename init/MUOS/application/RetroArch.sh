@@ -1,22 +1,22 @@
 #!/bin/sh
-
-if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mp3play"
-fi
-
-if pgrep -f "muplay" >/dev/null; then
-	killall -q "muplay"
-	rm "$SND_PIPE"
-fi
-
-echo app >/tmp/act_go
+# HELP: RetroArch
+# ICON: retroarch
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
+echo app >/tmp/act_go
 
-export HOME=/root
+export HOME=$(GET_VAR "device" "board/home")
 
-echo "retroarch" >/tmp/fg_proc
+SET_VAR "system" "foreground_process" "retroarch"
 
-nice --20 /usr/bin/retroarch -v -f -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg"
+RA_CONF=/run/muos/storage/info/config/retroarch.cfg
+
+# Include default button mappings from retroarch.device.cfg. (Settings in the
+# retroarch.cfg will take precedence. Modified settings will save to the main
+# retroarch.cfg, not the included retroarch.device.cfg.)
+sed -n -e '/^#include /!p' \
+	-e '$a#include "/opt/muos/device/current/control/retroarch.device.cfg"' \
+	-i "$RA_CONF"
+
+nice --20 /usr/bin/retroarch -v -f -c "$RA_CONF"

@@ -1,38 +1,27 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
-
-. /opt/muos/script/var/device/storage.sh
-
-ASSIGN_DIR="$DC_STO_ROM_MOUNT/MUOS/info/assign/*.ini"
-
-set -- "$ASSIGN_DIR"
-if [ $# -eq 0 ]; then
+if [ $# -ne 1 ]; then
+	echo "Usage: $0 <mount>"
 	exit 1
 fi
 
-GEN_ASSIGN_DIR() {
-	INI_FILE="$1"
-	CORE_CATALOGUE=$(PARSE_INI "$INI_FILE" "global" "catalogue")
+. /opt/muos/script/var/func.sh
 
-	if [ -z "$CORE_CATALOGUE" ]; then
-		return
-	fi
+ASSIGN_DIR="$1/MUOS/info/assign/*.ini"
+BASE_PATH="/run/muos/storage/info/catalogue"
+TARGET_DIRS="box grid preview text splash"
+EXTRA_DIRS="Application Archive Folder Root Task"
 
-	BASE_DIR="$DC_STO_ROM_MOUNT/MUOS/info/catalogue/$CORE_CATALOGUE"
-	mkdir -p "$BASE_DIR/box" "$BASE_DIR/preview" "$BASE_DIR/text"
-}
-
-SYSTEM_ART="$DC_STO_ROM_MOUNT/MUOS/info/catalogue/Folder"
-ROOT_ART="$DC_STO_ROM_MOUNT/MUOS/info/catalogue/Root"
-if [ ! -d "$SYSTEM_ART" ]; then
-	mkdir -p "$SYSTEM_ART/box" "$SYSTEM_ART/preview" "$SYSTEM_ART/text"
-fi
-if [ ! -d "$ROOT_ART" ]; then
-	mkdir -p "$ROOT_ART/box" "$ROOT_ART/preview" "$ROOT_ART/text"
-fi
-
-
+# Create core catalogue directories from assign INI files
 for INI_FILE in $ASSIGN_DIR; do
-	GEN_ASSIGN_DIR "$INI_FILE"
+	for DIR in $TARGET_DIRS; do
+		mkdir -p "$BASE_PATH/$(PARSE_INI "$INI_FILE" "global" "catalogue")/$DIR"
+	done
+done
+
+# Create additional directories specified in EXTRA_DIRS
+for EXTRA_DIR in $EXTRA_DIRS ; do
+	for DIR in $TARGET_DIRS; do
+		mkdir -p "$BASE_PATH/$EXTRA_DIR/$DIR"
+	done
 done

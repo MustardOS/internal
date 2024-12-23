@@ -1,3 +1,6 @@
 # Dumb macOS files
 .DS_Store
 ._*
+
+# Ignore Mono library
+mono-6.12.0.122-aarch64.squashfs

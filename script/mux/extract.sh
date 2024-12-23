@@ -1,94 +1,74 @@
 #!/bin/sh
 
+pkill -STOP muxarchive
+
 if [ "$#" -ne 1 ]; then
 	echo "Usage: $0 <archive>"
+	sleep 2
+
+	pkill -CONT muxarchive
 	exit 1
 fi
 
 if [ ! -e "$1" ]; then
 	echo "Error: Archive '$1' not found"
+	sleep 2
+
+	pkill -CONT muxarchive
 	exit 1
 fi
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-
-pkill -STOP muxarchive
-
-/opt/muos/extra/muxlog &
-sleep 0.5
-
 ARCHIVE_NAME="${1##*/}"
 
-TMP_FILE=/tmp/muxlog_global
-rm -rf "$TMP_FILE"
-
-MUX_TEMP="/opt/muxtmp"
-mkdir "$MUX_TEMP"
-
-# Check if archive is an Installable theme
 SCHEME_FOLDER="scheme"
 SCHEME_FILE="default.txt"
-echo "Inspecting archive..." >/tmp/muxlog_info
-if unzip -l "$1" | awk '$NF ~ /^'"$SCHEME_FOLDER"'\// && $NF ~ /\/'"$SCHEME_FILE"'$/ {print $NF}' | grep -q ""; then
-	echo "Archive contents indicate it is NOT an installable theme file." >/tmp/muxlog_info
-	echo "Copying unextracted archive to theme folder." >/tmp/muxlog_info
-	cp -f "$1" "$DC_STO_ROM_MOUNT/MUOS/theme/"
+echo "Inspecting archive..."
+
+if unzip -l "$1" | awk '$NF ~ /^(('"$SCHEME_FOLDER"'|640x480\/'"$SCHEME_FOLDER"'|720x720\/'"$SCHEME_FOLDER"'))\// && $NF ~ /\/'"$SCHEME_FILE"'$/ {print $NF}' | grep -q ""; then
+	echo "Archive contents indicate it is NOT an installable theme file"
+	echo "Copying unextracted archive to theme folder"
+	cp -f "$1" "/run/muos/storage/theme/"
 else
-	unzip -o "$1" -d "$MUX_TEMP/" >"$TMP_FILE" 2>&1 &
+	# Count total files in archive to show progress bar for unzip and rsync.
+	# Not as precise as monitoring bytes decompressed, but much easier, and
+	# still gives a high-level indication how far along the process is.
+	FILE_COUNT="$(unzip -Z1 "$1" | grep -cv '/$')"
 
-	C_LINE=""
-	while true; do
-		IS_WORKING=$(pgrep -f "unzip")
+	MUX_TEMP="/opt/muxtmp"
+	mkdir "$MUX_TEMP"
 
-		if [ -s "$TMP_FILE" ]; then
-			N_LINE=$(tail -n 1 "$TMP_FILE" | sed 's/^[[:space:]]*//')
-			if [ "$N_LINE" != "$C_LINE" ]; then
-				echo "$N_LINE"
-				echo "$N_LINE" >/tmp/muxlog_info
-				C_LINE="$N_LINE"
-			fi
-		fi
+	echo "Extracting files..."
+	unzip -o "$1" -d "$MUX_TEMP/" \
+		| grep --line-buffered -E '^ *(extracting|inflating):' \
+		| /opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
 
-		if [ -z "$IS_WORKING" ]; then
-			break
-		fi
+	echo "Moving files..."
+	rsync --archive --ignore-times --remove-source-files --itemize-changes --outbuf=L "$MUX_TEMP/" / \
+		| grep --line-buffered '^>f' \
+		| /opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
 
-		sleep 0.25
-	done
-
-	echo "Moving Files" >/tmp/muxlog_info
-	find "$MUX_TEMP" -mindepth 1 -type f -exec sh -c '
-		for SOURCE; do
-			DIR_NAME=$(dirname "$SOURCE")
-			DEST="${DIR_NAME#'"$MUX_TEMP"'}"
-			echo "Moving $SOURCE to $DEST"
-			mkdir -p "$DEST" && mv "$SOURCE" "$DEST"
-		done
-	' sh {} +
+	rm -rf "$MUX_TEMP"
 fi
 
-echo "Correcting Permissions" >/tmp/muxlog_info
+echo "Correcting permissions..."
 chmod -R 755 /opt/muos
 
 UPDATE_SCRIPT=/opt/update.sh
 if [ -s "$UPDATE_SCRIPT" ]; then
-	echo "Running Update Script" >/tmp/muxlog_info
+	echo "Running update script..."
 	chmod 755 "$UPDATE_SCRIPT"
 	${UPDATE_SCRIPT}
 	rm "$UPDATE_SCRIPT"
 fi
 
-echo "Sync Filesystem" >/tmp/muxlog_info
+echo "Sync Filesystem"
 sync
 
-echo "All Done!" >/tmp/muxlog_info
-touch "$DC_STO_ROM_MOUNT/MUOS/update/installed/$ARCHIVE_NAME.done"
-sleep 0.5
-
-killall -q muxlog
-rm -rf "$MUX_TEMP" /tmp/muxlog_*
+echo "All Done!"
+touch "$(GET_VAR "device" "storage/rom/mount")/MUOS/update/installed/$ARCHIVE_NAME.done"
+sleep 2
 
 pkill -CONT muxarchive
-killall -q extract.sh
+exit 0

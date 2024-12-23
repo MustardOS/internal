@@ -1,77 +1,146 @@
 #!/bin/sh
 
-GLOBAL_CONFIG="/opt/muos/config/config.ini"
-export GLOBAL_CONFIG
+. /opt/muos/script/var/init/system.sh
 
-DEVICE_TYPE=$(tr '[:upper:]' '[:lower:]' <"/opt/muos/config/device.txt")
-export DEVICE_TYPE
-
-DEVICE_CONFIG="/opt/muos/device/$DEVICE_TYPE/config.ini"
-export DEVICE_CONFIG
-
-ALSA_CONFIG="/usr/share/alsa/alsa.conf"
-export ALSA_CONFIG
-
-DEVICE_CONTROL_DIR="/opt/muos/device/$DEVICE_TYPE/control"
-export DEVICE_CONTROL_DIR
-
-MUOS_BOOT_LOG="/opt/muos/boot.log"
-export MUOS_BOOT_LOG
+ESC=$(printf '\x1b')
+CSI="${ESC}[38;5;"
 
 FB_SWITCH() {
 	WIDTH="$1"
 	HEIGHT="$2"
 	DEPTH="$3"
 
-	echo 4 > /sys/class/graphics/fb0/blank
-	cat /dev/zero > /dev/fb0
+	echo 4 >/sys/class/graphics/fb0/blank
+	cat /dev/zero >/dev/fb0 2>/dev/null
 
-	VIRTUAL_HEIGHT=$((HEIGHT * 2))
+	fbset -fb /dev/fb0 -g 0 0 0 0 "${DEPTH}"
+	sleep 0.25
+	fbset -fb /dev/fb0 -g "${WIDTH}" "${HEIGHT}" "${WIDTH}" "$((HEIGHT * 2))" "${DEPTH}"
+	sleep 0.25
 
-	fbset -fb /dev/fb0 -g "${WIDTH}" "${HEIGHT}" "${WIDTH}" "${VIRTUAL_HEIGHT}" "${DEPTH}"
+	echo 0 >/sys/class/graphics/fb0/blank
+}
 
-	echo 0 > /sys/class/graphics/fb0/blank
+# Writes a setting value to the display driver.
+#
+# Usage: DISPLAY_WRITE NAME COMMAND PARAM
+DISPLAY_WRITE() {
+	printf '%s\n' "$1" >/sys/kernel/debug/dispdbg/name
+	printf '%s\n' "$2" >/sys/kernel/debug/dispdbg/command
+	printf '%s\n' "$3" >/sys/kernel/debug/dispdbg/param
+	echo 1 >/sys/kernel/debug/dispdbg/start
+}
+
+# Reads and prints a setting value from the display driver.
+#
+# Usage: DISPLAY_READ NAME COMMAND
+DISPLAY_READ() {
+	printf '%s\n' "$1" >/sys/kernel/debug/dispdbg/name
+	printf '%s\n' "$2" >/sys/kernel/debug/dispdbg/command
+	echo 1 >/sys/kernel/debug/dispdbg/start
+	cat /sys/kernel/debug/dispdbg/info
+}
+
+# Prints current system uptime in hundredths of a second. Unlike date or
+# EPOCHREALTIME, this won't decrease if the system clock is set back, so it can
+# be used to measure an interval of real time.
+UPTIME() {
+	cut -d ' ' -f 1 /proc/uptime
 }
 
 PARSE_INI() {
 	INI_FILE="$1"
 	SECTION="$2"
 	KEY="$3"
-	sed -nr "/^\[$SECTION\]/ { :l /^${KEY}[ ]*=/ { s/[^=]*=[ ]*//; p; q;}; n; b l;}" "${INI_FILE}"
+	sed -nr "/^\[$SECTION\]/ { :l /^${KEY}[ ]*=[ ]*/ { s/^[^=]*=[ ]*//; p; q; }; n; b l; }" "${INI_FILE}"
 }
 
-MODIFY_INI() {
-	INI_FILE="$1"
-	SECTION="$2"
-	KEY="$3"
-	NEW_VALUE="$4"
-
-	if ! grep -q "^\[${SECTION}\]" "${INI_FILE}"; then
-		echo "Section [${SECTION}] not found in ${INI_FILE}"
-		return 1
-	fi
-
-	if ! sed -n "/^\[${SECTION}\]/,/^\[/p" "${INI_FILE}" | grep -q "^${KEY}[ ]*="; then
-		echo "Key [${KEY}] not found in section [${SECTION}] of ${INI_FILE}"
-		return 1
-	fi
-
-	sed -i "/^\[${SECTION}\]/,/^\[/ s|^${KEY}[ ]*=.*|${KEY}=${NEW_VALUE}|" "${INI_FILE}"
+SET_VAR() {
+	printf "%s" "$3" >"/run/muos/$1/$2"
 }
 
-LOGGER() {
-	_SCRIPT=$1
-	_TITLE=$2
-	_MESSAGE=$3
-	if [ "$(PARSE_INI "$GLOBAL_CONFIG" "boot" "factory_reset")" -eq 1 ]; then
-		_FORM=$(
-			cat <<EOF
-$_TITLE
+GET_VAR() {
+	cat "/run/muos/$1/$2"
+}
 
-$_MESSAGE
-EOF
-		)
-		/opt/muos/extra/muxstart "$_FORM" && sleep 0.5
+LOG() {
+	SYMBOL="$1"               # The symbol for the specific log type
+	MODULE="$(basename "$2")" # This is the name of the calling script without the full path
+	PROGRESS="$3"             # Used mainly for muxstart to show the progress line
+	TITLE="$4"                # The header of what is being logged - generally for sorting purposes
+	shift 4
+
+	# Extract the message format string since we can add things like %s %d etc
+	MSG="$1"
+	shift
+
+	# Time is of the essence!
+	TIME=$(date '+%Y-%m-%d %H:%M:%S')
+
+	if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
+		/opt/muos/extra/muxstart "$PROGRESS" "$(printf "%s\n\n${MSG}\n" "$TITLE" "$@")" && sleep 0.5
 	fi
-	printf "%s\t[%s] :: %s - %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "$_SCRIPT" "$_TITLE" "$_MESSAGE" >>$MUOS_BOOT_LOG
+
+	# Print to console and log file and ensure the message is formatted correctly with printf options
+	SPACER="$TITLE - "
+	[ -z "$TITLE" ] && SPACER=""
+	printf "[%s] [%s${ESC}[0m] [%s] %s${MSG}\n" "$TIME" "$SYMBOL" "$MODULE" "$SPACER" "$@" | tee -a "$MUOS_BOOT_LOG"
+}
+
+LOG_INFO() { LOG "${CSI}33m*" "$@"; }
+LOG_WARN() { LOG "${CSI}226m!" "$@"; }
+LOG_ERROR() { LOG "${CSI}196m-" "$@"; }
+LOG_SUCCESS() { LOG "${CSI}46m+" "$@"; }
+LOG_DEBUG() { LOG "${CSI}202m?" "$@"; }
+
+CRITICAL_FAILURE() {
+	case "$1" in
+		device) MESSAGE=$(printf "Critical Failure\n\nFailed to mount '%s'!\n\n%s" "$2" "$3") ;;
+		directory) MESSAGE=$(printf "Critical Failure\n\nFailed to mount '%s' on '%s'!" "$2" "$3") ;;
+		udev) MESSAGE="Critical Failure\n\nFailed to initialise udev!" ;;
+		*) MESSAGE="Critical Failure\n\nAn unknown error occurred!" ;;
+	esac
+
+	/opt/muos/extra/muxstart 0 "$MESSAGE"
+	sleep 10
+	/opt/muos/script/system/halt.sh poweroff
+}
+
+RUMBLE() {
+	echo 1 >"$1"
+	sleep "$2"
+	echo 0 >"$1"
+}
+
+STOP_BGM() {
+	if pgrep -f "playbgm.sh" >/dev/null; then
+		killall -q "playbgm.sh" "mpv"
+		printf "%d" "-1" >"/tmp/bgm_type"
+	fi
+}
+
+START_BGM() {
+	NEW_BGM_TYPE=$(GET_VAR "global" "settings/general/bgm")
+	OLD_BGM_TYPE=$(cat "/tmp/bgm_type" 2>/dev/null || echo "-1")
+	if [ "$NEW_BGM_TYPE" -ne "$OLD_BGM_TYPE" ]; then
+		STOP_BGM
+		case $NEW_BGM_TYPE in
+			1) nohup /opt/muos/script/mux/playbgm.sh "/run/muos/storage/music" & ;;
+			2) nohup /opt/muos/script/mux/playbgm.sh "/run/muos/storage/theme/active/music" & ;;
+			*) ;;
+		esac
+		printf "%s" "$NEW_BGM_TYPE" >"/tmp/bgm_type"
+	fi
+}
+
+CHECK_BGM() {
+	if [ "$1" = "ignore" ]; then
+		! pgrep -f "playbgm.sh" >/dev/null && START_BGM
+	else
+		FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
+		case "$FG_PROC_VAL" in
+			mux*) ! pgrep -f "playbgm.sh" >/dev/null && START_BGM ;;
+			*) ;;
+		esac
+	fi
 }

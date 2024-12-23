@@ -2,31 +2,53 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
+DEVICE=$(GET_VAR "device" "storage/usb/dev")$(GET_VAR "device" "storage/usb/sep")$(GET_VAR "device" "storage/usb/num")
+MOUNT="$(GET_VAR "device" "storage/usb/mount")"
 
-STORE_DEVICE=${DC_STO_USB_DEV}${DC_STO_USB_NUM}
-MOUNTED=false
+mkdir -p "$MOUNT"
 
-mkdir "$DC_STO_USB_MOUNT"
+MOUNTED() {
+	[ "$(GET_VAR "device" "storage/usb/active")" -eq 1 ]
+}
 
-while true; do
-	if grep -m 1 "$STORE_DEVICE" /proc/partitions >/dev/null; then
-		if ! $MOUNTED; then
-			FS_TYPE=$(blkid -o value -s TYPE "/dev/$STORE_DEVICE")
-			if [ "$FS_TYPE" = "vfat" ]; then
-				mount -t vfat -o rw,utf8,noatime,nofail "/dev/$STORE_DEVICE" "$DC_STO_USB_MOUNT"
-				MOUNTED=true
-			elif [ "$FS_TYPE" = "exfat" ]; then
-				mount -t exfat -o rw,utf8,noatime,nofail "/dev/$STORE_DEVICE" "$DC_STO_USB_MOUNT"
-				MOUNTED=true
-			elif [ "$FS_TYPE" = "ext4" ]; then
-				mount -t ext4 -o defaults,noatime,nofail "/dev/$STORE_DEVICE" "$DC_STO_USB_MOUNT"
-				MOUNTED=true
-			fi
-		fi
-	elif $MOUNTED; then
-		umount "$DC_STO_USB_MOUNT"
-		MOUNTED=false
+HAS_DEVICE() {
+	grep -q "$DEVICE" /proc/partitions
+}
+
+MOUNT_DEVICE() {
+	FS_TYPE="$(blkid -o value -s TYPE "/dev/$DEVICE")"
+	FS_LABEL="$(blkid -o value -s LABEL "/dev/$DEVICE")"
+
+	case "$FS_TYPE" in
+		vfat | exfat) FS_OPTS=rw,utf8,noatime,nofail ;;
+		ext4) FS_OPTS=defaults,noatime,nofail ;;
+		*) return ;;
+	esac
+
+	if mount -t "$FS_TYPE" -o "$FS_OPTS" "/dev/$DEVICE" "$MOUNT"; then
+		SET_VAR "device" "storage/usb/active" "1"
+		SET_VAR "device" "storage/usb/label" "$FS_LABEL"
 	fi
+
+	if [ "$(GET_VAR "global" "settings/advanced/cardmode")" = "noop" ]; then
+		echo "noop" >"/sys/block/$(GET_VAR "device" "storage/usb/dev")/queue/scheduler"
+		echo "write back" >"/sys/block/$(GET_VAR "device" "storage/usb/dev")/queue/write_cache"
+	else
+		echo "deadline" >"/sys/block/$(GET_VAR "device" "storage/usb/dev")/queue/scheduler"
+		echo "write through" >"/sys/block/$(GET_VAR "device" "storage/usb/dev")/queue/write_cache"
+	fi
+
+	# Create ROMS directory if it doesn't exist
+	[ ! -d "$MOUNT/ROMS" ] && mkdir -p "$MOUNT/ROMS"
+}
+
+# Asynchronously monitor insertion/eject.
+while :; do
 	sleep 2
+	if HAS_DEVICE; then
+		! MOUNTED && MOUNT_DEVICE
+	elif MOUNTED; then
+		umount "$MOUNT"
+		SET_VAR "device" "storage/usb/active" "0"
+	fi
 done &

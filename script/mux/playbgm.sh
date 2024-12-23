@@ -1,22 +1,12 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+trap "killall mpv; exit 0" TERM
 
-. /opt/muos/script/var/device/storage.sh
-
-MP3_DIR="$DC_STO_ROM_MOUNT/MUOS/music"
-
-while true; do
-	cd "$MP3_DIR" || exit 1
-	MP3_FILES=$(find . -maxdepth 1 -type f -name "*.mp3")
-
-	if [ -n "$MP3_FILES" ]; then
-		LINES=$(echo "$MP3_FILES" | wc -l)
-		R_LINE=$(awk -v min=1 -v max="$LINES" 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')
-		MP3_SELECT=$(echo "$MP3_FILES" | sed -n "${R_LINE}p")
-
-		/opt/muos/bin/mp3play "$MP3_SELECT"
+while :; do
+	BGM_FILE=$(find "$1" -maxdepth 1 -type f 2>/dev/null | shuf -n 1)
+	if [ -n "$BGM_FILE" ]; then
+		mpv --no-video "$BGM_FILE" >/dev/null 2>&1
+	else
+		sleep 1
 	fi
-
-	sleep 2
-done &
+done

@@ -1,6 +1,10 @@
 #!/bin/sh
+# HELP: Archive Manager
+# ICON: archive
 
-echo "muxarchive" >/tmp/fg_proc
+. /opt/muos/script/var/func.sh
+
+SET_VAR "system" "foreground_process" "muxarchive"
 
 nice --20 /opt/muos/extra/muxarchive
 

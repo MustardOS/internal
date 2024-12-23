@@ -1,33 +1,21 @@
 #!/bin/sh
 
-DISPLAY="/sys/kernel/debug/dispdbg"
+. /opt/muos/script/var/func.sh
 
-FG_PROC="/tmp/fg_proc"
+WIDTH="$(GET_VAR "device" "screen/width")"
+HEIGHT="$(GET_VAR "device" "screen/height")"
 
-FG_PROC_VAL=$(cat "$FG_PROC")
+HAS_PLUGGED=/tmp/hdmi_has_plugged
 
-if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
-	pkill -STOP "playbgm.sh"
-	killall -q "mp3play"
+killall -q "hdmi_start.sh"
+
+if [ "$(cat "$HAS_PLUGGED")" -eq 1 ]; then
+	DISPLAY_WRITE disp0 switch "1 0"
+	XDG_RUNTIME_DIR="/var/run" wpctl set-default "$(GET_VAR "audio" "nid_internal")"
+
+	FG_PROC_VAL=$(GET_VAR "system" "foreground_process")
+	case "$FG_PROC_VAL" in
+		mux*) FB_SWITCH "$WIDTH" "$HEIGHT" 32 ;;
+		*) ;;
+	esac
 fi
-
-sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf
-alsactl kill quit
-
-echo "0" >/tmp/hdmi_in_use
-
-if [ "${FG_PROC_VAL#mux}" != "$FG_PROC_VAL" ] && pgrep -f "playbgm.sh" >/dev/null; then
-	pkill -CONT "playbgm.sh"
-fi
-
-# Switch off HDMI
-echo disp0 >$DISPLAY/name
-echo switch >$DISPLAY/command
-echo 1 0 >$DISPLAY/param
-echo 1 >$DISPLAY/start
-
-# Reset the display
-fbset -g 1280 720 1280 1440 32
-fbset -g 640 480 640 960 32
-fbset -g 1280 720 1280 1440 32
-fbset -g 640 480 640 960 32

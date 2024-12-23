@@ -1,28 +1,22 @@
 #!/bin/sh
+# HELP: Restore the default RetroArch global settings and hotkeys (retroarch.cfg). Per-system core overrides will not be modified.
+# ICON: retroarch
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-
 pkill -STOP muxtask
-/opt/muos/extra/muxlog &
-sleep 1
 
-TMP_FILE=/tmp/muxlog_global
-rm -rf "$TMP_FILE"
+echo "Restoring RetroArch Configuration"
+rm -f /run/muos/storage/info/config/retroarch.cfg
 
-echo "Restoring RetroArch Configuration" >/tmp/muxlog_info
-rm -rf "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg"
-/opt/muos/device/"$DEVICE_TYPE"/script/control.sh
+# control.sh recreates retroarch.cfg from retroarch.default.cfg.
+/opt/muos/device/current/script/control.sh
 
-echo "Sync Filesystem" >/tmp/muxlog_info
+echo "Sync Filesystem"
 sync
 
-echo "All Done!" >/tmp/muxlog_info
-sleep 1
-
-killall -q muxlog
-rm -rf "$MUX_TEMP" /tmp/muxlog_*
+echo "All Done!"
+sleep 2
 
 pkill -CONT muxtask
-killall -q "Restore RetroArch Configuration.sh"
+exit 0

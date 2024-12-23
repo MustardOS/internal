@@ -2,22 +2,22 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-. /opt/muos/script/var/device/sdl.sh
-
-. /opt/muos/script/var/global/setting_general.sh
-
 NAME=$1
 CORE=$2
 ROM=$3
 
-export HOME=/root
+LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
 
-export SDL_HQ_SCALER="$DC_SDL_SCALER"
-export SDL_ROTATION="$DC_SDL_ROTATION"
-export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
+HOME="$(GET_VAR "device" "board/home")"
+export HOME
 
-echo "retroarch" >/tmp/fg_proc
+SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+
+export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+
+SET_VAR "system" "foreground_process" "retroarch"
 
 MESSAGE() {
 	_TITLE=$1
@@ -29,21 +29,36 @@ $_TITLE
 $_MESSAGE
 EOF
 	)
-	/opt/muos/extra/muxstart "$_FORM" && sleep "$3"
+	/opt/muos/extra/muxstart 0 "$_FORM" && sleep "$3"
 }
 
 ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')
 DOUK="$ROMPATH/.Cave Story (En)/Doukutsu.exe"
 
-LOGPATH="$DC_STO_ROM_MOUNT/MUOS/log/nxe.log"
+LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/nxe.log"
+
+RA_CONF=/run/muos/storage/info/config/retroarch.cfg
+
+# Include default button mappings from retroarch.device.cfg. (Settings
+# in the retroarch.cfg will take precedence. Modified settings will save
+# to the main retroarch.cfg, not the included retroarch.device.cfg.)
+sed -n -e '/^#include /!p' \
+	-e '$a#include "/opt/muos/device/current/control/retroarch.device.cfg"' \
+	-i "$RA_CONF"
+
+if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ]; then
+	sed -i 's/^kiosk_mode_enable = "false"$/kiosk_mode_enable = "true"/' "$RA_CONF"
+else
+	sed -i 's/^kiosk_mode_enable = "true"$/kiosk_mode_enable = "false"/' "$RA_CONF"
+fi
 
 if [ -e "$DOUK" ]; then
-	retroarch -v -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg" -L "$DC_STO_ROM_MOUNT/MUOS/core/$CORE" "$DOUK" &
+	retroarch -v -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$DOUK" &
 	RA_PID=$!
 else
 	CZ_NAME="Cave Story (En).zip"
 	CAVE_URL="https://bot.libretro.com/assets/cores/Cave Story/$CZ_NAME"
-	BIOS_FOLDER="$DC_STO_ROM_MOUNT/MUOS/bios/"
+	BIOS_FOLDER="/run/muos/storage/bios/"
 
 	if [ -e "$BIOS_FOLDER$CZ_NAME" ]; then
 		echo "$CZ_NAME exists at $BIOS_FOLDER" >>"$LOGPATH"
@@ -81,17 +96,8 @@ else
 		echo "Did extraction fail?" >>"$LOGPATH"
 	fi
 
-	retroarch -v -c "$DC_STO_ROM_MOUNT/MUOS/retroarch/retroarch.cfg" -L "$DC_STO_ROM_MOUNT/MUOS/core/$CORE" "$DOUK" &
+	retroarch -v -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$DOUK" &
 	RA_PID=$!
-fi
-
-# We have to pause just for a moment to let RetroArch finish loading...
-sleep 5
-
-if [ "$GC_GEN_STARTUP" = last ] || [ "$GC_GEN_STARTUP" = resume ]; then
-	if [ ! -e "/tmp/manual_launch" ]; then
-		retroarch --command LOAD_STATE
-	fi
 fi
 
 wait $RA_PID

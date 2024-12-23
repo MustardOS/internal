@@ -1,21 +1,25 @@
 #!/bin/sh
 
-if [ "$#" -ne 1 ]; then
+if [ $# -ne 1 ]; then
 	echo "Usage: $0 <input>"
 	exit 1
 fi
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
+# Define base directory and resolution
+ACTIVE_DIR="/run/muos/storage/theme/active"
+DEVICE_RES="$(GET_VAR "device" "mux/width")x$(GET_VAR "device" "mux/height")"
 
-SCHEME="$DC_STO_ROM_MOUNT/MUOS/theme/active/scheme/default.txt"
+# Determine SCHEME based on file availability
+DIR="$ACTIVE_DIR/$DEVICE_RES"
+[ ! -d "$DIR" ] && DIR="$ACTIVE_DIR"
+
+SCHEME="$DIR/scheme/muxplore.txt"
+[ ! -f "$SCHEME" ] && SCHEME="$DIR/scheme/default.txt"
 
 METACUT=$(PARSE_INI "$SCHEME" "meta" "META_CUT")
-
-if [ -z "$METACUT" ]; then
-	METACUT=40
-fi
+[ -z "$METACUT" ] && METACUT=40
 
 awk -v meta_cut="$METACUT" '
 BEGIN { RS = " "; ORS = ""; }

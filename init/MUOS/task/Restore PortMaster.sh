@@ -1,33 +1,44 @@
 #!/bin/sh
+# HELP: Restore PortMaster application
+# ICON: sdcard
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
+PM_ZIP="/opt/muos/PortMaster/muos.portmaster.zip"
 
-pkill -STOP muxtask
-/opt/muos/extra/muxlog &
-sleep 1
+if [ ! -e "$PM_ZIP" ]; then
+	echo "Error: PortMaster archive not found!"
+	sleep 2
 
-TMP_FILE=/tmp/muxlog_global
-rm -rf "$TMP_FILE"
+	pkill -CONT muxtask
+	exit 1
+fi
 
-MUOS_NEW_PM_DIR="/opt/muos/archive/portmaster"
-MUOS_PM_DIR="$DC_STO_ROM_MOUNT/MUOS/PortMaster"
+# PortMaster Purge Time!
+rm -rf /mnt/mmc/MUOS/Portmaster
 
-echo "Deleting existing PortMaster install" >/tmp/muxlog_info
-rm -rf "${MUOS_PM_DIR:?}"/*
+FILE_COUNT="$(unzip -Z1 "$PM_ZIP" | grep -cv '/$')"
 
-echo "Reinstalling PortMaster from base" >/tmp/muxlog_info
-cp -r "$MUOS_NEW_PM_DIR"/* "$MUOS_PM_DIR"/.
+MUX_TEMP="/opt/muxtmp"
+mkdir "$MUX_TEMP"
 
-echo "Sync Filesystem" >/tmp/muxlog_info
+echo "Extracting files..."
+unzip -o "$PM_ZIP" -d "$MUX_TEMP/" |
+	grep --line-buffered -E '^ *(extracting|inflating):' |
+	/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+
+echo "Moving files..."
+rsync --archive --ignore-times --remove-source-files --itemize-changes --outbuf=L "$MUX_TEMP/" / |
+	grep --line-buffered '^>f' |
+	/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+
+rm -rf "$MUX_TEMP"
+
+echo "Sync Filesystem"
 sync
 
-echo "All Done!" >/tmp/muxlog_info
-sleep 1
-
-killall -q muxlog
-rm -rf "$MUX_TEMP" /tmp/muxlog_*
+echo "All Done!"
+sleep 2
 
 pkill -CONT muxtask
-killall -q "Restore PortMaster.sh"
+exit 0

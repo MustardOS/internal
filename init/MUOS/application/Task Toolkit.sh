@@ -1,6 +1,10 @@
 #!/bin/sh
+# HELP: Task Toolkit
+# ICON: task
 
-echo "muxtask" >/tmp/fg_proc
+. /opt/muos/script/var/func.sh
+
+SET_VAR "system" "foreground_process" "muxtask"
 
 nice --20 /opt/muos/extra/muxtask
 

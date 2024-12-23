@@ -1,0 +1,41 @@
+[application]
+archive = 0
+task = 0
+
+[config]
+customisation = 0
+language = 0
+network = 0
+storage = 0
+webserv = 0
+
+[content]
+core = 0
+governor = 0
+option = 0
+retroarch = 0
+search = 0
+
+[custom]
+catalogue = 0
+configuration = 0
+theme = 0
+
+[datetime]
+clock = 0
+timezone = 0
+
+[launch]
+application = 0
+config = 0
+explore = 0
+favourite = 0
+history = 0
+info = 0
+
+[setting]
+advanced = 0
+general = 0
+hdmi = 0
+power = 0
+visual = 0

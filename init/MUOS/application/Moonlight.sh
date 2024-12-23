@@ -1,45 +1,24 @@
-#!/bin/bash
+#!/bin/sh
+# HELP: Moonlight
+# ICON: moonlight
 
-# Function to safely stop background processes
-stop_bg_processes() {
-    if pgrep -f "playbgm.sh" >/dev/null; then
-        killall -q "playbgm.sh" "mp3play"
-    fi
+. /opt/muos/script/var/func.sh
 
-    if pgrep -f "muplay" >/dev/null; then
-        killall -q "muplay"
-        [ -n "$SND_PIPE" ] && rm "$SND_PIPE"
-    fi
-}
-
-# Stop background processes locally or remotely
-stop_bg_processes
-
-# Set activity to 'app'
 echo app >/tmp/act_go
 
-# Source necessary scripts
-. /opt/muos/script/var/func.sh
-. /opt/muos/script/var/device/sdl.sh
-. /opt/muos/script/var/device/storage.sh
+LOVEDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.moonlight"
+MOONDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.moonlight/moonlight"
+GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
 
-# Define paths and commands
-LOVEDIR="$DC_STO_ROM_MOUNT/MUOS/application/.moonlight"
-MOONDIR="$DC_STO_ROM_MOUNT/MUOS/application/.moonlight/moonlight"
-GPTOKEYB="$DC_STO_ROM_MOUNT/MUOS/emulator/gptokeyb/gptokeyb2.armhf"
-
-# Export environment variables
 export SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt"
 
-# Launcher
 cd "$LOVEDIR" || exit
-echo "love" >/tmp/fg_proc
+SET_VAR "system" "foreground_process" "love"
 export LD_LIBRARY_PATH="$LOVEDIR/libs:$LD_LIBRARY_PATH"
 $GPTOKEYB "love" &
 ./love gui
-kill -9 "$(pidof gptokeyb2.armhf)"
+kill -9 "$(pidof gptokeyb2)"
 
-# Moonlight
 cd "$MOONDIR" || exit
 COMMAND=$(cat command.txt)
 eval "./moonlight $COMMAND"

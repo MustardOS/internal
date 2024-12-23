@@ -5,7 +5,7 @@
 CONFIG="/opt/muos/config/config.ini"
 BACKUP="/opt/muos/config/config.bak"
 
-LOGGER "$0" "BOOTING" "Config Backup Starting"
+LOG_INFO "$0" 0 "BOOTING" "Config Backup Starting"
 if [ -s $CONFIG ]; then
 	CONFIG_MD5=$(md5sum "$CONFIG" | awk '{ print $1 }')
 
@@ -14,8 +14,8 @@ if [ -s $CONFIG ]; then
 	BACKUP_MD5=$(md5sum "$BACKUP" | awk '{ print $1 }')
 
 	if [ "$CONFIG_MD5" = "$BACKUP_MD5" ]; then
-		LOGGER "$0" "BOOTING" "Config Backup Success"
+		LOG_SUCCESS "$0" 0 "BOOTING" "Config Backup Success"
 	fi
 else
-	LOGGER "$0" "BOOTING" "Config Backup Failed"
+	LOG_ERROR "$0" 0 "BOOTING" "Config Backup Failed"
 fi

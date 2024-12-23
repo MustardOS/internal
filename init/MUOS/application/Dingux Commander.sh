@@ -1,30 +1,28 @@
 #!/bin/sh
-
-if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mp3play"
-fi
-
-if pgrep -f "muplay" >/dev/null; then
-	killall -q "muplay"
-	rm "$SND_PIPE"
-fi
-
-echo app >/tmp/act_go
+# HELP: Dingux Commander
+# ICON: dingux
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-. /opt/muos/script/var/device/sdl.sh
+echo app >/tmp/act_go
 
-export SDL_HQ_SCALER="$DC_SDL_SCALER"
+export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 
-DINGUX_DIR="$DC_STO_ROM_MOUNT/MUOS/application/.dingux"
+DINGUX_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.dingux"
 
 cd "$DINGUX_DIR" || exit
 
-echo "dingux" >/tmp/fg_proc
+SET_VAR "system" "foreground_process" "dingux"
+
+(
+	while ! pgrep -f "dingux" >/dev/null; do
+		sleep 0.25
+	done
+	sleep 1
+	evemu-event "$(GET_VAR "device" "input/ev1")" --type "$(GET_VAR "device" "input/type/dpad/right")" --code "$(GET_VAR "device" "input/code/dpad/right")" --value 1
+	evemu-event "$(GET_VAR "device" "input/ev1")" --type "$(GET_VAR "device" "input/type/dpad/left")" --code "$(GET_VAR "device" "input/code/dpad/left")" --value -1
+) &
 
 SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") ./dingux --config "$DINGUX_DIR/dingux.cfg"
 
-# Cleanup on exit
 unset SDL_HQ_SCALER

@@ -2,18 +2,25 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/sdl.sh
-
 NAME=$1
 CORE=$2
 ROM=$3
 
-export HOME=/root
+LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
 
-export SDL_HQ_SCALER="$DC_SDL_SCALER"
-export SDL_ROTATION="$DC_SDL_ROTATION"
-export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
+HOME="$(GET_VAR "device" "board/home")"
+export HOME
 
-echo "ffplay" >/tmp/fg_proc
+SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+
+export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+
+SET_VAR "system" "foreground_process" "ffplay"
 
 /usr/bin/ffplay "$ROM"
+
+unset SDL_HQ_SCALER
+unset SDL_ROTATION
+unset SDL_BLITTER_DISABLED

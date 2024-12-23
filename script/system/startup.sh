@@ -1,158 +1,200 @@
 #!/bin/sh
 
+case ":$LD_LIBRARY_PATH:" in
+	*":/opt/muos/extra/lib:"*) ;;
+	*) export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH" ;;
+esac
+
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/audio.sh
-. /opt/muos/script/var/device/device.sh
-. /opt/muos/script/var/device/storage.sh
+# Initialise all of the internal device and global variables
+/opt/muos/script/var/init/device.sh init
+/opt/muos/script/var/init/global.sh init
 
-. /opt/muos/script/var/global/boot.sh
-. /opt/muos/script/var/global/network.sh
-. /opt/muos/script/var/global/setting_advanced.sh
+printf "awake" >"/tmp/sleep_state"
 
-if [ -s "$GLOBAL_CONFIG" ]; then
-	LOGGER "$0" "BOOTING" "Global Config Check Passed"
-else
-	LOGGER "$0" "BOOTING" "Global Config Check Failed: Restoring"
-	cp -f "/opt/muos/config/config.bak" "$GLOBAL_CONFIG"
+case "$(GET_VAR "global" "settings/advanced/rumble")" in
+	1 | 4 | 5) RUMBLE "$(GET_VAR "device" "board/rumble")" 0.3 ;;
+	*) ;;
+esac
+
+DEVICE_CURRENT="/opt/muos/device/current"
+[ -L "$DEVICE_CURRENT" ] && rm -rf "$DEVICE_CURRENT"
+mkdir -p "$DEVICE_CURRENT"
+mount --bind "/opt/muos/device/$(GET_VAR "device" "board/name")" "$DEVICE_CURRENT"
+
+echo "pipewire" >"$AUDIO_SRC"
+
+/sbin/udevd -d || CRITICAL_FAILURE udev
+udevadm trigger --type=subsystems --action=add &
+udevadm trigger --type=devices --action=add &
+udevadm settle --timeout=30 || LOG_ERROR "$0" 0 "BOOTING" "Udevadm Settle Failure"
+
+if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
+	LOG_INFO "$0" 0 "BOOTING" "Loading Storage Mounts"
+	/opt/muos/script/mount/start.sh &
+
+	LOG_INFO "$0" 0 "BOOTING" "Removing any update scripts"
+	rm -rf /opt/update.sh
+
+	echo 1 >/tmp/work_led_state
+	: >/tmp/net_start
 fi
 
+LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"
+cp -f "/opt/muos/device/current/control/asound.conf" "/etc/asound.conf"
+
+LOG_INFO "$0" 0 "BOOTING" "Checking Swapfile Requirements"
+/opt/muos/script/system/swapfile.sh &
+
 if [ -s "$ALSA_CONFIG" ]; then
-	LOGGER "$0" "BOOTING" "ALSA Config Check Passed"
+	LOG_INFO "$0" 0 "BOOTING" "ALSA Config Check Passed"
 else
-	LOGGER "$0" "BOOTING" "ALSA Config Check Failed: Restoring"
+	LOG_WARN "$0" 0 "BOOTING" "ALSA Config Check Failed: Restoring"
 	cp -f "/opt/muos/config/alsa.conf" "$ALSA_CONFIG"
 fi
 
-if [ "$GC_BOO_DEVICE_SETUP" -eq 1 ]; then
-	MODIFY_INI "$GLOBAL_CONFIG" "boot" "device_setup" "0"
-	/opt/muos/extra/muxdevice
-fi
-
-LOGGER "$0" "BOOTING" "Checking Firmware"
-/opt/muos/script/system/firmware.sh
-
-LOGGER "$0" "BOOTING" "Removing any update scripts"
-rm -rf /opt/update.sh
-
-echo 1 >/tmp/work_led_state
-echo 0 >/tmp/net_connected
-
-LOGGER "$0" "BOOTING" "Restoring Audio State"
-cp -f "/opt/muos/device/$DEVICE_TYPE/control/asound.state" "/var/lib/alsa/asound.state"
+LOG_INFO "$0" 0 "BOOTING" "Restoring Audio State"
+cp -f "/opt/muos/device/current/control/asound.state" "/var/lib/alsa/asound.state"
 alsactl -U restore
 
-LOGGER "$0" "BOOTING" "Restoring Audio Volume"
-case "$GC_ADV_VOLUME" in
-	"loud")
-		amixer sset "$DC_SND_CONTROL" "$DC_SND_MAX" >/dev/null
-		;;
-	"quiet")
-		amixer sset "$DC_SND_CONTROL" "$DC_SND_MIN" >/dev/null
-		;;
-	*)
-		RESTORED=$(cat "/opt/muos/config/volume.txt")
-		amixer sset "$DC_SND_CONTROL" "$RESTORED" >/dev/null
-		;;
-esac
+LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
+/opt/muos/script/system/pipewire.sh &
 
-if [ "$GC_BOO_FACTORY_RESET" -eq 1 ]; then
-	LOGGER "$0" "FACTORY RESET" "Setting date time to default"
-	date 070200002024
+if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
+	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
+		/opt/muos/device/current/script/led_control.sh 2 255 225 173 1
+	fi
+
+	LOG_INFO "$0" 0 "FACTORY RESET" "Setting date time to default"
+	date 101100002024
 	hwclock -w
 
 	/opt/muos/extra/muxtimezone
-	while [ "$GC_BOO_CLOCK_SETUP" -eq 1 ]; do
+	while [ "$(GET_VAR "global" "boot/clock_setup")" -eq 1 ]; do
 		/opt/muos/extra/muxrtc
-		. /opt/muos/script/var/global/boot.sh
-		if [ "$GC_BOO_CLOCK_SETUP" -eq 1 ]; then
+		if [ "$(GET_VAR "global" "boot/clock_setup")" -eq 1 ]; then
 			/opt/muos/extra/muxtimezone
 		fi
 	done
 
-	LOGGER "$0" "FACTORY RESET" "Starting Input Reader"
-	/opt/muos/device/"$DEVICE_TYPE"/input/input.sh
-	/usr/bin/mpv /opt/muos/factory.mp3 >/dev/null 2>&1 &
+	LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
+	/opt/muos/script/mux/hotkey.sh &
+	/usr/bin/mpv /opt/muos/factory.mp3 &
 
-	LOGGER "$0" "FACTORY RESET" "Initialising Factory Reset Script"
-	/opt/muos/script/system/reset.sh
-
-	if [ "$DC_DEV_NETWORK" -eq 1 ]; then
-		LOGGER "$0" "FACTORY RESET" "Generating SSH Host Keys"
-		/opt/openssh/bin/ssh-keygen -A
+	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
+		LOG_INFO "$0" 0 "FACTORY RESET" "Generating SSH Host Keys"
+		/opt/openssh/bin/ssh-keygen -A &
 	fi
 
-	killall -q "input.sh"
+	LOG_INFO "$0" 0 "FACTORY RESET" "Setting ARMHF Requirements"
+	if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
+		LOG_INFO "$0" 0 "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
+		ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
+	fi
+	ldconfig -v >"/opt/muos/ldconfig.log"
+
+	LOG_INFO "$0" 0 "FACTORY RESET" "Initialising Factory Reset Script"
+	/opt/muos/script/system/reset.sh
+
+	LOG_INFO "$0" 0 "FACTORY RESET" "Switching off Factory Reset mode"
+	SET_VAR "global" "boot/factory_reset" "0"
+	SET_VAR "global" "settings/advanced/rumble" "0"
+
+	killall -q "hotkey.sh" "mpv"
+
+	/opt/muos/extra/muxcredits
+	/opt/muos/script/mux/quit.sh reboot frontend
 fi
 
-LOGGER "$0" "BOOTING" "Detecting Charge Mode"
-/opt/muos/device/"$DEVICE_TYPE"/script/charge.sh
+LOG_INFO "$0" 0 "BOOTING" "Running Device Specifics"
+/opt/muos/device/current/script/start.sh
 
-LOGGER "$0" "BOOTING" "Checking for passcode lock"
+# Block on storage mounts as late as possible to reduce boot time. Must wait
+# before charger detection since muxcharge expects the theme to be mounted.
+LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
+while [ ! -f /run/muos/storage/mounted ]; do
+	sleep 0.25
+done
+
+LOG_INFO "$0" 0 "BOOTING" "Checking for Safety Script"
+OOPS="$(GET_VAR "device" "storage/rom/mount")/oops.sh"
+[ -e "$OOPS" ] && ./"$OOPS"
+
+LOG_INFO "$0" 0 "BOOTING" "Checking Disk Health"
+if dmesg | grep 'Please run fsck'; then
+	/opt/muos/bin/fbpad -bg 000000 -fg FFFFFF /opt/muos/script/system/fixdisk.sh
+fi
+
+LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
+/opt/muos/device/current/script/charge.sh
+
+LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"
+/opt/muos/script/system/lowpower.sh &
+
+LOG_INFO "$0" 0 "BOOTING" "Precaching RetroArch System"
+ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/preload.txt &
+
+LOG_INFO "$0" 0 "BOOTING" "Starting USB Function"
+/opt/muos/script/system/usb.sh &
+
+# Check for a kiosk configuration file on SD1
+KIOSK_HARD_CONFIG="/opt/muos/config/kiosk.ini"
+KIOSK_USER_CONFIG="$(GET_VAR "device" "storage/rom/mount")"/MUOS/kiosk.ini
+[ -f "$KIOSK_USER_CONFIG" ] && [ ! -f "$KIOSK_HARD_CONFIG" ] && mv "$KIOSK_USER_CONFIG" "$KIOSK_HARD_CONFIG"
+[ -f "$KIOSK_HARD_CONFIG" ] && /opt/muos/script/var/init/kiosk.sh init
+
+LOG_INFO "$0" 0 "BOOTING" "Starting Hotkey Daemon"
+/opt/muos/script/mux/hotkey.sh &
+
+LOG_INFO "$0" 0 "BOOTING" "Setting Device Controls"
+/opt/muos/device/current/script/control.sh &
+
+# Set the device specific SDL Controller Map
+LOG_INFO "$0" 0 "BOOTING" "Setting up SDL Controller Map"
+/opt/muos/script/mux/sdl_map.sh &
+
+LOG_INFO "$0" 0 "BOOTING" "Checking for passcode lock"
 HAS_UNLOCK=0
-if [ "$GC_ADV_LOCK" -eq 1 ]; then
+if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 	while [ "$HAS_UNLOCK" != 1 ]; do
-		LOGGER "$0" "BOOTING" "Enabling passcode lock"
+		LOG_INFO "$0" 0 "BOOTING" "Enabling passcode lock"
 		nice --20 /opt/muos/extra/muxpass -t boot
 		HAS_UNLOCK="$?"
 	done
 fi
 
-LOGGER "$0" "BOOTING" "Setting ARMHF Requirements"
-if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
-	LOGGER "$0" "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
-	ln -s /lib32/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
-fi
-ldconfig -v >"$DC_STO_ROM_MOUNT/MUOS/log/ldconfig.log"
-
-LOGGER "$0" "BOOTING" "Setting up SDL Controller Map"
-if [ ! -f "/usr/lib/gamecontrollerdb.txt" ]; then
-	ln -s "/opt/muos/device/$DEVICE_TYPE/control/gamecontrollerdb.txt" "/usr/lib/gamecontrollerdb.txt"
-fi
-if [ ! -f "/usr/lib32/gamecontrollerdb.txt" ]; then
-	ln -s "/opt/muos/device/$DEVICE_TYPE/control/gamecontrollerdb.txt" "/usr/lib32/gamecontrollerdb.txt"
-fi
-
-LOGGER "$0" "BOOTING" "Starting Storage Watchdog"
-/opt/muos/script/mount/sdcard.sh &
-/opt/muos/script/mount/usb.sh &
-
-LOGGER "$0" "BOOTING" "Running Device Specifics"
-/opt/muos/device/"$DEVICE_TYPE"/script/start.sh &
-
-LOGGER "$0" "BOOTING" "Bringing up localhost network"
+LOG_INFO "$0" 0 "BOOTING" "Bringing up localhost network"
 ifconfig lo up &
 
-LOGGER "$0" "BOOTING" "Checking for network capability"
-if [ "$DC_DEV_NETWORK" -eq 1 ] && [ "$GC_NET_ENABLED" -eq 1 ]; then
-	LOGGER "$0" "BOOTING" "Starting Network Services"
+LOG_INFO "$0" 0 "BOOTING" "Checking for network capability"
+if [ "$(GET_VAR "device" "board/network")" -eq 1 ] && [ "$(GET_VAR "global" "network/enabled")" -eq 1 ]; then
+	LOG_INFO "$0" 0 "BOOTING" "Starting Network Services"
 	/opt/muos/script/system/network.sh &
 fi
 
-LOGGER "$0" "BOOTING" "Running catalogue generator"
-/opt/muos/script/system/catalogue.sh &
+LOG_INFO "$0" 0 "BOOTING" "Running catalogue generator"
+/opt/muos/script/system/catalogue.sh "$(GET_VAR "device" "storage/rom/mount")" &
 
-dmesg >"$DC_STO_ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
+dmesg >"$(GET_VAR "device" "storage/rom/mount")/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
 
-LOGGER "$0" "BOOTING" "Correcting SSH permissions"
+LOG_INFO "$0" 0 "BOOTING" "Correcting Home permissions"
+chown -R root:root /root &
+chmod -R 755 /root &
+
+LOG_INFO "$0" 0 "BOOTING" "Correcting SSH permissions"
 chown -R root:root /opt &
 chmod -R 755 /opt &
 
 echo 2 >/proc/sys/abi/cp15_barrier &
 
-cp "$MUOS_BOOT_LOG" "$DC_STO_ROM_MOUNT/MUOS/log/boot/."
-
-if [ "$GC_BOO_FACTORY_RESET" -eq 1 ]; then
-	killall -q "mp3play"
-
-	LOGGER "$0" "FACTORY RESET" "Setting factory_reset to 0"
-	MODIFY_INI "$GLOBAL_CONFIG" "boot" "factory_reset" "0"
-
-	/opt/muos/extra/muxcredits
-fi
-
-LOGGER "$0" "BOOTING" "Backing up global configuration"
+LOG_INFO "$0" 0 "BOOTING" "Backing up global configuration"
 /opt/muos/script/system/config_backup.sh &
 
-LOGGER "$0" "BOOTING" "Starting muX frontend"
+LOG_INFO "$0" 0 "BOOTING" "Starting muX frontend"
 /opt/muos/script/mux/frontend.sh &
+
+if [ "$(GET_VAR "global" "settings/advanced/user_init")" -eq 1 ]; then
+	LOG_INFO "$0" 0 "BOOTING" "Starting user initialisation scripts"
+	/opt/muos/script/system/user_init.sh &
+fi

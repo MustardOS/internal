@@ -2,28 +2,33 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
-. /opt/muos/script/var/device/sdl.sh
-
 NAME=$1
 CORE=$2
 ROM=$3
 
-export HOME=/root
+LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
 
-export SDL_HQ_SCALER="$DC_SDL_SCALER"
-export SDL_ROTATION="$DC_SDL_ROTATION"
-export SDL_BLITTER_DISABLED="$DC_SDL_BLITTER_DISABLED"
+HOME="$(GET_VAR "device" "board/home")"
+export HOME
 
-echo "mupen64plus" >/tmp/fg_proc
+SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
 
-if [ $DEVICE_TYPE = "rg28xx" ]; then
-	fbset -fb /dev/fb0 -g 240 320 240 640 32
-else
-	fbset -fb /dev/fb0 -g 320 240 320 480 32
-fi
+export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
-EMUDIR="$DC_STO_ROM_MOUNT/MUOS/emulator/mupen64plus"
+SET_VAR "system" "foreground_process" "mupen64plus"
+
+case "$(GET_VAR "device" "board/name")" in
+	rg28xx-h)
+		FB_SWITCH 240 320 32
+		;;
+	*)
+		FB_SWITCH 320 240 32
+		;;
+esac
+
+EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/mupen64plus"
 MP64_CFG="$EMUDIR/mupen64plus.cfg"
 
 RICE_CFG="$EMUDIR/mupen64plus-rice.cfg"
@@ -39,4 +44,38 @@ fi
 chmod +x "$EMUDIR"/mupen64plus
 cd "$EMUDIR" || exit
 
+# Decompress zipped ROMs since the emulator doesn't natively support them.
+case "$ROM" in *.zip)
+	TMPDIR="$(mktemp -d)"
+	unzip -q "$ROM" -d "$TMPDIR"
+	# Pick first file with a supported extension.
+	for TMPFILE in "$TMPDIR"/*; do
+		case "$TMPFILE" in *.n64 | *.v64 | *.z64)
+			ROM="$TMPFILE"
+			break
+			;;
+		esac
+	done
+	;;
+esac
+
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$ROM"
+
+# Clean up temp files if we unzipped the ROM.
+if [ -n "$TMPDIR" ]; then
+	rm -r "$TMPDIR"
+fi
+
+case "$(GET_VAR "device" "board/name")" in
+	rg*)
+		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
+		;;
+	*)
+		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
+		;;
+esac
+
+unset SDL_HQ_SCALER
+unset SDL_ROTATION
+unset SDL_BLITTER_DISABLED

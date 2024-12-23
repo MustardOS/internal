@@ -1,22 +1,13 @@
 #!/bin/sh
-
-if pgrep -f "playbgm.sh" >/dev/null; then
-	killall -q "playbgm.sh" "mp3play"
-fi
-
-if pgrep -f "muplay" >/dev/null; then
-	killall -q "muplay"
-	rm "$SND_PIPE"
-fi
-
-echo app >/tmp/act_go
+# HELP: PortMaster
+# ICON: portmaster
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/var/device/storage.sh
+echo app >/tmp/act_go
 
-export HOME=/root
+export HOME=$(GET_VAR "device" "board/home")
 
-echo "portmaster" >/tmp/fg_proc
+SET_VAR "system" "foreground_process" "portmaster"
 
-nice --20 "${DC_STO_ROM_MOUNT}"/MUOS/PortMaster/PortMaster.sh
+nice --20 "$(GET_VAR "device" "storage/rom/mount")"/MUOS/PortMaster/PortMaster.sh

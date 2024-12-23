@@ -29,7 +29,7 @@ $_TITLE
 $_MESSAGE
 EOF
 	)
-	/opt/muos/extra/muxstart "$_FORM" && sleep "$3"
+	/opt/muos/extra/muxstart 0 "$_FORM" && sleep "$3"
 }
 
 ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')

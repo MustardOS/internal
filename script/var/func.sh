@@ -101,7 +101,7 @@ CRITICAL_FAILURE() {
 		*) MESSAGE="Critical Failure\n\nAn unknown error occurred!" ;;
 	esac
 
-	/opt/muos/extra/muxstart "$MESSAGE"
+	/opt/muos/extra/muxstart 0 "$MESSAGE"
 	sleep 10
 	/opt/muos/script/system/halt.sh poweroff
 }

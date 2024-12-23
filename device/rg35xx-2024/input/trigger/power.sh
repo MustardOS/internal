@@ -27,8 +27,14 @@ DEV_WAKE() {
 				pkill -CONT "$FG_PROC_VAL"
 			fi
 
-			UPDATE_DISPLAY "$(cat $LED_STATE)" 0 3 # This needs to be here to kick in the device display... yeah!
-			UPDATE_DISPLAY "$(cat $LED_STATE)" 0 "$(GET_VAR "global" "settings/general/brightness")"
+			BRIGHTNESS=$(GET_VAR "global" "settings/general/brightness")
+			if [ -z "$BRIGHTNESS" ] || [ "$BRIGHTNESS" -lt 10 ]; then
+				UPDATE_DISPLAY "$(cat "$LED_STATE")" 0 10
+				/opt/muos/device/current/input/combo/bright.sh 10
+			else
+				UPDATE_DISPLAY "$(cat "$LED_STATE")" 0 "$BRIGHTNESS"
+				/opt/muos/device/current/input/combo/bright.sh "$BRIGHTNESS"
+			fi
 			;;
 	esac
 }
@@ -47,7 +53,7 @@ DEV_SLEEP() {
 				pkill -STOP "$FG_PROC_VAL"
 			fi
 
-			UPDATE_DISPLAY 1 4 0
+			UPDATE_DISPLAY "$(cat $LED_STATE)" 4 0
 			;;
 	esac
 }

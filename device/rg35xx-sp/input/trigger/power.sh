@@ -128,5 +128,5 @@ while true; do
 
 	printf "%s" "$(cat $LED_STATE)" >"$(GET_VAR "device" "led/normal")"
 
-	sleep 0.25
+	sleep 1
 done

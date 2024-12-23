@@ -1,12 +1,5 @@
 #!/bin/sh
 
-if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
-	/opt/muos/script/system/video.sh
-	rm -rf "/opt/muos/startup.mp4"
-else
-	/opt/muos/script/system/video.sh &
-fi
-
 case ":$LD_LIBRARY_PATH:" in
 	*":/opt/muos/extra/lib:"*) ;;
 	*) export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH" ;;
@@ -114,12 +107,6 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	/opt/muos/script/mux/quit.sh reboot frontend
 fi
 
-LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"
-/opt/muos/script/system/lowpower.sh &
-
-LOG_INFO "$0" 0 "BOOTING" "Precaching RetroArch System"
-ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/preload.txt &
-
 LOG_INFO "$0" 0 "BOOTING" "Running Device Specifics"
 /opt/muos/device/current/script/start.sh
 
@@ -141,6 +128,12 @@ fi
 
 LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
 /opt/muos/device/current/script/charge.sh
+
+LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"
+/opt/muos/script/system/lowpower.sh &
+
+LOG_INFO "$0" 0 "BOOTING" "Precaching RetroArch System"
+ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/preload.txt &
 
 LOG_INFO "$0" 0 "BOOTING" "Starting USB Function"
 /opt/muos/script/system/usb.sh &

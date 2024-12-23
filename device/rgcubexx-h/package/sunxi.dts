@@ -3840,7 +3840,7 @@
 			status = "okay";
 			lcd_used = <0x01>;
 			lcd_driver_name = "fog_fj035fhd05_v1";
-			lcd_backlight = <0x32>;
+			lcd_backlight = <120>;
 			lcd_if = <0x00>;
 			lcd_hv_if = <0x00>;
 			lcd_x = <0x2d0>;

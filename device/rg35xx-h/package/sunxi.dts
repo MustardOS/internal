@@ -3841,7 +3841,7 @@
 			status = "okay";
 			lcd_used = <0x01>;
 			lcd_driver_name = "fog_fj035fhd05_v1";
-			lcd_backlight = <0x3b>;
+			lcd_backlight = <120>;
 			lcd_if = <0x00>;
 			lcd_hv_if = <0x00>;
 			lcd_x = <0x280>;
@@ -5560,7 +5560,7 @@
 	};
 
 	chosen {
-		bootargs = "earlyprintk=sunxi-uart,0x05000000 loglevel=8 initcall_debug=1 console=ttyS0 init=/init";
+		bootargs = "earlyprintk=sunxi-uart,0x05000000 loglevel=0 initcall_debug=1 console=ttyS0 init=/init";
 		linux,initrd-start = <0x00 0x00>;
 		linux,initrd-end = <0x00 0x00>;
 	};

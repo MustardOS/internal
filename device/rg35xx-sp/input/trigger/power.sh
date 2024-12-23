@@ -126,7 +126,9 @@ while true; do
 		echo "sleep-closed" >"$SLEEP_STATE"
 	fi
 
-	printf "%s" "$(cat $LED_STATE)" >"$(GET_VAR "device" "led/normal")"
+	if [ "$(cat "$(GET_VAR "device" "battery/charger")")" -eq 0 ]; then
+		printf "%s" "$(cat $LED_STATE)" >"$(GET_VAR "device" "led/normal")"
+	fi
 
 	sleep 1
 done

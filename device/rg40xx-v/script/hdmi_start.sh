@@ -11,6 +11,9 @@ SWITCHED_OFF=0
 HAS_PLUGGED=/tmp/hdmi_has_plugged
 DO_REFRESH=/tmp/hdmi_do_refresh
 
+printf "0" >$HAS_PLUGGED
+printf "0" >$DO_REFRESH
+
 while true; do
 	if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ]; then
 		if [ "$(GET_VAR "global" "settings/hdmi/audio")" -eq 0 ]; then

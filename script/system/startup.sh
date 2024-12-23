@@ -123,6 +123,11 @@ while [ ! -f /run/muos/storage/mounted ]; do
 	sleep 0.25
 done
 
+LOG_INFO "$0" 0 "BOOTING" "Checking Disk Health"
+if dmesg | grep 'Please run fsck'; then
+	/opt/muos/bin/fbpad -bg 000000 -fg FFFFFF /opt/muos/script/system/fixdisk.sh
+fi
+
 LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
 /opt/muos/device/current/script/charge.sh
 

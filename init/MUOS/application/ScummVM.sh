@@ -26,12 +26,8 @@ cd "$EMUDIR" || exit
 
 # Switch analogue<>dpad for stickless devices
 case "$(GET_VAR "device" "board/name")" in
-  	rg28xx-h|rg34xx-h|rg35xx-2024|rg35xx-plus|rg35xx-sp)
-       	echo 2 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
-       	;;
-   	*)
-      	echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
-       	;;
+	rg28xx-h | rg34xx-h | rg35xx-2024 | rg35xx-plus | rg35xx-sp) echo 2 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
+	*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
 esac
 HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG"
 

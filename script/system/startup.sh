@@ -11,6 +11,10 @@ esac
 /opt/muos/script/var/init/device.sh init
 /opt/muos/script/var/init/global.sh init
 
+# Restore the default device screen to current WxH dimensions
+SET_VAR "device" "screen/width" "$(GET_VAR "device" "screen/internal/width")"
+SET_VAR "device" "screen/height" "$(GET_VAR "device" "screen/internal/height")"
+
 printf "awake" >"/tmp/sleep_state"
 
 case "$(GET_VAR "global" "settings/advanced/rumble")" in

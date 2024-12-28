@@ -13,12 +13,8 @@ export LD_LIBRARY_PATH=/usr/lib32
 export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 
 case "$(GET_VAR "device" "board/name")" in
-	rg28xx-h)
-		export SDL_ROTATION=0
-		;;
-	*)
-		export SDL_ROTATION=3
-		;;
+	rg28xx-h) export SDL_ROTATION=0 ;;
+	*) export SDL_ROTATION=3 ;;
 esac
 
 FLIPCLOCK_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.flipclock"

@@ -33,10 +33,12 @@ LED_VARS="normal low rgb"
 MUX_VARS="width height"
 NETWORK_VARS="module name type iface state"
 SCREEN_VARS="device hdmi bright width height rotate wait"
+SCREEN_INTERNAL_VARS="width height"
+SCREEN_EXTERNAL_VARS="width height"
 SDL_VARS="scaler rotation blitter_disabled"
 STORAGE_VARS="active dev sep num mount type label"
 
-for INIT in audio battery cpu board input input/code/dpad input/code/analog/left input/code/analog/right input/code/button input/type/dpad input/type/analog/left input/type/analog/right input/type/button input/sdlmap/retro input/sdlmap/modern led mux network screen sdl storage/boot storage/rom storage/root storage/sdcard storage/usb; do
+for INIT in audio battery cpu board input input/code/dpad input/code/analog/left input/code/analog/right input/code/button input/type/dpad input/type/analog/left input/type/analog/right input/type/button input/sdlmap/retro input/sdlmap/modern led mux network screen screen/internal screen/external sdl storage/boot storage/rom storage/root storage/sdcard storage/usb; do
 	case $INIT in
 		audio) VARS="$AUDIO_VARS" ;;
 		battery) VARS="$BATTERY_VARS" ;;
@@ -57,6 +59,8 @@ for INIT in audio battery cpu board input input/code/dpad input/code/analog/left
 		mux) VARS="$MUX_VARS" ;;
 		network) VARS="$NETWORK_VARS" ;;
 		screen) VARS="$SCREEN_VARS" ;;
+		screen/internal) VARS="$SCREEN_INTERNAL_VARS" ;;
+		screen/external) VARS="$SCREEN_EXTERNAL_VARS" ;;
 		sdl) VARS="$SDL_VARS" ;;
 		storage/boot) VARS="$STORAGE_VARS" ;;
 		storage/rom) VARS="$STORAGE_VARS" ;;

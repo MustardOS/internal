@@ -28,6 +28,7 @@ RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 # to the main retroarch.cfg, not the included retroarch.device.cfg.)
 sed -n -e '/^#include /!p' \
 	-e '$a#include "/opt/muos/device/current/control/retroarch.device.cfg"' \
+	-e '$a#include "/opt/muos/device/current/control/retroarch.resolution.cfg"' \
 	-i "$RA_CONF"
 
 if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ]; then

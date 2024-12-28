@@ -19,14 +19,12 @@ export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 SET_VAR "system" "foreground_process" "mupen64plus"
 
-case "$(GET_VAR "device" "board/name")" in
-	rg28xx-h)
-		FB_SWITCH 240 320 32
-		;;
-	*)
-		FB_SWITCH 320 240 32
-		;;
-esac
+if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
+	case "$(GET_VAR "device" "board/name")" in
+		rg28xx-h) FB_SWITCH 240 320 32 ;;
+		*) FB_SWITCH 320 240 32 ;;
+	esac
+fi
 
 EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/mupen64plus"
 MP64_CFG="$EMUDIR/mupen64plus.cfg"
@@ -67,14 +65,15 @@ if [ -n "$TMPDIR" ]; then
 fi
 
 case "$(GET_VAR "device" "board/name")" in
-	rg*)
-		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
-		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
-		;;
-	*)
-		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
-		;;
+	rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
+	*) ;;
 esac
+
+if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
+	HDMI_SWITCH
+else
+	FB_SWITCH "$(GET_VAR "device" "screen/internal/width")" "$(GET_VAR "device" "screen/internal/height")" 32
+fi
 
 unset SDL_HQ_SCALER
 unset SDL_ROTATION

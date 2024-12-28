@@ -1,45 +1,10 @@
 #!/bin/sh
+# shellcheck disable=SC2086
 
 . /opt/muos/script/var/init/system.sh
 
 ESC=$(printf '\x1b')
 CSI="${ESC}[38;5;"
-
-FB_SWITCH() {
-	WIDTH="$1"
-	HEIGHT="$2"
-	DEPTH="$3"
-
-	echo 4 >/sys/class/graphics/fb0/blank
-	cat /dev/zero >/dev/fb0 2>/dev/null
-
-	fbset -fb /dev/fb0 -g 0 0 0 0 "${DEPTH}"
-	sleep 0.25
-	fbset -fb /dev/fb0 -g "${WIDTH}" "${HEIGHT}" "${WIDTH}" "$((HEIGHT * 2))" "${DEPTH}"
-	sleep 0.25
-
-	echo 0 >/sys/class/graphics/fb0/blank
-}
-
-# Writes a setting value to the display driver.
-#
-# Usage: DISPLAY_WRITE NAME COMMAND PARAM
-DISPLAY_WRITE() {
-	printf '%s\n' "$1" >/sys/kernel/debug/dispdbg/name
-	printf '%s\n' "$2" >/sys/kernel/debug/dispdbg/command
-	printf '%s\n' "$3" >/sys/kernel/debug/dispdbg/param
-	echo 1 >/sys/kernel/debug/dispdbg/start
-}
-
-# Reads and prints a setting value from the display driver.
-#
-# Usage: DISPLAY_READ NAME COMMAND
-DISPLAY_READ() {
-	printf '%s\n' "$1" >/sys/kernel/debug/dispdbg/name
-	printf '%s\n' "$2" >/sys/kernel/debug/dispdbg/command
-	echo 1 >/sys/kernel/debug/dispdbg/start
-	cat /sys/kernel/debug/dispdbg/info
-}
 
 # Prints current system uptime in hundredths of a second. Unlike date or
 # EPOCHREALTIME, this won't decrease if the system clock is set back, so it can
@@ -143,4 +108,80 @@ CHECK_BGM() {
 			*) ;;
 		esac
 	fi
+}
+
+FB_SWITCH() {
+	WIDTH="$1"
+	HEIGHT="$2"
+	DEPTH="$3"
+	shift 3
+
+	TIMING_ARGS=""
+	[ "$#" -gt 0 ] && TIMING_ARGS="-t $*"
+
+	SET_VAR "device" "screen/width" "$WIDTH"
+	SET_VAR "device" "screen/height" "$HEIGHT"
+	SET_VAR "device" "mux/width" "$WIDTH"
+	SET_VAR "device" "mux/height" "$HEIGHT"
+
+	fbset -fb "$(GET_VAR "device" "screen/device")" -g "${WIDTH}" "${HEIGHT}" "${WIDTH}" "$((HEIGHT * 2))" "${DEPTH}" $TIMING_ARGS
+}
+
+HDMI_SWITCH() {
+	LQ_TIMING="25175 40 24 32 9 96 2"
+	HQ_TIMING="13468 220 40 20 5 110 5"
+
+	case "$(GET_VAR "global" "settings/hdmi/resolution")" in
+		0 | 2)
+			SET_VAR "device" "screen/external/width" 640
+			SET_VAR "device" "screen/external/height" 480
+			FB_SWITCH 640 480 32 $LQ_TIMING
+			;;
+		1 | 3)
+			SET_VAR "device" "screen/external/width" 720
+			SET_VAR "device" "screen/external/height" 576
+			FB_SWITCH 720 576 32 $LQ_TIMING
+			;;
+		4 | 5)
+			SET_VAR "device" "screen/external/width" 1280
+			SET_VAR "device" "screen/external/height" 720
+			FB_SWITCH 1280 720 32 $HQ_TIMING
+			;;
+		6 | 7 | 8 | 9 | 10)
+			SET_VAR "device" "screen/external/width" 1920
+			SET_VAR "device" "screen/external/height" 1080
+			FB_SWITCH 1920 1080 32 $HQ_TIMING
+			;;
+		*) FB_SWITCH "$(GET_VAR "device" "screen/internal/width")" "$(GET_VAR "device" "screen/internal/height")" 32 $LQ_TIMING ;;
+	esac
+}
+
+# Writes a setting value to the display driver.
+#
+# Usage: DISPLAY_WRITE NAME COMMAND PARAM
+DISPLAY_WRITE() {
+	case "$(GET_VAR "device" "board/name")" in
+		rg*)
+			printf '%s\n' "$1" >/sys/kernel/debug/dispdbg/name
+			printf '%s\n' "$2" >/sys/kernel/debug/dispdbg/command
+			printf '%s\n' "$3" >/sys/kernel/debug/dispdbg/param
+			echo 1 >/sys/kernel/debug/dispdbg/start
+			;;
+		*) ;;
+	esac
+}
+
+# Reads and prints a setting value from the display driver.
+#
+# Usage: DISPLAY_READ NAME COMMAND
+DISPLAY_READ() {
+	case "$(GET_VAR "device" "board/name")" in
+		rg*)
+			printf '%s\n' "$1" >/sys/kernel/debug/dispdbg/name
+			printf '%s\n' "$2" >/sys/kernel/debug/dispdbg/command
+			echo 1 >/sys/kernel/debug/dispdbg/start
+			cat /sys/kernel/debug/dispdbg/info
+			;;
+		*) ;;
+	esac
 }

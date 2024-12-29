@@ -1,7 +1,7 @@
 {
   "generic": {
     "Back": "Voltar",
-    "Clear": "Clear",
+    "Clear": "Limpar",
     "Directory": "Diretório",
     "Disabled": "Desativado",
     "Enabled": "Ativado",
@@ -23,7 +23,7 @@
     "Switch to Information": "Mudar para Informações",
     "Switch to Preview Image": "Mudar para a Imagem de Prévia",
     "Sync to SD1": "Sincronizar com SD1",
-    "This is disabled in kiosk mode!": "This is disabled in kiosk mode!",
+    "This is disabled in kiosk mode!": "Isto é desativado no modo quiosque!",
     "Use": "Usar"
   },
   "muxapp": {
@@ -66,8 +66,8 @@
     "CONFIGURATION": "CONFIGURAÇÕES",
     "Change your current date, time, and timezone": "Alterar data, hora e fuso horário atuais",
     "Connect to a Wi-Fi network manually or via a saved profile": "Conectar-se a uma rede Wi-Fi manualmente ou através de um perfil salvo",
-    "Customisation": "Customisation",
-    "Customise your muOS setup with user created packages": "Customise your muOS setup with user created packages",
+    "Customisation": "Customização",
+    "Customise your muOS setup with user created packages": "Customize suas configurações do muOS com pacotes criados por usuários",
     "Date and Time": "Data e Hora",
     "Device specific and muOS frontend settings can be found here": "As configurações específicas do dispositivo e do frontend muOS podem ser encontradas aqui",
     "Find out what storage device core settings and configurations are mounted": "Descubra em que armazenamento está montado os ajustes e configurações de núcleo",
@@ -80,10 +80,10 @@
     "Wi-Fi Network": "Rede Wi-Fi"
   },
   "muxcustom": {
-    "CUSTOMISATION": "CUSTOMISATION",
+    "CUSTOMISATION": "CUSTOMIZAÇÃO",
     "Catalogue Sets": "Catalogue Sets",
-    "Change the appearance of the muOS frontend launcher": "Change the appearance of the muOS frontend launcher",
-    "Load user created RetroArch configurations": "Load user created RetroArch configurations",
+    "Change the appearance of the muOS frontend launcher": "Muda a aparência do inicializador do frontend do muOS",
+    "Load user created RetroArch configurations": "Carrega configurações criadas pelo usuário no RetroArch",
     "Load user created artwork catalogue for content": "Load user created artwork catalogue for content",
     "RetroArch Configurations": "RetroArch Configurations",
     "muOS Themes": "muOS Themes"

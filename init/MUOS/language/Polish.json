@@ -22,7 +22,7 @@
     "Select": "Wybierz",
     "Switch to Information": "Zmień na informacje",
     "Switch to Preview Image": "Zmień na obraz podglądu",
-    "Sync to SD1": "Synchronizacja do SD1",
+    "Sync to SD1": "Synchronizuj do SD1",
     "This is disabled in kiosk mode!": "Wyłączone w trybie kiosku!",
     "Use": "Użyj"
   },
@@ -271,7 +271,7 @@
     "Configure the time the device will sleep when no input is detected": "Skonfiguruj, kiedy uśpić urządzenie, jeśli nie wykryto żadnej interakcji",
     "Configure the time the screen will dim when no input is detected": "Skonfiguruj, kiedy ekran ma się ściemnić, jeśli nie wykryto żadnej interakcji",
     "Configure when the red LED will display based on the current capacity percentage": "Skonfiguruj, kiedy ma zapalić się czerwona dioda LED na podstawie bieżącej pojemności baterii",
-    "Idle Input Display Timeout": "Czas wyświetlania podczas bezczynności",
+    "Idle Input Display Timeout": "Czas do ściemnienia podczas bezczynności",
     "Idle Input Sleep Timeout": "Czas do uśpienia po bezczynności",
     "Instant Shutdown": "Zamknij od razu",
     "Low Battery Indicator": "Wskaźnik niskiego poziomu baterii",

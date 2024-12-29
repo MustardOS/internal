@@ -12,8 +12,10 @@ esac
 /opt/muos/script/var/init/global.sh init
 
 # Restore the default device screen to current WxH dimensions
-SET_VAR "device" "screen/width" "$(GET_VAR "device" "screen/internal/width")"
-SET_VAR "device" "screen/height" "$(GET_VAR "device" "screen/internal/height")"
+for MODE in "screen" "mux"; do
+	SET_VAR "device" "$MODE/width" "$(GET_VAR "device" "screen/internal/width")"
+	SET_VAR "device" "$MODE/height" "$(GET_VAR "device" "screen/internal/height")"
+done
 
 printf "awake" >"/tmp/sleep_state"
 

@@ -25,20 +25,15 @@ chmod +x "$EMUDIR"/ppsspp
 cd "$EMUDIR" || exit
 
 if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 0 ]; then
-	case "$(GET_VAR "device" "board/name")" in
-		rg28xx-h) FB_SWITCH 720 960 32 ;;
-		*) FB_SWITCH 960 720 32 ;;
+	case "$(GET_VAR "device" "screen/rotate")" in
+		1) FB_SWITCH 720 960 32 ;;
+		0 | 2) FB_SWITCH 960 720 32 ;;
 	esac
 fi
 
 sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' "$EMUDIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
 
 HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_retro.txt") ./PPSSPP "$ROM"
-
-case "$(GET_VAR "device" "board/name")" in
-	rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
-	*) ;;
-esac
 
 if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
 	HDMI_SWITCH

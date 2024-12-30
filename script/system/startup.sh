@@ -15,6 +15,12 @@ esac
 for MODE in "screen" "mux"; do
 	SET_VAR "device" "$MODE/width" "$(GET_VAR "device" "screen/internal/width")"
 	SET_VAR "device" "$MODE/height" "$(GET_VAR "device" "screen/internal/height")"
+
+	# We have to ensure that muX has a sane rotated resolution if the device display is rotated...
+	if [ "$(GET_VAR "device" "screen/rotate")" -eq 1 ]; then
+		SET_VAR "device" "mux/width" "$(GET_VAR "device" "screen/internal/height")"
+		SET_VAR "device" "mux/height" "$(GET_VAR "device" "screen/internal/width")"
+	fi
 done
 
 printf "awake" >"/tmp/sleep_state"

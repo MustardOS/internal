@@ -55,8 +55,17 @@ GET_VAR "global" "settings/advanced/led" >/tmp/work_led_state
 cat "$GVR_GO" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
 # Modify the RetroArch settings for device resolution output
-RA_WIDTH="$(GET_VAR "device" "screen/width")"
-RA_HEIGHT="$(GET_VAR "device" "screen/height")"
+case "$(GET_VAR "device" "screen/rotate")" in
+	1)
+		RA_WIDTH="$(GET_VAR "device" "screen/height")"
+		RA_HEIGHT="$(GET_VAR "device" "screen/width")"
+		;;
+	0 | 2)
+		RA_WIDTH="$(GET_VAR "device" "screen/width")"
+		RA_HEIGHT="$(GET_VAR "device" "screen/height")"
+		;;
+esac
+
 (
 	printf "video_fullscreen_x = \"%s\"\n" "$RA_WIDTH"
 	printf "video_fullscreen_y = \"%s\"\n" "$RA_HEIGHT"

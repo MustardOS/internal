@@ -121,8 +121,17 @@ FB_SWITCH() {
 
 	SET_VAR "device" "screen/width" "$WIDTH"
 	SET_VAR "device" "screen/height" "$HEIGHT"
-	SET_VAR "device" "mux/width" "$WIDTH"
-	SET_VAR "device" "mux/height" "$HEIGHT"
+
+	case "$(GET_VAR "device" "screen/rotate")" in
+		1)
+			SET_VAR "device" "mux/width" "$HEIGHT"
+			SET_VAR "device" "mux/height" "$WIDTH"
+			;;
+		0 | 2)
+			SET_VAR "device" "mux/width" "$WIDTH"
+			SET_VAR "device" "mux/height" "$HEIGHT"
+			;;
+	esac
 
 	fbset -fb "$(GET_VAR "device" "screen/device")" -g "${WIDTH}" "${HEIGHT}" "${WIDTH}" "$((HEIGHT * 2))" "${DEPTH}" $TIMING_ARGS
 }

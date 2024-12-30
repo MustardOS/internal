@@ -19,10 +19,10 @@ export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 SET_VAR "system" "foreground_process" "mupen64plus"
 
-if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
-	case "$(GET_VAR "device" "board/name")" in
-		rg28xx-h) FB_SWITCH 240 320 32 ;;
-		*) FB_SWITCH 320 240 32 ;;
+if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 0 ]; then
+	case "$(GET_VAR "device" "screen/rotate")" in
+		1) FB_SWITCH 240 320 32 ;;
+		0 | 2) FB_SWITCH 320 240 32 ;;
 	esac
 fi
 
@@ -63,11 +63,6 @@ HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus
 if [ -n "$TMPDIR" ]; then
 	rm -r "$TMPDIR"
 fi
-
-case "$(GET_VAR "device" "board/name")" in
-	rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
-	*) ;;
-esac
 
 if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
 	HDMI_SWITCH

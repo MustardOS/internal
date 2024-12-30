@@ -12,10 +12,12 @@ export LD_LIBRARY_PATH=/usr/lib32
 
 export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 
-case "$(GET_VAR "device" "board/name")" in
-	rg28xx-h) export SDL_ROTATION=0 ;;
-	*) export SDL_ROTATION=3 ;;
-esac
+if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 0 ]; then
+	case "$(GET_VAR "device" "screen/rotate")" in
+		1) export SDL_ROTATION=0 ;;
+		0 | 2) export SDL_ROTATION=3 ;;
+	esac
+fi
 
 FLIPCLOCK_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.flipclock"
 

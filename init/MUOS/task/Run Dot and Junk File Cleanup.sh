@@ -7,12 +7,20 @@
 pkill -STOP muxtask
 
 DELETE_CRUFT() {
-	CRUFT="._* .DS_Store desktop.ini Thumbs.db .Trashes .Spotlight .fseventsd .DStore System Volume Information"
+	find "$1" -type f \( \
+		-name "._*" -o \
+		-name ".DS_Store" -o \
+		-name "desktop.ini" -o \
+		-name "Thumbs.db" \
+		-name ".DStore" \
+		\) -exec rm -f {} +
 
-	for C in $CRUFT; do
-		echo "Removing all '$C' files"
-		find "$1" -type f -name "$C" -exec rm -f {} +
-	done
+	find "$1" -type d \( \
+		-name "System Volume Information" -o \
+		-name ".Trashes" -o \
+		-name ".Spotlight" -o \
+		-name ".fseventsd" \
+		\) -exec rm -rf {} +
 }
 
 echo "Checking ROM for junk"

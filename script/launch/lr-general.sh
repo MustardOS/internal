@@ -14,7 +14,6 @@ export HOME
 SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
 SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
-
 export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 if echo "$CORE" | grep -qE "flycast|morpheuscast"; then
@@ -48,3 +47,4 @@ retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/c
 RA_PID=$!
 
 wait $RA_PID
+unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

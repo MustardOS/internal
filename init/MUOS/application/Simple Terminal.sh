@@ -6,7 +6,8 @@
 
 echo app >/tmp/act_go
 
-export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+export SDL_HQ_SCALER
 
 TERM_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.terminal"
 

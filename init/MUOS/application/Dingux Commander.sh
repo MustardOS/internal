@@ -6,10 +6,10 @@
 
 echo app >/tmp/act_go
 
-export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+export SDL_HQ_SCALER
 
 DINGUX_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.dingux"
-
 cd "$DINGUX_DIR" || exit
 
 SET_VAR "system" "foreground_process" "dingux"

@@ -14,7 +14,6 @@ export HOME
 SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
 SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
-
 export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 # Our OpenBOR builds hardcode Batocera /userdata paths. :( For example:
@@ -50,6 +49,4 @@ HOME="$EMUDIR" SDL_ASSERT=always_ignore ./"$BOR_BIN" "$ROM"
 # Clean up /userdata symlink when we're done since it's such a generic path.
 [ -d "$U_DATA" ] && rm -rf "$U_DATA"
 
-unset SDL_HQ_SCALER
-unset SDL_ROTATION
-unset SDL_BLITTER_DISABLED
+unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

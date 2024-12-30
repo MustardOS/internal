@@ -14,13 +14,10 @@ export HOME
 SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
 SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
-
 export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 SET_VAR "system" "foreground_process" "ffplay"
 
 /usr/bin/ffplay "$ROM"
 
-unset SDL_HQ_SCALER
-unset SDL_ROTATION
-unset SDL_BLITTER_DISABLED
+unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

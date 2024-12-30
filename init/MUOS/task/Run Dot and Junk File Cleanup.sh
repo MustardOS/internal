@@ -7,7 +7,7 @@
 pkill -STOP muxtask
 
 DELETE_CRUFT() {
-	CRUFT="._* .DS_Store desktop.ini Thumbs.db .Trashes .Spotlight .fseventsd .DStore"
+	CRUFT="._* .DS_Store desktop.ini Thumbs.db .Trashes .Spotlight .fseventsd .DStore System Volume Information"
 
 	for C in $CRUFT; do
 		echo "Removing all '$C' files"

@@ -11,7 +11,11 @@ if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
 fi
 
 if [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ] && [ "$(GET_VAR "global" "settings/hdmi/enabled")" -gt 0 ]; then
-	/opt/muos/device/current/script/hdmi_start.sh &
+	if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
+		/opt/muos/device/current/script/hdmi.sh start &
+	else
+		SET_VAR "global" "settings/hdmi/enabled" 0
+	fi
 fi
 
 (

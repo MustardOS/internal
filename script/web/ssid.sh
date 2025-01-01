@@ -34,4 +34,4 @@ while [ $SCAN_TIMEOUT -lt 15 ] && [ ! -s "$NET_SCAN" ]; do
 	SCAN_TIMEOUT=$((SCAN_TIMEOUT + 1))
 done
 
-[ ! -s "$NET_SCAN" ] && echo "0" >"$NET_SCAN"
+[ ! -s "$NET_SCAN" ] && printf "[!]" >"$NET_SCAN"

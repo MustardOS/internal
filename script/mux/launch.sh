@@ -54,6 +54,35 @@ GET_VAR "global" "settings/advanced/led" >/tmp/work_led_state
 
 cat "$GVR_GO" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
+# Modify the RetroArch settings for device resolution output
+case "$(GET_VAR "device" "screen/rotate")" in
+	1)
+		RA_WIDTH="$(GET_VAR "device" "screen/height")"
+		RA_HEIGHT="$(GET_VAR "device" "screen/width")"
+		;;
+	0 | 2)
+		RA_WIDTH="$(GET_VAR "device" "screen/width")"
+		RA_HEIGHT="$(GET_VAR "device" "screen/height")"
+		;;
+esac
+
+(
+	printf "video_fullscreen_x = \"%s\"\n" "$RA_WIDTH"
+	printf "video_fullscreen_y = \"%s\"\n" "$RA_HEIGHT"
+	printf "video_window_auto_width_max = \"%s\"\n" "$RA_WIDTH"
+	printf "video_window_auto_height_max = \"%s\"\n" "$RA_HEIGHT"
+	printf "custom_viewport_width = \"%s\"\n" "$RA_WIDTH"
+	printf "custom_viewport_height = \"%s\"\n" "$RA_HEIGHT"
+	if [ "$RA_WIDTH" -ge 1280 ]; then
+		printf "rgui_aspect_ratio = \"%s\"" "1"
+	else
+		printf "rgui_aspect_ratio = \"%s\"" "0"
+	fi
+) >"/opt/muos/device/current/control/retroarch.resolution.cfg"
+
+# Filesystem sync
+sync &
+
 # External Script
 if [ "$CORE" = external ]; then
 	SET_VAR "system" "foreground_process" "$(/opt/muos/script/system/extract_process.sh "$ROM")"
@@ -122,6 +151,9 @@ else
 	/opt/muos/script/launch/lr-general.sh "$NAME" "$CORE" "$ROM"
 fi
 
+# Filesystem sync
+sync &
+
 CHECK_BGM ignore
 
 DEF_GOV=$(GET_VAR "device" "cpu/default")
@@ -149,14 +181,15 @@ fi
 killall -q "$GPTOKEYB_BIN" "$EVSIEVE_BIN"
 
 case "$(GET_VAR "device" "board/name")" in
-	rg*)
-		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
-		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
-		;;
-	*)
-		FB_SWITCH "$(GET_VAR "device" "screen/width")" "$(GET_VAR "device" "screen/height")" 32
-		;;
+	rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
+	*) ;;
 esac
+
+if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
+	HDMI_SWITCH
+else
+	FB_SWITCH "$(GET_VAR "device" "screen/internal/width")" "$(GET_VAR "device" "screen/internal/height")" 32
+fi
 
 if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
 	SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)

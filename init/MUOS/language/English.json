@@ -143,7 +143,7 @@
     "View all of the current muOS supporters": "View all of the current muOS supporters"
   },
   "muxlanguage": {
-    "LANGUAGES": "LANGUAGES",
+    "LANGUAGES": "LANGUAGE",
     "No Languages Found...": "No Languages Found…",
     "Saving Language": "Saving Language",
     "Select your preferred language": "Select your preferred language"
@@ -546,7 +546,7 @@
     "Toggle SFTP support - WebUI can be found on port 9090": "Toggle SFTP support - WebUI can be found on port 9090",
     "Toggle SSH support - Access via port 22": "Toggle SSH support - Access via port 22",
     "Toggle Syncthing - WebUI can be found on port 7070": "Toggle Syncthing - WebUI can be found on port 7070",
-    "Toggle Tailscale - Need to login via SSH first": "Toggle Tailscale - Need to login via SSH first",
+    "Toggle Tailscale - Need to login via SSH first to configure it": "Toggle Tailscale - Need to login via SSH first to configure it",
     "Toggle network time protocol for active network connections": "Toggle network time protocol for active network connections",
     "Toggle virtual terminal - WebUI can be found on port 8080": "Toggle virtual terminal - WebUI can be found on port 8080",
     "Virtual Terminal": "Virtual Terminal",

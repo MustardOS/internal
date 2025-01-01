@@ -22,7 +22,7 @@ CONFIG_FILE="$DEVICE_CONFIG"
 AUDIO_VARS="pf_internal ob_internal pf_external ob_external control channel min max"
 BATTERY_VARS="boot_mode capacity health voltage charger"
 CPU_VARS="cores default governor scaler sampling_rate up_threshold sampling_down_factor io_is_busy sampling_rate_default up_threshold_default sampling_down_factor_default io_is_busy_default"
-BOARD_VARS="name home network bluetooth portmaster lid hdmi event debugfs rtc rumble udc"
+BOARD_VARS="name home network bluetooth portmaster stick lid hdmi event debugfs rtc rumble udc"
 INPUT_VARS="ev0 ev1 axis"
 INPUT_ANALOG_LEFT_VARS="up down left right click"
 INPUT_ANALOG_RIGHT_VARS="up down left right click"
@@ -33,10 +33,12 @@ LED_VARS="normal low rgb"
 MUX_VARS="width height"
 NETWORK_VARS="module name type iface state"
 SCREEN_VARS="device hdmi bright width height rotate wait"
+SCREEN_INTERNAL_VARS="width height"
+SCREEN_EXTERNAL_VARS="width height"
 SDL_VARS="scaler rotation blitter_disabled"
 STORAGE_VARS="active dev sep num mount type label"
 
-for INIT in audio battery cpu board input input/code/dpad input/code/analog/left input/code/analog/right input/code/button input/type/dpad input/type/analog/left input/type/analog/right input/type/button input/sdlmap/retro input/sdlmap/modern led mux network screen sdl storage/boot storage/rom storage/root storage/sdcard storage/usb; do
+for INIT in audio battery cpu board input input/code/dpad input/code/analog/left input/code/analog/right input/code/button input/type/dpad input/type/analog/left input/type/analog/right input/type/button input/sdlmap/retro input/sdlmap/modern led mux network screen screen/internal screen/external sdl storage/boot storage/rom storage/root storage/sdcard storage/usb; do
 	case $INIT in
 		audio) VARS="$AUDIO_VARS" ;;
 		battery) VARS="$BATTERY_VARS" ;;
@@ -57,6 +59,8 @@ for INIT in audio battery cpu board input input/code/dpad input/code/analog/left
 		mux) VARS="$MUX_VARS" ;;
 		network) VARS="$NETWORK_VARS" ;;
 		screen) VARS="$SCREEN_VARS" ;;
+		screen/internal) VARS="$SCREEN_INTERNAL_VARS" ;;
+		screen/external) VARS="$SCREEN_EXTERNAL_VARS" ;;
 		sdl) VARS="$SDL_VARS" ;;
 		storage/boot) VARS="$STORAGE_VARS" ;;
 		storage/rom) VARS="$STORAGE_VARS" ;;

@@ -6,11 +6,13 @@
 
 echo app >/tmp/act_go
 
-export HOME=$(GET_VAR "device" "board/home")
+HOME="$(GET_VAR "device" "board/home")"
+export HOME
 
-export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
-export SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
-export SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 SET_VAR "system" "foreground_process" "scummvm"
 
@@ -25,16 +27,12 @@ chmod +x "$EMUDIR"/scummvm
 cd "$EMUDIR" || exit
 
 # Switch analogue<>dpad for stickless devices
+[ "$(GET_VAR "device" "board/stick")" -eq 0 ] && STICK_ROT=2 || STICK_ROT=0
 case "$(GET_VAR "device" "board/name")" in
-  	rg28xx-h|rg35xx-2024|rg35xx-plus|rg35xx-sp)
-       	echo 2 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
-       	;;
-   	*)
-      	echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
-       	;;
+	rg*) echo "$STICK_ROT" >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
+	*) ;;
 esac
+
 HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG"
 
-unset SDL_HQ_SCALER
-unset SDL_ROTATION
-unset SDL_BLITTER_DISABLED
+unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

@@ -8,18 +8,17 @@ echo app >/tmp/act_go
 
 GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
 
-export LD_LIBRARY_PATH=/usr/lib32
+LD_LIBRARY_PATH=/usr/lib32
+SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 
-export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 0 ]; then
+	case "$(GET_VAR "device" "screen/rotate")" in
+		1) SDL_ROTATION=0 ;;
+		0 | 2) SDL_ROTATION=3 ;;
+	esac
+fi
 
-case "$(GET_VAR "device" "board/name")" in
-	rg28xx-h)
-		export SDL_ROTATION=0
-		;;
-	*)
-		export SDL_ROTATION=3
-		;;
-esac
+export LD_LIBRARY_PATH SDL_HQ_SCALER SDL_ROTATION
 
 FLIPCLOCK_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.flipclock"
 
@@ -33,6 +32,4 @@ HOME="$FLIPCLOCK_DIR" SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib32/game
 kill -9 "$(pidof flipclock)"
 kill -9 "$(pidof gptokeyb2)"
 
-unset SDL_HQ_SCALER
-unset SDL_ROTATION
-unset LD_LIBRARY_PATH
+unset SDL_HQ_SCALER SDL_ROTATION LD_LIBRARY_PATH

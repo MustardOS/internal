@@ -6,6 +6,8 @@ NAME=$1
 CORE=$2
 ROM=$3
 
+LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
+
 BIOS="/run/muos/storage/bios/saturn_bios.bin"
 SAVE_DIR="/run/muos/storage/save/file/YabaSanshiro-Ext"
 STATE_DIR="/run/muos/storage/save/state/YabaSanshiro-Ext"
@@ -28,9 +30,10 @@ fi
 
 CURR_CONSOLE="$(GET_VAR "device" "board/name")"
 
-export SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
-export SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
-export SDL_BLITTER_DISABLED=1
+SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+SDL_BLITTER_DISABLED=1
+export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 SET_VAR "system" "foreground_process" "yabasanshiro"
 
@@ -76,6 +79,4 @@ if [ -f "$SAVE_DIR/backup.bin" ]; then
 	rm -f "$SAVE_DIR/backup.bin"
 fi
 
-unset SDL_HQ_SCALER
-unset SDL_ROTATION
-unset SDL_BLITTER_DISABLED
+unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

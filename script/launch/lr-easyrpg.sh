@@ -14,7 +14,6 @@ export HOME
 SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
 SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
-
 export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 SET_VAR "system" "foreground_process" "retroarch"
@@ -28,6 +27,7 @@ RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 # to the main retroarch.cfg, not the included retroarch.device.cfg.)
 sed -n -e '/^#include /!p' \
 	-e '$a#include "/opt/muos/device/current/control/retroarch.device.cfg"' \
+	-e '$a#include "/opt/muos/device/current/control/retroarch.resolution.cfg"' \
 	-i "$RA_CONF"
 
 if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ]; then
@@ -55,3 +55,4 @@ else
 fi
 
 wait $RA_PID
+unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

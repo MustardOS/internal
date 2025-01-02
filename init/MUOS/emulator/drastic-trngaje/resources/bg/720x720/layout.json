@@ -8,9 +8,9 @@
     "bg":"bg_t.png",
 
     "screen0_x":0,
-    "screen0_y":0,
-    "screen0_w":160,
-    "screen0_h":120,
+    "screen0_y":540,
+    "screen0_w":240,
+    "screen0_h":180,
 
     "screen1_x":0,
     "screen1_y":0,
@@ -23,7 +23,7 @@
     "bg":"bg_t.png",
 
     "screen0_x":0,
-    "screen0_y":0,
+    "screen0_y":528,
     "screen0_w":256,
     "screen0_h":192,
 
@@ -131,17 +131,17 @@
 {
     "index":8,
     "name":"vh_s0",
-    "bg":"bg_vh_s0.png",
+    "bg":"bg_vh_s3.png",
 
-    "screen0_x":0,
-    "screen0_y":0,
-    "screen0_w":160,
-    "screen0_h":120,
+    "screen0_x":240,
+    "screen0_y":540,
+    "screen0_w":240,
+    "screen0_h":180,
 
-    "screen1_x":160,
-    "screen1_y":300,
-    "screen1_w":560,
-    "screen1_h":420
+    "screen1_x":0,
+    "screen1_y":0,
+    "screen1_w":720,
+    "screen1_h":540
 },
 
 {
@@ -149,13 +149,13 @@
     "name":"vh_s1",
     "bg":"bg_vh_s1.png",
 
-    "screen0_x":38,
-    "screen0_y":120,
+    "screen0_x":426,
+    "screen0_y":408,
     "screen0_w":256,
     "screen0_h":192,
 
-    "screen1_x":295,
-    "screen1_y":310,
+    "screen1_x":41,
+    "screen1_y":122,
     "screen1_w":384,
     "screen1_h":288
 },
@@ -165,15 +165,15 @@
     "name":"vh_s2",
     "bg":"bg_vh_s2.png",
 
-    "screen0_x":281,
-    "screen0_y":106,
-    "screen0_w":160,
-    "screen0_h":120,
+    "screen0_x":232,
+    "screen0_y":528,
+    "screen0_w":256,
+    "screen0_h":192,
 
-    "screen1_x":120,
-    "screen1_y":240,
-    "screen1_w":480,
-    "screen1_h":360
+    "screen1_x":8,
+    "screen1_y":0,
+    "screen1_w":704,
+    "screen1_h":528
 },
 
 {
@@ -182,14 +182,14 @@
     "bg":"bg_vh_c0.png",
 
     "screen0_x":232,
-    "screen0_y":120,
+    "screen0_y":456,
     "screen0_w":256,
     "screen0_h":192,
 
-    "screen1_x":168,
-    "screen1_y":312,
-    "screen1_w":384,
-    "screen1_h":288
+    "screen1_x":104,
+    "screen1_y":72,
+    "screen1_w":512,
+    "screen1_h":384
 },
 
 {
@@ -197,12 +197,12 @@
     "name":"vh_c1",
     "bg":"bg_vh_c1.png",
 
-    "screen0_x":0,
+    "screen0_x":432,
     "screen0_y":252,
     "screen0_w":288,
     "screen0_h":216,
 
-    "screen1_x":288,
+    "screen1_x":0,
     "screen1_y":198,
     "screen1_w":432,
     "screen1_h":324
@@ -228,7 +228,7 @@
 {
     "index":14,
     "name":"hh1",
-    "bg":"",
+    "bg":"bg_hh0.png",
     "rotate":270,
 
     "screen0_x":0,

@@ -156,7 +156,9 @@ if [ -d "$DEVICE_CONFIG_DIR" ]; then
 		CFG="$RA_CONFIG_DIR/$SYSTEM/$SYSTEM.cfg"
 		BACKUP_CFG="$CFG.$(GET_VAR "device" "board/name")"
 
-		cp -f "$CFG" "$BACKUP_CFG"
-		cp -f "$DEVICE_CFG" "$CFG"
+		if [ ! -f "$BACKUP_CFG" ]; then
+			cp -f "$CFG" "$BACKUP_CFG"
+			cp -f "$DEVICE_CFG" "$CFG"
+		fi
 	done
 fi

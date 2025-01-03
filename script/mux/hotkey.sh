@@ -32,7 +32,7 @@ HANDLE_HOTKEY() {
 		SLEEP) SLEEP ;;
 
 		# Utility combos:
-		SCREENSHOT) /opt/muos/device/current/input/combo/screenshot.sh ;;
+		SCREENSHOT) /opt/muos/script/mux/screenshot.sh ;;
 		DPAD_TOGGLE) DPAD_TOGGLE ;;
 
 		# Brightness/volume combos:
@@ -90,19 +90,21 @@ SLEEP() {
 
 DPAD_TOGGLE() {
 	if [ "$(GET_VAR global settings/advanced/dpad_swap)" -eq 1 ]; then
+    RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
+
 		case "$(GET_VAR system foreground_process)" in
 			mux*) ;;
 			*)
 				case "$(cat "$DPAD_FILE")" in
 					0)
 						echo 2 >"$DPAD_FILE"
-						RUMBLE "$(GET_VAR device board/rumble)" .1
+						RUMBLE "$RUMBLE_DEVICE" .1
 						;;
 					2)
 						echo 0 >"$DPAD_FILE"
-						RUMBLE "$(GET_VAR device board/rumble)" .1
+						RUMBLE "$RUMBLE_DEVICE" .1
 						sleep .1
-						RUMBLE "$(GET_VAR device board/rumble)" .1
+						RUMBLE "$RUMBLE_DEVICE" .1
 						;;
 				esac
 				;;

@@ -1,34 +1,32 @@
-// Simple scanlines with curvature and mask effects lifted from crt-geom
-// original by hunterk
+#version 110
 
-////////////////////////////////////////////////////////////////////
-////////////////////////////  SETTINGS  ////////////////////////////
-/////  comment these lines to disable effects and gain speed  //////
-////////////////////////////////////////////////////////////////////
+#pragma parameter bogus1 " [ COLORS ] " 0.0 0.0 0.0 0.0
+#pragma parameter a_gamma_in "Gamma In" 2.45 1.0 4.0 0.05
+#pragma parameter a_gamma_out "Gamma Out" 2.25 1.0 4.0 0.05
+#pragma parameter a_col_temp "Color Temperature (0.01 ~ 200K)" 0.0 -0.15 0.15 0.01
+#pragma parameter a_sat "Saturation" 1.0 0.0 2.0 0.05
+#pragma parameter a_boostd "Bright Boost Dark" 1.3 0.0 2.0 0.05
+#pragma parameter a_boostb "Bright Boost Bright" 1.05 0.0 2.0 0.05
+#pragma parameter bogus2 " [ SCANLINES/MASK ] " 0.0 0.0 0.0 0.0
+#pragma parameter scanl "Scanlines Low" 0.4 0.0 0.5 0.05
+#pragma parameter scanh "Scanlines High" 0.2 0.0 0.5 0.05
+#pragma parameter a_interlace "Interlace On/Off" 1.0 0.0 1.0 1.0
+#pragma parameter a_MTYPE "Mask Type, Fine/Coarse/LCD" 0.0 0.0 2.0 1.0
+#pragma parameter a_MSIZE "Mask Size" 1.0 1.0 2.0 1.0
+#pragma parameter a_MASK "Mask Strength" 0.2 0.0 0.5 0.05
+#pragma parameter bogus3 " [ GEOMETRY ] " 0.0 0.0 0.0 0.0
+#pragma parameter a_sharper "Sharp Image" 0.0 0.0 1.0 1.0
+#pragma parameter a_lanc "Lanczos Fake Artifacts" 1.0 0.0 1.0 1.0
+#pragma parameter warpx "Curvature Horizontal" 0.03 0.0 0.2 0.01
+#pragma parameter warpy "Curvature Vertical" 0.04 0.0 0.2 0.01
+#pragma parameter a_corner "Corner Roundness" 0.03 0.0 0.2 0.01
+#pragma parameter bsmooth "Border Smoothness" 600.0 100.0 1000.0 25.0
+#pragma parameter a_vignette "Vignette On/Off" 1.0 0.0 1.0 1.0
+#pragma parameter a_vigstr "Vignette Strength" 0.4 0.0 1.0 0.05
 
-#define CURVATURE // applies barrel distortion to the screen
-#define SCANLINES  // applies horizontal scanline effect
-
-
-
-////////////////////////////////////////////////////////////////////
-//////////////////////////  END SETTINGS  //////////////////////////
-////////////////////////////////////////////////////////////////////
-
-///////////////////////  Runtime Parameters  ///////////////////////
-
-#pragma parameter SCANLINE_SINE_COMP_B "Scanline Intensity" 0.60 0.0 1.0 0.05
-#pragma parameter warpX "warpX" 0.03 0.0 0.125 0.01
-#pragma parameter warpY "warpY" 0.05 0.0 0.125 0.01
-#pragma parameter corner_round "Corner Roundness" 0.030 0.005 0.100 0.005
-#pragma parameter cgwg "CGWG mask str. " 0.5 0.0 1.0 0.1
-#pragma parameter crt_gamma "CRT Gamma" 2.5 1.0 4.0 0.05
-#pragma parameter monitor_gamma "Monitor Gamma" 2.2 1.0 4.0 0.05
-#pragma parameter boost "Bright boost " 0.00 0.00 1.00 0.02
-#pragma parameter SCANLINE_SINE_COMP_A "Scanline Sine Comp A" 0.0 0.0 0.10 0.01
-#pragma parameter SCANLINE_BASE_BRIGHTNESS "Scanline Base Brightness" 0.95 0.0 1.0 0.01
-
-
+#define SourceSize vec4(TextureSize.xy, 1.0/TextureSize.xy)
+#define scale vec2(SourceSize.xy/InputSize.xy)
+#define pi 3.1415926
 
 #if defined(VERTEX)
 
@@ -37,8 +35,8 @@
 #define COMPAT_ATTRIBUTE in
 #define COMPAT_TEXTURE texture
 #else
-#define COMPAT_VARYING varying 
-#define COMPAT_ATTRIBUTE attribute 
+#define COMPAT_VARYING varying
+#define COMPAT_ATTRIBUTE attribute
 #define COMPAT_TEXTURE texture2D
 #endif
 
@@ -53,8 +51,10 @@ COMPAT_ATTRIBUTE vec4 COLOR;
 COMPAT_ATTRIBUTE vec4 TexCoord;
 COMPAT_VARYING vec4 COL0;
 COMPAT_VARYING vec4 TEX0;
+COMPAT_VARYING vec2 ps;
+COMPAT_VARYING float maskpos;
 
-vec4 _oPosition1; 
+vec4 _oPosition1;
 uniform mat4 MVPMatrix;
 uniform COMPAT_PRECISION int FrameDirection;
 uniform COMPAT_PRECISION int FrameCount;
@@ -64,32 +64,25 @@ uniform COMPAT_PRECISION vec2 InputSize;
 
 // compatibility #defines
 #define vTexCoord TEX0.xy
-#define SourceSize vec4(TextureSize, 1.0 / TextureSize) //either TextureSize or InputSize
-#define OutSize vec4(OutputSize, 1.0 / OutputSize)
 
 #ifdef PARAMETER_UNIFORM
-uniform COMPAT_PRECISION float WHATEVER;
+// All parameter floats need to have COMPAT_PRECISION in front of them
+uniform COMPAT_PRECISION float a_MSIZE;
+
 #else
-#define WHATEVER 0.0
+#define a_MSIZE 1.0
+
 #endif
 
 void main()
 {
     gl_Position = MVPMatrix * VertexCoord;
     TEX0.xy = TexCoord.xy*1.0001;
+    ps = 1.0/TextureSize.xy;
+    maskpos = vTexCoord.x*OutputSize.x/a_MSIZE*scale.x*pi;
 }
 
 #elif defined(FRAGMENT)
-
-#if __VERSION__ >= 130
-#define COMPAT_VARYING in
-#define COMPAT_TEXTURE texture
-out vec4 FragColor;
-#else
-#define COMPAT_VARYING varying
-#define FragColor gl_FragColor
-#define COMPAT_TEXTURE texture2D
-#endif
 
 #ifdef GL_ES
 #ifdef GL_FRAGMENT_PRECISION_HIGH
@@ -102,6 +95,16 @@ precision mediump float;
 #define COMPAT_PRECISION
 #endif
 
+#if __VERSION__ >= 130
+#define COMPAT_VARYING in
+#define COMPAT_TEXTURE texture
+out COMPAT_PRECISION vec4 FragColor;
+#else
+#define COMPAT_VARYING varying
+#define FragColor gl_FragColor
+#define COMPAT_TEXTURE texture2D
+#endif
+
 uniform COMPAT_PRECISION int FrameDirection;
 uniform COMPAT_PRECISION int FrameCount;
 uniform COMPAT_PRECISION vec2 OutputSize;
@@ -109,138 +112,134 @@ uniform COMPAT_PRECISION vec2 TextureSize;
 uniform COMPAT_PRECISION vec2 InputSize;
 uniform sampler2D Texture;
 COMPAT_VARYING vec4 TEX0;
+COMPAT_VARYING vec2 ps;
+COMPAT_VARYING float maskpos;
 
 // compatibility #defines
 #define Source Texture
 #define vTexCoord TEX0.xy
 
-#define SourceSize vec4(TextureSize, 1.0 / TextureSize) //either TextureSize or InputSize
-#define OutSize vec4(OutputSize, 1.0 / OutputSize)
-
 #ifdef PARAMETER_UNIFORM
-uniform COMPAT_PRECISION float SCANLINE_BASE_BRIGHTNESS;
-uniform COMPAT_PRECISION float SCANLINE_SINE_COMP_A;
-uniform COMPAT_PRECISION float SCANLINE_SINE_COMP_B;
-uniform COMPAT_PRECISION float warpX;
-uniform COMPAT_PRECISION float warpY;
-uniform COMPAT_PRECISION float corner_round;
-uniform COMPAT_PRECISION float cgwg;
-uniform COMPAT_PRECISION float crt_gamma;
-uniform COMPAT_PRECISION float monitor_gamma;
-uniform COMPAT_PRECISION float boost;
+uniform COMPAT_PRECISION float warpx;
+uniform COMPAT_PRECISION float warpy;
+uniform COMPAT_PRECISION float a_vignette;
+uniform COMPAT_PRECISION float a_vigstr;
+uniform COMPAT_PRECISION float a_gamma_in;
+uniform COMPAT_PRECISION float a_gamma_out;
+uniform COMPAT_PRECISION float a_col_temp;
+uniform COMPAT_PRECISION float a_sat;
+uniform COMPAT_PRECISION float a_boostd;
+uniform COMPAT_PRECISION float a_boostb;
+uniform COMPAT_PRECISION float a_interlace;
+uniform COMPAT_PRECISION float scanl;
+uniform COMPAT_PRECISION float scanh;
+uniform COMPAT_PRECISION float a_MASK;
+uniform COMPAT_PRECISION float a_MTYPE;
+uniform COMPAT_PRECISION float a_corner;
+uniform COMPAT_PRECISION float bsmooth;
+uniform COMPAT_PRECISION float a_sharper;
+uniform COMPAT_PRECISION float a_lanc;
 #else
-#define SCANLINE_BASE_BRIGHTNESS 0.95
-#define SCANLINE_SINE_COMP_A 0.0
-#define SCANLINE_SINE_COMP_B 0.40
-#define warpX 0.031
-#define warpY 0.041
-#define corner_round 0.030
-#define cgwg 0.4
-#define crt_gamma 2.2
-#define monitor_gamma 2.4
-#define boost 0.00
+
+#define warpx 0.0
+#define warpy 0.0
+#define a_vignette 0.0
+#define a_vigstr 0.0
+#define a_gamma_in 2.4
+#define a_gamma_out 2.2
+#define a_col_temp 0.0
+#define a_sat 1.0
+#define a_boostd 1.0
+#define a_boostb 1.0
+#define a_interlace 1.0
+#define scanl 0.4
+#define scanh 0.25
+#define a_MASK 0.15
+#define a_MTYPE 1.0
+#define a_corner 0.03
+#define bsmooth 600.0
+#define a_sharper 1.0
+#define a_lanc 1.0
 #endif
 
-vec4 scanline(vec2 coord, vec4 frame)
-{
-
-	vec2 omega = vec2(3.1415 * OutputSize.x, 2.0 * 3.1415 * TextureSize.y);
-	vec2 sine_comp = vec2(SCANLINE_SINE_COMP_A, SCANLINE_SINE_COMP_B);
-	vec3 res = frame.xyz;
-	
-	vec3 scanline = res * (SCANLINE_BASE_BRIGHTNESS + dot(sine_comp * sin(coord * omega), vec2(1.0, 1.0)));
-
-	return vec4(scanline.x, scanline.y, scanline.z, 1.0);
-
-
-}
-
-#ifdef CURVATURE
-// Distortion of scanlines, and end of screen alpha.
 vec2 Warp(vec2 pos)
 {
-    pos  = pos*2.0-1.0;    
-    pos *= vec2(1.0 + (pos.y*pos.y)*warpX, 1.0 + (pos.x*pos.x)*warpY);
-    
-    return pos*0.5 + 0.5;
+    pos = pos*2.0-1.0;
+    pos *= vec2(1.0+pos.y*pos.y*warpx, 1.0+pos.x*pos.x*warpy);
+    pos = pos*0.5+0.5;
+    return pos;
 }
 
 float corner(vec2 coord)
 {
-                coord *= TextureSize / InputSize;
-                coord = (coord - vec2(0.5)) * 1.0 + vec2(0.5);
-                coord = min(coord, vec2(1.0)-coord) * vec2(1.0, InputSize.y/InputSize.x);
-                vec2 cdist = vec2(corner_round);
+                coord = min(coord, vec2(1.0)-coord);
+                vec2 cdist = vec2(a_corner);
                 coord = (cdist - min(coord,cdist));
                 float dist = sqrt(dot(coord,coord));
-                return clamp((cdist.x-dist)*300.0,0.0, 1.0);
+                return clamp((cdist.x-dist)*bsmooth,0.0, 1.0);
 }  
-#endif
-
-// mask calculation
-	// cgwg mask.
-	vec4 Mask(vec2 pos)
-	{
-	  vec3 mask = vec3(1.0);
-	{
-      float mf = floor(mod(pos.x,2.0));
-      float mc = 1.0 - cgwg;	
-      if (mf == 0.0) { mask.g = mc; }
-      else { mask.r = mc; mask.b = mc; };
-   }  
-		return vec4(mask, 1.0);
-	}
-
 
 void main()
 {
-#ifdef CURVATURE
-	vec2 pos = Warp(TEX0.xy*(TextureSize.xy/InputSize.xy))*(InputSize.xy/TextureSize.xy);
-#else
-	vec2 pos = TEX0.xy;
-#endif
+vec2 pos = Warp(vTexCoord*scale);
+vec2 cpos = pos;
+pos /= scale;
 
-//borrowed from CRT-Pi
-		vec2 OGL2Pos = pos * TextureSize;
-		vec2 pC4 = floor(OGL2Pos) + 0.5;
-		vec2 coord = pC4 / TextureSize;
-		vec2 deltas = OGL2Pos - pC4;
-		vec2 signs = sign(deltas);
-		deltas.x *= 2.0;
-		deltas = deltas * deltas;
-		deltas.y = deltas.y * deltas.y;
-		deltas.x *= 0.5;
-		deltas.y *= 8.0;
-		deltas /= TextureSize;
-		deltas *= signs;
-		vec2 tc = coord + deltas;
+// filter
+vec2 ogl2pos = pos*SourceSize.xy;
+vec2 xy = floor(ogl2pos)+0.5;
+vec2 near = xy*ps;
+vec2 d = ogl2pos-xy;
+d = d*d*d*4.0*ps;
+d = near+d;
 
+// blurrier option
+if (a_sharper == 0.0) d = vec2(pos.x,d.y);
 
-// mask effects look bad unless applied in linear gamma space
-	vec4 in_gamma = vec4(crt_gamma, crt_gamma, crt_gamma, 1.0);
-	vec4 out_gamma = vec4(1.0 / monitor_gamma, 1.0 / monitor_gamma, 1.0 / monitor_gamma, 1.0);
-	
-	vec4 res = COMPAT_TEXTURE(Texture, tc);
-	
-	res=pow(res,in_gamma);
+vec3 res = COMPAT_TEXTURE(Source,d).rgb;
 
-	// apply the mask; looks bad with vert scanlines so make them mutually exclusive
-	res *= Mask(gl_FragCoord.xy * 1.0001);
+// fake Lanczos artifacts
+vec3 resl = COMPAT_TEXTURE(Source,d + vec2(ps.x,0.0)).rgb;
+vec3 resr = COMPAT_TEXTURE(Source,d - vec2(ps.x,0.0)).rgb;
+vec3 lanc = resl*0.5+resr*0.5;
+lanc *= lanc;
 
+float w = dot(vec3(0.33),res);
 
-#if defined CURVATURE && defined GL_ES
-    // hacky clamp fix for GLES
-    vec2 bordertest = (tc);
-    if ( bordertest.x > 0.0001 && bordertest.x < 0.9999 && bordertest.y > 0.0001 && bordertest.y < 0.9999)
-        res = res;
-    else
-        res = vec4(0.,0.,0.,0.);
-#endif
+if (a_sharper == 0.0 && a_lanc == 1.0) {res -= 0.2*lanc; res *= 1.15; res = clamp(res,0.0,1.0); } 
+// color temp approximate
+res *= vec3(1.0+a_col_temp,1.0-a_col_temp*0.2,1.0-a_col_temp);
 
-    // re-apply the gamma curve for the mask path
-    vec4 color = pow(scanline(pos, res), out_gamma);
-    color+=boost*color;
-    FragColor = color*corner(tc);
+float scan = mix(scanl,scanh,w);
 
-} 
+res = pow(res, vec3(a_gamma_in));
+
+float vig = 0.0;
+if (a_vignette == 1.0){
+vig = cpos.x-0.5;
+vig = vig*vig*a_vigstr;
+}
+// Interlace handling
+if (InputSize.y>400.0) {ogl2pos /= 2.0;
+if (mod(float(FrameCount),2.0) > 0.0 && a_interlace == 1.0) ogl2pos += 0.5;
+}
+
+res *= (scan+vig)*sin((ogl2pos.y-0.25)*2.0*pi)+(1.0-scan-vig);
+// masks
+float sz = 1.0;
+float m_m = maskpos;
+if (a_MTYPE == 1.0) sz = 0.6666;
+if (a_MTYPE == 2.0) m_m = ogl2pos.x*2.0*pi;
+res *= a_MASK*sin(m_m*sz)+1.0-a_MASK;
+
+res = pow(res,vec3(1.0/a_gamma_out));
+
+float l = dot(res,vec3(0.3,0.6,0.1));
+res = mix(vec3(l),res,a_sat);
+
+res *= mix(a_boostd,a_boostb,l);
+
+if (a_corner >0.0) res *= corner(cpos);
+FragColor.rgb = res;
+}
 #endif

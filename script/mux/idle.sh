@@ -35,7 +35,7 @@ while :; do
 	INHIBIT="$INHIBIT_NONE"
 	# Inhibit idle sleep while charging.
 	if [ "$(cat "$(GET_VAR device battery/charger)")" -eq 1 ]; then
-	    INHIBIT="$INHIBIT_SLEEP"
+		INHIBIT="$INHIBIT_SLEEP"
 	fi
 	# Inhibit idle display and sleep during long-running processes.
 	case "$(GET_VAR system foreground_process)" in

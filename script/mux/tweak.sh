@@ -31,12 +31,12 @@ START_BGM
 
 CARD_MODE_SWITCH() {
 	if [ "$(GET_VAR "global" "settings/advanced/cardmode")" = "noop" ]; then
-    	echo "noop" >"/sys/block/$1/queue/scheduler"
-    	echo "write back" >"/sys/block/$1/queue/write_cache"
-    else
-    	echo "deadline" >"/sys/block/$1/queue/scheduler"
-    	echo "write through" >"/sys/block/$1/queue/write_cache"
-    fi
+		echo "noop" >"/sys/block/$1/queue/scheduler"
+		echo "write back" >"/sys/block/$1/queue/write_cache"
+	else
+		echo "deadline" >"/sys/block/$1/queue/scheduler"
+		echo "write through" >"/sys/block/$1/queue/write_cache"
+	fi
 }
 
 CARD_MODE_SWITCH "$(GET_VAR "device" "storage/rom/dev")"

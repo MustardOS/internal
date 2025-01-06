@@ -40,14 +40,14 @@ else
 	mkdir "$MUX_TEMP"
 
 	echo "Extracting files..."
-	unzip -o "$1" -d "$MUX_TEMP/" \
-		| grep --line-buffered -E '^ *(extracting|inflating):' \
-		| /opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+	unzip -o "$1" -d "$MUX_TEMP/" |
+		grep --line-buffered -E '^ *(extracting|inflating):' |
+		/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
 
 	echo "Moving files..."
-	rsync --archive --ignore-times --remove-source-files --itemize-changes --outbuf=L "$MUX_TEMP/" / \
-		| grep --line-buffered '^>f' \
-		| /opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+	rsync --archive --ignore-times --remove-source-files --itemize-changes --outbuf=L "$MUX_TEMP/" / |
+		grep --line-buffered '^>f' |
+		/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
 
 	rm -rf "$MUX_TEMP"
 fi

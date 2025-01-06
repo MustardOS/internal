@@ -168,8 +168,6 @@ fi
 echo 1 >"$(GET_VAR "device" "led/normal")"
 echo 1 >/tmp/work_led_state
 
-echo explore >"$ACT_GO"
-
 cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
 
 if [ "$(GET_VAR "global" "settings/general/startup")" = last ] || [ "$(GET_VAR "global" "settings/general/startup")" = resume ]; then

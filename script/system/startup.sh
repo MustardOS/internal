@@ -129,6 +129,11 @@ while [ ! -f /run/muos/storage/mounted ]; do
 	sleep 0.25
 done
 
+# Now we can unionise all of the above mounts "ROMS" folders into a singular
+# mount making our life just that little bit easier(?)
+LOG_INFO "$0" 0 "BOOTING" "Unionising ROMS on Storage Mounts"
+/opt/muos/script/mount/union.sh start &
+
 LOG_INFO "$0" 0 "BOOTING" "Checking for Safety Script"
 OOPS="$(GET_VAR "device" "storage/rom/mount")/oops.sh"
 [ -e "$OOPS" ] && ./"$OOPS"

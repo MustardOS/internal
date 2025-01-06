@@ -17,7 +17,6 @@ FUNCTIONFS=/dev/usb-ffs
 UDC="$(GET_VAR "device" "board/udc")"
 USB_FUNCTION="$(GET_VAR "global" "settings/advanced/usb_function")"
 
-
 USB_VID() {
 	echo 0x1d6b # Linux Foundation (https://usb-ids.gowdy.us/read/UD/1d6b)
 }
@@ -25,7 +24,7 @@ USB_VID() {
 USB_PID() {
 	case "$USB_FUNCTION" in
 		mtp) echo 0x0100 ;; # PTP Gadget
-		*) echo 0x0105 ;; # FunctionFS Gadget
+		*) echo 0x0105 ;;   # FunctionFS Gadget
 	esac
 }
 
@@ -124,7 +123,7 @@ STOP() {
 [ -n "$UDC" ] || exit # USB function requires a USB Device Controller (UDC).
 
 case "$USB_FUNCTION" in
-	adb|mtp)
+	adb | mtp)
 		# Check if specified function is running; start it if not.
 		if [ ! -d "$GADGET_FUNCTIONS/ffs.$USB_FUNCTION" ]; then
 			[ -d "$GADGET" ] && STOP

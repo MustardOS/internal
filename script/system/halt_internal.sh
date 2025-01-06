@@ -33,7 +33,7 @@ KILL_AND_WAIT() {
 	killall5 "-$SIGNAL" "$@"
 
 	printf 'Waiting for processes to terminate: '
-	for _ in $(seq "$((TIMEOUT_SEC*100/25))"); do
+	for _ in $(seq "$((TIMEOUT_SEC * 100 / 25))"); do
 		# Minimum 250ms delay for things to settle a bit.
 		sleep .25
 		if ! PROCS="$(FIND_PROCS "$@")"; then
@@ -132,6 +132,7 @@ swapoff -a
 
 # Cleanly unmount filesystems to avoid fsck/chkdsk errors.
 printf 'Unmounting filesystems...\n'
+/opt/muos/script/mount/union.sh stop
 umount -ar
 
 # Actually halt/shut down/reboot the system. The -f arg makes the command

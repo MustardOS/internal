@@ -20,7 +20,7 @@ for INI_FILE in $ASSIGN_DIR; do
 done
 
 # Create additional directories specified in EXTRA_DIRS
-for EXTRA_DIR in $EXTRA_DIRS ; do
+for EXTRA_DIR in $EXTRA_DIRS; do
 	for DIR in $TARGET_DIRS; do
 		mkdir -p "$BASE_PATH/$EXTRA_DIR/$DIR"
 	done

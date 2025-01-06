@@ -25,7 +25,7 @@ SET_VAR() {
 }
 
 GET_VAR() {
-	cat "/run/muos/$1/$2"
+	[ -f "/run/muos/$1/$2" ] && cat "/run/muos/$1/$2" || echo ""
 }
 
 LOG() {

@@ -1,54 +1,32 @@
-/*
-    zfast_crt - A very simple CRT shader.
+#version 110
 
-    Copyright (C) 2017 Greg Hogan (SoltanGris42)
-	edited by metallic 77.
+/*
+    zfast_crt_composite, A very simple CRT shader
+    by metallic 77.
 
     This program is free software; you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by the Free
     Software Foundation; either version 2 of the License, or (at your option)
     any later version.
-
+    
 */
 
-//For testing compilation 
-//#define FRAGMENT
-//#define VERTEX
-#define pi 3.14159
-// Compatibility #ifdefs needed for parameters
-#ifdef GL_ES
-#define COMPAT_PRECISION mediump
-#else
-#define COMPAT_PRECISION
-#endif
+#pragma parameter Curvature "Curvature On/Off" 1.0 0.0 1.0 1.0
+#pragma parameter blurx "Convergence X-Axis" 0.6 -2.0 2.0 0.05
+#pragma parameter blury "Convergence Y-Axis" -0.10 -2.0 2.0 0.05
+#pragma parameter scan "Scanlines Strength" 0.4 0.0 0.5 0.05
+#pragma parameter maskc "Mask Strength" 0.35 0.0 0.5 0.05
+#pragma parameter mask "Slot Strength" 0.3 0.0 0.5 0.05
+#pragma parameter slotx "Mask Width" 3.0 2.0 3.0 1.0
+#pragma parameter sat "Saturation" 1.0 0.0 2.0 0.05
+#pragma parameter ntsc_j "NTSC-J colors" 0.0 0.0 1.0 1.0
 
-// Parameter lines go here:
-#pragma parameter blurx "Convergence X-Axis" 0.45 -1.0 2.0 0.05
-#pragma parameter blury "Convergence Y-Axis" -0.25 -1.0 1.0 0.05
-#pragma parameter HIGHSCANAMOUNT1 "Scanline Amount (Low)" 0.3 0.0 1.0 0.05
-#pragma parameter HIGHSCANAMOUNT2 "Scanline Amount (High)" 0.2 0.0 1.0 0.05
-#pragma parameter MASK_DARK "Mask Effect Amount" 0.25 0.0 1.0 0.05
-#pragma parameter MASK_FADE "Mask/Scanline Fade" 0.8 0.0 1.0 0.05
-#pragma parameter sat "Saturation" 1.1 0.0 3.0 0.05
-
-#ifdef PARAMETER_UNIFORM
-// All parameter floats need to have COMPAT_PRECISION in front of them
-uniform COMPAT_PRECISION float blurx;
-uniform COMPAT_PRECISION float blury;
-uniform COMPAT_PRECISION float HIGHSCANAMOUNT1;
-uniform COMPAT_PRECISION float HIGHSCANAMOUNT2;
-uniform COMPAT_PRECISION float MASK_DARK;
-uniform COMPAT_PRECISION float MASK_FADE;
-uniform COMPAT_PRECISION float sat;
-#else
-#define blurx 0.35
-#define blury -0.15
-#define HIGHSCANAMOUNT1  0.30
-#define HIGHSCANAMOUNT2  0.20
-#define MASK_DARK 0.25
-#define MASK_FADE 0.8
-#define sat 1.0
-#endif
+#define pi 3.14159265
+#define SourceSize vec4(TextureSize.xy,1.0/TextureSize.xy)
+#define scale  vec2(SourceSize.xy/InputSize.xy)
+#define maskpos TEX0.x*OutputSize.x*scale.x
+#define blur_y blury/(SourceSize.y*2.0)
+#define blur_x blurx/(SourceSize.x*2.0)
 
 #if defined(VERTEX)
 
@@ -63,9 +41,9 @@ uniform COMPAT_PRECISION float sat;
 #endif
 
 #ifdef GL_ES
-#define COMPAT_PRECISION mediump
+    #define COMPAT_PRECISION mediump
 #else
-#define COMPAT_PRECISION
+    #define COMPAT_PRECISION
 #endif
 
 COMPAT_ATTRIBUTE vec4 VertexCoord;
@@ -73,8 +51,8 @@ COMPAT_ATTRIBUTE vec4 COLOR;
 COMPAT_ATTRIBUTE vec4 TexCoord;
 COMPAT_VARYING vec4 COL0;
 COMPAT_VARYING vec4 TEX0;
-// out variables go here as COMPAT_VARYING whatever
-COMPAT_VARYING float maskFade;
+COMPAT_VARYING vec2 warp;
+
 
 vec4 _oPosition1; 
 uniform mat4 MVPMatrix;
@@ -86,15 +64,21 @@ uniform COMPAT_PRECISION vec2 InputSize;
 
 // compatibility #defines
 #define vTexCoord TEX0.xy
-#define SourceSize vec4(TextureSize, 1.0 / TextureSize) //either TextureSize or InputSize
-#define OutSize vec4(OutputSize, 1.0 / OutputSize)
+
+#ifdef PARAMETER_UNIFORM
+uniform COMPAT_PRECISION float SIZE;
+
+#else
+#define SIZE     2.0 
+     
+#endif
 
 void main()
 {
     gl_Position = MVPMatrix * VertexCoord;
-	TEX0.xy = TexCoord.xy*1.0001;
-	maskFade = 0.3333*MASK_FADE;
-}
+    TEX0.xy = TexCoord.xy*1.0001;
+    warp = TEX0.xy*scale;
+}   
 
 #elif defined(FRAGMENT)
 
@@ -109,14 +93,15 @@ out vec4 FragColor;
 #endif
 
 #ifdef GL_ES
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+        precision highp float;
+    #else
+        precision mediump float;
+    #endif
+
+    #define COMPAT_PRECISION mediump
 #else
-precision mediump float;
-#endif
-#define COMPAT_PRECISION mediump
-#else
-#define COMPAT_PRECISION
+    #define COMPAT_PRECISION
 #endif
 
 uniform COMPAT_PRECISION int FrameDirection;
@@ -126,46 +111,120 @@ uniform COMPAT_PRECISION vec2 TextureSize;
 uniform COMPAT_PRECISION vec2 InputSize;
 uniform sampler2D Texture;
 COMPAT_VARYING vec4 TEX0;
-// in variables go here as COMPAT_VARYING whatever
-COMPAT_VARYING float maskFade;
+COMPAT_VARYING vec2 warp;
 
 // compatibility #defines
 #define Source Texture
 #define vTexCoord TEX0.xy
-#define texture(c, d) COMPAT_TEXTURE(c, d)
-#define SourceSize vec4(TextureSize, 1.0 / TextureSize) //either TextureSize or InputSize
-#define OutSize vec4(OutputSize, 1.0 / OutputSize)
+
+#ifdef PARAMETER_UNIFORM
+uniform COMPAT_PRECISION float slotx;
+uniform COMPAT_PRECISION float maskc;
+uniform COMPAT_PRECISION float mask;
+uniform COMPAT_PRECISION float ntsc_j;
+uniform COMPAT_PRECISION float scan;
+uniform COMPAT_PRECISION float sat;
+uniform COMPAT_PRECISION float Curvature;
+uniform COMPAT_PRECISION float blurx;
+uniform COMPAT_PRECISION float blury;
+#else
+#define slotx  3.0     
+#define maskc  0.2     
+#define mask  0.2     
+#define  ntsc_j  1.0     
+#define  scan  0.4    
+#define  sat  1.15    
+#define  Curvature  1.0   
+#define blurx 0.45
+#define blury -0.15  
+#endif
+
+vec2 Warp (vec2 pos)
+{
+    pos = pos*2.0-1.0;
+    pos *= vec2(1.0+pos.y*pos.y*0.03, 1.0+pos.x*pos.x*0.04);
+    pos = pos*0.5+0.5;
+    return pos;
+}
+
+// GLES after Google Pixel Primaries:
+// R 0.66, 0.34
+// G 0.23, 0.72
+// B 0.14, 0.01
+
+#if defined GL_ES
+
+mat3 hue = mat3(                
+0.60722     ,0.25198 ,   0.27164,
+-0.10833    ,0.98873 ,   0.19229,
+-0.02558    ,0.12980 ,   1.10027);
+
+#else
+mat3 hue = mat3(                    
+0.9501  ,   -0.0431 ,   0.0857  ,
+0.0265  ,   0.9278  ,   0.0432  ,
+0.0011  ,   -0.0206 ,   1.3153  );
+
+#endif
+
 
 void main()
-{
-	COMPAT_PRECISION vec2 pos = TEX0.xy;	
-
-	COMPAT_PRECISION vec3 sample1 = COMPAT_TEXTURE(Source,vec2(pos.x + blurx/1000.0, pos.y - blury/1000.0)).rgb;
-	COMPAT_PRECISION vec3 sample2 = COMPAT_TEXTURE(Source,pos).rgb;
-	COMPAT_PRECISION vec3 sample3 = COMPAT_TEXTURE(Source,vec2(pos.x - blurx/1000.0, pos.y + blury/1000.0)).rgb;
-	
-	COMPAT_PRECISION vec3 colour = vec3 (sample1.r*0.5+sample2.r*0.5, sample1.g*0.25 + sample2.g*0.5 + sample3.g*0.25, sample2.b*0.5 + sample3.b*0.5);
-    	COMPAT_PRECISION float lum = colour.r*0.4 + colour.g*0.4 + colour.b*0.2;
-		
-    	COMPAT_PRECISION vec3 lumweight=vec3(0.3,0.6,0.1);
-    	COMPAT_PRECISION float gray = dot(colour,lumweight);
-    	COMPAT_PRECISION vec3 graycolour = vec3(gray);
-
-	//Gamma-like
-	colour*=mix(0.4,1.0,lum);    
+{ 
+    vec2 pos, corn;
     
-	COMPAT_PRECISION float SCANAMOUNT = mix(HIGHSCANAMOUNT1,HIGHSCANAMOUNT2,lum);
-	COMPAT_PRECISION float scanLine =  SCANAMOUNT * sin(2.0*pi*pos.y*TextureSize.y);
-	
-	COMPAT_PRECISION float whichmask = fract(gl_FragCoord.x*-0.4999);
-	COMPAT_PRECISION float mask = 1.0 + float(whichmask < 0.5) * -MASK_DARK;
+    if (Curvature == 1.0){
+    pos = Warp(warp);
+    
+    corn = min(pos,vec2(1.0)-pos);      
+    corn.x = 0.000015/corn.x;  
+    
+    pos /= scale;  
+    }
+    else pos = vTexCoord;
+    vec2 ogl2pos = pos*SourceSize.xy;
+    vec2 p = ogl2pos+0.5;
+    vec2 i = floor(p);
+    vec2 f = p - i;       // -0.5 to 0.5
+       f = f*f*(3.0-2.0*f);
+       f.y *= f.y*f.y;    //sharper y
+       p = (i + f-0.5)*SourceSize.zw;
+    
+     vec3 sample1 =  COMPAT_TEXTURE(Source,vec2(p.x + blur_x, p.y - blur_y)).rgb;
+     vec3 res =  0.5*COMPAT_TEXTURE(Source,p).rgb;
+     vec3 sample3 =  COMPAT_TEXTURE(Source,vec2(p.x - blur_x, p.y + blur_y)).rgb;
+    
+      res = vec3 (sample1.r*0.5  + res.r, 
+                  sample1.g*0.25 + res.g + sample3.g*0.25, 
+                                   res.b + sample3.b*0.5);
+    vec3 clean = res;
+    float w = max(max(res.r,res.g),res.b)*0.5;
 
-	//Gamma-like 
-	colour*=mix(2.0,1.0,lum);    
-	
-	colour = vec3(mix(graycolour,colour.rgb,sat));
+res *=res;
+if (ntsc_j == 1.0) {res *= hue; 
+    res /= vec3(0.24,0.69,0.07);
+    res *= vec3(0.3,0.6,0.1); 
+    res = clamp(res,0.0,1.0);}
+// mask
+res *= maskc*sin(maskpos*pi*2.0/slotx)+1.0-maskc;
 
-	colour.rgb *= mix(mask*(1.0-scanLine), 1.0-scanLine, dot(colour.rgb,vec3(maskFade)));
-	FragColor.rgb = colour.rgb;
-} 
+// slot mask calculations
+float oddx = mod(maskpos,2.0*slotx) < slotx ? 1.0 : 0.0;
+res *= mask*sin((ogl2pos.y*4.0+oddx)*pi)+1.1-mask;
+
+// scanlines
+res *= scan*sin(((ogl2pos.y+0.5)*2.0)*pi)+1.0-scan;
+res = sqrt(res);
+
+res = mix(res, clean, w);
+
+float lum = dot(vec3(0.3,0.6,0.1),res);
+res = mix(vec3(lum),res, sat);
+
+res *= mix(1.45, 1.05, w);
+
+if (Curvature == 1.0 && corn.y < corn.x || Curvature == 1.0 && corn.x < 0.00001 )
+    res = vec3(0.0); 
+
+    FragColor.rgb = res;
+}
 #endif

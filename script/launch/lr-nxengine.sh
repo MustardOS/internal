@@ -4,9 +4,12 @@
 
 NAME=$1
 CORE=$2
-ROM=$3
+FILE=$3
 
-LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
+LOG_INFO "$0" 0 "Content Launch" "DETAIL"
+LOG_INFO "$0" 0 "NAME" "$NAME"
+LOG_INFO "$0" 0 "CORE" "$CORE"
+LOG_INFO "$0" 0 "FILE" "$FILE"
 
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
@@ -31,8 +34,8 @@ EOF
 	/opt/muos/extra/muxstart 0 "$_FORM" && sleep "$3"
 }
 
-ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')
-DOUK="$ROMPATH/.Cave Story (En)/Doukutsu.exe"
+F_PATH=$(echo "$FILE" | awk -F'/' '{NF--; print}' OFS='/')
+DOUK="$F_PATH/.Cave Story (En)/Doukutsu.exe"
 
 LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/nxe.log"
 
@@ -46,7 +49,7 @@ sed -n -e '/^#include /!p' \
 	-e '$a#include "/opt/muos/device/current/control/retroarch.resolution.cfg"' \
 	-i "$RA_CONF"
 
-if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ]; then
+if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] 2>/dev/null; then
 	sed -i 's/^kiosk_mode_enable = "false"$/kiosk_mode_enable = "true"/' "$RA_CONF"
 else
 	sed -i 's/^kiosk_mode_enable = "true"$/kiosk_mode_enable = "false"/' "$RA_CONF"
@@ -84,13 +87,13 @@ else
 	fi
 
 	## Extract the zip
-	echo "Extracting $CZ_NAME to $ROMPATH" >>"$LOGPATH"
-	unzip -o "$BIOS_FOLDER$CZ_NAME" -d "$ROMPATH"
+	echo "Extracting $CZ_NAME to $F_PATH" >>"$LOGPATH"
+	unzip -o "$BIOS_FOLDER$CZ_NAME" -d "$F_PATH"
 
-	if [ -e "$ROMPATH/Cave Story (En)" ]; then
+	if [ -e "$F_PATH/Cave Story (En)" ]; then
 		echo "Hiding folder" >>"$LOGPATH"
-		mv "$ROMPATH/Cave Story (En)" "$ROMPATH/.Cave Story (En)"
-	elif [ -e "$ROMPATH/.Cave Story (En)" ]; then
+		mv "$F_PATH/Cave Story (En)" "$F_PATH/.Cave Story (En)"
+	elif [ -e "$F_PATH/.Cave Story (En)" ]; then
 		echo "Already hidden" >>"$LOGPATH"
 	else
 		echo "Did extraction fail?" >>"$LOGPATH"

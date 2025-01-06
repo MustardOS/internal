@@ -4,9 +4,12 @@
 
 NAME=$1
 CORE=$2
-ROM=$3
+FILE=$3
 
-LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
+LOG_INFO "$0" 0 "Content Launch" "DETAIL"
+LOG_INFO "$0" 0 "NAME" "$NAME"
+LOG_INFO "$0" 0 "CORE" "$CORE"
+LOG_INFO "$0" 0 "FILE" "$FILE"
 
 BIOS="/run/muos/storage/bios/saturn_bios.bin"
 SAVE_DIR="/run/muos/storage/save/file/YabaSanshiro-Ext"
@@ -22,9 +25,9 @@ fi
 
 if [ "$CORE" = "ext-yabasanshiro-hle" ]; then
 	YABA_BIN="./yabasanshiro -r 3 -a -i"
-elif [ "$CORE" = "ext-yabasanshiro-bios" ] && [ ! -f "$BIOS" ] ; then
+elif [ "$CORE" = "ext-yabasanshiro-bios" ] && [ ! -f "$BIOS" ]; then
 	YABA_BIN="./yabasanshiro -r 3 -a -i"
-elif [ "$CORE" = "ext-yabasanshiro-bios" ] ; then
+elif [ "$CORE" = "ext-yabasanshiro-bios" ]; then
 	YABA_BIN="./yabasanshiro -b $BIOS -r 3 -a -i"
 fi
 
@@ -43,13 +46,13 @@ export HOME="$EMUDIR"
 CONF_28XX="$EMUDIR/.yabasanshiro/28xx.config"
 
 # Grab full ROM name including extension
-ROMNAME=$(basename "$ROM")
+F_NAME=$(basename "$FILE")
 
 # YabaSanshiro appears to rotate on a game config level.
 # This copies a rotation enabled game config as game specific before launch.
 # NOTE: Menu rotation is currently still wrong.
-if [ "$CURR_CONSOLE" = "rg28xx-h" ] && [ ! -f "$EMUDIR/.yabasanshiro/$ROMNAME.config" ]; then
-    cp -f "$CONF_28XX" "$EMUDIR/.yabasanshiro/$ROMNAME.config"
+if [ "$CURR_CONSOLE" = "rg28xx-h" ] && [ ! -f "$EMUDIR/.yabasanshiro/$F_NAME.config" ]; then
+	cp -f "$CONF_28XX" "$EMUDIR/.yabasanshiro/$F_NAME.config"
 fi
 
 # Memory cards fill out so fake one card per game.
@@ -61,8 +64,8 @@ if [ -f "$SAVE_DIR/backup.bin" ]; then
 fi
 
 # If a game specific save exists, copy to backup.bin
-if [ -f "$SAVE_DIR/$ROMNAME.backup.bin" ]; then
-	cp -f "$SAVE_DIR/$ROMNAME.backup.bin" "$SAVE_DIR/backup.bin"
+if [ -f "$SAVE_DIR/$F_NAME.backup.bin" ]; then
+	cp -f "$SAVE_DIR/$F_NAME.backup.bin" "$SAVE_DIR/backup.bin"
 fi
 
 chmod +x "$EMUDIR"/yabasanshiro
@@ -71,11 +74,11 @@ cd "$EMUDIR" || exit
 
 export LD_LIBRARY_PATH="$EMUDIR/libsark:$LD_LIBRARY_PATH"
 
-SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") SDL_ASSERT=always_ignore $YABA_BIN "$ROM"
+SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") SDL_ASSERT=always_ignore $YABA_BIN "$FILE"
 
 # Copy backup.bin to game specific save
 if [ -f "$SAVE_DIR/backup.bin" ]; then
-	cp -f "$SAVE_DIR/backup.bin" "$SAVE_DIR/$ROMNAME.backup.bin"
+	cp -f "$SAVE_DIR/backup.bin" "$SAVE_DIR/$F_NAME.backup.bin"
 	rm -f "$SAVE_DIR/backup.bin"
 fi
 

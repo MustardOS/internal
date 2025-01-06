@@ -4,9 +4,12 @@
 
 NAME=$1
 CORE=$2
-ROM=$3
+FILE=$3
 
-LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
+LOG_INFO "$0" 0 "Content Launch" "DETAIL"
+LOG_INFO "$0" 0 "NAME" "$NAME"
+LOG_INFO "$0" 0 "CORE" "$CORE"
+LOG_INFO "$0" 0 "FILE" "$FILE"
 
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
@@ -18,17 +21,17 @@ export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 SET_VAR "system" "foreground_process" "retroarch"
 
-ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')
+F_PATH=$(echo "$FILE" | awk -F'/' '{NF--; print}' OFS='/')
 
-if [ -d "$ROMPATH/.$NAME" ]; then
+if [ -d "$F_PATH/.$NAME" ]; then
 	SUBFOLDER=".$NAME"
 else
 	SUBFOLDER="$NAME"
 fi
 
-SCVM="$ROMPATH/$SUBFOLDER/$NAME.scummvm"
+SCVM="$F_PATH/$SUBFOLDER/$NAME.scummvm"
 
-cp "$ROMPATH/$NAME.scummvm" "$SCVM"
+cp "$F_PATH/$NAME.scummvm" "$SCVM"
 
 RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 
@@ -40,7 +43,7 @@ sed -n -e '/^#include /!p' \
 	-e '$a#include "/opt/muos/device/current/control/retroarch.resolution.cfg"' \
 	-i "$RA_CONF"
 
-if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ]; then
+if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] 2>/dev/null; then
 	sed -i 's/^kiosk_mode_enable = "false"$/kiosk_mode_enable = "true"/' "$RA_CONF"
 else
 	sed -i 's/^kiosk_mode_enable = "true"$/kiosk_mode_enable = "false"/' "$RA_CONF"

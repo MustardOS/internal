@@ -4,9 +4,12 @@
 
 NAME=$1
 CORE=$2
-ROM=$3
+FILE=$3
 
-LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
+LOG_INFO "$0" 0 "Content Launch" "DETAIL"
+LOG_INFO "$0" 0 "NAME" "$NAME"
+LOG_INFO "$0" 0 "CORE" "$CORE"
+LOG_INFO "$0" 0 "FILE" "$FILE"
 
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
@@ -23,6 +26,6 @@ EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/amiberry"
 chmod +x "$EMUDIR"/amiberry
 cd "$EMUDIR" || exit
 
-HOME="$EMUDIR" SDL_ASSERT=always_ignore ./amiberry "$ROM"
+HOME="$EMUDIR" SDL_ASSERT=always_ignore ./amiberry "$FILE"
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

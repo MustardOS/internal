@@ -4,9 +4,12 @@
 
 NAME=$1
 CORE=$2
-ROM=$3
+FILE=$3
 
-LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
+LOG_INFO "$0" 0 "Content Launch" "DETAIL"
+LOG_INFO "$0" 0 "NAME" "$NAME"
+LOG_INFO "$0" 0 "CORE" "$CORE"
+LOG_INFO "$0" 0 "FILE" "$FILE"
 
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
@@ -18,10 +21,10 @@ export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 SET_VAR "system" "foreground_process" "scummvm"
 
-ROMPATH=$(echo "$ROM" | awk -F'/' '{NF--; print}' OFS='/')
-SCVM=$(tr -d '[:space:]' <"$ROMPATH/$NAME.scummvm" | head -n 1)
+F_PATH=$(echo "$FILE" | awk -F'/' '{NF--; print}' OFS='/')
+SCVM=$(tr -d '[:space:]' <"$F_PATH/$NAME.scummvm" | head -n 1)
 
-if [ -d "$ROMPATH/.$NAME" ]; then
+if [ -d "$F_PATH/.$NAME" ]; then
 	SUBFOLDER=".$NAME"
 else
 	SUBFOLDER="$NAME"
@@ -42,7 +45,7 @@ cd "$EMUDIR" || exit
 
 if [ "$SCVM" = "grim:grim" ]; then
 	GRIMINI="$EMUDIR"/.config/scummvm/grimm.ini
-	sed -i "s|^path=.*$|path=$ROMPATH/$SUBFOLDER|" "$GRIMINI"
+	sed -i "s|^path=.*$|path=$F_PATH/$SUBFOLDER|" "$GRIMINI"
 	if ! grep -q "\[grim-win\]" "$EMUDIR"/.config/scummvm/scummvm.ini; then
 		cat "$EMUDIR"/.config/scummvm/grimm.ini >>"$EMUDIR"/.config/scummvm/scummvm.ini
 	fi
@@ -55,7 +58,7 @@ else
 		*) ;;
 	esac
 
-	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$ROMPATH/$SUBFOLDER" "$SCVM"
+	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" "$SCVM"
 fi
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

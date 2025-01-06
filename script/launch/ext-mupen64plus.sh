@@ -4,9 +4,12 @@
 
 NAME=$1
 CORE=$2
-ROM=$3
+FILE=$3
 
-LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
+LOG_INFO "$0" 0 "Content Launch" "DETAIL"
+LOG_INFO "$0" 0 "NAME" "$NAME"
+LOG_INFO "$0" 0 "CORE" "$CORE"
+LOG_INFO "$0" 0 "FILE" "$FILE"
 
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
@@ -41,14 +44,14 @@ fi
 chmod +x "$EMUDIR"/mupen64plus
 cd "$EMUDIR" || exit
 
-# Decompress zipped ROMs since the emulator doesn't natively support them.
-case "$ROM" in *.zip)
+# Decompress zipped files since the emulator doesn't natively support them.
+case "$FILE" in *.zip)
 	TMPDIR="$(mktemp -d)"
-	unzip -q "$ROM" -d "$TMPDIR"
+	unzip -q "$FILE" -d "$TMPDIR"
 	# Pick first file with a supported extension.
 	for TMPFILE in "$TMPDIR"/*; do
 		case "$TMPFILE" in *.n64 | *.v64 | *.z64)
-			ROM="$TMPFILE"
+			FILE="$TMPFILE"
 			break
 			;;
 		esac
@@ -56,12 +59,10 @@ case "$ROM" in *.zip)
 	;;
 esac
 
-HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$ROM"
+HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$FILE"
 
-# Clean up temp files if we unzipped the ROM.
-if [ -n "$TMPDIR" ]; then
-	rm -r "$TMPDIR"
-fi
+# Clean up temp files if we unzipped the file
+[ -n "$TMPDIR" ] && rm -r "$TMPDIR"
 
 if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
 	HDMI_SWITCH

@@ -4,9 +4,12 @@
 
 NAME=$1
 CORE=$2
-ROM=$3
+FILE=$3
 
-LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
+LOG_INFO "$0" 0 "Content Launch" "DETAIL"
+LOG_INFO "$0" 0 "NAME" "$NAME"
+LOG_INFO "$0" 0 "CORE" "$CORE"
+LOG_INFO "$0" 0 "FILE" "$FILE"
 
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
@@ -48,20 +51,20 @@ chmod +x "$EMUDIR"/wget
 chmod +x "$EMU"
 
 cd "$EMUDIR" || exit
-ROMDIR="$(dirname "$ROM")"
+F_DIR="$(dirname "$FILE")"
 
 if [ "$NAME" = "Splore" ]; then
 	SDL_ASSERT=always_ignore \
 		$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
 	PATH="$EMUDIR:$PATH" \
 		HOME="$EMUDIR" \
-		"$EMU" $PICO_FLAGS -root_path "$ROMDIR" -splore
+		"$EMU" $PICO_FLAGS -root_path "$F_DIR" -splore
 else
 	SDL_ASSERT=always_ignore \
 		$GPTOKEYB "./pico8_64" -c "./pico8.gptk" &
 	PATH="$EMUDIR:$PATH" \
 		HOME="$EMUDIR" \
-		"$EMU" $PICO_FLAGS -root_path "$ROMDIR" -run "$ROM"
+		"$EMU" $PICO_FLAGS -root_path "$F_DIR" -run "$FILE"
 fi
 
 kill -9 "$(pidof pico8_64)" "$(pidof gptokeyb2)"

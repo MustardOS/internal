@@ -4,9 +4,12 @@
 
 NAME=$1
 CORE=$2
-ROM=$3
+FILE=$3
 
-LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
+LOG_INFO "$0" 0 "Content Launch" "DETAIL"
+LOG_INFO "$0" 0 "NAME" "$NAME"
+LOG_INFO "$0" 0 "CORE" "$CORE"
+LOG_INFO "$0" 0 "FILE" "$FILE"
 
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
@@ -44,7 +47,7 @@ EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/openbor"
 chmod +x "$EMUDIR"/"$BOR_BIN"
 cd "$EMUDIR" || exit 1
 
-HOME="$EMUDIR" SDL_ASSERT=always_ignore ./"$BOR_BIN" "$ROM"
+HOME="$EMUDIR" SDL_ASSERT=always_ignore ./"$BOR_BIN" "$FILE"
 
 # Clean up /userdata symlink when we're done since it's such a generic path.
 [ -d "$U_DATA" ] && rm -rf "$U_DATA"

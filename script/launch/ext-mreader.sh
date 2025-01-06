@@ -4,9 +4,12 @@
 
 NAME=$1
 CORE=$2
-ROM=$3
+FILE=$3
 
-LOG_INFO "$0" 0 "CONTENT LAUNCH" "NAME: %s\tCORE: %s\tROM: %s\n" "$NAME" "$CORE" "$ROM"
+LOG_INFO "$0" 0 "Content Launch" "DETAIL"
+LOG_INFO "$0" 0 "NAME" "$NAME"
+LOG_INFO "$0" 0 "CORE" "$CORE"
+LOG_INFO "$0" 0 "FILE" "$FILE"
 
 GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
 MREADER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/mreader"
@@ -42,7 +45,7 @@ elif [ "$CORE" = "ext-mreader-portrait" ]; then
 fi
 
 $GPTOKEYB "reader" -c "$MREADER_DIR/$ORIENTATION.gptk" &
-LD_LIBRARY_PATH="$MREADER_DIR/libs:$LD_LIBRARY_PATH" ./reader "$ROM"
+LD_LIBRARY_PATH="$MREADER_DIR/libs:$LD_LIBRARY_PATH" ./reader "$FILE"
 
 killall -q gptokeyb2
 

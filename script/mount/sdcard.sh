@@ -37,18 +37,17 @@ MOUNT_DEVICE() {
 		echo "deadline" >"/sys/block/$(GET_VAR "device" "storage/sdcard/dev")/queue/scheduler"
 		echo "write through" >"/sys/block/$(GET_VAR "device" "storage/sdcard/dev")/queue/write_cache"
 	fi
-
-	# Create ROMS directory if it doesn't exist
-	[ ! -d "$MOUNT/ROMS" ] && mkdir -p "$MOUNT/ROMS"
 }
 
 # Synchronously mount SD card (if media is inserted) so it's available as a
-# target of bind mounts under /run/muos/storage as soon as this script returns.
+# target of bind mounts under /run/muos/storage as soon as this script returns
 HAS_DEVICE && MOUNT_DEVICE
 
-# Asynchronously monitor insertion/eject, adjusting storage mounts as needed.
+# Asynchronously monitor insertion/eject, adjusting storage mounts as needed
 while :; do
-	sleep 2
+	# Create ROMS directory if it doesn't exist because the union calls for it
+	[ ! -d "$MOUNT/ROMS" ] && mkdir -p "$MOUNT/ROMS"
+
 	if HAS_DEVICE; then
 		if ! MOUNTED; then
 			MOUNT_DEVICE
@@ -59,4 +58,6 @@ while :; do
 		SET_VAR "device" "storage/sdcard/active" "0"
 		/opt/muos/script/var/init/storage.sh
 	fi
+
+	sleep 2
 done &

@@ -37,18 +37,19 @@ MOUNT_DEVICE() {
 		echo "deadline" >"/sys/block/$(GET_VAR "device" "storage/usb/dev")/queue/scheduler"
 		echo "write through" >"/sys/block/$(GET_VAR "device" "storage/usb/dev")/queue/write_cache"
 	fi
-
-	# Create ROMS directory if it doesn't exist
-	[ ! -d "$MOUNT/ROMS" ] && mkdir -p "$MOUNT/ROMS"
 }
 
-# Asynchronously monitor insertion/eject.
+# Asynchronously monitor insertion/eject
 while :; do
-	sleep 2
+	# Create ROMS directory if it doesn't exist because the union calls for it
+	[ ! -d "$MOUNT/ROMS" ] && mkdir -p "$MOUNT/ROMS"
+
 	if HAS_DEVICE; then
 		! MOUNTED && MOUNT_DEVICE
 	elif MOUNTED; then
 		umount "$MOUNT"
 		SET_VAR "device" "storage/usb/active" "0"
 	fi
+
+	sleep 2
 done &

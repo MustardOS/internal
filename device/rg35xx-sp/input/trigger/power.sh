@@ -71,7 +71,7 @@ echo "on" >"$TMP_POWER_LONG"
 echo "awake" >"$SLEEP_STATE"
 echo "0" >"$LID_CLOSED_FLAG"
 
-while true; do
+while :; do
 	TMP_POWER_LONG_VAL=$(cat "$TMP_POWER_LONG")
 	HALL_KEY_VAL=$(cat "$HALL_KEY")
 	SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")

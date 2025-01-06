@@ -9,7 +9,7 @@
 # For now, poll spk_state (0 -> headphones plugged, 1 -> headphones unplugged)
 # and swap DACL and DACR when the state changes.
 
-while true; do
+while :; do
 	STATE="$(cat /sys/class/power_supply/axp2202-battery/spk_state)"
 	if [ "$STATE" != "$LAST_STATE" ]; then
 		case "$STATE" in

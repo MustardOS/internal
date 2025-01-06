@@ -7,7 +7,7 @@ SLEEP_TIMER="/tmp/sleep_timer"
 
 echo "0" >"$SLEEP_TIMER"
 
-while true; do
+while :; do
 	SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 	SLEEP_TIMER_VAL=$(cat "$SLEEP_TIMER")
 

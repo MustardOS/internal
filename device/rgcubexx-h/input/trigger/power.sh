@@ -61,7 +61,7 @@ DEV_SLEEP() {
 echo "on" >"$TMP_POWER_LONG"
 echo "awake" >"$SLEEP_STATE"
 
-while true; do
+while :; do
 	TMP_POWER_LONG_VAL=$(cat "$TMP_POWER_LONG")
 	SLEEP_STATE_VAL=$(cat "$SLEEP_STATE")
 

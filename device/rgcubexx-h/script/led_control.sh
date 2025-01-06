@@ -106,7 +106,7 @@ if [ $LED_MODE -ge 5 ] && [ $LED_MODE -le 6 ]; then
 elif [ $LED_MODE -eq 1 ] && [ "$3" == "randomize" ]; then
   # Randomize mode for LED mode 1
   echo "Press any key to stop..."
-  while true; do
+  while :; do
     read RIGHT_R RIGHT_G RIGHT_B < <(generate_random_rgb)
     read LEFT_R LEFT_G LEFT_B < <(generate_random_rgb)
     

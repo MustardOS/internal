@@ -8,7 +8,7 @@ SET_VAR "system" "foreground_process" "muxarchive"
 
 nice --20 /opt/muos/extra/muxarchive
 
-while true; do
+while :; do
 	if [ "$(cat /tmp/act_go)" = archive ]; then
 		echo app >/tmp/act_go
 		nice --20 /opt/muos/extra/muxarchive

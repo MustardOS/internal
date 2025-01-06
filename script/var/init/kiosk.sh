@@ -24,7 +24,7 @@ CONFIG_VARS="custom language network storage webserv"
 CONTENT_VARS="core governor option retroarch search"
 CUSTOM_VARS="catalogue configuration theme"
 DATETIME_VARS="clock timezone"
-LAUNCH_VARS="application config explore favourite history info"
+LAUNCH_VARS="application config explore collection history info"
 SETTING_VARS="advanced general hdmi power visual"
 
 for INIT in application config content custom datetime launch setting; do

@@ -33,13 +33,14 @@ EX_CARD=/tmp/explore_card
 EX_NAME=/tmp/explore_name
 EX_DIR=/tmp/explore_dir
 
-MUX_RELOAD=/tmp/mux_reload
+CL_DIR=/tmp/collection_dir
+CL_AMW=/tmp/add_mode_work
+
 MUX_AUTH=/tmp/mux_auth
 
 DEF_ACT=$(GET_VAR "global" "settings/general/startup")
 printf '%s\n' "$DEF_ACT" >$ACT_GO
 if [ "$DEF_ACT" = "explore" ]; then printf '%s\n' "explore_alt" >$ACT_GO; fi
-EC=0
 
 echo "root" >$EX_CARD
 
@@ -144,7 +145,7 @@ while :; do
 		rm "$ASS_GO"
 
 		if [ "$ROM_FORCED" -eq 1 ]; then
-			printf "Content Association FORCED\n"
+			LOG_INFO "$0" 0 "FRONTEND" "Content Association Forced"
 			echo "option" >$ACT_GO
 		else
 			echo "assign" >$ACT_GO
@@ -161,7 +162,7 @@ while :; do
 		rm "$GOV_GO"
 
 		if [ "$GOV_FORCED" -eq 1 ]; then
-			printf "Content Governor FORCED\n"
+			LOG_INFO "$0" 0 "FRONTEND" "Content Governor Forced"
 			echo "option" >$ACT_GO
 		else
 			echo "governor" >$ACT_GO
@@ -187,12 +188,11 @@ while :; do
 	fi
 
 	# Get Last ROM Index
-	if [ "$(cat $ACT_GO)" = explore ] || [ "$(cat $ACT_GO)" = favourite ] || [ "$(cat $ACT_GO)" = history ]; then
-		if [ -s "$IDX_GO" ]; then
+	if [ "$(cat $ACT_GO)" = "explore" ] || [ "$(cat $ACT_GO)" = "collection" ] || [ "$(cat $ACT_GO)" = "history" ]; then
+		LAST_INDEX_ROM=0
+		if [ -s "$IDX_GO" ] && [ ! -s "$CL_AMW" ]; then
 			LAST_INDEX_ROM=$(cat "$IDX_GO")
 			rm "$IDX_GO"
-		else
-			LAST_INDEX_ROM=0
 		fi
 	fi
 
@@ -205,9 +205,7 @@ while :; do
 			"launcher")
 				touch /tmp/pdi_go
 				echo launcher >$ACT_GO
-				if [ -s "$MUX_AUTH" ]; then
-					rm "$MUX_AUTH"
-				fi
+				[ -s "$MUX_AUTH" ] && rm "$MUX_AUTH"
 				SET_VAR "system" "foreground_process" "muxlaunch"
 				nice --20 /opt/muos/extra/muxlaunch
 				;;
@@ -238,67 +236,6 @@ while :; do
 				echo option >$ACT_GO
 				SET_VAR "system" "foreground_process" "muxgov"
 				nice --20 /opt/muos/extra/muxgov -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
-				;;
-			"explore")
-				echo launcher >$ACT_GO
-				echo "$LAST_INDEX_SYS" >/tmp/lisys
-
-				# Check to see if we are somewhere other than the storage selection or content root
-				EXPLORE_DIR=$(cat $EX_DIR 2>/dev/null)
-				if [ -n "$EXPLORE_DIR" ] && [ "${EXPLORE_DIR##*/}" != "ROMS" ]; then
-					SET_VAR "system" "foreground_process" "muxassign"
-					nice --20 /opt/muos/extra/muxassign -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
-					SET_VAR "system" "foreground_process" "muxgov"
-					nice --20 /opt/muos/extra/muxgov -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
-				fi
-
-				SET_VAR "system" "foreground_process" "muxplore"
-				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m "$(cat $EX_CARD)"
-				;;
-			"explore_alt")
-				if [ "$EC" -gt 0 ]; then echo launcher >"$ACT_GO"; fi
-
-				SD1_MOUNT="$(GET_VAR "device" "storage/rom/mount")/ROMS"
-				SD2_MOUNT="$(GET_VAR "device" "storage/sdcard/mount")/ROMS"
-				USB_MOUNT="$(GET_VAR "device" "storage/usb/mount")/ROMS"
-
-				SD1_COUNT=$(find "$SD1_MOUNT" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
-				SD1_COUNT=${SD1_COUNT:-0}
-
-				SD2_COUNT=$(find "$SD2_MOUNT" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
-				SD2_COUNT=${SD2_COUNT:-0}
-
-				USB_COUNT=$(find "$USB_MOUNT" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
-				USB_COUNT=${USB_COUNT:-0}
-
-				printf "STORAGE COUNT:\tSD1:%s\tSD2:%s\tUSB:%s\n" "$SD1_COUNT" "$SD2_COUNT" "$USB_COUNT"
-
-				if { [ "$SD1_COUNT" -gt 0 ] && [ "$SD2_COUNT" -gt 0 ]; } ||
-					{ [ "$SD1_COUNT" -gt 0 ] && [ "$USB_COUNT" -gt 0 ]; } ||
-					{ [ "$SD2_COUNT" -gt 0 ] && [ "$USB_COUNT" -gt 0 ]; }; then
-					echo "EXPLORE LOADING ROOT"
-					echo "root" >"$EX_CARD"
-				elif [ "$SD2_COUNT" -gt 0 ]; then
-					echo "EXPLORE LOADING SD2 ONLY"
-					echo "sdcard" >"$EX_CARD"
-					echo "$SD2_MOUNT" >"$EX_DIR"
-					touch "/tmp/single_card"
-				elif [ "$USB_COUNT" -gt 0 ]; then
-					echo "EXPLORE LOADING USB ONLY"
-					echo "usb" >"$EX_CARD"
-					echo "$USB_MOUNT" >"$EX_DIR"
-					touch "/tmp/single_card"
-				else
-					echo "EXPLORE LOADING SD1 ONLY"
-					echo "mmc" >"$EX_CARD"
-					echo "$SD1_MOUNT" >"$EX_DIR"
-					touch "/tmp/single_card"
-				fi
-
-				SET_VAR "system" "foreground_process" "muxplore"
-				nice --20 /opt/muos/extra/muxplore -i 0 -m "$(cat $EX_CARD)"
-
-				EC=$((EC + 1))
 				;;
 			"app")
 				echo launcher >$ACT_GO
@@ -429,29 +366,42 @@ while :; do
 				SET_VAR "system" "foreground_process" "muxsysinfo"
 				nice --20 /opt/muos/extra/muxsysinfo
 				;;
-			"favourite")
-				find "/run/muos/storage/info/favourite" -maxdepth 1 -type f -size 0 -delete
+			"explore")
+				EXPLORE_DIR=$(cat $EX_DIR 2>/dev/null)
 				echo launcher >$ACT_GO
+				echo "$LAST_INDEX_SYS" >/tmp/lisys
+
+				SET_VAR "system" "foreground_process" "muxassign"
+				nice --20 /opt/muos/extra/muxassign -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
+
+				SET_VAR "system" "foreground_process" "muxgov"
+				nice --20 /opt/muos/extra/muxgov -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
+
 				SET_VAR "system" "foreground_process" "muxplore"
-				nice --20 /opt/muos/extra/muxplore -i "$LAST_INDEX_ROM" -m favourite
-				if [ -s "$MUX_RELOAD" ]; then
-					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
-						echo favourite >$ACT_GO
-					fi
-					rm "$MUX_RELOAD"
+				nice --20 /opt/muos/extra/muxplore -d "$EXPLORE_DIR" -i "$LAST_INDEX_ROM"
+				;;
+			"collection")
+				if [ -s "$CL_AMW" ]; then
+					ADD_MODE=1
+					LAST_INDEX_ROM=0
+				else
+					ADD_MODE=0
 				fi
+
+				COLLECTION_DIR=$(cat $CL_DIR 2>/dev/null)
+				echo launcher >$ACT_GO
+				echo "$LAST_INDEX_SYS" >/tmp/lisys
+				find "/run/muos/storage/info/collection" -maxdepth 2 -type f -size 0 -delete
+
+				SET_VAR "system" "foreground_process" "muxcollect"
+				nice --20 /opt/muos/extra/muxcollect -a "$ADD_MODE" -d "$COLLECTION_DIR" -i "$LAST_INDEX_ROM"
 				;;
 			"history")
 				find "/run/muos/storage/info/history" -maxdepth 1 -type f -size 0 -delete
+
 				echo launcher >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxplore"
-				nice --20 /opt/muos/extra/muxplore -i 0 -m history
-				if [ -s "$MUX_RELOAD" ]; then
-					if [ "$(cat $MUX_RELOAD)" -eq 1 ]; then
-						echo history >$ACT_GO
-					fi
-					rm "$MUX_RELOAD"
-				fi
+				SET_VAR "system" "foreground_process" "muxhistory"
+				nice --20 /opt/muos/extra/muxhistory -i "$LAST_INDEX_ROM"
 				;;
 			"credits")
 				echo info >$ACT_GO

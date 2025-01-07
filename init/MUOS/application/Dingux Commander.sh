@@ -7,7 +7,9 @@
 echo app >/tmp/act_go
 
 SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
-export SDL_HQ_SCALER
+SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 DINGUX_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.dingux"
 cd "$DINGUX_DIR" || exit
@@ -25,4 +27,4 @@ SET_VAR "system" "foreground_process" "dingux"
 
 SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") ./dingux --config "$DINGUX_DIR/dingux.cfg"
 
-unset SDL_HQ_SCALER
+unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

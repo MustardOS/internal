@@ -4,11 +4,10 @@
 
 READ_WRITE_TYPE="RO"
 ROM_SUBDIR="ROMS"
-UNION_MOUNT_POINT="/mnt/union"
-UNION_TARGET="$UNION_MOUNT_POINT/$ROM_SUBDIR"
+UNION_TARGET="/mnt/union/$ROM_SUBDIR"
 UFS_BIN="/opt/muos/bin/ufs/unionfs"
 
-mkdir -p "$UNION_MOUNT_POINT"
+mkdir -p "$UNION_TARGET"
 
 BUILD_UNION() {
 	for STORAGE_POINT in \

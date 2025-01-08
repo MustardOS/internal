@@ -37,7 +37,7 @@ INSTALL() {
 	unzip "$THEME" -d "$THEME_ACTIVE_DIR"
 
 	THEME_NAME=$(basename "$THEME" .zip)
-	echo "${THEME_NAME%-[0-9]*_[0-9]*}" >"$THEME_ACTIVE_DIR/theme_name.txt"
+	echo "${THEME_NAME%-[0-9]*_[0-9]*}" >"$THEME_ACTIVE_DIR/name.txt"
 
 	BOOTLOGO_NEW="$THEME_ACTIVE_DIR/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/bootlogo.bmp"
 	[ -f "$BOOTLOGO_NEW" ] || BOOTLOGO_NEW="$THEME_ACTIVE_DIR/image/bootlogo.bmp"
@@ -61,8 +61,8 @@ INSTALL() {
 }
 
 SAVE() {
-	if [ -f "$THEME_ACTIVE_DIR/theme_name.txt" ]; then
-		BASE_THEME_NAME=$(sed -n '1p' "$THEME_ACTIVE_DIR/theme_name.txt")
+	if [ -f "$THEME_ACTIVE_DIR/name.txt" ]; then
+		BASE_THEME_NAME=$(sed -n '1p' "$THEME_ACTIVE_DIR/name.txt")
 	else
 		BASE_THEME_NAME="current_theme"
 		printf "Using default theme name: %s\n" "$BASE_THEME_NAME"

@@ -36,7 +36,7 @@ INSTALL() {
 	/opt/muos/script/system/catalogue.sh
 
 	CLEANED_CATALOGUE_NAME=$(printf "%s\n" "$CATALOGUE_ARG" | sed -E 's/-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}$//')
-	printf "%s\n" "$CLEANED_CATALOGUE_NAME" >"$CATALOGUE_DIR/catalogue_name.txt"
+	printf "%s\n" "$CLEANED_CATALOGUE_NAME" >"$CATALOGUE_DIR/name.txt"
 
 	printf "Install complete\n"
 	sync
@@ -48,8 +48,8 @@ SAVE() {
 		exit 1
 	}
 
-	if [ -f "$CATALOGUE_DIR/catalogue_name.txt" ]; then
-		BASE_CATALOGUE_NAME=$(sed -n '1p' "$CATALOGUE_DIR/catalogue_name.txt")
+	if [ -f "$CATALOGUE_DIR/name.txt" ]; then
+		BASE_CATALOGUE_NAME=$(sed -n '1p' "$CATALOGUE_DIR/name.txt")
 	else
 		BASE_CATALOGUE_NAME="current_catalogue"
 		printf "Using default catalogue name: %s\n" "$BASE_CATALOGUE_NAME"

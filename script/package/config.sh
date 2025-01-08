@@ -36,7 +36,7 @@ INSTALL() {
 	/opt/muos/device/current/script/control.sh
 
 	CLEANED_CONFIG_NAME=$(printf "%s\n" "$CONFIG_ARG" | sed -E 's/-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}$//')
-	printf "%s\n" "$CLEANED_CONFIG_NAME" >"$CONFIG_DIR/config_name.txt"
+	printf "%s\n" "$CLEANED_CONFIG_NAME" >"$CONFIG_DIR/name.txt"
 
 	printf "Install complete\n"
 	sync
@@ -51,8 +51,8 @@ SAVE() {
 	# Let's remove retro achievement values just in case!
 	sed -i '/^cheevos_.*=/s/=.*/=""/' "$CONFIG_DIR/retroarch.cfg"
 
-	if [ -f "$CONFIG_DIR/config_name.txt" ]; then
-		BASE_CONFIG_NAME=$(sed -n '1p' "$CONFIG_DIR/config_name.txt")
+	if [ -f "$CONFIG_DIR/name.txt" ]; then
+		BASE_CONFIG_NAME=$(sed -n '1p' "$CONFIG_DIR/name.txt")
 	else
 		BASE_CONFIG_NAME="current_config"
 		printf "Using default configuration name: %s\n" "$BASE_CONFIG_NAME"

@@ -162,3 +162,10 @@ if [ -d "$DEVICE_CONFIG_DIR" ]; then
 		fi
 	done
 fi
+
+# Copy Device Specific Deeplay-keys.cfg udev autoconfig
+RA_AUTO="/run/muos/storage/retroarch/udev/Deeplay-keys.cfg"
+if [ -f "$RA_AUTO" ]; then
+	rm -f "$RA_AUTO"
+	cp "$DEVICE_CONTROL_DIR/Deeplay-keys.cfg" "$RA_AUTO"
+fi

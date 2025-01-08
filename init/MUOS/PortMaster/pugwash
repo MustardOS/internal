@@ -4,7 +4,7 @@
 #
 
 ## -- BEGIN PORTMASTER INFO --
-PORTMASTER_VERSION = '2024.12.14-0069'
+PORTMASTER_VERSION = '2024.12.31-0311'
 PORTMASTER_RELEASE_CHANNEL = 'stable'
 ## -- END PORTMASTER INFO --
 
@@ -641,6 +641,10 @@ class PortMasterGUI(pySDL2gui.GUI, harbourmaster.Callback):
 
         sdl2.SDL_SetHint(sdl2.SDL_HINT_RENDER_SCALE_QUALITY, b"2")
 
+        # Quickly present something, helps on ArkOS.
+        renderer.clear()
+        renderer.present()
+
         self.text_data = {}
         self.changed_keys = set()
         formatter = StringFormatter(self.text_data)
@@ -788,6 +792,9 @@ class PortMasterGUI(pySDL2gui.GUI, harbourmaster.Callback):
         if self.timers.elapsed('updates_per_second', 1000, run_first=True):
             if PORTMASTER_DEBUG:
                 print(f"UPS: {self.draw_counter} / {self.update_counter}")
+
+            ## Unload extra images.
+            self.images._clean()
 
             self.update_counter = 0
             self.draw_counter = 0

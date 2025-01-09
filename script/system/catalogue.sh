@@ -10,7 +10,7 @@ fi
 ASSIGN_DIR="$1/MUOS/info/assign/*.ini"
 BASE_PATH="/run/muos/storage/info/catalogue"
 TARGET_DIRS="box grid preview text splash"
-EXTRA_DIRS="Application Archive Folder Root Task"
+EXTRA_DIRS="Application Archive Collection Folder Root Task"
 
 # Create core catalogue directories from assign INI files
 for INI_FILE in $ASSIGN_DIR; do

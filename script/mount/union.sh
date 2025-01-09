@@ -23,14 +23,12 @@ START_UNION() {
 	UNION_SOURCES=$(BUILD_UNION)
 	if [ -z "$UNION_SOURCES" ]; then
 		LOG_ERROR "$0" 0 "UNIONFS" "No valid ROM directories found"
-		exit 1
-	fi
-
-	if "$UFS_BIN" "$UNION_SOURCES" "$UNION_TARGET"; then
-		LOG_INFO "$0" 0 "UNIONFS" "Union mount started successfully"
 	else
-		LOG_ERROR "$0" 0 "UNIONFS" "Failed to start union mount"
-		exit 1
+		if "$UFS_BIN" "$UNION_SOURCES" "$UNION_TARGET"; then
+			LOG_INFO "$0" 0 "UNIONFS" "Union mount started successfully"
+		else
+			LOG_ERROR "$0" 0 "UNIONFS" "Failed to start union mount"
+		fi
 	fi
 }
 
@@ -39,7 +37,6 @@ STOP_UNION() {
 		LOG_INFO "$0" 0 "UNIONFS" "Union mount stopped successfully"
 	else
 		LOG_ERROR "$0" 0 "UNIONFS" "Failed to stop union mount"
-		exit 1
 	fi
 }
 
@@ -50,7 +47,6 @@ RESTART_UNION() {
 
 SHOW_USAGE() {
 	printf "Usage: %s {start|stop|restart}\n" "$(basename "$0")"
-	exit 2
 }
 
 case "$1" in

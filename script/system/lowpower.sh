@@ -9,7 +9,7 @@ while :; do
 			sleep 0.5
 			echo 0 >"$(GET_VAR "device" "led/low")"
 		fi
-
-		sleep 10
 	fi
+
+	sleep 10
 done &

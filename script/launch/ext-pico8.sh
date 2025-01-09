@@ -26,7 +26,7 @@ EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8"
 CTRL_TYPE="$(GET_VAR "global" "settings/advanced/swap")"
 
 # Set appropriate sdl controller file
-if [ "$CTRL_TYPE" = 0 ]; then
+if [ "$CTRL_TYPE" = 1 ]; then
 	SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_modern.txt")
 else
 	SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_retro.txt")

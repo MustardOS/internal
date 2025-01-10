@@ -107,6 +107,7 @@
     "No Governors Found…": "No Governors Found…"
   },
   "muxhdmi": {
+    "Allows for testing different theme resolutions": "Allows for testing different theme resolutions",
     "Audio Output": "Audio Output",
     "Cannot modify while HDMI is active": "Cannot modify while HDMI is active",
     "Colour Depth": "Colour Depth",
@@ -123,12 +124,14 @@
     "Over": "Over",
     "Resolution": "Resolution",
     "Scan Scaling": "Scan Scaling",
+    "Screen": "Screen",
     "Select the resolution for HDMI output, such as 720p or 1080p": "Select the resolution for HDMI output, such as 720p or 1080p",
     "Set the color depth, such as 8-bit or 10-bit": "Set the color depth, such as 8-bit or 10-bit",
     "Set the color range of RGB colour space": "Set the color range of RGB colour space",
     "Set the color space, such as RGB or YUV": "Set the color space, such as RGB or YUV",
     "Switch between device speaker or external monitor audio via HDMI connection": "Switch between device speaker or external monitor audio via HDMI connection",
     "Switch between overscan or underscan to fit the display screen": "Switch between overscan or underscan to fit the display screen",
+    "Theme Resolution": "Theme Resolution",
     "Under": "Under"
   },
   "muxhistory": {

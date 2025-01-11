@@ -23,14 +23,9 @@ SET_VAR "system" "foreground_process" "pico8_64"
 
 GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
 EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8"
-CTRL_TYPE="$(GET_VAR "global" "settings/advanced/swap")"
 
 # Set appropriate sdl controller file
-if [ "$CTRL_TYPE" = 1 ]; then
-	SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_modern.txt")
-else
-	SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_retro.txt")
-fi
+SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_modern.txt")
 export SDL_GAMECONTROLLERCONFIG
 
 # First look for emulator in BIOS directory, which allows it to follow the
@@ -72,15 +67,8 @@ kill -9 "$(pidof pico8_64)" "$(pidof gptokeyb2)"
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 # SAVE THE FAVOURITES CHARLIE!
-SD1="$(GET_VAR "device" "storage/rom/mount")/ROMS"
-SD2="$(GET_VAR "device" "storage/sdcard/mount")/ROMS"
-USB="$(GET_VAR "device" "storage/usb/mount")/ROMS"
-
-P8_DIR=$(sed -n '2p' /run/muos/storage/info/core/pico-8/core.cfg)
-for DIR in "$USB" "$SD2" "$SD1"; do
-	[ -d "$DIR/$P8_DIR" ] && STORAGE_DIR="$DIR/$P8_DIR" && break
-done
-[ -z "$STORAGE_DIR" ] && exit 1
+# Grab the PICO-8 ROM Folder
+STORAGE_DIR=${FILE%/*}
 
 FAVOURITE="/run/muos/storage/save/pico8/favourites.txt"
 CART_DIR="/run/muos/storage/save/pico8/bbs/carts"

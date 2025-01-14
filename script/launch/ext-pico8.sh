@@ -30,9 +30,13 @@ export SDL_GAMECONTROLLERCONFIG
 
 # First look for emulator in BIOS directory, which allows it to follow the
 # user's storage preference. Fall back on the old path for compatibility.
+# People often seem to copy the "pico-8" folder directly from their purchased files, so let's check for that.
 EMU="/run/muos/storage/bios/pico8/pico8_64"
 if [ ! -f "$EMU" ]; then
-	EMU="$EMUDIR/pico8_64"
+    EMU="/run/muos/storage/bios/pico-8/pico8_64"
+    if [ ! -f "$EMU" ]; then
+        EMU="$EMUDIR/pico8_64"
+    fi
 fi
 
 # Did the user select standard or Pixel Perfect scaler?

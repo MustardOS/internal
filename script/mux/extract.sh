@@ -30,6 +30,16 @@ if unzip -l "$1" | awk '$NF ~ /^(('"$SCHEME_FOLDER"'|640x480\/'"$SCHEME_FOLDER"'
 	echo "Archive contents indicate it is NOT an installable theme file"
 	echo "Copying unextracted archive to theme folder"
 	cp -f "$1" "/run/muos/storage/theme/"
+elif unzip -l "$1" | awk '$NF ~ /^pico-8\// {folders[$NF]=1} $NF ~ /^pico-8\/(pico8_64|pico8\.dat)$/ {files[$NF]=1} END {if ("pico-8/" in folders && "pico-8/pico8_64" in files && "pico-8/pico8.dat" in files) exit 0; else exit 1}'; then
+    echo "Archive contains a valid pico-8 folder with required files"
+    
+	BIOS_DIR="/run/muos/storage/bios/"
+	if unzip -j "$1" "pico-8/*" -d "${BIOS_DIR}pico-8/"; then
+        echo "Extracted 'pico-8' folder to $BIOS_DIR"
+    else
+        echo "Failed to extract 'pico-8' folder"
+        exit 1
+    fi
 else
 	# Count total files in archive to show progress bar for unzip and rsync.
 	# Not as precise as monitoring bytes decompressed, but much easier, and

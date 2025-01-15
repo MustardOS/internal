@@ -1,5 +1,26 @@
 #!/bin/sh
-## TODO: figure out if `shutdown -r` can be used to reboot. :eyes: 
 
-# BEGONE!
-/opt/muos/script/system/halt.sh poweroff
+# Simple POSIX-compliant shutdown emulator
+
+USAGE="Usage: $(basename "$0") [-h | -r]"
+
+# Check for options
+if [ $# -gt 1 ]; then
+    echo "$USAGE" >&2
+    exit 1
+fi
+
+case "$1" in
+    -h|"")
+        /opt/muos/script/system/halt.sh poweroff
+        ;;
+    -r)
+        /opt/muos/script/system/halt.sh reboot
+        ;;
+    *)
+        echo "$USAGE" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

@@ -1,0 +1,5 @@
+#!/bin/sh
+## TODO: figure out if `shutdown -r` can be used to reboot. :eyes: 
+
+# BEGONE!
+/opt/muos/script/system/halt.sh poweroff

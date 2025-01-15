@@ -2,7 +2,7 @@
 
 # Simple POSIX-compliant shutdown emulator
 
-USAGE="Usage: $(basename "$0") [-h | -r]"
+USAGE="Usage: $(basename "$0") [-h | -r | -t]"
 
 # Check for options
 if [ $# -gt 1 ]; then
@@ -16,6 +16,9 @@ case "$1" in
         ;;
     -r)
         /opt/muos/script/system/halt.sh reboot
+        ;;
+    -t)
+        /opt/muos/script/system/halt.sh halt
         ;;
     *)
         echo "$USAGE" >&2

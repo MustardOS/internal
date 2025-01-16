@@ -30,6 +30,7 @@
     "Switch to Preview Image": "Switch to Preview Image",
     "Sync to SD1": "Sync to SD1",
     "This is disabled in kiosk mode!": "This is disabled in kiosk mode!",
+    "Unknown": "Unknown",
     "Use": "Use"
   },
   "muxapp": {
@@ -371,7 +372,7 @@
     "CPU Speed": "CPU Speed",
     "Device Type": "Device Type",
     "Linux Kernel": "Linux Kernel",
-    "Running Services": "Running Services",
+    "Memory Cache Dropped": "Memory Cache Dropped",
     "SYSTEM DETAILS": "SYSTEM DETAILS",
     "System Memory": "System Memory",
     "System Uptime": "System Uptime",
@@ -387,7 +388,6 @@
     "The current version of muOS running on the device": "The current version of muOS running on the device",
     "The current, and total, memory usage of the device": "The current, and total, memory usage of the device",
     "The detected CPU type of the device": "The detected CPU type of the device",
-    "The number of processes currently running on the system": "The number of processes currently running on the system",
     "muOS Version": "muOS Version"
   },
   "muxtask": {

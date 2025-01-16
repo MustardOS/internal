@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Simple POSIX-compliant shutdown emulator
+
+USAGE="Usage: $(basename "$0") [-h | -r | -t]"
+
+# Check for options
+if [ $# -gt 1 ]; then
+    echo "$USAGE" >&2
+    exit 1
+fi
+
+case "$1" in
+    -h|"")
+        /opt/muos/script/system/halt.sh poweroff
+        ;;
+    -r)
+        /opt/muos/script/system/halt.sh reboot
+        ;;
+    -t)
+        /opt/muos/script/system/halt.sh halt
+        ;;
+    *)
+        echo "$USAGE" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

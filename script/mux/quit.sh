@@ -87,10 +87,17 @@ HALT_SYSTEM() {
 				# When not showing verbose output, display a
 				# theme-provided splash screen during shutdown.
 				if [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 0 ]; then
-					SPLASH_IMG_PATH="/run/muos/storage/theme/active/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/$SPLASH_IMG.png"
-					if [ ! -f "$SPLASH_IMG_PATH" ]; then
-						SPLASH_IMG_PATH="/run/muos/storage/theme/active/image/$SPLASH_IMG.png"
-					fi
+					for path in \
+						"/run/muos/storage/theme/active/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/$(GET_VAR global settings/general/language)/$SPLASH_IMG.png" \
+						"/run/muos/storage/theme/active/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/$SPLASH_IMG.png" \
+						"/run/muos/storage/theme/active/image/$(GET_VAR global settings/general/language)/$SPLASH_IMG.png" \
+						"/run/muos/storage/theme/active/image/$SPLASH_IMG.png"
+					do
+						if [ -f "$path" ]; then
+							SPLASH_IMG_PATH="$path"
+							break
+						fi
+					done
 					/opt/muos/extra/muxsplash "$SPLASH_IMG_PATH"
 				fi
 				;;

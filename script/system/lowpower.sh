@@ -16,7 +16,6 @@ while :; do
 				/run/muos/storage/theme/active/rgb/rgbconf.sh
 			fi
 		fi
-
-		sleep 10
 	fi
+ 	sleep 10
 done &

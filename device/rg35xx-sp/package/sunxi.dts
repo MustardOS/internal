@@ -2804,7 +2804,7 @@
 					pmu_bat_para30 = <0x64>;
 					pmu_bat_para31 = <0x64>;
 					pmu_bat_para32 = <0x64>;
-					pmu_bat_temp_enable = <0x01>;
+					pmu_bat_temp_enable = <0x00>;
 					pmu_jetia_en = <0x00>;
 					pmu_bat_charge_ltf = <0x69f>;
 					pmu_bat_charge_htf = <0x97>;

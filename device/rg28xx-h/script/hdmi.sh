@@ -4,11 +4,11 @@
 . /opt/muos/script/var/func.sh
 
 XDG_RUNTIME_DIR="/var/run"
-HDMI_IN_USE="/tmp/hdmi_in_use"
 
-DO_REFRESH() {
+REFRESH_HDMI() {
 	printf "1" >"/tmp/hdmi_do_refresh"
-	/opt/muos/extra/murefresh
+	printf "%s" "$1" >"/tmp/hdmi_in_use"
+	touch "/tmp/hdmi_init_done"
 }
 
 SET_AUDIO() {
@@ -46,17 +46,13 @@ case "$1" in
 		fi
 		HDMI_SWITCH
 		DISPLAY_WRITE disp0 switch1 "$(SET_DISPLAY_PARAMS)"
-		DO_REFRESH
-
-		printf "1" >"$HDMI_IN_USE"
+		REFRESH_HDMI 1
 		;;
 	stop)
 		SET_AUDIO "INT"
 		FB_SWITCH "$(GET_VAR device screen/internal/width)" "$(GET_VAR device screen/internal/height)" 32
 		DISPLAY_WRITE disp0 switch "1 0"
-		DO_REFRESH
-
-		printf "0" >"$HDMI_IN_USE"
+		REFRESH_HDMI 0
 		;;
 	*)
 		printf "Usage: %s {start|stop}\n" "$0"

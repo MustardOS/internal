@@ -280,6 +280,10 @@ while :; do
 				echo tweakgen >$ACT_GO
 				SET_VAR "system" "foreground_process" "muxhdmi"
 				nice --20 /opt/muos/extra/muxhdmi
+				while [ ! -f "/tmp/hdmi_init_done" ]; do
+                	sleep 0.25
+                done
+                rm -f "/tmp/hdmi_init_done"
 				;;
 			"power")
 				echo tweakgen >$ACT_GO

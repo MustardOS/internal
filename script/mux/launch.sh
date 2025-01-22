@@ -183,7 +183,7 @@ case "$(GET_VAR "device" "board/name")" in
 	*) ;;
 esac
 
-if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
+if [ "$(cat "$(GET_VAR "global" "settings/hdmi/enabled")")" -eq 1 ]; then
 	HDMI_SWITCH
 else
 	FB_SWITCH "$(GET_VAR "device" "screen/internal/width")" "$(GET_VAR "device" "screen/internal/height")" 32

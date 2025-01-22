@@ -19,6 +19,8 @@ fi
 /opt/muos/device/current/input/combo/audio.sh I
 /opt/muos/device/current/input/combo/bright.sh I
 
+DEVICE_BOARD="$(GET_VAR "device" "board/name")"
+
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
 ASS_GO=/tmp/ass_go
@@ -148,29 +150,26 @@ PROCESS_CONTENT_ACTION() {
 	ACTION="$1"
 	MODULE="$2"
 
-	if [ -s "$ACTION" ]; then
-		{
-			IFS= read -r ROM_NAME
-			IFS= read -r ROM_DIR
-			IFS= read -r ROM_SYS
-			IFS= read -r FORCED_FLAG
-		} <"$ACTION"
+	[ ! -s "$ACTION" ] && return
 
-		rm "$ACTION"
-		echo "$MODULE" >"$ACT_GO"
+	{
+		IFS= read -r ROM_NAME
+		IFS= read -r ROM_DIR
+		IFS= read -r ROM_SYS
+		IFS= read -r FORCED_FLAG
+	} <"$ACTION"
 
-		[ "$FORCED_FLAG" -eq 1 ] && echo "option" >"$ACT_GO"
-	fi
+	rm "$ACTION"
+	echo "$MODULE" >"$ACT_GO"
+
+	[ "$FORCED_FLAG" -eq 1 ] && echo "option" >"$ACT_GO"
 }
 
 while :; do
 	CHECK_BGM ignore
 
 	# Reset DPAD<>ANALOGUE switch for H700 devices
-	case "$(GET_VAR "device" "board/name")" in
-		rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
-		*) ;;
-	esac
+	[ "$DEVICE_BOARD" = "rg*" ] && echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 
 	# Process Content Association
 	PROCESS_CONTENT_ACTION "$ASS_GO" "assign"
@@ -211,7 +210,7 @@ while :; do
 	# Kill PortMaster GPTOKEYB just in case!
 	killall -q gptokeyb.armhf gptokeyb.aarch64 &
 
-	if [ -s "$ACT_GO" ]; then
+	[ -s "$ACT_GO" ] && {
 		IFS= read -r ACTION <"$ACT_GO"
 
 		case "$ACTION" in
@@ -221,16 +220,16 @@ while :; do
 				EXEC_MUX "launcher" "muxlaunch"
 				;;
 
-			"option")	EXEC_MUX "explore" "muxoption" 		-c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
-			"assign")	EXEC_MUX "option"  "muxassign" -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
-			"governor")	EXEC_MUX "option"  "muxgov"    -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
+			"option") EXEC_MUX "explore" "muxoption" -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
+			"assign") EXEC_MUX "option" "muxassign" -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
+			"governor") EXEC_MUX "option" "muxgov" -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
 			"search")
 				[ -s "$EX_DIR" ] && IFS= read -r EX_DIR_CONTENT <"$EX_DIR"
 				EXEC_MUX "option" "muxsearch" -d "$EX_DIR_CONTENT"
 				if [ -s "$RES_GO" ]; then
 					IFS= read -r RES_CONTENT <"$RES_GO"
-					basename "$RES_CONTENT" >"$EX_NAME"
-					dirname "$RES_CONTENT" >"$EX_DIR"
+					printf "%s" "${RES_CONTENT##*/}" >"$EX_NAME"
+					printf "%s" "${RES_CONTENT%/*}" >"$EX_DIR"
 					printf "%s" "$(echo "$RES_CONTENT" | sed 's|.*/\([^/]*\)/ROMS.*|\1|')" >"$EX_CARD"
 					EXEC_MUX "option" "muxplore" -i 0 -m "$(cat "$EX_CARD")"
 				fi
@@ -295,27 +294,28 @@ while :; do
 				EXEC_MUX "launcher" "muxhistory" -i "$LAST_INDEX"
 				;;
 
-			"info")			PARSE_ACTION	"launcher"	"muxinfo"		;;
-			"tweakgen")		PARSE_ACTION	"config"	"muxtweakgen"	;;
-			"custom")		PARSE_ACTION	"config"	"muxcustom"		;;
-			"network")		PARSE_ACTION	"config"	"muxnetwork"	;;
-			"language")		PARSE_ACTION	"config"	"muxlanguage"	;;
-			"webserv")		PARSE_ACTION	"config"	"muxwebserv"	;;
-			"rtc")			PARSE_ACTION	"config"	"muxrtc"		;;
-			"storage")		PARSE_ACTION	"config"	"muxstorage"	;;
-			"power")		PARSE_ACTION	"tweakgen"	"muxpower"		;;
-			"tweakadv")		PARSE_ACTION	"tweakgen"	"muxtweakadv"	;;
-			"visual")		PARSE_ACTION	"tweakgen"	"muxvisual"		;;
-			"net_profile")	PARSE_ACTION	"network"	"muxnetprofile"	;;
-			"net_scan")		PARSE_ACTION	"network"	"muxnetscan"	;;
-			"timezone")		PARSE_ACTION	"rtc"		"muxtimezone"	;;
-			"system")		PARSE_ACTION	"info"		"muxsysinfo"	;;
-			"credits")		PARSE_ACTION	"info"		"muxcredits"	;;
+			"info") PARSE_ACTION "launcher" "muxinfo" ;;
+			"tweakgen") PARSE_ACTION "config" "muxtweakgen" ;;
+			"custom") PARSE_ACTION "config" "muxcustom" ;;
+			"network") PARSE_ACTION "config" "muxnetwork" ;;
+			"language") PARSE_ACTION "config" "muxlanguage" ;;
+			"webserv") PARSE_ACTION "config" "muxwebserv" ;;
+			"rtc") PARSE_ACTION "config" "muxrtc" ;;
+			"storage") PARSE_ACTION "config" "muxstorage" ;;
+			"power") PARSE_ACTION "tweakgen" "muxpower" ;;
+			"tweakadv") PARSE_ACTION "tweakgen" "muxtweakadv" ;;
+			"visual") PARSE_ACTION "tweakgen" "muxvisual" ;;
+			"net_profile") PARSE_ACTION "network" "muxnetprofile" ;;
+			"net_scan") PARSE_ACTION "network" "muxnetscan" ;;
+			"timezone") PARSE_ACTION "rtc" "muxtimezone" ;;
+			"system") PARSE_ACTION "info" "muxsysinfo" ;;
+			"credits") PARSE_ACTION "info" "muxcredits" ;;
 
-			"reboot")	/opt/muos/script/mux/quit.sh reboot   frontend ;;
-			"shutdown")	/opt/muos/script/mux/quit.sh poweroff frontend ;;
+			"reboot") /opt/muos/script/mux/quit.sh reboot frontend ;;
+			"shutdown") /opt/muos/script/mux/quit.sh poweroff frontend ;;
 
 			*) printf "Unknown Module: %s\n" "$ACTION" >&2 ;;
 		esac
-	fi
+	}
+
 done

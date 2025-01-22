@@ -131,19 +131,12 @@ cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 EXEC_MUX() {
 	GOBACK="$1"
 	MODULE="$2"
-
 	shift
+
 	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
+
 	SET_VAR "system" "foreground_process" "$MODULE"
 	nice --20 "/opt/muos/extra/$MODULE" "$@"
-}
-
-PARSE_ACTION() {
-	GOBACK="$1"
-	MODULE="$2"
-
-	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
-	EXEC_MUX "$MODULE"
 }
 
 PROCESS_CONTENT_ACTION() {
@@ -294,22 +287,22 @@ while :; do
 				EXEC_MUX "launcher" "muxhistory" -i "$LAST_INDEX"
 				;;
 
-			"info") PARSE_ACTION "launcher" "muxinfo" ;;
-			"tweakgen") PARSE_ACTION "config" "muxtweakgen" ;;
-			"custom") PARSE_ACTION "config" "muxcustom" ;;
-			"network") PARSE_ACTION "config" "muxnetwork" ;;
-			"language") PARSE_ACTION "config" "muxlanguage" ;;
-			"webserv") PARSE_ACTION "config" "muxwebserv" ;;
-			"rtc") PARSE_ACTION "config" "muxrtc" ;;
-			"storage") PARSE_ACTION "config" "muxstorage" ;;
-			"power") PARSE_ACTION "tweakgen" "muxpower" ;;
-			"tweakadv") PARSE_ACTION "tweakgen" "muxtweakadv" ;;
-			"visual") PARSE_ACTION "tweakgen" "muxvisual" ;;
-			"net_profile") PARSE_ACTION "network" "muxnetprofile" ;;
-			"net_scan") PARSE_ACTION "network" "muxnetscan" ;;
-			"timezone") PARSE_ACTION "rtc" "muxtimezone" ;;
-			"system") PARSE_ACTION "info" "muxsysinfo" ;;
-			"credits") PARSE_ACTION "info" "muxcredits" ;;
+			"info") EXEC_MUX "launcher" "muxinfo" ;;
+			"tweakgen") EXEC_MUX "config" "muxtweakgen" ;;
+			"custom") EXEC_MUX "config" "muxcustom" ;;
+			"network") EXEC_MUX "config" "muxnetwork" ;;
+			"language") EXEC_MUX "config" "muxlanguage" ;;
+			"webserv") EXEC_MUX "config" "muxwebserv" ;;
+			"rtc") EXEC_MUX "config" "muxrtc" ;;
+			"storage") EXEC_MUX "config" "muxstorage" ;;
+			"power") EXEC_MUX "tweakgen" "muxpower" ;;
+			"tweakadv") EXEC_MUX "tweakgen" "muxtweakadv" ;;
+			"visual") EXEC_MUX "tweakgen" "muxvisual" ;;
+			"net_profile") EXEC_MUX "network" "muxnetprofile" ;;
+			"net_scan") EXEC_MUX "network" "muxnetscan" ;;
+			"timezone") EXEC_MUX "rtc" "muxtimezone" ;;
+			"system") EXEC_MUX "info" "muxsysinfo" ;;
+			"credits") EXEC_MUX "info" "muxcredits" ;;
 
 			"reboot") /opt/muos/script/mux/quit.sh reboot frontend ;;
 			"shutdown") /opt/muos/script/mux/quit.sh poweroff frontend ;;

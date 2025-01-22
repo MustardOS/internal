@@ -127,10 +127,13 @@ LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
 EXEC_MUX() {
-	MUX_PROCESS="$1"
+	GOBACK="$1"
+	MODULE="$2"
+
 	shift
-	SET_VAR "system" "foreground_process" "$MUX_PROCESS"
-	nice --20 "/opt/muos/extra/$MUX_PROCESS" "$@"
+	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
+	SET_VAR "system" "foreground_process" "$MODULE"
+	nice --20 "/opt/muos/extra/$MODULE" "$@"
 }
 
 PARSE_ACTION() {
@@ -214,92 +217,66 @@ while :; do
 		case "$ACTION" in
 			"launcher")
 				touch /tmp/pdi_go
-
-				echo launcher >"$ACT_GO"
 				[ -s "$MUX_AUTH" ] && rm "$MUX_AUTH"
-
-				EXEC_MUX "muxlaunch"
+				EXEC_MUX "launcher" "muxlaunch"
 				;;
 
-			"option")
-				echo explore >"$ACT_GO"
-				EXEC_MUX "muxoption" -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
-				;;
-
+			"option")	EXEC_MUX "explore" "muxoption" 		-c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
+			"assign")	EXEC_MUX "option"  "muxassign" -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
+			"governor")	EXEC_MUX "option"  "muxgov"    -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
 			"search")
 				[ -s "$EX_DIR" ] && IFS= read -r EX_DIR_CONTENT <"$EX_DIR"
-				echo option >"$ACT_GO"
-
-				EXEC_MUX "muxsearch" -d "$EX_DIR_CONTENT"
-
+				EXEC_MUX "option" "muxsearch" -d "$EX_DIR_CONTENT"
 				if [ -s "$RES_GO" ]; then
 					IFS= read -r RES_CONTENT <"$RES_GO"
 					basename "$RES_CONTENT" >"$EX_NAME"
 					dirname "$RES_CONTENT" >"$EX_DIR"
 					printf "%s" "$(echo "$RES_CONTENT" | sed 's|.*/\([^/]*\)/ROMS.*|\1|')" >"$EX_CARD"
-					EXEC_MUX "muxplore" -i 0 -m "$(cat "$EX_CARD")"
+					EXEC_MUX "option" "muxplore" -i 0 -m "$(cat "$EX_CARD")"
 				fi
 				;;
 
-			"assign")
-				echo option >"$ACT_GO"
-				EXEC_MUX "muxassign" -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
-				;;
-
-			"governor")
-				echo option >"$ACT_GO"
-				EXEC_MUX "muxgov" -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
-				;;
-
 			"app")
-				echo launcher >"$ACT_GO"
 				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
-					EXEC_MUX "muxpass" -t launch
-					[ "$?" -eq 1 ] && EXEC_MUX "muxapp"
+					EXEC_MUX "launcher" "muxpass" -t launch
+					[ "$?" -eq 1 ] && EXEC_MUX "launcher" "muxapp"
 				else
-					EXEC_MUX "muxapp"
+					EXEC_MUX "launcher" "muxapp"
 				fi
 				;;
 
 			"config")
-				echo launcher >"$ACT_GO"
 				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 					if [ -e "$MUX_AUTH" ]; then
-						EXEC_MUX "muxconfig"
+						EXEC_MUX "launcher" "muxconfig"
 					else
 						EXEC_MUX "muxpass" -t setting
 						if [ "$?" -eq 1 ]; then
-							EXEC_MUX "muxconfig"
+							EXEC_MUX "launcher" "muxconfig"
 							touch "$MUX_AUTH"
 						fi
 					fi
 				else
-					EXEC_MUX "muxconfig"
+					EXEC_MUX "launcher" "muxconfig"
 				fi
 				;;
 
 			"hdmi")
-				echo tweakgen >"$ACT_GO"
-				EXEC_MUX "muxhdmi"
-
+				EXEC_MUX "tweakgen" "muxhdmi"
 				while [ ! -f "/tmp/hdmi_init_done" ]; do sleep 0.25; done
 				rm -f "/tmp/hdmi_init_done"
 				;;
 
 			"picker")
 				[ -s "$PIK_GO" ] && IFS= read -r PIK_CONTENT <"$PIK_GO"
-				echo custom >"$ACT_GO"
-
-				EXEC_MUX "muxpicker" -m "$PIK_CONTENT"
+				EXEC_MUX "custom" "muxpicker" -m "$PIK_CONTENT"
 				;;
 
 			"explore")
 				[ -s "$EX_DIR" ] && IFS= read -r EXPLORE_DIR <"$EX_DIR"
-				echo launcher >"$ACT_GO"
-
-				EXEC_MUX "muxassign" -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
-				EXEC_MUX "muxgov" -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
-				EXEC_MUX "muxplore" -d "$EXPLORE_DIR" -i "$LAST_INDEX"
+				EXEC_MUX "launcher" "muxassign" -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
+				EXEC_MUX "launcher" "muxgov" -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
+				EXEC_MUX "launcher" "muxplore" -d "$EXPLORE_DIR" -i "$LAST_INDEX"
 				;;
 
 			"collection")
@@ -308,18 +285,14 @@ while :; do
 					ADD_MODE=1
 					LAST_INDEX=0
 				fi
-
 				[ -s "$CL_DIR" ] && IFS= read -r COLLECTION_DIR <"$CL_DIR"
-				echo launcher >"$ACT_GO"
-
 				find "/run/muos/storage/info/collection" -maxdepth 2 -type f -size 0 -delete
-				EXEC_MUX "muxcollect" -a "$ADD_MODE" -d "$COLLECTION_DIR" -i "$LAST_INDEX"
+				EXEC_MUX "launcher" "muxcollect" -a "$ADD_MODE" -d "$COLLECTION_DIR" -i "$LAST_INDEX"
 				;;
 
 			"history")
 				find "/run/muos/storage/info/history" -maxdepth 1 -type f -size 0 -delete
-				echo launcher >"$ACT_GO"
-				EXEC_MUX "muxhistory" -i "$LAST_INDEX"
+				EXEC_MUX "launcher" "muxhistory" -i "$LAST_INDEX"
 				;;
 
 			"info")			PARSE_ACTION	"launcher"	"muxinfo"		;;

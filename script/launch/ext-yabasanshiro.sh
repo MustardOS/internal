@@ -4,7 +4,7 @@
 
 NAME=$1
 CORE=$2
-FILE=$3
+FILE=${3%/}
 
 LOG_INFO "$0" 0 "Content Launch" "DETAIL"
 LOG_INFO "$0" 0 "NAME" "$NAME"

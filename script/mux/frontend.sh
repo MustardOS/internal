@@ -133,6 +133,14 @@ EXEC_MUX() {
 	nice --20 "/opt/muos/extra/$MUX_PROCESS" "$@"
 }
 
+PARSE_ACTION() {
+	GOBACK="$1"
+	MODULE="$2"
+
+	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
+	EXEC_MUX "$MODULE"
+}
+
 PROCESS_CONTENT_ACTION() {
 	ACTION="$1"
 	MODULE="$2"
@@ -278,31 +286,11 @@ while :; do
 				rm -f "/tmp/hdmi_init_done"
 				;;
 
-			"power")
-				echo tweakgen >"$ACT_GO"
-				EXEC_MUX "muxpower"
-				;;
-
-			"tweakgen")
-				echo config >"$ACT_GO"
-				EXEC_MUX "muxtweakgen"
-				;;
-
-			"tweakadv")
-				echo tweakgen >"$ACT_GO"
-				EXEC_MUX "muxtweakadv"
-				;;
-
 			"picker")
 				[ -s "$PIK_GO" ] && IFS= read -r PIK_CONTENT <"$PIK_GO"
 				echo custom >"$ACT_GO"
 
 				EXEC_MUX "muxpicker" -m "$PIK_CONTENT"
-				;;
-
-			"custom")
-				echo config >"$ACT_GO"
-				EXEC_MUX "muxcustom"
 				;;
 
 			"explore")
@@ -334,17 +322,27 @@ while :; do
 				EXEC_MUX "muxhistory" -i "$LAST_INDEX"
 				;;
 
-			"reboot")
-				/opt/muos/script/mux/quit.sh reboot frontend
-				;;
+			"info")			PARSE_ACTION	"launcher"	"muxinfo"		;;
+			"tweakgen")		PARSE_ACTION	"config"	"muxtweakgen"	;;
+			"custom")		PARSE_ACTION	"config"	"muxcustom"		;;
+			"network")		PARSE_ACTION	"config"	"muxnetwork"	;;
+			"language")		PARSE_ACTION	"config"	"muxlanguage"	;;
+			"webserv")		PARSE_ACTION	"config"	"muxwebserv"	;;
+			"rtc")			PARSE_ACTION	"config"	"muxrtc"		;;
+			"storage")		PARSE_ACTION	"config"	"muxstorage"	;;
+			"power")		PARSE_ACTION	"tweakgen"	"muxpower"		;;
+			"tweakadv")		PARSE_ACTION	"tweakgen"	"muxtweakadv"	;;
+			"visual")		PARSE_ACTION	"tweakgen"	"muxvisual"		;;
+			"net_profile")	PARSE_ACTION	"network"	"muxnetprofile"	;;
+			"net_scan")		PARSE_ACTION	"network"	"muxnetscan"	;;
+			"timezone")		PARSE_ACTION	"rtc"		"muxtimezone"	;;
+			"system")		PARSE_ACTION	"info"		"muxsysinfo"	;;
+			"credits")		PARSE_ACTION	"info"		"muxcredits"	;;
 
-			"shutdown")
-				/opt/muos/script/mux/quit.sh poweroff frontend
-				;;
+			"reboot")	/opt/muos/script/mux/quit.sh reboot   frontend ;;
+			"shutdown")	/opt/muos/script/mux/quit.sh poweroff frontend ;;
 
-			*)
-				printf "Unknown Module: %s\n" "$ACTION" >&2
-				;;
+			*) printf "Unknown Module: %s\n" "$ACTION" >&2 ;;
 		esac
 	fi
 done

@@ -126,6 +126,32 @@ fi
 LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
+EXEC_MUX() {
+	MUX_PROCESS="$1"
+	shift
+	SET_VAR "system" "foreground_process" "$MUX_PROCESS"
+	nice --20 "/opt/muos/extra/$MUX_PROCESS" "$@"
+}
+
+PROCESS_CONTENT_ACTION() {
+	ACTION="$1"
+	MODULE="$2"
+
+	if [ -s "$ACTION" ]; then
+		{
+			IFS= read -r ROM_NAME
+			IFS= read -r ROM_DIR
+			IFS= read -r ROM_SYS
+			IFS= read -r FORCED_FLAG
+		} <"$ACTION"
+
+		rm "$ACTION"
+		echo "$MODULE" >"$ACT_GO"
+
+		[ "$FORCED_FLAG" -eq 1 ] && echo "option" >"$ACT_GO"
+	fi
+}
+
 while :; do
 	CHECK_BGM ignore
 
@@ -135,48 +161,18 @@ while :; do
 		*) ;;
 	esac
 
-	# Content Association
-	if [ -s "$ASS_GO" ]; then
-		ROM_NAME=$(sed -n '1p' "$ASS_GO")
-		ROM_DIR=$(sed -n '2p' "$ASS_GO")
-		ROM_SYS=$(sed -n '3p' "$ASS_GO")
+	# Process Content Association
+	PROCESS_CONTENT_ACTION "$ASS_GO" "assign"
 
-		ROM_FORCED=$(sed -n '4p' "$ASS_GO")
-		rm "$ASS_GO"
-
-		if [ "$ROM_FORCED" -eq 1 ]; then
-			LOG_INFO "$0" 0 "FRONTEND" "Content Association Forced"
-			echo "option" >$ACT_GO
-		else
-			echo "assign" >$ACT_GO
-		fi
-	fi
-
-	# Content Governor
-	if [ -s "$GOV_GO" ]; then
-		ROM_NAME=$(sed -n '1p' "$GOV_GO")
-		ROM_DIR=$(sed -n '2p' "$GOV_GO")
-		ROM_SYS=$(sed -n '3p' "$GOV_GO")
-
-		GOV_FORCED=$(sed -n '4p' "$GOV_GO")
-		rm "$GOV_GO"
-
-		if [ "$GOV_FORCED" -eq 1 ]; then
-			LOG_INFO "$0" 0 "FRONTEND" "Content Governor Forced"
-			echo "option" >$ACT_GO
-		else
-			echo "governor" >$ACT_GO
-		fi
-	fi
+	# Process Content Governor
+	PROCESS_CONTENT_ACTION "$GOV_GO" "governor"
 
 	# Content Loader
-	if [ -s "$ROM_GO" ]; then
-		/opt/muos/script/mux/launch.sh list
-	fi
+	[ -s "$ROM_GO" ] && /opt/muos/script/mux/launch.sh list
 
 	# Application Loader
 	if [ -s "$APP_GO" ]; then
-		RUN_APP=$(cat "$APP_GO")
+		IFS= read -r RUN_APP <"$APP_GO"
 		case "$RUN_APP" in
 			*"Archive Manager"* | *"Task Toolkit"*) ;;
 			*) STOP_BGM ;;
@@ -187,236 +183,167 @@ while :; do
 		continue
 	fi
 
-	# Get Last ROM Index
-	if [ "$(cat $ACT_GO)" = "explore" ] || [ "$(cat $ACT_GO)" = "collection" ] || [ "$(cat $ACT_GO)" = "history" ]; then
-		LAST_INDEX_ROM=0
-		if [ -s "$IDX_GO" ] && [ ! -s "$CL_AMW" ]; then
-			LAST_INDEX_ROM=$(cat "$IDX_GO")
-			rm "$IDX_GO"
-		fi
+	# Get Last Content Index
+	LAST_INDEX=0
+	if [ -s "$ACT_GO" ]; then
+		IFS= read -r ACTION <"$ACT_GO"
+		case "$ACTION" in
+			"explore" | "collection" | "history")
+				if [ -s "$IDX_GO" ] && [ ! -s "$CL_AMW" ]; then
+					IFS= read -r LAST_INDEX <"$IDX_GO"
+					rm "$IDX_GO"
+				fi
+				;;
+		esac
 	fi
 
 	# Kill PortMaster GPTOKEYB just in case!
 	killall -q gptokeyb.armhf gptokeyb.aarch64 &
 
-	# muX Programs
 	if [ -s "$ACT_GO" ]; then
-		case "$(cat $ACT_GO)" in
+		IFS= read -r ACTION <"$ACT_GO"
+
+		case "$ACTION" in
 			"launcher")
 				touch /tmp/pdi_go
-				echo launcher >$ACT_GO
-				[ -s "$MUX_AUTH" ] && rm "$MUX_AUTH"
-				SET_VAR "system" "foreground_process" "muxlaunch"
-				nice --20 /opt/muos/extra/muxlaunch
-				;;
-			"option")
-				echo explore >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxoption"
-				nice --20 /opt/muos/extra/muxoption -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
-				;;
-			"search")
-				echo option >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxsearch"
-				nice --20 /opt/muos/extra/muxsearch -d "$(cat $EX_DIR 2>/dev/null)"
-				if [ -s "$RES_GO" ]; then
-					basename "$(cat "$RES_GO")" >$EX_NAME
-					dirname "$(cat "$RES_GO")" >$EX_DIR
-					printf "%s" "$(sed 's|.*/\([^/]*\)/ROMS.*|\1|' "$RES_GO")" >$EX_CARD
 
-					SET_VAR "system" "foreground_process" "muxplore"
-					nice --20 /opt/muos/extra/muxplore -i 0 -m "$(cat $EX_CARD)"
+				echo launcher >"$ACT_GO"
+				[ -s "$MUX_AUTH" ] && rm "$MUX_AUTH"
+
+				EXEC_MUX "muxlaunch"
+				;;
+
+			"option")
+				echo explore >"$ACT_GO"
+				EXEC_MUX "muxoption" -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
+				;;
+
+			"search")
+				[ -s "$EX_DIR" ] && IFS= read -r EX_DIR_CONTENT <"$EX_DIR"
+				echo option >"$ACT_GO"
+
+				EXEC_MUX "muxsearch" -d "$EX_DIR_CONTENT"
+
+				if [ -s "$RES_GO" ]; then
+					IFS= read -r RES_CONTENT <"$RES_GO"
+					basename "$RES_CONTENT" >"$EX_NAME"
+					dirname "$RES_CONTENT" >"$EX_DIR"
+					printf "%s" "$(echo "$RES_CONTENT" | sed 's|.*/\([^/]*\)/ROMS.*|\1|')" >"$EX_CARD"
+					EXEC_MUX "muxplore" -i 0 -m "$(cat "$EX_CARD")"
 				fi
 				;;
+
 			"assign")
-				echo option >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxassign"
-				nice --20 /opt/muos/extra/muxassign -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
+				echo option >"$ACT_GO"
+				EXEC_MUX "muxassign" -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
 				;;
+
 			"governor")
-				echo option >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxgov"
-				nice --20 /opt/muos/extra/muxgov -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
+				echo option >"$ACT_GO"
+				EXEC_MUX "muxgov" -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS"
 				;;
+
 			"app")
-				echo launcher >$ACT_GO
+				echo launcher >"$ACT_GO"
 				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
-					SET_VAR "system" "foreground_process" "muxpass"
-					nice --20 /opt/muos/extra/muxpass -t launch
-					if [ "$?" = 1 ]; then
-						SET_VAR "system" "foreground_process" "muxapp"
-						nice --20 /opt/muos/extra/muxapp
-					fi
+					EXEC_MUX "muxpass" -t launch
+					[ "$?" -eq 1 ] && EXEC_MUX "muxapp"
 				else
-					SET_VAR "system" "foreground_process" "muxapp"
-					nice --20 /opt/muos/extra/muxapp
+					EXEC_MUX "muxapp"
 				fi
 				;;
+
 			"config")
-				echo launcher >$ACT_GO
+				echo launcher >"$ACT_GO"
 				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 					if [ -e "$MUX_AUTH" ]; then
-						SET_VAR "system" "foreground_process" "muxconfig"
-						nice --20 /opt/muos/extra/muxconfig
+						EXEC_MUX "muxconfig"
 					else
-						SET_VAR "system" "foreground_process" "muxpass"
-						nice --20 /opt/muos/extra/muxpass -t setting
-						if [ "$?" = 1 ]; then
-							SET_VAR "system" "foreground_process" "muxconfig"
-							nice --20 /opt/muos/extra/muxconfig
+						EXEC_MUX "muxpass" -t setting
+						if [ "$?" -eq 1 ]; then
+							EXEC_MUX "muxconfig"
 							touch "$MUX_AUTH"
 						fi
 					fi
 				else
-					SET_VAR "system" "foreground_process" "muxconfig"
-					nice --20 /opt/muos/extra/muxconfig
+					EXEC_MUX "muxconfig"
 				fi
 				;;
-			"info")
-				echo launcher >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxinfo"
-				nice --20 /opt/muos/extra/muxinfo
-				;;
+
 			"hdmi")
-				echo tweakgen >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxhdmi"
-				nice --20 /opt/muos/extra/muxhdmi
-				while [ ! -f "/tmp/hdmi_init_done" ]; do
-                	sleep 0.25
-                done
-                rm -f "/tmp/hdmi_init_done"
+				echo tweakgen >"$ACT_GO"
+				EXEC_MUX "muxhdmi"
+
+				while [ ! -f "/tmp/hdmi_init_done" ]; do sleep 0.25; done
+				rm -f "/tmp/hdmi_init_done"
 				;;
+
 			"power")
-				echo tweakgen >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxpower"
-				nice --20 /opt/muos/extra/muxpower
+				echo tweakgen >"$ACT_GO"
+				EXEC_MUX "muxpower"
 				;;
+
 			"tweakgen")
-				echo config >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxtweakgen"
-				nice --20 /opt/muos/extra/muxtweakgen
+				echo config >"$ACT_GO"
+				EXEC_MUX "muxtweakgen"
 				;;
+
 			"tweakadv")
-				echo tweakgen >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxtweakadv"
-				nice --20 /opt/muos/extra/muxtweakadv
+				echo tweakgen >"$ACT_GO"
+				EXEC_MUX "muxtweakadv"
 				;;
+
 			"picker")
-				echo custom >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxpicker"
-				nice --20 /opt/muos/extra/muxpicker -m "$(cat $PIK_GO)"
+				[ -s "$PIK_GO" ] && IFS= read -r PIK_CONTENT <"$PIK_GO"
+				echo custom >"$ACT_GO"
+
+				EXEC_MUX "muxpicker" -m "$PIK_CONTENT"
 				;;
+
 			"custom")
-				echo config >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxcustom"
-				nice --20 /opt/muos/extra/muxcustom
+				echo config >"$ACT_GO"
+				EXEC_MUX "muxcustom"
 				;;
-			"visual")
-				echo tweakgen >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxvisual"
-				nice --20 /opt/muos/extra/muxvisual
-				;;
-			"storage")
-				echo config >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxstorage"
-				nice --20 /opt/muos/extra/muxstorage
-				;;
-			"net_profile")
-				echo network >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxnetprofile"
-				nice --20 /opt/muos/extra/muxnetprofile
-				;;
-			"net_scan")
-				echo network >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxnetscan"
-				nice --20 /opt/muos/extra/muxnetscan
-				;;
-			"network")
-				echo config >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxnetwork"
-				nice --20 /opt/muos/extra/muxnetwork
-				;;
-			"webserv")
-				echo config >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxwebserv"
-				nice --20 /opt/muos/extra/muxwebserv
-				;;
-			"rtc")
-				echo config >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxrtc"
-				nice --20 /opt/muos/extra/muxrtc
-				;;
-			"language")
-				echo config >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxlanguage"
-				nice --20 /opt/muos/extra/muxlanguage
-				;;
-			"timezone")
-				echo rtc >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxtimezone"
-				nice --20 /opt/muos/extra/muxtimezone
-				;;
-			"tester")
-				echo info >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxtester"
-				nice --20 /opt/muos/extra/muxtester
-				;;
-			"device")
-				echo config >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxdevice"
-				nice --20 /opt/muos/extra/muxdevice
-				;;
-			"system")
-				echo info >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxsysinfo"
-				nice --20 /opt/muos/extra/muxsysinfo
-				;;
+
 			"explore")
-				EXPLORE_DIR=$(cat $EX_DIR 2>/dev/null)
-				echo launcher >$ACT_GO
-				echo "$LAST_INDEX_SYS" >/tmp/lisys
+				[ -s "$EX_DIR" ] && IFS= read -r EXPLORE_DIR <"$EX_DIR"
+				echo launcher >"$ACT_GO"
 
-				SET_VAR "system" "foreground_process" "muxassign"
-				nice --20 /opt/muos/extra/muxassign -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
-
-				SET_VAR "system" "foreground_process" "muxgov"
-				nice --20 /opt/muos/extra/muxgov -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
-
-				SET_VAR "system" "foreground_process" "muxplore"
-				nice --20 /opt/muos/extra/muxplore -d "$EXPLORE_DIR" -i "$LAST_INDEX_ROM"
+				EXEC_MUX "muxassign" -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
+				EXEC_MUX "muxgov" -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
+				EXEC_MUX "muxplore" -d "$EXPLORE_DIR" -i "$LAST_INDEX"
 				;;
+
 			"collection")
+				ADD_MODE=0
 				if [ -s "$CL_AMW" ]; then
 					ADD_MODE=1
-					LAST_INDEX_ROM=0
-				else
-					ADD_MODE=0
+					LAST_INDEX=0
 				fi
 
-				COLLECTION_DIR=$(cat $CL_DIR 2>/dev/null)
-				echo launcher >$ACT_GO
-				echo "$LAST_INDEX_SYS" >/tmp/lisys
-				find "/run/muos/storage/info/collection" -maxdepth 2 -type f -size 0 -delete
+				[ -s "$CL_DIR" ] && IFS= read -r COLLECTION_DIR <"$CL_DIR"
+				echo launcher >"$ACT_GO"
 
-				SET_VAR "system" "foreground_process" "muxcollect"
-				nice --20 /opt/muos/extra/muxcollect -a "$ADD_MODE" -d "$COLLECTION_DIR" -i "$LAST_INDEX_ROM"
+				find "/run/muos/storage/info/collection" -maxdepth 2 -type f -size 0 -delete
+				EXEC_MUX "muxcollect" -a "$ADD_MODE" -d "$COLLECTION_DIR" -i "$LAST_INDEX"
 				;;
+
 			"history")
 				find "/run/muos/storage/info/history" -maxdepth 1 -type f -size 0 -delete
+				echo launcher >"$ACT_GO"
+				EXEC_MUX "muxhistory" -i "$LAST_INDEX"
+				;;
 
-				echo launcher >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxhistory"
-				nice --20 /opt/muos/extra/muxhistory -i "$LAST_INDEX_ROM"
-				;;
-			"credits")
-				echo info >$ACT_GO
-				SET_VAR "system" "foreground_process" "muxcredits"
-				nice --20 /opt/muos/extra/muxcredits
-				;;
 			"reboot")
 				/opt/muos/script/mux/quit.sh reboot frontend
 				;;
+
 			"shutdown")
 				/opt/muos/script/mux/quit.sh poweroff frontend
+				;;
+
+			*)
+				printf "Unknown Module: %s\n" "$ACTION" >&2
 				;;
 		esac
 	fi

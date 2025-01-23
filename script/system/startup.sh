@@ -79,7 +79,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	fi
 
 	LOG_INFO "$0" 0 "FACTORY RESET" "Setting date time to default"
-	date 101100002024
+	date 010100002025
 	hwclock -w
 
 	EXEC_MUX "" "muxtimezone"

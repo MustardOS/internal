@@ -280,6 +280,7 @@ while :; do
 			"net_profile") EXEC_MUX "network" "muxnetprofile" ;;
 			"net_scan") EXEC_MUX "network" "muxnetscan" ;;
 			"timezone") EXEC_MUX "rtc" "muxtimezone" ;;
+			"tester") EXEC_MUX "info" "muxtester" ;;
 			"system") EXEC_MUX "info" "muxsysinfo" ;;
 			"credits") EXEC_MUX "info" "muxcredits" ;;
 

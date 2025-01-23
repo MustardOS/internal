@@ -38,6 +38,7 @@ EX_DIR=/tmp/explore_dir
 CL_DIR=/tmp/collection_dir
 CL_AMW=/tmp/add_mode_work
 
+SAFE_QUIT=/tmp/safe_quit
 MUX_AUTH=/tmp/mux_auth
 
 DEF_ACT=$(GET_VAR "global" "settings/general/startup")
@@ -130,6 +131,8 @@ LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
 EXEC_MUX() {
+	[ -f "$SAFE_QUIT" ] && rm "$SAFE_QUIT"
+
 	GOBACK="$1"
 	MODULE="$2"
 	shift
@@ -138,6 +141,8 @@ EXEC_MUX() {
 
 	SET_VAR "system" "foreground_process" "$MODULE"
 	nice --20 "/opt/muos/extra/$MODULE" "$@"
+
+	while [ ! -f "$SAFE_QUIT" ]; do sleep 0.1; done
 }
 
 PROCESS_CONTENT_ACTION() {

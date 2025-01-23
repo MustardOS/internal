@@ -74,6 +74,8 @@ LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
 /opt/muos/script/system/pipewire.sh &
 
 if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
+	/opt/muos/device/current/script/module.sh
+
 	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
 		/opt/muos/device/current/script/led_control.sh 2 255 225 173 1
 	fi

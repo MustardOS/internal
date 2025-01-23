@@ -6,6 +6,23 @@
 ESC=$(printf '\x1b')
 CSI="${ESC}[38;5;"
 
+SAFE_QUIT=/tmp/safe_quit
+
+EXEC_MUX() {
+	[ -f "$SAFE_QUIT" ] && rm "$SAFE_QUIT"
+
+	GOBACK="$1"
+	MODULE="$2"
+	shift
+
+	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
+
+	SET_VAR "system" "foreground_process" "$MODULE"
+	nice --20 "/opt/muos/extra/$MODULE" "$@"
+
+	while [ ! -f "$SAFE_QUIT" ]; do sleep 0.1; done
+}
+
 # Prints current system uptime in hundredths of a second. Unlike date or
 # EPOCHREALTIME, this won't decrease if the system clock is set back, so it can
 # be used to measure an interval of real time.

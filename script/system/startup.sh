@@ -82,12 +82,10 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	date 101100002024
 	hwclock -w
 
-	/opt/muos/extra/muxtimezone
+	EXEC_MUX "" "muxtimezone"
 	while [ "$(GET_VAR "global" "boot/clock_setup")" -eq 1 ]; do
-		/opt/muos/extra/muxrtc
-		if [ "$(GET_VAR "global" "boot/clock_setup")" -eq 1 ]; then
-			/opt/muos/extra/muxtimezone
-		fi
+		EXEC_MUX "" "muxrtc"
+		[ "$(GET_VAR "global" "boot/clock_setup")" -eq 1 ] && EXEC_MUX "" "muxtimezone"
 	done
 
 	LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
@@ -115,7 +113,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 
 	killall -q "hotkey.sh" "mpv"
 
-	/opt/muos/extra/muxcredits
+	EXEC_MUX "" "muxcredits"
 	/opt/muos/script/mux/quit.sh reboot frontend
 fi
 
@@ -176,7 +174,7 @@ HAS_UNLOCK=0
 if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 	while [ "$HAS_UNLOCK" != 1 ]; do
 		LOG_INFO "$0" 0 "BOOTING" "Enabling passcode lock"
-		nice --20 /opt/muos/extra/muxpass -t boot
+		EXEC_MUX "" "muxpass" -t boot
 		HAS_UNLOCK="$?"
 	done
 fi

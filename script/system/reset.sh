@@ -39,7 +39,7 @@ PROGRESS_DIALOG() {
 			MESSAGE=$(awk 'BEGIN{srand();} {if (rand() < 1/NR) selected=$0} END{print selected}' /opt/muos/config/messages.txt)
 		fi
 		I="$(((I + 1) % 4))"
-		/opt/muos/extra/muxstart "$PROGRESS" "$(printf "FACTORY RESET\n\n%s\n" "$MESSAGE")"
+		/opt/muos/extra/muxstart "$PROGRESS" "$(printf "INSTALLING MUOS\n\n%s\n" "$MESSAGE")"
 	done
 }
 

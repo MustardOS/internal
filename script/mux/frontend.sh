@@ -52,6 +52,7 @@ if [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 1 ]; then
 fi
 
 LAST_PLAY=$(cat "/opt/muos/config/lastplay.txt")
+LAST_INDEX=0
 
 LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
 DEF_GOV=$(GET_VAR "device" "cpu/default")
@@ -158,50 +159,27 @@ PROCESS_CONTENT_ACTION() {
 	[ "$FORCED_FLAG" -eq 1 ] && echo "option" >"$ACT_GO"
 }
 
+LAST_INDEX_CHECK() {
+	if [ -s "$IDX_GO" ] && [ ! -s "$CL_AMW" ]; then
+		read -r LAST_INDEX <"$IDX_GO"
+		LAST_INDEX=${LAST_INDEX:-0}
+		rm -f "$IDX_GO"
+	fi
+}
+
 while :; do
-	CHECK_BGM ignore
+	CHECK_BGM ignore &
+	pkill -9 -f "gptokeyb" &
 
 	# Reset DPAD<>ANALOGUE switch for H700 devices
 	[ "$DEVICE_BOARD" = "rg*" ] && echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 
-	# Process Content Association
+	# Process content association and governor actions
 	PROCESS_CONTENT_ACTION "$ASS_GO" "assign"
-
-	# Process Content Governor
 	PROCESS_CONTENT_ACTION "$GOV_GO" "governor"
 
 	# Content Loader
-	[ -s "$ROM_GO" ] && /opt/muos/script/mux/launch.sh list
-
-	# Application Loader
-	if [ -s "$APP_GO" ]; then
-		IFS= read -r RUN_APP <"$APP_GO"
-		case "$RUN_APP" in
-			*"Archive Manager"* | *"Task Toolkit"*) ;;
-			*) STOP_BGM ;;
-		esac
-		"$RUN_APP"
-		rm "$APP_GO"
-		CHECK_BGM ignore
-		continue
-	fi
-
-	# Get Last Content Index
-	LAST_INDEX=0
-	if [ -s "$ACT_GO" ]; then
-		IFS= read -r ACTION <"$ACT_GO"
-		case "$ACTION" in
-			"explore" | "collection" | "history")
-				if [ -s "$IDX_GO" ] && [ ! -s "$CL_AMW" ]; then
-					IFS= read -r LAST_INDEX <"$IDX_GO"
-					rm "$IDX_GO"
-				fi
-				;;
-		esac
-	fi
-
-	# Kill PortMaster GPTOKEYB just in case!
-	killall -q gptokeyb.armhf gptokeyb.aarch64 &
+	[ -s "$ROM_GO" ] && /opt/muos/script/mux/launch.sh
 
 	[ -s "$ACT_GO" ] && {
 		IFS= read -r ACTION <"$ACT_GO"
@@ -234,6 +212,15 @@ while :; do
 					[ "$?" -eq 1 ] && EXEC_MUX "launcher" "muxapp"
 				else
 					EXEC_MUX "launcher" "muxapp"
+					if [ -s "$APP_GO" ]; then
+						IFS= read -r RUN_APP <"$APP_GO"
+						case "$RUN_APP" in
+							*"Archive Manager"* | *"Task Toolkit"*) ;;
+							*) STOP_BGM ;;
+						esac
+						rm "$APP_GO"
+						"$RUN_APP"
+					fi
 				fi
 				;;
 
@@ -265,6 +252,7 @@ while :; do
 				;;
 
 			"explore")
+				LAST_INDEX_CHECK
 				[ -s "$EX_DIR" ] && IFS= read -r EXPLORE_DIR <"$EX_DIR"
 				EXEC_MUX "launcher" "muxassign" -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
 				EXEC_MUX "launcher" "muxgov" -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
@@ -272,6 +260,7 @@ while :; do
 				;;
 
 			"collection")
+				LAST_INDEX_CHECK
 				ADD_MODE=0
 				if [ -s "$CL_AMW" ]; then
 					ADD_MODE=1
@@ -283,6 +272,7 @@ while :; do
 				;;
 
 			"history")
+				LAST_INDEX_CHECK
 				find "/run/muos/storage/info/history" -maxdepth 1 -type f -size 0 -delete
 				EXEC_MUX "launcher" "muxhistory" -i "$LAST_INDEX"
 				;;

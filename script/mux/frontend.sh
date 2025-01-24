@@ -203,12 +203,19 @@ while :; do
 					EXEC_MUX "launcher" "muxapp"
 					if [ -s "$APP_GO" ]; then
 						IFS= read -r RUN_APP <"$APP_GO"
-						case "$RUN_APP" in
-							*"Archive Manager"* | *"Task Toolkit"*) ;;
-							*) STOP_BGM ;;
-						esac
 						rm "$APP_GO"
-						"$RUN_APP"
+						case "$RUN_APP" in
+							*"Archive Manager"*)
+								echo archive >$ACT_GO
+								;;
+							*"Task Toolkit"*)
+								echo task >$ACT_GO
+								;;
+							*)
+								STOP_BGM
+								"$RUN_APP"
+								;;
+						esac
 					fi
 				fi
 				;;
@@ -267,6 +274,8 @@ while :; do
 				;;
 
 			"info") EXEC_MUX "launcher" "muxinfo" ;;
+			"archive") EXEC_MUX "app" "muxarchive" ;;
+			"task") EXEC_MUX "app" "muxtask" ;;
 			"tweakgen") EXEC_MUX "config" "muxtweakgen" ;;
 			"custom") EXEC_MUX "config" "muxcustom" ;;
 			"network") EXEC_MUX "config" "muxnetwork" ;;

@@ -115,6 +115,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 
 	killall -q "hotkey.sh" "mpv"
 
+	/opt/muos/bin/nosefart /opt/muos/media/support.nsf &
 	EXEC_MUX "" "muxcredits"
 	/opt/muos/script/mux/quit.sh reboot frontend
 fi

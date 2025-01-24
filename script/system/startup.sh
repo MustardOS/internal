@@ -150,7 +150,7 @@ LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"
 /opt/muos/script/system/lowpower.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Precaching RetroArch System"
-ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/preload.txt &
+ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/config/preload.txt &
 
 LOG_INFO "$0" 0 "BOOTING" "Starting USB Function"
 /opt/muos/script/system/usb.sh &

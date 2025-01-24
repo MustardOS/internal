@@ -49,5 +49,4 @@ if [ "$(GET_VAR "global" "settings/advanced/thermal")" -eq 1 ]; then
 	done
 fi
 
-# Work around swapped speaker channels
-/opt/muos/device/current/script/spk.sh &
+/opt/muos/device/current/script/speaker.sh &

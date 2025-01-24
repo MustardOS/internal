@@ -92,7 +92,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 
 	LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
 	/opt/muos/script/mux/hotkey.sh &
-	/usr/bin/mpv /opt/muos/factory.mp3 &
+	/usr/bin/mpv /opt/muos/media/factory.mp3 &
 
 	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
 		LOG_INFO "$0" 0 "FACTORY RESET" "Generating SSH Host Keys"

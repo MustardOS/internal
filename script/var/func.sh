@@ -136,11 +136,10 @@ FB_SWITCH() {
 	TIMING_ARGS=""
 	[ "$#" -gt 0 ] && TIMING_ARGS="-t $*"
 
-	SET_VAR "device" "screen/width" "$WIDTH"
-	SET_VAR "device" "screen/height" "$HEIGHT"
-
-	SET_VAR "device" "mux/width" "$WIDTH"
-	SET_VAR "device" "mux/height" "$HEIGHT"
+	for MODE in "screen" "mux"; do
+		SET_VAR "device" "$MODE/width" "$WIDTH"
+		SET_VAR "device" "$MODE/height" "$HEIGHT"
+	done
 
 	fbset -fb "$(GET_VAR "device" "screen/device")" -g "${WIDTH}" "${HEIGHT}" "${WIDTH}" "$((HEIGHT * 2))" "${DEPTH}" $TIMING_ARGS
 }

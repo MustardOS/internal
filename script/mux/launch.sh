@@ -55,16 +55,8 @@ GET_VAR "global" "settings/advanced/led" >/tmp/work_led_state
 cat "$GVR_GO" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 
 # Modify the RetroArch settings for device resolution output
-case "$(GET_VAR "device" "screen/rotate")" in
-	1)
-		RA_WIDTH="$(GET_VAR "device" "screen/height")"
-		RA_HEIGHT="$(GET_VAR "device" "screen/width")"
-		;;
-	0 | 2)
-		RA_WIDTH="$(GET_VAR "device" "screen/width")"
-		RA_HEIGHT="$(GET_VAR "device" "screen/height")"
-		;;
-esac
+RA_WIDTH="$(GET_VAR "device" "screen/width")"
+RA_HEIGHT="$(GET_VAR "device" "screen/height")"
 
 (
 	printf "video_fullscreen_x = \"%s\"\n" "$RA_WIDTH"
@@ -186,7 +178,10 @@ esac
 if [ "$(cat "$(GET_VAR "global" "settings/hdmi/enabled")")" -eq 1 ]; then
 	HDMI_SWITCH
 else
-	FB_SWITCH "$(GET_VAR "device" "screen/internal/width")" "$(GET_VAR "device" "screen/internal/height")" 32
+	case "$(GET_VAR "device" "screen/rotate")" in
+		1) ;; # Do NOT fucking use FB_SWITCH here for the RG28XX-H or it will ruin your day!
+		0 | 2) FB_SWITCH "$(GET_VAR "device" "screen/internal/width")" "$(GET_VAR "device" "screen/internal/height")" 32 ;;
+	esac
 fi
 
 if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then

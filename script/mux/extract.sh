@@ -69,7 +69,7 @@ else
 					DESTINATION="/run/muos/storage/info"
 					;;
 				*)
-					DESTINATION="/"
+					DESTINATION="/$folder_name"
 					;;
 			esac
 

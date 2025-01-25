@@ -107,7 +107,7 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
 	SET_VAR "global" "boot/factory_reset" "0"
 	SET_VAR "global" "settings/advanced/rumble" "0"
 
-	killall -q "hotkey.sh" "mpv"
+	killall -q "mpv"
 
 	/opt/muos/bin/nosefart /opt/muos/media/support.nsf &
 	EXEC_MUX "" "muxcredits"

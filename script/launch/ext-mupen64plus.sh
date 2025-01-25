@@ -23,7 +23,7 @@ SET_VAR "system" "foreground_process" "mupen64plus"
 
 if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 0 ]; then
 	case "$(GET_VAR "device" "screen/rotate")" in
-		1) FB_SWITCH 240 320 32 ;;
+		# 1) FB_SWITCH 240 320 32 ;; Don't bother with RG28XX-H for now...
 		0 | 2) FB_SWITCH 320 240 32 ;;
 	esac
 fi
@@ -67,7 +67,11 @@ HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus
 if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
 	HDMI_SWITCH
 else
-	FB_SWITCH "$(GET_VAR "device" "screen/internal/width")" "$(GET_VAR "device" "screen/internal/height")" 32
+	case "$(GET_VAR "device" "screen/rotate")" in
+	 	# Do NOT use FB_SWITCH here for the RG28XX-H or it will ruin your day!
+		# 1) FB_SWITCH "$(GET_VAR "device" "screen/internal/height")" "$(GET_VAR "device" "screen/internal/width")" 32 ;
+		0 | 2) FB_SWITCH "$(GET_VAR "device" "screen/internal/width")" "$(GET_VAR "device" "screen/internal/height")" 32 ;;
+	esac
 fi
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

@@ -179,7 +179,8 @@ if [ "$(cat "$(GET_VAR "global" "settings/hdmi/enabled")")" -eq 1 ]; then
 	HDMI_SWITCH
 else
 	case "$(GET_VAR "device" "screen/rotate")" in
-		1) ;; # Do NOT fucking use FB_SWITCH here for the RG28XX-H or it will ruin your day!
+		# Do NOT use FB_SWITCH here for the RG28XX-H or it will ruin your day!
+		# 1) FB_SWITCH "$(GET_VAR "device" "screen/internal/height")" "$(GET_VAR "device" "screen/internal/width")" 32 ;
 		0 | 2) FB_SWITCH "$(GET_VAR "device" "screen/internal/width")" "$(GET_VAR "device" "screen/internal/height")" 32 ;;
 	esac
 fi

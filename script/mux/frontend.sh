@@ -191,7 +191,7 @@ while :; do
 					printf "%s" "${RES_CONTENT##*/}" >"$EX_NAME"
 					printf "%s" "${RES_CONTENT%/*}" >"$EX_DIR"
 					printf "%s" "$(echo "$RES_CONTENT" | sed 's|.*/\([^/]*\)/ROMS.*|\1|')" >"$EX_CARD"
-					EXEC_MUX "option" "muxplore" -i 0 -m "$(cat "$EX_CARD")"
+					EXEC_MUX "option" "muxplore" -i 0 -d "$(cat "$EX_DIR")"
 				fi
 				;;
 

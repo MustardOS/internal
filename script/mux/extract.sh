@@ -54,11 +54,37 @@ else
 		grep --line-buffered -E '^ *(extracting|inflating):' |
 		/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
 
-	echo "Moving files..."
-	rsync --archive --ignore-times --remove-source-files --itemize-changes --outbuf=L "$MUX_TEMP/" / |
-		grep --line-buffered '^>f' |
-		/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+	echo "Processing and moving files..."
+	for folder in "$MUX_TEMP"/*; do
+		if [ -d "$folder" ]; then
+			folder_name=$(basename "$folder")
+			echo "Processing folder: $folder_name"
 
+			# Define destination directory based on folder name
+			case "$folder_name" in
+				catalogue)
+					DESTINATION="/run/muos/storage/info/catalogue"
+					;;
+				info)
+					DESTINATION="/run/muos/storage/info"
+					;;
+				muos)
+					DESTINATION="/run/muos/storage"
+					;;
+				*)
+					DESTINATION="/$folder_name"
+					;;
+			esac
+
+			# Sync the current folder to the determined destination
+			echo "Syncing $folder_name to $DESTINATION..."
+			rsync --archive --ignore-times --remove-source-files --itemize-changes --outbuf=L "$folder/" "$DESTINATION/" |
+				grep --line-buffered '^>f' |
+				/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+		fi
+	done
+
+	# Clean up temporary directory
 	rm -rf "$MUX_TEMP"
 fi
 

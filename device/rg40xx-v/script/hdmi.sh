@@ -8,7 +8,6 @@ XDG_RUNTIME_DIR="/var/run"
 REFRESH_HDMI() {
 	printf "1" >"/tmp/hdmi_do_refresh"
 	printf "%s" "$1" >"/tmp/hdmi_in_use"
-	touch "/tmp/hdmi_init_done"
 }
 
 SET_AUDIO() {
@@ -44,14 +43,16 @@ case "$1" in
 		else
 			SET_AUDIO "INT"
 		fi
-		HDMI_SWITCH
 		DISPLAY_WRITE disp0 switch1 "$(SET_DISPLAY_PARAMS)"
+		sleep 0.5
+		HDMI_SWITCH
 		REFRESH_HDMI 1
 		;;
 	stop)
 		SET_AUDIO "INT"
-		FB_SWITCH "$(GET_VAR device screen/internal/width)" "$(GET_VAR device screen/internal/height)" 32
 		DISPLAY_WRITE disp0 switch "1 0"
+		sleep 0.5
+		FB_SWITCH "$(GET_VAR device screen/internal/width)" "$(GET_VAR device screen/internal/height)" 32
 		REFRESH_HDMI 0
 		;;
 	*)

@@ -238,8 +238,11 @@ while :; do
 
 			"hdmi")
 				EXEC_MUX "tweakgen" "muxhdmi"
-				while [ ! -f "/tmp/hdmi_init_done" ]; do sleep 0.25; done
-				rm -f "/tmp/hdmi_init_done"
+				if [ "$(GET_VAR "global" "settings/hdmi/enabled")" -eq 1 ]; then
+					/opt/muos/device/current/script/hdmi.sh start
+				else
+					/opt/muos/device/current/script/hdmi.sh stop
+				fi
 				;;
 
 			"picker")

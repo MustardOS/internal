@@ -175,15 +175,8 @@ case "$(GET_VAR "device" "board/name")" in
 	*) ;;
 esac
 
-if [ "$(cat "$(GET_VAR "global" "settings/hdmi/enabled")")" -eq 1 ]; then
-	HDMI_SWITCH
-else
-	case "$(GET_VAR "device" "screen/rotate")" in
-		# Do NOT use FB_SWITCH here for the RG28XX-H or it will ruin your day!
-		# 1) FB_SWITCH "$(GET_VAR "device" "screen/internal/height")" "$(GET_VAR "device" "screen/internal/width")" 32 ;
-		0 | 2) FB_SWITCH "$(GET_VAR "device" "screen/internal/width")" "$(GET_VAR "device" "screen/internal/height")" 32 ;;
-	esac
-fi
+[ "$(GET_VAR "global" "settings/hdmi/enabled")" -eq 1 ] && SCREEN_TYPE="external" || SCREEN_TYPE="internal"
+FB_SWITCH "$(GET_VAR "device" "screen/$SCREEN_TYPE/width")" "$(GET_VAR "device" "screen/$SCREEN_TYPE/height")" 32
 
 if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
 	SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)

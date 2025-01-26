@@ -11,12 +11,10 @@ GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokey
 LD_LIBRARY_PATH=/usr/lib32
 SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 
-if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 0 ]; then
-	case "$(GET_VAR "device" "screen/rotate")" in
-		1) SDL_ROTATION=0 ;;
-		0 | 2) SDL_ROTATION=3 ;;
-	esac
-fi
+case "$(GET_VAR "device" "screen/rotate")" in
+	1) SDL_ROTATION=0 ;;
+	0 | 2) SDL_ROTATION=3 ;;
+esac
 
 export LD_LIBRARY_PATH SDL_HQ_SCALER SDL_ROTATION
 

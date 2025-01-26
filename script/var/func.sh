@@ -131,46 +131,62 @@ FB_SWITCH() {
 	WIDTH="$1"
 	HEIGHT="$2"
 	DEPTH="$3"
-	shift 3
+	IGNORE_FILE="/tmp/ignore_double"
 
-	TIMING_ARGS=""
-	[ "$#" -gt 0 ] && TIMING_ARGS="-t $*"
-
-	for MODE in "screen" "mux"; do
+	for MODE in screen mux; do
 		SET_VAR "device" "$MODE/width" "$WIDTH"
 		SET_VAR "device" "$MODE/height" "$HEIGHT"
 	done
 
-	fbset -fb "$(GET_VAR "device" "screen/device")" -g "${WIDTH}" "${HEIGHT}" "${WIDTH}" "$((HEIGHT * 2))" "${DEPTH}" $TIMING_ARGS
+	if [ "$(GET_VAR "device" "screen/rotate")" -eq 1 ] && [ "$(GET_VAR "global" "settings/hdmi/enabled")" -eq 0 ]; then
+		N_WIDTH="$HEIGHT"
+		N_HEIGHT="$WIDTH"
+	else
+		N_WIDTH="$WIDTH"
+		N_HEIGHT="$HEIGHT"
+	fi
+
+	IGNORE_FLAG=""
+	[ -f "$IGNORE_FILE" ] && IGNORE_FLAG="-i"
+	/opt/muos/extra/mufbset -w "$N_WIDTH" -h "$N_HEIGHT" -d "$DEPTH" -c $IGNORE_FLAG
+	rm -f "$IGNORE_FILE"
 }
 
 HDMI_SWITCH() {
-	LQ_TIMING="25175 40 24 32 9 96 2"
-	HQ_TIMING="13468 220 40 20 5 110 5"
+	ROTATE=0
+	WIDTH=0
+	HEIGHT=0
+	DEPTH=32
 
 	case "$(GET_VAR "global" "settings/hdmi/resolution")" in
 		0 | 2)
-			SET_VAR "device" "screen/external/width" 640
-			SET_VAR "device" "screen/external/height" 480
-			FB_SWITCH 640 480 32 $LQ_TIMING
+			WIDTH=640
+			HEIGHT=480
 			;;
 		1 | 3)
-			SET_VAR "device" "screen/external/width" 720
-			SET_VAR "device" "screen/external/height" 576
-			FB_SWITCH 720 576 32 $LQ_TIMING
+			WIDTH=720
+			HEIGHT=576
 			;;
 		4 | 5)
-			SET_VAR "device" "screen/external/width" 1280
-			SET_VAR "device" "screen/external/height" 720
-			FB_SWITCH 1280 720 32 $HQ_TIMING
+			WIDTH=1280
+			HEIGHT=720
 			;;
 		6 | 7 | 8 | 9 | 10)
-			SET_VAR "device" "screen/external/width" 1920
-			SET_VAR "device" "screen/external/height" 1080
-			FB_SWITCH 1920 1080 32 $HQ_TIMING
+			WIDTH=1920
+			HEIGHT=1080
 			;;
-		*) FB_SWITCH "$(GET_VAR "device" "screen/internal/width")" "$(GET_VAR "device" "screen/internal/height")" 32 $LQ_TIMING ;;
+		*)
+			[ "$(GET_VAR "device" "board/name")" = "rg28xx-h" ] && ROTATE=1
+			WIDTH="$(GET_VAR "device" "screen/internal/width")"
+			HEIGHT="$(GET_VAR "device" "screen/internal/height")"
+			;;
 	esac
+
+	SET_VAR "device" "screen/rotate" "$ROTATE"
+	SET_VAR "device" "screen/external/width" "$WIDTH"
+	SET_VAR "device" "screen/external/height" "$HEIGHT"
+
+	FB_SWITCH "$WIDTH" "$HEIGHT" "$DEPTH"
 }
 
 # Writes a setting value to the display driver.

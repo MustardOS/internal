@@ -149,6 +149,7 @@ PROCESS_CONTENT_ACTION() {
 }
 
 LAST_INDEX_CHECK() {
+	LAST_INDEX=0
 	if [ -s "$IDX_GO" ] && [ ! -s "$CL_AMW" ]; then
 		read -r LAST_INDEX <"$IDX_GO"
 		LAST_INDEX=${LAST_INDEX:-0}
@@ -191,7 +192,7 @@ while :; do
 					printf "%s" "${RES_CONTENT##*/}" >"$EX_NAME"
 					printf "%s" "${RES_CONTENT%/*}" >"$EX_DIR"
 					printf "%s" "$(echo "$RES_CONTENT" | sed 's|.*/\([^/]*\)/ROMS.*|\1|')" >"$EX_CARD"
-					EXEC_MUX "option" "muxplore" -i 0 -m "$(cat "$EX_CARD")"
+					EXEC_MUX "option" "muxplore" -i 0 -d "$(cat "$EX_DIR")"
 				fi
 				;;
 

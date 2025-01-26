@@ -149,6 +149,7 @@ PROCESS_CONTENT_ACTION() {
 }
 
 LAST_INDEX_CHECK() {
+	LAST_INDEX=0
 	if [ -s "$IDX_GO" ] && [ ! -s "$CL_AMW" ]; then
 		read -r LAST_INDEX <"$IDX_GO"
 		LAST_INDEX=${LAST_INDEX:-0}

@@ -68,6 +68,9 @@ else
 				info)
 					DESTINATION="/run/muos/storage/info"
 					;;
+				muos)
+					DESTINATION="/run/muos/storage"
+					;;
 				*)
 					DESTINATION="/$folder_name"
 					;;

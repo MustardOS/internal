@@ -13,7 +13,7 @@ while :; do
 			echo 0 >"$(GET_VAR "device" "led/low")"
 		else
 			if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
-				/run/muos/storage/theme/active/rgb/rgbconf.sh
+				/run/muos/storage/theme/active/shared/rgb/rgbconf.sh
 			fi
 		fi
 	fi

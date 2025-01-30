@@ -8,7 +8,7 @@ esac
 . /opt/muos/script/var/func.sh
 
 if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
-	RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
+	RGBCONF_SCRIPT="/run/muos/storage/theme/active/shared/rgb/rgbconf.sh"
 	if [ -f "$RGBCONF_SCRIPT" ]; then
 		"$RGBCONF_SCRIPT"
 	else

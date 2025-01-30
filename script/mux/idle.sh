@@ -9,7 +9,7 @@ INHIBIT_SLEEP=2
 BRIGHT_FILE=/opt/muos/config/brightness.txt
 
 LED_CONTROL=/opt/muos/device/current/script/led_control.sh
-RGBCONF=/run/muos/storage/theme/active/rgb/rgbconf.sh
+RGBCONF=/run/muos/storage/theme/active/shared/rgb/rgbconf.sh
 
 DISPLAY_IDLE() {
 	if [ "$(DISPLAY_READ lcd0 getbl)" -gt 10 ]; then

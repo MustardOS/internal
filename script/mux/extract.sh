@@ -71,6 +71,15 @@ else
 				muos)
 					DESTINATION="/run/muos/storage"
 					;;
+				bios)
+					DESTINATION="/run/muos/storage/bios"
+					;;
+				language)
+					DESTINATION="/run/muos/storage/language"
+					;;
+				theme)
+					DESTINATION="/run/muos/storage/theme"
+					;;
 				*)
 					DESTINATION="/$folder_name"
 					;;

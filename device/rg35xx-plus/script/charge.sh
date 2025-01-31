@@ -15,9 +15,7 @@ if read -r MODE <"$BOOT_MODE" && [ "$MODE" -eq 1 ] && [ "$FACTORY_RESET" -eq 0 ]
 	echo "powersave" >"$GOVERNOR"
 	EXEC_MUX "" "muxcharge"
 
-	if read -r CHARGER_EXIT <$EXIT_STATUS && [ "$CHARGER_EXIT" -eq 1 ]; then
-		/opt/muos/script/system/halt.sh poweroff
-	fi
+	[ "$(cat "$EXIT_STATUS")" -eq 1 ] && /opt/muos/script/system/halt.sh poweroff
 
 	echo "performance" >"$GOVERNOR"
 	echo 1 >"$LED"

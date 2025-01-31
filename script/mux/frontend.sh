@@ -248,7 +248,9 @@ while :; do
 
 			"picker")
 				[ -s "$PIK_GO" ] && IFS= read -r PIK_CONTENT <"$PIK_GO"
-				EXEC_MUX "custom" "muxpicker" -m "$PIK_CONTENT"
+				EXPLORE_DIR=""
+				[ -s "$EX_DIR" ] && IFS= read -r EXPLORE_DIR <"$EX_DIR"
+				EXEC_MUX "custom" "muxpicker" -m "$PIK_CONTENT" -d "$EXPLORE_DIR" 
 				;;
 
 			"explore")

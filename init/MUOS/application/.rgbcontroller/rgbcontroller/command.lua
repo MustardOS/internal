@@ -63,7 +63,7 @@ function command.run(settings, colors, double_colors)
     print("Running command: /opt/muos/device/current/script/led_control.sh " .. commandArgs)
 
     -- Execute the command in the system shell
-    os.execute("/run/muos/storage/theme/active/shared/rgb/rgbconf.sh")
+    os.execute("/run/muos/storage/theme/active/rgb/rgbconf.sh")
 end
 
 return command

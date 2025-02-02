@@ -25,7 +25,7 @@ GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokey
 EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8"
 
 # Set appropriate sdl controller file
-SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/opt/muos/device/current/control/gamecontrollerdb_modern.txt")
+SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/opt/muos/device/current/control/gamecontrollerdb_modern.txt")
 export SDL_GAMECONTROLLERCONFIG
 
 # First look for emulator in BIOS directory, which allows it to follow the

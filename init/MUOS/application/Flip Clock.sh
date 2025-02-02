@@ -24,7 +24,7 @@ cd "$FLIPCLOCK_DIR" || exit
 
 SET_VAR "system" "foreground_process" "flipclock"
 
-HOME="$FLIPCLOCK_DIR" SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib32/gamecontrollerdb.txt") $GPTOKEYB "./flipclock" -c "./flipclock.gptk" &
+HOME="$FLIPCLOCK_DIR" SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/usr/lib32/gamecontrollerdb.txt") $GPTOKEYB "./flipclock" -c "./flipclock.gptk" &
 ./flipclock
 
 kill -9 "$(pidof flipclock)"

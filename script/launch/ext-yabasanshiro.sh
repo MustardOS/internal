@@ -74,7 +74,7 @@ cd "$EMUDIR" || exit
 
 export LD_LIBRARY_PATH="$EMUDIR/libsark:$LD_LIBRARY_PATH"
 
-SDL_GAMECONTROLLERCONFIG=$(grep "Deeplay" "/usr/lib/gamecontrollerdb.txt") SDL_ASSERT=always_ignore $YABA_BIN "$FILE"
+SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/usr/lib/gamecontrollerdb.txt") SDL_ASSERT=always_ignore $YABA_BIN "$FILE"
 
 # Copy backup.bin to game specific save
 if [ -f "$SAVE_DIR/backup.bin" ]; then

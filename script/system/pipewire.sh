@@ -44,32 +44,40 @@ if ! pw-cli info >/dev/null 2>&1; then
 fi
 
 for TIMEOUT in $(seq 1 30); do
-	if pw-cli ls Node 2>/dev/null | grep -q "$(GET_VAR "device" "audio/pf_internal")"; then
-
-		INTERNAL_NODE_ID=$(
-			XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
-				awk -v path="$(GET_VAR "device" "audio/ob_internal")" '
-        /id/ {
-            id = $2
-        }
-        /object.path/ && $0 ~ path {
-            gsub(/,$/, "", id)
-            print id
-        }
-    '
-		)
+	if pw-cli ls Node 2>/dev/null | grep -q "Audio/Sink"; then
+    		INTERNAL_NODE_ID=$(
+        		XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
+            			awk -v path="$(GET_VAR "device" "audio/pf_internal")" '
+                			BEGIN { id = "" }
+                			/^[[:space:]]*id [0-9]+,/ {
+                    				id = $2
+                    				gsub(/,/, "", id)
+                			}
+                			/node.name/ {
+                    				if (index($0, path)) {
+                        				print id
+							exit
+                    				}
+                			}
+            			'
+    		)
+     
 
 		EXTERNAL_NODE_ID=$(
-			XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
-				awk -v path="$(GET_VAR "device" "audio/ob_external")" '
-        /id/ {
-            id = $2
-        }
-        /object.path/ && $0 ~ path {
-            gsub(/,$/, "", id)
-            print id
-        }
-    '
+    			XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
+        			awk -v path="$(GET_VAR "device" "audio/pf_external")" '
+            				BEGIN { id = "" }
+            				/^[[:space:]]*id [0-9]+,/ {
+                			id = $2
+                			gsub(/,/, "", id)
+            			}
+            			/node.name/ {
+                			if (index($0, path)) {
+                    				print id
+						exit
+                			}
+            			}
+        		'
 		)
 
 		if [ -n "$INTERNAL_NODE_ID" ]; then
@@ -96,7 +104,7 @@ for TIMEOUT in $(seq 1 30); do
 
 			exit 0
 		else
-			printf "Node with object path '%s' not found.\n" "$(GET_VAR "device" "audio/ob_internal")"
+			printf "Node with name '%s' not found.\n" "$(GET_VAR "device" "audio/pf_internal")"
 			exit 1
 		fi
 	fi

@@ -2,19 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-if ! lsmod | grep -wq "$(GET_VAR "device" "network/name")"; then
-	rmmod "$(GET_VAR "device" "network/module")"
-	sleep 1
-	modprobe --force-modversion "$(GET_VAR "device" "network/module")"
-	while [ ! -d "/sys/class/net/$(GET_VAR "device" "network/iface")" ]; do
-		sleep 1
-	done
-fi
-
-rfkill unblock all
-ip link set "$(GET_VAR "device" "network/iface")" up
-iw dev "$(GET_VAR "device" "network/iface")" set power_save off
-
 NET_SCAN="/tmp/net_scan"
 rm -f "$NET_SCAN"
 

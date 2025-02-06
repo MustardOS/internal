@@ -7,36 +7,6 @@ CURRENT_IP="/opt/muos/config/address.txt"
 
 killall -q dhcpcd wpa_supplicant
 
-ip addr flush dev "$(GET_VAR "device" "network/iface")"
-ip link set "$(GET_VAR "device" "network/iface")" down
-
-echo "nameserver $(GET_VAR "global" "network/dns")" >/etc/resolv.conf
-
-if [ "$(GET_VAR "device" "network/iface")" = "wlan0" ]; then
-	if [ "$(GET_VAR "global" "network/enabled")" -eq 0 ]; then
-		rmmod "$(GET_VAR "device" "network/module")"
-		: >/etc/wpa_supplicant.conf
-
-		# Stop all the web services because there isn't any point!
-		/opt/muos/script/web/service.sh &
-
-		exit
-	fi
-
-	if ! lsmod | grep -wq "$(GET_VAR "device" "network/name")"; then
-		rmmod "$(GET_VAR "device" "network/module")"
-		sleep 1
-		modprobe --force-modversion "$(GET_VAR "device" "network/module")"
-		while [ ! -d "/sys/class/net/$(GET_VAR "device" "network/iface")" ]; do
-			sleep 1
-		done
-	fi
-fi
-
-rfkill unblock all
-ip link set "$(GET_VAR "device" "network/iface")" up
-iw dev "$(GET_VAR "device" "network/iface")" set power_save off
-
 if [ "$(GET_VAR "device" "network/iface")" = "wlan0" ]; then
 	wpa_supplicant -dd -B -i "$(GET_VAR "device" "network/iface")" -c /etc/wpa_supplicant.conf -D "$(GET_VAR "device" "network/type")"
 fi

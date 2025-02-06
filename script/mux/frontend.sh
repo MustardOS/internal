@@ -250,7 +250,7 @@ while :; do
 				[ -s "$PIK_GO" ] && IFS= read -r PIK_CONTENT <"$PIK_GO"
 				EXPLORE_DIR=""
 				[ -s "$EX_DIR" ] && IFS= read -r EXPLORE_DIR <"$EX_DIR"
-				EXEC_MUX "custom" "muxpicker" -m "$PIK_CONTENT" -d "$EXPLORE_DIR" 
+				EXEC_MUX "custom" "muxpicker" -m "$PIK_CONTENT" -d "$EXPLORE_DIR"
 				;;
 
 			"explore")
@@ -279,6 +279,12 @@ while :; do
 				EXEC_MUX "launcher" "muxhistory" -i "$LAST_INDEX"
 				;;
 
+			"credits")
+				/opt/muos/bin/nosefart /opt/muos/media/support.nsf &
+				EXEC_MUX "info" "muxcredits"
+				pkill -9 -f "nosefart" &
+				;;
+
 			"info") EXEC_MUX "launcher" "muxinfo" ;;
 			"archive") EXEC_MUX "app" "muxarchive" ;;
 			"task") EXEC_MUX "app" "muxtask" ;;
@@ -297,7 +303,6 @@ while :; do
 			"timezone") EXEC_MUX "rtc" "muxtimezone" ;;
 			"tester") EXEC_MUX "info" "muxtester" ;;
 			"system") EXEC_MUX "info" "muxsysinfo" ;;
-			"credits") EXEC_MUX "info" "muxcredits" ;;
 
 			"reboot") /opt/muos/script/mux/quit.sh reboot frontend ;;
 			"shutdown") /opt/muos/script/mux/quit.sh poweroff frontend ;;

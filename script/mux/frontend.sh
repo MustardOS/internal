@@ -66,15 +66,20 @@ fi
 
 LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"
 if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR "global" "settings/general/startup")" = "resume" ]; then
+	GO_LAST_BOOT=1
+
 	if [ -n "$LAST_PLAY" ]; then
 		LOG_INFO "$0" 0 "FRONTEND" "Checking for network and retrowait"
+
 		if [ "$(GET_VAR "global" "network/enabled")" -eq 1 ] && [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
 			NET_START="/tmp/net_start"
 			OIP=0
+
 			while :; do
 				NW_MSG=$(printf "Waiting for network to connect... (%s)\n\nPress START to continue loading\nPress SELECT to go to main menu" "$OIP")
 				/opt/muos/extra/muxstart 0 "$NW_MSG"
 				OIP=$((OIP + 1))
+
 				if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
 					LOG_SUCCESS "$0" 0 "FRONTEND" "Network connected"
 					/opt/muos/extra/muxstart 0 "Network connected"
@@ -89,22 +94,32 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 
 					LOG_SUCCESS "$0" 0 "FRONTEND" "Connectivity verified!"
 					/opt/muos/extra/muxstart 0 "Connectivity verified! Booting content!"
+
+					GO_LAST_BOOT=1
 					break
 				fi
+
 				if [ "$(cat "$NET_START")" = "ignore" ]; then
 					LOG_SUCCESS "$0" 0 "FRONTEND" "Ignoring network connection"
 					/opt/muos/extra/muxstart 0 "Ignoring network connection... Booting content!"
+
+					GO_LAST_BOOT=1
 					break
 				fi
+
 				if [ "$(cat "$NET_START")" = "menu" ]; then
 					LOG_SUCCESS "$0" 0 "FRONTEND" "Booting to main menu"
 					/opt/muos/extra/muxstart 0 "Booting to main menu!"
+
+					GO_LAST_BOOT=0
 					break
 				fi
+
 				sleep 1
 			done
 		fi
-		if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ] || [ "$(cat "$NET_START")" = "ignore" ] || [ "$(GET_VAR "global" "network/enabled")" -eq 0 ] || [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 0 ]; then
+
+		if [ $GO_LAST_BOOT -eq 1 ]; then
 			LOG_INFO "$0" 0 "FRONTEND" "Booting to last launched content"
 			cat "$LAST_PLAY" >"$ROM_GO"
 
@@ -123,6 +138,7 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 			/opt/muos/script/mux/launch.sh last
 		fi
 	fi
+
 	echo launcher >$ACT_GO
 fi
 

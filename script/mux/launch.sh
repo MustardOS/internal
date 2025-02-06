@@ -162,12 +162,6 @@ echo 1 >/tmp/work_led_state
 
 cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
 
-if [ "$(GET_VAR "global" "settings/general/startup")" = last ] || [ "$(GET_VAR "global" "settings/general/startup")" = resume ]; then
-	if [ ! -e "/tmp/manual_launch" ]; then
-		echo launcher >"$ACT_GO"
-	fi
-fi
-
 killall -q "$GPTOKEYB_BIN" "$EVSIEVE_BIN"
 
 case "$(GET_VAR "device" "board/name")" in

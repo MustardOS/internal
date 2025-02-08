@@ -23,7 +23,7 @@ INSTALL() {
 		sync
 	}
 
-	CONFIG_ZIP="$CONFIG_ZIP_DIR/$CONFIG_ARG.muxconfig"
+	CONFIG_ZIP="$CONFIG_ZIP_DIR/$CONFIG_ARG.muxcfg"
 	[ ! -f "$CONFIG_ZIP" ] && {
 		printf "Configuration zip not found: %s\n" "$CONFIG_ZIP"
 		exit 1
@@ -59,7 +59,7 @@ SAVE() {
 	fi
 
 	TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-	DEST_FILE="$CONFIG_ZIP_DIR/$BASE_CONFIG_NAME-$TIMESTAMP.muxconfig"
+	DEST_FILE="$CONFIG_ZIP_DIR/$BASE_CONFIG_NAME-$TIMESTAMP.muxcfg"
 
 	printf "Backing up contents of %s to %s\n" "$CONFIG_DIR" "$DEST_FILE"
 	cd "$CONFIG_DIR" && zip -9r "$DEST_FILE" .

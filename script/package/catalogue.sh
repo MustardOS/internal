@@ -23,7 +23,7 @@ INSTALL() {
 		sync
 	}
 
-	CATALOGUE_ZIP="$CATALOGUE_ZIP_DIR/$CATALOGUE_ARG.zip"
+	CATALOGUE_ZIP="$CATALOGUE_ZIP_DIR/$CATALOGUE_ARG.muxcat"
 	[ ! -f "$CATALOGUE_ZIP" ] && {
 		printf "Catalogue zip not found: %s\n" "$CATALOGUE_ZIP"
 		exit 1
@@ -56,7 +56,7 @@ SAVE() {
 	fi
 
 	TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-	DEST_FILE="$CATALOGUE_ZIP_DIR/$BASE_CATALOGUE_NAME-$TIMESTAMP.zip"
+	DEST_FILE="$CATALOGUE_ZIP_DIR/$BASE_CATALOGUE_NAME-$TIMESTAMP.muxcat"
 
 	printf "Backing up contents of %s to %s\n" "$CATALOGUE_DIR" "$DEST_FILE"
 	cd "$CATALOGUE_DIR" && zip -9r "$DEST_FILE" .

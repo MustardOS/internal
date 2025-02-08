@@ -21,9 +21,9 @@ INSTALL() {
 	[ "$(GET_VAR "global" "settings/general/bgm")" -eq 2 ] && STOP_BGM
 
 	if [ "$THEME_ARG" = "?R" ] && [ "$(GET_VAR global settings/advanced/random_theme)" -eq 1 ]; then
-		THEME=$(find "$THEME_DIR" -name '*.zip' | shuf -n 1)
+		THEME=$(find "$THEME_DIR" -name '*.muxtheme' | shuf -n 1)
 	else
-		THEME="$THEME_DIR/$THEME_ARG.zip"
+		THEME="$THEME_DIR/$THEME_ARG.muxtheme"
 	fi
 
 	cp "/opt/muos/device/current/bootlogo.bmp" "$BOOTLOGO_MOUNT/bootlogo.bmp"
@@ -36,7 +36,7 @@ INSTALL() {
 
 	unzip "$THEME" -d "$THEME_ACTIVE_DIR"
 
-	THEME_NAME=$(basename "$THEME" .zip)
+	THEME_NAME=$(basename "$THEME" .muxtheme)
 	echo "${THEME_NAME%-[0-9]*_[0-9]*}" >"$THEME_ACTIVE_DIR/name.txt"
 
 	BOOTLOGO_NEW="$THEME_ACTIVE_DIR/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/bootlogo.bmp"
@@ -69,7 +69,7 @@ SAVE() {
 	fi
 
 	TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-	DEST_FILE="$THEME_DIR/$BASE_THEME_NAME-$TIMESTAMP.zip"
+	DEST_FILE="$THEME_DIR/$BASE_THEME_NAME-$TIMESTAMP.muxtheme"
 
 	printf "Backing up contents of %s to %s\n" "$THEME_ACTIVE_DIR" "$DEST_FILE"
 	cd "$THEME_ACTIVE_DIR" && zip -9r "$DEST_FILE" .

@@ -1,5 +1,15 @@
 #!/bin/sh
 
+sync_folder() {
+    source="$1"
+    dest="$2"
+	# Sync the current folder to the determined destination
+	echo "Syncing ${source##*/} to $dest..."
+	rsync --archive --ignore-times --remove-source-files --itemize-changes --outbuf=L "$source/" "$dest/" |
+		grep --line-buffered '^>f' |
+		/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+}
+
 pkill -STOP muxarchive
 
 if [ "$#" -ne 1 ]; then
@@ -26,10 +36,15 @@ SCHEME_FOLDER="scheme"
 SCHEME_FILE="default.txt"
 echo "Inspecting archive..."
 
-if unzip -l "$1" | awk '$NF ~ /^(('"$SCHEME_FOLDER"'|640x480\/'"$SCHEME_FOLDER"'|720x720\/'"$SCHEME_FOLDER"'))\// && $NF ~ /\/'"$SCHEME_FILE"'$/ {print $NF}' | grep -q ""; then
-	echo "Archive contents indicate it is NOT an installable theme file"
+if [[ "$ARCHIVE_NAME" == *.muxthm ]]; then
 	echo "Copying unextracted archive to theme folder"
 	cp -f "$1" "/run/muos/storage/theme/"
+elif [[ "$ARCHIVE_NAME" == *.muxcat ]]; then
+	echo "Copying unextracted archive to package/catalogue folder"
+	cp -f "$1" "/run/muos/storage/package/catalogue/"
+elif [[ "$ARCHIVE_NAME" == *.muxcfg ]]; then
+	echo "Copying unextracted archive to package/config folder"
+	cp -f "$1" "/run/muos/storage/package/config/"
 elif unzip -l "$1" | awk '$NF ~ /^pico-8\// {folders[$NF]=1} $NF ~ /^pico-8\/(pico8_64|pico8\.dat)$/ {files[$NF]=1} END {if ("pico-8/" in folders && "pico-8/pico8_64" in files && "pico-8/pico8.dat" in files) exit 0; else exit 1}'; then
     echo "Archive contains a valid pico-8 folder with required files"
     
@@ -54,44 +69,48 @@ else
 		grep --line-buffered -E '^ *(extracting|inflating):' |
 		/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
 
-	echo "Processing and moving files..."
-	for folder in "$MUX_TEMP"/*; do
-		if [ -d "$folder" ]; then
-			folder_name=$(basename "$folder")
-			echo "Processing folder: $folder_name"
+	case "$ARCHIVE_NAME" in
+		*.muxapp) 
+			echo "Extracting Application archive..."
+			sync_folder "$MUX_TEMP" "/mnt/mmc/MUOS/application"
+			;;
+		*)
+			echo "Processing and moving files..."
+			for folder in "$MUX_TEMP"/*; do
+				if [ -d "$folder" ]; then
+					folder_name=$(basename "$folder")
+					echo "Processing folder: $folder_name"
 
-			# Define destination directory based on folder name
-			case "$folder_name" in
-				catalogue)
-					DESTINATION="/run/muos/storage/info/catalogue"
-					;;
-				info)
-					DESTINATION="/run/muos/storage/info"
-					;;
-				muos)
-					DESTINATION="/run/muos/storage"
-					;;
-				bios)
-					DESTINATION="/run/muos/storage/bios"
-					;;
-				language)
-					DESTINATION="/run/muos/storage/language"
-					;;
-				theme)
-					DESTINATION="/run/muos/storage/theme"
-					;;
-				*)
-					DESTINATION="/$folder_name"
-					;;
-			esac
-
-			# Sync the current folder to the determined destination
-			echo "Syncing $folder_name to $DESTINATION..."
-			rsync --archive --ignore-times --remove-source-files --itemize-changes --outbuf=L "$folder/" "$DESTINATION/" |
-				grep --line-buffered '^>f' |
-				/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
-		fi
-	done
+					# Define destination directory based on folder name
+					case "$folder_name" in
+						catalogue)
+							DESTINATION="/run/muos/storage/info/catalogue"
+							;;
+						info)
+							DESTINATION="/run/muos/storage/info"
+							;;
+						muos)
+							DESTINATION="/run/muos/storage"
+							;;
+						bios)
+							DESTINATION="/run/muos/storage/bios"
+							;;
+						language)
+							DESTINATION="/run/muos/storage/language"
+							;;
+						theme)
+							DESTINATION="/run/muos/storage/theme"
+							;;
+						*)
+							DESTINATION="/$folder_name"
+							;;
+					esac
+					
+					sync_folder "$folder" "$DESTINATION"
+				fi
+			done
+			;;
+	esac
 
 	# Clean up temporary directory
 	rm -rf "$MUX_TEMP"

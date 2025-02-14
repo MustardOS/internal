@@ -310,7 +310,7 @@ while :; do
 			"network") EXEC_MUX "connect" "muxnetwork" ;;
 			"language") EXEC_MUX "config" "muxlanguage" ;;
 			"webserv") EXEC_MUX "connect" "muxwebserv" ;;
-			"rtc") EXEC_MUX "config" "muxrtc" ;;
+			"rtc") EXEC_MUX "tweakgen" "muxrtc" ;;
 			"storage") EXEC_MUX "config" "muxstorage" ;;
 			"power") EXEC_MUX "config" "muxpower" ;;
 			"tweakadv") EXEC_MUX "tweakgen" "muxtweakadv" ;;

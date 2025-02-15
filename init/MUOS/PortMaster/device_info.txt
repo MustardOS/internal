@@ -5,6 +5,9 @@
 
 ## New Device Info
 #
+# - DEVICE_INFO_VERSION
+# - PM_VERSION
+# - DISPLAY_ORIENTATION
 # - DISPLAY_WIDTH
 # - DISPLAY_HEIGHT
 # - DISPLAY_ORIENTATION
@@ -19,6 +22,8 @@
 # - DEVICE_HAS_AARCH64
 # - DEVICE_HAS_X86
 # - DEVICE_HAS_X86_64
+# - ASPECT_X
+# - ASPECT_Y
 # - ANALOG_STICKS
 #
 # usage `source <path_to>/device_info.txt`
@@ -129,6 +134,8 @@ elif [ -f "/boot/boot/batocera.board" ]; then
     DEVICE_NAME=$(tr '[a-z]' '[A-Z]' < /boot/boot/batocera.board)
 elif [ -f "/boot/boot/system.board" ]; then
     DEVICE_NAME=$(tr '[a-z]' '[A-Z]' < /boot/boot/system.board)
+elif [ -f "/opt/muos/config/device.txt" ]; then
+    DEVICE_NAME="$(cat /opt/muos/config/device.txt | tr '[:lower:]' '[:upper:]')"
 elif [ -f "/sys/firmware/devicetree/base/model" ]; then
     DEVICE_NAME=$(cat "/sys/firmware/devicetree/base/model" | cut -d' ' -f 2)
 
@@ -298,8 +305,13 @@ case "$(echo "$DEVICE_NAME" | tr '[:upper:]' '[:lower:]')" in
         DEVICE_CPU="x86_64"
         ;;
 
-    "trimui smart pro")
+    "trimui smart pro"|"trimui-smart-pro")
         DEVICE_CPU="a133plus"
+        ;;
+
+    "trimui brick"|"trimui-brick")
+        DEVICE_CPU="a133plus"
+        ANALOG_STICKS=0
         ;;
 
     "rg-cubexx")
@@ -307,26 +319,29 @@ case "$(echo "$DEVICE_NAME" | tr '[:upper:]' '[:lower:]')" in
         DEVICE_CPU="h700"
         ;;
 
+    "rgcubexx-h")
+        DEVICE_CPU="h700"
+        ;;
+
+    "rg28xx-h")
+        ANALOG_STICKS=0
+        DISPLAY_ORIENTATION=1
+        DEVICE_CPU="h700"
+        ;;
+
     "rg28xx")
+        DEVICE_NAME="RG28XX-H"
+        ANALOG_STICKS=0
+        DISPLAY_ORIENTATION=1
+        DEVICE_CPU="h700"
+        ;;
+
+    "rg34xx"|"rg34xx-h"|"rg35xx-plus"|"rg35xx-sp"|"rg35xx-2024")
         ANALOG_STICKS=0
         DEVICE_CPU="h700"
         ;;
 
-    "rg35xx-h")
-        DEVICE_CPU="h700"
-        ;;
-
-    "rg35xx-plus")
-        ANALOG_STICKS=0
-        DEVICE_CPU="h700"
-        ;;
-
-    "rg35xx-sp")
-        ANALOG_STICKS=0
-        DEVICE_CPU="h700"
-        ;;
-
-    "rg40xx-h")
+    "rg35xx-h"|"rg40xx-h")
         DEVICE_CPU="h700"
         ;;
 
@@ -334,37 +349,13 @@ case "$(echo "$DEVICE_NAME" | tr '[:upper:]' '[:lower:]')" in
         ANALOG_STICKS=1
         DEVICE_CPU="h700"
         ;;
-
-    "sun50iw9")
-        if [ -f "/opt/muos/config/device.txt" ]; then
-            DEVICE_NAME="$(cat /opt/muos/config/device.txt | tr '[:lower:]' '[:upper:]')"
-            if [[ "$DEVICE_NAME" == "RG35XX-2024" ]]; then
-                ANALOG_STICKS=0
-            elif [[ "$DEVICE_NAME" == "RG35XX-PLUS" ]]; then
-                ANALOG_STICKS=0
-            elif [[ "$DEVICE_NAME" == "RG35XX-SP" ]]; then
-                ANALOG_STICKS=0
-            elif [[ "$DEVICE_NAME" == "RG28XX" ]]; then
-                ANALOG_STICKS=0
-                DISPLAY_ORIENTATION=1
-            elif [[ "$DEVICE_NAME" == "RG40XX-V" ]]; then
-                DEVICE_NAME="RG40XX-V"
-                ANALOG_STICKS=1
-            fi
-        else
-            DEVICE_NAME="RG35XX-H"
-        fi
-
-        DEVICE_CPU="H700"
-        ;;
-
 esac
 
 # GLIBC
 
 CFW_GLIBC="230"
 
-for path in '/lib /lib64 /lib/aarch64-linux-gnu /lib32 /lib/arm-linux-gnueabihf /usr/lib /usr/lib64 /usr/lib32'; do
+for path in /lib /lib64 /lib/aarch64-linux-gnu /lib32 /lib/arm-linux-gnueabihf /usr/lib /usr/lib64 /usr/lib32; do
     libc="$path/libc.so.6"
     if [ -x "$libc" ]; then
         CFW_GLIBC=$("$libc" 2>&1 | head -n 1 | awk '{print $NF}' | tr -d '.')
@@ -412,6 +403,17 @@ GCD=$(gcd $DISPLAY_WIDTH $DISPLAY_HEIGHT)
 ASPECT_X=$((DISPLAY_WIDTH / GCD))
 ASPECT_Y=$((DISPLAY_HEIGHT / GCD))
 
+# TrimUI Hack. :[
+
+if [[ "$DEVICE_NAME" = "TrimUI Smart Pro" ]]; then
+    if [[ "${DISPLAY_WIDTH}x${DISPLAY_HEIGHT}" == "1024x768" ]]; then
+        DEVICE_NAME="TrimUI Brick"
+        ANALOG_STICKS=0
+    fi
+fi
+
+# Dump info
+
 cat << __INFO_DUMP__ | tee "$HOME/device_info_${CFW_NAME}_${DEVICE_NAME}.txt"
 # ${DEVICE_NAME} - ${CFW_NAME}
 \`\`\`bash
@@ -430,9 +432,9 @@ DEVICE_HAS_X86="${DEVICE_HAS_X86}"
 DEVICE_HAS_X86_64="${DEVICE_HAS_X86_64}"
 DISPLAY_WIDTH=${DISPLAY_WIDTH}
 DISPLAY_HEIGHT=${DISPLAY_HEIGHT}
+DISPLAY_ORIENTATION=${DISPLAY_ORIENTATION}
 ASPECT_X=${ASPECT_X}
 ASPECT_Y=${ASPECT_Y}
-DISPLAY_ORIENTATION=${DISPLAY_ORIENTATION}
 ANALOG_STICKS=${ANALOG_STICKS}
 \`\`\`
 __INFO_DUMP__

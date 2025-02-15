@@ -97,7 +97,7 @@ for TIMEOUT in $(seq 1 30); do
 					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$(GET_VAR "device" "audio/min")"%
 					;;
 				*)
-					RESTORED=$(cat "/opt/muos/config/volume.txt")
+					RESTORED=$(GET_VAR "global" "settings/general/brightness")
 					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$RESTORED"%
 					;;
 			esac

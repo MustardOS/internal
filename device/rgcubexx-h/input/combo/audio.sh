@@ -2,7 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-VOLUME_FILE="/opt/muos/config/volume.txt"
 VOLUME_FILE_PERCENT="/tmp/current_volume_percent"
 SLEEP_STATE="/tmp/sleep_state"
 
@@ -28,7 +27,7 @@ SET_CURRENT() {
 	XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$PERCENTAGE%"
 
 	printf "%s" "$PERCENTAGE" >"$VOLUME_FILE_PERCENT"
-	printf "%s" "$VALUE" >"$VOLUME_FILE"
+	SET_VAR "global" "settings/general/brightness" "$VALUE"
 	printf "Volume set to %s (%s%%)\n" "$VALUE" "$PERCENTAGE"
 }
 

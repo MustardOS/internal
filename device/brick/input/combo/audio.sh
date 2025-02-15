@@ -26,7 +26,7 @@ SET_CURRENT() {
 	XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$PERCENTAGE%"
 
 	printf "%s" "$PERCENTAGE" >"$VOLUME_FILE_PERCENT"
-	SET_VAR "global" "settings/general/brightness" "$VALUE"
+	SET_VAR "global" "settings/general/volume" "$VALUE"
 	printf "Volume set to %s (%s%%)\n" "$VALUE" "$PERCENTAGE"
 }
 

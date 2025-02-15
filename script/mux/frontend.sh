@@ -283,6 +283,7 @@ while :; do
 					ADD_MODE=1
 					LAST_INDEX=0
 				fi
+				COLLECTION_DIR=""
 				[ -s "$CL_DIR" ] && IFS= read -r COLLECTION_DIR <"$CL_DIR"
 				find "/run/muos/storage/info/collection" -maxdepth 2 -type f -size 0 -delete
 				EXEC_MUX "launcher" "muxcollect" -a "$ADD_MODE" -d "$COLLECTION_DIR" -i "$LAST_INDEX"

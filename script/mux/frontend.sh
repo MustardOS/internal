@@ -42,7 +42,6 @@ MUX_AUTH=/tmp/mux_auth
 
 DEF_ACT=$(GET_VAR "global" "settings/general/startup")
 printf '%s\n' "$DEF_ACT" >$ACT_GO
-if [ "$DEF_ACT" = "explore" ]; then printf '%s\n' "explore_alt" >$ACT_GO; fi
 
 echo "root" >$EX_CARD
 
@@ -318,6 +317,7 @@ while :; do
 			"net_profile") EXEC_MUX "network" "muxnetprofile" ;;
 			"net_scan") EXEC_MUX "network" "muxnetscan" ;;
 			"timezone") EXEC_MUX "rtc" "muxtimezone" ;;
+			"screenshot") EXEC_MUX "info" "muxshot" ;;
 			"tester") EXEC_MUX "info" "muxtester" ;;
 			"system") EXEC_MUX "info" "muxsysinfo" ;;
 

@@ -319,6 +319,7 @@ while :; do
 			"net_scan") EXEC_MUX "network" "muxnetscan" ;;
 			"timezone") EXEC_MUX "rtc" "muxtimezone" ;;
 			"screenshot") EXEC_MUX "info" "muxshot" ;;
+			"space") EXEC_MUX "info" "muxspace" ;;
 			"tester") EXEC_MUX "info" "muxtester" ;;
 			"system") EXEC_MUX "info" "muxsysinfo" ;;
 

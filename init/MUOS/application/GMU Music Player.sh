@@ -1,6 +1,7 @@
 #!/bin/sh
 # HELP: GMU Music Player
 # ICON: music
+# GRID: GMU Music
 
 . /opt/muos/script/var/func.sh
 

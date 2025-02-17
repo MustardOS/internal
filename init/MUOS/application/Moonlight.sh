@@ -1,6 +1,7 @@
 #!/bin/sh
 # HELP: Moonlight
 # ICON: moonlight
+# GRID: Moonlight
 
 . /opt/muos/script/var/func.sh
 

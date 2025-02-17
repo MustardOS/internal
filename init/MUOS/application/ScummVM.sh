@@ -1,6 +1,7 @@
 #!/bin/sh
 # HELP: Script Creation Utility for Maniac Mansion Virtual Machine (ScummVM)
 # ICON: scummvm
+# GRID: ScummVM
 
 . /opt/muos/script/var/func.sh
 

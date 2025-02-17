@@ -1,6 +1,7 @@
 #!/bin/bash
 # HELP: RGB Controller
 # ICON: rgbcontroller
+# GRID: RGB
 
 . /opt/muos/script/var/func.sh
 

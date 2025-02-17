@@ -1,6 +1,7 @@
 #!/bin/sh
 # HELP: PPSSPP
 # ICON: ppsspp
+# GRID: PPSSPP
 
 . /opt/muos/script/var/func.sh
 

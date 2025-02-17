@@ -1,6 +1,7 @@
 #!/bin/sh
 # HELP: Flip Clock
 # ICON: flip
+# GRID: Flip Clock
 
 . /opt/muos/script/var/func.sh
 

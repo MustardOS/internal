@@ -1,6 +1,7 @@
 #!/bin/sh
 # HELP: RetroArch
 # ICON: retroarch
+# GRID: RetroArch
 
 . /opt/muos/script/var/func.sh
 

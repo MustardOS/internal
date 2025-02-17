@@ -1,6 +1,7 @@
 #!/bin/sh
 # HELP: Simple Terminal
 # ICON: terminal
+# GRID: Terminal
 
 . /opt/muos/script/var/func.sh
 

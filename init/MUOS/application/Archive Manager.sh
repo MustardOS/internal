@@ -1,6 +1,7 @@
 #!/bin/sh
 # HELP: Archive Manager
 # ICON: archive
+# GRID: Archive
 
 . /opt/muos/script/var/func.sh
 

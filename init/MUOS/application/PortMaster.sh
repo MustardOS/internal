@@ -1,6 +1,7 @@
 #!/bin/sh
 # HELP: PortMaster
 # ICON: portmaster
+# GRID: PortMaster
 
 . /opt/muos/script/var/func.sh
 

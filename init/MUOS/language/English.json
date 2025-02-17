@@ -107,6 +107,7 @@
     "Wi-Fi Network": "Wi-Fi Network"
   },
   "muxcustom": {
+    "Alternative Theme": "Alternative Theme",
     "Background Animation": "Background Animation",
     "Background Music": "Background Music",
     "Behind": "Behind",
@@ -137,7 +138,7 @@
     "Navigation Sound": "Navigation Sound",
     "RetroArch Configurations": "RetroArch Configurations",
     "Theme": "Theme",
-    "Theme Alternates": "Theme Alternates",
+    "Theme Picker": "Theme Picker",
     "Toggle the background animation of the current selected theme": "Toggle the background animation of the current selected theme",
     "Toggle the background music of the frontend - This will stop if content is launched": "Toggle the background music of the frontend - This will stop if content is launched",
     "Toggle the fade to black animation on content launching": "Toggle the fade to black animation on content launching",
@@ -145,8 +146,7 @@
     "Toggle the splash image on content launching": "Toggle the splash image on content launching",
     "Top Left": "Top Left",
     "Top Middle": "Top Middle",
-    "Top Right": "Top Right",
-    "muOS Themes": "muOS Themes"
+    "Top Right": "Top Right"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance",
@@ -211,13 +211,17 @@
   },
   "muxlaunch": {
     "Applications": "Applications",
+    "Apps": "Apps",
     "Collection": "Collection",
+    "Config": "Config",
     "Configuration": "Configuration",
+    "Content": "Content",
     "Content added to collections can be found and launched here": "Content added to collections can be found and launched here",
     "Content on storage devices (SD1/SD2/USB) can be found and launched here": "Content on storage devices (SD1/SD2/USB) can be found and launched here",
     "Content previously launched can be found and launched here": "Content previously launched can be found and launched here",
     "Explore Content": "Explore Content",
     "History": "History",
+    "Info": "Info",
     "Information": "Information",
     "Kiosk configuration not found": "Kiosk configuration not found",
     "MAIN MENU": "MAIN MENU",

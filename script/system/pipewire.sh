@@ -101,6 +101,8 @@ for TIMEOUT in $(seq 1 30); do
 					;;
 			esac
 
+			XDG_RUNTIME_DIR="/var/run" wpctl set-mute "$(GET_VAR "audio" "nid_internal")" "0"
+
 			exit 0
 		else
 			printf "Node with name '%s' not found.\n" "$(GET_VAR "device" "audio/pf_internal")"

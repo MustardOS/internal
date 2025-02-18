@@ -40,6 +40,12 @@ if [ "$#" -ne 1 ]; then
 	exit 1
 fi
 
+if [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ] && [ "$(GET_VAR "global" "settings/hdmi/enabled")" -eq 1 ]; then
+	echo "Cannot suspend when HDMI mode is enabled!"
+	exit 1
+fi
+
+AUDIO_NID="nid_internal nid_external"
 SUSPEND_PROC="adbd pipewire sshd sftpgo ttyd syncthing rslsync tailscaled"
 
 case "$1" in
@@ -52,12 +58,24 @@ case "$1" in
 		SET_VAR "system" "resume_uptime" "$(UPTIME)"
 		;;
 	sleep)
+		for NID in $AUDIO_NID; do
+			wpctl set-mute "$(GET_VAR "audio" "$NID")" "1"
+		done
 		for PROC in $SUSPEND_PROC; do
 			pkill -STOP "$PROC"
 		done
 		SLEEP
 		;;
 	resume)
+		for PROC in $SUSPEND_PROC; do
+			pkill -CONT "$PROC"
+		done
+		for NID in $AUDIO_NID; do
+			wpctl set-mute "$(GET_VAR "audio" "$NID")" "0"
+		done
+		RESUME
+		;;
+	resume_noaudio)
 		for PROC in $SUSPEND_PROC; do
 			pkill -CONT "$PROC"
 		done

@@ -20,7 +20,7 @@ while :; do
 	fi
 
 	if [ "$SLEEP_TIMER_VAL" -eq "$(GET_VAR "global" "settings/power/shutdown")" ]; then
-		/opt/muos/script/system/suspend.sh resume
+		/opt/muos/script/system/suspend.sh resume_noaudio
 		/opt/muos/script/mux/quit.sh poweroff sleep
 	fi
 

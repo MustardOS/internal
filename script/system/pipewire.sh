@@ -45,9 +45,9 @@ fi
 
 for TIMEOUT in $(seq 1 30); do
 	if pw-cli ls Node 2>/dev/null | grep -q "Audio/Sink"; then
-    		INTERNAL_NODE_ID=$(
-        		XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
-            			awk -v path="$(GET_VAR "device" "audio/pf_internal")" '
+		INTERNAL_NODE_ID=$(
+			XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
+				awk -v path="$(GET_VAR "device" "audio/pf_internal")" '
                 			BEGIN { id = "" }
                 			/^[[:space:]]*id [0-9]+,/ {
                     				id = $2
@@ -60,12 +60,11 @@ for TIMEOUT in $(seq 1 30); do
                     				}
                 			}
             			'
-    		)
-     
+		)
 
 		EXTERNAL_NODE_ID=$(
-    			XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
-        			awk -v path="$(GET_VAR "device" "audio/pf_external")" '
+			XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
+				awk -v path="$(GET_VAR "device" "audio/pf_external")" '
             				BEGIN { id = "" }
             				/^[[:space:]]*id [0-9]+,/ {
                 			id = $2
@@ -97,7 +96,7 @@ for TIMEOUT in $(seq 1 30); do
 					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$(GET_VAR "device" "audio/min")"%
 					;;
 				*)
-					RESTORED=$(GET_VAR "global" "settings/general/brightness")
+					RESTORED=$(GET_VAR "global" "settings/general/volume")
 					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$RESTORED"%
 					;;
 			esac

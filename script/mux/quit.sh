@@ -112,6 +112,13 @@ HALT_SYSTEM() {
 				CLOSE_CONTENT
 				;;
 		esac
+
+		# Run syncthing scanner if enabled
+		if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
+			SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)
+			SYNCTHING_API=$(cat /run/muos/storage/syncthing/api.txt)
+			curl -X POST -H "X-API-Key: $SYNCTHING_API" "$SYNCTHING_ADDRESS:7070/rest/db/scan"
+		fi
 	} 2>&1 | ts '%Y-%m-%d %H:%M:%S' >>/opt/muos/halt.log
 
 	if [ "$HALT_SRC" = frontend ] && [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 1 ]; then

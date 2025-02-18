@@ -92,8 +92,11 @@ for TIMEOUT in $(seq 1 30); do
 				"loud")
 					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$(GET_VAR "device" "audio/max")"%
 					;;
-				"quiet")
-					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$(GET_VAR "device" "audio/min")"%
+				"soft")
+					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "25%"
+					;;
+				"silent")
+					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "0%"
 					;;
 				*)
 					RESTORED=$(GET_VAR "global" "settings/general/volume")

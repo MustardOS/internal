@@ -27,6 +27,9 @@ fi
 		"high")
 			/opt/muos/device/current/input/combo/bright.sh "$(GET_VAR "device" "screen/bright")"
 			;;
+		"medium")
+			/opt/muos/device/current/input/combo/bright.sh 90
+			;;
 		"low")
 			/opt/muos/device/current/input/combo/bright.sh 10
 			;;

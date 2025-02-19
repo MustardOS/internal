@@ -5,6 +5,7 @@
 ACT_GO=/tmp/act_go
 ROM_GO=/tmp/rom_go
 GVR_GO=/tmp/gvr_go
+MUX_LAUNCHER_AUTH=/tmp/mux_launcher_auth
 
 GPTOKEYB_BIN=gptokeyb2
 GPTOKEYB_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb"
@@ -15,9 +16,10 @@ export EVSIEVE_BIN=evsieve
 export EVSIEVE_DIR="/opt/muos/bin"
 export EVSIEVE_CONFDIR="/opt/muos/config/evsieve"
 
-if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
-	nice --20 /opt/muos/extra/muxpass -t launch
-	if [ "$?" = 2 ]; then
+if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_LAUNCHER_AUTH" ]; then
+	EXEC_MUX "" "muxpass" -t launch
+	[ "$EXIT_STATUS" -eq 1 ] && touch "$MUX_LAUNCHER_AUTH"
+	if [ "$EXIT_STATUS" = 2 ]; then
 		rm "$ROM_GO"
 		echo explore >"$ACT_GO"
 		exit

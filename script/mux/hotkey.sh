@@ -2,7 +2,9 @@
 
 . /opt/muos/script/var/func.sh
 
-. /opt/muos/script/mux/idle.sh
+if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
+	. /opt/muos/script/mux/idle.sh
+fi
 
 SLEEP_STATE_FILE=/tmp/sleep_state
 POWER_LONG_FILE=/tmp/trigger/POWER_LONG

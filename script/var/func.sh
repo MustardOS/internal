@@ -8,6 +8,7 @@ CSI="${ESC}[38;5;"
 
 SAFE_QUIT=/tmp/safe_quit
 EXIT_STATUS=0
+PREVIOUS_MODULE=""
 
 EXEC_MUX() {
 	[ -f "$SAFE_QUIT" ] && rm "$SAFE_QUIT"
@@ -22,6 +23,7 @@ EXEC_MUX() {
 	nice --20 "/opt/muos/extra/$MODULE" "$@"
 
 	while [ ! -f "$SAFE_QUIT" ]; do sleep 0.1; done
+	PREVIOUS_MODULE="$MODULE"
 	EXIT_STATUS=$(head -n 1 "$SAFE_QUIT")
 }
 

@@ -39,6 +39,7 @@ CL_DIR=/tmp/collection_dir
 CL_AMW=/tmp/add_mode_work
 
 MUX_AUTH=/tmp/mux_auth
+MUX_LAUNCHER_AUTH=/tmp/mux_launcher_auth
 
 DEF_ACT=$(GET_VAR "global" "settings/general/startup")
 printf '%s\n' "$DEF_ACT" >$ACT_GO
@@ -193,6 +194,7 @@ while :; do
 			"launcher")
 				touch /tmp/pdi_go
 				[ -s "$MUX_AUTH" ] && rm "$MUX_AUTH"
+				[ -s "$MUX_LAUNCHER_AUTH" ] && rm "$MUX_LAUNCHER_AUTH"
 				EXEC_MUX "launcher" "muxlaunch"
 				;;
 
@@ -212,10 +214,17 @@ while :; do
 				;;
 
 			"app")
-				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
+				AUTHORIZED=0
+				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_LAUNCHER_AUTH" ]; then
 					EXEC_MUX "launcher" "muxpass" -t launch
-					[ "$EXIT_STATUS" -eq 1 ] && EXEC_MUX "launcher" "muxapp"
+					if [ "$EXIT_STATUS" -eq 1 ]; then
+						AUTHORIZED=1
+						touch "$MUX_LAUNCHER_AUTH"
+					fi
 				else
+					AUTHORIZED=1
+				fi
+				if [ "$AUTHORIZED" -eq 1 ]; then
 					EXEC_MUX "launcher" "muxapp"
 					if [ -s "$APP_GO" ]; then
 						IFS= read -r RUN_APP <"$APP_GO"
@@ -237,15 +246,11 @@ while :; do
 				;;
 
 			"config")
-				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
-					if [ -e "$MUX_AUTH" ]; then
+				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_AUTH" ] && [ ! "$PREVIOUS_MODULE" = "muxtweakgen" ]; then
+					EXEC_MUX "launcher" "muxpass" -t setting
+					if [ "$EXIT_STATUS" -eq 1 ]; then
 						EXEC_MUX "launcher" "muxconfig"
-					else
-						EXEC_MUX "launcher" "muxpass" -t setting
-						if [ "$EXIT_STATUS" -eq 1 ]; then
-							EXEC_MUX "launcher" "muxconfig"
-							touch "$MUX_AUTH"
-						fi
+						touch "$MUX_AUTH"
 					fi
 				else
 					EXEC_MUX "launcher" "muxconfig"
@@ -301,6 +306,14 @@ while :; do
 				pkill -9 -f "nosefart" &
 				;;
 
+			"tweakadv") 
+				EXEC_MUX "tweakgen" "muxtweakadv"
+				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 0 ]; then
+					[ -f "$MUX_AUTH" ] && rm "$MUX_AUTH"
+					[ -f "$MUX_LAUNCHER_AUTH" ] && rm "$MUX_LAUNCHER_AUTH"
+				fi
+				;;
+
 			"info") EXEC_MUX "launcher" "muxinfo" ;;
 			"archive") EXEC_MUX "app" "muxarchive" ;;
 			"task") EXEC_MUX "app" "muxtask" ;;
@@ -313,7 +326,6 @@ while :; do
 			"rtc") EXEC_MUX "tweakgen" "muxrtc" ;;
 			"storage") EXEC_MUX "config" "muxstorage" ;;
 			"power") EXEC_MUX "config" "muxpower" ;;
-			"tweakadv") EXEC_MUX "tweakgen" "muxtweakadv" ;;
 			"visual") EXEC_MUX "config" "muxvisual" ;;
 			"net_profile") EXEC_MUX "network" "muxnetprofile" ;;
 			"net_scan") EXEC_MUX "network" "muxnetscan" ;;

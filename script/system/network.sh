@@ -5,6 +5,10 @@
 CURRENT_IP="/opt/muos/config/address.txt"
 : >"$CURRENT_IP"
 
+if [ -z "$(GET_VAR "global" "network/ssid")" ]; then
+	exit
+fi
+
 killall -q dhcpcd wpa_supplicant
 
 if [ "$(GET_VAR "device" "network/iface")" = "wlan0" ]; then

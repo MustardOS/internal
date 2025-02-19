@@ -21,7 +21,7 @@ CONFIG_FILE="$GLOBAL_CONFIG"
 
 BOOT_VARS="factory_reset device_setup clock_setup firmware_done"
 CLOCK_VARS="notation pool"
-NETWORK_VARS="enabled type ssid pass address gateway subnet dns"
+NETWORK_VARS="enabled type ssid pass address gateway subnet dns scan"
 SETTINGS_ADVANCED_VARS="accelerate swap thermal font verbose rumble volume brightness offset lock led random_theme retrowait usb_function state user_init dpad_swap overdrive swapfile cardmode"
 SETTINGS_GENERAL_VARS="hidden bgm sound startup colour brightness volume language"
 SETTINGS_HDMI_VARS="enabled resolution theme_resolution space depth range scan audio"

@@ -214,7 +214,7 @@ while :; do
 			"app")
 				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 					EXEC_MUX "launcher" "muxpass" -t launch
-					[ "$?" -eq 1 ] && EXEC_MUX "launcher" "muxapp"
+					[ "$EXIT_STATUS" -eq 1 ] && EXEC_MUX "launcher" "muxapp"
 				else
 					EXEC_MUX "launcher" "muxapp"
 					if [ -s "$APP_GO" ]; then
@@ -241,8 +241,8 @@ while :; do
 					if [ -e "$MUX_AUTH" ]; then
 						EXEC_MUX "launcher" "muxconfig"
 					else
-						EXEC_MUX "muxpass" -t setting
-						if [ "$?" -eq 1 ]; then
+						EXEC_MUX "launcher" "muxpass" -t setting
+						if [ "$EXIT_STATUS" -eq 1 ]; then
 							EXEC_MUX "launcher" "muxconfig"
 							touch "$MUX_AUTH"
 						fi

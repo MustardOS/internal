@@ -172,7 +172,7 @@ if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ]; then
 	while [ "$HAS_UNLOCK" != 1 ]; do
 		LOG_INFO "$0" 0 "BOOTING" "Enabling passcode lock"
 		EXEC_MUX "" "muxpass" -t boot
-		HAS_UNLOCK="$?"
+		HAS_UNLOCK="$EXIT_STATUS"
 	done
 fi
 

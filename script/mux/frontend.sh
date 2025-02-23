@@ -301,12 +301,14 @@ while :; do
 				;;
 
 			"credits")
+				STOP_BGM
 				/opt/muos/bin/nosefart /opt/muos/media/support.nsf &
 				EXEC_MUX "info" "muxcredits"
 				pkill -9 -f "nosefart" &
+				START_BGM
 				;;
 
-			"tweakadv") 
+			"tweakadv")
 				EXEC_MUX "tweakgen" "muxtweakadv"
 				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 0 ]; then
 					[ -f "$MUX_AUTH" ] && rm "$MUX_AUTH"

@@ -142,7 +142,7 @@ FB_SWITCH() {
 		SET_VAR "device" "$MODE/height" "$HEIGHT"
 	done
 
-	if [ "$(GET_VAR "device" "screen/rotate")" -eq 1 ] && [ "$(GET_VAR "global" "settings/hdmi/enabled")" -eq 0 ]; then
+	if [ "$(GET_VAR "device" "board/name")" = "rg28xx-h" ] && [ "$(GET_VAR "global" "settings/hdmi/enabled")" -eq 0 ]; then
 		N_WIDTH="$HEIGHT"
 		N_HEIGHT="$WIDTH"
 	else

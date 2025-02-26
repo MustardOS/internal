@@ -9,7 +9,7 @@ LED_STATE="/tmp/work_led_state"
 
 UPDATE_DISPLAY() {
 	echo "$1" >"$(GET_VAR "device" "led/normal")"
-	echo "$2" >/sys/class/graphics/fb0/blank
+	DISPLAY_WRITE disp0 blank "$2"
 	DISPLAY_WRITE lcd0 setbl "$3"
 }
 
@@ -53,7 +53,7 @@ DEV_SLEEP() {
 				pkill -STOP "$FG_PROC_VAL"
 			fi
 
-			UPDATE_DISPLAY "$(cat $LED_STATE)" 4 0
+			UPDATE_DISPLAY "$(cat $LED_STATE)" 1 0
 			;;
 	esac
 }

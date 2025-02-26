@@ -36,8 +36,8 @@ CLOSE_CONTENT() {
 
 # Blank screen to prevent visual glitches as running programs exit.
 DISPLAY_BLANK() {
-	echo 4 >/sys/class/graphics/fb0/blank
-	DISPLAY_WRITE disp0 setbl 0
+	DISPLAY_WRITE lcd0 setbl "0"
+	DISPLAY_WRITE disp0 blank "1"
 }
 
 # Clears the last-played content so we won't relaunch it on the next boot.
@@ -91,8 +91,7 @@ HALT_SYSTEM() {
 						"/run/muos/storage/theme/active/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/$(GET_VAR global settings/general/language)/$SPLASH_IMG.png" \
 						"/run/muos/storage/theme/active/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/$SPLASH_IMG.png" \
 						"/run/muos/storage/theme/active/image/$(GET_VAR global settings/general/language)/$SPLASH_IMG.png" \
-						"/run/muos/storage/theme/active/image/$SPLASH_IMG.png"
-					do
+						"/run/muos/storage/theme/active/image/$SPLASH_IMG.png"; do
 						if [ -f "$path" ]; then
 							SPLASH_IMG_PATH="$path"
 							break

@@ -8,11 +8,10 @@ rm -f "$NET_SCAN"
 {
 	iw dev "$(GET_VAR "device" "network/iface")" scan |
 		grep "SSID:" |
-		awk '{gsub(/^ +| +$/, "", $0); print substr($0, 8)}' |
-		sort -u |
+		sed 's/^[[:space:]]*SSID: //' |
 		grep -v '^\\x00' |
-		grep -v '^$' |
-		grep -v '[^[:print:]]'
+		sed 's/\\x20/ /g' |
+		sort -u
 } >"$NET_SCAN" &
 
 SCAN_TIMEOUT=0

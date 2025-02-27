@@ -30,7 +30,8 @@ HANDLE_HOTKEY() {
 		IDLE_SLEEP) SLEEP ;;
 
 		# Power combos:
-		OSF) /opt/muos/script/mux/quit.sh reboot osf ;;
+		OSF_R) /opt/muos/script/mux/quit.sh reboot osf ;;
+		OSF_S) /opt/muos/script/mux/quit.sh poweroff osf ;;
 		SLEEP) SLEEP ;;
 
 		# Utility combos:

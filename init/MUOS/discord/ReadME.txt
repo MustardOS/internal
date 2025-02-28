@@ -15,7 +15,7 @@
      - `rpc`
      - `rpc.activities.write`
      - `identify`
-   - Set the callback URL to: `https://localhost:5000/callback`.
+   - Set the callback URL to: `https://127.0.0.1:5000/callback`.
 
 4. **Retrieve Client ID and Secret:**
    - Copy your **Client ID**.

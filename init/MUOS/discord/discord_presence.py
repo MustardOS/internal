@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 client_id = 'Your client ID'  # Replace with your actual client ID
 client_secret = 'Your client secret'  # Replace with your actual client secret
-redirect_uri = 'http://localhost:5000/callback'  # Redirect URI for local hosting
+redirect_uri = 'http://127.0.0.1:5000/callback'  # Redirect URI for local hosting
 
 igdb_client_id = 'Your igdb client id'  # Replace with your IGDB client ID
 igdb_client_secret = 'Your igdb client secret'

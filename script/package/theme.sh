@@ -47,7 +47,7 @@ INSTALL() {
 		[ -f "$RGBCONF_SCRIPT" ] && "$RGBCONF_SCRIPT" || /opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
 	fi
 
-	if [ "$(GET_VAR global settings/advanced/random_theme)" -eq 0 ] && [ -f "$BOOTLOGO_NEW" ]; then
+	if [ -f "$BOOTLOGO_NEW" ]; then
 		cp "$BOOTLOGO_NEW" "$BOOTLOGO_MOUNT/bootlogo.bmp"
 		case "$(GET_VAR device board/name)" in
 			rg28xx-h) convert "$BOOTLOGO_MOUNT/bootlogo.bmp" -rotate 270 "$BOOTLOGO_MOUNT/bootlogo.bmp" ;;

@@ -20,21 +20,21 @@
     "No Information Found": "Geen informatie",
     "Open": "Openen",
     "Previous": "Vorige",
-    "Rebooting": "Rebooting",
+    "Rebooting": "Opnieuw Opstarten",
     "Recursive": "Recursief",
     "Remove": "Verwijderen",
     "Rescan": "Rescan",
     "Restore": "Herstellen",
     "Save": "Opslaan",
     "Select": "Selecteer",
-    "Shutting Down": "Shutting Down",
+    "Shutting Down": "Uitschakelen",
     "Switch to Information": "Informatie tonen",
     "Switch to Preview Image": "Voorbeeld tonen",
     "Sync to SD1": "Met SD1 synchroniseren",
     "This is disabled in kiosk mode!": "In kioskmodus niet beschikbaar!",
     "Unknown": "Onbekend",
     "Use": "Selecteer",
-    "User Defined": "User Defined"
+    "User Defined": "Gebruikergedefinieerd"
   },
   "muxapp": {
     "APPLICATIONS": "APPLICATIES",
@@ -81,7 +81,7 @@
   },
   "muxconfig": {
     "CONFIGURATION": "CONFIGURATIE",
-    "Connectivity": "Connectivity",
+    "Connectivity": "Connectiviteit",
     "Customisation": "Personalisatie",
     "Customise your muOS setup with user created packages": "Maak muOS uw eigen met aangepaste pakketten",
     "Device specific and muOS frontend settings can be found here": "Apparaat specifieke en muOS frontend instellingen kunnen hier worden gevonden",

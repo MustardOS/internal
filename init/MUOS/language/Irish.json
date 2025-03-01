@@ -107,7 +107,7 @@
     "Wi-Fi Network": "Líonra Wi Fi"
   },
   "muxcustom": {
-    "Alternative Theme": "Alternative Theme",
+    "Alternative Theme": "Téama Malartach",
     "Background Animation": "Beochan Cúlra",
     "Background Music": "Ceol Cúlra",
     "Behind": "Taobh thiar",
@@ -138,7 +138,7 @@
     "Navigation Sound": "Fuaim Nascleanúna",
     "RetroArch Configurations": "Cumraíochtaí RetroArch",
     "Theme": "Téama",
-    "Theme Picker": "Theme Picker",
+    "Theme Picker": "Roghnóir Téamaí",
     "Toggle the background animation of the current selected theme": "Scoránaigh beochan chúlra an téama roghnaithe reatha",
     "Toggle the background music of the frontend - This will stop if content is launched": "Scoránaigh ceol cúlra an tosaigh - Stopfaidh sé seo má sheoltar ábhar",
     "Toggle the fade to black animation on content launching": "Scoránaigh an beochan céimnithe go dubh ar sheoladh ábhair",
@@ -194,14 +194,14 @@
     "Activity Tracker": "Lorgaire Gníomhaíochta",
     "INFORMATION": "EOLAS",
     "Input Tester": "Tástálaí Ionchurtha",
-    "Screenshots": "Screenshots",
-    "Storage Space": "Storage Space",
+    "Screenshots": "Seatanna scáileáin",
+    "Storage Space": "Spás Stórála",
     "Supporters": "Lucht tacaíochta",
     "System Details": "Sonraí an Chórais",
     "Test the controls of the device": "Tástáil rialuithe na feiste",
     "View all of the current muOS supporters": "Féach ar gach ceann de na tacadóirí muOS reatha",
-    "View all of the screenshots taken on the device": "View all of the screenshots taken on the device",
-    "View the current used space of the mounted storage devices": "View the current used space of the mounted storage devices"
+    "View all of the screenshots taken on the device": "Féach ar na screenshots go léir a glacadh ar an ngléas",
+    "View the current used space of the mounted storage devices": "Féach ar an spás a úsáidtear faoi láthair de na gléasanna stórála gléasta"
   },
   "muxlanguage": {
     "LANGUAGE": "TEANGA",
@@ -211,17 +211,17 @@
   },
   "muxlaunch": {
     "Applications": "Feidhmchláir",
-    "Apps": "Apps",
+    "Apps": "Aipeanna",
     "Collection": "Bailiúchán",
-    "Config": "Config",
+    "Config": "Cumraíocht",
     "Configuration": "Cumraíocht",
-    "Content": "Content",
+    "Content": "Ábhar",
     "Content added to collections can be found and launched here": "Is féidir ábhar a chuirtear le bailiúcháin a fháil agus a sheoladh anseo",
     "Content on storage devices (SD1/SD2/USB) can be found and launched here": "Is féidir ábhar ar ghléasanna stórála (SD1 / SD2 / USB) a fháil agus a sheoladh anseo",
     "Content previously launched can be found and launched here": "Is féidir ábhar a seoladh roimhe seo a fháil agus a sheoladh anseo",
     "Explore Content": "Déan iniúchadh ar Ábhar",
     "History": "Stair",
-    "Info": "Info",
+    "Info": "Faisnéis",
     "Information": "Eolas",
     "Kiosk configuration not found": "Níor aimsíodh cumraíocht both",
     "MAIN MENU": "PRÍOMH-ROGHCHLÁR",
@@ -384,8 +384,8 @@
     "SAVE SNAPSHOT": "SÁBHÁIL GAIRM"
   },
   "muxspace": {
-    "STORAGE SPACE": "STORAGE SPACE",
-    "View the current used space of the mounted storage devices": "View the current used space of the mounted storage devices"
+    "STORAGE SPACE": "SPÁS STÓRÁIL",
+    "View the current used space of the mounted storage devices": "Féach ar an spás a úsáidtear faoi láthair de na gléasanna stórála gléasta"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Córas Croí/Gobharnóir Sannta",
@@ -487,7 +487,7 @@
     "LED During Play": "LED Le linn Súgartha",
     "Loud": "Glórach",
     "Low": "Íseal",
-    "Medium": "Medium",
+    "Medium": "Meánach",
     "Menu Acceleration": "Luasghéarú roghchláir",
     "Modern": "Nua-aimseartha",
     "Passcode Lock": "Glas Passcode",
@@ -496,9 +496,9 @@
     "RetroArch Network Wait": "Fan Líonra RetroArch",
     "Shutdown": "Múchadh",
     "Shutdown + Sleep": "Múchadh + Codladh",
-    "Silent": "Silent",
+    "Silent": "Ciúin",
     "Sleep": "Codladh",
-    "Soft": "Soft",
+    "Soft": "Bog",
     "Startup": "Tosaithe",
     "Startup + Shutdown": "Tosaithe + Múchadh",
     "Startup + Sleep": "Tosaithe + Codladh",

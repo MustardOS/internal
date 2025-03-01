@@ -46,11 +46,6 @@ printf '%s\n' "$DEF_ACT" >$ACT_GO
 
 echo "root" >$EX_CARD
 
-if [ "$(GET_VAR "global" "settings/advanced/random_theme")" -eq 1 ]; then
-	LOG_INFO "$0" 0 "FRONTEND" "Changing to a random theme"
-	/opt/muos/script/package/theme.sh install "?R"
-fi
-
 LAST_PLAY=$(cat "/opt/muos/config/lastplay.txt")
 LAST_INDEX=0
 

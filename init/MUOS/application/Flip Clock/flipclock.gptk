@@ -1,8 +1,0 @@
-[controls]
-
-# Switch 12/24H
-back = enter
-a = enter
-
-# Exit
-guide = esc

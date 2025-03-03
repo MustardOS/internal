@@ -7,8 +7,8 @@
 
 echo app >/tmp/act_go
 
-LOVEDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.moonlight"
-MOONDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.moonlight/moonlight"
+LOVEDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Moonlight"
+MOONDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Moonlight/moonlight"
 GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
 
 export SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt"

@@ -10,7 +10,7 @@ echo app >/tmp/act_go
 SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 export SDL_HQ_SCALER
 
-TERM_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.terminal"
+TERM_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Simple Terminal"
 
 cd "$TERM_DIR" || exit
 

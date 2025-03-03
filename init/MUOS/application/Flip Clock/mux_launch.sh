@@ -19,7 +19,7 @@ esac
 
 export LD_LIBRARY_PATH SDL_HQ_SCALER SDL_ROTATION
 
-FLIPCLOCK_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.flipclock"
+FLIPCLOCK_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Flip Clock"
 
 cd "$FLIPCLOCK_DIR" || exit
 

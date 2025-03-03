@@ -12,7 +12,7 @@ SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
 SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
 export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
-DINGUX_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.dingux"
+DINGUX_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Dingux Commander"
 cd "$DINGUX_DIR" || exit
 
 SET_VAR "system" "foreground_process" "dingux"

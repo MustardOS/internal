@@ -7,7 +7,13 @@
 
 echo app >/tmp/act_go
 
-export HOME=$(GET_VAR "device" "board/home")
+HOME="$(GET_VAR "device" "board/home")"
+export HOME
+
+SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 SET_VAR "system" "foreground_process" "retroarch"
 
@@ -21,4 +27,14 @@ sed -n -e '/^#include /!p' \
 	-e '$a#include "/opt/muos/device/current/control/retroarch.resolution.cfg"' \
 	-i "$RA_CONF"
 
+if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] 2>/dev/null; then
+	sed -i 's/^kiosk_mode_enable = "false"$/kiosk_mode_enable = "true"/' "$RA_CONF"
+else
+	sed -i 's/^kiosk_mode_enable = "true"$/kiosk_mode_enable = "false"/' "$RA_CONF"
+fi
+
 nice --20 /usr/bin/retroarch -v -f -c "$RA_CONF"
+RA_PID=$!
+
+wait $RA_PID
+unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

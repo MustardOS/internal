@@ -7,9 +7,7 @@
 
 echo app >/tmp/act_go
 
-AUDIO_SRC="/tmp/mux_audio_src"
-
-GMU_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.gmu"
+GMU_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/GMU Music Player"
 GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2.armhf"
 
 cd "$GMU_DIR" || exit

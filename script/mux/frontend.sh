@@ -233,7 +233,7 @@ while :; do
 								;;
 							*)
 								STOP_BGM
-								"$RUN_APP"
+								"$(GET_VAR "device" "storage/rom/mount")/MUOS/application/${RUN_APP}/mux_launch.sh"
 								;;
 						esac
 					fi

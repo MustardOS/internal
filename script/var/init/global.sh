@@ -26,7 +26,7 @@ SETTINGS_ADVANCED_VARS="accelerate swap thermal font verbose rumble volume brigh
 SETTINGS_GENERAL_VARS="hidden bgm sound startup colour brightness volume language"
 SETTINGS_HDMI_VARS="enabled resolution theme_resolution space depth range scan audio"
 SETTINGS_POWER_VARS="low_battery shutdown idle_display idle_sleep"
-VISUAL_VARS="battery network bluetooth clock boxart boxartalign name dash friendlyfolder thetitleformat titleincluderootdrive counterfolder counterfile folderitemcount folderempty backgroundanimation launchsplash blackfade"
+VISUAL_VARS="battery network bluetooth clock overlayimage overlaytransparency boxart boxartalign name dash friendlyfolder thetitleformat titleincluderootdrive counterfolder counterfile folderitemcount folderempty backgroundanimation launchsplash blackfade"
 WEB_VARS="sshd sftpgo ttyd syncthing rslsync ntp tailscaled"
 
 for INIT in boot clock network settings/advanced settings/general settings/hdmi settings/power visual web; do

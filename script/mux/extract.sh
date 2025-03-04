@@ -57,7 +57,7 @@ case "$ARCHIVE_NAME" in
 		echo "Moving archive to PACKAGE/CONFIG folder"
 		mv "$1" "/run/muos/storage/package/config/"
 		;;
-	*.muxzip)
+	*.muxapp | *.muxupd | *.muxzip)
 		# Count total files in ARCHIVE for progress tracking
 		FILE_COUNT="$(unzip -Z1 "$1" | grep -cv '/$')"
 		MUX_TEMP="/opt/muxtmp"
@@ -71,7 +71,7 @@ case "$ARCHIVE_NAME" in
 		case "$ARCHIVE_NAME" in
 			*.muxapp)
 				echo "Extracting Application Archive..."
-				SYNC_FOLDER "$MUX_TEMP" "/mnt/mmc/MUOS/application"
+				SYNC_FOLDER "$MUX_TEMP" "$(GET_VAR "device" "storage/rom/mount")/MUOS/application"
 				;;
 			*)
 				echo "Processing and Moving Files..."

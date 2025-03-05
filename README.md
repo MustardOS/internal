@@ -10,3 +10,4 @@ This repository holds all of the key infrastructure of mustardOS (muOS):
 * `extra`: The frontend files which are compiled from https://github.com/MustardOS/frontend
 * `init`: Content partition filesystem which is moved on first install
 * `script`: Various POSIX compliant script files which is the backbone of muOS
+ 

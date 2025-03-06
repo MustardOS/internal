@@ -36,8 +36,9 @@ CLOSE_CONTENT() {
 
 # Blank screen to prevent visual glitches as running programs exit.
 DISPLAY_BLANK() {
+	touch "/tmp/mux_blank"
 	DISPLAY_WRITE lcd0 setbl "0"
-	DISPLAY_WRITE disp0 blank "1"
+	echo 4 >/sys/class/graphics/fb0/blank
 }
 
 # Clears the last-played content so we won't relaunch it on the next boot.

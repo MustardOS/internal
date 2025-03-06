@@ -46,7 +46,7 @@ if [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ] && [ "$(GET_VAR "global" "settin
 fi
 
 AUDIO_NID="nid_internal nid_external"
-SUSPEND_PROC="adbd pipewire sshd sftpgo ttyd syncthing rslsync tailscaled"
+SUSPEND_PROC="adbd retroarch rslsync sftpgo sshd syncthing tailscaled ttyd"
 
 case "$1" in
 	power)

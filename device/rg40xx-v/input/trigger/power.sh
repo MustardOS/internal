@@ -9,8 +9,8 @@ LED_STATE="/tmp/work_led_state"
 
 UPDATE_DISPLAY() {
 	echo "$1" >"$(GET_VAR "device" "led/normal")"
-	DISPLAY_WRITE disp0 blank "$2"
 	DISPLAY_WRITE lcd0 setbl "$3"
+	echo "$2" >/sys/class/graphics/fb0/blank
 }
 
 DEV_WAKE() {
@@ -35,6 +35,8 @@ DEV_WAKE() {
 				UPDATE_DISPLAY "$(cat "$LED_STATE")" 0 "$BRIGHTNESS"
 				/opt/muos/device/current/input/combo/bright.sh "$BRIGHTNESS"
 			fi
+
+			wpctl set-mute "$(GET_VAR "audio" "nid_internal")" "0"
 			;;
 	esac
 }
@@ -44,6 +46,8 @@ DEV_SLEEP() {
 	case "$FG_PROC_VAL" in
 		fbpad | muxcharge | muxstart) ;;
 		*)
+			wpctl set-mute "$(GET_VAR "audio" "nid_internal")" "1"
+
 			echo "off" >"$TMP_POWER_LONG"
 			echo "sleep" >"$SLEEP_STATE"
 
@@ -53,7 +57,7 @@ DEV_SLEEP() {
 				pkill -STOP "$FG_PROC_VAL"
 			fi
 
-			UPDATE_DISPLAY "$(cat $LED_STATE)" 1 0
+			UPDATE_DISPLAY "$(cat $LED_STATE)" 4 0
 			;;
 	esac
 }

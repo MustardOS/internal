@@ -32,7 +32,7 @@ SLEEP() {
 	# We're going in, hold on to your horses!
 	GET_VAR "global" "settings/advanced/state" >"/sys/power/state"
 
-	# We're going to wait for 3 seconds to stop sleep suspend from triggering again
+	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
 	(
 		touch "$RECENT_WAKE"
 		sleep 5
@@ -77,14 +77,14 @@ case "$SHUTDOWN_TIME" in
 		;;
 	2) /opt/muos/script/mux/quit.sh poweroff sleep ;;
 	*)
-		CURRENT_EPOCH=$(cat "$(GET_VAR "device" "board/wakelock")"/since_epoch)
+		CURRENT_EPOCH=$(cat "$(GET_VAR "device" "board/rtc_wake")"/since_epoch)
 		SHUTDOWN_TIME=$((CURRENT_EPOCH + SHUTDOWN_TIME))
-		echo "$SHUTDOWN_TIME" >"$(GET_VAR "device" "board/wakelock")"/wakealarm
+		echo "$SHUTDOWN_TIME" >"$(GET_VAR "device" "board/rtc_wake")"/wakealarm
 
 		SLEEP
 		sleep 0.25
 
-		CURRENT_TIME=$(cat "$(GET_VAR "device" "board/wakelock")"/since_epoch)
+		CURRENT_TIME=$(cat "$(GET_VAR "device" "board/rtc_wake")"/since_epoch)
 		if [ "$CURRENT_TIME" -ge "$SHUTDOWN_TIME" ]; then
 			DISPLAY_WRITE lcd0 setbl "0"
 			echo 4 >/sys/class/graphics/fb0/blank
@@ -93,6 +93,6 @@ case "$SHUTDOWN_TIME" in
 			RESUME
 		fi
 
-		echo 0 >"$(GET_VAR "device" "board/wakelock")"/wakealarm
+		echo 0 >"$(GET_VAR "device" "board/rtc_wake")"/wakealarm
 		;;
 esac

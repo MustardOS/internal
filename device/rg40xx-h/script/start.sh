@@ -19,17 +19,17 @@ fi
 (
 	case "$(GET_VAR "global" "settings/advanced/brightness")" in
 		"high")
-			/opt/muos/device/current/input/combo/bright.sh "$(GET_VAR "device" "screen/bright")"
+			/opt/muos/device/current/input/bright.sh "$(GET_VAR "device" "screen/bright")"
 			;;
 		"medium")
-			/opt/muos/device/current/input/combo/bright.sh 90
+			/opt/muos/device/current/input/bright.sh 90
 			;;
 		"low")
-			/opt/muos/device/current/input/combo/bright.sh 10
+			/opt/muos/device/current/input/bright.sh 10
 			;;
 		*)
 			PREV_BRIGHT=$(cat "/opt/muos/config/brightness.txt")
-			/opt/muos/device/current/input/combo/bright.sh "$PREV_BRIGHT"
+			/opt/muos/device/current/input/bright.sh "$PREV_BRIGHT"
 			;;
 	esac
 ) &

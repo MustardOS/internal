@@ -4,7 +4,6 @@
 
 BRIGHT_FILE="/opt/muos/config/brightness.txt"
 BRIGHT_FILE_PERCENT="/tmp/current_brightness_percent"
-SLEEP_STATE="/tmp/sleep_state"
 
 SET_CURRENT() {
 	C_BRIGHT=$1
@@ -45,7 +44,7 @@ if [ -z "$1" ]; then
 	exit 0
 fi
 
-if [ ! "$(cat "$(GET_VAR "device" "screen/hdmi")")" = "HDMI=1" ] && [ "$(cat "$SLEEP_STATE")" = "awake" ]; then
+if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 0 ]; then
 	case "$1" in
 		I)
 			E_BRIGHT="$(cat $BRIGHT_FILE)"

@@ -46,7 +46,7 @@ fi
 for TIMEOUT in $(seq 1 30); do
 	if pw-cli ls Node 2>/dev/null | grep -q "Audio/Sink"; then
 		INTERNAL_NODE_ID=$(
-			XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
+			pw-cli ls Node |
 				awk -v path="$(GET_VAR "device" "audio/pf_internal")" '
                 			BEGIN { id = "" }
                 			/^[[:space:]]*id [0-9]+,/ {
@@ -63,7 +63,7 @@ for TIMEOUT in $(seq 1 30); do
 		)
 
 		EXTERNAL_NODE_ID=$(
-			XDG_RUNTIME_DIR="/var/run" pw-cli ls Node |
+			pw-cli ls Node |
 				awk -v path="$(GET_VAR "device" "audio/pf_external")" '
             				BEGIN { id = "" }
             				/^[[:space:]]*id [0-9]+,/ {
@@ -82,29 +82,29 @@ for TIMEOUT in $(seq 1 30); do
 		if [ -n "$INTERNAL_NODE_ID" ]; then
 			printf "Setting default node to ID: '%s'\n" "$INTERNAL_NODE_ID"
 			mkdir -p "/run/muos/audio"
-			XDG_RUNTIME_DIR="/var/run" wpctl set-default "$INTERNAL_NODE_ID"
+			wpctl set-default "$INTERNAL_NODE_ID"
 			amixer -c 0 sset "$(GET_VAR "device" "audio/control")" 100% unmute
 			printf "%s" "$INTERNAL_NODE_ID" >"/run/muos/audio/nid_internal"
 			printf "%s" "$EXTERNAL_NODE_ID" >"/run/muos/audio/nid_external"
-			printf "%s" "$(XDG_RUNTIME_DIR="/var/run" wpctl get-volume "$INTERNAL_NODE_ID" | grep -o '[0-9]*\.[0-9]*')" >"/run/muos/audio/pw_vol"
+			printf "%s" "$(wpctl get-volume "$INTERNAL_NODE_ID" | grep -o '[0-9]*\.[0-9]*')" >"/run/muos/audio/pw_vol"
 
 			case "$(GET_VAR "global" "settings/advanced/volume")" in
 				"loud")
-					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$(GET_VAR "device" "audio/max")"%
+					wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$(GET_VAR "device" "audio/max")"%
 					;;
 				"soft")
-					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "25%"
+					wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "25%"
 					;;
 				"silent")
-					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "0%"
+					wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "0%"
 					;;
 				*)
 					RESTORED=$(GET_VAR "global" "settings/general/volume")
-					XDG_RUNTIME_DIR="/var/run" wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$RESTORED"%
+					wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$RESTORED"%
 					;;
 			esac
 
-			XDG_RUNTIME_DIR="/var/run" wpctl set-mute "$(GET_VAR "audio" "nid_internal")" "0"
+			wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
 			exit 0
 		else

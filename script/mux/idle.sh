@@ -12,7 +12,7 @@ LED_CONTROL=/opt/muos/device/current/script/led_control.sh
 RGBCONF=/run/muos/storage/theme/active/rgb/rgbconf.sh
 
 DISPLAY_IDLE() {
-	wpctl set-mute "$(GET_VAR "audio" "nid_internal")" "1"
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
 
 	if [ "$(DISPLAY_READ lcd0 getbl)" -gt 10 ]; then
 		DISPLAY_WRITE lcd0 setbl 10
@@ -23,7 +23,7 @@ DISPLAY_IDLE() {
 }
 
 DISPLAY_ACTIVE() {
-	wpctl set-mute "$(GET_VAR "audio" "nid_internal")" "0"
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
 	BL="$(cat "$BRIGHT_FILE")"
 	if [ "$(DISPLAY_READ lcd0 getbl)" -ne "$BL" ]; then

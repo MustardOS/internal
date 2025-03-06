@@ -16,8 +16,8 @@ if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
 	fi
 fi
 
-/opt/muos/device/current/input/combo/audio.sh I
-/opt/muos/device/current/input/combo/bright.sh I
+/opt/muos/device/current/input/audio.sh I
+/opt/muos/device/current/input/bright.sh I
 
 DEVICE_BOARD="$(GET_VAR "device" "board/name")"
 

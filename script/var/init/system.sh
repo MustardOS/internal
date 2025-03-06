@@ -18,4 +18,4 @@ export GLOBAL_CONFIG KIOSK_CONFIG DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR 
 mkdir -p "/run/muos/system"
 touch "/run/muos/system/foreground_process"
 echo 0 >"/run/muos/system/idle_inhibit"
-echo 0 >"/run/muos/system/resume_uptime"
+cut -d ' ' -f 1 /proc/uptime >"/run/muos/system/resume_uptime"

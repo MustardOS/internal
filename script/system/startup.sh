@@ -17,8 +17,6 @@ for MODE in "screen" "mux"; do
 	SET_VAR "device" "$MODE/height" "$(GET_VAR "device" "screen/internal/height")"
 done
 
-printf "awake" >"/tmp/sleep_state"
-
 case "$(GET_VAR "global" "settings/advanced/rumble")" in
 	1 | 4 | 5) RUMBLE "$(GET_VAR "device" "board/rumble")" 0.3 ;;
 	*) ;;

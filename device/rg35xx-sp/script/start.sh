@@ -2,12 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
-
-if [ "$(cat "$HALL_KEY")" = "0" ] && [ "$(cat "$(GET_VAR "device" "battery/charger")")" -eq 0 ]; then
-	/opt/muos/script/system/halt.sh poweroff
-fi
-
 sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf
 
 /opt/muos/device/current/script/module.sh &
@@ -55,3 +49,5 @@ if [ "$(GET_VAR "global" "settings/advanced/thermal")" -eq 1 ]; then
 		fi
 	done
 fi
+
+/opt/muos/device/current/script/lid.sh &

@@ -2,11 +2,18 @@
 
 . /opt/muos/script/var/func.sh
 
+RECENT_WAKE="/tmp/recent_wake"
+
 SLEEP() {
-	cat "$(GET_VAR "device" "cpu/governor")" >/tmp/orig_cpu_gov
-	echo "powersave" >"$(GET_VAR "device" "cpu/governor")"
-	for C in $(seq 1 $(("$(GET_VAR "device" "cpu/cores")" - 1))); do
+	CPU_GOV="$(GET_VAR "device" "cpu/governor")"
+	echo "$CPU_GOV" >/tmp/orig_cpu_gov
+	echo "powersave" >"$CPU_GOV"
+
+	CORES="$(GET_VAR "device" "cpu/cores")"
+	C=1
+	while [ "$C" -lt "$CORES" ]; do
 		echo 0 >"/sys/devices/system/cpu/cpu${C}/online"
+		C=$((C + 1))
 	done
 
 	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
@@ -17,73 +24,75 @@ SLEEP() {
 		3 | 5 | 6) RUMBLE "$(GET_VAR "device" "board/rumble")" 0.3 ;;
 		*) ;;
 	esac
+
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
+	echo 4 >/sys/class/graphics/fb0/blank
+	touch "/tmp/mux_blank"
+
+	# We're going in, hold on to your horses!
+	GET_VAR "global" "settings/advanced/state" >"/sys/power/state"
+
+	# We're going to wait for 3 seconds to stop sleep suspend from triggering again
+	(
+		touch "$RECENT_WAKE"
+		sleep 5
+		rm "$RECENT_WAKE"
+	) &
 }
 
 RESUME() {
-	cat "/tmp/orig_cpu_gov" >"$(GET_VAR "device" "cpu/governor")"
-	for C in $(seq 1 $(("$(GET_VAR "device" "cpu/cores")" - 1))); do
+	CPU_GOV="$(GET_VAR "device" "cpu/governor")"
+	cat "/tmp/orig_cpu_gov" >"$CPU_GOV"
+
+	CORES="$(GET_VAR "device" "cpu/cores")"
+	C=1
+	while [ "$C" -lt "$CORES" ]; do
 		echo 1 >"/sys/devices/system/cpu/cpu${C}/online"
+		C=$((C + 1))
 	done
 
 	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
 		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
-		if [ -f "$RGBCONF_SCRIPT" ]; then
+		if [ -x "$RGBCONF_SCRIPT" ]; then
 			"$RGBCONF_SCRIPT"
 		else
 			/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
 		fi
 	fi
+
+	rm -f "/tmp/mux_blank"
+	echo 0 >/sys/class/graphics/fb0/blank
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 }
 
-if [ "$#" -ne 1 ]; then
-	echo "Usage: $0 <power|sleep|resume>"
-	exit 1
-fi
+[ -f "$RECENT_WAKE" ] && exit 0
 
-if [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ] && [ "$(GET_VAR "global" "settings/hdmi/enabled")" -eq 1 ]; then
-	echo "Cannot suspend when HDMI mode is enabled!"
-	exit 1
-fi
-
-AUDIO_NID="nid_internal nid_external"
-SUSPEND_PROC="adbd retroarch rslsync sftpgo sshd syncthing tailscaled ttyd"
-
-case "$1" in
-	power)
+SHUTDOWN_TIME="$(GET_VAR "global" "settings/power/shutdown")"
+case "$SHUTDOWN_TIME" in
+	-2) ;;
+	-1)
 		SLEEP
-		sleep 0.1
-		GET_VAR "global" "settings/advanced/state" >"/sys/power/state"
-		sleep 0.1
-		RESUME
-		SET_VAR "system" "resume_uptime" "$(UPTIME)"
-		;;
-	sleep)
-		for NID in $AUDIO_NID; do
-			wpctl set-mute "$(GET_VAR "audio" "$NID")" "1"
-		done
-		for PROC in $SUSPEND_PROC; do
-			pkill -STOP "$PROC"
-		done
-		SLEEP
-		;;
-	resume)
-		for PROC in $SUSPEND_PROC; do
-			pkill -CONT "$PROC"
-		done
-		for NID in $AUDIO_NID; do
-			wpctl set-mute "$(GET_VAR "audio" "$NID")" "0"
-		done
+		sleep 0.25
 		RESUME
 		;;
-	resume_noaudio)
-		for PROC in $SUSPEND_PROC; do
-			pkill -CONT "$PROC"
-		done
-		RESUME
-		;;
+	2) /opt/muos/script/mux/quit.sh poweroff sleep ;;
 	*)
-		echo "Invalid mode: $1"
-		echo "Usage: $0 <power|sleep|resume>"
-		exit 1
+		CURRENT_EPOCH=$(cat "$(GET_VAR "device" "board/wakelock")"/since_epoch)
+		SHUTDOWN_TIME=$((CURRENT_EPOCH + SHUTDOWN_TIME))
+		echo "$SHUTDOWN_TIME" >"$(GET_VAR "device" "board/wakelock")"/wakealarm
+
+		SLEEP
+		sleep 0.25
+
+		CURRENT_TIME=$(cat "$(GET_VAR "device" "board/wakelock")"/since_epoch)
+		if [ "$CURRENT_TIME" -ge "$SHUTDOWN_TIME" ]; then
+			DISPLAY_WRITE lcd0 setbl "0"
+			echo 4 >/sys/class/graphics/fb0/blank
+			/opt/muos/script/mux/quit.sh poweroff sleep
+		else
+			RESUME
+		fi
+
+		echo 0 >"$(GET_VAR "device" "board/wakelock")"/wakealarm
 		;;
 esac

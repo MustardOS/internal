@@ -5,13 +5,19 @@
 NET_SCAN="/tmp/net_scan"
 rm -f "$NET_SCAN"
 
+HEX_ESCAPE() {
+	while IFS= read -r line; do
+		printf "%b\n" "$line"
+	done
+}
+
 {
 	iw dev "$(GET_VAR "device" "network/iface")" scan |
 		grep "SSID:" |
 		sed 's/^[[:space:]]*SSID: //' |
 		grep -v '^\\x00' |
-		sed 's/\\x20/ /g' |
-		sort -u
+		sort -u |
+		HEX_ESCAPE
 } >"$NET_SCAN" &
 
 SCAN_TIMEOUT=0

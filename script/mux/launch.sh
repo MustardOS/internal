@@ -171,8 +171,10 @@ case "$(GET_VAR "device" "board/name")" in
 	*) ;;
 esac
 
-[ "$(GET_VAR "global" "settings/hdmi/enabled")" -eq 1 ] && SCREEN_TYPE="external" || SCREEN_TYPE="internal"
-FB_SWITCH "$(GET_VAR "device" "screen/$SCREEN_TYPE/width")" "$(GET_VAR "device" "screen/$SCREEN_TYPE/height")" 32
+SCREEN_TYPE="internal"
+if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
+	SCREEN_TYPE="external"
+fi
 
 if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
 	SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)

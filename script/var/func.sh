@@ -135,14 +135,13 @@ FB_SWITCH() {
 	WIDTH="$1"
 	HEIGHT="$2"
 	DEPTH="$3"
-	IGNORE_FILE="/tmp/ignore_double"
 
 	for MODE in screen mux; do
 		SET_VAR "device" "$MODE/width" "$WIDTH"
 		SET_VAR "device" "$MODE/height" "$HEIGHT"
 	done
 
-	if [ "$(GET_VAR "device" "board/name")" = "rg28xx-h" ] && [ "$(GET_VAR "global" "settings/hdmi/enabled")" -eq 0 ]; then
+	if [ "$(GET_VAR "device" "board/name")" = "rg28xx-h" ] && [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
 		N_WIDTH="$HEIGHT"
 		N_HEIGHT="$WIDTH"
 	else
@@ -150,10 +149,7 @@ FB_SWITCH() {
 		N_HEIGHT="$HEIGHT"
 	fi
 
-	IGNORE_FLAG=""
-	[ -f "$IGNORE_FILE" ] && IGNORE_FLAG="-i"
-	/opt/muos/extra/mufbset -w "$N_WIDTH" -h "$N_HEIGHT" -d "$DEPTH" -c $IGNORE_FLAG
-	rm -f "$IGNORE_FILE"
+	fbset -fb "$(GET_VAR "device" "screen/device")" -g "${N_WIDTH}" "${N_HEIGHT}" "${N_WIDTH}" "$((N_HEIGHT * 2))" "${DEPTH}"
 }
 
 HDMI_SWITCH() {

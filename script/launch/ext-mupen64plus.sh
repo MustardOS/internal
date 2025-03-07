@@ -59,7 +59,11 @@ HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus
 # Clean up temp files if we unzipped the file
 [ -n "$TMPDIR" ] && rm -r "$TMPDIR"
 
-[ "$(GET_VAR "global" "settings/hdmi/enabled")" -eq 1 ] && SCREEN_TYPE="external" || SCREEN_TYPE="internal"
+SCREEN_TYPE="internal"
+if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
+	SCREEN_TYPE="external"
+fi
+
 FB_SWITCH "$(GET_VAR "device" "screen/$SCREEN_TYPE/width")" "$(GET_VAR "device" "screen/$SCREEN_TYPE/height")" 32
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

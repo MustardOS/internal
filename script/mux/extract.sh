@@ -111,7 +111,7 @@ if [ -s "$UPDATE_SCRIPT" ]; then
 	rm "$UPDATE_SCRIPT"
 fi
 
-touch "$(GET_VAR "DEVICE" "STORAGE/ROM/MOUNT")/MUOS/update/installed/$ARCHIVE_NAME.done"
+touch "$(GET_VAR "device" "storage/rom/mount")/MUOS/update/installed/$ARCHIVE_NAME.done"
 
 echo "Sync Filesystem"
 sync

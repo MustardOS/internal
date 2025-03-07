@@ -252,15 +252,6 @@ while :; do
 				fi
 				;;
 
-			"hdmi")
-				EXEC_MUX "tweakgen" "muxhdmi"
-				if [ "$(GET_VAR "global" "settings/hdmi/enabled")" -eq 1 ]; then
-					/opt/muos/device/current/script/hdmi.sh start
-				else
-					/opt/muos/device/current/script/hdmi.sh stop
-				fi
-				;;
-
 			"picker")
 				[ -s "$PIK_GO" ] && IFS= read -r PIK_CONTENT <"$PIK_GO"
 				EXPLORE_DIR=""
@@ -321,6 +312,7 @@ while :; do
 			"network") EXEC_MUX "connect" "muxnetwork" ;;
 			"language") EXEC_MUX "config" "muxlanguage" ;;
 			"webserv") EXEC_MUX "connect" "muxwebserv" ;;
+			"hdmi") EXEC_MUX "tweakgen" "muxhdmi" ;;
 			"rtc") EXEC_MUX "tweakgen" "muxrtc" ;;
 			"storage") EXEC_MUX "config" "muxstorage" ;;
 			"power") EXEC_MUX "config" "muxpower" ;;

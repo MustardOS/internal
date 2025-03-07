@@ -10,10 +10,10 @@ if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
 fi
 
-if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ] && [ "$(GET_VAR "global" "settings/hdmi/enabled")" -eq 1 ]; then
-	/opt/muos/device/current/script/hdmi.sh start &
+if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
+	/opt/muos/device/current/script/hdmi.sh start
 else
-	SET_VAR "global" "settings/hdmi/enabled" 0
+	SET_VAR "global" "settings/hdmi/theme_resolution" "0"
 fi
 
 (

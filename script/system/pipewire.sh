@@ -43,75 +43,59 @@ if ! pw-cli info >/dev/null 2>&1; then
 	exit 1
 fi
 
+GET_NODE_ID() {
+	pw-cli ls Node | awk -v path="$1" '
+		BEGIN { id = "" }
+		/^[[:space:]]*id [0-9]+,/ {
+			id = $2
+			gsub(/,/, "", id)
+		}
+		/node.name/ {
+			if (index($0, path)) {
+				print id
+				exit
+			}
+		}
+	'
+}
+
 for TIMEOUT in $(seq 1 30); do
 	if pw-cli ls Node 2>/dev/null | grep -q "Audio/Sink"; then
-		INTERNAL_NODE_ID=$(
-			pw-cli ls Node |
-				awk -v path="$(GET_VAR "device" "audio/pf_internal")" '
-                			BEGIN { id = "" }
-                			/^[[:space:]]*id [0-9]+,/ {
-                    				id = $2
-                    				gsub(/,/, "", id)
-                			}
-                			/node.name/ {
-                    				if (index($0, path)) {
-                        				print id
-							exit
-                    				}
-                			}
-            			'
-		)
+		INTERNAL_NODE_ID=$(GET_NODE_ID "$(GET_VAR "device" "audio/pf_internal")")
+		EXTERNAL_NODE_ID=$(GET_NODE_ID "$(GET_VAR "device" "audio/pf_external")")
 
-		EXTERNAL_NODE_ID=$(
-			pw-cli ls Node |
-				awk -v path="$(GET_VAR "device" "audio/pf_external")" '
-            				BEGIN { id = "" }
-            				/^[[:space:]]*id [0-9]+,/ {
-                			id = $2
-                			gsub(/,/, "", id)
-            			}
-            			/node.name/ {
-                			if (index($0, path)) {
-                    				print id
-						exit
-                			}
-            			}
-        		'
-		)
+		if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
+			DEFAULT_NODE_ID=$EXTERNAL_NODE_ID
+			if [ "$(GET_VAR "global" "settings/hdmi/audio")" -eq 1 ]; then
+				DEFAULT_NODE_ID=$INTERNAL_NODE_ID
+			fi
+		else
+			DEFAULT_NODE_ID=$INTERNAL_NODE_ID
+		fi
 
-		if [ -n "$INTERNAL_NODE_ID" ]; then
-			printf "Setting default node to ID: '%s'\n" "$INTERNAL_NODE_ID"
-			mkdir -p "/run/muos/audio"
-			wpctl set-default "$INTERNAL_NODE_ID"
-			amixer -c 0 sset "$(GET_VAR "device" "audio/control")" 100% unmute
-			printf "%s" "$INTERNAL_NODE_ID" >"/run/muos/audio/nid_internal"
-			printf "%s" "$EXTERNAL_NODE_ID" >"/run/muos/audio/nid_external"
-			printf "%s" "$(wpctl get-volume "$INTERNAL_NODE_ID" | grep -o '[0-9]*\.[0-9]*')" >"/run/muos/audio/pw_vol"
+		if [ -n "$DEFAULT_NODE_ID" ]; then
+			printf "Setting default node to ID: '%s'\n" "$DEFAULT_NODE_ID"
+			wpctl set-default "$DEFAULT_NODE_ID"
 
 			case "$(GET_VAR "global" "settings/advanced/volume")" in
-				"loud")
-					wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$(GET_VAR "device" "audio/max")"%
-					;;
-				"soft")
-					wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "25%"
-					;;
-				"silent")
-					wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "0%"
-					;;
-				*)
-					RESTORED=$(GET_VAR "global" "settings/general/volume")
-					wpctl set-volume "$(GET_VAR "audio" "nid_internal")" "$RESTORED"%
-					;;
+				"loud") VOLUME="$(GET_VAR "device" "audio/max")"% ;;
+				"soft") VOLUME="35%" ;;
+				"silent") VOLUME="0%" ;;
+				*) VOLUME="$(GET_VAR "global" "settings/general/volume")"% ;;
 			esac
 
+			amixer -c 0 sset "$(GET_VAR "device" "audio/control")" 100% unmute
+
+			wpctl set-volume @DEFAULT_AUDIO_SINK@ "$VOLUME"
 			wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
 			exit 0
 		else
-			printf "Node with name '%s' not found.\n" "$(GET_VAR "device" "audio/pf_internal")"
+			printf "Node with ID '%s' not found\n" "$DEFAULT_NODE_ID"
 			exit 1
 		fi
 	fi
+
 	printf "(%d of 30) PipeWire sink not found yet\n" "$TIMEOUT"
 	sleep 1
 done

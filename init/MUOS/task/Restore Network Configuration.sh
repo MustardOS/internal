@@ -7,7 +7,6 @@
 pkill -STOP muxtask
 
 echo "Reverting to original network settings"
-SET_VAR "global" "network/enabled" "1"
 SET_VAR "global" "network/type" "0"
 SET_VAR "global" "network/ssid" ""
 SET_VAR "global" "network/pass" ""

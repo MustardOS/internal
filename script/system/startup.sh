@@ -178,7 +178,7 @@ LOG_INFO "$0" 0 "BOOTING" "Bringing up localhost network"
 ifconfig lo up &
 
 LOG_INFO "$0" 0 "BOOTING" "Checking for network capability"
-if [ "$(GET_VAR "device" "board/network")" -eq 1 ] && [ "$(GET_VAR "global" "network/enabled")" -eq 1 ]; then
+if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Starting Network Services"
 	/opt/muos/script/system/network.sh &
 fi

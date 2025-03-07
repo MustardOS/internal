@@ -66,7 +66,7 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 	if [ -n "$LAST_PLAY" ]; then
 		LOG_INFO "$0" 0 "FRONTEND" "Checking for network and retrowait"
 
-		if [ "$(GET_VAR "global" "network/enabled")" -eq 1 ] && [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
+		if [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
 			NET_START="/tmp/net_start"
 			OIP=0
 

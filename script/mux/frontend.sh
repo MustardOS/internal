@@ -7,18 +7,6 @@ esac
 
 . /opt/muos/script/var/func.sh
 
-if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
-	RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
-	if [ -f "$RGBCONF_SCRIPT" ]; then
-		"$RGBCONF_SCRIPT"
-	else
-		/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
-	fi
-fi
-
-/opt/muos/device/current/input/audio.sh I
-/opt/muos/device/current/input/bright.sh I
-
 DEVICE_BOARD="$(GET_VAR "device" "board/name")"
 
 ACT_GO=/tmp/act_go

@@ -44,7 +44,11 @@ INSTALL() {
 
 	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
 		RGBCONF_SCRIPT="$THEME_ACTIVE_DIR/rgb/rgbconf.sh"
-		[ -f "$RGBCONF_SCRIPT" ] && "$RGBCONF_SCRIPT" || /opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
+		if [ -f "$RGBCONF_SCRIPT" ]; then
+			"$RGBCONF_SCRIPT"
+		else
+			/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
+		fi
 	fi
 
 	if [ -f "$BOOTLOGO_NEW" ]; then

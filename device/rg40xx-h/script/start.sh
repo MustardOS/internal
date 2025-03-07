@@ -10,13 +10,21 @@ if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
 fi
 
+/opt/muos/device/current/input/audio.sh I
+/opt/muos/device/current/input/bright.sh I
+
 if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
 	/opt/muos/device/current/script/hdmi.sh start
 else
-	SET_VAR "global" "settings/hdmi/theme_resolution" "0"
-fi
+	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
+		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
+		if [ -f "$RGBCONF_SCRIPT" ]; then
+			"$RGBCONF_SCRIPT"
+		else
+			/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
+		fi
+	fi
 
-(
 	case "$(GET_VAR "global" "settings/advanced/brightness")" in
 		"high")
 			/opt/muos/device/current/input/bright.sh "$(GET_VAR "device" "screen/bright")"
@@ -32,9 +40,10 @@ fi
 			/opt/muos/device/current/input/bright.sh "$PREV_BRIGHT"
 			;;
 	esac
-) &
 
-GET_VAR "global" "settings/general/colour" >/sys/class/disp/disp/attr/color_temperature &
+	GET_VAR "global" "settings/general/colour" >/sys/class/disp/disp/attr/color_temperature
+	SET_VAR "global" "settings/hdmi/theme_resolution" "0"
+fi
 
 if [ "$(GET_VAR "global" "settings/advanced/overdrive")" -eq 1 ]; then
 	SET_VAR "device" "audio/max" "200"

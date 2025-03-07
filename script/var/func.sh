@@ -141,19 +141,10 @@ FB_SWITCH() {
 		SET_VAR "device" "$MODE/height" "$HEIGHT"
 	done
 
-	if [ "$(GET_VAR "device" "board/name")" = "rg28xx-h" ] && [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
-		N_WIDTH="$HEIGHT"
-		N_HEIGHT="$WIDTH"
-	else
-		N_WIDTH="$WIDTH"
-		N_HEIGHT="$HEIGHT"
-	fi
-
-	fbset -fb "$(GET_VAR "device" "screen/device")" -g "${N_WIDTH}" "${N_HEIGHT}" "${N_WIDTH}" "$((N_HEIGHT * 2))" "${DEPTH}"
+	/opt/muos/extra/mufbset -w "$WIDTH" -h "$HEIGHT" -d "$DEPTH"
 }
 
 HDMI_SWITCH() {
-	ROTATE=0
 	WIDTH=0
 	HEIGHT=0
 	DEPTH=32
@@ -176,13 +167,11 @@ HDMI_SWITCH() {
 			HEIGHT=1080
 			;;
 		*)
-			[ "$(GET_VAR "device" "board/name")" = "rg28xx-h" ] && ROTATE=1
 			WIDTH="$(GET_VAR "device" "screen/internal/width")"
 			HEIGHT="$(GET_VAR "device" "screen/internal/height")"
 			;;
 	esac
 
-	SET_VAR "device" "screen/rotate" "$ROTATE"
 	SET_VAR "device" "screen/external/width" "$WIDTH"
 	SET_VAR "device" "screen/external/height" "$HEIGHT"
 

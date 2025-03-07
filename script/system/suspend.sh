@@ -2,9 +2,15 @@
 
 . /opt/muos/script/var/func.sh
 
+BRIGHT_FILE="/opt/muos/config/brightness.txt"
 RECENT_WAKE="/tmp/recent_wake"
 
 SLEEP() {
+	DISPLAY_WRITE lcd0 setbl "0"
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
+	echo 4 >/sys/class/graphics/fb0/blank
+	touch "/tmp/mux_blank"
+
 	CPU_GOV="$(GET_VAR "device" "cpu/governor")"
 	echo "$CPU_GOV" >/tmp/orig_cpu_gov
 	echo "powersave" >"$CPU_GOV"
@@ -24,10 +30,6 @@ SLEEP() {
 		3 | 5 | 6) RUMBLE "$(GET_VAR "device" "board/rumble")" 0.3 ;;
 		*) ;;
 	esac
-
-	wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
-	echo 4 >/sys/class/graphics/fb0/blank
-	touch "/tmp/mux_blank"
 
 	# We're going in, hold on to your horses!
 	GET_VAR "global" "settings/advanced/state" >"/sys/power/state"
@@ -63,6 +65,10 @@ RESUME() {
 	rm -f "/tmp/mux_blank"
 	echo 0 >/sys/class/graphics/fb0/blank
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
+
+	E_BRIGHT="$(cat "$BRIGHT_FILE")"
+	[ "$E_BRIGHT" -lt 1 ] && E_BRIGHT=90
+	DISPLAY_WRITE lcd0 setbl "$E_BRIGHT"
 }
 
 [ -f "$RECENT_WAKE" ] && exit 0
@@ -72,7 +78,6 @@ case "$SHUTDOWN_TIME" in
 	-2) ;;
 	-1)
 		SLEEP
-		sleep 0.25
 		RESUME
 		;;
 	2) /opt/muos/script/mux/quit.sh poweroff sleep ;;
@@ -82,7 +87,6 @@ case "$SHUTDOWN_TIME" in
 		echo "$SHUTDOWN_TIME" >"$(GET_VAR "device" "board/rtc_wake")"/wakealarm
 
 		SLEEP
-		sleep 0.25
 
 		CURRENT_TIME=$(cat "$(GET_VAR "device" "board/rtc_wake")"/since_epoch)
 		if [ "$CURRENT_TIME" -ge "$SHUTDOWN_TIME" ]; then

@@ -11,7 +11,7 @@ SLEEP() {
 	echo 4 >/sys/class/graphics/fb0/blank
 	touch "/tmp/mux_blank"
 
-	CPU_GOV="$(GET_VAR "device" "cpu/governor")"
+	CPU_GOV="$(cat "$(GET_VAR "device" "cpu/governor")")"
 	echo "$CPU_GOV" >/tmp/orig_cpu_gov
 	echo "powersave" >"$CPU_GOV"
 

@@ -56,11 +56,11 @@ MANAGE_WEBSERV() {
 }
 
 for WEBSRV in sshd sftpgo ttyd syncthing rslsync ntp tailscaled; do
-	if [ "$(GET_VAR "global" "web/$WEBSRV")" -eq 1 ]; then
+	if [ ! "$1" = "stopall" ] && [ "$(GET_VAR "global" "web/$WEBSRV")" -eq 1 ]; then
 		TIMEOUT=30
 		WAIT=0
 
-		while ! ping -c 1 -W 1 8.8.8.8 >/dev/null 2>&1; do
+		while ! ping -c 1 -W 1 1.1.1.1 >/dev/null 2>&1; do
 			if [ "$WAIT" -ge "$TIMEOUT" ]; then
 				LOG_ERROR "$0" 0 "WEB SERVICES" "Network connection timed out after %d seconds" "$TIMEOUT"
 				break

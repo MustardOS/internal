@@ -180,7 +180,7 @@ ifconfig lo up &
 LOG_INFO "$0" 0 "BOOTING" "Checking for network capability"
 if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Starting Network Services"
-	/opt/muos/script/system/network.sh &
+	/opt/muos/script/system/network.sh connect &
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Running catalogue generator"

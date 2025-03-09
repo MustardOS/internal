@@ -141,6 +141,12 @@ FB_SWITCH() {
 		SET_VAR "device" "$MODE/height" "$HEIGHT"
 	done
 
+	if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 0 ] && [ "$(GET_VAR "device" "board/name")" = "rg28xx-h" ]; then
+		TMP_W="$WIDTH"
+		WIDTH="$HEIGHT"
+		HEIGHT="$TMP_W"
+	fi
+
 	/opt/muos/extra/mufbset -w "$WIDTH" -h "$HEIGHT" -d "$DEPTH"
 }
 

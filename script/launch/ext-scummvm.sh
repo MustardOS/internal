@@ -39,11 +39,11 @@ fi
 
 EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/scummvm"
 CONFIG="$EMUDIR/.config/scummvm/scummvm.ini"
-LOGPATH="/mnt/mmc/MUOS/log/scummvm/log.txt"
+LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/scummvm/log.txt"
 SAVE="/run/muos/storage/save/file/ScummVM-Ext"
 
 # Create log folder if it doesn't exist
-mkdir -p "/mnt/mmc/MUOS/log/scummvm"
+mkdir -p "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/scummvm"
 
 mkdir -p "$SAVE"
 chmod +x "$EMUDIR"/scummvm

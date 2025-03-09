@@ -7,18 +7,18 @@ ZRAM_SIZE=$(GET_VAR "global" "settings/advanced/zramfile")
 
 CREATE_ZRAM() {
 	if [ "$2" -eq 1 ]; then
-		LOG_INFO "$1" 0 "ZRAMFILE" "Creating Swapfile"
+		LOG_INFO "$1" 0 "ZRAMFILE" "Creating Zramfile"
         modprobe /lib/modules/4.9.170/kernel/drivers/block/zram.ko
         zramctl --size ${ZRAM_SIZE}M --algorithm lz4 /dev/zram0
 	fi
-	LOG_INFO "$1" 0 "SWAPFILE" "Mounting Swapfile"
+	LOG_INFO "$1" 0 "SWAPFILE" "Mounting Zramfile"
 	chmod 0600 "$ZRAM_FILE"
 	mkswap "$ZRAM_FILE"
 	swapon --priority -1 "$ZRAM_FILE"
 }
 
 PURGE_ZRAM() {
-	LOG_INFO "$1" 0 "SWAPFILE" "Purging Swapfile"
+	LOG_INFO "$1" 0 "SWAPFILE" "Purging Zramfile"
 	swapoff "$ZRAM_FILE"
 }
 

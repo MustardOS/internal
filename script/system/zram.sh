@@ -25,12 +25,8 @@ PURGE_ZRAM() {
 if [ "$ZRAM_SIZE" -eq 0 ]; then
 	PURGE_ZRAM "$0"
 else
-    # Check if zramctl lists our zram device
     if zramctl | grep -q "^$ZRAM_FILE "; then
-        # Get the DISKSIZE field (e.g. "1G", "1024M")
         CURRENT_SIZE=$(zramctl | awk -v dev="$ZRAM_FILE" '$1==dev {print $3}')
-        
-        # Convert CURRENT_SIZE (human readable) to bytes
         current_bytes=$(echo "$CURRENT_SIZE" | awk '{
             unit = substr($0, length($0), 1);
             num = substr($0, 1, length($0)-1);
@@ -44,7 +40,6 @@ else
                 printf("%d", num);
         }')
         
-        # Calculate desired size in bytes
         NEW_SIZE=$((ZRAM_SIZE * 1024 * 1024))
         
         if [ "$current_bytes" -ne "$NEW_SIZE" ]; then

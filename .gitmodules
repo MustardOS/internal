@@ -1,4 +1,0 @@
-[submodule "init/MUOS/application"]
-    path = init/MUOS/application
-    url = https://github.com/MustardOS/apps.git
-    branch = main

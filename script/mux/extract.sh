@@ -41,7 +41,7 @@ case "$ARCHIVE_NAME" in
 				echo "Extracted 'pico-8' Folder to '$BIOS_DIR'"
 			else
 				echo "Failed to Extract 'pico-8' Folder"
-				exit 1
+				ALL_DONE 1
 			fi
 		fi
 		;;

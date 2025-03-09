@@ -103,13 +103,18 @@ esac
 echo "Correcting Permissions..."
 chmod -R 755 /opt/muos
 
-UPDATE_SCRIPT=/opt/update.sh
-if [ -s "$UPDATE_SCRIPT" ]; then
-	echo "Running Update Script..."
-	chmod 755 "$UPDATE_SCRIPT"
-	"$UPDATE_SCRIPT"
-	rm "$UPDATE_SCRIPT"
-fi
+# Only allow update archives to run the update script!
+case "$ARCHIVE_NAME" in
+	*.muxupd)
+		UPDATE_SCRIPT=/opt/update.sh
+		if [ -s "$UPDATE_SCRIPT" ]; then
+			echo "Running Update Script..."
+			chmod 755 "$UPDATE_SCRIPT"
+			"$UPDATE_SCRIPT"
+			rm "$UPDATE_SCRIPT"
+		fi
+		;;
+esac
 
 touch "$(GET_VAR "device" "storage/rom/mount")/MUOS/update/installed/$ARCHIVE_NAME.done"
 

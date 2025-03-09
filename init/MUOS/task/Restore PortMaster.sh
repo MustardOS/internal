@@ -4,7 +4,7 @@
 
 . /opt/muos/script/var/func.sh
 
-PM_ZIP="/opt/muos/PortMaster/muos.portmaster.zip"
+PM_ZIP="/opt/muos/share/archive/muos.portmaster.zip"
 
 if [ ! -e "$PM_ZIP" ]; then
 	echo "Error: PortMaster archive not found!"

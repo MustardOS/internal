@@ -23,7 +23,7 @@ sleep 1
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
 /opt/muos/script/mux/hotkey.sh &
-/usr/bin/mpv /opt/muos/media/factory.mp3 &
+/usr/bin/mpv /opt/muos/share/media/factory.mp3 &
 
 if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Generating SSH Host Keys"
@@ -46,7 +46,7 @@ SET_VAR "global" "settings/advanced/rumble" "0"
 
 killall -q "mpv"
 
-/opt/muos/bin/nosefart /opt/muos/media/support.nsf &
+/opt/muos/bin/nosefart /opt/muos/share/media/support.nsf &
 EXEC_MUX "" "muxcredits"
 
 /opt/muos/script/mux/quit.sh reboot frontend

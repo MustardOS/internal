@@ -277,7 +277,7 @@ while :; do
 
 			"credits")
 				STOP_BGM
-				/opt/muos/bin/nosefart /opt/muos/media/support.nsf &
+				/opt/muos/bin/nosefart /opt/muos/share/media/support.nsf &
 				EXEC_MUX "info" "muxcredits"
 				pkill -9 -f "nosefart" &
 				START_BGM

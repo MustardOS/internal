@@ -12,7 +12,6 @@ CREATE_ZRAM() {
         zramctl --size ${ZRAM_SIZE}M --algorithm lz4 "$ZRAM_FILE"
 	fi
 	LOG_INFO "$1" 0 "ZRAMFILE" "Mounting Zramfile"
-	chmod 0600 "$ZRAM_FILE"
 	mkswap "$ZRAM_FILE"
 	swapon --priority -1 "$ZRAM_FILE"
 }

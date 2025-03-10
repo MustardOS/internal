@@ -25,7 +25,8 @@ fi
 # Set the device specific SDL Controller Map
 /opt/muos/script/mux/sdl_map.sh &
 
-/opt/muos/script/system/swapfile.sh &
+# Check both zram and standard swap
+/opt/muos/script/system/swap.sh &
 
 START_BGM
 

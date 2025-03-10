@@ -13,7 +13,7 @@ CREATE_SWAP() {
 	LOG_INFO "$1" 0 "SWAPFILE" "Mounting Swapfile"
 	chmod 0600 "$SWAP_FILE"
 	mkswap "$SWAP_FILE"
-	swapon "$SWAP_FILE"
+	swapon --priority -2 "$SWAP_FILE"
 }
 
 PURGE_SWAP() {

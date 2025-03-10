@@ -57,6 +57,9 @@ chmod +x "$EMUDIR"/wget
 chmod +x "$EMU"
 
 cd "$EMUDIR" || exit
+
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
+
 F_DIR="$(dirname "$FILE")"
 
 if [ "$NAME" = "Splore" ]; then
@@ -74,6 +77,8 @@ else
 fi
 
 kill -9 "$(pidof pico8_64)" "$(pidof gptokeyb2)"
+
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 

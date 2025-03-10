@@ -61,6 +61,8 @@ case "$FILE" in *.zip)
 	;;
 esac
 
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
+
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$FILE"
 
 # Clean up temp files if we unzipped the file
@@ -72,5 +74,7 @@ if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "devic
 fi
 
 FB_SWITCH "$(GET_VAR "device" "screen/$SCREEN_TYPE/width")" "$(GET_VAR "device" "screen/$SCREEN_TYPE/height")" 32
+
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

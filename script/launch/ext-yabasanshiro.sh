@@ -72,6 +72,8 @@ chmod +x "$EMUDIR"/yabasanshiro
 
 cd "$EMUDIR" || exit
 
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
+
 export LD_LIBRARY_PATH="$EMUDIR/libsark:$LD_LIBRARY_PATH"
 
 SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/usr/lib/gamecontrollerdb.txt") SDL_ASSERT=always_ignore $YABA_BIN "$FILE"
@@ -81,5 +83,7 @@ if [ -f "$SAVE_DIR/backup.bin" ]; then
 	cp -f "$SAVE_DIR/backup.bin" "$SAVE_DIR/$F_NAME.backup.bin"
 	rm -f "$SAVE_DIR/backup.bin"
 fi
+
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

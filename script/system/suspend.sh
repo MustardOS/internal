@@ -6,6 +6,8 @@ BRIGHT_FILE="/opt/muos/config/brightness.txt"
 RECENT_WAKE="/tmp/recent_wake"
 
 SLEEP() {
+	touch "$RECENT_WAKE"
+
 	DISPLAY_WRITE lcd0 setbl "0"
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
 	echo 4 >/sys/class/graphics/fb0/blank
@@ -33,13 +35,6 @@ SLEEP() {
 
 	# We're going in, hold on to your horses!
 	GET_VAR "global" "settings/advanced/state" >"/sys/power/state"
-
-	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
-	(
-		touch "$RECENT_WAKE"
-		sleep 5
-		rm "$RECENT_WAKE"
-	) &
 }
 
 RESUME() {
@@ -69,6 +64,12 @@ RESUME() {
 	E_BRIGHT="$(cat "$BRIGHT_FILE")"
 	[ "$E_BRIGHT" -lt 1 ] && E_BRIGHT=90
 	DISPLAY_WRITE lcd0 setbl "$E_BRIGHT"
+
+	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
+	(
+		sleep 5
+		rm "$RECENT_WAKE"
+	) &
 }
 
 [ -f "$RECENT_WAKE" ] && exit 0

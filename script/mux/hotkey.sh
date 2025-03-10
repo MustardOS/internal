@@ -71,7 +71,9 @@ SLEEP() {
 }
 
 DPAD_TOGGLE() {
-	if [ "$(GET_VAR "global" "settings/advanced/dpad_swap")" -eq 1 ]; then
+	RECENT_WAKE="/tmp/recent_wake"
+
+	if [ ! -f "$RECENT_WAKE" ] && [ "$(GET_VAR "global" "settings/advanced/dpad_swap")" -eq 1 ]; then
 		RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
 
 		case "$(GET_VAR "system" "foreground_process")" in

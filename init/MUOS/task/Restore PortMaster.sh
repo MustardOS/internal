@@ -15,7 +15,7 @@ if [ ! -e "$PM_ZIP" ]; then
 fi
 
 # PortMaster Purge Time!
-rm -rf /mnt/mmc/MUOS/Portmaster
+rm -rf /mnt/mmc/MUOS/PortMaster
 
 FILE_COUNT="$(unzip -Z1 "$PM_ZIP" | grep -cv '/$')"
 

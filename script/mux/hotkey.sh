@@ -9,7 +9,7 @@ fi
 DPAD_FILE=/sys/class/power_supply/axp2202-battery/nds_pwrkey
 HALL_KEY_FILE=/sys/class/power_supply/axp2202-battery/hallkey
 
-RGBCONTROLLER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/.rgbcontroller"
+RGBCONTROLLER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/RGB Controller"
 
 READ_HOTKEYS() {
 	# Restart muhotkey if it exits. (tweak.sh kills it on config changes.)

@@ -9,6 +9,12 @@ ACTION="$4"
 
 TRACK_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/track/playtime_data.json"
 
+if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
+    MODE="console"
+else
+    MODE="handheld"
+fi
+
 # Create directory and data file if they don't exist
 mkdir -p "$(dirname "$TRACK_JSON")"
 if [ ! -f "$TRACK_JSON" ] || [ ! -s "$TRACK_JSON" ]; then
@@ -33,13 +39,13 @@ update_json() {
             # Check if game exists in data using path (should be good for unique key)
             if jq -e ".\"$ESCAPED_PATH\"" "$TRACK_JSON" >/dev/null 2>&1; then
                 # Game exists! Update all the stuff
-                jq --arg path "$ESCAPED_PATH" --arg time "$(date +%s)" --arg core "$CORE" \
-                   ".[\$path].last_core = \$core | .[\$path].start_time = (\$time | tonumber) | .[\$path].launches += 1 | if .[\$path].core_launches[\$core] then .[\$path].core_launches[\$core] += 1 else .[\$path].core_launches[\$core] = 1 end" \
+                jq --arg path "$ESCAPED_PATH" --arg time "$(date +%s)" --arg core "$CORE" --arg device "$(GET_VAR "device" "board/name")" --arg mode $MODE \
+                   ".[\$path].last_core = \$core | .[\$path].start_time = (\$time | tonumber) | .[\$path].mode = \$mode | .[\$path].launches += 1 | if .[\$path].core_launches[\$core] then .[\$path].core_launches[\$core] += 1 else .[\$path].core_launches[\$core] = 1 end | if .[\$path].device_launches[\$device] then .[\$path].device_launches[\$device] += 1 else .[\$path].device_launches[\$device] = 1 end | if .[\$path].mode_launches[\$mode] then .[\$path].mode_launches[\$mode] += 1 else .[\$path].mode_launches[\$mode] = 1 end" \
                    "$TRACK_JSON" > "${TRACK_JSON}.tmp"
             else
                 # Game doesn't exist. Create entry
-                jq --arg path "$ESCAPED_PATH" --arg time "$(date +%s)" --arg name "$NAME" --arg core "$CORE" \
-                   ".[\$path] = {\"name\": \$name, \"last_core\": \$core, \"core_launches\": {}, \"launches\": 1, \"start_time\": (\$time | tonumber), \"total_time\": 0, \"avg_time\": 0, \"last_session\": 0} | .[\$path].core_launches[\$core] = 1" \
+                jq --arg path "$ESCAPED_PATH" --arg time "$(date +%s)" --arg name "$NAME" --arg core "$CORE" --arg device "$(GET_VAR "device" "board/name")" --arg mode $MODE \
+                   ".[\$path] = {\"name\": \$name, \"last_core\": \$core, \"core_launches\": {}, \"last_device\": \$device, \"device_launches\": {}, \"last_mode\": \$mode, \"mode_launches\": {}, \"launches\": 1, \"start_time\": (\$time | tonumber), \"total_time\": 0, \"avg_time\": 0, \"last_session\": 0} | .[\$path].core_launches[\$core] = 1 | .[\$path].device_launches[\$device] = 1 | .[\$path].mode_launches[\$mode] = 1" \
                    "$TRACK_JSON" > "${TRACK_JSON}.tmp"
             fi
             

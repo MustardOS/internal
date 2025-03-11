@@ -54,9 +54,13 @@ EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/openbor"
 chmod +x "$EMUDIR"/"$BOR_BIN"
 cd "$EMUDIR" || exit 1
 
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
+
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./"$BOR_BIN" "$FILE"
 
 # Clean up /userdata symlink when we're done since it's such a generic path.
 [ -d "$U_DATA" ] && rm -rf "$U_DATA"
+
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

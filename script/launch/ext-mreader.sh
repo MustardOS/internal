@@ -51,9 +51,13 @@ elif [ "$CORE" = "ext-mreader-portrait" ]; then
 	export SDL_ROTATION=1
 fi
 
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
+
 $GPTOKEYB "reader" -c "$MREADER_DIR/$ORIENTATION.gptk" &
 LD_LIBRARY_PATH="$MREADER_DIR/libs:$LD_LIBRARY_PATH" ./reader "$FILE"
 
 killall -q gptokeyb2
+
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

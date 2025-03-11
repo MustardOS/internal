@@ -33,6 +33,8 @@ export SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt"
 
 SET_VAR "system" "foreground_process" "mpv"
 
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
+
 if [ "$CORE" = "ext-mpv-general" ]; then
 	$GPTOKEYB "mpv" -c "$MPV_DIR/general.gptk" &
 	/usr/bin/mpv "$FILE"
@@ -49,5 +51,7 @@ elif [ "$CORE" = "ext-mpv-livetv" ]; then
 fi
 
 killall -q gptokeyb2
+
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

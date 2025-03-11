@@ -33,6 +33,10 @@ EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/flycast"
 chmod +x "$EMUDIR"/flycast
 cd "$EMUDIR" || exit
 
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
+
 HOME="$EMUDIR" SDL_ASSERT=always_ignore FLYCAST_BIOS_PATH=/run/muos/storage/bios/dc/ ./flycast "$FILE"
+
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

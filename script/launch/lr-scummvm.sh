@@ -56,8 +56,13 @@ else
 	sed -i 's/^kiosk_mode_enable = "true"$/kiosk_mode_enable = "false"/' "$RA_CONF"
 fi
 
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
+
 retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/scummvm_libretro.so" "$SCVM" &
 RA_PID=$!
 
 wait $RA_PID
+
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
+
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

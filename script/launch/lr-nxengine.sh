@@ -106,9 +106,14 @@ else
 		echo "Did extraction fail?" >>"$LOGPATH"
 	fi
 
+	/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
+
 	retroarch -v -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$DOUK" &
 	RA_PID=$!
 fi
 
 wait $RA_PID
+
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
+
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

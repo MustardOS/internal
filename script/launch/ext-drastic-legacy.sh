@@ -33,6 +33,10 @@ EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-legacy"
 chmod +x "$EMUDIR"/drastic
 cd "$EMUDIR" || exit
 
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
+
 HOME="$EMUDIR" SDL_ASSERT=always_ignore ./drastic "$FILE"
+
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

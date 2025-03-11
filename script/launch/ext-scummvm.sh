@@ -50,6 +50,8 @@ chmod +x "$EMUDIR"/scummvm
 
 cd "$EMUDIR" || exit
 
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
+
 if [ "$SCVM" = "grim:grim" ]; then
 	GRIMINI="$EMUDIR"/.config/scummvm/grimm.ini
 	sed -i "s|^path=.*$|path=$F_PATH/$SUBFOLDER|" "$GRIMINI"
@@ -57,6 +59,15 @@ if [ "$SCVM" = "grim:grim" ]; then
 		cat "$EMUDIR"/.config/scummvm/grimm.ini >>"$EMUDIR"/.config/scummvm/scummvm.ini
 	fi
 	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" "grim-win"
+elif [ -z "$SCVM" ]; then
+    # Switch analogue<>dpad for stickless devices
+	[ "$(GET_VAR "device" "board/stick")" -eq 0 ] && STICK_ROT=2 || STICK_ROT=0
+	case "$(GET_VAR "device" "board/name")" in
+		rg*) echo "$STICK_ROT" >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
+		*) ;;
+	esac
+
+	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" --auto-detect
 else
 	# Switch analogue<>dpad for stickless devices
 	[ "$(GET_VAR "device" "board/stick")" -eq 0 ] && STICK_ROT=2 || STICK_ROT=0
@@ -67,5 +78,7 @@ else
 
 	HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" "$SCVM"
 fi
+
+/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

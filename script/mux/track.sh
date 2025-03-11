@@ -8,6 +8,7 @@ FILE="$3"
 ACTION="$4"
 
 TRACK_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/track/playtime_data.json"
+TRACK_LOG="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/playtime_error.log"
 
 if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
     MODE="console"
@@ -53,7 +54,7 @@ update_json() {
             if [ -s "${TRACK_JSON}.tmp" ]; then
                 mv "${TRACK_JSON}.tmp" "$TRACK_JSON"
             else
-                echo "Error: Failed to create tmp file" >> "/mnt/mmc/MUOS/info/track/playtime_error.log"
+                echo "Error: Failed to create tmp file" >> "$TRACK_LOG"
             fi
             
         elif [ "$ACTION" = "stop" ]; then
@@ -75,13 +76,13 @@ update_json() {
                     if [ -s "${TRACK_JSON}.tmp" ]; then
                         mv "${TRACK_JSON}.tmp" "$TRACK_JSON"
                     else
-                        echo "Error: Failed to create tmp file on stop" >> "/mnt/mmc/MUOS/info/track/playtime_error.log"
+                        echo "Error: Failed to create tmp file on stop" >> "$TRACK_LOG"
                     fi
                 else
-                    echo "Error: Invalid start_time for $ESCAPED_PATH: $start_time" >> "/mnt/mmc/MUOS/info/track/playtime_error.log"
+                    echo "Error: Invalid start_time for $ESCAPED_PATH: $start_time" >> "$TRACK_LOG"
                 fi
             else
-                echo "Error: Game $ESCAPED_PATH not found in data file on stop" >> "/mnt/mmc/MUOS/info/track/playtime_error.log"
+                echo "Error: Game $ESCAPED_PATH not found in data file on stop" >> "$TRACK_LOG"
             fi
         fi
     else

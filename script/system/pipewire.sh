@@ -64,7 +64,7 @@ for TIMEOUT in $(seq 1 30); do
 		INTERNAL_NODE_ID=$(GET_NODE_ID "$(GET_VAR "device" "audio/pf_internal")")
 		EXTERNAL_NODE_ID=$(GET_NODE_ID "$(GET_VAR "device" "audio/pf_external")")
 
-		if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ]; then
+		if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
 			DEFAULT_NODE_ID=$EXTERNAL_NODE_ID
 			if [ "$(GET_VAR "global" "settings/hdmi/audio")" -eq 1 ]; then
 				DEFAULT_NODE_ID=$INTERNAL_NODE_ID

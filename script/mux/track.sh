@@ -13,7 +13,7 @@ ACTION="$4"
 TRACK_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/track/playtime_data.json"
 TRACK_LOG="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/playtime_error.log"
 
-if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
+if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
     MODE="console"
 else
     MODE="handheld"

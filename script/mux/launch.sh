@@ -172,7 +172,7 @@ case "$(GET_VAR "device" "board/name")" in
 esac
 
 SCREEN_TYPE="internal"
-if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
+if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
 	SCREEN_TYPE="external"
 fi
 

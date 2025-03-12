@@ -45,6 +45,14 @@ if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
 	: >/tmp/net_start
 fi
 
+LOG_INFO "$0" 0 "BOOTING" "Detecting Console Mode"
+if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
+	LOG_INFO "$0" 0 "DEVICE MODE" "Console (1)"
+	SET_VAR "global" "boot/device_mode" "1"
+else
+	LOG_INFO "$0" 0 "DEVICE MODE" "Handheld (0)"
+fi
+
 LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"
 cp -f "/opt/muos/device/current/control/asound.conf" "/etc/asound.conf"
 

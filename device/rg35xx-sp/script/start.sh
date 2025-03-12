@@ -13,7 +13,7 @@ fi
 /opt/muos/device/current/input/audio.sh I
 /opt/muos/device/current/input/bright.sh I
 
-if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
+if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
 	/opt/muos/device/current/script/hdmi.sh start
 else
 	case "$(GET_VAR "global" "settings/advanced/brightness")" in

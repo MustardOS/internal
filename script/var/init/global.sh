@@ -19,7 +19,7 @@ ACTION="$1"
 
 CONFIG_FILE="$GLOBAL_CONFIG"
 
-BOOT_VARS="factory_reset device_setup clock_setup firmware_done"
+BOOT_VARS="factory_reset device_setup clock_setup firmware_done device_mode"
 CLOCK_VARS="notation pool"
 NETWORK_VARS="type ssid pass address gateway subnet dns scan"
 SETTINGS_ADVANCED_VARS="accelerate swap thermal font verbose rumble volume brightness offset lock led random_theme retrowait usb_function state user_init dpad_swap overdrive swapfile zramfile cardmode"

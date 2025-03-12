@@ -15,7 +15,7 @@ PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp"
 HOME="$PPSSPP_DIR"
 export HOME
 
-if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
+if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
 	SDL_HQ_SCALER=2
 	SDL_ROTATION=0
 	SDL_BLITTER_DISABLED=1
@@ -44,7 +44,7 @@ cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
 cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
 
 SCREEN_TYPE="internal"
-if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "device" "board/hdmi")" -eq 1 ]; then
+if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
 	SCREEN_TYPE="external"
 fi
 

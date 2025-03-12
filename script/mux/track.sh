@@ -2,6 +2,9 @@
 
 . /opt/muos/script/var/func.sh
 
+
+[ "$(GET_VAR "global" "settings/general/activity")" -eq 0 ] && exit 0
+
 NAME="$1"
 CORE="$2"
 FILE="$3"

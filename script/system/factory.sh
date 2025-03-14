@@ -40,13 +40,12 @@ ldconfig -v >"/opt/muos/ldconfig.log"
 LOG_INFO "$0" 0 "FACTORY RESET" "Initialising Factory Reset Script"
 /opt/muos/script/system/reset.sh
 
-LOG_INFO "$0" 0 "FACTORY RESET" "Switching off Factory Reset mode"
-SET_VAR "global" "boot/factory_reset" "0"
-SET_VAR "global" "settings/advanced/rumble" "0"
-
 killall -q "mpv"
 
 /opt/muos/bin/nosefart /opt/muos/share/media/support.nsf &
 EXEC_MUX "" "muxcredits"
+
+SET_VAR "global" "boot/factory_reset" "0"
+SET_VAR "global" "settings/advanced/rumble" "0"
 
 /opt/muos/script/mux/quit.sh reboot frontend

@@ -128,7 +128,7 @@
     "Navigation Sound": "Sons de navigation",
     "RetroArch Configurations": "Configurations RetroArch",
     "Theme": "Thème muOS",
-    "Theme Picker": "Sélecteur de thème",
+    "Theme Picker": "Menu des thèmes",
     "Toggle the background animation of the current selected theme": "Activez/désactivez l'animation d'arrière-plan du thème actuellement sélectionné",
     "Toggle the background music of the frontend - This will stop if content is launched": "Activez/désactivez la musique de fond de l'interface - La musique s'arrêtera au lancement du contenu",
     "Toggle the fade to black animation on content launching": "Activez/désactivez l'animation de fondu noir lors du lancement du contenu",
@@ -285,8 +285,8 @@
     "PASSCODE": "MOT DE PASSE"
   },
   "muxpicker": {
-    "CATALOGUE PICKER": "SELECTEUR DE CATALOGUE",
-    "CONFIG PICKER": "SELECTEUR DE CONFIGURATION",
+    "CATALOGUE PICKER": "CATALOGUE",
+    "CONFIG PICKER": "CONFIG RETROARCH",
     "CUSTOM PICKER": "SELECTEUR DE PERSONNALISATION",
     "Incompatible Theme Resolution Detected": "Résolution de thème incompatible détectée",
     "Incompatible Theme Version Detected": "Version de thème incompatible détectée",
@@ -294,8 +294,8 @@
     "No Configuration Packages Found": "Aucun package de configuration trouvé",
     "No Custom Packages Found": "Aucun package de personnalisation trouvé",
     "No Theme Packages Found": "Aucun package de thème trouvé",
-    "THEME PICKER": "SELECTEUR DE THÈME",
-    "There are no attributed credits!": "Il n’y a aucun crédit attribué !"
+    "THEME PICKER": "THÈME MUOS",
+    "There are no attributed credits!": "Il n’y a aucun crédit attribué !"
   },
   "muxplore": {
     "Content is not associated with system or core": "Le contenu n'est pas associé au système ou à l'émulateur",
@@ -559,7 +559,7 @@
     "Menu Counter Folder": "Affichage du nombre des dossiers",
     "Network": "Icône du réseau",
     "Overlay Image": "Image de superposition (Overlay)",
-    "Overlay Transparency": "Transparence de superposition",
+    "Overlay Transparency": "Niveau de transparence du Overlay",
     "Réarranges the label of content to move the 'The' label to the front - For example, 'Batman and Robin, The' to 'The Batman and Robin'": "Réorganise l'étiquette du contenu pour déplacer l'étiquette « The » au début. Par exemple, « Batman and Robin, The » devient « The Batman and Robin »",
     "Remove ( )": "Retirer les ( )",
     "Remove [ ]": "Retirer les [ ]",
@@ -569,7 +569,7 @@
     "Replaces the label of shortened content folders to more appropriately named labels": "Remplace l'étiquette des dossiers de contenu raccourcis par des étiquettes nommées de manière plus appropriée",
     "Show Hidden Content": "Afficher le contenu masqué",
     "Changes the transparency of the overlay image for the frontend only": "Modifie la transparence de l'image de superposition.",
-    "Theme Provided": "Thème fourni",
+    "Theme Provided": "Pack du thème",
     "Title Include Root Drive": "Périphérique de stockage dans le titre",
     "Toggle hidden content displayed in Explore Content - Place a '.' or '_' character at the start of a file or folder name to hide it": "Activez/désactivez l'affichage du contenu masqué dans l'explorateur de contenu - Placez un '.' ou le caractère '_' au début d'un nom de fichier ou de dossier pour le masquer",
     "Toggle the visibility of currently selected file along with total in Explore Content": "Activez/désactivez l'affichage du fichier actuellement sélectionné ainsi que le nombre total de fichiers dans Explorer le contenu",

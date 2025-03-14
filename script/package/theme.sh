@@ -58,6 +58,12 @@ INSTALL() {
 		esac
 	fi
 
+	ASSETS_ZIP="$THEME_ACTIVE_DIR/assets.muxzip"
+	if [ -f "$ASSETS_ZIP" ]; then
+		printf "Extracting theme assets\n"
+		/opt/muos/script/mux/extract.sh "$ASSETS_ZIP"
+	fi
+
 	printf "Install complete\n"
 	sync
 

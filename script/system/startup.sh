@@ -51,6 +51,7 @@ if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 1 ] && [ "$(GET_VAR "devic
 	SET_VAR "global" "boot/device_mode" "1"
 else
 	LOG_INFO "$0" 0 "DEVICE MODE" "Handheld (0)"
+	SET_VAR "global" "boot/device_mode" "0"
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"

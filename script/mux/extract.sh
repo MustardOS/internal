@@ -81,6 +81,7 @@ case "$ARCHIVE_NAME" in
 						echo "Processing Folder: $FOLDER_NAME"
 
 						case "$FOLDER_NAME" in
+							archive) DESTINATION="/mnt/mmc/ARCHIVE" ;;
 							catalogue) DESTINATION="/run/muos/storage/info/catalogue" ;;
 							info) DESTINATION="/run/muos/storage/info" ;;
 							muos) DESTINATION="/run/muos/storage" ;;

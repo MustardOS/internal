@@ -33,22 +33,9 @@ cd "$PPSSPP_DIR" || exit
 
 SET_VAR "system" "foreground_process" "PPSSPP"
 
-FB_SWITCH 960 720 32
-
 sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
 
 SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/opt/muos/device/current/control/gamecontrollerdb_retro.txt") ./PPSSPP --pause-menu-exit "$FILE"
-
-# Do it twice, it's just as nice!
-cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
-cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
-
-SCREEN_TYPE="internal"
-if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
-	SCREEN_TYPE="external"
-fi
-
-FB_SWITCH "$(GET_VAR "device" "screen/$SCREEN_TYPE/width")" "$(GET_VAR "device" "screen/$SCREEN_TYPE/height")" 32
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 

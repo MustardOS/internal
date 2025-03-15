@@ -15,6 +15,8 @@ GRID_SECTION="[grid]"
 COLUMN_SETTING="COLUMN_COUNT = 0"
 ROW_SETTING="ROW_COUNT = 0"
 
+mkdir -p "$(dirname "$INI_FILE")"
+
 if grep -qFx "$GRID_SECTION" "$INI_FILE"; then
     if grep -qFx "$COLUMN_SETTING" "$INI_FILE" && grep -qFx "$ROW_SETTING" "$INI_FILE"; then
 		echo "Enabling Grid Mode for collections"

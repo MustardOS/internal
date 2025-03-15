@@ -74,6 +74,11 @@ case "$ARCHIVE_NAME" in
 				SYNC_FOLDER "$MUX_TEMP" "$(GET_VAR "device" "storage/rom/mount")/MUOS/application"
 				;;
 			*)
+				if [ -d "$MUX_TEMP/run/muos/storage/info/catalogue/Folder/grid" ] || [ -d "$MUX_TEMP/catalogue/Folder/grid" ]; then
+					echo "Clearing existing Grid images..."
+					rm -rf "/run/muos/storage/info/catalogue/Folder/grid"
+				fi
+
 				echo "Processing and Moving Files..."
 				for FOLDER in "$MUX_TEMP"/*; do
 					if [ -d "$FOLDER" ]; then

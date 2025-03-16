@@ -79,6 +79,11 @@ case "$ARCHIVE_NAME" in
 					rm -rf "/run/muos/storage/info/catalogue/Folder/grid"
 				fi
 
+				if [ -d "$MUX_TEMP/run/muos/storage/info/catalogue/Application/grid" ] || [ -d "$MUX_TEMP/catalogue/Application/grid" ]; then
+					echo "Clearing existing Application Grid images..."
+					rm -rf "/run/muos/storage/info/catalogue/Application/grid"
+				fi
+
 				echo "Processing and Moving Files..."
 				for FOLDER in "$MUX_TEMP"/*; do
 					if [ -d "$FOLDER" ]; then

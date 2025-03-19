@@ -568,7 +568,7 @@
     "Replaces the dash (-) with a colon (:) for content labels": "Zamienia myślnik (-) na dwukropek (:) w etykietach zawartości",
     "Replaces the label of shortened content folders to more appropriately named labels": "Zmienia etykiety skróconych nazw folderów zawartości na bardziej odpowiednie",
     "Show Hidden Content": "Pokaż ukrytą zawartość",
-    "Switch between different overlay styles for the frontend only": "Wybierz pomiędzy różnymi stylami nakładka tylko dla frontendu",
+    "Switch between different overlay styles for the frontend only": "Wybierz pomiędzy różnymi stylami nakładki dla frontendu",
     "Theme Provided": "Z motywu",
     "Title Include Root Drive": "Lokalizacja w tytule",
     "Toggle hidden content displayed in Explore Content - Place a '.' or '_' character at the start of a file or folder name to hide it": "Włącz wyświetlanie ukrytej zawartości - Dodaj '.' lub '_' na początku nazwy pliku lub folderu, by je ukryć",

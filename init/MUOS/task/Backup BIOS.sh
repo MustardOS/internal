@@ -2,7 +2,7 @@
 # HELP: Backup BIOS
 # ICON: backup
 
-# Backup script created for muOS 2405 Beans +
+# Backup script created for muOS 2405 Beans, updated for 2502 Pixie +
 # This should backup the BIOS folder.
 
 . /opt/muos/script/var/func.sh
@@ -26,7 +26,7 @@ else
 	mkdir -p "$DEST_DIR"
 fi
 
-DEST_FILE="$DEST_DIR/muOS-BIOS-$(date +"%Y-%m-%d_%H-%M").zip"
+DEST_FILE="$DEST_DIR/muOS-BIOS-$(date +"%Y-%m-%d_%H-%M").muxzip"
 
 # Capture PICO-8 files and backup
 PICO8_FILES="

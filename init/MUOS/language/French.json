@@ -127,7 +127,7 @@
     "Middle Right": "Au centre à droite",
     "Navigation Sound": "Sons de navigation",
     "RetroArch Configurations": "Configurations RetroArch",
-    "Theme": "Thème muOS",
+    "Theme": "Thème",
     "Theme Picker": "Menu des thèmes",
     "Toggle the background animation of the current selected theme": "Activez/désactivez l'animation d'arrière-plan du thème actuellement sélectionné",
     "Toggle the background music of the frontend - This will stop if content is launched": "Activez/désactivez la musique de fond de l'interface - La musique s'arrêtera au lancement du contenu",
@@ -285,7 +285,7 @@
     "PASSCODE": "MOT DE PASSE"
   },
   "muxpicker": {
-    "CATALOGUE PICKER": "MENU DES CATALOGUES",
+    "CATALOGUE PICKER": "CATALOGUES D'ILLUSTRATIONS",
     "CONFIG PICKER": "CONFIGURATION RETROARCH",
     "CUSTOM PICKER": "MENU PERSONNALISATION",
     "Incompatible Theme Resolution Detected": "Thème incompatible avec la résolution actuelle",

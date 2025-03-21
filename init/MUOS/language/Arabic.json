@@ -295,7 +295,7 @@
     "No Custom Packages Found": "لم يتم العثور على حزم التخصيصات",
     "No Theme Packages Found": "لم يتم العثور على حزم الثيمات",
     "THEME PICKER": "محدد الثيم",
-    "There are no attributed credits!": "There are no attributed credits!"
+    "There are no attributed credits!": "لا توجد أي اعتمادات منسوبة!"
   },
   "muxplore": {
     "Content is not associated with system or core": "المحتوى غير مرتبط بالنظام أو النواة",
@@ -350,29 +350,29 @@
     "Year": "السنة"
   },
   "muxsearch": {
-    "Enter in the name of the content you are looking for": "Enter in the name of the content you are looking for",
-    "Lookup": "Lookup",
-    "Lookup has to be 3 characters or more!": "Lookup has to be 3 characters or more!",
-    "SEARCH CONTENT": "SEARCH CONTENT",
+    "Enter in the name of the content you are looking for": "أدخل اسم المحتوى الذي تبحث عنه",
+    "Lookup": "ابحث عن",
+    "Lookup has to be 3 characters or more!": "يجب أن يتكون البحث من 3 أحرف أو أكثر!",
+    "SEARCH CONTENT": "البحث عن المحتوى",
     "Search Global": "البحث شامل",
     "Search Local": "البحث المحلي",
-    "Search all current active storage devices": "Search all current active storage devices",
-    "Search within the current selected folder and folders within": "Search within the current selected folder and folders within",
-    "Searching…": "Searching…"
+    "Search all current active storage devices": "البحث في جميع أجهزة التخزين النشطة",
+    "Search within the current selected folder and folders within": "البحث داخل المجلد المحدد والمجلدات الموجودة داخله",
+    "Searching…": "جاري البحث…"
   },
   "muxshot": {
-    "No Screenshots Found": "No Screenshots Found",
-    "SCREENSHOTS": "SCREENSHOTS",
-    "View your current screenshots": "View your current screenshots"
+    "No Screenshots Found": "لم يتم العثور على لقطات شاشة",
+    "SCREENSHOTS": "لقطات الشاشة",
+    "View your current screenshots": "عرض لقطات الشاشة"
   },
   "muxsnapshot": {
-    "No Save Snapshots Found": "No Save Snapshots Found",
-    "Restore your saved game progress from a previous snapshot": "Restore your saved game progress from a previous snapshot",
-    "SAVE SNAPSHOT": "SAVE SNAPSHOT"
+    "No Save Snapshots Found": "لم يتم العثور على لقطات محفوظة",
+    "Restore your saved game progress from a previous snapshot": "استعادة تقدم اللعبة المحفوظ من اللقطات المحفوظة السابقة",
+    "SAVE SNAPSHOT": "اللقطات المحفوظة"
   },
   "muxspace": {
-    "STORAGE SPACE": "STORAGE SPACE",
-    "View the current used space of the mounted storage devices": "View the current used space of the mounted storage devices"
+    "STORAGE SPACE": "مساحة التخزين",
+    "View the current used space of the mounted storage devices": "عرض المساحة المستخدمة لأجهزة التخزين المثبتة"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "النواة المعينة/منظم النظام",
@@ -601,24 +601,24 @@
     "WEB SERVICES": "خدمات الويب"
   },
   "system": {
-    "Failed read command output": "Failed read command output",
-    "Failed to allocate memory": "Failed to allocate memory",
-    "Failed to close command stream": "Failed to close command stream",
-    "Failed to create file": "Failed to create file",
-    "Failed to delete file": "Failed to delete file",
-    "Failed to duplicate string": "Failed to duplicate string",
-    "Failed to fork": "Failed to fork",
-    "Failed to open /proc/partitions": "Failed to open /proc/partitions",
-    "Failed to open EXTRA joystick device": "Failed to open EXTRA joystick device",
-    "Failed to open GENERAL joystick device": "Failed to open GENERAL joystick device",
-    "Failed to open POWER joystick device": "Failed to open POWER joystick device",
-    "Failed to open VOLUME joystick device": "Failed to open VOLUME joystick device",
-    "Failed to open directory": "Failed to open directory",
-    "Failed to open file": "Failed to open file",
-    "Failed to open file for reading": "Failed to open file for reading",
-    "Failed to open file for writing": "Failed to open file for writing",
-    "Failed to retrieve file or directory status": "Failed to retrieve file or directory status",
-    "Failed to run command": "Failed to run command",
-    "Failed to use int16 - out of range": "Failed to use int16 - out of range"
+    "Failed read command output": "فشل في قراءة إخراج الأمر",
+    "Failed to allocate memory": "فشل في تخصيص الذاكرة",
+    "Failed to close command stream": "فشل في إغلاق مجرى الأوامر",
+    "Failed to create file": "فشل في إنشاء الملف",
+    "Failed to delete file": "فشل في حذف الملف",
+    "Failed to duplicate string": "فشل في تكرار السلسلة",
+    "Failed to fork": "فشل في التفرع",
+    "Failed to open /proc/partitions": "فشل في فتح /proc/partitions",
+    "Failed to open EXTRA joystick device": "فشل في فتح جهاز التحكم EXTRA",
+    "Failed to open GENERAL joystick device": "فشل في فتح جهاز التحكم GENERAL",
+    "Failed to open POWER joystick device": "فشل في فتح جهاز التحكم POWER",
+    "Failed to open VOLUME joystick device": "فشل في فتح جهاز التحكم VOLUME",
+    "Failed to open directory": "فشل في فتح المجلد",
+    "Failed to open file": "فشل في فتح الملف",
+    "Failed to open file for reading": "فشل في فتح الملف للقراءة",
+    "Failed to open file for writing": "فشل في فتح الملف للكتابة",
+    "Failed to retrieve file or directory status": "فشل في استرداد حالة الملف أو المجلد",
+    "Failed to run command": "فشل في تشغيل الأمر",
+    "Failed to use int16 - out of range": "فشل استخدام int16 - خارج النطاق"
   }
 }

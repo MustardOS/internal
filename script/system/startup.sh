@@ -160,7 +160,7 @@ LOG_INFO "$0" 0 "BOOTING" "Correcting SSH permissions"
 chown -R root:root /opt &
 chmod -R 755 /opt &
 
-echo 2 >/proc/sys/abi/cp15_barrier &
+#echo 2 >/proc/sys/abi/cp15_barrier &
 
 LOG_INFO "$0" 0 "BOOTING" "Backing up global configuration"
 /opt/muos/script/system/config_backup.sh &

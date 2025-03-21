@@ -2,8 +2,8 @@
 # HELP: Backup Saves
 # ICON: backup
 
-# Backup script created for muOS 2405 Beans +
-# This grabs all save files and save states and adds them to a .zip archive for easy restoration later using the muOS Task Commander.
+# Backup script created for muOS 2405 Beans, updated for 2502 Pixie +
+# This grabs all save files and save states and adds them to a .muxzip archive for easy restoration later using the muOS Task Commander.
 
 . /opt/muos/script/var/func.sh
 
@@ -59,7 +59,7 @@ else
 	DRASTIC_SAVESTATE_DIR=""
 fi
 
-DEST_FILE="$DEST_DIR/muOS-Save-$(date +"%Y-%m-%d_%H-%M").zip"
+DEST_FILE="$DEST_DIR/muOS-Save-$(date +"%Y-%m-%d_%H-%M").muxzip"
 
 TO_BACKUP="
 $MUOS_SAVE_DIR

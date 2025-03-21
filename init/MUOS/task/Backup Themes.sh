@@ -2,7 +2,7 @@
 # HELP: Backup Themes
 # ICON: backup
 
-# Backup script created for muOS 2405 Beans +
+# Backup script created for muOS 2405 Beans, updated for 2502 Pixie +
 # This should backup the themes folder.
 
 . /opt/muos/script/var/func.sh
@@ -26,7 +26,7 @@ else
 	mkdir -p "$DEST_DIR"
 fi
 
-DEST_FILE="$DEST_DIR/muOS-Theme-$(date +"%Y-%m-%d_%H-%M").zip"
+DEST_FILE="$DEST_DIR/muOS-Theme-$(date +"%Y-%m-%d_%H-%M").muxzip"
 
 TO_BACKUP="
 $(GET_VAR "device" "storage/rom/mount")/MUOS/theme

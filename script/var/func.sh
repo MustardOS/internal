@@ -67,15 +67,12 @@ LOG() {
 	MSG="$1"
 	shift
 
-	# Time is of the essence!
-	TIME=$(date '+%Y-%m-%d %H:%M:%S')
-
-	[ "$VERBOSE" -eq 1 ] && /opt/muos/extra/muxstart "$PROGRESS" "$(printf "%s\n\n${MSG}\n" "$TITLE" "$@")" && sleep 0.2
+	[ "$VERBOSE" -eq 1 ] && /opt/muos/extra/muxstart "$PROGRESS" "$(printf "%s\n\n${MSG}\n" "$TITLE" "$@")" && sleep 0.1
 
 	# Print to console and log file and ensure the message is formatted correctly with printf options
 	SPACER="$TITLE - "
 	[ -z "$TITLE" ] && SPACER=""
-	printf "[%s] [%s${ESC}[0m] [%s] %s${MSG}\n" "$TIME" "$SYMBOL" "$MODULE" "$SPACER" "$@" | tee -a "$MUOS_BOOT_LOG"
+	printf "[%s] [%s${ESC}[0m] [%s] %s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$MODULE" "$SPACER" "$@" >>"$MUOS_BOOT_LOG"
 }
 
 LOG_INFO() { LOG "${CSI}33m*" "$@"; }

@@ -29,19 +29,22 @@ HAS_NETWORK=$(GET_VAR "device" "board/network")
 USER_INIT=$(GET_VAR "global" "settings/advanced/user_init")
 VERBOSE=$(GET_VAR "global" "settings/advanced/verbose")
 
+case "$RUMBLE_SETTING" in 1 | 4 | 5) RUMBLE "$RUMBLE_PIN" 0.3 ;; esac
+
 # Restore the default device screen to current WxH dimensions
+LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Restoring Screen Mode"
 for MODE in screen mux; do
 	SET_VAR "device" "$MODE/width" "$WIDTH"
 	SET_VAR "device" "$MODE/height" "$HEIGHT"
 done &
 
-case "$RUMBLE_SETTING" in 1 | 4 | 5) RUMBLE "$RUMBLE_PIN" 0.3 ;; esac
-
+LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Mounting Current Device Specifics"
 DEVICE_CURRENT="/opt/muos/device/current"
 [ -L "$DEVICE_CURRENT" ] && rm -rf "$DEVICE_CURRENT"
 mkdir -p "$DEVICE_CURRENT"
 mount --bind "/opt/muos/device/$BOARD_NAME" "$DEVICE_CURRENT"
 
+LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Starting Device Management System"
 /sbin/udevd -d || CRITICAL_FAILURE udev
 udevadm trigger --type=subsystems --action=add &
 udevadm trigger --type=devices --action=add &
@@ -51,14 +54,14 @@ if [ "$FACTORY_RESET" -eq 0 ]; then
 	LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Loading Storage Mounts"
 	/opt/muos/script/mount/start.sh &
 
-	LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Removing any update scripts"
+	LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Removing Existing Update Scripts"
 	rm -rf /opt/update.sh
 
 	echo 1 >/tmp/work_led_state
 	: >/tmp/net_start
 fi
 
-LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Bringing up localhost network"
+LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Bringing Up 'localhost' Network"
 ifconfig lo up &
 
 LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Detecting Console Mode"
@@ -129,7 +132,7 @@ dmesg | grep 'Please run fsck' | while IFS= read -r LINE; do
 	fi
 done
 
-LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Backing up global configuration"
+LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Backing up Global Configuration"
 /opt/muos/script/system/config_backup.sh &
 
 LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Starting Low Power Indicator"
@@ -147,7 +150,7 @@ LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Setting Device Controls"
 LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Setting up SDL Controller Map"
 /opt/muos/script/mux/sdl_map.sh &
 
-LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Running catalogue generator"
+LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Running Catalogue Generator"
 /opt/muos/script/system/catalogue.sh "$ROM_MOUNT" &
 
 LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Precaching RetroArch System"
@@ -156,12 +159,13 @@ ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/config/preload.txt &
 dmesg >"$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
 
 # Check for a kiosk configuration file on SD1
+LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Checking for Kiosk Mode"
 KIOSK_HARD_CONFIG="/opt/muos/config/kiosk.ini"
 KIOSK_USER_CONFIG="$ROM_MOUNT/MUOS/kiosk.ini"
 [ -f "$KIOSK_USER_CONFIG" ] && [ ! -f "$KIOSK_HARD_CONFIG" ] && mv "$KIOSK_USER_CONFIG" "$KIOSK_HARD_CONFIG"
 [ -f "$KIOSK_HARD_CONFIG" ] && /opt/muos/script/var/init/kiosk.sh init
 
-LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Checking for passcode lock"
+LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Checking for Passcode Lock"
 HAS_UNLOCK=0
 if [ "$PASSCODE_LOCK" -eq 1 ]; then
 	while [ "$HAS_UNLOCK" != 1 ]; do
@@ -170,7 +174,7 @@ if [ "$PASSCODE_LOCK" -eq 1 ]; then
 	done
 fi
 
-LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Checking for network capability"
+LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Checking for Network Capability"
 if [ "$HAS_NETWORK" -eq 1 ]; then
 	LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Starting Network Services"
 	/opt/muos/script/system/network.sh connect &
@@ -179,9 +183,9 @@ fi
 #echo 2 >/proc/sys/abi/cp15_barrier &
 
 if [ "$USER_INIT" -eq 1 ]; then
-	LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Starting user initialisation scripts"
+	LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Starting User Initialisation Scripts"
 	/opt/muos/script/system/user_init.sh &
 fi
 
-LOG_INFO "$0" 0 0 "BOOTING" "Starting muX frontend"
+LOG_INFO "$0" 0 0 "BOOTING" "Starting muX Frontend"
 /opt/muos/script/mux/frontend.sh &

@@ -46,15 +46,22 @@ SET_VAR() {
 }
 
 GET_VAR() {
-	[ -f "/run/muos/$1/$2" ] && cat "/run/muos/$1/$2" || echo ""
+	VAR="/run/muos/$1/$2"
+	if [ -f "$VAR" ]; then
+		read -r VAL <"$VAR"
+		printf '%s\n' "$VAL"
+	else
+		echo ""
+	fi
 }
 
 LOG() {
 	SYMBOL="$1"               # The symbol for the specific log type
 	MODULE="$(basename "$2")" # This is the name of the calling script without the full path
 	PROGRESS="$3"             # Used mainly for muxstart to show the progress line
-	TITLE="$4"                # The header of what is being logged - generally for sorting purposes
-	shift 4
+	VERBOSE="$4"              # A check for verbose mode
+	TITLE="$5"                # The header of what is being logged - generally for sorting purposes
+	shift 5
 
 	# Extract the message format string since we can add things like %s %d etc
 	MSG="$1"
@@ -63,9 +70,7 @@ LOG() {
 	# Time is of the essence!
 	TIME=$(date '+%Y-%m-%d %H:%M:%S')
 
-	if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 1 ]; then
-		/opt/muos/extra/muxstart "$PROGRESS" "$(printf "%s\n\n${MSG}\n" "$TITLE" "$@")" && sleep 0.5
-	fi
+	[ "$VERBOSE" -eq 1 ] && /opt/muos/extra/muxstart "$PROGRESS" "$(printf "%s\n\n${MSG}\n" "$TITLE" "$@")" && sleep 0.2
 
 	# Print to console and log file and ensure the message is formatted correctly with printf options
 	SPACER="$TITLE - "

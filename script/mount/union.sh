@@ -18,18 +18,18 @@ ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 
 UNION_VALIDATION() {
 	command -v "$UFS_BIN" >/dev/null 2>&1 || {
-		LOG_ERROR "$0" 0 "UNIONFS" "Required binary $UFS_BIN not found"
+		LOG_ERROR "$0" 0 0 "UNIONFS" "Required binary $UFS_BIN not found"
 		exit 1
 	}
 
-	[ -n "$USB_MOUNT" ] || LOG_ERROR "$0" 0 "UNIONFS" "USB mount point not found"
-	[ -n "$SDCARD_MOUNT" ] || LOG_ERROR "$0" 0 "UNIONFS" "SD card mount point not found"
-	[ -n "$ROM_MOUNT" ] || LOG_ERROR "$0" 0 "UNIONFS" "ROM mount point not found"
+	[ -n "$USB_MOUNT" ] || LOG_ERROR "$0" 0 0 "UNIONFS" "USB mount point not found"
+	[ -n "$SDCARD_MOUNT" ] || LOG_ERROR "$0" 0 0 "UNIONFS" "SD card mount point not found"
+	[ -n "$ROM_MOUNT" ] || LOG_ERROR "$0" 0 0 "UNIONFS" "ROM mount point not found"
 }
 
 UNION_PATH_CREATE() {
 	if ! mkdir -p "$ROM_TARGET" "$PORT_TARGET"; then
-		LOG_ERROR "$0" 0 "UNIONFS" "Failed to create target directories: $ROM_TARGET, $PORT_TARGET"
+		LOG_ERROR "$0" 0 0 "UNIONFS" "Failed to create target directories: $ROM_TARGET, $PORT_TARGET"
 		exit 1
 	fi
 }
@@ -48,7 +48,7 @@ START_UNION() {
 		UNION_SOURCES=$(BUILD_UNION "$SOURCE")
 
 		if [ -z "$UNION_SOURCES" ]; then
-			LOG_ERROR "$0" 0 "UNIONFS" "No valid $SOURCE directory found"
+			LOG_ERROR "$0" 0 0 "UNIONFS" "No valid $SOURCE directory found"
 			continue
 		fi
 
@@ -56,9 +56,9 @@ START_UNION() {
 		[ "$SOURCE" = "$PORT_SUBDIR" ] && TARGET="$PORT_TARGET"
 
 		if [ -n "$TARGET" ] && "$UFS_BIN" "$UNION_SOURCES" "$TARGET"; then
-			LOG_INFO "$0" 0 "UNIONFS" "Union mount for $SOURCE started successfully at $TARGET"
+			LOG_INFO "$0" 0 0 "UNIONFS" "Union mount for $SOURCE started successfully at $TARGET"
 		else
-			LOG_ERROR "$0" 0 "UNIONFS" "Failed to start union mount for $SOURCE at $TARGET"
+			LOG_ERROR "$0" 0 0 "UNIONFS" "Failed to start union mount for $SOURCE at $TARGET"
 		fi
 	done
 }
@@ -66,9 +66,9 @@ START_UNION() {
 STOP_UNION() {
 	for TARGET in "$ROM_TARGET" "$PORT_TARGET"; do
 		if umount "$TARGET"; then
-			LOG_INFO "$0" 0 "UNIONFS" "Union mount at $TARGET stopped successfully"
+			LOG_INFO "$0" 0 0 "UNIONFS" "Union mount at $TARGET stopped successfully"
 		else
-			LOG_ERROR "$0" 0 "UNIONFS" "Failed to stop union mount at $TARGET"
+			LOG_ERROR "$0" 0 0 "UNIONFS" "Failed to stop union mount at $TARGET"
 		fi
 	done
 }
@@ -82,7 +82,7 @@ SHOW_USAGE() {
 	INVALID_MSG=$(printf "Invalid argument: %s" "$1")
 	EXPECT_MSG=$(printf "Usage: %s {start|stop|restart}" "$(basename "$0")")
 
-	LOG_ERROR "$0" 0 "UNIONFS" "$INVALID_MSG - $EXPECT_MSG"
+	LOG_ERROR "$0" 0 0 "UNIONFS" "$INVALID_MSG - $EXPECT_MSG"
 	printf "%s - %s\n" "$INVALID_MSG" "$EXPECT_MSG"
 	exit 2
 }

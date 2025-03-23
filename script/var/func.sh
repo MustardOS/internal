@@ -46,13 +46,7 @@ SET_VAR() {
 }
 
 GET_VAR() {
-	VAR="/run/muos/$1/$2"
-	if [ -f "$VAR" ]; then
-		read -r VAL <"$VAR"
-		printf '%s\n' "$VAL"
-	else
-		echo ""
-	fi
+	cat "/run/muos/$1/$2" 2>/dev/null
 }
 
 LOG() {
@@ -67,7 +61,10 @@ LOG() {
 	MSG="$1"
 	shift
 
-	[ "$VERBOSE" -eq 1 ] && /opt/muos/extra/muxstart "$PROGRESS" "$(printf "%s\n\n${MSG}\n" "$TITLE" "$@")" && sleep 0.1
+	if [ "$VERBOSE" -eq 1 ]; then
+		/opt/muos/extra/muxstart "$PROGRESS" "$(printf "%s\n\n${MSG}\n" "$TITLE" "$@")"
+		sleep 0.5
+	fi
 
 	# Print to console and log file and ensure the message is formatted correctly with printf options
 	SPACER="$TITLE - "

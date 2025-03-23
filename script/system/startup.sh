@@ -94,6 +94,12 @@ LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Starting Pipewire"
 
 [ "$FACTORY_RESET" -eq 1 ] && /opt/muos/script/system/factory.sh
 
+LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Checking for Network Capability"
+if [ "$HAS_NETWORK" -eq 1 ]; then
+	LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Starting Network Services"
+	/opt/muos/script/system/network.sh connect &
+fi
+
 LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Correcting Permissions"
 (
 	for DIR in /root /opt; do
@@ -103,18 +109,13 @@ LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Correcting Permissions"
 	wait
 ) &
 
-LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Running Device Specifics"
+LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Device Specific Startup"
 /opt/muos/device/current/script/start.sh
 
 # Block on storage mounts as late as possible to reduce boot time. Must wait
 # before charger detection since muxcharge expects the theme to be mounted.
 LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Waiting for Storage Mounts"
-while [ ! -f /run/muos/storage/mounted ]; do sleep 0.1; done
-
-# Now we can unionise all of the above mounts "ROMS" folders into a singular
-# mount making our life just that little bit easier(?)
-LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Unionising ROMS on Storage Mounts"
-/opt/muos/script/mount/union.sh start &
+while [ ! -f /run/muos/storage/mounted ]; do sleep 0.5; done
 
 LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Checking for Safety Script"
 OOPS="$ROM_MOUNT/oops.sh"
@@ -122,6 +123,11 @@ OOPS="$ROM_MOUNT/oops.sh"
 
 LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Detecting Charge Mode"
 /opt/muos/device/current/script/charge.sh
+
+# Now we can unionise all of the above mounts "ROMS" folders into a singular
+# mount making our life just that little bit easier(?)
+LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Unionising ROMS on Storage Mounts"
+/opt/muos/script/mount/union.sh start &
 
 LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Checking Disk Health"
 dmesg | grep 'Please run fsck' | while IFS= read -r LINE; do
@@ -172,12 +178,6 @@ if [ "$PASSCODE_LOCK" -eq 1 ]; then
 		EXEC_MUX "" "muxpass" -t boot
 		HAS_UNLOCK="$EXIT_STATUS"
 	done
-fi
-
-LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Checking for Network Capability"
-if [ "$HAS_NETWORK" -eq 1 ]; then
-	LOG_INFO "$0" 0 "$VERBOSE" "BOOTING" "Starting Network Services"
-	/opt/muos/script/system/network.sh connect &
 fi
 
 #echo 2 >/proc/sys/abi/cp15_barrier &

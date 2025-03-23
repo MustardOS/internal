@@ -12,6 +12,7 @@ esac
 /opt/muos/script/var/init/global.sh init
 
 # Cache ALL OF THE variables!
+GOVERNOR=$(GET_VAR "device" "cpu/governor")
 WIDTH=$(GET_VAR "device" "screen/internal/width")
 HEIGHT=$(GET_VAR "device" "screen/internal/height")
 RUMBLE_SETTING=$(GET_VAR "global" "settings/advanced/rumble")
@@ -29,6 +30,7 @@ HAS_NETWORK=$(GET_VAR "device" "board/network")
 USER_INIT=$(GET_VAR "global" "settings/advanced/user_init")
 VERBOSE=$(GET_VAR "global" "settings/advanced/verbose")
 
+echo "performance" >"$GOVERNOR"
 case "$RUMBLE_SETTING" in 1 | 4 | 5) RUMBLE "$RUMBLE_PIN" 0.3 ;; esac
 
 # Restore the default device screen to current WxH dimensions

@@ -52,24 +52,21 @@ GET_VAR() {
 LOG() {
 	SYMBOL="$1"               # The symbol for the specific log type
 	MODULE="$(basename "$2")" # This is the name of the calling script without the full path
-	PROGRESS="$3"             # Used mainly for muxstart to show the progress line
-	VERBOSE="$4"              # A check for verbose mode
-	TITLE="$5"                # The header of what is being logged - generally for sorting purposes
-	shift 5
+
+	# shellcheck disable=SC2034
+	PROGRESS="$3" # Used mainly for muxstart to show the progress line
+	TITLE="$4"    # The header of what is being logged - generally for sorting purposes
+
+	shift 4
 
 	# Extract the message format string since we can add things like %s %d etc
 	MSG="$1"
 	shift
 
-	if [ "$VERBOSE" -eq 1 ]; then
-		/opt/muos/extra/muxstart "$PROGRESS" "$(printf "%s\n\n${MSG}\n" "$TITLE" "$@")"
-		sleep 0.5
-	fi
-
 	# Print to console and log file and ensure the message is formatted correctly with printf options
-	SPACER="$TITLE - "
-	[ -z "$TITLE" ] && SPACER=""
-	printf "[%s] [%s${ESC}[0m] [%s] %s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$MODULE" "$SPACER" "$@" >>"$MUOS_BOOT_LOG"
+	SPACER=$(printf "%-10s\t" "$TITLE")
+	[ -z "$TITLE" ] && SPACER=$(printf "\t")
+	printf "[%6s] [%-3s${ESC}[0m] [%-16s]\t%s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$MODULE" "$SPACER" "$@" >>"$MUOS_BOOT_LOG"
 }
 
 LOG_INFO() { LOG "${CSI}33m*" "$@"; }

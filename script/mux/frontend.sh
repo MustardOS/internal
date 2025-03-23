@@ -8,7 +8,6 @@ esac
 . /opt/muos/script/var/func.sh
 
 DEVICE_BOARD="$(GET_VAR "device" "board/name")"
-VERBOSE=$(GET_VAR "global" "settings/advanced/verbose")
 
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
@@ -38,7 +37,7 @@ echo "root" >$EX_CARD
 LAST_PLAY=$(cat "/opt/muos/config/lastplay.txt")
 LAST_INDEX=0
 
-LOG_INFO "$0" 0 0 "FRONTEND" "Setting default CPU governor"
+LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
 DEF_GOV=$(GET_VAR "device" "cpu/default")
 printf '%s\n' "$DEF_GOV" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 if [ "$DEF_GOV" = ondemand ]; then
@@ -48,12 +47,12 @@ if [ "$DEF_GOV" = ondemand ]; then
 	GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
 fi
 
-LOG_INFO "$0" 0 0 "FRONTEND" "Checking for last or resume startup"
+LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"
 if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR "global" "settings/general/startup")" = "resume" ]; then
 	GO_LAST_BOOT=1
 
 	if [ -n "$LAST_PLAY" ]; then
-		LOG_INFO "$0" 0 0 "FRONTEND" "Checking for network and retrowait"
+		LOG_INFO "$0" 0 "FRONTEND" "Checking for network and retrowait"
 
 		if [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
 			NET_START="/tmp/net_start"
@@ -65,35 +64,35 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 				OIP=$((OIP + 1))
 
 				if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
-					LOG_SUCCESS "$0" 0 0 "FRONTEND" "Network connected"
-					[ "$VERBOSE" -eq 0 ] && /opt/muos/extra/muxstart 0 "Network connected"
+					LOG_SUCCESS "$0" 0 "FRONTEND" "Network connected"
+					/opt/muos/extra/muxstart 0 "Network connected"
 
 					PIP=0
 					while ! ping -c 1 -W 5 8.8.8.8 >/dev/null 2>&1; do
 						PIP=$((PIP + 1))
-						LOG_INFO "$0" 0 0 "FRONTEND" "Verifying connectivity..."
-						[ "$VERBOSE" -eq 0 ] && /opt/muos/extra/muxstart 0 "Verifying connectivity... (%s)" "$PIP"
+						LOG_INFO "$0" 0 "FRONTEND" "Verifying connectivity..."
+						/opt/muos/extra/muxstart 0 "Verifying connectivity... (%s)" "$PIP"
 						sleep 1
 					done
 
-					LOG_SUCCESS "$0" 0 0 "FRONTEND" "Connectivity verified! Booting content!"
-					[ "$VERBOSE" -eq 0 ] && /opt/muos/extra/muxstart 0 "Connectivity verified! Booting content!"
+					LOG_SUCCESS "$0" 0 "FRONTEND" "Connectivity verified! Booting content!"
+					/opt/muos/extra/muxstart 0 "Connectivity verified! Booting content!"
 
 					GO_LAST_BOOT=1
 					break
 				fi
 
 				if [ "$(cat "$NET_START")" = "ignore" ]; then
-					LOG_SUCCESS "$0" 0 0 "FRONTEND" "Ignoring network connection"
-					[ "$VERBOSE" -eq 0 ] && /opt/muos/extra/muxstart 0 "Ignoring network connection... Booting content!"
+					LOG_SUCCESS "$0" 0 "FRONTEND" "Ignoring network connection"
+					/opt/muos/extra/muxstart 0 "Ignoring network connection... Booting content!"
 
 					GO_LAST_BOOT=1
 					break
 				fi
 
 				if [ "$(cat "$NET_START")" = "menu" ]; then
-					LOG_SUCCESS "$0" 0 0 "FRONTEND" "Booting to main menu"
-					[ "$VERBOSE" -eq 0 ] && /opt/muos/extra/muxstart 0 "Booting to main menu!"
+					LOG_SUCCESS "$0" 0 "FRONTEND" "Booting to main menu"
+					/opt/muos/extra/muxstart 0 "Booting to main menu!"
 
 					GO_LAST_BOOT=0
 					break
@@ -104,7 +103,7 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 		fi
 
 		if [ $GO_LAST_BOOT -eq 1 ]; then
-			LOG_INFO "$0" 0 0 "FRONTEND" "Booting to last launched content"
+			LOG_INFO "$0" 0 "FRONTEND" "Booting to last launched content"
 			cat "$LAST_PLAY" >"$ROM_GO"
 
 			CONTENT_GOV="$(basename "$LAST_PLAY" .cfg).gov"
@@ -115,7 +114,7 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 				if [ -e "$CONTENT_GOV" ]; then
 					printf "%s" "$(cat "$CONTENT_GOV")" >$GVR_GO
 				else
-					LOG_INFO "$0" 0 0 "FRONTEND" "No governor found for launched content"
+					LOG_INFO "$0" 0 "FRONTEND" "No governor found for launched content"
 				fi
 			fi
 
@@ -126,7 +125,7 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 	echo launcher >$ACT_GO
 fi
 
-LOG_INFO "$0" 0 0 "FRONTEND" "Starting frontend launcher"
+LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
 PROCESS_CONTENT_ACTION() {

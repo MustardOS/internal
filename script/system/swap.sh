@@ -10,33 +10,33 @@ SWAP_SIZE=$(GET_VAR "global" "settings/advanced/swapfile")
 
 CREATE_ZRAM() {
 	if [ "$2" -eq 1 ]; then
-		LOG_INFO "$1" 0 0 "ZRAMFILE" "Creating Zramfile"
+		LOG_INFO "$1" 0 "ZRAMFILE" "Creating Zramfile"
 		modprobe /lib/modules/4.9.170/kernel/drivers/block/zram.ko
 		zramctl --size "${ZRAM_SIZE}M" --algorithm lz4 "$ZRAM_FILE"
 	fi
-	LOG_INFO "$1" 0 0 "ZRAMFILE" "Mounting Zramfile"
+	LOG_INFO "$1" 0 "ZRAMFILE" "Mounting Zramfile"
 	mkswap "$ZRAM_FILE"
 	swapon --priority -1 "$ZRAM_FILE"
 }
 
 CREATE_SWAP() {
 	if [ "$2" -eq 1 ]; then
-		LOG_INFO "$1" 0 0 "SWAPFILE" "Creating Swapfile"
+		LOG_INFO "$1" 0 "SWAPFILE" "Creating Swapfile"
 		dd if=/dev/zero of="$SWAP_FILE" bs=1M count="$SWAP_SIZE"
 	fi
-	LOG_INFO "$1" 0 0 "SWAPFILE" "Mounting Swapfile"
+	LOG_INFO "$1" 0 "SWAPFILE" "Mounting Swapfile"
 	chmod 0600 "$SWAP_FILE"
 	mkswap "$SWAP_FILE"
 	swapon --priority -2 "$SWAP_FILE"
 }
 
 PURGE_ZRAM() {
-	LOG_INFO "$1" 0 0 "ZRAMFILE" "Purging Zramfile"
+	LOG_INFO "$1" 0 "ZRAMFILE" "Purging Zramfile"
 	swapoff "$ZRAM_FILE"
 }
 
 PURGE_SWAP() {
-	LOG_INFO "$1" 0 0 "SWAPFILE" "Purging Swapfile"
+	LOG_INFO "$1" 0 "SWAPFILE" "Purging Swapfile"
 	swapoff "$SWAP_FILE"
 	rm -f "$SWAP_FILE"
 }

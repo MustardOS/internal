@@ -87,7 +87,7 @@ HALT_SYSTEM() {
 			frontend)
 				# When not showing verbose output, display a
 				# theme-provided splash screen during shutdown.
-				if [ "$(GET_VAR "global" "settings/advanced/verbose")" -lt 2 ]; then
+				if [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 0 ]; then
 					for path in \
 						"/run/muos/storage/theme/active/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/$(GET_VAR global settings/general/language)/$SPLASH_IMG.png" \
 						"/run/muos/storage/theme/active/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/$SPLASH_IMG.png" \
@@ -121,7 +121,7 @@ HALT_SYSTEM() {
 		fi
 	} 2>&1 | ts '%Y-%m-%d %H:%M:%S' >>/opt/muos/halt.log
 
-	if [ "$HALT_SRC" = frontend ] && [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 2 ]; then
+	if [ "$HALT_SRC" = frontend ] && [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 1 ]; then
 		# When "verbose messages" setting is enabled, run the underlying
 		# halt script in fbpad so its output is visible on screen.
 		#

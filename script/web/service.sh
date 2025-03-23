@@ -62,12 +62,12 @@ for WEBSRV in sshd sftpgo ttyd syncthing rslsync ntp tailscaled; do
 
 		while ! ping -c 1 -W 1 1.1.1.1 >/dev/null 2>&1; do
 			if [ "$WAIT" -ge "$TIMEOUT" ]; then
-				LOG_ERROR "$0" 0 0 "WEB SERVICES" "Network connection timed out after %d seconds" "$TIMEOUT"
+				LOG_ERROR "$0" 0 "WEB SERVICES" "Network connection timed out after %d seconds" "$TIMEOUT"
 				break
 			fi
 
 			WAIT=$((WAIT + 1))
-			LOG_INFO "$0" 0 0 "WEB SERVICES" "Waiting for network connection... (%d)" "$WAIT"
+			LOG_INFO "$0" 0 "WEB SERVICES" "Waiting for network connection... (%d)" "$WAIT"
 			sleep 1
 		done
 

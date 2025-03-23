@@ -77,6 +77,8 @@ RA_HEIGHT="$(GET_VAR "device" "screen/height")"
 # Filesystem sync
 sync &
 
+cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
+
 # External Script
 if [ "$CORE" = external ]; then
 	SET_VAR "system" "foreground_process" "$(/opt/muos/script/system/extract_process.sh "$ROM")"

@@ -1,7 +1,6 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
-. /opt/muos/script/var/init/system.sh
 
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 

@@ -1,7 +1,6 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
-. /opt/muos/script/var/init/system.sh
 
 RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"

@@ -1,7 +1,6 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
-. /opt/muos/script/var/init/system.sh
 
 USAGE() {
 	printf 'Usage: %s <init|save> <device|global|kiosk>\n' "$0" >&2

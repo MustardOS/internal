@@ -20,7 +20,7 @@ echo "Removing WPA Supplicant"
 rm -rf "/etc/wpa_supplicant.conf"
 
 echo "Restarting Network Interface"
-/opt/muos/script/system/network.sh
+/opt/muos/script/system/network.sh connect &
 
 echo "Sync Filesystem"
 sync

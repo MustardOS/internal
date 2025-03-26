@@ -13,7 +13,7 @@ wait
 
 # Set up bind mounts under /run/muos/storage. Creates /run/muos/storage/mounted
 # upon completion to unblock the rest of the boot process.
-/opt/muos/script/var/init/storage.sh
+/opt/muos/script/mount/bind.sh &
 
 # Mount boot partition and start watching for USB storage. These aren't needed
 # by the rest of the boot process, so handle them after bind mounts are set up.

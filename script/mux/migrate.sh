@@ -71,7 +71,7 @@ sync
 
 # Rebinding storage paths
 printf "Rebinding Storage Paths\n"
-/opt/muos/script/var/init/storage.sh >/dev/null
+/opt/muos/script/mount/bind.sh >/dev/null
 
 printf "All Done!\n"
 SLEEP_AND_GO 0

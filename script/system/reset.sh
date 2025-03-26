@@ -60,7 +60,7 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Purging Init Directory"
 rm -rf /opt/muos/init
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Binding Storage Mounts"
-/opt/muos/script/var/init/storage.sh >/dev/null
+/opt/muos/script/mount/bind.sh >/dev/null
 
 if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Changing Network MAC Address"

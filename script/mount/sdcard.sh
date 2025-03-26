@@ -51,12 +51,12 @@ while :; do
 	if HAS_DEVICE; then
 		if ! MOUNTED; then
 			MOUNT_DEVICE
-			/opt/muos/script/var/init/storage.sh
+			/opt/muos/script/mount/bind.sh
 		fi
 	elif MOUNTED; then
 		umount "$MOUNT"
 		SET_VAR "device" "storage/sdcard/active" "0"
-		/opt/muos/script/var/init/storage.sh
+		/opt/muos/script/mount/bind.sh
 	fi
 
 	sleep 2

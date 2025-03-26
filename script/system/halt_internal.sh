@@ -96,9 +96,9 @@ shift 1
 	# We have to ensure we save all of the runtime variables to disk before
 	# we shutdown or reboot the system as they are stored in tmpfs.
 	printf 'Saving device variables...\n'
-	/opt/muos/script/var/init/device.sh save
+	/opt/muos/script/var/init.sh save device
 	printf 'Saving global variables...\n'
-	/opt/muos/script/var/init/global.sh save
+	/opt/muos/script/var/init.sh save global
 
 	# Check if random theme is enabled and run the random theme script if necessary
 	if [ "$(sed -n '/^\[settings\.advanced\]/,/^\[/{ /^random_theme[ ]*=[ ]*/{ s/^[^=]*=[ ]*//p }}' /opt/muos/config/config.ini)" -eq 1 ]; then

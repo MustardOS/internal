@@ -50,37 +50,40 @@ GET_VAR() {
 }
 
 LOG() {
-	SYMBOL="$1"               # The symbol for the specific log type
-	MODULE="$(basename "$2")" # This is the name of the calling script without the full path
-
-	# shellcheck disable=SC2034
-	PROGRESS="$3" # Used mainly for muxstart to show the progress line
-	TITLE="$4"    # The header of what is being logged - generally for sorting purposes
-
+	SYMBOL="$1"
+	MODULE="$(basename "$2")"
+	PROGRESS="$3"
+	TITLE="$4"
 	shift 4
 
-	# Extract the message format string since we can add things like %s %d etc
 	MSG="$1"
 	shift
 
-	# Print to console and log file and ensure the message is formatted correctly with printf options
 	SPACER=$(printf "%-10s\t" "$TITLE")
 	[ -z "$TITLE" ] && SPACER=$(printf "\t")
-	printf "[%6s] [%-3s${ESC}[0m] [%-16s]\t%s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$MODULE" "$SPACER" "$@" >>"$MUOS_BOOT_LOG"
+
+	LOG_LINE=$(printf "[%6s] [%-3s${ESC}[0m] [%-16s]\t%s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$MODULE" "$SPACER" "$@")
+
+	LOCKFILE="${MUOS_BOOT_LOG}.lock"
+
+	{
+		flock -x 9
+		printf "%s\n" "$LOG_LINE" >>"$MUOS_BOOT_LOG"
+		flock -u 9
+	} 9>>"$LOCKFILE"
 }
 
-LOG_INFO() { LOG "${CSI}33m*" "$@"; }
-LOG_WARN() { LOG "${CSI}226m!" "$@"; }
-LOG_ERROR() { LOG "${CSI}196m-" "$@"; }
-LOG_SUCCESS() { LOG "${CSI}46m+" "$@"; }
-LOG_DEBUG() { LOG "${CSI}202m?" "$@"; }
+LOG_INFO() { (LOG "${CSI}33m*" "$@") & }
+LOG_WARN() { (LOG "${CSI}226m!" "$@") & }
+LOG_ERROR() { (LOG "${CSI}196m-" "$@") & }
+LOG_SUCCESS() { (LOG "${CSI}46m+" "$@") & }
+LOG_DEBUG() { (LOG "${CSI}202m?" "$@") & }
 
 CRITICAL_FAILURE() {
 	case "$1" in
-		device) MESSAGE=$(printf "Critical Failure\n\nFailed to mount '%s'!\n\n%s" "$2" "$3") ;;
-		directory) MESSAGE=$(printf "Critical Failure\n\nFailed to mount '%s' on '%s'!" "$2" "$3") ;;
-		udev) MESSAGE="Critical Failure\n\nFailed to initialise udev!" ;;
-		*) MESSAGE="Critical Failure\n\nAn unknown error occurred!" ;;
+		mount) MESSAGE=$(printf "Critical Failure\n\nFailed to mount directory!") ;;
+		udev) MESSAGE=$(printf "Critical Failure\n\nFailed to initialise udev!") ;;
+		*) MESSAGE=$(printf "Critical Failure\n\nAn unknown error occurred!") ;;
 	esac
 
 	/opt/muos/extra/muxstart 0 "$MESSAGE"

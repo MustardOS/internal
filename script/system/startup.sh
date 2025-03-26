@@ -10,8 +10,8 @@ esac
 rm -f "/opt/muos/boot.log"
 
 LOG_INFO "$0" 0 "BOOTING" "Initialising System Variables"
-/opt/muos/script/var/init/device.sh init
-/opt/muos/script/var/init/global.sh init
+/opt/muos/script/var/init.sh init device
+/opt/muos/script/var/init.sh init global
 
 LOG_INFO "$0" 0 "BOOTING" "Caching System Variables"
 GOVERNOR=$(GET_VAR "device" "cpu/governor")
@@ -40,11 +40,17 @@ for MODE in screen mux; do
 	SET_VAR "device" "$MODE/height" "$HEIGHT"
 done &
 
+LOG_INFO "$0" 0 "BOOTING" "Bringing Up 'localhost' Network"
+ifconfig lo up &
+
 LOG_INFO "$0" 0 "BOOTING" "Mounting Current Device Specifics"
 DEVICE_CURRENT="/opt/muos/device/current"
 [ -L "$DEVICE_CURRENT" ] && rm -rf "$DEVICE_CURRENT"
 mkdir -p "$DEVICE_CURRENT"
 mount --bind "/opt/muos/device/$BOARD_NAME" "$DEVICE_CURRENT"
+
+LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
+/opt/muos/device/current/script/module.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Starting Device Management System"
 /sbin/udevd -d || CRITICAL_FAILURE udev
@@ -62,9 +68,6 @@ if [ "$FACTORY_RESET" -eq 0 ]; then
 	echo 1 >/tmp/work_led_state
 	: >/tmp/net_start
 fi
-
-LOG_INFO "$0" 0 "BOOTING" "Bringing Up 'localhost' Network"
-ifconfig lo up &
 
 LOG_INFO "$0" 0 "BOOTING" "Detecting Console Mode"
 DEVICE_MODE=0
@@ -97,19 +100,14 @@ LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
 [ "$FACTORY_RESET" -eq 1 ] && /opt/muos/script/system/factory.sh
 
 LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"
-(
-	for DIR in /root /opt; do
-		chown -R root:root "$DIR" &
-		chmod -R 755 "$DIR" &
-	done
-	wait
-) &
+(chown -R root:root /root && chmod -R 755 /root) &
+(chown -R root:root /opt && chmod -R 755 /opt) &
 
 LOG_INFO "$0" 0 "BOOTING" "Device Specific Startup"
 /opt/muos/device/current/script/start.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
-while [ ! -f /run/muos/storage/mounted ]; do sleep 0.1; done
+while [ ! -f /run/muos/storage/mounted ]; do usleep 100; done
 
 LOG_INFO "$0" 0 "BOOTING" "Unionising ROMS on Storage Mounts"
 /opt/muos/script/mount/union.sh start &
@@ -134,7 +132,7 @@ LOG_INFO "$0" 0 "BOOTING" "Checking for Kiosk Mode"
 KIOSK_HARD_CONFIG="/opt/muos/config/kiosk.ini"
 KIOSK_USER_CONFIG="$ROM_MOUNT/MUOS/kiosk.ini"
 [ -f "$KIOSK_USER_CONFIG" ] && [ ! -f "$KIOSK_HARD_CONFIG" ] && mv "$KIOSK_USER_CONFIG" "$KIOSK_HARD_CONFIG"
-[ -f "$KIOSK_HARD_CONFIG" ] && /opt/muos/script/var/init/kiosk.sh init &
+[ -f "$KIOSK_HARD_CONFIG" ] && /opt/muos/script/var/init.sh init kiosk &
 
 LOG_INFO "$0" 0 "BOOTING" "Checking for Passcode Lock"
 HAS_UNLOCK=0

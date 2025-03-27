@@ -2,6 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
+IFCE=$(GET_VAR "device" "network/iface")
 NET_SCAN="/tmp/net_scan"
 rm -f "$NET_SCAN"
 
@@ -11,19 +12,15 @@ HEX_ESCAPE() {
 	done
 }
 
-{
-	iw dev "$(GET_VAR "device" "network/iface")" scan |
-		grep "SSID:" |
-		sed 's/^[[:space:]]*SSID: //' |
-		grep -v '^\\x00' |
-		sort -u |
-		HEX_ESCAPE
-} >"$NET_SCAN" &
+LOG_INFO "$0" 0 "SSID-SCAN" "Setting '%s' device up" "$IFCE"
+ip link set dev "$IFCE" up
 
-SCAN_TIMEOUT=0
-while [ $SCAN_TIMEOUT -lt 15 ] && [ ! -s "$NET_SCAN" ]; do
-	sleep 1
-	SCAN_TIMEOUT=$((SCAN_TIMEOUT + 1))
-done
+LOG_INFO "$0" 0 "SSID-SCAN" "Scanning for networks..." "$IFCE"
+timeout 15 iw dev "$IFCE" scan |
+	grep "SSID:" |
+	sed 's/^[[:space:]]*SSID: //' |
+	grep -v '^\\x00' |
+	sort -u |
+	HEX_ESCAPE >"$NET_SCAN"
 
 [ ! -s "$NET_SCAN" ] && printf "[!]" >"$NET_SCAN"

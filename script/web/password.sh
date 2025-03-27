@@ -6,8 +6,6 @@ SSID="$(GET_VAR "global" "network/ssid")"
 SCAN="$(GET_VAR "global" "network/scan")"
 PASS="$(GET_VAR "global" "network/pass")"
 
-WPA_CONFIG=/etc/wpa_supplicant.conf
-
 case ${#PASS} in
 	64)
 		printf "network={\n\tssid=\"%s\"\n\tscan_ssid=%s\n\tpsk=%s\n}" "$SSID" "$SCAN" "$PASS" >"$WPA_CONFIG"

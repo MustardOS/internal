@@ -2,8 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
-PRIORITY_LOCS="bios init retroarch music save theme language"
-STANDARD_LOCS="info/catalogue info/name info/config info/controller info/core info/collection info/history screenshot network syncthing package/catalogue package/config"
+PRIORITY_LOCS="bios init info/config info/core language music retroarch save theme"
+STANDARD_LOCS="info/catalogue info/name info/controller info/collection info/history screenshot network syncthing package/catalogue package/config"
 STORAGE_RUN="/run/muos/storage"
 MOUNT_FAILURE="/tmp/muos_mount_failure"
 

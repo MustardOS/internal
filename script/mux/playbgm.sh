@@ -7,6 +7,6 @@ while :; do
 	if [ -n "$BGM_FILE" ]; then
 		mpv --no-video "$BGM_FILE" >/dev/null 2>&1
 	else
-		sleep 1
+		/opt/muos/bin/toybox sleep 1
 	fi
 done

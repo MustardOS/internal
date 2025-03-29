@@ -72,7 +72,7 @@ START() {
 		adb) /usr/bin/adbd & ;;
 		mtp) UPDATE_UMTPRD_CONF && /usr/bin/umtprd & ;;
 	esac
-	sleep 1
+	/opt/muos/bin/toybox sleep 1
 
 	# Enable USB gadget.
 	echo "$UDC" >"$GADGET/UDC"

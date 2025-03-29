@@ -67,7 +67,7 @@ RESUME() {
 
 	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
 	(
-		sleep 5
+		/opt/muos/bin/toybox sleep 5
 		rm "$RECENT_WAKE"
 	) &
 }

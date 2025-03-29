@@ -16,7 +16,7 @@ echo "Sync Filesystem"
 sync
 
 echo "All Done!"
-sleep 2
+/opt/muos/bin/toybox sleep 2
 
 pkill -CONT muxtask
 exit 0

@@ -4,11 +4,11 @@
 
 # Loading SquashFS support
 insmod /lib/modules/squashfs.ko || printf "Failed to load %s module\n" "$KMOD"
-sleep 0.5
+/opt/muos/bin/toybox sleep 0.5
 
 # Loading GPU support
 insmod /lib/modules/mali_kbase.ko || printf "Failed to load %s module\n" "$KMOD"
-sleep 0.5
+/opt/muos/bin/toybox sleep 0.5
 
 # Switch GPU power policy and set to maximum frequency
 GPU_PATH="/sys/devices/platform/gpu"
@@ -24,7 +24,7 @@ if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
 
 	# Wait until the network interface is created
 	modprobe --force-modversion "$NET_MODULE"
-	while [ ! -d "/sys/class/net/$NET_IFACE" ]; do sleep 0.5; done
+	while [ ! -d "/sys/class/net/$NET_IFACE" ]; do /opt/muos/bin/toybox sleep 0.5; done
 
 	rfkill unblock all
 

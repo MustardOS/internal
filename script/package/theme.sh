@@ -31,7 +31,7 @@ INSTALL() {
 	while [ -d "$THEME_ACTIVE_DIR" ]; do
 		rm -rf "$THEME_ACTIVE_DIR"
 		sync
-		sleep 1
+		/opt/muos/bin/toybox sleep 1
 	done
 
 	unzip "$THEME" -d "$THEME_ACTIVE_DIR"

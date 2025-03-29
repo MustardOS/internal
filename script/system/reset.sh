@@ -53,7 +53,7 @@ RESTORE_ROM_FS() {
 LOG_INFO "$0" 0 "FACTORY RESET" "Checking Init Directory"
 if [ "$(find /opt/muos/init -type f | wc -l)" -gt 0 ]; then
 	RESTORE_ROM_FS
-	sleep 1
+	/opt/muos/bin/toybox sleep 1
 fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Purging Init Directory"

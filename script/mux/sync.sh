@@ -5,7 +5,7 @@
 pkill -STOP muxstorage
 
 SLEEP_AND_GO() {
-	sleep 5
+	/opt/muos/bin/toybox sleep 5
 	pkill -CONT muxstorage
 	exit "$1"
 }

@@ -111,7 +111,7 @@ LOG_INFO "$0" 0 "BOOTING" "Device Specific Startup"
 /opt/muos/device/current/script/start.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
-while [ ! -f /run/muos/storage/mounted ]; do usleep 100; done
+while [ ! -f /run/muos/storage/mounted ]; do /opt/muos/bin/toybox sleep 0.1; done
 
 LOG_INFO "$0" 0 "BOOTING" "Unionising ROMS on Storage Mounts"
 /opt/muos/script/mount/union.sh start &

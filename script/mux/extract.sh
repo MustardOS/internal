@@ -10,7 +10,7 @@ SYNC_FOLDER() {
 }
 
 ALL_DONE() {
-	sleep 2
+	/opt/muos/bin/toybox sleep 2
 	pkill -CONT muxarchive
 	exit "$1"
 }

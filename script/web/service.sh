@@ -68,7 +68,7 @@ for WEBSRV in sshd sftpgo ttyd syncthing rslsync ntp tailscaled; do
 
 			WAIT=$((WAIT + 1))
 			LOG_INFO "$0" 0 "WEB SERVICES" "Waiting for network connection... (%d)" "$WAIT"
-			sleep 1
+			/opt/muos/bin/toybox sleep 1
 		done
 
 		MANAGE_WEBSERV start "$WEBSRV" &

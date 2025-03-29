@@ -69,7 +69,7 @@ echo "muOS Diagnostics Collected: $ARCHIVE_FILE"
 echo "Sync Filesystem"
 sync
 
-sleep 5
+/opt/muos/bin/toybox sleep 5
 
 pkill -CONT muxtask
 exit 0

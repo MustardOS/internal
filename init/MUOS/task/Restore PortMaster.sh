@@ -8,7 +8,7 @@ PM_ZIP="/opt/muos/share/archive/muos.portmaster.zip"
 
 if [ ! -e "$PM_ZIP" ]; then
 	echo "Error: PortMaster archive not found!"
-	sleep 2
+	/opt/muos/bin/toybox sleep 2
 
 	pkill -CONT muxtask
 	exit 1
@@ -38,7 +38,7 @@ echo "Sync Filesystem"
 sync
 
 echo "All Done!"
-sleep 2
+/opt/muos/bin/toybox sleep 2
 
 pkill -CONT muxtask
 exit 0

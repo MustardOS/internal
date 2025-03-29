@@ -19,7 +19,7 @@ while [ "$(GET_VAR "global" "boot/clock_setup")" -eq 1 ]; do
 done
 
 killall -9 mux*
-sleep 1
+/opt/muos/bin/toybox sleep 1
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
 /opt/muos/script/mux/hotkey.sh &

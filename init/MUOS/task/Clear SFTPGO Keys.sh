@@ -17,7 +17,7 @@ sync
 
 echo "All Done!"
 echo "Please reboot your device."
-sleep 5
+/opt/muos/bin/toybox sleep 5
 
 pkill -CONT muxtask
 exit 0

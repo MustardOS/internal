@@ -72,7 +72,7 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 						PIP=$((PIP + 1))
 						LOG_INFO "$0" 0 "FRONTEND" "Verifying connectivity..."
 						/opt/muos/extra/muxstart 0 "Verifying connectivity... (%s)" "$PIP"
-						sleep 1
+						/opt/muos/bin/toybox sleep 1
 					done
 
 					LOG_SUCCESS "$0" 0 "FRONTEND" "Connectivity verified! Booting content!"
@@ -98,7 +98,7 @@ if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR
 					break
 				fi
 
-				sleep 1
+				/opt/muos/bin/toybox sleep 1
 			done
 		fi
 

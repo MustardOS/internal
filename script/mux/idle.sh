@@ -46,5 +46,5 @@ while :; do
 		fbpad | ffplay | mpv | muxcharge | muxcredits | muxstart) INHIBIT="$INHIBIT_BOTH" ;;
 	esac
 	SET_VAR system idle_inhibit "$INHIBIT"
-	sleep 5
+	/opt/muos/bin/toybox sleep 5
 done &

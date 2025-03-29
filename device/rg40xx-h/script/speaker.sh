@@ -30,5 +30,5 @@ while :; do
 		esac
 	fi
 	LAST_STATE="$STATE"
-	sleep 1
+	/opt/muos/bin/toybox sleep 1
 done

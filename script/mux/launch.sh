@@ -104,7 +104,7 @@ elif [ "$CORE" = ext-drastic ]; then
 	if [ "$SOURCE" = last ]; then
 		# HACK: Drastic-Steward hangs when restarting right after boot.
 		# Possibly a muOS bug, but no other emulator has this issue....
-		sleep 1
+		/opt/muos/bin/toybox sleep 1
 	fi
 	/opt/muos/script/launch/ext-drastic.sh "$NAME" "$CORE" "$ROM"
 # DraStic External - Legacy

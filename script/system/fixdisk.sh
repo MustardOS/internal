@@ -38,4 +38,4 @@ done
 
 sync
 printf "\nAll done! Resuming Boot\n"
-sleep 3
+/opt/muos/bin/toybox sleep 3

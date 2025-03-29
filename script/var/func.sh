@@ -1,6 +1,11 @@
 #!/bin/sh
 # shellcheck disable=SC2086
 
+case ":$LD_LIBRARY_PATH:" in
+	*":/opt/muos/extra/lib:"*) ;;
+	*) export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH" ;;
+esac
+
 GLOBAL_CONFIG="/opt/muos/config/config.ini"
 KIOSK_CONFIG="/opt/muos/config/kiosk.ini"
 DBUS_SESSION_BUS_ADDRESS="unix:path=/run/dbus/system_bus_socket"
@@ -12,9 +17,12 @@ DEVICE_CONTROL_DIR="/opt/muos/device/$DEVICE_TYPE/control"
 MUOS_BOOT_LOG="/opt/muos/boot.log"
 ALSA_CONFIG="/usr/share/alsa/alsa.conf"
 WPA_CONFIG="/etc/wpa_supplicant.conf"
+MUOS_LOG_DIR="/opt/muos/log"
 
 export GLOBAL_CONFIG KIOSK_CONFIG DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR XDG_RUNTIME_DIR \
 	DEVICE_TYPE DEVICE_CONFIG DEVICE_CONTROL_DIR MUOS_BOOT_LOG ALSA_CONFIG WPA_CONFIG
+
+mkdir -p "$MUOS_LOG_DIR"
 
 ESC=$(printf '\x1b')
 CSI="${ESC}[38;5;"
@@ -35,7 +43,7 @@ EXEC_MUX() {
 	SET_VAR "system" "foreground_process" "$MODULE"
 	nice --20 "/opt/muos/extra/$MODULE" "$@"
 
-	while [ ! -f "$SAFE_QUIT" ]; do sleep 0.1; done
+	while [ ! -f "$SAFE_QUIT" ]; do /opt/muos/bin/toybox sleep 0.1; done
 	PREVIOUS_MODULE="$MODULE"
 	EXIT_STATUS=$(head -n 1 "$SAFE_QUIT")
 }
@@ -64,7 +72,7 @@ GET_VAR() {
 
 LOG() {
 	SYMBOL="$1"
-	MODULE="$(basename "$2")"
+	MODULE="$(basename "$2" ".sh")"
 	PROGRESS="$3"
 	TITLE="$4"
 	shift 4
@@ -75,15 +83,9 @@ LOG() {
 	SPACER=$(printf "%-10s\t" "$TITLE")
 	[ -z "$TITLE" ] && SPACER=$(printf "\t")
 
-	LOG_LINE=$(printf "[%6s] [%-3s${ESC}[0m] [%-16s]\t%s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$MODULE" "$SPACER" "$@")
-
-	LOCKFILE="${MUOS_BOOT_LOG}.lock"
-
-	{
-		flock -x 9
-		printf "%s\n" "$LOG_LINE" >>"$MUOS_BOOT_LOG"
-		flock -u 9
-	} 9>>"$LOCKFILE"
+	printf "[%6s] [%-3s${ESC}[0m] %s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$SPACER" "$@"
+	printf "[%6s] [%-3s${ESC}[0m] %s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$SPACER" "$@" >>"$MUOS_LOG_DIR/$(date +"%Y_%m_%d")_$MODULE.log"
+	# /opt/muos/extra/muxstart $PROGRESS "$(printf "%s\n\n%s${MSG}" "$TITLE" "$@")"
 }
 
 LOG_INFO() { (LOG "${CSI}33m*" "$@") & }

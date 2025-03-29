@@ -127,8 +127,7 @@ fi
 
 LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 
-sort -n -k1.3 "/opt/muos/boot.log" -o "/opt/muos/boot.log"
-cp /opt/muos/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
+cp /opt/muos/log/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
 PROCESS_CONTENT_ACTION() {
 	ACTION="$1"

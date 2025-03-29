@@ -1,17 +1,12 @@
 #!/bin/sh
 
-case ":$LD_LIBRARY_PATH:" in
-	*":/opt/muos/extra/lib:"*) ;;
-	*) export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH" ;;
-esac
-
 . /opt/muos/script/var/func.sh
 
 mkdir -p "/run/muos/system"
 touch "/run/muos/system/foreground_process"
 echo 0 >"/run/muos/system/idle_inhibit"
 cut -d ' ' -f 1 /proc/uptime >"/run/muos/system/resume_uptime"
-rm -f "/opt/muos/boot.log"
+rm -f /opt/muos/log/*.log
 
 LOG_INFO "$0" 0 "BOOTING" "Initialising System Variables"
 /opt/muos/script/var/init.sh init device

@@ -39,7 +39,7 @@ LAST_INDEX=0
 
 LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
 DEF_GOV=$(GET_VAR "device" "cpu/default")
-printf '%s\n' "$DEF_GOV" >/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+printf '%s' "$DEF_GOV" >"$(GET_VAR "device" "cpu/governor")"
 if [ "$DEF_GOV" = ondemand ]; then
 	GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
 	GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"

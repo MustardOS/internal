@@ -84,7 +84,7 @@ for TIMEOUT in $(seq 1 30); do
 				*) VOLUME="$(GET_VAR "global" "settings/general/volume")"% ;;
 			esac
 
-			amixer -c 0 sset "$(GET_VAR "device" "audio/control")" 100% unmute
+			amixer -c 0 sset "$(GET_VAR "device" "audio/control")" "$(GET_VAR "device" "audio/volume")"% unmute
 
 			wpctl set-volume @DEFAULT_AUDIO_SINK@ "$VOLUME"
 			wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"

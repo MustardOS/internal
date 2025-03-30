@@ -44,14 +44,14 @@ if [ -z "$1" ]; then
 	exit 0
 fi
 
-if [ "$(cat "$(GET_VAR "device" "screen/hdmi")")" -eq 0 ]; then
+if [ "$(GET_VAR "global" "boot/device_mode")" -eq 0 ]; then
 	case "$1" in
 		I)
 			E_BRIGHT="$(cat $BRIGHT_FILE)"
 			[ "$E_BRIGHT" -lt 1 ] && E_BRIGHT=90
 			DISPLAY_WRITE lcd0 setbl "$E_BRIGHT"
 			PERCENTAGE=$(awk "BEGIN {printf \"%d\", ($E_BRIGHT/$(GET_VAR "device" "screen/bright"))*100}")
-			echo "$PERCENTAGE" >/tmp/current_brightness_percent
+			echo "$PERCENTAGE" >"$BRIGHT_FILE_PERCENT"
 			;;
 		U)
 			if [ "$(DISPLAY_READ lcd0 getbl)" -le 14 ]; then

@@ -18,4 +18,5 @@
 SERIAL="$(xargs -n 1 -a /proc/cmdline | sed -n s/^snum=//p)"
 [ -n "$SERIAL" ] || SERIAL=$(hexdump -vn4 -e'4/4 "%08X" 1 "\n"' /dev/urandom | tr '[:upper:]' '[:lower:]')
 
+SERIAL=$(echo "$SERIAL" | sed 's/[[:space:]]//g')
 printf "%s" "$SERIAL"

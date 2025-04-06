@@ -115,8 +115,9 @@ HALT_SYSTEM() {
 
 		# Run syncthing scanner if enabled
 		if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
-			SYNCTHING_ADDRESS=$(cat /opt/muos/config/address.txt)
+			SYNCTHING_ADDRESS=localhost
 			SYNCTHING_API=$(cat /run/muos/storage/syncthing/api.txt)
+   			[ -z "$SYNCTHING_API" ] && SYNCTHING_API=$(cat /run/muos/storage/syncthing/config.xml | grep '<apikey>[^<]*</apikey>' | sed 's/.*<apikey>\([^<]*\)<\/apikey>.*/\1/')
 			curl -X POST -H "X-API-Key: $SYNCTHING_API" "$SYNCTHING_ADDRESS:7070/rest/db/scan"
 		fi
 	} 2>&1 | ts '%Y-%m-%d %H:%M:%S' >>/opt/muos/halt.log

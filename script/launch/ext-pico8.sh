@@ -89,23 +89,36 @@ unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 STORAGE_DIR=${FILE%/*}
 
 FAVOURITE="/run/muos/storage/save/pico8/favourites.txt"
-CART_DIR="/run/muos/storage/save/pico8/bbs/carts"
+CART_DIR="/run/muos/storage/save/pico8/bbs"
 BOXART_DIR="/run/muos/storage/info/catalogue/PICO-8/box"
 
 # TODO: Work out what these other fields mean?! (maybe useful?)
-while IFS='|' read -r _ RAW_NAME _ _ _ GOOD_NAME; do
-	[ -z "$GOOD_NAME" ] || [ -z "$RAW_NAME" ] && continue
-	RAW_NAME=$(echo "$RAW_NAME" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[[:space:]]\+//g')
-	GOOD_NAME=$(echo "$GOOD_NAME" | sed -E 's/.*\|//;s/^[[:space:]]+|[[:space:]]+$//;s/\b(.)/\u\1/g')
+while IFS='|' read -r _ RAW_NAME _ _ _ _ GOOD_NAME; do
+    [ -z "$GOOD_NAME" ] || [ -z "$RAW_NAME" ] && continue
+    RAW_NAME=$(echo "$RAW_NAME" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[[:space:]]\+//g')
+    GOOD_NAME=$(echo "$GOOD_NAME" | sed -E 's/.*\|//;s/^[[:space:]]+|[[:space:]]+$//;s/\b(.)/\u\1/g' | tr -d ':')
 
-	P8_EXT="p8.png"
-	FAV_FILE="$CART_DIR/$RAW_NAME.$P8_EXT"
-	DEST_FILE="$STORAGE_DIR/$GOOD_NAME.$P8_EXT"
-	BOXART_FILE="$BOXART_DIR/$GOOD_NAME.$P8_EXT"
+    P8_SRC_EXT="p8.png"
+    DEST_EXT="p8"
+    PNG_EXT="png"
 
-	[ ! -f "$FAV_FILE" ] && FAV_FILE="$CART_DIR/${RAW_NAME%${RAW_NAME#?}}/$RAW_NAME.$P8_EXT"
-	if [ -f "$FAV_FILE" ]; then
-		[ ! -f "$DEST_FILE" ] && cp "$FAV_FILE" "$DEST_FILE"
-		[ ! -f "$BOXART_FILE" ] && cp "$FAV_FILE" "$BOXART_FILE"
-	fi
+    FAV_FILE=""
+
+    for DIR in "$CART_DIR" "$CART_DIR"/*; do
+        DIR="${DIR%/}"
+        if [ "$(basename "$DIR")" = "labels" ]; then
+            continue
+        fi
+        if [ -f "$DIR/$RAW_NAME.$P8_SRC_EXT" ]; then
+            FAV_FILE="$DIR/$RAW_NAME.$P8_SRC_EXT"
+            break
+        fi
+    done
+
+    if [ -n "$FAV_FILE" ]; then
+        DEST_FILE="$STORAGE_DIR/$GOOD_NAME.$DEST_EXT"
+        BOXART_FILE="$BOXART_DIR/$GOOD_NAME.$PNG_EXT"
+        cp "$FAV_FILE" "$DEST_FILE"
+        cp "$FAV_FILE" "$BOXART_FILE"
+    fi
 done <"$FAVOURITE"

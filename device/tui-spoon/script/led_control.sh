@@ -50,13 +50,13 @@ HEX_RIGHT=$(printf "%02X%02X%02X" "$RIGHT_RED" "$RIGHT_GREEN" "$RIGHT_BLUE")
 HEX_MIDDLE=$(printf "%02X%02X%02X" "$MIDDLE_RED" "$MIDDLE_GREEN" "$MIDDLE_BLUE")
 
 case "$LED_MODE" in
-	1) EFFECT_TYPE=4 ;; # static
-	2) EFFECT_TYPE=2 ;; # breath
-	3) EFFECT_TYPE=3 ;; # breath
-	4) EFFECT_TYPE=1 ;; # linear
-	5) EFFECT_TYPE=5 ;; # blink1
-	6) EFFECT_TYPE=6 ;; # blink2
-	7) EFFECT_TYPE=7 ;; # blink3
+	1) EFFECT_TYPE=2 ;; # breath
+	2) EFFECT_TYPE=3 ;; # sniff
+	3) EFFECT_TYPE=4 ;; # static
+	4) EFFECT_TYPE=5 ;; # blink1
+	5) EFFECT_TYPE=6 ;; # blink2
+	6) EFFECT_TYPE=7 ;; # blink3
+	7) EFFECT_TYPE=1 ;; # linear
 	*)
 		echo "Invalid LED mode: $LED_MODE (must be 1–7)"
 		exit 1

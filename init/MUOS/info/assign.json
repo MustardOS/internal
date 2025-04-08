@@ -485,5 +485,6 @@
     "yabause": "sega saturn.ini",
     "zsnes": "nintendo snes-sfc.ini",
     "zx81": "sinclair zx 81.ini",
-    "zxs": "sinclair zx spectrum.ini"
+    "zxs": "sinclair zx spectrum.ini",
+    "zxspectrum": "sinclair zx spectrum.ini"
 }

@@ -14,6 +14,15 @@ fi
 if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
 	/opt/muos/device/current/script/hdmi.sh start
 else
+	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
+		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
+		if [ -f "$RGBCONF_SCRIPT" ]; then
+			"$RGBCONF_SCRIPT"
+		else
+			/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
+		fi
+	fi
+
 	case "$(GET_VAR "global" "settings/advanced/brightness")" in
 		"high")
 			/opt/muos/device/current/input/bright.sh "$(GET_VAR "device" "screen/bright")"
@@ -51,5 +60,5 @@ fi
 
 # Create TrimUI Input folder
 if [ ! -d "/tmp/trimui_inputd" ]; then
-    mkdir -p "/tmp/trimui_inputd"
+	mkdir -p "/tmp/trimui_inputd"
 fi

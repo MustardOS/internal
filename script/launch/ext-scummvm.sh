@@ -44,6 +44,7 @@ EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/scummvm"
 CONFIG="$EMUDIR/.config/scummvm/scummvm.ini"
 LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/scummvm/log.txt"
 SAVE="/run/muos/storage/save/file/ScummVM-Ext"
+TUI_DPAD="/tmp/trimui_inputd/input_dpad_to_joystick"
 
 # Create log folder if it doesn't exist
 mkdir -p "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/scummvm"
@@ -67,6 +68,11 @@ elif [ -z "$SCVM" ]; then
 	[ "$(GET_VAR "device" "board/stick")" -eq 0 ] && STICK_ROT=2 || STICK_ROT=0
 	case "$(GET_VAR "device" "board/name")" in
 		rg*) echo "$STICK_ROT" >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
+		tui*)
+			if [ ! -f $TUI_DPAD ]; then
+				touch $TUI_DPAD
+			fi
+    	;;
 		*) ;;
 	esac
 
@@ -76,6 +82,11 @@ else
 	[ "$(GET_VAR "device" "board/stick")" -eq 0 ] && STICK_ROT=2 || STICK_ROT=0
 	case "$(GET_VAR "device" "board/name")" in
 		rg*) echo "$STICK_ROT" >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
+		tui*)
+			if [ ! -f $TUI_DPAD ]; then
+				touch $TUI_DPAD
+			fi
+    	;;
 		*) ;;
 	esac
 
@@ -83,5 +94,9 @@ else
 fi
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
+
+if [ -f $TUI_DPAD ]; then
+	rm $TUI_DPAD
+fi
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

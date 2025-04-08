@@ -48,3 +48,8 @@ if [ "$(GET_VAR "global" "settings/advanced/thermal")" -eq 1 ]; then
 		fi
 	done
 fi
+
+# Create TrimUI Input folder
+if [ ! -d "/tmp/trimui_inputd" ]; then
+    mkdir -p "/tmp/trimui_inputd"
+fi

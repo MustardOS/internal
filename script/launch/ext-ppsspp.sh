@@ -17,6 +17,28 @@ PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp"
 HOME="$PPSSPP_DIR"
 export HOME
 
+case "$FILE" in
+	*.psp)
+		# Mechanism to launch PSP folder-style games
+		GAME=$(basename "$FILE" | sed -e 's/\.[^.]*$//')
+		GAMEDIR=$(dirname "$FILE")
+		if [ -e "$PPSSPP_DIR/.config/ppsspp/PSP/GAME/$GAME/EBOOT.PBP" ]; then
+			FILE="$PPSSPP_DIR/.config/ppsspp/PSP/GAME/$GAME/EBOOT.PBP"
+		else
+			GAMESUBDIR=$(find "$GAMEDIR" -maxdepth 2 -type d \( -iname "$GAME" -o -iname ".$GAME" \) )
+			if [ -n "$GAMESUBDIR" ]; then
+				if [ -e "$GAMESUBDIR/EBOOT.PBP" ]; then
+					FILE="$GAMESUBDIR/EBOOT.PBP"
+				else
+					echo >&2 "Game folder $GAMESUBDIR exists, but no EBOOT.PBP found"
+				fi
+			else
+				echo >&2 "Game folder not found for $GAME"
+			fi
+		fi
+		;;
+esac
+
 if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
 	SDL_HQ_SCALER=2
 	SDL_ROTATION=0

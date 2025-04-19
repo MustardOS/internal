@@ -96,6 +96,9 @@ elif [ "${CORE#ext-openbor}" != "$CORE" ]; then
 # PPSSPP External
 elif [ "$CORE" = ext-ppsspp ]; then
 	/opt/muos/script/launch/ext-ppsspp.sh "$NAME" "$CORE" "$ROM"
+# Pyxel External
+elif [ "$CORE" = ext-pyxel ]; then
+	/opt/muos/script/launch/ext-pyxel.sh "$NAME" "$CORE" "$ROM"
 # PICO-8 External
 elif [ "${CORE#ext-pico8}" != "$CORE" ]; then
 	/opt/muos/script/launch/ext-pico8.sh "$NAME" "$CORE" "$ROM"

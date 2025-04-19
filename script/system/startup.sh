@@ -8,6 +8,9 @@ echo 0 >"/run/muos/system/idle_inhibit"
 cut -d ' ' -f 1 /proc/uptime >"/run/muos/system/resume_uptime"
 rm -f /opt/muos/log/*.log
 
+LOG_INFO "$0" 0 "BOOTING" "Setting OS Release"
+/opt/muos/script/system/os_release.sh &
+
 LOG_INFO "$0" 0 "BOOTING" "Initialising System Variables"
 /opt/muos/script/var/init.sh init device
 /opt/muos/script/var/init.sh init global

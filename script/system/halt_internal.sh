@@ -93,6 +93,9 @@ HALT_CMD="$1"
 shift 1
 
 {
+	# Kill the lid switch process if it exists
+	pgrep lid.sh >/dev/null && killall -q lid.sh
+
 	# We have to ensure we save all of the runtime variables to disk before
 	# we shutdown or reboot the system as they are stored in tmpfs.
 	printf 'Saving device variables...\n'

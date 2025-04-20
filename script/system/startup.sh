@@ -15,6 +15,12 @@ LOG_INFO "$0" 0 "BOOTING" "Initialising System Variables"
 /opt/muos/script/var/init.sh init device
 /opt/muos/script/var/init.sh init global
 
+LOG_INFO "$0" 0 "BOOTING" "Reset temporary screen rotation and zoom"
+SCREEN_DIR=/run/muos/device/screen
+for T in s_rotate s_zoom; do
+	[ -f "$SCREEN_DIR/$T" ] && rm -f "$SCREEN_DIR/$T"
+done
+
 LOG_INFO "$0" 0 "BOOTING" "Caching System Variables"
 GOVERNOR=$(GET_VAR "device" "cpu/governor")
 WIDTH=$(GET_VAR "device" "screen/internal/width")

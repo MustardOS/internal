@@ -2,10 +2,14 @@
 
 . /opt/muos/script/var/func.sh
 
-DEVICE="$(GET_VAR "device" "storage/sdcard/dev")$(GET_VAR "device" "storage/sdcard/sep")$(GET_VAR "device" "storage/sdcard/num")"
-MOUNT="$(GET_VAR "device" "storage/sdcard/mount")"
+SD_DEV="$(GET_VAR "device" "storage/sdcard/dev")"
+SD_SEP="$(GET_VAR "device" "storage/sdcard/sep")"
+SD_NUM="$(GET_VAR "device" "storage/sdcard/num")"
+SD_MOUNT="$(GET_VAR "device" "storage/sdcard/mount")"
+CARD_MODE="$(GET_VAR "global" "settings/advanced/cardmode")"
 
-mkdir -p "$MOUNT"
+DEVICE="${SD_DEV}${SD_SEP}${SD_NUM}"
+mkdir -p "$SD_MOUNT"
 
 MOUNTED() {
 	[ "$(GET_VAR "device" "storage/sdcard/active")" -eq 1 ]
@@ -21,22 +25,31 @@ MOUNT_DEVICE() {
 
 	case "$FS_TYPE" in
 		vfat | exfat) FS_OPTS=rw,utf8,noatime,nofail ;;
-		ext4) FS_OPTS=defaults,noatime,nofail ;;
 		*) return ;;
 	esac
 
-	if mount -t "$FS_TYPE" -o "$FS_OPTS" "/dev/$DEVICE" "$MOUNT"; then
+	if mount -t "$FS_TYPE" -o "$FS_OPTS" "/dev/$DEVICE" "$SD_MOUNT"; then
 		SET_VAR "device" "storage/sdcard/active" "1"
 		SET_VAR "device" "storage/sdcard/label" "$FS_LABEL"
 	fi
 
-	if [ "$(GET_VAR "global" "settings/advanced/cardmode")" = "noop" ]; then
-		echo "noop" >"/sys/block/$(GET_VAR "device" "storage/sdcard/dev")/queue/scheduler"
-		echo "write back" >"/sys/block/$(GET_VAR "device" "storage/sdcard/dev")/queue/write_cache"
+	if [ "$CARD_MODE" = "noop" ]; then
+		echo "noop" >"/sys/block/$SD_DEV/queue/scheduler"
+		echo "write back" >"/sys/block/$SD_DEV/queue/write_cache"
 	else
-		echo "deadline" >"/sys/block/$(GET_VAR "device" "storage/sdcard/dev")/queue/scheduler"
-		echo "write through" >"/sys/block/$(GET_VAR "device" "storage/sdcard/dev")/queue/write_cache"
+		echo "deadline" >"/sys/block/$SD_DEV/queue/scheduler"
+		echo "write through" >"/sys/block/$SD_DEV/queue/write_cache"
 	fi
+
+	echo 8 >/proc/sys/vm/swappiness
+	echo 16 >/proc/sys/vm/dirty_ratio
+	echo 4 >/proc/sys/vm/dirty_background_ratio
+	echo 64 >/proc/sys/vm/vfs_cache_pressure
+
+	echo 2 >"/sys/block/$SD_DEV/queue/nomerges"
+	echo 128 >"/sys/block/$SD_DEV/queue/nr_requests"
+	echo 0 >"/sys/block/$SD_DEV/queue/iostats"
+	blockdev --setra 4096 "/dev/$SD_DEV"
 }
 
 # Synchronously mount SD card (if media is inserted) so it's available as a
@@ -45,8 +58,7 @@ HAS_DEVICE && MOUNT_DEVICE
 
 # Asynchronously monitor insertion/eject, adjusting storage mounts as needed
 while :; do
-	# Create ROMS directory if it doesn't exist because the union calls for it
-	[ ! -d "$MOUNT/ROMS" ] && mkdir -p "$MOUNT/ROMS"
+	mkdir -p "$ROM_MOUNT/ROMS" "$ROM_MOUNT/BACKUP" "$ROM_MOUNT/ARCHIVE"
 
 	if HAS_DEVICE; then
 		if ! MOUNTED; then
@@ -54,7 +66,7 @@ while :; do
 			/opt/muos/script/mount/bind.sh
 		fi
 	elif MOUNTED; then
-		umount "$MOUNT"
+		umount "$SD_MOUNT"
 		SET_VAR "device" "storage/sdcard/active" "0"
 		/opt/muos/script/mount/bind.sh
 	fi

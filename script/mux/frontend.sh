@@ -179,7 +179,7 @@ while :; do
 				touch /tmp/pdi_go
 				[ -s "$MUX_AUTH" ] && rm "$MUX_AUTH"
 				[ -s "$MUX_LAUNCHER_AUTH" ] && rm "$MUX_LAUNCHER_AUTH"
-				EXEC_MUX "launcher" "muxlaunch"
+				EXEC_MUX "launcher" "muxfrontend"
 				;;
 
 			"option") EXEC_MUX "explore" "muxoption" -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
@@ -291,28 +291,6 @@ while :; do
 					[ -f "$MUX_LAUNCHER_AUTH" ] && rm "$MUX_LAUNCHER_AUTH"
 				fi
 				;;
-
-			"info") EXEC_MUX "launcher" "muxinfo" ;;
-			"archive") EXEC_MUX "app" "muxarchive" ;;
-			"task") EXEC_MUX "app" "muxtask" ;;
-			"tweakgen") EXEC_MUX "config" "muxtweakgen" ;;
-			"connect") EXEC_MUX "config" "muxconnect" ;;
-			"custom") EXEC_MUX "config" "muxcustom" ;;
-			"network") EXEC_MUX "connect" "muxnetwork" ;;
-			"language") EXEC_MUX "config" "muxlanguage" ;;
-			"webserv") EXEC_MUX "connect" "muxwebserv" ;;
-			"hdmi") EXEC_MUX "tweakgen" "muxhdmi" ;;
-			"rtc") EXEC_MUX "tweakgen" "muxrtc" ;;
-			"storage") EXEC_MUX "config" "muxstorage" ;;
-			"power") EXEC_MUX "config" "muxpower" ;;
-			"visual") EXEC_MUX "config" "muxvisual" ;;
-			"net_profile") EXEC_MUX "network" "muxnetprofile" ;;
-			"net_scan") EXEC_MUX "network" "muxnetscan" ;;
-			"timezone") EXEC_MUX "rtc" "muxtimezone" ;;
-			"screenshot") EXEC_MUX "info" "muxshot" ;;
-			"space") EXEC_MUX "info" "muxspace" ;;
-			"tester") EXEC_MUX "info" "muxtester" ;;
-			"system") EXEC_MUX "info" "muxsysinfo" ;;
 
 			"reboot") /opt/muos/script/mux/quit.sh reboot frontend ;;
 			"shutdown") /opt/muos/script/mux/quit.sh poweroff frontend ;;

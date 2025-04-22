@@ -61,11 +61,6 @@ HALT_SYSTEM() {
 	{
 		printf 'Halting system (command %s, source %s)\n' "$HALT_CMD" "$HALT_SRC"
 
-		case "$HALT_CMD" in
-			poweroff) SPLASH_IMG=shutdown ;;
-			reboot) SPLASH_IMG=reboot ;;
-		esac
-
 		# Turn on power LED for visual feedback on halt success.
 		echo 1 >"$(GET_VAR "device" "led/normal")"
 
@@ -84,23 +79,6 @@ HALT_SYSTEM() {
 		esac
 
 		case "$HALT_SRC" in
-			frontend)
-				# When not showing verbose output, display a
-				# theme-provided splash screen during shutdown.
-				if [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 0 ]; then
-					for path in \
-						"/run/muos/storage/theme/active/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/$(GET_VAR global settings/general/language)/$SPLASH_IMG.png" \
-						"/run/muos/storage/theme/active/$(GET_VAR device mux/width)x$(GET_VAR device mux/height)/image/$SPLASH_IMG.png" \
-						"/run/muos/storage/theme/active/image/$(GET_VAR global settings/general/language)/$SPLASH_IMG.png" \
-						"/run/muos/storage/theme/active/image/$SPLASH_IMG.png"; do
-						if [ -f "$path" ]; then
-							SPLASH_IMG_PATH="$path"
-							break
-						fi
-					done
-					/opt/muos/extra/muxsplash "$SPLASH_IMG_PATH"
-				fi
-				;;
 			osf)
 				# Never relaunch content after failsafe reboot
 				# since it may have been what hung or crashed.

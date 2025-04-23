@@ -195,7 +195,7 @@ while :; do
 				fi
 				;;
 			
-			"explore") EXEC_MUX "launcher" "muxfrontend" ;;
+			"explore") EXEC_MUX "explore" "muxfrontend" ;;
 			
 			"app")
 				AUTHORIZED=0

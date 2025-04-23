@@ -194,7 +194,9 @@ while :; do
 					EXEC_MUX "option" "muxplore" -i 0 -d "$(cat "$EX_DIR")"
 				fi
 				;;
-
+			
+			"explore") EXEC_MUX "launcher" "muxfrontend" ;;
+			
 			"app")
 				AUTHORIZED=0
 				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_LAUNCHER_AUTH" ]; then

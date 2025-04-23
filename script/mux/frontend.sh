@@ -182,7 +182,6 @@ while :; do
 				EXEC_MUX "launcher" "muxfrontend"
 				;;
 
-			"option") EXEC_MUX "explore" "muxoption" -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
 			"search")
 				[ -s "$EX_DIR" ] && IFS= read -r EX_DIR_CONTENT <"$EX_DIR"
 				EXEC_MUX "option" "muxsearch" -d "$EX_DIR_CONTENT"
@@ -229,18 +228,6 @@ while :; do
 				fi
 				;;
 
-			"config")
-				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_AUTH" ] && [ ! "$PREVIOUS_MODULE" = "muxtweakgen" ]; then
-					EXEC_MUX "launcher" "muxpass" -t setting
-					if [ "$EXIT_STATUS" -eq 1 ]; then
-						EXEC_MUX "launcher" "muxconfig"
-						touch "$MUX_AUTH"
-					fi
-				else
-					EXEC_MUX "launcher" "muxconfig"
-				fi
-				;;
-
 			"picker")
 				[ -s "$PIK_GO" ] && IFS= read -r PIK_CONTENT <"$PIK_GO"
 				EXPLORE_DIR=""
@@ -258,14 +245,6 @@ while :; do
 				EXEC_MUX "info" "muxcredits"
 				pkill -9 -f "nosefart" &
 				START_BGM
-				;;
-
-			"tweakadv")
-				EXEC_MUX "tweakgen" "muxtweakadv"
-				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 0 ]; then
-					[ -f "$MUX_AUTH" ] && rm "$MUX_AUTH"
-					[ -f "$MUX_LAUNCHER_AUTH" ] && rm "$MUX_LAUNCHER_AUTH"
-				fi
 				;;
 
 			"reboot") /opt/muos/script/mux/quit.sh reboot frontend ;;

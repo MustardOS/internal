@@ -248,24 +248,9 @@ while :; do
 				EXEC_MUX "custom" "muxpicker" -m "$PIK_CONTENT" -d "$EXPLORE_DIR"
 				;;
 
-			"collection")
-				LAST_INDEX_CHECK
-				ADD_MODE=0
-				if [ -s "$CL_AMW" ]; then
-					ADD_MODE=1
-					LAST_INDEX=0
-				fi
-				COLLECTION_DIR=""
-				[ -s "$CL_DIR" ] && IFS= read -r COLLECTION_DIR <"$CL_DIR"
-				find "/run/muos/storage/info/collection" -maxdepth 2 -type f -size 0 -delete
-				EXEC_MUX "launcher" "muxcollect" -a "$ADD_MODE" -d "$COLLECTION_DIR" -i "$LAST_INDEX"
-				;;
+			"collection")  EXEC_MUX "collection" "muxfrontend" ;;
 
-			"history")
-				LAST_INDEX_CHECK
-				find "/run/muos/storage/info/history" -maxdepth 1 -type f -size 0 -delete
-				EXEC_MUX "launcher" "muxhistory" -i "$LAST_INDEX"
-				;;
+			"history") EXEC_MUX "history" "muxfrontend" ;;
 
 			"credits")
 				STOP_BGM

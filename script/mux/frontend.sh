@@ -183,8 +183,6 @@ while :; do
 				;;
 
 			"option") EXEC_MUX "explore" "muxoption" -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
-			"assign") EXEC_MUX "option" "muxassign" -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
-			"governor") EXEC_MUX "option" "muxgov" -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
 			"search")
 				[ -s "$EX_DIR" ] && IFS= read -r EX_DIR_CONTENT <"$EX_DIR"
 				EXEC_MUX "option" "muxsearch" -d "$EX_DIR_CONTENT"
@@ -246,15 +244,6 @@ while :; do
 				EXPLORE_DIR=""
 				[ -s "$EX_DIR" ] && IFS= read -r EXPLORE_DIR <"$EX_DIR"
 				EXEC_MUX "custom" "muxpicker" -m "$PIK_CONTENT" -d "$EXPLORE_DIR"
-				;;
-
-			"explore")
-				LAST_INDEX_CHECK
-				EXPLORE_DIR=""
-				[ -s "$EX_DIR" ] && IFS= read -r EXPLORE_DIR <"$EX_DIR"
-				EXEC_MUX "launcher" "muxassign" -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
-				EXEC_MUX "launcher" "muxgov" -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
-				EXEC_MUX "launcher" "muxplore" -d "$EXPLORE_DIR" -i "$LAST_INDEX"
 				;;
 
 			"collection")

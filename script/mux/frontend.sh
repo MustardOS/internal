@@ -11,11 +11,7 @@ DEVICE_BOARD="$(GET_VAR "device" "board/name")"
 
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
-ASS_GO=/tmp/ass_go
-GOV_GO=/tmp/gov_go
 GVR_GO=/tmp/gvr_go
-IDX_GO=/tmp/idx_go
-PIK_GO=/tmp/pik_go
 ROM_GO=/tmp/rom_go
 RES_GO=/tmp/res_go
 
@@ -129,44 +125,12 @@ LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 
 cp /opt/muos/log/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
-PROCESS_CONTENT_ACTION() {
-	ACTION="$1"
-	MODULE="$2"
-
-	[ ! -s "$ACTION" ] && return
-
-	{
-		IFS= read -r ROM_NAME
-		IFS= read -r ROM_DIR
-		IFS= read -r ROM_SYS
-		IFS= read -r FORCED_FLAG
-	} <"$ACTION"
-
-	rm "$ACTION"
-	echo "$MODULE" >"$ACT_GO"
-
-	[ "$FORCED_FLAG" -eq 1 ] && echo "option" >"$ACT_GO"
-}
-
-LAST_INDEX_CHECK() {
-	LAST_INDEX=0
-	if [ -s "$IDX_GO" ] && [ ! -s "$CL_AMW" ]; then
-		read -r LAST_INDEX <"$IDX_GO"
-		LAST_INDEX=${LAST_INDEX:-0}
-		rm -f "$IDX_GO"
-	fi
-}
-
 while :; do
 	CHECK_BGM ignore &
 	pkill -9 -f "gptokeyb" &
 
 	# Reset DPAD<>ANALOGUE switch for H700 devices
 	[ "$DEVICE_BOARD" = "rg*" ] && echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
-
-	# Process content association and governor actions
-	PROCESS_CONTENT_ACTION "$ASS_GO" "assign"
-	PROCESS_CONTENT_ACTION "$GOV_GO" "governor"
 
 	# Content Loader
 	[ -s "$ROM_GO" ] && /opt/muos/script/mux/launch.sh
@@ -179,102 +143,28 @@ while :; do
 				touch /tmp/pdi_go
 				[ -s "$MUX_AUTH" ] && rm "$MUX_AUTH"
 				[ -s "$MUX_LAUNCHER_AUTH" ] && rm "$MUX_LAUNCHER_AUTH"
-				EXEC_MUX "launcher" "muxlaunch"
+				EXEC_MUX "launcher" "muxfrontend"
 				;;
-
-			"option") EXEC_MUX "explore" "muxoption" -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
-			"assign") EXEC_MUX "option" "muxassign" -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
-			"governor") EXEC_MUX "option" "muxgov" -a 0 -c "$ROM_NAME" -d "$ROM_DIR" -s "$ROM_SYS" ;;
-			"search")
-				[ -s "$EX_DIR" ] && IFS= read -r EX_DIR_CONTENT <"$EX_DIR"
-				EXEC_MUX "option" "muxsearch" -d "$EX_DIR_CONTENT"
-				if [ -s "$RES_GO" ]; then
-					IFS= read -r RES_CONTENT <"$RES_GO"
-					printf "%s" "${RES_CONTENT##*/}" >"$EX_NAME"
-					printf "%s" "${RES_CONTENT%/*}" >"$EX_DIR"
-					printf "%s" "$(echo "$RES_CONTENT" | sed 's|.*/\([^/]*\)/ROMS.*|\1|')" >"$EX_CARD"
-					EXEC_MUX "option" "muxplore" -i 0 -d "$(cat "$EX_DIR")"
-				fi
-				;;
-
+			
+			"explore") EXEC_MUX "explore" "muxfrontend" ;;
+			
 			"app")
-				AUTHORIZED=0
-				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_LAUNCHER_AUTH" ]; then
-					EXEC_MUX "launcher" "muxpass" -t launch
-					if [ "$EXIT_STATUS" -eq 1 ]; then
-						AUTHORIZED=1
-						touch "$MUX_LAUNCHER_AUTH"
-					fi
-				else
-					AUTHORIZED=1
-				fi
-				if [ "$AUTHORIZED" -eq 1 ]; then
-					EXEC_MUX "launcher" "muxapp"
-					if [ -s "$APP_GO" ]; then
-						IFS= read -r RUN_APP <"$APP_GO"
-						rm "$APP_GO"
-						case "$RUN_APP" in
-							*"Archive Manager"*)
-								echo archive >$ACT_GO
-								;;
-							*"Task Toolkit"*)
-								echo task >$ACT_GO
-								;;
-							*)
-								STOP_BGM
-								"$(GET_VAR "device" "storage/rom/mount")/MUOS/application/${RUN_APP}/mux_launch.sh"
-								;;
-						esac
-					fi
+				if [ -s "$APP_GO" ]; then
+					IFS= read -r RUN_APP <"$APP_GO"
+					rm "$APP_GO"
+					STOP_BGM
+					"$(GET_VAR "device" "storage/rom/mount")/MUOS/application/${RUN_APP}/mux_launch.sh"
+					echo appmenu >$ACT_GO
 				fi
 				;;
 
-			"config")
-				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_AUTH" ] && [ ! "$PREVIOUS_MODULE" = "muxtweakgen" ]; then
-					EXEC_MUX "launcher" "muxpass" -t setting
-					if [ "$EXIT_STATUS" -eq 1 ]; then
-						EXEC_MUX "launcher" "muxconfig"
-						touch "$MUX_AUTH"
-					fi
-				else
-					EXEC_MUX "launcher" "muxconfig"
-				fi
-				;;
+			"appmenu")  EXEC_MUX "app" "muxfrontend" ;;
 
-			"picker")
-				[ -s "$PIK_GO" ] && IFS= read -r PIK_CONTENT <"$PIK_GO"
-				EXPLORE_DIR=""
-				[ -s "$EX_DIR" ] && IFS= read -r EXPLORE_DIR <"$EX_DIR"
-				EXEC_MUX "custom" "muxpicker" -m "$PIK_CONTENT" -d "$EXPLORE_DIR"
-				;;
+			"collection")  EXEC_MUX "collection" "muxfrontend" ;;
 
-			"explore")
-				LAST_INDEX_CHECK
-				EXPLORE_DIR=""
-				[ -s "$EX_DIR" ] && IFS= read -r EXPLORE_DIR <"$EX_DIR"
-				EXEC_MUX "launcher" "muxassign" -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
-				EXEC_MUX "launcher" "muxgov" -a 1 -c "$ROM_NAME" -d "$EXPLORE_DIR" -s none
-				EXEC_MUX "launcher" "muxplore" -d "$EXPLORE_DIR" -i "$LAST_INDEX"
-				;;
+			"history") EXEC_MUX "history" "muxfrontend" ;;
 
-			"collection")
-				LAST_INDEX_CHECK
-				ADD_MODE=0
-				if [ -s "$CL_AMW" ]; then
-					ADD_MODE=1
-					LAST_INDEX=0
-				fi
-				COLLECTION_DIR=""
-				[ -s "$CL_DIR" ] && IFS= read -r COLLECTION_DIR <"$CL_DIR"
-				find "/run/muos/storage/info/collection" -maxdepth 2 -type f -size 0 -delete
-				EXEC_MUX "launcher" "muxcollect" -a "$ADD_MODE" -d "$COLLECTION_DIR" -i "$LAST_INDEX"
-				;;
-
-			"history")
-				LAST_INDEX_CHECK
-				find "/run/muos/storage/info/history" -maxdepth 1 -type f -size 0 -delete
-				EXEC_MUX "launcher" "muxhistory" -i "$LAST_INDEX"
-				;;
+			"info") EXEC_MUX "info" "muxfrontend" ;;
 
 			"credits")
 				STOP_BGM
@@ -284,40 +174,13 @@ while :; do
 				START_BGM
 				;;
 
-			"tweakadv")
-				EXEC_MUX "tweakgen" "muxtweakadv"
-				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 0 ]; then
-					[ -f "$MUX_AUTH" ] && rm "$MUX_AUTH"
-					[ -f "$MUX_LAUNCHER_AUTH" ] && rm "$MUX_LAUNCHER_AUTH"
-				fi
-				;;
-
-			"info") EXEC_MUX "launcher" "muxinfo" ;;
-			"archive") EXEC_MUX "app" "muxarchive" ;;
-			"task") EXEC_MUX "app" "muxtask" ;;
-			"tweakgen") EXEC_MUX "config" "muxtweakgen" ;;
-			"connect") EXEC_MUX "config" "muxconnect" ;;
-			"custom") EXEC_MUX "config" "muxcustom" ;;
-			"network") EXEC_MUX "connect" "muxnetwork" ;;
-			"language") EXEC_MUX "config" "muxlanguage" ;;
-			"webserv") EXEC_MUX "connect" "muxwebserv" ;;
-			"hdmi") EXEC_MUX "tweakgen" "muxhdmi" ;;
-			"rtc") EXEC_MUX "tweakgen" "muxrtc" ;;
-			"storage") EXEC_MUX "config" "muxstorage" ;;
-			"power") EXEC_MUX "config" "muxpower" ;;
-			"visual") EXEC_MUX "config" "muxvisual" ;;
-			"net_profile") EXEC_MUX "network" "muxnetprofile" ;;
-			"net_scan") EXEC_MUX "network" "muxnetscan" ;;
-			"timezone") EXEC_MUX "rtc" "muxtimezone" ;;
-			"screenshot") EXEC_MUX "info" "muxshot" ;;
-			"space") EXEC_MUX "info" "muxspace" ;;
-			"tester") EXEC_MUX "info" "muxtester" ;;
-			"system") EXEC_MUX "info" "muxsysinfo" ;;
-
 			"reboot") /opt/muos/script/mux/quit.sh reboot frontend ;;
 			"shutdown") /opt/muos/script/mux/quit.sh poweroff frontend ;;
 
-			*) printf "Unknown Module: %s\n" "$ACTION" >&2 ;;
+			*) 
+				printf "Unknown Module: %s\n" "$ACTION" >&2 
+				printf '%s\n' "$DEF_ACT" >$ACT_GO
+				;;
 		esac
 	}
 

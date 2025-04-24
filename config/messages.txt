@@ -1,3 +1,4 @@
+INSTALLING MUOS
 A cucumber a day keeps the weasels away
 A jellyfish is just a haunted plastic bag with a vendetta
 All of my books are sorted by the authors first name

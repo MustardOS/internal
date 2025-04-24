@@ -2,9 +2,12 @@
 
 . /opt/muos/script/var/func.sh
 
+LED_RGB="$(GET_VAR "device" "led/rgb")"
+NETWORK_ENABLED="$(GET_VAR "device" "board/network")"
+
 /opt/muos/device/current/script/module.sh
 
-if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
+if [ "$LED_RGB" -eq 1 ]; then
 	/opt/muos/device/current/script/led_control.sh 2 255 225 173 1
 fi
 
@@ -12,20 +15,19 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Setting date time to default"
 date 010100002025
 hwclock -w
 
-EXEC_MUX "" "muxtimezone"
-while [ "$(GET_VAR "global" "boot/clock_setup")" -eq 1 ]; do
-	EXEC_MUX "" "muxrtc"
-	[ "$(GET_VAR "global" "boot/clock_setup")" -eq 1 ] && EXEC_MUX "" "muxtimezone"
-done
+printf "timezone" >"/tmp/act_go"
+EXEC_MUX "reset" "muxfrontend"
 
-killall -9 mux*
-/opt/muos/bin/toybox sleep 1
+printf 0 >"/tmp/msg_progress"
+[ -f "/tmp/msg_finish" ] && rm -f "/tmp/msg_finish"
+
+/opt/muos/extra/muxstart 0 "/opt/muos/config/messages.txt" -d 5
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
 /opt/muos/script/mux/hotkey.sh &
 /usr/bin/mpv /opt/muos/share/media/factory.mp3 &
 
-if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
+if [ "$NETWORK_ENABLED" -eq 1 ]; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Generating SSH Host Keys"
 	/opt/openssh/bin/ssh-keygen -A &
 fi

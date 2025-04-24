@@ -13,14 +13,8 @@ ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
 GVR_GO=/tmp/gvr_go
 ROM_GO=/tmp/rom_go
-RES_GO=/tmp/res_go
 
 EX_CARD=/tmp/explore_card
-EX_NAME=/tmp/explore_name
-EX_DIR=/tmp/explore_dir
-
-CL_DIR=/tmp/collection_dir
-CL_AMW=/tmp/add_mode_work
 
 MUX_AUTH=/tmp/mux_auth
 MUX_LAUNCHER_AUTH=/tmp/mux_launcher_auth
@@ -31,7 +25,6 @@ printf '%s\n' "$DEF_ACT" >$ACT_GO
 echo "root" >$EX_CARD
 
 LAST_PLAY=$(cat "/opt/muos/config/lastplay.txt")
-LAST_INDEX=0
 
 LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
 DEF_GOV=$(GET_VAR "device" "cpu/default")
@@ -145,9 +138,9 @@ while :; do
 				[ -s "$MUX_LAUNCHER_AUTH" ] && rm "$MUX_LAUNCHER_AUTH"
 				EXEC_MUX "launcher" "muxfrontend"
 				;;
-			
+
 			"explore") EXEC_MUX "explore" "muxfrontend" ;;
-			
+
 			"app")
 				if [ -s "$APP_GO" ]; then
 					IFS= read -r RUN_APP <"$APP_GO"
@@ -158,9 +151,9 @@ while :; do
 				fi
 				;;
 
-			"appmenu")  EXEC_MUX "app" "muxfrontend" ;;
+			"appmenu") EXEC_MUX "app" "muxfrontend" ;;
 
-			"collection")  EXEC_MUX "collection" "muxfrontend" ;;
+			"collection") EXEC_MUX "collection" "muxfrontend" ;;
 
 			"history") EXEC_MUX "history" "muxfrontend" ;;
 
@@ -177,11 +170,13 @@ while :; do
 			"reboot") /opt/muos/script/mux/quit.sh reboot frontend ;;
 			"shutdown") /opt/muos/script/mux/quit.sh poweroff frontend ;;
 
-			*) 
-				printf "Unknown Module: %s\n" "$ACTION" >&2 
+			*)
+				printf "Unknown Module: %s\n" "$ACTION" >&2
 				printf '%s\n' "$DEF_ACT" >$ACT_GO
 				;;
 		esac
 	}
+
+
 
 done

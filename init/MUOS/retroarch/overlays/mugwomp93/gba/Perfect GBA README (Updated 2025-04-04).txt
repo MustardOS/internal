@@ -1,5 +1,11 @@
 Perfect GBA Overlays (Instructions for muOS)
 
+Updated 2025-04-04:
+- Updated scaling settings for muOS 2502.0 Pixie. Noted that image brightness can be increased by reducing overlay opacity (at the cost of realism/accuracy)
+
+Updated 2025-03-12:
+- Revised shader recommendations and settings
+
 Updated 2024-09-26:
 - Added versions with the main (darker) Perfect GBA overlay
 - Moved bright and 75% opacity versions to Bright subfolder
@@ -53,6 +59,33 @@ To apply the overlay:
 
 3. Main Menu (press B to back out of Quick Menu) > Settings > Video > Scaling
 
+**muOS 2502.0 Pixie (Retroarch 1.20.0)**
+
+   - Set Viewport Anchor Bias Y > 0.00 (that's it)
+
+   Your final Scaling settings should be:
+
+         Integer Scale				OFF
+
+         Integer Scale Axis			Doesn't matter
+
+	 Integer Scale Scaling		 	Doesn't matter
+
+         Aspect Ratio 				Core provided OR 3:2
+         
+         Viewport Anchor Bias X 		0.50
+         
+         Viewport Anchor Bias Y 		0.00
+
+         Bilinear Filtering 			OFF
+
+         Crop Overscan 				OFF
+
+   Note: If you're using Pixie and the top of the image is cutoff, setting Viewport Anchor Bias Y to 1.00 should hopefully resolve the issue. This happens if you try using the settings for earlier versions of muOS (see below).
+
+
+**muOS 2410.3 AW Banana and earlier**
+
    - Turn Integer Scale ON
    - Set Aspect Ratio to Custom
    - Set aspect ratio:
@@ -87,10 +120,27 @@ To apply the overlay:
 
    Video Shaders ON
 
-I haven't found a "best" solution. Sharp-bilinear and sharp-shimmerless (which you can download from here: https://github.com/Woohyun-Kang/Sharp-Shimmerless-Shader; just add the extracted folder to /mmc/MUOS/retroarch/shaders) are probably the clearest, but they over-emphasize blacks (i.e., black outlines appear thicker than in raw, integer-scaled screens). Pixellate seems to perform best in this sense, but it appears slightly less focused. 
-     
-   Shader #0: interpolation > shaders > sharpen-bilinear.glsl or pixellate.glsl (with default filter and scale)
+I haven't found a "best" solution. Sharp-bilinear and sharp-shimmerless are probably the clearest, but they over-emphasize blacks (i.e., black outlines appear thicker than in raw, integer-scaled screens). Pixellate and pixel_aa seems to perform better in this sense, but they appear slightly less focused.
 
+Note that sharp-shimmerless is on by default for muOS 2502.0 Pixie and is less resource intensive than pixellate or pixel_aa, so you don't need to adjust the shaders unless you're unhappy with how the image looks.
+     
+   Shader #0: interpolation > shaders > sharp-bilinear.glsl OR pixellate.glsl
+
+   OR
+
+   Shader #0: pixel-art-scaling > shaders > pixel_aa.glsl
+
+   OR
+
+   Shader #0: shimmerless > shaders > sharp-shimmerless.glsl
+
+For all of the above shaders:
+
+   Filter: Linear
+
+   Scale: Default
+   
+   
    Apply Changes
 
    Save Preset > Save Content Directory Preset
@@ -99,9 +149,11 @@ I haven't found a "best" solution. Sharp-bilinear and sharp-shimmerless (which y
 5. Once you've got everything configured the way you want it, save your settings:
 
    Quick Menu > Overrides > Save Content Directory Overrides
+
+   Note: For whatever reason, my Viewport Anchor Bias Y setting wasn't saving with my override, even though all of my other settings did. I resolved this issue by removing the existing content directory and core overrides and saving a new content directory override.
  
 
-***Note that these are DARK overlays. You'll need to increase the screen brightness to maximum for them to be usable (menu + volume up, or in Configuration > General Settings in the muOS menu).***
+***Note that these are DARK overlays. You'll need to increase the screen brightness to maximum for them to be usable (menu + volume up, or in Configuration > General Settings in the muOS menu). If it's still too dark, you can reduce the Overlay Opacity (see step 1) at the cost of realism/accuracy.***
 
 There's a lot of interesting discussion in the comments of the Reddit post - I highly recommend reading through them if you're interested in the technical details and process that were used to create these overlays.
 

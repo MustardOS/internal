@@ -1,5 +1,11 @@
 Perfect DMG-EX and GBP-EX Overlays (Instructions for muOS)
 
+Updated 2025-03-12:
+- Updated shader recommendations and settings
+
+Updated 2025-01-08:
+- clarified that custom palettes may need to be copied to TF2 if muOS has been migrated to SD2
+
 Updated 2024-12-30:
 - fixed minor visual artifact in some GBP overlays
 
@@ -22,7 +28,7 @@ Note that these overlays have been tested on the RG35XX Plus with muOS. I have n
 
 I've included conversions of the 1playerinsertcoin's original Perfect DMG-EX and GBP-EX overlays as well as ones with my own borders. 1playerinsertcoin also created custom DMG and GBP palettes for these overlays; the two are meant to work together, so the overlays will not look right without the custom palettes (and vice versa).
 
-Copy the palettes folder from either the DMG or GBP folder into the muOS bios folder on TF1. The final path for default.pal should be:
+Copy the palettes folder from either the DMG or GBP folder into the muOS bios folder on TF1 (or TF2 if you've migrated to SD2 using the Task Toolkit). The final path for default.pal should be:
 
      /mnt/mmc/MUOS/bios/palettes/default.pal
 
@@ -73,9 +79,24 @@ To apply the overlay:
    Video Shaders ON
 
 
-Pixellate seems to look the best of the included shaders in terms of pixel evenness.     
+Pixellate and pixel_aa seem to look the best of the included shaders in terms of pixel evenness, but may cause slowdown in more demanding games. Sharp-shimmerless isn't quite as good but has less of a performance hit.     
 
-   Shader #0: interpolation > shaders > pixellate.glsl (with linear filter and default scale)
+   Shader #0: interpolation > shaders > pixellate.glsl
+
+   OR
+
+   Shader #0: pixel-art-scaling > shaders > pixel_aa.glsl
+
+   OR
+
+   Shader #0: shimmerless > shaders > sharp-shimmerless.glsl
+
+For all of the above:
+
+   Shader #0 Filter: Linear
+
+   Shader #0 Scale: Default OR 1X
+
 
    Apply Changes
 

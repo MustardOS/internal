@@ -1,5 +1,14 @@
 Perfect Overlays Bundle (Instructions for muOS included)
 
+Updated 2025-04-04:
+- updated GBA scaling settings for muOS Pixie (Retroarch 1.20.0?)
+
+Updated 2025-03-12:
+- updated recommended DMG/GBP and GBA shaders and settings
+
+Updated 2025-01-08:
+- clarified that custom palettes for DMG/GBP may need to be copied to TF2 if muOS has been migrated to SD2
+
 Updated 2024-12-30:
 - fixed minor visual artifact in some GBP overlays
 

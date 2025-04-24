@@ -11,11 +11,7 @@ DEVICE_BOARD="$(GET_VAR "device" "board/name")"
 
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
-ASS_GO=/tmp/ass_go
-GOV_GO=/tmp/gov_go
 GVR_GO=/tmp/gvr_go
-IDX_GO=/tmp/idx_go
-PIK_GO=/tmp/pik_go
 ROM_GO=/tmp/rom_go
 RES_GO=/tmp/res_go
 
@@ -129,44 +125,12 @@ LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 
 cp /opt/muos/log/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
-PROCESS_CONTENT_ACTION() {
-	ACTION="$1"
-	MODULE="$2"
-
-	[ ! -s "$ACTION" ] && return
-
-	{
-		IFS= read -r ROM_NAME
-		IFS= read -r ROM_DIR
-		IFS= read -r ROM_SYS
-		IFS= read -r FORCED_FLAG
-	} <"$ACTION"
-
-	rm "$ACTION"
-	echo "$MODULE" >"$ACT_GO"
-
-	[ "$FORCED_FLAG" -eq 1 ] && echo "option" >"$ACT_GO"
-}
-
-LAST_INDEX_CHECK() {
-	LAST_INDEX=0
-	if [ -s "$IDX_GO" ] && [ ! -s "$CL_AMW" ]; then
-		read -r LAST_INDEX <"$IDX_GO"
-		LAST_INDEX=${LAST_INDEX:-0}
-		rm -f "$IDX_GO"
-	fi
-}
-
 while :; do
 	CHECK_BGM ignore &
 	pkill -9 -f "gptokeyb" &
 
 	# Reset DPAD<>ANALOGUE switch for H700 devices
 	[ "$DEVICE_BOARD" = "rg*" ] && echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
-
-	# Process content association and governor actions
-	PROCESS_CONTENT_ACTION "$ASS_GO" "assign"
-	PROCESS_CONTENT_ACTION "$GOV_GO" "governor"
 
 	# Content Loader
 	[ -s "$ROM_GO" ] && /opt/muos/script/mux/launch.sh
@@ -180,18 +144,6 @@ while :; do
 				[ -s "$MUX_AUTH" ] && rm "$MUX_AUTH"
 				[ -s "$MUX_LAUNCHER_AUTH" ] && rm "$MUX_LAUNCHER_AUTH"
 				EXEC_MUX "launcher" "muxfrontend"
-				;;
-
-			"search")
-				[ -s "$EX_DIR" ] && IFS= read -r EX_DIR_CONTENT <"$EX_DIR"
-				EXEC_MUX "option" "muxsearch" -d "$EX_DIR_CONTENT"
-				if [ -s "$RES_GO" ]; then
-					IFS= read -r RES_CONTENT <"$RES_GO"
-					printf "%s" "${RES_CONTENT##*/}" >"$EX_NAME"
-					printf "%s" "${RES_CONTENT%/*}" >"$EX_DIR"
-					printf "%s" "$(echo "$RES_CONTENT" | sed 's|.*/\([^/]*\)/ROMS.*|\1|')" >"$EX_CARD"
-					EXEC_MUX "option" "muxplore" -i 0 -d "$(cat "$EX_DIR")"
-				fi
 				;;
 			
 			"explore") EXEC_MUX "explore" "muxfrontend" ;;
@@ -228,16 +180,11 @@ while :; do
 				fi
 				;;
 
-			"picker")
-				[ -s "$PIK_GO" ] && IFS= read -r PIK_CONTENT <"$PIK_GO"
-				EXPLORE_DIR=""
-				[ -s "$EX_DIR" ] && IFS= read -r EXPLORE_DIR <"$EX_DIR"
-				EXEC_MUX "custom" "muxpicker" -m "$PIK_CONTENT" -d "$EXPLORE_DIR"
-				;;
-
 			"collection")  EXEC_MUX "collection" "muxfrontend" ;;
 
 			"history") EXEC_MUX "history" "muxfrontend" ;;
+
+			"info") EXEC_MUX "info" "muxfrontend" ;;
 
 			"credits")
 				STOP_BGM
@@ -250,7 +197,10 @@ while :; do
 			"reboot") /opt/muos/script/mux/quit.sh reboot frontend ;;
 			"shutdown") /opt/muos/script/mux/quit.sh poweroff frontend ;;
 
-			*) printf "Unknown Module: %s\n" "$ACTION" >&2 ;;
+			*) 
+				printf "Unknown Module: %s\n" "$ACTION" >&2 
+				printf '%s\n' "$DEF_ACT" >$ACT_GO
+				;;
 		esac
 	}
 

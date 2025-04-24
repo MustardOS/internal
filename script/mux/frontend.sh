@@ -152,9 +152,9 @@ while :; do
 				if [ -s "$APP_GO" ]; then
 					IFS= read -r RUN_APP <"$APP_GO"
 					rm "$APP_GO"
-					echo appmenu >$ACT_GO
 					STOP_BGM
 					"$(GET_VAR "device" "storage/rom/mount")/MUOS/application/${RUN_APP}/mux_launch.sh"
+					echo appmenu >$ACT_GO
 				fi
 				;;
 

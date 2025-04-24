@@ -149,36 +149,16 @@ while :; do
 			"explore") EXEC_MUX "explore" "muxfrontend" ;;
 			
 			"app")
-				AUTHORIZED=0
-				if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_LAUNCHER_AUTH" ]; then
-					EXEC_MUX "launcher" "muxpass" -t launch
-					if [ "$EXIT_STATUS" -eq 1 ]; then
-						AUTHORIZED=1
-						touch "$MUX_LAUNCHER_AUTH"
-					fi
-				else
-					AUTHORIZED=1
-				fi
-				if [ "$AUTHORIZED" -eq 1 ]; then
-					EXEC_MUX "launcher" "muxapp"
-					if [ -s "$APP_GO" ]; then
-						IFS= read -r RUN_APP <"$APP_GO"
-						rm "$APP_GO"
-						case "$RUN_APP" in
-							*"Archive Manager"*)
-								echo archive >$ACT_GO
-								;;
-							*"Task Toolkit"*)
-								echo task >$ACT_GO
-								;;
-							*)
-								STOP_BGM
-								"$(GET_VAR "device" "storage/rom/mount")/MUOS/application/${RUN_APP}/mux_launch.sh"
-								;;
-						esac
-					fi
+				if [ -s "$APP_GO" ]; then
+					IFS= read -r RUN_APP <"$APP_GO"
+					rm "$APP_GO"
+					echo appmenu >$ACT_GO
+					STOP_BGM
+					"$(GET_VAR "device" "storage/rom/mount")/MUOS/application/${RUN_APP}/mux_launch.sh"
 				fi
 				;;
+
+			"appmenu")  EXEC_MUX "app" "muxfrontend" ;;
 
 			"collection")  EXEC_MUX "collection" "muxfrontend" ;;
 

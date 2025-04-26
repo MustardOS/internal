@@ -50,6 +50,8 @@ MOUNT_DEVICE() {
 	echo 128 >"/sys/block/$SD_DEV/queue/nr_requests"
 	echo 0 >"/sys/block/$SD_DEV/queue/iostats"
 	blockdev --setra 4096 "/dev/$SD_DEV"
+
+	mkdir -p "$SD_MOUNT/ROMS" "$SD_MOUNT/BACKUP" "$SD_MOUNT/ARCHIVE" "$SD_MOUNT/ports"
 }
 
 # Synchronously mount SD card (if media is inserted) so it's available as a
@@ -58,17 +60,19 @@ HAS_DEVICE && MOUNT_DEVICE
 
 # Asynchronously monitor insertion/eject, adjusting storage mounts as needed
 while :; do
-	mkdir -p "$ROM_MOUNT/ROMS" "$ROM_MOUNT/BACKUP" "$ROM_MOUNT/ARCHIVE"
-
 	if HAS_DEVICE; then
 		if ! MOUNTED; then
+			/opt/muos/script/mount/union.sh stop
 			MOUNT_DEVICE
 			/opt/muos/script/mount/bind.sh
+			/opt/muos/script/mount/union.sh start
 		fi
 	elif MOUNTED; then
+		/opt/muos/script/mount/union.sh stop
 		umount "$SD_MOUNT"
 		SET_VAR "device" "storage/sdcard/active" "0"
 		/opt/muos/script/mount/bind.sh
+		/opt/muos/script/mount/union.sh start
 	fi
 
 	sleep 2

@@ -36,4 +36,4 @@ echo 0 >"/sys/block/$ROM_DEV/queue/iostats"
 blockdev --setra 4096 "/dev/$ROM_DEV"
 
 # Ensure ROMS directory exists
-mkdir -p "$ROM_MOUNT/ROMS" "$ROM_MOUNT/BACKUP" "$ROM_MOUNT/ARCHIVE"
+mkdir -p "$ROM_MOUNT/ROMS" "$ROM_MOUNT/BACKUP" "$ROM_MOUNT/ARCHIVE" "$ROM_MOUNT/ports"

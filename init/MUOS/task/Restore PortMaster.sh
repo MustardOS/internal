@@ -10,7 +10,7 @@ if [ ! -e "$PM_ZIP" ]; then
 	echo "Error: PortMaster archive not found!"
 	/opt/muos/bin/toybox sleep 2
 
-	pkill -CONT muxtask
+	pkill -CONT muxfrontend
 	exit 1
 fi
 
@@ -40,5 +40,5 @@ sync
 echo "All Done!"
 /opt/muos/bin/toybox sleep 2
 
-pkill -CONT muxtask
+pkill -CONT muxfrontend
 exit 0

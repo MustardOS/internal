@@ -4,7 +4,7 @@
 
 . /opt/muos/script/var/func.sh
 
-pkill -STOP muxtask
+pkill -STOP muxfrontend
 
 MOUNT="$(GET_VAR device storage/rom/mount)"
 
@@ -19,5 +19,5 @@ sync
 echo "All Done!"
 /opt/muos/bin/toybox sleep 2
 
-pkill -CONT muxtask
+pkill -CONT muxfrontend
 exit 0

@@ -10,7 +10,7 @@
 SD_DEVICE="$(GET_VAR "device" "storage/sdcard/dev")$(GET_VAR "device" "storage/sdcard/sep")$(GET_VAR "device" "storage/sdcard/num")"
 USB_DEVICE="$(GET_VAR "device" "storage/usb/dev")$(GET_VAR "device" "storage/usb/sep")$(GET_VAR "device" "storage/usb/num")"
 
-pkill -STOP muxtask
+pkill -STOP muxfrontend
 
 if grep -m 1 "$USB_DEVICE" /proc/partitions >/dev/null; then
 	echo "USB mounted, archiving to USB"
@@ -101,5 +101,5 @@ sync
 echo "All Done!"
 /opt/muos/bin/toybox sleep 2
 
-pkill -CONT muxtask
+pkill -CONT muxfrontend
 exit 0

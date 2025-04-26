@@ -18,7 +18,7 @@ mkdir -p "$LOG_DIR"
 # Redirect stdout and stderr to both terminal and log file
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-pkill -STOP muxtask
+pkill -STOP muxfrontend
 
 # Function to restore backup and verify
 sync_and_verify() {
@@ -51,5 +51,5 @@ sync
 echo "All Done!"
 /opt/muos/bin/toybox sleep 2
 
-pkill -CONT muxtask
+pkill -CONT muxfrontend
 exit 0

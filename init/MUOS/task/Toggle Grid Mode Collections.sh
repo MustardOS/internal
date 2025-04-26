@@ -8,7 +8,7 @@
 
 . /opt/muos/script/var/func.sh
 
-pkill -STOP muxtask
+pkill -STOP muxfrontend
 
 INI_FILE="/run/muos/storage/theme/override/muxcollect.ini"
 GRID_SECTION="[grid]"
@@ -42,5 +42,5 @@ sync
 echo "All Done!"
 /opt/muos/bin/toybox sleep 2
 
-pkill -CONT muxtask
+pkill -CONT muxfrontend
 exit 0

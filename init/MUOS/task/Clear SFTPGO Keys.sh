@@ -5,7 +5,7 @@
 # This script will remove the SFTPGO keys
 # These will be (re)generated on next boot.
 
-pkill -STOP muxtask
+pkill -STOP muxfrontend
 
 SFTP_DIR="/opt/sftpgo"
 
@@ -19,5 +19,5 @@ echo "All Done!"
 echo "Please reboot your device."
 /opt/muos/bin/toybox sleep 5
 
-pkill -CONT muxtask
+pkill -CONT muxfrontend
 exit 0

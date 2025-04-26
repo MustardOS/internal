@@ -172,7 +172,7 @@ while :; do
 
 			*)
 				printf "Unknown Module: %s\n" "$ACTION" >&2
-				printf '%s\n' "$DEF_ACT" >$ACT_GO
+				EXEC_MUX "$ACTION" "muxfrontend"
 				;;
 		esac
 	}

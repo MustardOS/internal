@@ -6,7 +6,8 @@ mkdir -p "/run/muos/system"
 touch "/run/muos/system/foreground_process"
 echo 0 >"/run/muos/system/idle_inhibit"
 cut -d ' ' -f 1 /proc/uptime >"/run/muos/system/resume_uptime"
-rm -f /opt/muos/log/*.log
+rm -f /opt/muos/log/*.log &
+rm -rf /opt/muxtmp &
 
 LOG_INFO "$0" 0 "BOOTING" "Setting OS Release"
 /opt/muos/script/system/os_release.sh &

@@ -100,11 +100,11 @@ HALT_SYSTEM() {
 
 	if [ "$HALT_SRC" = frontend ] && [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 1 ]; then
 		# When "verbose messages" setting is enabled, run the underlying
-		# halt script in fbpad so its output is visible on screen.
+		# halt script in muterm so its output is visible on screen.
 		#
-		# Fork into a new session to avoid fbpad getting killed early.
-		# Redirect input so it doesn't get dumped onto fbpad's TTY.
-		exec setsid -fw /opt/muos/bin/fbpad /opt/muos/script/system/halt.sh "$HALT_CMD" </dev/null
+		# Fork into a new session to avoid muterm getting killed early.
+		# Redirect input so it doesn't get dumped onto muterm's TTY.
+		exec setsid -fw /opt/muos/bin/muterm /opt/muos/script/system/halt.sh "$HALT_CMD" </dev/null
 	else
 		# Redirect output so it doesn't draw over the splash screen if
 		# we're currently running inside a terminal.

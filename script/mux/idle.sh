@@ -43,7 +43,7 @@ while :; do
 	fi
 	# Inhibit idle display and sleep during long-running processes.
 	case "$(GET_VAR system foreground_process)" in
-		fbpad | ffplay | mpv | muxcharge | muxcredits | muxstart) INHIBIT="$INHIBIT_BOTH" ;;
+		muterm | ffplay | mpv | muxcharge | muxcredits | muxstart) INHIBIT="$INHIBIT_BOTH" ;;
 	esac
 	SET_VAR system idle_inhibit "$INHIBIT"
 	/opt/muos/bin/toybox sleep 5

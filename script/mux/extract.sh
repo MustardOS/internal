@@ -11,11 +11,11 @@ SYNC_FOLDER() {
 
 ALL_DONE() {
 	/opt/muos/bin/toybox sleep 2
-	pkill -CONT muxarchive
+	pkill -CONT muxfrontend
 	exit "$1"
 }
 
-pkill -STOP muxarchive
+pkill -STOP muxfrontend
 
 if [ "$#" -ne 1 ]; then
 	echo "Usage: $0 <archive>"

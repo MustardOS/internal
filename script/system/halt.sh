@@ -19,9 +19,9 @@ case "$1" in
 	*) USAGE ;;
 esac
 
-# With verbose messages enabled, we're launched inside fbpad. Omit it from the
+# With verbose messages enabled, we're launched inside muterm. Omit it from the
 # termination process so console output remains visible.
-if [ "$(readlink "/proc/$PPID/exe")" = /opt/muos/bin/fbpad ]; then
+if [ "$(readlink "/proc/$PPID/exe")" = /opt/muos/extra/muterm ]; then
 	set -- "$@" -o "$PPID"
 fi
 

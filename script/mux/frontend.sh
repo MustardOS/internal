@@ -1,10 +1,5 @@
 #!/bin/sh
 
-case ":$LD_LIBRARY_PATH:" in
-	*":/opt/muos/extra/lib:"*) ;;
-	*) export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH" ;;
-esac
-
 . /opt/muos/script/var/func.sh
 
 DEVICE_BOARD="$(GET_VAR "device" "board/name")"

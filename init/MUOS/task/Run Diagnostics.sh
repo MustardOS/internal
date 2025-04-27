@@ -4,7 +4,7 @@
 
 . /opt/muos/script/var/func.sh
 
-pkill -STOP muxfrontend
+FRONTEND stop
 
 # Set the output directory for the diagnostics
 OUTPUT_DIR="/tmp/muos_diagnostics"
@@ -71,5 +71,5 @@ sync
 
 /opt/muos/bin/toybox sleep 5
 
-pkill -CONT muxfrontend
+FRONTEND start task
 exit 0

@@ -4,13 +4,15 @@
 
 . /opt/muos/script/var/func.sh
 
+FRONTEND stop
+
 PM_ZIP="/opt/muos/share/archive/muos.portmaster.zip"
 
 if [ ! -e "$PM_ZIP" ]; then
 	echo "Error: PortMaster archive not found!"
 	/opt/muos/bin/toybox sleep 2
 
-	pkill -CONT muxfrontend
+	FRONTEND start task
 	exit 1
 fi
 
@@ -40,5 +42,5 @@ sync
 echo "All Done!"
 /opt/muos/bin/toybox sleep 2
 
-pkill -CONT muxfrontend
+FRONTEND start task
 exit 0

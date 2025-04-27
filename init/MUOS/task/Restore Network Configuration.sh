@@ -4,7 +4,7 @@
 
 . /opt/muos/script/var/func.sh
 
-pkill -STOP muxfrontend
+FRONTEND stop
 
 echo "Reverting to original network settings"
 SET_VAR "global" "network/type" "0"
@@ -28,5 +28,5 @@ sync
 echo "All Done!"
 /opt/muos/bin/toybox sleep 2
 
-pkill -CONT muxfrontend
+FRONTEND start task
 exit 0

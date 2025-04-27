@@ -4,7 +4,7 @@
 
 . /opt/muos/script/var/func.sh
 
-pkill -STOP muxfrontend
+FRONTEND stop
 
 MUOS_FAV_DIR="/run/muos/storage/info/favourite"
 
@@ -17,5 +17,5 @@ sync
 echo "All Done!"
 /opt/muos/bin/toybox sleep 2
 
-pkill -CONT muxfrontend
+FRONTEND start task
 exit 0

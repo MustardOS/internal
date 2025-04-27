@@ -8,7 +8,7 @@
 
 . /opt/muos/script/var/func.sh
 
-pkill -STOP muxfrontend
+FRONTEND stop
 
 INI_FILE="/run/muos/storage/theme/override/muxlaunch.ini"
 GRID_SECTION="[grid]"
@@ -42,5 +42,5 @@ sync
 echo "All Done!"
 /opt/muos/bin/toybox sleep 2
 
-pkill -CONT muxfrontend
+FRONTEND start task
 exit 0

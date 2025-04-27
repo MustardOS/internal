@@ -8,7 +8,7 @@
 
 . /opt/muos/script/var/func.sh
 
-pkill -STOP muxfrontend
+FRONTEND stop
 
 SET_VAR "device" "board/network" "1"
 SET_VAR "device" "board/portmaster" "1"
@@ -29,5 +29,5 @@ sync
 echo "All Done!"
 /opt/muos/bin/toybox sleep 2
 
-pkill -CONT muxfrontend
+FRONTEND start task
 exit 0

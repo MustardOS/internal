@@ -1,5 +1,9 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
+FRONTEND stop
+
 SYNC_FOLDER() {
 	SOURCE="$1"
 	DEST="$2"
@@ -11,11 +15,9 @@ SYNC_FOLDER() {
 
 ALL_DONE() {
 	/opt/muos/bin/toybox sleep 2
-	pkill -CONT muxfrontend
+	FRONTEND start archive
 	exit "$1"
 }
-
-pkill -STOP muxfrontend
 
 if [ "$#" -ne 1 ]; then
 	echo "Usage: $0 <archive>"
@@ -26,8 +28,6 @@ if [ ! -e "$1" ]; then
 	echo "Error: ARCHIVE '$1' not found"
 	ALL_DONE 1
 fi
-
-. /opt/muos/script/var/func.sh
 
 ARCHIVE_NAME="${1##*/}"
 echo "Inspecting Archive..."

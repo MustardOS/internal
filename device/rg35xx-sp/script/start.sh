@@ -31,7 +31,7 @@ else
 	esac
 
 	GET_VAR "global" "settings/general/colour" >/sys/class/disp/disp/attr/color_temperature
-	SET_VAR "global" "settings/hdmi/theme_resolution" "0"
+	SET_VAR "global" "settings/general/theme_resolution" "0"
 	SET_VAR "global" "settings/hdmi/scan" "0"
 fi
 

@@ -31,6 +31,33 @@ SAFE_QUIT=/tmp/safe_quit
 EXIT_STATUS=0
 PREVIOUS_MODULE=""
 
+FRONTEND() {
+	case "$1" in
+		stop)
+			while pgrep -x frontend.sh >/dev/null || pgrep -x muxfrontend >/dev/null; do
+				killall -9 frontend.sh muxfrontend
+				/opt/muos/bin/toybox sleep 1
+			done
+			;;
+		start)
+			pgrep -x frontend.sh >/dev/null && return 0
+			if [ -n "$2" ]; then
+				setsid -f /opt/muos/script/mux/frontend.sh "$2" </dev/null >/dev/null 2>&1
+			else
+				setsid -f /opt/muos/script/mux/frontend.sh </dev/null >/dev/null 2>&1
+			fi
+			;;
+		restart)
+			FRONTEND stop
+			FRONTEND "$@"
+			;;
+		*)
+			printf "Usage: FRONTEND start [module] | stop | restart [module]\n"
+			return 1
+			;;
+	esac
+}
+
 EXEC_MUX() {
 	[ -f "$SAFE_QUIT" ] && rm "$SAFE_QUIT"
 	EXIT_STATUS=0

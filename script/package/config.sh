@@ -2,10 +2,13 @@
 
 . /opt/muos/script/var/func.sh
 
+FRONTEND stop
+
 COMMAND=$(basename "$0")
 
 USAGE() {
 	printf "Usage: %s <install|save> <configuration>\n" "$COMMAND"
+	FRONTEND start picker
 	exit 1
 }
 
@@ -40,6 +43,8 @@ INSTALL() {
 
 	printf "Install complete\n"
 	sync
+
+	FRONTEND start picker
 }
 
 SAVE() {
@@ -66,6 +71,8 @@ SAVE() {
 
 	printf "Backup complete: %s\n" "$DEST_FILE"
 	sync
+
+	FRONTEND start picker
 }
 
 case "$MODE" in

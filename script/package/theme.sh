@@ -2,10 +2,13 @@
 
 . /opt/muos/script/var/func.sh
 
+FRONTEND stop
+
 COMMAND=$(basename "$0")
 
 USAGE() {
 	printf "Usage: %s <install|save> <theme>\n" "$COMMAND"
+	FRONTEND stop
 	exit 1
 }
 
@@ -67,7 +70,7 @@ INSTALL() {
 	printf "Install complete\n"
 	sync
 
-	[ "$(GET_VAR "global" "settings/general/bgm")" -eq 2 ] && START_BGM
+	FRONTEND start picker
 }
 
 SAVE() {
@@ -86,6 +89,8 @@ SAVE() {
 
 	printf "Backup complete: %s\n" "$DEST_FILE"
 	sync
+
+	FRONTEND start picker
 }
 
 case "$MODE" in

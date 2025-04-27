@@ -19,8 +19,15 @@ EX_CARD=/tmp/explore_card
 MUX_AUTH=/tmp/mux_auth
 MUX_LAUNCHER_AUTH=/tmp/mux_launcher_auth
 
-DEF_ACT=$(GET_VAR "global" "settings/general/startup")
-printf '%s\n' "$DEF_ACT" >$ACT_GO
+SKIP=0
+
+if [ -n "$1" ]; then
+	ACT="$1"
+	SKIP=1
+else
+	ACT=$(GET_VAR "global" "settings/general/startup")
+fi
+printf '%s\n' "$ACT" >"$ACT_GO"
 
 echo "root" >$EX_CARD
 
@@ -36,82 +43,84 @@ if [ "$DEF_GOV" = ondemand ]; then
 	GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
 fi
 
-LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"
-if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR "global" "settings/general/startup")" = "resume" ]; then
-	GO_LAST_BOOT=1
+if [ $SKIP -eq 0 ]; then
+	LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"
+	if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR "global" "settings/general/startup")" = "resume" ]; then
+		GO_LAST_BOOT=1
 
-	if [ -n "$LAST_PLAY" ]; then
-		LOG_INFO "$0" 0 "FRONTEND" "Checking for network and retrowait"
+		if [ -n "$LAST_PLAY" ]; then
+			LOG_INFO "$0" 0 "FRONTEND" "Checking for network and retrowait"
 
-		if [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
-			NET_START="/tmp/net_start"
-			OIP=0
+			if [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
+				NET_START="/tmp/net_start"
+				OIP=0
 
-			while :; do
-				NW_MSG=$(printf "Waiting for network to connect... (%s)\n\nPress START to continue loading\nPress SELECT to go to main menu" "$OIP")
-				/opt/muos/extra/muxstart 0 "$NW_MSG"
-				OIP=$((OIP + 1))
+				while :; do
+					NW_MSG=$(printf "Waiting for network to connect... (%s)\n\nPress START to continue loading\nPress SELECT to go to main menu" "$OIP")
+					/opt/muos/extra/muxstart 0 "$NW_MSG"
+					OIP=$((OIP + 1))
 
-				if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
-					LOG_SUCCESS "$0" 0 "FRONTEND" "Network connected"
-					/opt/muos/extra/muxstart 0 "Network connected"
+					if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
+						LOG_SUCCESS "$0" 0 "FRONTEND" "Network connected"
+						/opt/muos/extra/muxstart 0 "Network connected"
 
-					PIP=0
-					while ! ping -c 1 -W 5 8.8.8.8 >/dev/null 2>&1; do
-						PIP=$((PIP + 1))
-						LOG_INFO "$0" 0 "FRONTEND" "Verifying connectivity..."
-						/opt/muos/extra/muxstart 0 "Verifying connectivity... (%s)" "$PIP"
-						/opt/muos/bin/toybox sleep 1
-					done
+						PIP=0
+						while ! ping -c 1 -W 5 8.8.8.8 >/dev/null 2>&1; do
+							PIP=$((PIP + 1))
+							LOG_INFO "$0" 0 "FRONTEND" "Verifying connectivity..."
+							/opt/muos/extra/muxstart 0 "Verifying connectivity... (%s)" "$PIP"
+							/opt/muos/bin/toybox sleep 1
+						done
 
-					LOG_SUCCESS "$0" 0 "FRONTEND" "Connectivity verified! Booting content!"
-					/opt/muos/extra/muxstart 0 "Connectivity verified! Booting content!"
+						LOG_SUCCESS "$0" 0 "FRONTEND" "Connectivity verified! Booting content!"
+						/opt/muos/extra/muxstart 0 "Connectivity verified! Booting content!"
 
-					GO_LAST_BOOT=1
-					break
-				fi
+						GO_LAST_BOOT=1
+						break
+					fi
 
-				if [ "$(cat "$NET_START")" = "ignore" ]; then
-					LOG_SUCCESS "$0" 0 "FRONTEND" "Ignoring network connection"
-					/opt/muos/extra/muxstart 0 "Ignoring network connection... Booting content!"
+					if [ "$(cat "$NET_START")" = "ignore" ]; then
+						LOG_SUCCESS "$0" 0 "FRONTEND" "Ignoring network connection"
+						/opt/muos/extra/muxstart 0 "Ignoring network connection... Booting content!"
 
-					GO_LAST_BOOT=1
-					break
-				fi
+						GO_LAST_BOOT=1
+						break
+					fi
 
-				if [ "$(cat "$NET_START")" = "menu" ]; then
-					LOG_SUCCESS "$0" 0 "FRONTEND" "Booting to main menu"
-					/opt/muos/extra/muxstart 0 "Booting to main menu!"
+					if [ "$(cat "$NET_START")" = "menu" ]; then
+						LOG_SUCCESS "$0" 0 "FRONTEND" "Booting to main menu"
+						/opt/muos/extra/muxstart 0 "Booting to main menu!"
 
-					GO_LAST_BOOT=0
-					break
-				fi
+						GO_LAST_BOOT=0
+						break
+					fi
 
-				/opt/muos/bin/toybox sleep 1
-			done
-		fi
+					/opt/muos/bin/toybox sleep 1
+				done
+			fi
 
-		if [ $GO_LAST_BOOT -eq 1 ]; then
-			LOG_INFO "$0" 0 "FRONTEND" "Booting to last launched content"
-			cat "$LAST_PLAY" >"$ROM_GO"
+			if [ $GO_LAST_BOOT -eq 1 ]; then
+				LOG_INFO "$0" 0 "FRONTEND" "Booting to last launched content"
+				cat "$LAST_PLAY" >"$ROM_GO"
 
-			CONTENT_GOV="$(basename "$LAST_PLAY" .cfg).gov"
-			if [ -e "$CONTENT_GOV" ]; then
-				printf "%s" "$(cat "$CONTENT_GOV")" >$GVR_GO
-			else
-				CONTENT_GOV="$(dirname "$LAST_PLAY")/core.gov"
+				CONTENT_GOV="$(basename "$LAST_PLAY" .cfg).gov"
 				if [ -e "$CONTENT_GOV" ]; then
 					printf "%s" "$(cat "$CONTENT_GOV")" >$GVR_GO
 				else
-					LOG_INFO "$0" 0 "FRONTEND" "No governor found for launched content"
+					CONTENT_GOV="$(dirname "$LAST_PLAY")/core.gov"
+					if [ -e "$CONTENT_GOV" ]; then
+						printf "%s" "$(cat "$CONTENT_GOV")" >$GVR_GO
+					else
+						LOG_INFO "$0" 0 "FRONTEND" "No governor found for launched content"
+					fi
 				fi
+
+				/opt/muos/script/mux/launch.sh last
 			fi
-
-			/opt/muos/script/mux/launch.sh last
 		fi
-	fi
 
-	echo launcher >$ACT_GO
+		echo launcher >$ACT_GO
+	fi
 fi
 
 LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
@@ -176,7 +185,5 @@ while :; do
 				;;
 		esac
 	}
-
-
 
 done

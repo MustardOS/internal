@@ -25,7 +25,7 @@ LOG_INFO "$0" 0 "NETWORK" "Starting Network Connection..."
 pgrep dhcpcd >/dev/null && killall -q dhcpcd
 pgrep wpa_supplicant >/dev/null && killall -q wpa_supplicant
 
-WAIT_IFACE=300
+WAIT_IFACE=20
 while [ ! -d "/sys/class/net/$IFCE" ] && [ "$WAIT_IFACE" -gt 0 ]; do
 	LOG_WARN "$0" 0 "NETWORK" "Waiting for interface '%s' to appear... (%ds)" "$IFCE" "$WAIT_IFACE"
 	/opt/muos/bin/toybox sleep 1
@@ -52,7 +52,7 @@ TRY_CONNECT() {
 
 		wpa_supplicant -B -i "$IFCE" -c "$WPA_CONFIG" -D "$DRIV"
 
-		WAIT_CARRIER=300
+		WAIT_CARRIER=20
 		while [ "$WAIT_CARRIER" -gt 0 ]; do
 			if iw dev "$IFCE" link | grep "SSID:"; then
 				break
@@ -78,7 +78,7 @@ TRY_CONNECT() {
 		LOG_INFO "$0" 0 "NETWORK" "Starting DHCP Client..."
 		dhcpcd "$IFCE" &
 
-		WAIT_IP=300
+		WAIT_IP=20
 		while [ "$WAIT_IP" -gt 0 ]; do
 			LOG_WARN "$0" 0 "NETWORK" "Waiting for DHCP Lease... (%ds)" "$WAIT_IP"
 			IP=$(ip -4 a show dev "$IFCE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p')

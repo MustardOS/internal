@@ -36,17 +36,38 @@ else
 	CRITICAL_FAILURE device "$ROM_MOUNT" "$ROM_PART"
 fi
 
-PROGRESS_BAR() {
-	while IFS= read -r PROGRESS; do
-		printf "%s" "$PROGRESS" >"/tmp/msg_progress"
-	done
-}
-
 LOG_INFO "$0" 0 "FACTORY RESET" "Restoring ROM Filesystem"
-rsync --archive --checksum --remove-source-files --itemize-changes --outbuf=L \
-	/opt/muos/init/ "$ROM_MOUNT"/ 2>/dev/null |
-	/opt/muos/bin/pv -nls "$(find /opt/muos/init -type f | wc -l)" 2>&1 >/dev/null |
-	PROGRESS_BAR
+
+INIT_SRC="/opt/muos/init"
+PROGRESS_FILE="/tmp/msg_progress"
+
+TMP_LIST="/tmp/file_list.txt"
+: >"$TMP_LIST"
+
+find "$INIT_SRC" -type f >"$TMP_LIST"
+TOTAL=$(wc -l <"$TMP_LIST")
+COUNT=0
+LAST_PERCENT=-1
+
+rsync --archive --whole-file --remove-source-files --itemize-changes \
+	"$INIT_SRC/" "$ROM_MOUNT"/ 2>/dev/null |
+	while IFS= read -r LINE; do
+		case "$LINE" in
+			[\>f]*)
+				COUNT=$((COUNT + 1))
+				PERCENT=$((COUNT * 1000 / TOTAL))
+				PERCENT=$((PERCENT / 10))
+
+				if [ "$PERCENT" -ne "$LAST_PERCENT" ]; then
+					printf "%s\n" "$PERCENT" >"$PROGRESS_FILE"
+					LAST_PERCENT=$PERCENT
+				fi
+				;;
+		esac
+	done
+
+rm -rf "$INIT_SRC"
+echo 100 >"$PROGRESS_FILE"
 
 /opt/muos/bin/toybox sleep 5
 touch "/tmp/msg_finish"

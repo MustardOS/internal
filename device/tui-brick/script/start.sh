@@ -64,8 +64,8 @@ if [ ! -d "/tmp/trimui_inputd" ]; then
 fi
 
 # Add device specific Retroarch Binary
-RA_BIN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch-tui"
-RA_MD5="$(cat "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch-tui.md5")"
+RA_BIN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-tui"
+RA_MD5="$(cat "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-tui.md5")"
 RA_TARGET="/usr/bin/retroarch"
 
 if [ -f "$RA_TARGET" ]; then

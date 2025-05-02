@@ -61,8 +61,8 @@ fi
 /opt/muos/device/current/script/speaker.sh &
 
 # Add device specific Retroarch Binary
-RA_BIN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch-rg"
-RA_MD5="$(cat "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch-rg.md5")"
+RA_BIN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-rg"
+RA_MD5="$(cat "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-rg.md5")"
 RA_TARGET="/usr/bin/retroarch"
 
 if [ -f "$RA_TARGET" ]; then

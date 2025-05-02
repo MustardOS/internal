@@ -13,9 +13,36 @@ FILE=${3%/}
 	LOG_INFO "$0" 0 "FILE" "$FILE"
 ) &
 
-PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp"
-HOME="$PPSSPP_DIR"
-export HOME
+
+case "$(GET_VAR "device" "board/name")" in
+    rg*) PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp/rg"
+        if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
+            SDL_HQ_SCALER=2
+            SDL_ROTATION=0
+            SDL_BLITTER_DISABLED=1
+        else
+            SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+            SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+            SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+        fi
+        export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+
+        sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini" ;;
+    tui*) PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp/tui" 
+		ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
+		FILE=$(echo "$FILE" | sed "s|^/mnt/union|$ROM_MOUNT|")
+		export PVR_DEBUG="enable_memory_model,disable_texture_merging,force_16bpp"
+        export __PVR_SYNC_DEBUG=2
+        echo 1 >/sys/module/pvrsrvkm/parameters/DisableClockGating
+        echo 1 >/sys/module/pvrsrvkm/parameters/EnableFWContextSwitch
+        echo 1 >/sys/module/pvrsrvkm/parameters/EnableSoftResetContextSwitch
+        echo 0 >/sys/module/pvrsrvkm/parameters/PVRDebugLevel
+        export LD_LIBRARY_PATH="$PPSSPP_DIR/lib_tui:$LD_LIBRARY_PATH"
+        rm -rf "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/CACHE/"* ;;
+esac
+
+export HOME="$PPSSPP_DIR"
+export XDG_CONFIG_HOME="$HOME/.config"
 
 case "$FILE" in
 	*.psp)
@@ -39,25 +66,11 @@ case "$FILE" in
 		;;
 esac
 
-if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
-	SDL_HQ_SCALER=2
-	SDL_ROTATION=0
-	SDL_BLITTER_DISABLED=1
-else
-	SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
-	SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
-	SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
-fi
-
-export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
-
 cd "$PPSSPP_DIR" || exit
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
 SET_VAR "system" "foreground_process" "PPSSPP"
-
-sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
 
 SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/opt/muos/device/current/control/gamecontrollerdb_retro.txt") ./PPSSPP --pause-menu-exit "$FILE"
 

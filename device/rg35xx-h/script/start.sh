@@ -48,3 +48,19 @@ if [ "$(GET_VAR "global" "settings/advanced/thermal")" -eq 1 ]; then
 		fi
 	done
 fi
+
+# Add device specific Retroarch Binary
+RA_BIN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch-rg"
+RA_MD5="$(cat "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch-rg.md5")"
+RA_TARGET="/usr/bin/retroarch"
+
+if [ -f "$RA_TARGET" ]; then
+	CURRENT_MD5=$(md5sum "$RA_TARGET" | awk '{ print $1 }')
+	if [ "$CURRENT_MD5" != "$RA_MD5" ]; then
+		cp -f "$RA_BIN" "$RA_TARGET"
+		chmod +x "$RA_TARGET"
+	fi
+else
+	cp -f "$RA_BIN" "$RA_TARGET"
+	chmod +x "$RA_TARGET"
+fi

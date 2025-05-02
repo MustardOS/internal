@@ -11,6 +11,7 @@
     "Extract": "Extraire",
     "Individual": "Individuel",
     "Info": "Info",
+    "Install": "Installer",
     "Launch": "Lancer",
     "Load": "Charger",
     "Loading…": "Chargement…",
@@ -97,6 +98,7 @@
     "Wi-Fi Network": "Réseau Wi-Fi"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Permet de tester différentes résolutions de thème",
     "Alternative Theme": "Variantes du thème",
     "Background Animation": "Animation d'arrière-plan",
     "Background Music": "Musique de fond",
@@ -127,8 +129,10 @@
     "Middle Right": "Au centre à droite",
     "Navigation Sound": "Sons de navigation",
     "RetroArch Configurations": "Configurations RetroArch",
+    "Screen": "Écran",
     "Theme": "Thème",
     "Theme Picker": "Thèmes muOS",
+    "Theme Resolution": "Résolution du thème",
     "Toggle the background animation of the current selected theme": "Activez/désactivez l'animation d'arrière-plan du thème actuellement sélectionné",
     "Toggle the background music of the frontend - This will stop if content is launched": "Activez/désactivez la musique de fond de l'interface - La musique s'arrêtera au lancement du contenu",
     "Toggle the fade to black animation on content launching": "Activez/désactivez l'animation de fondu noir lors du lancement du contenu",
@@ -144,7 +148,6 @@
     "No Governors Found…": "Aucun gouverneur trouvé…"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "Permet de tester différentes résolutions de thème",
     "Audio Output": "Sortie audio",
     "Colour Depth": "Profondeur de couleur",
     "Colour Range": "Gamme de couleurs",
@@ -157,14 +160,12 @@
     "Over": "Surbalayage",
     "Resolution": "Résolution",
     "Scan Scaling": "Mise à l'échelle",
-    "Screen": "Écran",
     "Select the resolution for HDMI output, such as 720p or 1080p": "Sélectionnez la résolution de la sortie HDMI, telle que 720p ou 1080p",
     "Set the color depth, such as 8-bit or 10-bit": "Définissez la profondeur de couleur, telle que 8-bit ou 10-bit",
     "Set the color range of RGB colour space": "Définissez la gamme de couleurs de l’espace colorimétrique RVB",
     "Set the color space, such as RGB or YUV": "Définissez l'espace colorimétrique, tel que RVB ou YUV",
     "Switch between device speaker or external monitor audio via HDMI connection": "Basculez entre le haut-parleur de la console ou l'audio du moniteur externe via une connexion HDMI",
     "Switch between overscan or underscan to fit the display screen": "Basculez entre le sur-balayage et le sous-balayage pour ajuster l'affichage à l'écran",
-    "Theme Resolution": "Résolution du thème",
     "Under": "Sous-balayage"
   },
   "muxhistory": {

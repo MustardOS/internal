@@ -31,8 +31,6 @@ case "$(GET_VAR "device" "board/name")" in
     tui*) PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp/tui" 
 		ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 		FILE=$(echo "$FILE" | sed "s|^/mnt/union|$ROM_MOUNT|")
-		export PVR_DEBUG="enable_memory_model,disable_texture_merging,force_16bpp"
-        export __PVR_SYNC_DEBUG=2
         echo 1 >/sys/module/pvrsrvkm/parameters/DisableClockGating
         echo 1 >/sys/module/pvrsrvkm/parameters/EnableFWContextSwitch
         echo 1 >/sys/module/pvrsrvkm/parameters/EnableSoftResetContextSwitch

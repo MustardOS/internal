@@ -62,3 +62,19 @@ fi
 if [ ! -d "/tmp/trimui_inputd" ]; then
 	mkdir -p "/tmp/trimui_inputd"
 fi
+
+# Add device specific Retroarch Binary
+RA_BIN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-tui"
+RA_MD5="$(cat "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-tui.md5")"
+RA_TARGET="/usr/bin/retroarch"
+
+if [ -f "$RA_TARGET" ]; then
+	CURRENT_MD5=$(md5sum "$RA_TARGET" | awk '{ print $1 }')
+	if [ "$CURRENT_MD5" != "$RA_MD5" ]; then
+		cp -f "$RA_BIN" "$RA_TARGET"
+		chmod +x "$RA_TARGET"
+	fi
+else
+	cp -f "$RA_BIN" "$RA_TARGET"
+	chmod +x "$RA_TARGET"
+fi

@@ -35,7 +35,7 @@ case "$(GET_VAR "device" "board/name")" in
         echo 1 >/sys/module/pvrsrvkm/parameters/EnableFWContextSwitch
         echo 1 >/sys/module/pvrsrvkm/parameters/EnableSoftResetContextSwitch
         echo 0 >/sys/module/pvrsrvkm/parameters/PVRDebugLevel
-        export LD_LIBRARY_PATH="$PPSSPP_DIR/lib_tui:$LD_LIBRARY_PATH"
+        export LD_LIBRARY_PATH="$PPSSPP_DIR/lib:$LD_LIBRARY_PATH"
         rm -rf "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/CACHE/"* ;;
 esac
 

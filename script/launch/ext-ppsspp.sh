@@ -39,7 +39,8 @@ case "$(GET_VAR "device" "board/name")" in
         rm -rf "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/CACHE/"* ;;
 esac
 
-export HOME="$PPSSPP_DIR"
+HOME="$PPSSPP_DIR"
+export HOME
 export XDG_CONFIG_HOME="$HOME/.config"
 
 case "$FILE" in

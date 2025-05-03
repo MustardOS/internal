@@ -41,8 +41,6 @@ if [ -f "$GPTOKEYB_CONFDIR/$CORE.gptk" ]; then
 		"$GPTOKEYB_DIR/$GPTOKEYB_BIN" -c "$GPTOKEYB_CONFDIR/$CORE.gptk" &
 fi
 
-STOP_BGM
-
 GET_VAR "global" "settings/advanced/led" >"$(GET_VAR "device" "led/normal")"
 GET_VAR "global" "settings/advanced/led" >/tmp/work_led_state
 
@@ -144,8 +142,6 @@ fi
 
 # Filesystem sync
 sync &
-
-CHECK_BGM ignore
 
 DEF_GOV=$(GET_VAR "device" "cpu/default")
 printf '%s' "$DEF_GOV" >"$(GET_VAR "device" "cpu/governor")"

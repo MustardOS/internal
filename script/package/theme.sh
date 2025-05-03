@@ -21,8 +21,6 @@ THEME_ACTIVE_DIR="$THEME_DIR/active"
 BOOTLOGO_MOUNT="$(GET_VAR device storage/boot/mount)"
 
 INSTALL() {
-	[ "$(GET_VAR "global" "settings/general/bgm")" -eq 2 ] && STOP_BGM
-
 	if [ "$THEME_ARG" = "?R" ] && [ "$(GET_VAR global settings/advanced/random_theme)" -eq 1 ]; then
 		THEME=$(find "$THEME_DIR" -name '*.muxthm' | shuf -n 1)
 	else

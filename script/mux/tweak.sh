@@ -28,8 +28,6 @@ fi
 # Check both zram and standard swap
 /opt/muos/script/system/swap.sh &
 
-START_BGM
-
 CARD_MODE_SWITCH() {
 	if [ "$(GET_VAR "global" "settings/advanced/cardmode")" = "noop" ]; then
 		echo "noop" >"/sys/block/$1/queue/scheduler"

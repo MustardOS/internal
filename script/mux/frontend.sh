@@ -125,7 +125,6 @@ LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 cp /opt/muos/log/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
 while :; do
-	CHECK_BGM ignore &
 	pkill -9 -f "gptokeyb" &
 
 	# Reset DPAD<>ANALOGUE switch for H700 devices
@@ -151,7 +150,6 @@ while :; do
 				if [ -s "$APP_GO" ]; then
 					IFS= read -r RUN_APP <"$APP_GO"
 					rm "$APP_GO"
-					STOP_BGM
 					"$(GET_VAR "device" "storage/rom/mount")/MUOS/application/${RUN_APP}/mux_launch.sh"
 					echo appmenu >$ACT_GO
 				fi
@@ -166,11 +164,9 @@ while :; do
 			"info") EXEC_MUX "info" "muxfrontend" ;;
 
 			"credits")
-				STOP_BGM
 				/opt/muos/bin/nosefart /opt/muos/share/media/support.nsf &
 				EXEC_MUX "info" "muxcredits"
 				pkill -9 -f "nosefart" &
-				START_BGM
 				;;
 
 			"reboot") /opt/muos/script/mux/quit.sh reboot frontend ;;

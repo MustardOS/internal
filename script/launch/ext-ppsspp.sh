@@ -41,7 +41,8 @@ esac
 
 HOME="$PPSSPP_DIR"
 export HOME
-export XDG_CONFIG_HOME="$HOME/.config"
+XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CONFIG_HOME
 
 case "$FILE" in
 	*.psp)

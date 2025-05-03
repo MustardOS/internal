@@ -11,6 +11,7 @@
     "Extract": "解凍する",
     "Individual": "個別に指定",
     "Info": "情報",
+    "Install": "Install",
     "Launch": "起動する",
     "Load": "設定を読み込む",
     "Loading…": "読み込み中…",
@@ -26,6 +27,7 @@
     "Rescan": "再検索",
     "Restore": "復元する",
     "Save": "保存して戻る",
+    "Saving…": "Saving…",
     "Select": "選択する",
     "Shutting Down": "電源を切っています",
     "Switch to Information": "情報に切り替える",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "Wi-Fi ネットワーク"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Allows for testing different theme resolutions",
     "Alternative Theme": "バリエーション",
     "Background Animation": "背景アニメーション",
     "Background Music": "背景音楽",
@@ -127,8 +130,10 @@
     "Middle Right": "中段 右側",
     "Navigation Sound": "操作音",
     "RetroArch Configurations": "RetroArch 設定集",
+    "Screen": "Screen",
     "Theme": "テーマ",
     "Theme Picker": "テーマ選択",
+    "Theme Resolution": "Theme Resolution",
     "Toggle the background animation of the current selected theme": "選択中のテーマの背景アニメーションを再生します",
     "Toggle the background music of the frontend - This will stop if content is launched": "背景音楽を再生します - コンテンツを起動すると再生停止します",
     "Toggle the fade to black animation on content launching": "コンテンツ起動時に黒い画像にフェードするアニメーションを再生します",
@@ -144,7 +149,6 @@
     "No Governors Found…": "ガバナーが見つかりませんでした…"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "テーマを異なる解像度でテストします",
     "Audio Output": "音声出力",
     "Colour Depth": "色深度",
     "Colour Range": "色域",
@@ -157,14 +161,12 @@
     "Over": "オーバー",
     "Resolution": "解像度",
     "Scan Scaling": "スキャンスケール",
-    "Screen": "スクリーン",
     "Select the resolution for HDMI output, such as 720p or 1080p": "720p や 1080p など HDMI 出力の解像度を選択します",
     "Set the color depth, such as 8-bit or 10-bit": "8-bit や 10-bit など色深度を設定します",
     "Set the color range of RGB colour space": "RGB 色空間の色域を設定します",
     "Set the color space, such as RGB or YUV": "RGB や YUV など色空間を設定します",
     "Switch between device speaker or external monitor audio via HDMI connection": "内蔵スピーカーと HDMI 接続された機器からの出力を切り替えます",
     "Switch between overscan or underscan to fit the display screen": "ディスプレイに合わせてオーバーまたはアンダースキャンを切り替えます",
-    "Theme Resolution": "テーマ解像度",
     "Under": "アンダー"
   },
   "muxhistory": {

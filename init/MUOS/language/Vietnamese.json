@@ -11,6 +11,7 @@
     "Extract": "Giải nén",
     "Individual": "Nội dung",
     "Info": "Thông tin",
+    "Install": "Install",
     "Launch": "Khởi chạy",
     "Load": "Tải",
     "Loading…": "Đang tải…",
@@ -26,6 +27,7 @@
     "Rescan": "Quét lại",
     "Restore": "Khôi phục",
     "Save": "Lưu",
+    "Saving…": "Saving…",
     "Select": "Chọn",
     "Shutting Down": "Tắt hệ thống",
     "Switch to Information": "Chuyển sang phần Thông tin",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "Mạng Wi-Fi"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Allows for testing different theme resolutions",
     "Alternative Theme": "Theme Thay thế",
     "Background Animation": "Hoạt ảnh Nền",
     "Background Music": "Nhạc nền",
@@ -127,8 +130,10 @@
     "Middle Right": "Giữa Phải",
     "Navigation Sound": "Âm thanh khi định hướng",
     "RetroArch Configurations": "Các cài đặt cho RetroArch",
+    "Screen": "Screen",
     "Theme": "Theme",
     "Theme Picker": "Chọn Theme",
+    "Theme Resolution": "Theme Resolution",
     "Toggle the background animation of the current selected theme": "Bật tắt hoạt ảnh nền của theme đang chọn",
     "Toggle the background music of the frontend - This will stop if content is launched": "Bật/tắt nhạc nền của giao diện - Phần này sẽ ngừng lại nếu nội dung được khởi chạy",
     "Toggle the fade to black animation on content launching": "Bật/tắt hoạt ảnh làm mờ thành nền đen khi khởi động nội dung",
@@ -144,7 +149,6 @@
     "No Governors Found…": "Không có Hiệu chỉnh nào được tìm thấy …"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "Cho phép việc kiểm thử các độ phân giải khác nhau của theme",
     "Audio Output": "Đầu ra Âm Thanh",
     "Colour Depth": "Độ sâu Màu sắc",
     "Colour Range": "Dải màu",
@@ -157,14 +161,12 @@
     "Over": "Ngoài",
     "Resolution": "Độ phân giải",
     "Scan Scaling": "Tỉ lệ quét",
-    "Screen": "Màn hình",
     "Select the resolution for HDMI output, such as 720p or 1080p": "Lựa chọn độ phân giải cho đầu ra HDMI, như là 720p hay 1080p",
     "Set the color depth, such as 8-bit or 10-bit": "Cài đặt độ sâu màu sắc, như là 8-bit hay 10-bit",
     "Set the color range of RGB colour space": "Cài đặt dải màu cho không gian màu RGB",
     "Set the color space, such as RGB or YUV": "Cài đặt không gian màu, như là RGB hay YUV",
     "Switch between device speaker or external monitor audio via HDMI connection": "Chuyển đổi giữa loa thiết bị hay âm thanh trên màn hình ngoài thông qua kết nối HDMI",
     "Switch between overscan or underscan to fit the display screen": "Chuyển đổi giữa chế độ quét trên hay quét dưới để phù hợp với thiết bị hiển thị",
-    "Theme Resolution": "Độ phân giải Theme",
     "Under": "Dưới"
   },
   "muxhistory": {

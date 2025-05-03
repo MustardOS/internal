@@ -11,6 +11,7 @@
     "Extract": "Extrage",
     "Individual": "Individual",
     "Info": "Informații",
+    "Install": "Install",
     "Launch": "Lansează",
     "Load": "Încarcă",
     "Loading…": "Se încarcă…",
@@ -26,6 +27,7 @@
     "Rescan": "Rescanează",
     "Restore": "Restabilește",
     "Save": "Salvează",
+    "Saving…": "Saving…",
     "Select": "Selectează",
     "Shutting Down": "Se închide",
     "Switch to Information": "Comută la Informații",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "Rețea Wi-Fi"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Allows for testing different theme resolutions",
     "Alternative Theme": "Temă Alternativă",
     "Background Animation": "Animație de Fundal",
     "Background Music": "Muzică de Fundal",
@@ -127,8 +130,10 @@
     "Middle Right": "Mijloc Dreapta",
     "Navigation Sound": "Sunet Navigare",
     "RetroArch Configurations": "Configurații RetroArch",
+    "Screen": "Screen",
     "Theme": "Temă",
     "Theme Picker": "Selector de Teme",
+    "Theme Resolution": "Theme Resolution",
     "Toggle the background animation of the current selected theme": "Comută animația de fundal a temei selectate",
     "Toggle the background music of the frontend - This will stop if content is launched": "Comută muzica de fundal a interfeței - Se va opri dacă este lansat conținut",
     "Toggle the fade to black animation on content launching": "Comută animația de estompare în negru la lansarea conținutului",
@@ -144,7 +149,6 @@
     "No Governors Found…": "Niciun guvernator găsit…"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "Permite testarea diferitelor rezoluții ale temei",
     "Audio Output": "Ieșire Audio",
     "Colour Depth": "Adâncime Culoare",
     "Colour Range": "Gama de Culori",
@@ -157,14 +161,12 @@
     "Over": "Peste",
     "Resolution": "Rezoluție",
     "Scan Scaling": "Scalare Scanare",
-    "Screen": "Ecran",
     "Select the resolution for HDMI output, such as 720p or 1080p": "Selectează rezoluția pentru ieșirea HDMI, cum ar fi 720p sau 1080p",
     "Set the color depth, such as 8-bit or 10-bit": "Setează adâncimea de culoare, cum ar fi 8-bit sau 10-bit",
     "Set the color range of RGB colour space": "Setează gama de culori a spațiului de culoare RGB",
     "Set the color space, such as RGB or YUV": "Setează spațiul de culoare, cum ar fi RGB sau YUV",
     "Switch between device speaker or external monitor audio via HDMI connection": "Comută între difuzorul dispozitivului sau sunetul monitorului extern prin conexiunea HDMI",
     "Switch between overscan or underscan to fit the display screen": "Comută între overscan sau underscan pentru a se potrivi cu ecranul afișajului",
-    "Theme Resolution": "Rezoluție Temă",
     "Under": "Sub"
   },
   "muxhistory": {

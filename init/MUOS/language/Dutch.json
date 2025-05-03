@@ -11,6 +11,7 @@
     "Extract": "Uitpakken",
     "Individual": "Individueel",
     "Info": "Info",
+    "Install": "Install",
     "Launch": "Starten",
     "Load": "Laden",
     "Loading…": "Laden…",
@@ -26,6 +27,7 @@
     "Rescan": "Rescan",
     "Restore": "Herstellen",
     "Save": "Opslaan",
+    "Saving…": "Saving…",
     "Select": "Selecteer",
     "Shutting Down": "Uitschakelen",
     "Switch to Information": "Informatie tonen",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "Wi-Fi Network"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Allows for testing different theme resolutions",
     "Alternative Theme": "Alternative Theme",
     "Background Animation": "Background Animation",
     "Background Music": "Background Music",
@@ -127,8 +130,10 @@
     "Middle Right": "Middle Right",
     "Navigation Sound": "Navigation Sound",
     "RetroArch Configurations": "RetroArch configuratie",
+    "Screen": "Screen",
     "Theme": "Theme",
     "Theme Picker": "Theme Picker",
+    "Theme Resolution": "Theme Resolution",
     "Toggle the background animation of the current selected theme": "Toggle the background animation of the current selected theme",
     "Toggle the background music of the frontend - This will stop if content is launched": "Toggle the background music of the frontend - This will stop if content is launched",
     "Toggle the fade to black animation on content launching": "Toggle the fade to black animation on content launching",
@@ -144,7 +149,6 @@
     "No Governors Found…": "Geen regulatoren gevonden…"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "Maakt het testen van verschillende resoluties voor thema's mogelijk",
     "Audio Output": "Audio uitgave",
     "Colour Depth": "Kleurdiepte",
     "Colour Range": "Kleurengamma",
@@ -157,14 +161,12 @@
     "Over": "Over",
     "Resolution": "Resolutie",
     "Scan Scaling": "Scan-scalering",
-    "Screen": "Scherm",
     "Select the resolution for HDMI output, such as 720p or 1080p": "Resolutie voor HDMI-uitgave selecteren, bv. 720p of 1080p",
     "Set the color depth, such as 8-bit or 10-bit": "Kleurdiepte selecteren, bv. 8 bit of 10 bit",
     "Set the color range of RGB colour space": "Kleurenbereik instellen",
     "Set the color space, such as RGB or YUV": "Kleurenbereik instellen, bv. RGB of YUV",
     "Switch between device speaker or external monitor audio via HDMI connection": "Schakelen tussen audio van de ingebouwde speaker of externe audio via HDMI",
     "Switch between overscan or underscan to fit the display screen": "Gebruik de over- of onderscan om de schermafmetingen aan te passen",
-    "Theme Resolution": "Thema resolutie",
     "Under": "Onder"
   },
   "muxhistory": {

@@ -11,6 +11,7 @@
     "Extract": "Извлечи",
     "Individual": "Индивидуално",
     "Info": "Инфо",
+    "Install": "Install",
     "Launch": "Старт",
     "Load": "Зареди",
     "Loading…": "Зареждане…",
@@ -26,6 +27,7 @@
     "Rescan": "Повторно сканиране",
     "Restore": "Възстанови",
     "Save": "Запази",
+    "Saving…": "Saving…",
     "Select": "Избор",
     "Shutting Down": "Shutting Down",
     "Switch to Information": "Премини към инфо",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "Wi-Fi Network"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Allows for testing different theme resolutions",
     "Alternative Theme": "Alternative Theme",
     "Background Animation": "Background Animation",
     "Background Music": "Background Music",
@@ -127,8 +130,10 @@
     "Middle Right": "Middle Right",
     "Navigation Sound": "Navigation Sound",
     "RetroArch Configurations": "Конфигурации RetroArch",
+    "Screen": "Screen",
     "Theme": "Theme",
     "Theme Picker": "Theme Picker",
+    "Theme Resolution": "Theme Resolution",
     "Toggle the background animation of the current selected theme": "Toggle the background animation of the current selected theme",
     "Toggle the background music of the frontend - This will stop if content is launched": "Toggle the background music of the frontend - This will stop if content is launched",
     "Toggle the fade to black animation on content launching": "Toggle the fade to black animation on content launching",
@@ -144,7 +149,6 @@
     "No Governors Found…": "Не са намерени Регулатори…"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "Позволява тестване на различни резолюции на темите",
     "Audio Output": "Аудио Изход",
     "Colour Depth": "Дълбочина на Цвета",
     "Colour Range": "Цветова Гама",
@@ -157,14 +161,12 @@
     "Over": "Над",
     "Resolution": "Резолюция",
     "Scan Scaling": "Мащабиране на сканиране",
-    "Screen": "Екран",
     "Select the resolution for HDMI output, such as 720p or 1080p": "Избери резолюцията за HDMI изход, например 720p или 1080p",
     "Set the color depth, such as 8-bit or 10-bit": "Задай дълбочината на цвета, например 8-bit или 10-bit",
     "Set the color range of RGB colour space": "Задай цветовия диапазон на RGB цветовото пространство",
     "Set the color space, such as RGB or YUV": "Задавай цветовото пространство, например RGB или YUV",
     "Switch between device speaker or external monitor audio via HDMI connection": "Превключи високоговорител на устройството или звук от външен монитор чрез HDMI връзка",
     "Switch between overscan or underscan to fit the display screen": "Превключи между надсканиране или подсканиране, за да пасне на екрана",
-    "Theme Resolution": "Резолюция на Темата",
     "Under": "Под"
   },
   "muxhistory": {

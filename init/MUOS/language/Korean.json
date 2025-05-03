@@ -11,6 +11,7 @@
     "Extract": "추출하기",
     "Individual": "파일",
     "Info": "상세",
+    "Install": "설치",
     "Launch": "실행",
     "Load": "불러 오기",
     "Loading…": "불러 오는중…",
@@ -26,6 +27,7 @@
     "Rescan": "재스캔",
     "Restore": "복원",
     "Save": "저장",
+    "Saving…": "Saving…",
     "Select": "선택",
     "Shutting Down": "시스템 종료중",
     "Switch to Information": "게임정보로 변경",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "Wi-Fi 네트워크"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "상이한 테마 해상도 테스트 허용",
     "Alternative Theme": "대체 테마",
     "Background Animation": "배경 애니메이션",
     "Background Music": "배경 음악",
@@ -127,8 +130,10 @@
     "Middle Right": "중단 우측에",
     "Navigation Sound": "이동 효과음",
     "RetroArch Configurations": "레트로아크 구성",
+    "Screen": "스크린",
     "Theme": "테마",
     "Theme Picker": "테마 피커",
+    "Theme Resolution": "테마 해상도",
     "Toggle the background animation of the current selected theme": "현재 선택한 테마의 배경 애니메이션 표시 여부 토글",
     "Toggle the background music of the frontend - This will stop if content is launched": "프런트엔드의 배경 음악을 토글\\n- 배경 음악은 콘텐츠가 실행되면 중지됩니다",
     "Toggle the fade to black animation on content launching": "콘텐츠 실행 시 검은색 애니메이션으로 페이드 적용 여부 토글",
@@ -144,7 +149,6 @@
     "No Governors Found…": "거버너가 없음…"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "다양한 테마 해상도 테스트 허용",
     "Audio Output": "오디오 출력",
     "Colour Depth": "색상 심도",
     "Colour Range": "색상 범위",
@@ -157,14 +161,12 @@
     "Over": "오버",
     "Resolution": "해상도",
     "Scan Scaling": "스케일링 스캔",
-    "Screen": "스크린",
     "Select the resolution for HDMI output, such as 720p or 1080p": "720p 또는 1080p 등 HDMI 출력 해상도를 선택",
     "Set the color depth, such as 8-bit or 10-bit": "8비트, 10비트 등 색상 심도를 설정",
     "Set the color range of RGB colour space": "RGB 색상 공간의 색상 범위를 설정",
     "Set the color space, such as RGB or YUV": "RGB 또는 YUV와 같은 색상 공간을 설정",
     "Switch between device speaker or external monitor audio via HDMI connection": "HDMI 연결을 통해 장치 스피커 또는 외부 모니터 오디오 간을 전환",
     "Switch between overscan or underscan to fit the display screen": "디스플레이 화면에 맞게 오버스캔 또는 언더스캔 간을 전환",
-    "Theme Resolution": "테마 해상도",
     "Under": "언더"
   },
   "muxhistory": {

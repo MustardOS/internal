@@ -11,6 +11,7 @@
     "Extract": "Asbhain",
     "Individual": "Duine aonair",
     "Info": "Eolas",
+    "Install": "Suiteáil",
     "Launch": "Seoladh",
     "Load": "Luchtaigh",
     "Loading…": "Á lódáil…",
@@ -26,6 +27,7 @@
     "Rescan": "Athscanadh",
     "Restore": "Athchóirigh",
     "Save": "Sábháil",
+    "Saving…": "Saving…",
     "Select": "Roghnaigh",
     "Shutting Down": "Ag Múchadh",
     "Switch to Information": "Athraigh go Faisnéis",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "Líonra Wi Fi"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Ceadaíonn sé réitigh téama éagsúla a thástáil",
     "Alternative Theme": "Téama Malartach",
     "Background Animation": "Beochan Cúlra",
     "Background Music": "Ceol Cúlra",
@@ -127,8 +130,10 @@
     "Middle Right": "Meán ar dheis",
     "Navigation Sound": "Fuaim Nascleanúna",
     "RetroArch Configurations": "Cumraíochtaí RetroArch",
+    "Screen": "Scáileán",
     "Theme": "Téama",
     "Theme Picker": "Roghnóir Téamaí",
+    "Theme Resolution": "Rún Téama",
     "Toggle the background animation of the current selected theme": "Scoránaigh beochan chúlra an téama roghnaithe reatha",
     "Toggle the background music of the frontend - This will stop if content is launched": "Scoránaigh ceol cúlra an tosaigh - Stopfaidh sé seo má sheoltar ábhar",
     "Toggle the fade to black animation on content launching": "Scoránaigh an beochan céimnithe go dubh ar sheoladh ábhair",
@@ -144,7 +149,6 @@
     "No Governors Found…": "Níor aimsíodh aon Ghobharnóir…"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "Ceadaíonn sé réitigh téamaí éagsúla a thástáil",
     "Audio Output": "Aschur Fuaime",
     "Colour Depth": "Doimhneacht Dath",
     "Colour Range": "Raon Dath",
@@ -157,14 +161,12 @@
     "Over": "Thar",
     "Resolution": "Rún",
     "Scan Scaling": "Scanadh Scálú",
-    "Screen": "Scáileán",
     "Select the resolution for HDMI output, such as 720p or 1080p": "Roghnaigh an taifeach le haghaidh aschur HDMI, mar shampla 720p nó 1080p",
     "Set the color depth, such as 8-bit or 10-bit": "Socraigh an doimhneacht dath, mar shampla 8-giotán nó 10-giotán",
     "Set the color range of RGB colour space": "Socraigh an raon dath de spás dath RGB",
     "Set the color space, such as RGB or YUV": "Socraigh an spás datha, mar shampla RGB nó YUV",
     "Switch between device speaker or external monitor audio via HDMI connection": "Athraigh idir callaire gléis nó fuaim mhonatóra sheachtraigh trí nasc HDMI",
     "Switch between overscan or underscan to fit the display screen": "Athraigh idir overscan nó underscan a d'oirfeadh an scáileán taispeána",
-    "Theme Resolution": "Taifeach Téama",
     "Under": "Faoi"
   },
   "muxhistory": {

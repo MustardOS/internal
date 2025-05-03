@@ -11,6 +11,7 @@
     "Extract": "Estrai",
     "Individual": "Individuale",
     "Info": "Info",
+    "Install": "Install",
     "Launch": "Avvia",
     "Load": "Carica",
     "Loading…": "Caricamento…",
@@ -26,6 +27,7 @@
     "Rescan": "Riscansiona",
     "Restore": "Ripristina",
     "Save": "Salva",
+    "Saving…": "Saving…",
     "Select": "Seleziona",
     "Shutting Down": "Spegnimento",
     "Switch to Information": "Passa alle Informazioni",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "Rete WI-FI"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Allows for testing different theme resolutions",
     "Alternative Theme": "Tema alternativo",
     "Background Animation": "Animazione di Sfondo",
     "Background Music": "Musica di Sottofondo",
@@ -127,8 +130,10 @@
     "Middle Right": "Centro - Destra",
     "Navigation Sound": "Suono Navigazione",
     "RetroArch Configurations": "Configurazioni RetroArch",
+    "Screen": "Screen",
     "Theme": "Tema",
     "Theme Picker": "Scelta Temi",
+    "Theme Resolution": "Theme Resolution",
     "Toggle the background animation of the current selected theme": "Abilita o disabilita l'animazione di sfondo del tema attualmente selezionato",
     "Toggle the background music of the frontend - This will stop if content is launched": "Abilita o disabilita la musica di sottofondo - Questa si disattiverà se un contenuto viene avviato",
     "Toggle the fade to black animation on content launching": "Abilita o disabilita l'animazione di dissolvenza al lancio dei contenuti",
@@ -144,7 +149,6 @@
     "No Governors Found…": "Nessun Governor Trovato…"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "Consente di testare diverse risoluzioni del tema",
     "Audio Output": "Uscita Audio",
     "Colour Depth": "Profondità Colore",
     "Colour Range": "Gamma Colore",
@@ -157,14 +161,12 @@
     "Over": "Over",
     "Resolution": "Risoluzione",
     "Scan Scaling": "Scala Scansione",
-    "Screen": "Schermo",
     "Select the resolution for HDMI output, such as 720p or 1080p": "Seleziona la risoluzione per l'uscita HDMI, ad esempio 720p o 1080p",
     "Set the color depth, such as 8-bit or 10-bit": "Imposta la profondità di colore, ad esempio 8-bit o 10-bit",
     "Set the color range of RGB colour space": "Imposta l'intervallo di colori dello spazio colore RGB",
     "Set the color space, such as RGB or YUV": "Imposta lo spazio colore, ad esempio RGB o YUV",
     "Switch between device speaker or external monitor audio via HDMI connection": "Passa tra l'audio del dispositivo e l'audio del monitor esterno tramite connessione HDMI",
     "Switch between overscan or underscan to fit the display screen": "Passa tra overscan o underscan per adattare lo schermo del display",
-    "Theme Resolution": "Risoluzione del Tema",
     "Under": "Under"
   },
   "muxhistory": {

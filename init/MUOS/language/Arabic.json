@@ -11,6 +11,7 @@
     "Extract": "إستخراج",
     "Individual": "فرد",
     "Info": "معلومات",
+    "Install": "Install",
     "Launch": "تشغيل",
     "Load": "حمّل",
     "Loading…": "جاري التحميل…",
@@ -26,6 +27,7 @@
     "Rescan": "أعد المسح",
     "Restore": "إستعد",
     "Save": "حفظ",
+    "Saving…": "Saving…",
     "Select": "تحديد",
     "Shutting Down": "يتم إيقاف التشغيل",
     "Switch to Information": "عرض المعلومات",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "شبكة Wi-Fi"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Allows for testing different theme resolutions",
     "Alternative Theme": "الثيمات بديلة",
     "Background Animation": "رسوم متحركة خلفية",
     "Background Music": "موسيقى خلفية",
@@ -127,8 +130,10 @@
     "Middle Right": "وسط اليمين",
     "Navigation Sound": "صوت التنقل",
     "RetroArch Configurations": "إعدادات RetroArch",
+    "Screen": "Screen",
     "Theme": "ثيم",
     "Theme Picker": "أداة اختيار الثيم",
+    "Theme Resolution": "Theme Resolution",
     "Toggle the background animation of the current selected theme": "تبديل الرسوم المتحركة الخلفية للثيم المحدد",
     "Toggle the background music of the frontend - This will stop if content is launched": "تبديل الموسيقى الخلفية للواجهة الأمامية - سيتوقف هذا إذا تم تشغيل أي محتوى",
     "Toggle the fade to black animation on content launching": "تبديل تأثير التلاشي إلى الأسود عند تشغيل المحتوى",
@@ -144,7 +149,6 @@
     "No Governors Found…": "لم يتم العثور على أي منظم…"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "سمح باختبار دقة ثيمات مختلفة",
     "Audio Output": "مخرج الصوت",
     "Colour Depth": "عمق اللون",
     "Colour Range": "مدى اللون",
@@ -157,14 +161,12 @@
     "Over": "تحجيم زائد",
     "Resolution": "دقة الشاشة",
     "Scan Scaling": "تحجيم المسح",
-    "Screen": "الشاشة",
     "Select the resolution for HDMI output, such as 720p or 1080p": "حدد الدقة لمخرج HDMI، مثل 720p أو 1080p",
     "Set the color depth, such as 8-bit or 10-bit": "ضبط عمق اللون، مثل 8bits أو 10bits",
     "Set the color range of RGB colour space": "تعيين مدى اللون لفراغ اللون RGB",
     "Set the color space, such as RGB or YUV": "تعيين فراغ اللون، مثل RGB أو YUV",
     "Switch between device speaker or external monitor audio via HDMI connection": "التبديل بين مكبر صوت الجهاز أو صوت الشاشة الخارجية عبر اتصال HDMI",
     "Switch between overscan or underscan to fit the display screen": "التبديل بين المسح الزائد أو المسح الناقص لتناسب شاشة العرض",
-    "Theme Resolution": "دقة الثيم",
     "Under": "تحجيم ناقص"
   },
   "muxhistory": {

@@ -11,6 +11,7 @@
     "Extract": "解包",
     "Individual": "仅该文件",
     "Info": "信息",
+    "Install": "Install",
     "Launch": "启动",
     "Load": "加载",
     "Loading…": "正在加载……",
@@ -26,6 +27,7 @@
     "Rescan": "重新扫描",
     "Restore": "恢复",
     "Save": "保存",
+    "Saving…": "Saving…",
     "Select": "选择",
     "Shutting Down": "正在关机",
     "Switch to Information": "切换到文字信息",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "Wi-Fi网络"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Allows for testing different theme resolutions",
     "Alternative Theme": "自选主题",
     "Background Animation": "背景动画",
     "Background Music": "背景音乐",
@@ -127,8 +130,10 @@
     "Middle Right": "正右",
     "Navigation Sound": "前端音效",
     "RetroArch Configurations": "RetroArch配置",
+    "Screen": "Screen",
     "Theme": "主题",
     "Theme Picker": "主题选择",
+    "Theme Resolution": "Theme Resolution",
     "Toggle the background animation of the current selected theme": "设置背景动画开关",
     "Toggle the background music of the frontend - This will stop if content is launched": "设置前端背景音乐开关（游玩内容时音乐关闭）",
     "Toggle the fade to black animation on content launching": "设置淡出到黑屏效果开关",
@@ -144,7 +149,6 @@
     "No Governors Found…": "未找到能耗管理选项"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "允许测试适配主题的不同分辨率",
     "Audio Output": "音频输出",
     "Colour Depth": "色深",
     "Colour Range": "色彩动态范围",
@@ -157,14 +161,12 @@
     "Over": "过扫描",
     "Resolution": "分辨率",
     "Scan Scaling": "扫描缩放",
-    "Screen": "屏幕",
     "Select the resolution for HDMI output, such as 720p or 1080p": "选择HDMI输出分辨率，比如720p或1080p",
     "Set the color depth, such as 8-bit or 10-bit": "选择HDMI输出色深为8位或10位",
     "Set the color range of RGB colour space": "选择RGB色域范围",
     "Set the color space, such as RGB or YUV": "选择RGB或者YUV色域",
     "Switch between device speaker or external monitor audio via HDMI connection": "选择音频输出通道",
     "Switch between overscan or underscan to fit the display screen": "选择HDMI输出过/欠扫描以对齐画面",
-    "Theme Resolution": "主题分辨率",
     "Under": "欠扫描"
   },
   "muxhistory": {

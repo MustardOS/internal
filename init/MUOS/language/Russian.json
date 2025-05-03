@@ -11,6 +11,7 @@
     "Extract": "Извлечь",
     "Individual": "К файлу",
     "Info": "Инфо",
+    "Install": "Установить",
     "Launch": "Запуск",
     "Load": "Загрузить",
     "Loading…": "Загрузка…",
@@ -26,6 +27,7 @@
     "Rescan": "Повторный поиск",
     "Restore": "Восстановить",
     "Save": "Сохранить",
+    "Saving…": "Saving…",
     "Select": "Выбрать",
     "Shutting Down": "Выключение",
     "Switch to Information": "Перейти к информации",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "Сеть Wi-Fi"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Позволяет протестировать разные разрешения темы",
     "Alternative Theme": "Альтернативная тема",
     "Background Animation": "Фоновая анимация",
     "Background Music": "Фоновая музыка",
@@ -127,8 +130,10 @@
     "Middle Right": "По центру справа",
     "Navigation Sound": "Звуки навигации",
     "RetroArch Configurations": "Конфигурации для RetroArch",
+    "Screen": "Экранное",
     "Theme": "Тема",
     "Theme Picker": "Выбор темы",
+    "Theme Resolution": "Разрешение темы",
     "Toggle the background animation of the current selected theme": "Воспроизведение фоновой анимацию текущей темы",
     "Toggle the background music of the frontend - This will stop if content is launched": "Воспроизведение фоновой музыку в интерфейсе - Она остановится при запуске игр",
     "Toggle the fade to black animation on content launching": "Воспроизведение анимации затухания при запуске игр",
@@ -144,7 +149,6 @@
     "No Governors Found…": "Регуляторы не найдены…"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "Тестирование разных разрешения для тем",
     "Audio Output": "Аудио выход",
     "Colour Depth": "Глубина цвета",
     "Colour Range": "Цветовой диапазон",
@@ -157,14 +161,12 @@
     "Over": "C вылетом",
     "Resolution": "Разрешение",
     "Scan Scaling": "Масштабирование изображения",
-    "Screen": "Экран",
     "Select the resolution for HDMI output, such as 720p or 1080p": "Выбор разрешения HDMI выхода, например 720р или 1080р",
     "Set the color depth, such as 8-bit or 10-bit": "Настройка глубины цвета, например 8 бит или 10 бит",
     "Set the color range of RGB colour space": "Настройка диапазона цветового пространства RGB",
     "Set the color space, such as RGB or YUV": "Настройка цветового пространства, например RGB или YUV",
     "Switch between device speaker or external monitor audio via HDMI connection": "Выбор между динамиком устройства и звуком внешнего монитора через HDMI-подключение",
     "Switch between overscan or underscan to fit the display screen": "Выбор вылета развертки для соответствия изображения экрану",
-    "Theme Resolution": "Разрешение темы",
     "Under": "Без вылета"
   },
   "muxhistory": {

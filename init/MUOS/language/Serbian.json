@@ -11,6 +11,7 @@
     "Extract": "Raspakuj",
     "Individual": "Pojedinačno",
     "Info": "Info",
+    "Install": "Install",
     "Launch": "Pokreni",
     "Load": "Učitaj",
     "Loading…": "Učitavanje…",
@@ -26,6 +27,7 @@
     "Rescan": "Ponovo skeniraj",
     "Restore": "Obnovi",
     "Save": "Sačuvaj",
+    "Saving…": "Saving…",
     "Select": "Selektuj",
     "Shutting Down": "Gašenje",
     "Switch to Information": "Promeni na informaciju",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "Wi-Fi Mreža"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Allows for testing different theme resolutions",
     "Alternative Theme": "Alternativne teme",
     "Background Animation": "Pozadinska animacija",
     "Background Music": "Pozadinska muzika",
@@ -127,8 +130,10 @@
     "Middle Right": "Sredina Desno",
     "Navigation Sound": "Zvuk kretanja kroz interfejs",
     "RetroArch Configurations": "RetroArch podešavanja",
+    "Screen": "Screen",
     "Theme": "Teme",
     "Theme Picker": "Izbor teme",
+    "Theme Resolution": "Theme Resolution",
     "Toggle the background animation of the current selected theme": "Uključi/isključi animaciju pozadine trenutno odabrane teme",
     "Toggle the background music of the frontend - This will stop if content is launched": "Uključi/isključi pozadinsku muziku frontenda – Muzika će se automatski zaustaviti prilikom pokretanja sadržaja",
     "Toggle the fade to black animation on content launching": "Uključi/isključi animaciju postupnog zatamnjivanja prilikom pokretanja sadržaja",
@@ -144,7 +149,6 @@
     "No Governors Found…": "Nema pronađenih guvernera…"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "Omogućava testiranje različitih rezolucija tema",
     "Audio Output": "Audio izlaz",
     "Colour Depth": "Dubina boje",
     "Colour Range": "Spektar boja",
@@ -157,14 +161,12 @@
     "Over": "Over",
     "Resolution": "Rezolucija",
     "Scan Scaling": "Skeniraj skaliranje",
-    "Screen": "Ekran",
     "Select the resolution for HDMI output, such as 720p or 1080p": "Izaberite rezoluciju za HDMI izlaz, kao što je 720p ili 1080p",
     "Set the color depth, such as 8-bit or 10-bit": "Postavite dubinu boje, kao što je 8-bitna ili 10-bitna",
     "Set the color range of RGB colour space": "Postavite opseg boja RGB kolor palete",
     "Set the color space, such as RGB or YUV": "Postavite kolor paletu, kao što su RGB ili YUV",
     "Switch between device speaker or external monitor audio via HDMI connection": "Prebacite između zvučnika uređaja ili spoljnog monitora putem HDMI veze",
     "Switch between overscan or underscan to fit the display screen": "Prebaci između overscan i underscan opcija za optimizaciju prikaza na ekranu",
-    "Theme Resolution": "Podešavanje rezolucije teme",
     "Under": "Under"
   },
   "muxhistory": {

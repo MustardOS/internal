@@ -11,6 +11,7 @@
     "Extract": "Rozbalit",
     "Individual": "Individuální",
     "Info": "Informace",
+    "Install": "Instalovat",
     "Launch": "Spustit",
     "Load": "Nahrát",
     "Loading…": "Načítání…",
@@ -26,6 +27,7 @@
     "Rescan": "Znovu proskenovat",
     "Restore": "Obnovit",
     "Save": "Uložit",
+    "Saving…": "Saving…",
     "Select": "Vybrat",
     "Shutting Down": "Vypínání",
     "Switch to Information": "Přepněte na Informace",
@@ -97,6 +99,7 @@
     "Wi-Fi Network": "Wi-Fi síť"
   },
   "muxcustom": {
+    "Allows for testing different theme resolutions": "Umožňuje testování různých rozlišení témat",
     "Alternative Theme": "Alternativní Téma",
     "Background Animation": "Animace na pozadí",
     "Background Music": "Hudba na pozadí",
@@ -127,8 +130,10 @@
     "Middle Right": "Uprostřed vpravo",
     "Navigation Sound": "Zvuk navigace",
     "RetroArch Configurations": "Konfigurace RetroArch",
+    "Screen": "Obrazovka",
     "Theme": "Téma",
     "Theme Picker": "Výběr motivu",
+    "Theme Resolution": "Rozlišení motivu",
     "Toggle the background animation of the current selected theme": "Přepnout animaci na pozadí aktuálně vybraného motivu",
     "Toggle the background music of the frontend - This will stop if content is launched": "Přepnout hudbu na pozadí frontendu – toto se zastaví, pokud se spustí obsah",
     "Toggle the fade to black animation on content launching": "Přepněte animaci prolínání na černou při spouštění obsahu",
@@ -144,7 +149,6 @@
     "No Governors Found…": "Nebyl nalezen žádný regulator…"
   },
   "muxhdmi": {
-    "Allows for testing different theme resolutions": "Umožňuje testování různých rozlišení témat",
     "Audio Output": "Zvukový výstup",
     "Colour Depth": "Barevná hloubka",
     "Colour Range": "Barevný rozsah",
@@ -157,14 +161,12 @@
     "Over": "Nad",
     "Resolution": "Rozlišení",
     "Scan Scaling": "Měřítko skenování",
-    "Screen": "Obrazovka",
     "Select the resolution for HDMI output, such as 720p or 1080p": "Vyberte rozlišení pro výstup HDMI, například 720p nebo 1080p",
     "Set the color depth, such as 8-bit or 10-bit": "Nastavte barevnou hloubku, například 8-bit nebo 10-bit",
     "Set the color range of RGB colour space": "Nastavte rozsah barev barevného prostoru RGB",
     "Set the color space, such as RGB or YUV": "Nastavte barevný prostor, například RGB nebo YUV",
     "Switch between device speaker or external monitor audio via HDMI connection": "Přepínejte mezi reproduktorem zařízení nebo zvukem externího monitoru prostřednictvím připojení HDMI",
     "Switch between overscan or underscan to fit the display screen": "Přepínejte mezi přeskenováním a podskenováním, aby se přizpůsobilo obrazovce displeje",
-    "Theme Resolution": "Rozlišení motivu",
     "Under": "Pod"
   },
   "muxhistory": {

@@ -29,16 +29,7 @@ echo "root" >$EX_CARD
 LAST_PLAY=$(cat "/opt/muos/config/lastplay.txt")
 
 LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
-DEF_GOV=$(GET_VAR "device" "cpu/default")
-printf '%s' "$DEF_GOV" >"$(GET_VAR "device" "cpu/governor")"
-if [ "$DEF_GOV" = ondemand ]; then
-	GET_VAR "device" "cpu/min_freq" >"$(GET_VAR "device" "cpu/min_freq")"
-	GET_VAR "device" "cpu/max_freq" >"$(GET_VAR "device" "cpu/max_freq")"
-	GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
-	GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"
-	GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
-	GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
-fi
+SET_DEFAULT_GOVERNOR
 
 if [ $SKIP -eq 0 ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"

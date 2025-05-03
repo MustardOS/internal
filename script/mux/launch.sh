@@ -143,16 +143,7 @@ fi
 # Filesystem sync
 sync &
 
-DEF_GOV=$(GET_VAR "device" "cpu/default")
-printf '%s' "$DEF_GOV" >"$(GET_VAR "device" "cpu/governor")"
-if [ "$DEF_GOV" = ondemand ]; then
-	GET_VAR "device" "cpu/min_freq" >"$(GET_VAR "device" "cpu/min_freq")"
-	GET_VAR "device" "cpu/max_freq" >"$(GET_VAR "device" "cpu/max_freq")"
-	GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
-	GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"
-	GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
-	GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
-fi
+SET_DEFAULT_GOVERNOR
 
 echo 1 >"$(GET_VAR "device" "led/normal")"
 echo 1 >/tmp/work_led_state

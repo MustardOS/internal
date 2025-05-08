@@ -33,6 +33,7 @@ case "$(GET_VAR "device" "board/name")" in
 
 		sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' \
 			"$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
+   		rm -f "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/FailedGraphicsBackends.txt"
 		;;
 	tui*)
 		PPSSPP_DIR="${PPSSPP_DIR}/tui"

@@ -1,15 +1,15 @@
 #!/bin/sh
-# HELP: Clear Favourites
+# HELP: Clear Collections
 # ICON: clear
 
 . /opt/muos/script/var/func.sh
 
 FRONTEND stop
 
-MUOS_FAV_DIR="/run/muos/storage/info/favourite"
+MUOS_COLL_DIR="/run/muos/storage/info/collection"
 
-echo "Deleting Favourite Files"
-rm -rf "${MUOS_FAV_DIR:?}"/*
+echo "Deleting Collection Files"
+rm -rf "${MUOS_COLL_DIR:?}"/*
 
 echo "Sync Filesystem"
 sync

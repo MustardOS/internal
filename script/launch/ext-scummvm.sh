@@ -58,8 +58,7 @@ cd "$EMUDIR" || exit
 
 extract_gameid() {
 	# Extract gameid from scummvm.ini
-	echo "Extracting gameid" > "/mnt/mmc/MUOS/log/scumm_Add.txt"
-    GAMEID=$(awk -v target_path="$F_PATH/$SUBFOLDER" '
+	GAMEID=$(awk -v target_path="$F_PATH/$SUBFOLDER" '
         /^\[.*\]/ {
             section=$0
             gsub(/^\[/, "", section)

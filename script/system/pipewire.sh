@@ -78,15 +78,15 @@ for TIMEOUT in $(seq 1 30); do
 			wpctl set-default "$DEFAULT_NODE_ID"
 
 			case "$(GET_VAR "global" "settings/advanced/volume")" in
-				"loud") VOLUME="$(GET_VAR "device" "audio/max")"% ;;
-				"soft") VOLUME="35%" ;;
-				"silent") VOLUME="0%" ;;
-				*) VOLUME="$(GET_VAR "global" "settings/general/volume")"% ;;
+				"loud") VOLUME="$(GET_VAR "device" "audio/max")" ;;
+				"soft") VOLUME="35" ;;
+				"silent") VOLUME="0" ;;
+				*) VOLUME="$(GET_VAR "global" "settings/general/volume")" ;;
 			esac
 
-			amixer -c 0 sset "$(GET_VAR "device" "audio/control")" "$(GET_VAR "device" "audio/volume")"% unmute
+			/opt/muos/device/current/input/audio.sh "$VOLUME"
 
-			wpctl set-volume @DEFAULT_AUDIO_SINK@ "$VOLUME"
+			amixer -c 0 sset "$(GET_VAR "device" "audio/control")" "$(GET_VAR "device" "audio/volume")"% unmute
 			wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
 			exit 0

@@ -93,7 +93,7 @@ HALT_SYSTEM() {
 
 		# Run syncthing scanner if enabled
 		if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
-   			SYNCTHING_API=$(cat /run/muos/storage/syncthing/config.xml | grep '<apikey>[^<]*</apikey>' | sed 's/.*<apikey>\([^<]*\)<\/apikey>.*/\1/')
+			SYNCTHING_API=$(cat /run/muos/storage/syncthing/config.xml | grep '<apikey>[^<]*</apikey>' | sed 's/.*<apikey>\([^<]*\)<\/apikey>.*/\1/')
 			curl -X POST -H "X-API-Key: $SYNCTHING_API" "localhost:7070/rest/db/scan"
 		fi
 	} 2>&1 | ts '%Y-%m-%d %H:%M:%S' >>/opt/muos/halt.log
@@ -104,7 +104,7 @@ HALT_SYSTEM() {
 		#
 		# Fork into a new session to avoid muterm getting killed early.
 		# Redirect input so it doesn't get dumped onto muterm's TTY.
-		exec setsid -fw /opt/muos/bin/muterm /opt/muos/script/system/halt.sh "$HALT_CMD" </dev/null
+		exec setsid -fw /opt/muos/extra/muterm /opt/muos/script/system/halt.sh "$HALT_CMD" </dev/null
 	else
 		# Redirect output so it doesn't draw over the splash screen if
 		# we're currently running inside a terminal.

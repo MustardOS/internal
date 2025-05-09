@@ -1,8 +1,9 @@
 {
   "3do": "Panasonic 3DO",
+  "a800": "Atari 8-bit Family",
+  "a2600": "Atari 2600",
   "a5200": "Atari 5200",
   "a7800": "Atari 7800",
-  "a800": "Atari 8-bit Family",
   "amiga": "Commodore Amiga",
   "arcade": "Arcade",
   "atomiswave": "Atomiswave",
@@ -72,11 +73,13 @@
   "tic80": "TIC-80 Tiny Computer",
   "tiger": "Tiger Electronics Handheld",
   "turbografx": "TurboGrafx-16",
+  "turbografxcd": "TurboGrafx CD",
   "vb": "Nintendo - Virtual Boy",
   "vectrex": "GCE Vectrex",
   "wii": "Nintendo - Wii",
   "ws": "WonderSwan",
   "wsc": "WonderSwan Color",
   "x68000": "Sharp X68000",
-  "x68k": "Sharp X68000"
+  "x68k": "Sharp X68000",
+  "zx81": "Sinclair ZX81"
 }

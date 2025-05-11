@@ -5,10 +5,27 @@
 RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 
+# Set ppsspp-sa root directory
+PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp"
+
+# Set ppsspp-sa config locations
+PPSSPP_CONTROL_INI_RG="${PPSSPP_DIR}/rg/.config/ppsspp/PSP/SYSTEM/controls.ini"
+PPSSPP_SYSTEM_INI_RG="${PPSSPP_DIR}/rg/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
+PPSSPP_CONTROL_INI_TUI="${PPSSPP_DIR}/tui/.config/ppsspp/PSP/SYSTEM/controls.ini"
+PPSSPP_SYSTEM_INI_TUI="${PPSSPP_DIR}/tui/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
+
 # Move control.ini for ppsspp standalone
-CONTROL_INI="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp/.config/ppsspp/PSP/SYSTEM/controls.ini"
-if [ ! -f "$CONTROL_INI" ]; then
-	cp "$DEVICE_CONTROL_DIR/ppsspp_controls.ini" "$CONTROL_INI"
+if [ ! -f "$PPSSPP_CONTROL_INI_RG" ]; then
+	cp "$DEVICE_CONTROL_DIR/ppsspp/rg/controls.ini" "$PPSSPP_CONTROL_INI_RG"
+fi
+if [ ! -f "$PPSSPP_SYSTEM_INI_RG" ]; then
+	cp "$DEVICE_CONTROL_DIR/ppsspp/rg/ppsspp.ini" "$PPSSPP_SYSTEM_INI_RG"
+fi
+if [ ! -f "$PPSSPP_CONTROL_INI_TUI" ]; then
+	cp "$DEVICE_CONTROL_DIR/ppsspp/tui/controls.ini" "$PPSSPP_CONTROL_INI_TUI"
+fi
+if [ ! -f "$PPSSPP_SYSTEM_INI_TUI" ]; then
+	cp "$DEVICE_CONTROL_DIR/ppsspp/tui/ppsspp.ini" "$PPSSPP_SYSTEM_INI_TUI"
 fi
 
 # Move mupen64plus-rice.cfg for external mupen64plus

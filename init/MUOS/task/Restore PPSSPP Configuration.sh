@@ -9,10 +9,11 @@ FRONTEND stop
 MOUNT="$(GET_VAR device storage/rom/mount)"
 
 echo "Restoring PPSSPP Configuration"
-rm -f "$MOUNT/MUOS/emulator/ppsspp/rg/.config/ppsspp/PSP/SYSTEM/controls.ini" \
-	  "$MOUNT/MUOS/emulator/ppsspp/rg/.config/ppsspp/PSP/SYSTEM/ppsspp.ini" \
-	  "$MOUNT/MUOS/emulator/ppsspp/tui/.config/ppsspp/PSP/SYSTEM/controls.ini" \
-	  "$MOUNT/MUOS/emulator/ppsspp/tui/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
+DEVICE_PREFIX="rg tui"
+for PREFIX in $DEVICE_PREFIX; do
+    rm -f "$MOUNT/MUOS/emulator/ppsspp/${PREFIX}/.config/ppsspp/PSP/SYSTEM/controls.ini"
+    rm -f "$MOUNT/MUOS/emulator/ppsspp/${PREFIX}/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
+done
 /opt/muos/device/current/script/control.sh
 
 echo "Sync Filesystem"

@@ -30,7 +30,7 @@ SET_CURRENT() {
 		echo 0 >/sys/class/graphics/fb0/blank
 
 		if ! pgrep -f "muxcharge" >/dev/null; then
-			SET_VAR "global" "settings/general/brightness" "$((C_BRIGHT - 2))"
+			SET_VAR "global" "settings/general/brightness" "$C_BRIGHT"
 
 			printf "%d" "$C_BRIGHT" >"$BRIGHT_FILE"
 			echo "Brightness set to $C_BRIGHT ($PERCENTAGE%)"

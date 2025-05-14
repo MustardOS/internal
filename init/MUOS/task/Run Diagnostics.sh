@@ -30,8 +30,13 @@ echo "Collecting Network Information"
 mkdir -p "$OUTPUT_DIR/network"
 ifconfig -a >"$OUTPUT_DIR/network/ifconfig.log" 2>/dev/null
 netstat -tuln >"$OUTPUT_DIR/network/netstat.log" 2>/dev/null
-ping -c 4 8.8.8.8 >"$OUTPUT_DIR/network/ping.log" 2>/dev/null
+ping -c 4 8.8.8.8 >"$OUTPUT_DIR/network/pingGoogle.log" 2>/dev/null  #Google
+ping -c 4 1.1.1.1 >"$OUTPUT_DIR/network/pingCloudflare.log" 2>/dev/null #Cloudflare
+awk '/^nameserver/ { print $2 }' /etc/resolv.conf | while read ns; do
+    ping -c 4 "$ns" >"$OUTPUT_DIR/network/pingLocal.log" 2>/dev/null #Ping local
+done
 route -n >"$OUTPUT_DIR/network/route.log" 2>/dev/null
+cat /etc/resolv.conf >"$OUTPUT_DIR/network/resolv.log" 2>/dev/null
 
 echo "Collecting Filesystem Information"
 mkdir -p "$OUTPUT_DIR/filesystem"
@@ -53,9 +58,21 @@ echo "Collecting Battery Information"
 echo "Capturing Top Processes"
 top -b -n 5 -d 1 >"$OUTPUT_DIR/top.log" 2>/dev/null
 
-echo "Adding Additional muOS Log Files"
+echo "Capturing All Processes"
+ps -ef >"$OUTPUT_DIR/ps.log" 2>/dev/null
+
+echo "Collecting Kernel Messages"
+dmesg > "$OUTPUT_DIR/dmesg.log" 2>/dev/null
+
+echo "Collecting muOS Log Files"
 LOG_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/log"
 [ -d "$LOG_DIR" ] && cp -r "$LOG_DIR" "$OUTPUT_DIR/logs"
+
+echo "Collecting Internal muOS Log Files"
+INT_DIR="/opt/muos"
+cp -r "$INT_DIR/log" "$OUTPUT_DIR/int"
+cp "$INT_DIR/halt.log" "$OUTPUT_DIR/int"
+cp "$INT_DIR/ldconfig.log" "$OUTPUT_DIR/int"
 
 echo "Creating Diagnostic Archive"
 cd "$OUTPUT_DIR" || exit 1

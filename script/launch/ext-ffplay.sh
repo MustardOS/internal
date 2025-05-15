@@ -32,7 +32,7 @@ SET_VAR "system" "foreground_process" "ffplay"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-/usr/bin/ffplay "$FILE"
+/usr/bin/ffplay "$FILE" -fs
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 

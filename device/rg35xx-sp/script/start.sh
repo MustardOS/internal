@@ -8,8 +8,7 @@ if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
 fi
 
-/opt/muos/device/current/input/audio.sh I
-/opt/muos/device/current/input/bright.sh I
+/opt/muos/device/current/input/bright.sh R
 
 if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
 	/opt/muos/device/current/script/hdmi.sh start
@@ -25,8 +24,7 @@ else
 			/opt/muos/device/current/input/bright.sh 10
 			;;
 		*)
-			PREV_BRIGHT=$(cat "/opt/muos/config/brightness.txt")
-			/opt/muos/device/current/input/bright.sh "$PREV_BRIGHT"
+			/opt/muos/device/current/input/bright.sh "$(GET_VAR "global" "settings/general/brightness")"
 			;;
 	esac
 

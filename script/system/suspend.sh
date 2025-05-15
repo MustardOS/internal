@@ -2,7 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-BRIGHT_FILE="/opt/muos/config/brightness.txt"
 RECENT_WAKE="/tmp/recent_wake"
 
 SLEEP() {
@@ -61,7 +60,7 @@ RESUME() {
 	echo 0 >/sys/class/graphics/fb0/blank
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
-	E_BRIGHT="$(cat "$BRIGHT_FILE")"
+	E_BRIGHT="$(GET_VAR "global" "settings/general/brightness")"
 	[ "$E_BRIGHT" -lt 1 ] && E_BRIGHT=90
 	DISPLAY_WRITE lcd0 setbl "$E_BRIGHT"
 

@@ -206,30 +206,28 @@ HDMI_SWITCH() {
 }
 
 # Writes a setting value to the display driver.
-#
 # Usage: DISPLAY_WRITE NAME COMMAND PARAM
 DISPLAY_WRITE() {
 	case "$(GET_VAR "device" "board/name")" in
-		tui* | rg*)
-			printf "%s" "$1" >/sys/kernel/debug/dispdbg/name
-			printf "%s" "$2" >/sys/kernel/debug/dispdbg/command
-			printf "%s" "$3" >/sys/kernel/debug/dispdbg/param
-			echo 1 >/sys/kernel/debug/dispdbg/start
+		rg* | tui*)
+			printf "%s" "$1" >/sys/kernel/debug/dispdbg/name &
+			printf "%s" "$2" >/sys/kernel/debug/dispdbg/command &
+			printf "%s" "$3" >/sys/kernel/debug/dispdbg/param &
+			echo 1 >/sys/kernel/debug/dispdbg/start &
 			;;
 		*) ;;
 	esac
 }
 
 # Reads and prints a setting value from the display driver.
-#
 # Usage: DISPLAY_READ NAME COMMAND
 DISPLAY_READ() {
 	case "$(GET_VAR "device" "board/name")" in
-		tui* | rg*)
-			printf "%s" "$1" >/sys/kernel/debug/dispdbg/name
-			printf "%s" "$2" >/sys/kernel/debug/dispdbg/command
-			echo 1 >/sys/kernel/debug/dispdbg/start
-			cat /sys/kernel/debug/dispdbg/info
+		rg* | tui*)
+			printf "%s" "$1" >/sys/kernel/debug/dispdbg/name &
+			printf "%s" "$2" >/sys/kernel/debug/dispdbg/command &
+			echo 1 >/sys/kernel/debug/dispdbg/start &
+			cat /sys/kernel/debug/dispdbg/info &
 			;;
 		*) ;;
 	esac

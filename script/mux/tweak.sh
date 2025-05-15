@@ -5,7 +5,7 @@
 # hotkey.sh will restart it
 killall muhotkey
 
-C_BRIGHT="$(cat /opt/muos/config/brightness.txt)"
+C_BRIGHT="$(GET_VAR "global" "settings/general/brightness")"
 if [ "$C_BRIGHT" -lt 1 ]; then
 	/opt/muos/device/current/input/bright.sh U
 else

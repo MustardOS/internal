@@ -6,8 +6,6 @@ INHIBIT_NONE=0
 INHIBIT_BOTH=1
 INHIBIT_SLEEP=2
 
-BRIGHT_FILE=/opt/muos/config/brightness.txt
-
 LED_CONTROL=/opt/muos/device/current/script/led_control.sh
 RGBCONF=/run/muos/storage/theme/active/rgb/rgbconf.sh
 
@@ -25,7 +23,7 @@ DISPLAY_IDLE() {
 DISPLAY_ACTIVE() {
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
-	BL="$(cat "$BRIGHT_FILE")"
+	BL="$(GET_VAR "global" "settings/general/brightness")"
 	if [ "$(DISPLAY_READ lcd0 getbl)" -ne "$BL" ]; then
 		DISPLAY_WRITE lcd0 setbl "$BL"
 	fi

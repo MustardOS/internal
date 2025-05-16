@@ -8,7 +8,7 @@ COMMAND=$(basename "$0")
 
 USAGE() {
 	printf "Usage: %s <install|save> <theme>\n" "$COMMAND"
-	FRONTEND stop
+	FRONTEND start picker
 	exit 1
 }
 

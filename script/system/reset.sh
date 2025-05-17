@@ -40,20 +40,22 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Restoring ROM Filesystem"
 
 INIT_SRC="/opt/muos/init"
 PROGRESS_FILE="/tmp/msg_progress"
-
 TMP_LIST="/tmp/file_list.txt"
-: >"$TMP_LIST"
 
-find "$INIT_SRC" -type f >"$TMP_LIST"
+: >"$TMP_LIST"
+: >"$PROGRESS_FILE"
+
+find "$INIT_SRC" ! -type d >"$TMP_LIST"
 TOTAL=$(wc -l <"$TMP_LIST")
 COUNT=0
 LAST_PERCENT=-1
 
-rsync --archive --whole-file --remove-source-files --itemize-changes \
-	"$INIT_SRC/" "$ROM_MOUNT"/ 2>/dev/null |
+LOG_INFO "$0" 0 "FACTORY RESET" "RSync Started"
+
+rsync --archive --whole-file --itemize-changes --outbuf=L "$INIT_SRC/" "$ROM_MOUNT"/ 2>/dev/null |
 	while IFS= read -r LINE; do
 		case "$LINE" in
-			[\>f]*)
+			[\>f]* | [\>c]* | [\>L]* | [\>D]*)
 				COUNT=$((COUNT + 1))
 				PERCENT=$((COUNT * 1000 / TOTAL))
 				PERCENT=$((PERCENT / 10))
@@ -66,8 +68,10 @@ rsync --archive --whole-file --remove-source-files --itemize-changes \
 		esac
 	done
 
-rm -rf "$INIT_SRC"
+LOG_INFO "$0" 0 "FACTORY RESET" "RSync Completed"
+
 echo 100 >"$PROGRESS_FILE"
+rm -rf "$INIT_SRC"
 
 /opt/muos/bin/toybox sleep 5
 touch "/tmp/msg_finish"

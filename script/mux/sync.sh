@@ -2,11 +2,11 @@
 
 . /opt/muos/script/var/func.sh
 
-pkill -STOP muxstorage
+FRONTEND stop
 
 SLEEP_AND_GO() {
 	/opt/muos/bin/toybox sleep 5
-	pkill -CONT muxstorage
+	FRONTEND start storage
 	exit "$1"
 }
 

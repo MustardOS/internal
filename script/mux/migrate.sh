@@ -2,11 +2,11 @@
 
 . /opt/muos/script/var/func.sh
 
-pkill -STOP muxstorage
+FRONTEND stop
 
 SLEEP_AND_GO() {
 	/opt/muos/bin/toybox sleep 5
-	pkill -CONT muxstorage
+	FRONTEND start storage
 	exit "$1"
 }
 
@@ -65,13 +65,13 @@ rsync --archive --ignore-times --itemize-changes --checksum --outbuf=L --log-fil
 	grep --line-buffered '^>f' |
 	/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
 
-# Sync and sleep for a bit - time for a rest!
-printf "Sync Filesystem\n"
-sync
-
 # Rebinding storage paths
 printf "Rebinding Storage Paths\n"
 /opt/muos/script/mount/bind.sh >/dev/null
+
+# Sync and sleep for a bit - time for a rest!
+printf "Sync Filesystem\n"
+sync
 
 printf "All Done!\n"
 SLEEP_AND_GO 0

@@ -13,60 +13,46 @@ ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 rm -f "$STORAGE_RUN/mounted" "$MOUNT_FAILURE"
 mkdir -p "$STORAGE_RUN"
 
-PRIORITY_MOUNT_LIST=""
-for S_LOC in $PRIORITY_LOCS; do
-	mkdir -p "$STORAGE_RUN/$S_LOC"
+MOUNT_STORAGE() {
+	LIST="$1"
+	GROUP="$2"
 
-	if [ -d "$SDCARD_MOUNT/MUOS/$S_LOC" ]; then
-		SRC="$SDCARD_MOUNT/MUOS/$S_LOC"
-	elif [ -d "$ROM_MOUNT/MUOS/$S_LOC" ]; then
-		SRC="$ROM_MOUNT/MUOS/$S_LOC"
-	else
-		echo "$S_LOC" >>"$MOUNT_FAILURE"
-		continue
-	fi
+	for S_LOC in $LIST; do
+		TGT="$STORAGE_RUN/$S_LOC"
+		mkdir -p "$TGT"
 
-	TGT="$STORAGE_RUN/$S_LOC"
-	PRIORITY_MOUNT_LIST="${PRIORITY_MOUNT_LIST}${SRC} ${TGT}
-"
-done
+		if [ -d "$SDCARD_MOUNT/MUOS/$S_LOC" ]; then
+			SRC="$SDCARD_MOUNT/MUOS/$S_LOC"
+			LOG_INFO "$0" 0 "BIND MOUNT" "$GROUP: $S_LOC from SDCARD"
+		elif [ -d "$ROM_MOUNT/MUOS/$S_LOC" ]; then
+			SRC="$ROM_MOUNT/MUOS/$S_LOC"
+			LOG_INFO "$0" 0 "BIND MOUNT" "$GROUP: $S_LOC from ROM"
+		else
+			echo "$S_LOC" >>"$MOUNT_FAILURE"
+			LOG_INFO "$0" 0 "BIND MOUNT" "$GROUP: $S_LOC not found"
+			continue
+		fi
 
-printf "%s" "$PRIORITY_MOUNT_LIST" | while IFS= read -r LINE; do
-	[ -z "$LINE" ] && continue
-	SRC=$(printf "%s\n" "$LINE" | awk '{print $1}')
-	TGT=$(printf "%s\n" "$LINE" | awk '{print $2}')
-	mount -n --bind "$SRC" "$TGT" &
-done
-wait
+		umount "$TGT"
+
+		if mount -n --bind "$SRC" "$TGT"; then
+			LOG_INFO "$0" 0 "BIND MOUNT" "Mounted $SRC -> $TGT"
+		else
+			LOG_INFO "$0" 0 "BIND MOUNT" "FAILED to mount $SRC -> $TGT"
+			echo "$S_LOC" >>"$MOUNT_FAILURE"
+		fi &
+	done
+	wait
+}
+
+LOG_INFO "$0" 0 "BIND MOUNT" "Mounting PRIORITY paths"
+MOUNT_STORAGE "$PRIORITY_LOCS" "PRIORITY"
 
 [ -s "$MOUNT_FAILURE" ] && CRITICAL_FAILURE mount
 touch "$STORAGE_RUN/mounted"
 
-STANDARD_MOUNT_LIST=""
-for S_LOC in $STANDARD_LOCS; do
-	mkdir -p "$STORAGE_RUN/$S_LOC"
-
-	if [ -d "$SDCARD_MOUNT/MUOS/$S_LOC" ]; then
-		SRC="$SDCARD_MOUNT/MUOS/$S_LOC"
-	elif [ -d "$ROM_MOUNT/MUOS/$S_LOC" ]; then
-		SRC="$ROM_MOUNT/MUOS/$S_LOC"
-	else
-		echo "$S_LOC" >>"$MOUNT_FAILURE"
-		continue
-	fi
-
-	TGT="$STORAGE_RUN/$S_LOC"
-	STANDARD_MOUNT_LIST="${STANDARD_MOUNT_LIST}${SRC} ${TGT}
-"
-done
-
-printf "%s" "$STANDARD_MOUNT_LIST" | while IFS= read -r LINE; do
-	[ -z "$LINE" ] && continue
-	SRC=$(printf "%s\n" "$LINE" | awk '{print $1}')
-	TGT=$(printf "%s\n" "$LINE" | awk '{print $2}')
-	mount -n --bind "$SRC" "$TGT" &
-done
-wait
+LOG_INFO "$0" 0 "BIND MOUNT" "Mounting STANDARD paths"
+MOUNT_STORAGE "$STANDARD_LOCS" "STANDARD"
 
 [ -s "$MOUNT_FAILURE" ] && CRITICAL_FAILURE mount
 
@@ -76,20 +62,23 @@ BIND_EMULATOR() {
 	TARGET="$STORAGE_RUN/$1"
 	MOUNT="$ROM_MOUNT/MUOS/emulator/$2"
 	mkdir -p "$TARGET" "$MOUNT"
-	mount -n --bind "$TARGET" "$MOUNT" || CRITICAL_FAILURE mount
+
+	umount "$MOUNT"
+
+	if mount -n --bind "$TARGET" "$MOUNT"; then
+		LOG_INFO "$0" 0 "BIND MOUNT" "Bound emulator path $TARGET -> $MOUNT"
+	else
+		LOG_INFO "$0" 0 "BIND MOUNT" "FAILED to bind emulator path $TARGET -> $MOUNT"
+		CRITICAL_FAILURE mount
+	fi
 }
 
-# Drastic Legacy
+LOG_INFO "$0" 0 "BIND MOUNT" "Binding emulator-specific paths"
+
 BIND_EMULATOR "save/drastic-legacy/backup" "drastic-legacy/backup" &
 BIND_EMULATOR "save/drastic-legacy/savestates" "drastic-legacy/savestates" &
-
-# OpenBOR
 BIND_EMULATOR "save/file/OpenBOR-Ext" "openbor/userdata/saves/openbor" &
 BIND_EMULATOR "screenshot" "openbor/userdata/screenshots/openbor" &
-
-# PICO-8
 BIND_EMULATOR "save/pico8" "pico8/.lexaloffle/pico-8" &
-
-# PPSSPP
 BIND_EMULATOR "save/file/PPSSPP-Ext" "ppsspp/.config/ppsspp/PSP/SAVEDATA" &
 BIND_EMULATOR "save/state/PPSSPP-Ext" "ppsspp/.config/ppsspp/PSP/PPSSPP_STATE" &

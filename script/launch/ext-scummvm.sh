@@ -93,10 +93,7 @@ case "$SCVM" in
     ;;
   *)
     # Game .scummvm file contains gameid entry.
-    if grep -q "^\[$SCVM\]" "$CONFIG"; then
-		# No action required.
-        :
-    else
+    if ! grep -q "^\[$SCVM\]" "$CONFIG"; then
 		# gameid missing from scummvm.ini, adding.
         HOME="$EMUDIR" nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" --add
     fi

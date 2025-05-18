@@ -24,6 +24,7 @@ MOUNT_DEVICE() {
 
 	case "$FS_TYPE" in
 		vfat | exfat) FS_OPTS=rw,utf8,noatime,nofail ;;
+		ext4) FS_OPTS=rw,noatime,nofail ;;
 		*) return ;;
 	esac
 

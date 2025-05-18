@@ -24,6 +24,10 @@ dmesg | grep 'Please run fsck' | while read -r line; do
 					printf "Filesystem is exFAT. Running 'fsck.exfat' on /dev/%s\n" "$DEVICE"
 					fsck.exfat "/dev/$DEVICE" >"$LOGFILE" 2>&1
 					;;
+				ext4)
+					printf "Filesystem is ext4. Running 'fsck.ext4' on /dev/%s\n" "$DEVICE"
+					fsck.ext4 -y "/dev/$DEVICE" > "$LOGFILE" 2>&1
+					;;
 				*)
 					printf "Unknown or unsupported filesystem type '%s' for /dev/%s. Skipping!\n" "$FS_TYPE" "$DEVICE"
 					;;

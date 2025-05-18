@@ -33,21 +33,17 @@ SET_CURRENT() {
 
 case "$1" in
 	U)
-		CURRENT_VL=$(GET_CURRENT)
-		NEW_VL=$((CURRENT_VL + 8))
+		NEW_VL=$(($(GET_CURRENT) + 8))
 		[ "$NEW_VL" -gt "$MAX" ] && NEW_VL=$MAX
 		SET_CURRENT "$NEW_VL"
 		;;
 	D)
-		CURRENT_VL=$(GET_CURRENT)
-		NEW_VL=$((CURRENT_VL - 8))
+		NEW_VL=$(($(GET_CURRENT) - 8))
 		[ "$NEW_VL" -lt "$MIN" ] && NEW_VL=$MIN
 		SET_CURRENT "$NEW_VL"
 		;;
 	[0-9]*)
-		if [ "$1" -ge "$MIN" ] && [ "$1" -le "$MAX" ]; then
-			SET_CURRENT "$1"
-		fi
+		[ "$1" -eq "$1" ] 2>/dev/null && [ "$1" -ge "$MIN" ] && [ "$1" -le "$MAX" ] && SET_CURRENT "$1"
 		;;
 	*)
 		printf "Invalid Argument\n\tU) Increase Volume\n\tD) Decrease Volume\n"

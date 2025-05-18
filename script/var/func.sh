@@ -210,9 +210,9 @@ HDMI_SWITCH() {
 DISPLAY_WRITE() {
 	case "$(GET_VAR "device" "board/name")" in
 		rg* | tui*)
-			printf "%s" "$1" >/sys/kernel/debug/dispdbg/name &
-			printf "%s" "$2" >/sys/kernel/debug/dispdbg/command &
-			printf "%s" "$3" >/sys/kernel/debug/dispdbg/param &
+			printf "%s" "$1" >/sys/kernel/debug/dispdbg/name
+			printf "%s" "$2" >/sys/kernel/debug/dispdbg/command
+			printf "%s" "$3" >/sys/kernel/debug/dispdbg/param
 			echo 1 >/sys/kernel/debug/dispdbg/start &
 			;;
 		*) ;;
@@ -224,9 +224,9 @@ DISPLAY_WRITE() {
 DISPLAY_READ() {
 	case "$(GET_VAR "device" "board/name")" in
 		rg* | tui*)
-			printf "%s" "$1" >/sys/kernel/debug/dispdbg/name &
-			printf "%s" "$2" >/sys/kernel/debug/dispdbg/command &
-			echo 1 >/sys/kernel/debug/dispdbg/start &
+			printf "%s" "$1" >/sys/kernel/debug/dispdbg/name
+			printf "%s" "$2" >/sys/kernel/debug/dispdbg/command
+			echo 1 >/sys/kernel/debug/dispdbg/start
 			cat /sys/kernel/debug/dispdbg/info &
 			;;
 		*) ;;

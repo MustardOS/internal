@@ -2,34 +2,58 @@
 
 . /opt/muos/script/var/func.sh
 
-# Loading SquashFS support
-insmod /lib/modules/squashfs.ko || printf "Failed to load %s module\n" "$KMOD"
-/opt/muos/bin/toybox sleep 0.5
+ACTION=$1
 
-# Loading GPU support
-insmod /lib/modules/mali_kbase.ko || printf "Failed to load %s module\n" "$KMOD"
-/opt/muos/bin/toybox sleep 0.5
-
-# Switch GPU power policy and set to maximum frequency
 GPU_PATH="/sys/devices/platform/gpu"
-echo always_on >"$GPU_PATH/power_policy"
-echo 648000000 >"$GPU_PATH/devfreq/gpu/min_freq"
-echo 648000000 >"$GPU_PATH/devfreq/gpu/max_freq"
+DNS_CONF="/etc/resolv.conf"
+RESOLV_BACKUP="/tmp/resolv.conf.bak"
 
-# Initialise the network module if we have one
-if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
-	NET_MODULE=$(GET_VAR "device" "network/module")
-	NET_IFACE=$(GET_VAR "device" "network/iface")
-	DNS_ADDR=$(GET_VAR "global" "network/dns")
+LOAD_MODULES() {
+	insmod /lib/modules/squashfs.ko
+	insmod /lib/modules/mali_kbase.ko
 
-	# Wait until the network interface is created
-	modprobe --force-modversion "$NET_MODULE"
-	while [ ! -d "/sys/class/net/$NET_IFACE" ]; do /opt/muos/bin/toybox sleep 0.5; done
+	if [ "$(GET_VAR device board/network)" -eq 1 ]; then
+		NET_MODULE=$(GET_VAR device network/module)
+		NET_IFACE=$(GET_VAR device network/iface)
+		DNS_ADDR=$(GET_VAR global network/dns)
 
-	rfkill unblock all
+		modprobe --force-modversion "$NET_MODULE"
+		while [ ! -d "/sys/class/net/$NET_IFACE" ]; do /opt/muos/bin/toybox sleep 0.5; done
 
-	ip link set "$NET_IFACE" up
-	iw dev "$NET_IFACE" set power_save off
+		rfkill unblock all
 
-	echo "nameserver $DNS_ADDR" >/etc/resolv.conf
-fi
+		ip link set "$NET_IFACE" up
+		iw dev "$NET_IFACE" set power_save off
+
+		[ -f "$DNS_CONF" ] && cp "$DNS_CONF" "$RESOLV_BACKUP"
+		echo "nameserver $DNS_ADDR" >"$DNS_CONF"
+	fi
+
+	echo always_on >"$GPU_PATH/power_policy"
+	echo 648000000 >"$GPU_PATH/devfreq/gpu/min_freq"
+	echo 648000000 >"$GPU_PATH/devfreq/gpu/max_freq"
+}
+
+UNLOAD_MODULES() {
+	[ -e "$GPU_PATH/power_policy" ] && echo auto >"$GPU_PATH/power_policy"
+
+	if [ "$(GET_VAR device board/network)" -eq 1 ]; then
+		NET_MODULE=$(GET_VAR device network/module)
+		NET_IFACE=$(GET_VAR device network/iface)
+
+		ip link set "$NET_IFACE" down 2>/dev/null
+		rfkill block all
+		rmmod "$NET_MODULE" 2>/dev/null
+
+		[ -f "$RESOLV_BACKUP" ] && mv "$RESOLV_BACKUP" "$DNS_CONF"
+	fi
+
+	rmmod mali_kbase.ko 2>/dev/null
+	rmmod squashfs.ko 2>/dev/null
+}
+
+case "$ACTION" in
+	load) LOAD_MODULES ;;
+	unload) UNLOAD_MODULES ;;
+	*) echo "Usage: $0 {load|unload}" >&2 && exit 1 ;;
+esac

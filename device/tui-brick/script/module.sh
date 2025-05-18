@@ -2,34 +2,45 @@
 
 . /opt/muos/script/var/func.sh
 
-# Loading SquashFS support
-insmod /lib/modules/squashfs.ko || printf "Failed to load %s module\n" "$KMOD"
-/opt/muos/bin/toybox sleep 0.5
+ACTION=$1
 
-# Loading GPU support
-insmod /lib/modules/mali_kbase.ko || printf "Failed to load %s module\n" "$KMOD"
-/opt/muos/bin/toybox sleep 0.5
+DNS_CONF="/etc/resolv.conf"
+RESOLV_BACKUP="/tmp/resolv.conf.bak"
 
-# Switch GPU power policy and set to maximum frequency
-GPU_PATH="/sys/devices/platform/gpu"
-echo always_on >"$GPU_PATH/power_policy"
-echo 648000000 >"$GPU_PATH/devfreq/gpu/min_freq"
-echo 648000000 >"$GPU_PATH/devfreq/gpu/max_freq"
+LOAD_MODULES() {
+	if [ "$(GET_VAR device board/network)" -eq 1 ]; then
+		NET_MODULE=$(GET_VAR device network/module)
+		NET_IFACE=$(GET_VAR device network/iface)
+		DNS_ADDR=$(GET_VAR global network/dns)
 
-# Initialise the network module if we have one
-if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
-	NET_MODULE=$(GET_VAR "device" "network/module")
-	NET_IFACE=$(GET_VAR "device" "network/iface")
-	DNS_ADDR=$(GET_VAR "global" "network/dns")
+		modprobe --force-modversion "$NET_MODULE"
+		while [ ! -d "/sys/class/net/$NET_IFACE" ]; do /opt/muos/bin/toybox sleep 0.5; done
 
-	# Wait until the network interface is created
-	modprobe --force-modversion "$NET_MODULE"
-	while [ ! -d "/sys/class/net/$NET_IFACE" ]; do /opt/muos/bin/toybox sleep 0.5; done
+		rfkill unblock all
 
-	rfkill unblock all
+		ip link set "$NET_IFACE" up
+		iw dev "$NET_IFACE" set power_save off
 
-	ip link set "$NET_IFACE" up
-	iw dev "$NET_IFACE" set power_save off
+		[ -f "$DNS_CONF" ] && cp "$DNS_CONF" "$RESOLV_BACKUP"
+		echo "nameserver $DNS_ADDR" >"$DNS_CONF"
+	fi
+}
 
-	echo "nameserver $DNS_ADDR" >/etc/resolv.conf
-fi
+UNLOAD_MODULES() {
+	if [ "$(GET_VAR device board/network)" -eq 1 ]; then
+		NET_MODULE=$(GET_VAR device network/module)
+		NET_IFACE=$(GET_VAR device network/iface)
+
+		ip link set "$NET_IFACE" down 2>/dev/null
+		rfkill block all
+		rmmod "$NET_MODULE" 2>/dev/null
+
+		[ -f "$RESOLV_BACKUP" ] && mv "$RESOLV_BACKUP" "$DNS_CONF"
+	fi
+}
+
+case "$ACTION" in
+	load) LOAD_MODULES ;;
+	unload) UNLOAD_MODULES ;;
+	*) echo "Usage: $0 {load|unload}" >&2 && exit 1 ;;
+esac

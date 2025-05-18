@@ -32,6 +32,8 @@ SLEEP() {
 		*) ;;
 	esac
 
+	/opt/muos/device/current/script/module.sh unload
+
 	# We're going in, hold on to your horses!
 	GET_VAR "global" "settings/advanced/state" >"/sys/power/state"
 }
@@ -46,6 +48,8 @@ RESUME() {
 		echo 1 >"/sys/devices/system/cpu/cpu${C}/online"
 		C=$((C + 1))
 	done
+
+	/opt/muos/device/current/script/module.sh load
 
 	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
 		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"

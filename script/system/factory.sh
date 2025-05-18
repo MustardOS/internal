@@ -5,8 +5,6 @@
 LED_RGB="$(GET_VAR "device" "led/rgb")"
 NETWORK_ENABLED="$(GET_VAR "device" "board/network")"
 
-/opt/muos/device/current/script/module.sh
-
 if [ "$LED_RGB" -eq 1 ]; then
 	/opt/muos/device/current/script/led_control.sh 2 255 225 173 1
 fi

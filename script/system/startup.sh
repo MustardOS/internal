@@ -59,7 +59,7 @@ mkdir -p "$DEVICE_CURRENT"
 mount --bind "/opt/muos/device/$BOARD_NAME" "$DEVICE_CURRENT"
 
 LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
-/opt/muos/device/current/script/module.sh &
+/opt/muos/device/current/script/module.sh load &
 
 LOG_INFO "$0" 0 "BOOTING" "Starting Device Management System"
 /sbin/udevd -d || CRITICAL_FAILURE udev

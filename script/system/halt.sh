@@ -157,6 +157,10 @@ HALT_CMD=$1
 shift
 
 {
+	# Unloading kernel modules.
+	printf 'Unloading kernel modules...\n'
+	/opt/muos/device/current/script/module.sh unload
+
 	# Cleanly unmount filesystems to avoid fsck/chkdsk errors.
 	printf 'Stopping union mounts...\n'
 	/opt/muos/script/mount/union.sh stop

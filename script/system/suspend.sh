@@ -32,6 +32,10 @@ SLEEP() {
 		*) ;;
 	esac
 
+	if [ "$HAS_NETWORK" -eq 1 ]; then
+		/opt/muos/script/system/network.sh disconnect
+	fi
+
 	/opt/muos/device/current/script/module.sh unload
 
 	# We're going in, hold on to your horses!
@@ -50,6 +54,10 @@ RESUME() {
 	done
 
 	/opt/muos/device/current/script/module.sh load
+
+	if [ "$HAS_NETWORK" -eq 1 ]; then
+		/opt/muos/script/system/network.sh connect &
+	fi
 
 	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
 		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"

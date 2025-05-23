@@ -9,3 +9,6 @@ Abandoned
 Translated
 Replay
 Complected
+Alternate
+Patched
+Experimental

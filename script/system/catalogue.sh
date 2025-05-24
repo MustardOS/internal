@@ -7,15 +7,15 @@ fi
 
 . /opt/muos/script/var/func.sh
 
-ASSIGN_DIR="$1/MUOS/info/assign/*.ini"
+ASSIGN_DIR="$1/MUOS/info/assign"
 BASE_PATH="/run/muos/storage/info/catalogue"
 TARGET_DIRS="box grid preview text splash"
 EXTRA_DIRS="Application Archive Collection Folder Root Task"
 
-# Create core catalogue directories from assign INI files
-for INI_FILE in $ASSIGN_DIR; do
-	for DIR in $TARGET_DIRS; do
-		mkdir -p "$BASE_PATH/$(PARSE_INI "$INI_FILE" "global" "catalogue")/$DIR"
+# Create core catalogue directories from assign directories
+for A_DIR in "$ASSIGN_DIR"/*; do
+	for T_DIR in $TARGET_DIRS; do
+		mkdir -p "$BASE_PATH/$(basename "$A_DIR")/$T_DIR"
 	done
 done
 

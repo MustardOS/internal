@@ -308,6 +308,8 @@
   },
   "muxoption": {
     "Assign Core": "Assign Core",
+    "Assign Governor": "Assign Governor",
+    "Assign Tag": "Assign Tag",
     "CONTENT OPTION": "CONTENT OPTION",
     "Core": "Core",
     "Current": "Current",
@@ -315,12 +317,14 @@
     "Governor": "Governor",
     "Individual": "Individual",
     "Name": "Name",
+    "None": "None",
     "Not Assigned": "Not Assigned",
     "Search Content": "Search Content",
     "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Set the CPU governor for the selected content or directory",
+    "Set the specific tag of the content selected to change the glyph": "Set the specific tag of the content selected to change the glyph",
     "Set the system core or external emulator for the selected content or directory": "Set the system core or external emulator for the selected content or directory",
-    "System Governor": "System Governor"
+    "Tag": "Tag"
   },
   "muxpass": {
     "PASSCODE": "PASSCODE"
@@ -481,6 +485,11 @@
     "The current, and total, memory usage of the device": "The current, and total, memory usage of the device",
     "The detected CPU type of the device": "The detected CPU type of the device",
     "muOS Version": "muOS Version"
+  },
+  "muxtag": {
+    "Change the tag of your current selected content to make it stand out": "Change the tag of your current selected content to make it stand out",
+    "No Tags Found…": "No Tags Found…",
+    "TAG": "TAG"
   },
   "muxtask": {
     "No Tasks Found": "No Tasks Found",

@@ -4,7 +4,7 @@
 
 ACT_GO=/tmp/act_go
 ROM_GO=/tmp/rom_go
-GVR_GO=/tmp/gvr_go
+GOV_GO=/tmp/gov_go
 MUX_LAUNCHER_AUTH=/tmp/mux_launcher_auth
 
 GPTOKEYB_BIN=gptokeyb2
@@ -44,7 +44,8 @@ fi
 GET_VAR "global" "settings/advanced/led" >"$(GET_VAR "device" "led/normal")"
 GET_VAR "global" "settings/advanced/led" >/tmp/work_led_state
 
-cat "$GVR_GO" >"$(GET_VAR "device" "cpu/governor")"
+cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
+rm -f "$GOV_GO"
 
 # Modify the RetroArch settings for device resolution output
 RA_WIDTH="$(GET_VAR "device" "screen/width")"

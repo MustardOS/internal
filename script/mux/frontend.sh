@@ -6,7 +6,7 @@ DEVICE_BOARD="$(GET_VAR "device" "board/name")"
 
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
-GVR_GO=/tmp/gvr_go
+GOV_GO=/tmp/gov_go
 ROM_GO=/tmp/rom_go
 
 EX_CARD=/tmp/explore_card
@@ -93,11 +93,11 @@ if [ $SKIP -eq 0 ]; then
 
 				CONTENT_GOV="$(basename "$LAST_PLAY" .cfg).gov"
 				if [ -e "$CONTENT_GOV" ]; then
-					printf "%s" "$(cat "$CONTENT_GOV")" >$GVR_GO
+					printf "%s" "$(cat "$CONTENT_GOV")" >$GOV_GO
 				else
 					CONTENT_GOV="$(dirname "$LAST_PLAY")/core.gov"
 					if [ -e "$CONTENT_GOV" ]; then
-						printf "%s" "$(cat "$CONTENT_GOV")" >$GVR_GO
+						printf "%s" "$(cat "$CONTENT_GOV")" >$GOV_GO
 					else
 						LOG_INFO "$0" 0 "FRONTEND" "No governor found for launched content"
 					fi

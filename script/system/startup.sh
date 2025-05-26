@@ -68,6 +68,9 @@ udevadm trigger --type=devices --action=add &
 udevadm settle --timeout=10 || LOG_ERROR "$0" 0 "BOOTING" "Udevadm Settle Failure"
 
 if [ "$FACTORY_RESET" -eq 0 ]; then
+	LOG_INFO "$0" 0 "BOOTING" "Setting RTC Maximum Frequency"
+	echo 2048 >/sys/class/rtc/rtc0/max_user_freq
+
 	LOG_INFO "$0" 0 "BOOTING" "Loading Storage Mounts"
 	/opt/muos/script/mount/start.sh &
 

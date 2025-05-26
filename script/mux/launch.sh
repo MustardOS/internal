@@ -151,6 +151,9 @@ echo 1 >/tmp/work_led_state
 
 cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
 
+# Disable any rumble just in case some core gets stuck!
+echo 0 >"$(GET_VAR "device" "board/rumble")"
+
 killall -q "$GPTOKEYB_BIN"
 
 case "$(GET_VAR "device" "board/name")" in

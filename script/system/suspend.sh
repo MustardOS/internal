@@ -2,64 +2,64 @@
 
 . /opt/muos/script/var/func.sh
 
+# Lonely, oh so lonely...
 RECENT_WAKE="/tmp/recent_wake"
+
+HAS_NETWORK=$(GET_VAR "device" "board/network")
+CPU_GOV_PATH="$(GET_VAR "device" "cpu/governor")"
+CPU_CORES="$(GET_VAR "device" "cpu/cores")"
+LED_RGB="$(GET_VAR "device" "led/rgb")"
+RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
+RUMBLE_SETTING="$(GET_VAR "global" "settings/advanced/rumble")"
+SUSPEND_STATE="$(GET_VAR "global" "settings/advanced/state")"
+DEFAULT_BRIGHTNESS="$(GET_VAR "global" "settings/general/brightness")"
+RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
+SHUTDOWN_TIME_SETTING="$(GET_VAR "global" "settings/power/shutdown")"
 
 SLEEP() {
 	touch "$RECENT_WAKE"
 
 	DISPLAY_WRITE lcd0 setbl "0"
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
-	echo 4 >/sys/class/graphics/fb0/blank
+	echo 4 >"/sys/class/graphics/fb0/blank"
 	touch "/tmp/mux_blank"
 
-	CPU_GOV="$(cat "$(GET_VAR "device" "cpu/governor")")"
-	echo "$CPU_GOV" >/tmp/orig_cpu_gov
-	echo "powersave" >"$CPU_GOV"
+	cat "$CPU_GOV_PATH" >"/tmp/orig_cpu_gov"
+	echo "powersave" >"$CPU_GOV_PATH"
 
-	CORES="$(GET_VAR "device" "cpu/cores")"
 	C=1
-	while [ "$C" -lt "$CORES" ]; do
+	while [ "$C" -lt "$CPU_CORES" ]; do
 		echo 0 >"/sys/devices/system/cpu/cpu${C}/online"
 		C=$((C + 1))
 	done
 
-	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
+	if [ "$LED_RGB" -eq 1 ]; then
 		/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
 	fi
 
-	case "$(GET_VAR "global" "settings/advanced/rumble")" in
-		3 | 5 | 6) RUMBLE "$(GET_VAR "device" "board/rumble")" 0.3 ;;
-		*) ;;
+	case "$RUMBLE_SETTING" in
+		3 | 5 | 6) RUMBLE "$RUMBLE_DEVICE" 0.3 ;;
 	esac
 
-	if [ "$HAS_NETWORK" -eq 1 ]; then
-		/opt/muos/script/system/network.sh disconnect
-	fi
+	[ "$HAS_NETWORK" -eq 1 ] && /opt/muos/script/system/network.sh disconnect
 
 	/opt/muos/device/current/script/module.sh unload
 
-	# We're going in, hold on to your horses!
-	GET_VAR "global" "settings/advanced/state" >"/sys/power/state"
+	echo "$SUSPEND_STATE" >/sys/power/state
 }
 
 RESUME() {
-	CPU_GOV="$(GET_VAR "device" "cpu/governor")"
-	cat "/tmp/orig_cpu_gov" >"$CPU_GOV"
+	cat "/tmp/orig_cpu_gov" >"$CPU_GOV_PATH"
 
-	CORES="$(GET_VAR "device" "cpu/cores")"
 	C=1
-	while [ "$C" -lt "$CORES" ]; do
+	while [ "$C" -lt "$CPU_CORES" ]; do
 		echo 1 >"/sys/devices/system/cpu/cpu${C}/online"
 		C=$((C + 1))
 	done
 
 	/opt/muos/device/current/script/module.sh load
 
-	if [ "$HAS_NETWORK" -eq 1 ]; then
-		/opt/muos/script/system/network.sh connect &
-	fi
-
-	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
+	if [ "$LED_RGB" -eq 1 ]; then
 		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
 		if [ -x "$RGBCONF_SCRIPT" ]; then
 			"$RGBCONF_SCRIPT"
@@ -69,10 +69,10 @@ RESUME() {
 	fi
 
 	rm -f "/tmp/mux_blank"
-	echo 0 >/sys/class/graphics/fb0/blank
+	echo 0 >"/sys/class/graphics/fb0/blank"
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
-	E_BRIGHT="$(GET_VAR "global" "settings/general/brightness")"
+	E_BRIGHT="$DEFAULT_BRIGHTNESS"
 	[ "$E_BRIGHT" -lt 1 ] && E_BRIGHT=90
 	DISPLAY_WRITE lcd0 setbl "$E_BRIGHT"
 
@@ -81,12 +81,13 @@ RESUME() {
 		/opt/muos/bin/toybox sleep 5
 		rm "$RECENT_WAKE"
 	) &
+
+	[ "$HAS_NETWORK" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
 }
 
 [ -f "$RECENT_WAKE" ] && exit 0
 
-SHUTDOWN_TIME="$(GET_VAR "global" "settings/power/shutdown")"
-case "$SHUTDOWN_TIME" in
+case "$SHUTDOWN_TIME_SETTING" in
 	-2) ;;
 	-1)
 		SLEEP
@@ -94,14 +95,17 @@ case "$SHUTDOWN_TIME" in
 		;;
 	2) /opt/muos/script/mux/quit.sh poweroff sleep ;;
 	*)
-		CURRENT_EPOCH=$(cat "$(GET_VAR "device" "board/rtc_wake")"/since_epoch)
-		SHUTDOWN_TIME=$((CURRENT_EPOCH + SHUTDOWN_TIME))
-		echo "$SHUTDOWN_TIME" >"$(GET_VAR "device" "board/rtc_wake")"/wakealarm
+		S_EPOCH="$RTC_WAKE_PATH/since_epoch"
+		W_ALARM="$RTC_WAKE_PATH/wakealarm"
+
+		CURRENT_EPOCH=$(cat "$S_EPOCH")
+		WAKE_EPOCH=$((CURRENT_EPOCH + SHUTDOWN_TIME_SETTING))
+		echo "$WAKE_EPOCH" >"$W_ALARM"
 
 		SLEEP
 
-		CURRENT_TIME=$(cat "$(GET_VAR "device" "board/rtc_wake")"/since_epoch)
-		if [ "$CURRENT_TIME" -ge "$SHUTDOWN_TIME" ]; then
+		CURRENT_TIME=$(cat "$S_EPOCH")
+		if [ "$CURRENT_TIME" -ge "$WAKE_EPOCH" ]; then
 			DISPLAY_WRITE lcd0 setbl "0"
 			echo 4 >/sys/class/graphics/fb0/blank
 			/opt/muos/script/mux/quit.sh poweroff sleep
@@ -109,6 +113,6 @@ case "$SHUTDOWN_TIME" in
 			RESUME
 		fi
 
-		echo 0 >"$(GET_VAR "device" "board/rtc_wake")"/wakealarm
+		echo 0 >"$W_ALARM"
 		;;
 esac

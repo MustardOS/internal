@@ -29,6 +29,17 @@ INSTALL() {
 
 	cp "/opt/muos/device/current/bootlogo.bmp" "$BOOTLOGO_MOUNT/bootlogo.bmp"
 
+	printf "Checking for processes using theme media files...\n"
+	for EXT in ogg wav ttf; do
+		if lsof +D "$THEME_ACTIVE_DIR" 2>/dev/null | grep -i "\.$EXT" >/dev/null; then
+			printf "Killing processes using '%s' files...\n" "$EXT"
+			for PID in $(lsof +D "$THEME_ACTIVE_DIR" 2>/dev/null | grep -i "\.$EXT" | awk '{print $2}' | sort -u); do
+				kill -9 "$PID" 2>/dev/null
+			done
+			/opt/muos/bin/toybox sleep 1
+		fi
+	done
+
 	while [ -d "$THEME_ACTIVE_DIR" ]; do
 		rm -rf "$THEME_ACTIVE_DIR"
 		sync

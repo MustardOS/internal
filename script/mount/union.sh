@@ -16,15 +16,30 @@ USB_MOUNT=$(GET_VAR "device" "storage/usb/mount")
 SDCARD_MOUNT=$(GET_VAR "device" "storage/sdcard/mount")
 ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 
+CHECK_MOUNT() {
+	grep -q " $1 " /proc/mounts
+}
+
 UNION_VALIDATION() {
 	command -v "$UFS_BIN" >/dev/null 2>&1 || {
 		LOG_ERROR "$0" 0 "UNIONFS" "Required binary $UFS_BIN not found"
 		exit 1
 	}
 
-	[ -n "$USB_MOUNT" ] || LOG_ERROR "$0" 0 "UNIONFS" "USB mount point not found"
-	[ -n "$SDCARD_MOUNT" ] || LOG_ERROR "$0" 0 "UNIONFS" "SD card mount point not found"
-	[ -n "$ROM_MOUNT" ] || LOG_ERROR "$0" 0 "UNIONFS" "ROM mount point not found"
+	if [ -n "$USB_MOUNT" ] && ! CHECK_MOUNT "$USB_MOUNT"; then
+		LOG_WARN "$0" 0 "UNIONFS" "USB is not mounted, skipping!"
+		USB_MOUNT=""
+	fi
+
+	if [ -n "$SDCARD_MOUNT" ] && ! CHECK_MOUNT "$SDCARD_MOUNT"; then
+		LOG_WARN "$0" 0 "UNIONFS" "SDCARD is not mounted, skipping!"
+		SDCARD_MOUNT=""
+	fi
+
+	if [ -n "$ROM_MOUNT" ] && ! CHECK_MOUNT "$ROM_MOUNT"; then
+		LOG_ERROR "$0" 0 "UNIONFS" "ROM is not mounted... uh oh!"
+		exit 1
+	fi
 }
 
 UNION_PATH_CREATE() {
@@ -65,10 +80,12 @@ START_UNION() {
 
 STOP_UNION() {
 	for TARGET in "$ROM_TARGET" "$PORT_TARGET"; do
-		if umount "$TARGET"; then
-			LOG_INFO "$0" 0 "UNIONFS" "Union mount at $TARGET stopped successfully"
-		else
-			LOG_ERROR "$0" 0 "UNIONFS" "Failed to stop union mount at $TARGET"
+		if mountpoint -q "$TARGET"; then
+			if umount "$TARGET"; then
+				LOG_INFO "$0" 0 "UNIONFS" "Union mount at $TARGET stopped successfully"
+			else
+				LOG_ERROR "$0" 0 "UNIONFS" "Failed to stop union mount at $TARGET"
+			fi
 		fi
 	done
 }

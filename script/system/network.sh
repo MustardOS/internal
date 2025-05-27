@@ -16,25 +16,43 @@ RETRY_DELAY="${RETRY_DELAY:-2}"
 RETRY_CURR=0
 
 CURRENT_IP="/opt/muos/config/address.txt"
-: >"$CURRENT_IP"
-IP="0.0.0.0"
+DHCP_CONF="/etc/dhcpcd.conf"
 
-[ -z "$SSID" ] && exit 0
-LOG_INFO "$0" 0 "NETWORK" "Starting Network Connection..."
+CALCULATE_IAID() {
+	MAC=$(cat /sys/class/net/"$IFCE"/address)
+	OCT5=$(echo "$MAC" | cut -d: -f5)
+	OCT6=$(echo "$MAC" | cut -d: -f6)
+	IAID=$(printf "0x%02x%02x" 0x"$OCT5" 0x"$OCT6")
 
-pgrep dhcpcd >/dev/null && killall -q dhcpcd
-pgrep wpa_supplicant >/dev/null && killall -q wpa_supplicant
-
-WAIT_IFACE=20
-while [ ! -d "/sys/class/net/$IFCE" ] && [ "$WAIT_IFACE" -gt 0 ]; do
-	LOG_WARN "$0" 0 "NETWORK" "Waiting for interface '%s' to appear... (%ds)" "$IFCE" "$WAIT_IFACE"
-	/opt/muos/bin/toybox sleep 1
-	WAIT_IFACE=$((WAIT_IFACE - 1))
-done
-
-mkdir -p /var/db/dhcpcd || true
+	LOG_INFO "$0" 0 "NETWORK" "Using IAID: %s" "$IAID"
+	sed -i "/^iaid/d" "$DHCP_CONF"
+	echo "iaid $IAID" >>"$DHCP_CONF"
+}
 
 TRY_CONNECT() {
+	: >"$CURRENT_IP"
+	IP="0.0.0.0"
+
+	[ -z "$SSID" ] && exit 0
+	LOG_INFO "$0" 0 "NETWORK" "Starting Network Connection..."
+
+	pgrep dhcpcd >/dev/null && killall -q dhcpcd
+	pgrep wpa_supplicant >/dev/null && killall -q wpa_supplicant
+
+	WAIT_IFACE=20
+	while [ "$WAIT_IFACE" -gt 0 ]; do
+		[ -d "/sys/class/net/$IFCE" ] && break
+
+		LOG_WARN "$0" 0 "NETWORK" "Waiting for interface '%s' to appear... (%ds)" "$IFCE" "$WAIT_IFACE"
+
+		/opt/muos/bin/toybox sleep 1
+		WAIT_IFACE=$((WAIT_IFACE - 1))
+	done
+
+	CALCULATE_IAID
+
+	mkdir -p /var/db/dhcpcd || true
+
 	LOG_INFO "$0" 0 "NETWORK" "Setting '%s' device up" "$IFCE"
 	if ! ip link set dev "$IFCE" up; then
 		LOG_ERROR "$0" 0 "NETWORK" "Failed to bring up interface '$IFCE'"

@@ -19,7 +19,7 @@ CLOSE_CONTENT() {
 		kill -CONT "$FG_PROC_PID" 2>/dev/null
 		# HACK: Let content run for 10ms before SIGTERM to avoid a hang
 		# in RetroArch alsathread driver (due to audio buffer underrun).
-		sleep .01
+		/opt/muos/bin/toybox sleep .1
 		kill "$FG_PROC_PID" 2>/dev/null
 
 		for _ in $(seq 1 40); do
@@ -27,7 +27,7 @@ CLOSE_CONTENT() {
 				printf 'done\n'
 				return
 			fi
-			sleep .25
+			/opt/muos/bin/toybox sleep .25
 		done
 	fi
 

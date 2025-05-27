@@ -52,5 +52,5 @@ while :; do
 		/opt/muos/script/mount/union.sh start
 	fi
 
-	sleep 2
+	/opt/muos/bin/toybox sleep 2
 done &

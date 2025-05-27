@@ -163,7 +163,7 @@ case "$1" in
 
 			RETRY_CURR=$((RETRY_CURR + 1))
 			LOG_WARN "$0" 0 "NETWORK" "Retrying Network Connection (%s/%s)" "$RETRY_CURR" "$RETRIES"
-			sleep "$RETRY_DELAY"
+			/opt/muos/bin/toybox sleep "$RETRY_DELAY"
 		done
 
 		LOG_ERROR "$0" 0 "NETWORK" "All Connection Attempts Failed"

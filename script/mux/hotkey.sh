@@ -87,7 +87,7 @@ DPAD_TOGGLE() {
 					2)
 						echo 0 >"$DPAD_FILE"
 						RUMBLE "$RUMBLE_DEVICE" .1
-						sleep .1
+						/opt/muos/bin/toybox sleep .1
 						RUMBLE "$RUMBLE_DEVICE" .1
 						;;
 				esac

@@ -11,5 +11,5 @@ while :; do
 	if [ "$(cat "$HALL_KEY")" = "0" ]; then
 		/opt/muos/script/system/suspend.sh
 	fi
-	sleep 0.25
+	/opt/muos/bin/toybox sleep 0.25
 done &

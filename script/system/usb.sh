@@ -103,7 +103,7 @@ STOP() {
 
 	# Stop daemon.
 	killall -q adbd umtprd
-	sleep 1
+	/opt/muos/bin/toybox sleep 1
 
 	# Clean up USB function.
 	for FUNCTION in adb mtp; do

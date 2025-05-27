@@ -132,6 +132,11 @@ TRY_CONNECT() {
 
 case "$1" in
 	disconnect)
+		case "$(GET_VAR "device" "board/name")" in
+			tui*) /opt/muos/device/current/script/module.sh unload-network ;;
+			*) ;;
+		esac
+
 		: >"$WPA_CONFIG"
 		: >"$CURRENT_IP"
 
@@ -146,6 +151,11 @@ case "$1" in
 		;;
 
 	connect)
+		case "$(GET_VAR "device" "board/name")" in
+			tui*) /opt/muos/device/current/script/module.sh load-network ;;
+			*) ;;
+		esac
+
 		RETRY_CURR=0
 
 		while [ "$RETRY_CURR" -lt "$RETRIES" ]; do

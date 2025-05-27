@@ -213,7 +213,17 @@ printf 'Disabling swap...\n'
 swapoff -a
 
 printf 'Unmounting filesystems...\n'
-umount -ar
+TMP_MOUNTS="/tmp/mnt_rev"
+
+# Skip / and virtual/ephemeral filesystems
+mount | awk '$3 != "/" && $3 !~ "^/(dev|proc|sys|tmp)" { print $3 }' >"$TMP_MOUNTS"
+
+LINES=$(wc -l <"$TMP_MOUNTS")
+while [ "$LINES" -gt 0 ]; do
+	MNT=$(sed -n "${LINES}p" "$TMP_MOUNTS")
+	umount "$MNT" 2>/dev/null
+	LINES=$((LINES - 1))
+done
 
 printf 'Going down via %s...\n' "$HALT_CMD"
 

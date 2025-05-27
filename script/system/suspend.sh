@@ -106,8 +106,6 @@ case "$SHUTDOWN_TIME_SETTING" in
 
 		CURRENT_TIME=$(cat "$S_EPOCH")
 		if [ "$CURRENT_TIME" -ge "$WAKE_EPOCH" ]; then
-			DISPLAY_WRITE lcd0 setbl "0"
-			echo 4 >/sys/class/graphics/fb0/blank
 			/opt/muos/script/mux/quit.sh poweroff sleep
 		else
 			RESUME

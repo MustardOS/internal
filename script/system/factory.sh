@@ -6,7 +6,12 @@ LED_RGB="$(GET_VAR "device" "led/rgb")"
 NETWORK_ENABLED="$(GET_VAR "device" "board/network")"
 
 if [ "$LED_RGB" -eq 1 ]; then
-	/opt/muos/device/current/script/led_control.sh 2 255 225 173 1
+	case "$(GET_VAR "device" "board/name")" in
+		rg*) /opt/muos/device/current/script/led_control.sh 2 255 225 173 1 ;;
+		tui-brick) /opt/muos/device/current/script/led_control.sh 1 10 225 173 1 225 173 1 225 173 1 225 173 1 225 173 1 ;;
+		tui-spoon) /opt/muos/device/current/script/led_control.sh 1 10 225 173 1 225 173 1 225 173 1 ;;
+		*) ;;
+	esac
 fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Setting date time to default"

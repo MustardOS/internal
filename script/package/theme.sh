@@ -21,11 +21,11 @@ THEME_ACTIVE_DIR="$THEME_DIR/active"
 BOOTLOGO_MOUNT="$(GET_VAR device storage/boot/mount)"
 
 INSTALL() {
-	if [ "$THEME_ARG" = "?R" ] && [ "$(GET_VAR global settings/advanced/random_theme)" -eq 1 ]; then
-		THEME=$(find "$THEME_DIR" -name '*.muxthm' | shuf -n 1)
-	else
+	#if [ "$THEME_ARG" = "?R" ] && [ "$(GET_VAR global settings/advanced/random_theme)" -eq 1 ]; then
+	#	THEME=$(find "$THEME_DIR" -name '*.muxthm' | shuf -n 1)
+	#else
 		THEME="$THEME_DIR/$THEME_ARG.muxthm"
-	fi
+	#fi
 
 	cp "/opt/muos/device/current/bootlogo.bmp" "$BOOTLOGO_MOUNT/bootlogo.bmp"
 

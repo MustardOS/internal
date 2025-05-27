@@ -48,9 +48,7 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Initialising Factory Reset Script"
 killall -q "mpv"
 
 /opt/muos/bin/nosefart /opt/muos/share/media/support.nsf &
-EXEC_MUX "" "muxcredits"
+/opt/muos/extra/muxcredits
 
 SET_VAR "global" "boot/factory_reset" "0"
 SET_VAR "global" "settings/advanced/rumble" "0"
-
-/opt/muos/script/mux/quit.sh reboot frontend

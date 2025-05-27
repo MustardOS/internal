@@ -64,9 +64,6 @@ HALT_SYSTEM() {
 		# Turn on power LED for visual feedback on halt success.
 		echo 1 >"$(GET_VAR "device" "led/normal")"
 
-		# Clear state we never want to persist across reboots.
-		: >/opt/muos/config/address.txt
-
 		# Clear last-played content per Device Startup setting.
 		#
 		# Last Game: Always relaunch on boot.
@@ -98,18 +95,7 @@ HALT_SYSTEM() {
 		fi
 	} 2>&1 | ts '%Y-%m-%d %H:%M:%S' >>/opt/muos/halt.log
 
-	if [ "$HALT_SRC" = frontend ] && [ "$(GET_VAR "global" "settings/advanced/verbose")" -eq 1 ]; then
-		# When "verbose messages" setting is enabled, run the underlying
-		# halt script in muterm so its output is visible on screen.
-		#
-		# Fork into a new session to avoid muterm getting killed early.
-		# Redirect input so it doesn't get dumped onto muterm's TTY.
-		exec setsid -fw /opt/muos/extra/muterm /opt/muos/script/system/halt.sh "$HALT_CMD" </dev/null
-	else
-		# Redirect output so it doesn't draw over the splash screen if
-		# we're currently running inside a terminal.
-		exec /opt/muos/script/system/halt.sh "$HALT_CMD" >/dev/null 2>&1
-	fi
+	exec /opt/muos/script/system/halt.sh "$HALT_CMD" >/dev/null 2>&1 &
 }
 
 [ "$#" -eq 2 ] || USAGE

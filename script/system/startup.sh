@@ -109,7 +109,10 @@ alsactl -U restore
 LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
 /opt/muos/script/system/pipewire.sh &
 
-[ "$FACTORY_RESET" -eq 1 ] && /opt/muos/script/system/factory.sh
+if [ "$FACTORY_RESET" -eq 1 ]; then
+	/opt/muos/script/system/factory.sh
+	/opt/muos/script/system/halt.sh reboot
+fi
 
 LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"
 (chown -R root:root /root && chmod -R 755 /root) &

@@ -5,7 +5,7 @@
 # disks before killing processes, so running programs can't save state).
 
 USAGE() {
-	printf 'Usage: %s {halt|poweroff|reboot}\n' "$0" >&2
+	printf 'Usage: %s {poweroff|reboot}\n' "$0" >&2
 	exit 1
 }
 
@@ -15,7 +15,7 @@ USAGE() {
 [ "$#" -eq 1 ] || USAGE
 
 case "$1" in
-	halt | poweroff | reboot) ;;
+	poweroff | reboot) ;;
 	*) USAGE ;;
 esac
 
@@ -182,6 +182,9 @@ shift
 	#	/opt/muos/script/package/theme.sh install "?R"
 	#fi
 
+	printf 'Disabling swapfile...\n'
+    swapoff -a
+
 	# Sync filesystems before beginning the standard halt sequence. If a
 	# subsequent step hangs (or the user hard resets), syncing here reduces
 	# the likelihood of corrupting muOS configs, RetroArch autosaves, etc.
@@ -203,15 +206,6 @@ shift
 	printf 'Closing log file...\n'
 } 2>&1 | awk '{ cmd="date +\"%Y-%m-%d %H:%M:%S\""; cmd | getline t; close(cmd); print t, $0 }' >>/opt/muos/halt.log
 
-# Sync filesystems before unmounting them. (This should be unnecessary, but
-# sysvinit does it, and the cached writes need to be flushed at some point.)
-printf 'Syncing writes to disk...\n'
-sync
-
-# Disable swap. (It's not enabled by default, but just in case.)
-printf 'Disabling swap...\n'
-swapoff -a
-
 printf 'Unmounting filesystems...\n'
 TMP_MOUNTS="/tmp/mnt_rev"
 
@@ -224,8 +218,6 @@ while [ "$LINES" -gt 0 ]; do
 	umount "$MNT" 2>/dev/null
 	LINES=$((LINES - 1))
 done
-
-printf 'Going down via %s...\n' "$HALT_CMD"
 
 # Final sync and remount read-only before shutdown
 sync

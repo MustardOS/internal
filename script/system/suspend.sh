@@ -91,6 +91,7 @@ case "$SHUTDOWN_TIME_SETTING" in
 	-2) ;;
 	-1)
 		SLEEP
+		/opt/muos/bin/toybox sleep 0.5
 		RESUME
 		;;
 	2) /opt/muos/script/mux/quit.sh poweroff sleep ;;
@@ -103,6 +104,7 @@ case "$SHUTDOWN_TIME_SETTING" in
 		echo "$WAKE_EPOCH" >"$W_ALARM"
 
 		SLEEP
+		/opt/muos/bin/toybox sleep 0.5
 
 		CURRENT_TIME=$(cat "$S_EPOCH")
 		if [ "$CURRENT_TIME" -ge "$WAKE_EPOCH" ]; then

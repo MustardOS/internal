@@ -215,7 +215,17 @@ swapoff -a
 printf 'Unmounting filesystems...\n'
 umount -ar
 
-# Actually halt/shut down/reboot the system. The -f arg makes the command
-# directly run sync/reboot syscalls, not signal init to perform the halt itself.
-printf 'Going down for %s...\n' "$HALT_CMD"
-exec "$HALT_CMD" -f
+printf 'Going down via %s...\n' "$HALT_CMD"
+
+# Final sync and remount read-only before shutdown
+sync
+echo u >/proc/sysrq-trigger
+
+case "$HALT_CMD" in
+	halt | poweroff) echo o >/proc/sysrq-trigger ;;
+	reboot) echo b >/proc/sysrq-trigger ;;
+esac
+
+# If that didn't work, panic the kernel ^_^
+echo 'Sysrq shutdown failed, forcing kernel panic...'
+echo c >/proc/sysrq-trigger

@@ -7,7 +7,7 @@ ACTION=$1
 DNS_CONF="/etc/resolv.conf"
 RESOLV_BACKUP="/tmp/resolv.conf.bak"
 
-LOAD_MODULES() {
+LOAD_NETWORK() {
 	if [ "$(GET_VAR device board/network)" -eq 1 ]; then
 		NET_MODULE=$(GET_VAR device network/module)
 		NET_IFACE=$(GET_VAR device network/iface)
@@ -26,7 +26,7 @@ LOAD_MODULES() {
 	fi
 }
 
-UNLOAD_MODULES() {
+UNLOAD_NETWORK() {
 	if [ "$(GET_VAR device board/network)" -eq 1 ]; then
 		NET_MODULE=$(GET_VAR device network/module)
 		NET_IFACE=$(GET_VAR device network/iface)
@@ -39,8 +39,18 @@ UNLOAD_MODULES() {
 	fi
 }
 
+LOAD_MODULES() {
+	[ "$(GET_VAR device board/network)" -eq 1 ] && LOAD_NETWORK
+}
+
+UNLOAD_MODULES() {
+	[ "$(GET_VAR device board/network)" -eq 1 ] && UNLOAD_NETWORK
+}
+
 case "$ACTION" in
 	load) LOAD_MODULES ;;
 	unload) UNLOAD_MODULES ;;
-	*) echo "Usage: $0 {load|unload}" >&2 && exit 1 ;;
+	load-network) LOAD_NETWORK ;;
+	unload-network) UNLOAD_NETWORK ;;
+	*) echo "Usage: $0 {load|unload|load-network|unload-network}" >&2 && exit 1 ;;
 esac

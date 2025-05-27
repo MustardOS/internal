@@ -8,10 +8,7 @@ GPU_PATH="/sys/devices/platform/gpu"
 DNS_CONF="/etc/resolv.conf"
 RESOLV_BACKUP="/tmp/resolv.conf.bak"
 
-LOAD_MODULES() {
-	insmod /lib/modules/squashfs.ko
-	insmod /lib/modules/mali_kbase.ko
-
+LOAD_NETWORK() {
 	if [ "$(GET_VAR device board/network)" -eq 1 ]; then
 		NET_MODULE=$(GET_VAR device network/module)
 		NET_IFACE=$(GET_VAR device network/iface)
@@ -28,15 +25,9 @@ LOAD_MODULES() {
 		[ -f "$DNS_CONF" ] && cp "$DNS_CONF" "$RESOLV_BACKUP"
 		echo "nameserver $DNS_ADDR" >"$DNS_CONF"
 	fi
-
-	echo always_on >"$GPU_PATH/power_policy"
-	echo 648000000 >"$GPU_PATH/devfreq/gpu/min_freq"
-	echo 648000000 >"$GPU_PATH/devfreq/gpu/max_freq"
 }
 
-UNLOAD_MODULES() {
-	[ -e "$GPU_PATH/power_policy" ] && echo auto >"$GPU_PATH/power_policy"
-
+UNLOAD_NETWORK() {
 	if [ "$(GET_VAR device board/network)" -eq 1 ]; then
 		NET_MODULE=$(GET_VAR device network/module)
 		NET_IFACE=$(GET_VAR device network/iface)
@@ -47,6 +38,23 @@ UNLOAD_MODULES() {
 
 		[ -f "$RESOLV_BACKUP" ] && mv "$RESOLV_BACKUP" "$DNS_CONF"
 	fi
+}
+
+LOAD_MODULES() {
+	insmod /lib/modules/squashfs.ko
+	insmod /lib/modules/mali_kbase.ko
+
+	[ "$(GET_VAR device board/network)" -eq 1 ] && LOAD_NETWORK
+
+	echo always_on >"$GPU_PATH/power_policy"
+	echo 648000000 >"$GPU_PATH/devfreq/gpu/min_freq"
+	echo 648000000 >"$GPU_PATH/devfreq/gpu/max_freq"
+}
+
+UNLOAD_MODULES() {
+	[ -e "$GPU_PATH/power_policy" ] && echo auto >"$GPU_PATH/power_policy"
+
+	[ "$(GET_VAR device board/network)" -eq 1 ] && UNLOAD_NETWORK
 
 	rmmod mali_kbase.ko 2>/dev/null
 	rmmod squashfs.ko 2>/dev/null
@@ -55,5 +63,7 @@ UNLOAD_MODULES() {
 case "$ACTION" in
 	load) LOAD_MODULES ;;
 	unload) UNLOAD_MODULES ;;
-	*) echo "Usage: $0 {load|unload}" >&2 && exit 1 ;;
+	load-network) LOAD_NETWORK ;;
+	unload-network) UNLOAD_NETWORK ;;
+	*) echo "Usage: $0 {load|unload|load-network|unload-network}" >&2 && exit 1 ;;
 esac

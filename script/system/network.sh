@@ -2,12 +2,12 @@
 
 . /opt/muos/script/var/func.sh
 
-ADDR=$(GET_VAR "global" "network/address")
-SUBN=$(GET_VAR "global" "network/subnet")
-SSID=$(GET_VAR "global" "network/ssid")
-GATE=$(GET_VAR "global" "network/gateway")
-TYPE=$(GET_VAR "global" "network/type")
-DDNS=$(GET_VAR "global" "network/dns") # The extra D is for dodecahedron!
+ADDR=$(GET_VAR "config" "network/address")
+SUBN=$(GET_VAR "config" "network/subnet")
+SSID=$(GET_VAR "config" "network/ssid")
+GATE=$(GET_VAR "config" "network/gateway")
+TYPE=$(GET_VAR "config" "network/type")
+DDNS=$(GET_VAR "config" "network/dns") # The extra D is for dodecahedron!
 IFCE=$(GET_VAR "device" "network/iface")
 DRIV=$(GET_VAR "device" "network/type")
 
@@ -15,7 +15,6 @@ RETRIES="${RETRIES:-5}"
 RETRY_DELAY="${RETRY_DELAY:-2}"
 RETRY_CURR=0
 
-CURRENT_IP="/opt/muos/config/address.txt"
 DHCP_CONF="/etc/dhcpcd.conf"
 
 CALCULATE_IAID() {
@@ -30,7 +29,6 @@ CALCULATE_IAID() {
 }
 
 TRY_CONNECT() {
-	: >"$CURRENT_IP"
 	IP="0.0.0.0"
 
 	[ -z "$SSID" ] && exit 0
@@ -100,12 +98,14 @@ TRY_CONNECT() {
 		while [ "$WAIT_IP" -gt 0 ]; do
 			LOG_WARN "$0" 0 "NETWORK" "Waiting for DHCP Lease... (%ds)" "$WAIT_IP"
 			IP=$(ip -4 a show dev "$IFCE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p')
+
 			if [ -n "$IP" ]; then
 				LOG_SUCCESS "$0" 0 "NETWORK" "DHCP Lease Acquired: %s" "$IP"
 				LOG_INFO "$0" 0 "NETWORK" "Resolving Nameserver"
 				DDNS=$(sed -n 's/^nameserver //p' /etc/resolv.conf | head -n1)
 				break
 			fi
+
 			/opt/muos/bin/toybox sleep 1
 			WAIT_IP=$((WAIT_IP - 1))
 		done
@@ -137,13 +137,10 @@ TRY_CONNECT() {
 		LOG_SUCCESS "$0" 0 "NETWORK" "Active Network Connection Found"
 	else
 		LOG_ERROR "$0" 0 "NETWORK" "No Active Network Connection Found"
-		IP="0.0.0.0"
 		return 1
 	fi
 
-	TMP_FILE=$(mktemp)
-	echo "${IP:-0.0.0.0}" >"$TMP_FILE"
-	mv "$TMP_FILE" "$CURRENT_IP"
+	SET_VAR "config" "network/address" "$IP"
 
 	return 0
 }
@@ -151,12 +148,11 @@ TRY_CONNECT() {
 case "$1" in
 	disconnect)
 		case "$(GET_VAR "device" "board/name")" in
-			tui*) /opt/muos/device/current/script/module.sh unload-network ;;
+			tui*) /opt/muos/device/script/module.sh unload-network ;;
 			*) ;;
 		esac
 
 		: >"$WPA_CONFIG"
-		: >"$CURRENT_IP"
 
 		LOG_INFO "$0" 0 "NETWORK" "Clearing Previous DHCP Addresses"
 		rm -rf /var/db/dhcpcd/*
@@ -170,7 +166,7 @@ case "$1" in
 
 	connect)
 		case "$(GET_VAR "device" "board/name")" in
-			tui*) /opt/muos/device/current/script/module.sh load-network ;;
+			tui*) /opt/muos/device/script/module.sh load-network ;;
 			*) ;;
 		esac
 

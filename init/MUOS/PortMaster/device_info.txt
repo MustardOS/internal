@@ -78,10 +78,9 @@ elif [ -f "/app/bin/retrodeck.sh" ]; then
     # RetroDeck
     CFW_NAME="RetroDECK"
     CFW_VERSION=$(grep 'version' "/var/config/retrodeck/retrodeck.cfg" | awk -F= '{print $2}')
-elif [ -f "/opt/muos/config/version.txt" ]; then
-    # muOS - RG35XX Plus/H
+elif [ -f "/opt/muos/config/version" ]; then
     CFW_NAME="muOS"
-    CFW_VERSION=$(head -n1 "/opt/muos/config/version.txt")
+    CFW_VERSION=$(< /opt/muos/config/version)
 elif [ -e "$(which batocera-version)" ]; then
     CFW_NAME="Batocera"
     CFW_VERSION="$(batocera-version | cut -d' ' -f 1)"
@@ -137,8 +136,8 @@ elif [ -f "/boot/boot/batocera.board" ]; then
     DEVICE_NAME=$(tr '[a-z]' '[A-Z]' < /boot/boot/batocera.board)
 elif [ -f "/boot/boot/system.board" ]; then
     DEVICE_NAME=$(tr '[a-z]' '[A-Z]' < /boot/boot/system.board)
-elif [ -f "/opt/muos/config/device.txt" ]; then
-    DEVICE_NAME="$(cat /opt/muos/config/device.txt | tr '[:lower:]' '[:upper:]')"
+elif [ -f "/opt/muos/device/config/board/name" ]; then
+    DEVICE_NAME=$(tr '[:lower:]' '[:upper:]' <"/opt/muos/device/config/board/name")
 elif [ -f "/usr/miyoo/version" ]; then
     DEVICE_NAME="Miyoo Flip"
 elif [ -f "/sys/firmware/devicetree/base/model" ]; then

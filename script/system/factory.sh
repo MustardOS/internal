@@ -7,9 +7,9 @@ NETWORK_ENABLED="$(GET_VAR "device" "board/network")"
 
 if [ "$LED_RGB" -eq 1 ]; then
 	case "$(GET_VAR "device" "board/name")" in
-		rg*) /opt/muos/device/current/script/led_control.sh 2 255 225 173 1 ;;
-		tui-brick) /opt/muos/device/current/script/led_control.sh 1 10 225 173 1 225 173 1 225 173 1 225 173 1 225 173 1 ;;
-		tui-spoon) /opt/muos/device/current/script/led_control.sh 1 10 225 173 1 225 173 1 225 173 1 ;;
+		rg*) /opt/muos/device/script/led_control.sh 2 255 225 173 1 ;;
+		tui-brick) /opt/muos/device/script/led_control.sh 1 10 225 173 1 225 173 1 225 173 1 225 173 1 225 173 1 ;;
+		tui-spoon) /opt/muos/device/script/led_control.sh 1 10 225 173 1 225 173 1 225 173 1 ;;
 		*) ;;
 	esac
 fi
@@ -24,7 +24,7 @@ EXEC_MUX "reset" "muxfrontend"
 printf 0 >"/tmp/msg_progress"
 [ -f "/tmp/msg_finish" ] && rm -f "/tmp/msg_finish"
 
-/opt/muos/extra/muxstart 0 "/opt/muos/config/messages.txt" -d 5
+/opt/muos/extra/muxstart 0 "/opt/muos/share/message.txt" -d 5
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
 /opt/muos/script/mux/hotkey.sh &
@@ -50,5 +50,5 @@ killall -q "mpv"
 /opt/muos/bin/nosefart /opt/muos/share/media/support.nsf &
 /opt/muos/extra/muxcredits
 
-SET_VAR "global" "boot/factory_reset" "0"
-SET_VAR "global" "settings/advanced/rumble" "0"
+SET_VAR "config" "boot/factory_reset" "0"
+SET_VAR "config" "settings/advanced/rumble" "0"

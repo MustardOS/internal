@@ -9,14 +9,14 @@ REFRESH_HDMI() {
 
 SET_DISPLAY_PARAMS() {
 	printf "4 "
-	printf "%s " "$(GET_VAR "global" "settings/hdmi/resolution")"
-	printf "%s " "$(GET_VAR "global" "settings/hdmi/space")"
-	printf "%s " "$(GET_VAR "global" "settings/hdmi/depth")"
+	printf "%s " "$(GET_VAR "config" "settings/hdmi/resolution")"
+	printf "%s " "$(GET_VAR "config" "settings/hdmi/space")"
+	printf "%s " "$(GET_VAR "config" "settings/hdmi/depth")"
 	printf "0x4 "
 	printf "0x201 "
 	printf "0 "
-	printf "%s " "$(GET_VAR "global" "settings/hdmi/range")"
-	printf "%s " "$(GET_VAR "global" "settings/hdmi/scan")"
+	printf "%s " "$(GET_VAR "config" "settings/hdmi/range")"
+	printf "%s " "$(GET_VAR "config" "settings/hdmi/scan")"
 	printf "8"
 }
 

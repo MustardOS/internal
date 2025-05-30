@@ -10,11 +10,11 @@ CPU_GOV_PATH="$(GET_VAR "device" "cpu/governor")"
 CPU_CORES="$(GET_VAR "device" "cpu/cores")"
 LED_RGB="$(GET_VAR "device" "led/rgb")"
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
-RUMBLE_SETTING="$(GET_VAR "global" "settings/advanced/rumble")"
-SUSPEND_STATE="$(GET_VAR "global" "settings/advanced/state")"
-DEFAULT_BRIGHTNESS="$(GET_VAR "global" "settings/general/brightness")"
+RUMBLE_SETTING="$(GET_VAR "config" "settings/advanced/rumble")"
+SUSPEND_STATE="$(GET_VAR "config" "settings/advanced/state")"
+DEFAULT_BRIGHTNESS="$(GET_VAR "config" "settings/general/brightness")"
 RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
-SHUTDOWN_TIME_SETTING="$(GET_VAR "global" "settings/power/shutdown")"
+SHUTDOWN_TIME_SETTING="$(GET_VAR "config" "settings/power/shutdown")"
 
 SLEEP() {
 	touch "$RECENT_WAKE"
@@ -34,7 +34,7 @@ SLEEP() {
 	done
 
 	if [ "$LED_RGB" -eq 1 ]; then
-		/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
+		/opt/muos/device/script/led_control.sh 1 0 0 0 0 0 0 0
 	fi
 
 	case "$RUMBLE_SETTING" in
@@ -43,7 +43,7 @@ SLEEP() {
 
 	[ "$HAS_NETWORK" -eq 1 ] && /opt/muos/script/system/network.sh disconnect
 
-	/opt/muos/device/current/script/module.sh unload
+	/opt/muos/device/script/module.sh unload
 
 	echo "$SUSPEND_STATE" >/sys/power/state
 }
@@ -57,14 +57,14 @@ RESUME() {
 		C=$((C + 1))
 	done
 
-	/opt/muos/device/current/script/module.sh load
+	/opt/muos/device/script/module.sh load
 
 	if [ "$LED_RGB" -eq 1 ]; then
 		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
 		if [ -x "$RGBCONF_SCRIPT" ]; then
 			"$RGBCONF_SCRIPT"
 		else
-			/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
+			/opt/muos/device/script/led_control.sh 1 0 0 0 0 0 0 0
 		fi
 	fi
 

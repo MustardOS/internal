@@ -17,7 +17,7 @@ if [ ! -e /run/dbus/system_bus_socket ]; then
 fi
 
 if ! pgrep -x "pipewire" >/dev/null; then
-	chrt -f 88 pipewire -c "/opt/muos/config/pipewire.conf" &
+	chrt -f 88 pipewire -c "/opt/muos/share/conf/pipewire.conf" &
 	printf "Starting PipeWire\n"
 else
 	printf "PipeWire is already running\n"
@@ -64,9 +64,9 @@ for TIMEOUT in $(seq 1 30); do
 		INTERNAL_NODE_ID=$(GET_NODE_ID "$(GET_VAR "device" "audio/pf_internal")")
 		EXTERNAL_NODE_ID=$(GET_NODE_ID "$(GET_VAR "device" "audio/pf_external")")
 
-		if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
+		if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 			DEFAULT_NODE_ID=$EXTERNAL_NODE_ID
-			if [ "$(GET_VAR "global" "settings/hdmi/audio")" -eq 1 ]; then
+			if [ "$(GET_VAR "config" "settings/hdmi/audio")" -eq 1 ]; then
 				DEFAULT_NODE_ID=$INTERNAL_NODE_ID
 			fi
 		else
@@ -77,14 +77,14 @@ for TIMEOUT in $(seq 1 30); do
 			printf "Setting default node to ID: '%s'\n" "$DEFAULT_NODE_ID"
 			wpctl set-default "$DEFAULT_NODE_ID"
 
-			case "$(GET_VAR "global" "settings/advanced/volume")" in
+			case "$(GET_VAR "config" "settings/advanced/volume")" in
 				"loud") VOLUME="$(GET_VAR "device" "audio/max")" ;;
 				"soft") VOLUME="35" ;;
 				"silent") VOLUME="0" ;;
-				*) VOLUME="$(GET_VAR "global" "settings/general/volume")" ;;
+				*) VOLUME="$(GET_VAR "config" "settings/general/volume")" ;;
 			esac
 
-			/opt/muos/device/current/input/audio.sh "$VOLUME"
+			/opt/muos/device/input/audio.sh "$VOLUME"
 
 			amixer -c 0 sset "$(GET_VAR "device" "audio/control")" "$(GET_VAR "device" "audio/volume")"% unmute
 			wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"

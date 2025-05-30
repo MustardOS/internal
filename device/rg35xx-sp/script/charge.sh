@@ -3,7 +3,7 @@
 . /opt/muos/script/var/func.sh
 
 BOOT_MODE=$(GET_VAR "device" "battery/boot_mode")
-FACTORY_RESET=$(GET_VAR "global" "boot/factory_reset")
+FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 DEBUGFS=$(GET_VAR "device" "board/debugfs")
 GOVERNOR=$(GET_VAR "device" "cpu/governor")
 LED=$(GET_VAR "device" "led/normal")
@@ -22,7 +22,7 @@ if read -r MODE <"$BOOT_MODE" && [ "$MODE" -eq 1 ] && [ "$FACTORY_RESET" -eq 0 ]
 
 	if [ -e "$QUIT_LID_PROC" ]; then
 		rm "$QUIT_LID_PROC"
-		/opt/muos/device/current/script/lid.sh &
+		/opt/muos/device/script/lid.sh &
 	fi
 
 	echo "performance" >"$GOVERNOR"

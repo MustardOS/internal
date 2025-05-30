@@ -2,73 +2,68 @@
 
 . /opt/muos/script/var/func.sh
 
-sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf
+ACTION=$1
 
-if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
-	mount -t debugfs debugfs /sys/kernel/debug
-fi
+GPU_PATH="/sys/devices/platform/gpu"
+DNS_CONF="/etc/resolv.conf"
+RESOLV_BACKUP="/tmp/resolv.conf.bak"
 
-/opt/muos/device/current/input/bright.sh R
+LOAD_NETWORK() {
+	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
+		NET_MODULE=$(GET_VAR "device" "network/module")
+		NET_IFACE=$(GET_VAR "device" "network/iface")
+		DNS_ADDR=$(GET_VAR "config" "network/dns")
 
-if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
-	/opt/muos/device/current/script/hdmi.sh start
-else
-	if [ "$(GET_VAR device led/rgb)" -eq 1 ]; then
-		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
-		if [ -f "$RGBCONF_SCRIPT" ]; then
-			"$RGBCONF_SCRIPT"
-		else
-			/opt/muos/device/current/script/led_control.sh 1 0 0 0 0 0 0 0
-		fi
+		modprobe --force-modversion "$NET_MODULE"
+		while [ ! -d "/sys/class/net/$NET_IFACE" ]; do /opt/muos/bin/toybox sleep 0.5; done
+
+		rfkill unblock all
+
+		ip link set "$NET_IFACE" up
+		iw dev "$NET_IFACE" set power_save off
+
+		[ -f "$DNS_CONF" ] && cp "$DNS_CONF" "$RESOLV_BACKUP"
+		echo "nameserver $DNS_ADDR" >"$DNS_CONF"
 	fi
+}
 
-	case "$(GET_VAR "global" "settings/advanced/brightness")" in
-		"high")
-			/opt/muos/device/current/input/bright.sh "$(GET_VAR "device" "screen/bright")"
-			;;
-		"medium")
-			/opt/muos/device/current/input/bright.sh 90
-			;;
-		"low")
-			/opt/muos/device/current/input/bright.sh 10
-			;;
-		*)
-			/opt/muos/device/current/input/bright.sh "$(GET_VAR "global" "settings/general/brightness")"
-			;;
-	esac
+UNLOAD_NETWORK() {
+	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
+		NET_MODULE=$(GET_VAR "device" "network/module")
+		NET_IFACE=$(GET_VAR "device" "network/iface")
 
-	GET_VAR "global" "settings/general/colour" >/sys/class/disp/disp/attr/color_temperature
-	SET_VAR "global" "settings/hdmi/scan" "0"
-fi
+		ip link set "$NET_IFACE" down 2>/dev/null
+		rfkill block all
+		rmmod "$NET_MODULE" 2>/dev/null
 
-if [ "$(GET_VAR "global" "settings/advanced/overdrive")" -eq 1 ]; then
-	SET_VAR "device" "audio/max" "200"
-else
-	SET_VAR "device" "audio/max" "100"
-fi
-
-if [ "$(GET_VAR "global" "settings/advanced/thermal")" -eq 1 ]; then
-	for ZONE in /sys/class/thermal/thermal_zone*; do
-		if [ -e "$ZONE/mode" ]; then
-			echo "disabled" >"$ZONE/mode"
-		fi
-	done
-fi
-
-/opt/muos/device/current/script/speaker.sh &
-
-# Add device specific Retroarch Binary
-RA_BIN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-rg"
-RA_MD5="$(cat "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-rg.md5")"
-RA_TARGET="/usr/bin/retroarch"
-
-if [ -f "$RA_TARGET" ]; then
-	CURRENT_MD5=$(md5sum "$RA_TARGET" | awk '{ print $1 }')
-	if [ "$CURRENT_MD5" != "$RA_MD5" ]; then
-		cp -f "$RA_BIN" "$RA_TARGET"
-		chmod +x "$RA_TARGET"
+		[ -f "$RESOLV_BACKUP" ] && mv "$RESOLV_BACKUP" "$DNS_CONF"
 	fi
-else
-	cp -f "$RA_BIN" "$RA_TARGET"
-	chmod +x "$RA_TARGET"
-fi
+}
+
+LOAD_MODULES() {
+	insmod /lib/modules/squashfs.ko
+	insmod /lib/modules/mali_kbase.ko
+
+	[ "$(GET_VAR "device" "board/network")" -eq 1 ] && LOAD_NETWORK
+
+	echo always_on >"$GPU_PATH/power_policy"
+	echo 648000000 >"$GPU_PATH/devfreq/gpu/min_freq"
+	echo 648000000 >"$GPU_PATH/devfreq/gpu/max_freq"
+}
+
+UNLOAD_MODULES() {
+	[ -e "$GPU_PATH/power_policy" ] && echo auto >"$GPU_PATH/power_policy"
+
+	[ "$(GET_VAR "device" "board/network")" -eq 1 ] && UNLOAD_NETWORK
+
+	rmmod mali_kbase.ko 2>/dev/null
+	rmmod squashfs.ko 2>/dev/null
+}
+
+case "$ACTION" in
+	load) LOAD_MODULES ;;
+	unload) UNLOAD_MODULES ;;
+	load-network) LOAD_NETWORK ;;
+	unload-network) UNLOAD_NETWORK ;;
+	*) echo "Usage: $0 {load|unload|load-network|unload-network}" >&2 && exit 1 ;;
+esac

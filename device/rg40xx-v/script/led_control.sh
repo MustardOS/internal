@@ -1,7 +1,7 @@
 #!/bin/bash
 
 . /opt/muos/script/var/func.sh
-[ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ] && exit 0
+[ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ] && exit 0
 
 # Define the serial device
 SERIAL_DEVICE="/dev/ttyS5"

@@ -20,26 +20,26 @@ if [ -n "$1" ]; then
 	ACT="$1"
 	SKIP=1
 else
-	ACT=$(GET_VAR "global" "settings/general/startup")
+	ACT=$(GET_VAR "config" "settings/general/startup")
 fi
 printf '%s\n' "$ACT" >"$ACT_GO"
 
 echo "root" >$EX_CARD
 
-LAST_PLAY=$(cat "/opt/muos/config/lastplay.txt")
+LAST_PLAY=$(cat "/opt/muos/config/boot/last_play")
 
 LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
 SET_DEFAULT_GOVERNOR
 
 if [ $SKIP -eq 0 ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"
-	if [ "$(GET_VAR "global" "settings/general/startup")" = "last" ] || [ "$(GET_VAR "global" "settings/general/startup")" = "resume" ]; then
+	if [ "$(GET_VAR "config" "settings/general/startup")" = "last" ] || [ "$(GET_VAR "config" "settings/general/startup")" = "resume" ]; then
 		GO_LAST_BOOT=1
 
 		if [ -n "$LAST_PLAY" ]; then
 			LOG_INFO "$0" 0 "FRONTEND" "Checking for network and retrowait"
 
-			if [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ]; then
+			if [ "$(GET_VAR "config" "settings/advanced/retrowait")" -eq 1 ]; then
 				NET_START="/tmp/net_start"
 				OIP=0
 

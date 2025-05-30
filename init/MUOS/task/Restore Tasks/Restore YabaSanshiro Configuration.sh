@@ -6,13 +6,13 @@
 
 FRONTEND stop
 
-MOUNT="$(GET_VAR device storage/rom/mount)"
+MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 
 # Restore control config
 echo "Restoring YabaSanshiro Controls"
 rm -f "$MOUNT/MUOS/emulator/yabasanshiro/.emulationstation/es_temporaryinput.cfg" \
 	"$MOUNT/MUOS/emulator/yabasanshiro/.yabasanshiro/keymapv2.json"
-/opt/muos/device/current/script/control.sh
+/opt/muos/device/script/control.sh
 
 # Remove any per-game configs
 CONF_DIR="$MOUNT/MUOS/emulator/yabasanshiro/.yabasanshiro"

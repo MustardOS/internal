@@ -16,7 +16,7 @@ FILE=${3%/}
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
-if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
+if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 	SDL_HQ_SCALER=2
 	SDL_ROTATION=0
 	SDL_BLITTER_DISABLED=1
@@ -34,7 +34,7 @@ GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokey
 EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8"
 
 # Set appropriate sdl controller file
-SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/opt/muos/device/current/control/gamecontrollerdb_modern.txt")
+SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/opt/muos/device/control/gamecontrollerdb_modern.txt")
 export SDL_GAMECONTROLLERCONFIG
 
 # First look for emulator in BIOS directory, which allows it to follow the

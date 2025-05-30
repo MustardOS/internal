@@ -6,7 +6,7 @@
 
 FRONTEND stop
 
-MOUNT="$(GET_VAR device storage/rom/mount)"
+MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 
 echo "Restoring PPSSPP Configuration"
 DEVICE_PREFIX="rg tui"
@@ -14,7 +14,7 @@ for PREFIX in $DEVICE_PREFIX; do
     rm -f "$MOUNT/MUOS/emulator/ppsspp/${PREFIX}/.config/ppsspp/PSP/SYSTEM/controls.ini"
     rm -f "$MOUNT/MUOS/emulator/ppsspp/${PREFIX}/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
 done
-/opt/muos/device/current/script/control.sh
+/opt/muos/device/script/control.sh
 
 echo "Sync Filesystem"
 sync

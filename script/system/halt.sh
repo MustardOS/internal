@@ -159,7 +159,7 @@ shift
 {
 	# Unloading kernel modules.
 	printf 'Unloading kernel modules...\n'
-	/opt/muos/device/current/script/module.sh unload
+	/opt/muos/device/script/module.sh unload
 
 	# Cleanly unmount filesystems to avoid fsck/chkdsk errors.
 	printf 'Stopping union mounts...\n'
@@ -167,14 +167,6 @@ shift
 
 	# Kill the lid switch process if it exists
 	pgrep lid.sh >/dev/null 2>&1 && killall -q lid.sh
-
-	# We have to ensure we save all of the runtime variables to disk before
-	# we shutdown or reboot the system as they are stored in tmpfs.
-	printf 'Saving device variables...\n'
-	/opt/muos/script/var/init.sh save device
-
-	printf 'Saving global variables...\n'
-	/opt/muos/script/var/init.sh save global
 
 	# Check if random theme is enabled and run the random theme script if necessary
 	#if [ "$(sed -n '/^\[settings\.advanced\]/,/^\[/{ /^random_theme[ ]*=[ ]*/{ s/^[^=]*=[ ]*//p }}' /opt/muos/config/config.ini)" -eq 1 ] 2>/dev/null; then
@@ -206,21 +198,7 @@ shift
 	printf 'Closing log file...\n'
 } 2>&1 | awk '{ cmd="date +\"%Y-%m-%d %H:%M:%S\""; cmd | getline t; close(cmd); print t, $0 }' >>/opt/muos/halt.log
 
-printf 'Unmounting filesystems...\n'
-TMP_MOUNTS="/tmp/mnt_rev"
-
-# Skip / and virtual/ephemeral filesystems
-mount | awk '$3 != "/" && $3 !~ "^/(dev|proc|sys|tmp)" { print $3 }' >"$TMP_MOUNTS"
-
-LINES=$(wc -l <"$TMP_MOUNTS")
-while [ "$LINES" -gt 0 ]; do
-	MNT=$(sed -n "${LINES}p" "$TMP_MOUNTS")
-	umount "$MNT" 2>/dev/null
-	LINES=$((LINES - 1))
-done
-
-# Final sync and remount read-only before shutdown
-sync
+umount -ar
 echo u >/proc/sysrq-trigger
 
 case "$HALT_CMD" in

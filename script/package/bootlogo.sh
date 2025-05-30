@@ -21,7 +21,7 @@ USAGE() {
 
 MODE="$1"
 BOOTLOGO_ARG="$2"
-BOOTLOGO_MOUNT="$(GET_VAR device storage/boot/mount)"
+BOOTLOGO_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
 
 INSTALL() {
 	# Ensure bootlogo.bmp image exists in the archive!
@@ -37,7 +37,7 @@ INSTALL() {
 		END
 	fi
 
-	DEVICE_NAME=$(GET_VAR device board/name)
+	DEVICE_NAME=$(GET_VAR "device" "board/name")
 	case "$DEVICE_NAME" in
 		rg28* | rg35* | rg40*)
 			TARGET_W=640

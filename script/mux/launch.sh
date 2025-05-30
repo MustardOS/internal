@@ -10,9 +10,9 @@ MUX_LAUNCHER_AUTH=/tmp/mux_launcher_auth
 GPTOKEYB_BIN=gptokeyb2
 GPTOKEYB_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb"
 GPTOKEYB_CONTROLLERCONFIG="/usr/lib/gamecontrollerdb.txt"
-GPTOKEYB_CONFDIR="/opt/muos/config/gptokeyb"
+GPTOKEYB_CONFDIR="/opt/muos/share/gptokeyb"
 
-if [ "$(GET_VAR "global" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_LAUNCHER_AUTH" ]; then
+if [ "$(GET_VAR "config" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_LAUNCHER_AUTH" ]; then
 	EXEC_MUX "" "muxpass" -t launch
 	[ "$EXIT_STATUS" -eq 1 ] && touch "$MUX_LAUNCHER_AUTH"
 	if [ "$EXIT_STATUS" = 2 ]; then
@@ -31,7 +31,7 @@ PC_IP="$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/pc_ip.txt"
 
 if [ -s "$PC_IP" ]; then
 	python "$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/discord_presence_handheld.py" "$(cat "$PC_IP")" \
-		"On my $(GET_VAR "device" "board/name") with muOS $(cat /opt/muos/config/version.txt)!" "Playing $NAME"
+		"On my $(GET_VAR "device" "board/name") with muOS $(cat /opt/muos/config/version)!" "Playing $NAME"
 fi
 
 rm "$ROM_GO"
@@ -41,8 +41,8 @@ if [ -f "$GPTOKEYB_CONFDIR/$CORE.gptk" ]; then
 		"$GPTOKEYB_DIR/$GPTOKEYB_BIN" -c "$GPTOKEYB_CONFDIR/$CORE.gptk" &
 fi
 
-GET_VAR "global" "settings/advanced/led" >"$(GET_VAR "device" "led/normal")"
-GET_VAR "global" "settings/advanced/led" >/tmp/work_led_state
+GET_VAR "config" "settings/advanced/led" >"$(GET_VAR "device" "led/normal")"
+GET_VAR "config" "settings/advanced/led" >/tmp/work_led_state
 
 cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
 rm -f "$GOV_GO"
@@ -63,7 +63,7 @@ RA_HEIGHT="$(GET_VAR "device" "screen/height")"
 	else
 		printf "rgui_aspect_ratio = \"%s\"" "0"
 	fi
-) >"/opt/muos/device/current/control/retroarch.resolution.cfg"
+) >"/opt/muos/device/control/retroarch.resolution.cfg"
 
 # Filesystem sync
 sync &
@@ -162,13 +162,13 @@ case "$(GET_VAR "device" "board/name")" in
 esac
 
 SCREEN_TYPE="internal"
-if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
+if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 	SCREEN_TYPE="external"
 fi
 
 FB_SWITCH "$(GET_VAR "device" "screen/$SCREEN_TYPE/width")" "$(GET_VAR "device" "screen/$SCREEN_TYPE/height")" 32
 
-if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
+if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
  	SYNCTHING_API=$(cat /run/muos/storage/syncthing/config.xml | grep '<apikey>[^<]*</apikey>' | sed 's/.*<apikey>\([^<]*\)<\/apikey>.*/\1/')
 	curl -X POST -H "X-API-Key: $SYNCTHING_API" "localhost:7070/rest/db/scan"
 fi

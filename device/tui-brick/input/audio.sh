@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-DEVICE_MODE=$(GET_VAR "global" "boot/device_mode")
+DEVICE_MODE=$(GET_VAR "config" "boot/device_mode")
 { [ -z "$1" ] || [ "$DEVICE_MODE" -ne 0 ]; } && exit 0
 
 MIN=$(GET_VAR "device" "audio/min")
@@ -28,7 +28,7 @@ SET_CURRENT() {
 	[ "$PERCENTAGE" -gt "$MAX" ] && PERCENTAGE="$MAX"
 
 	wpctl set-volume @DEFAULT_AUDIO_SINK@ "$PERCENTAGE%"
-	SET_VAR "global" "settings/general/volume" "$VALUE"
+	SET_VAR "config" "settings/general/volume" "$VALUE"
 }
 
 case "$1" in

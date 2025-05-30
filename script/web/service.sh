@@ -56,7 +56,7 @@ MANAGE_WEBSERV() {
 }
 
 for WEBSRV in sshd sftpgo ttyd syncthing rslsync ntp tailscaled; do
-	if [ ! "$1" = "stopall" ] && [ "$(GET_VAR "global" "web/$WEBSRV")" -eq 1 ]; then
+	if [ ! "$1" = "stopall" ] && [ "$(GET_VAR "config" "web/$WEBSRV")" -eq 1 ]; then
 		TIMEOUT=30
 		WAIT=0
 

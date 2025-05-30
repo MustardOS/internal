@@ -8,10 +8,10 @@ DNS_CONF="/etc/resolv.conf"
 RESOLV_BACKUP="/tmp/resolv.conf.bak"
 
 LOAD_NETWORK() {
-	if [ "$(GET_VAR device board/network)" -eq 1 ]; then
-		NET_MODULE=$(GET_VAR device network/module)
-		NET_IFACE=$(GET_VAR device network/iface)
-		DNS_ADDR=$(GET_VAR global network/dns)
+	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
+		NET_MODULE=$(GET_VAR "device" "network/module")
+		NET_IFACE=$(GET_VAR "device" "network/iface")
+		DNS_ADDR=$(GET_VAR "config" "network/dns")
 
 		modprobe --force-modversion "$NET_MODULE"
 		while [ ! -d "/sys/class/net/$NET_IFACE" ]; do /opt/muos/bin/toybox sleep 0.5; done
@@ -27,9 +27,9 @@ LOAD_NETWORK() {
 }
 
 UNLOAD_NETWORK() {
-	if [ "$(GET_VAR device board/network)" -eq 1 ]; then
-		NET_MODULE=$(GET_VAR device network/module)
-		NET_IFACE=$(GET_VAR device network/iface)
+	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
+		NET_MODULE=$(GET_VAR "device" "network/module")
+		NET_IFACE=$(GET_VAR "device" "network/iface")
 
 		ip link set "$NET_IFACE" down 2>/dev/null
 		rfkill block all
@@ -40,11 +40,11 @@ UNLOAD_NETWORK() {
 }
 
 LOAD_MODULES() {
-	[ "$(GET_VAR device board/network)" -eq 1 ] && LOAD_NETWORK
+	[ "$(GET_VAR "device" "board/network")" -eq 1 ] && LOAD_NETWORK
 }
 
 UNLOAD_MODULES() {
-	[ "$(GET_VAR device board/network)" -eq 1 ] && UNLOAD_NETWORK
+	[ "$(GET_VAR "device" "board/network")" -eq 1 ] && UNLOAD_NETWORK
 }
 
 case "$ACTION" in

@@ -9,10 +9,10 @@ DNS_CONF="/etc/resolv.conf"
 RESOLV_BACKUP="/tmp/resolv.conf.bak"
 
 LOAD_NETWORK() {
-	if [ "$(GET_VAR device board/network)" -eq 1 ]; then
-		NET_MODULE=$(GET_VAR device network/module)
-		NET_IFACE=$(GET_VAR device network/iface)
-		DNS_ADDR=$(GET_VAR global network/dns)
+	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
+		NET_MODULE=$(GET_VAR "device" "network/module")
+		NET_IFACE=$(GET_VAR "device" "network/iface")
+		DNS_ADDR=$(GET_VAR "config" "network/dns")
 
 		modprobe --force-modversion "$NET_MODULE"
 		while [ ! -d "/sys/class/net/$NET_IFACE" ]; do /opt/muos/bin/toybox sleep 0.5; done
@@ -28,9 +28,9 @@ LOAD_NETWORK() {
 }
 
 UNLOAD_NETWORK() {
-	if [ "$(GET_VAR device board/network)" -eq 1 ]; then
-		NET_MODULE=$(GET_VAR device network/module)
-		NET_IFACE=$(GET_VAR device network/iface)
+	if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
+		NET_MODULE=$(GET_VAR "device" "network/module")
+		NET_IFACE=$(GET_VAR "device" "network/iface")
 
 		ip link set "$NET_IFACE" down 2>/dev/null
 		rfkill block all
@@ -44,7 +44,7 @@ LOAD_MODULES() {
 	insmod /lib/modules/squashfs.ko
 	insmod /lib/modules/mali_kbase.ko
 
-	[ "$(GET_VAR device board/network)" -eq 1 ] && LOAD_NETWORK
+	[ "$(GET_VAR "device" "board/network")" -eq 1 ] && LOAD_NETWORK
 
 	echo always_on >"$GPU_PATH/power_policy"
 	echo 648000000 >"$GPU_PATH/devfreq/gpu/min_freq"
@@ -54,7 +54,7 @@ LOAD_MODULES() {
 UNLOAD_MODULES() {
 	[ -e "$GPU_PATH/power_policy" ] && echo auto >"$GPU_PATH/power_policy"
 
-	[ "$(GET_VAR device board/network)" -eq 1 ] && UNLOAD_NETWORK
+	[ "$(GET_VAR "device" "board/network")" -eq 1 ] && UNLOAD_NETWORK
 
 	rmmod mali_kbase.ko 2>/dev/null
 	rmmod squashfs.ko 2>/dev/null

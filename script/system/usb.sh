@@ -15,7 +15,7 @@ GADGET_STRINGS="$GADGET/strings/0x409"
 FUNCTIONFS=/dev/usb-ffs
 
 UDC="$(GET_VAR "device" "board/udc")"
-USB_FUNCTION="$(GET_VAR "global" "settings/advanced/usb_function")"
+USB_FUNCTION="$(GET_VAR "config" "settings/advanced/usb_function")"
 
 USB_VID() {
 	echo 0x1d6b # Linux Foundation (https://usb-ids.gowdy.us/read/UD/1d6b)
@@ -37,11 +37,11 @@ USB_MANUFACTURER() {
 }
 
 USB_PRODUCT() {
-	cat /opt/muos/config/device.txt
+	tr '[:lower:]' '[:upper:]' </opt/muos/device/config/board/name | awk '{$1=$1; print}'
 }
 
 FIRMWARE_VERSION() {
-	head -n 1 /opt/muos/config/version.txt
+	head -n 1 /opt/muos/config/version
 }
 
 START() {

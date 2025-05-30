@@ -1,26 +1,24 @@
 #!/bin/sh
 # shellcheck disable=SC2086
 
+MP="/opt/muos"
+
 case ":$LD_LIBRARY_PATH:" in
-	*":/opt/muos/extra/lib:"*) ;;
-	*) export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH" ;;
+	*":$MP/extra/lib:"*) ;;
+	*) export LD_LIBRARY_PATH="$MP/extra/lib:$LD_LIBRARY_PATH" ;;
 esac
 
-GLOBAL_CONFIG="/opt/muos/config/config.ini"
-KIOSK_CONFIG="/opt/muos/config/kiosk.ini"
+KIOSK_CONFIG="$MP/config/kiosk.ini"
 DBUS_SESSION_BUS_ADDRESS="unix:path=/run/dbus/system_bus_socket"
 PIPEWIRE_RUNTIME_DIR="/var/run"
-XDG_RUNTIME_DIR="/var/run"
-DEVICE_TYPE=$(tr '[:upper:]' '[:lower:]' <"/opt/muos/config/device.txt")
-DEVICE_CONFIG="/opt/muos/device/$DEVICE_TYPE/config.ini"
-DEVICE_CONTROL_DIR="/opt/muos/device/$DEVICE_TYPE/control"
-MUOS_BOOT_LOG="/opt/muos/boot.log"
+XDG_RUNTIME_DIR="$PIPEWIRE_RUNTIME_DIR"
 ALSA_CONFIG="/usr/share/alsa/alsa.conf"
 WPA_CONFIG="/etc/wpa_supplicant.conf"
-MUOS_LOG_DIR="/opt/muos/log"
+DEVICE_CONTROL_DIR="$MP/device/control"
+MUOS_LOG_DIR="$MP/log"
 
-export GLOBAL_CONFIG KIOSK_CONFIG DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR XDG_RUNTIME_DIR \
-	DEVICE_TYPE DEVICE_CONFIG DEVICE_CONTROL_DIR MUOS_BOOT_LOG ALSA_CONFIG WPA_CONFIG
+export KIOSK_CONFIG DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
+	XDG_RUNTIME_DIR ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR
 
 mkdir -p "$MUOS_LOG_DIR"
 
@@ -30,6 +28,25 @@ CSI="${ESC}[38;5;"
 SAFE_QUIT=/tmp/safe_quit
 EXIT_STATUS=0
 PREVIOUS_MODULE=""
+
+GET_CONF_PATH() {
+	case "$1" in
+		global | config) echo "$MP/config" ;;
+		device) echo "$MP/device/config" ;;
+		kiosk) echo "$MP/kiosk" ;;
+		system) echo "$MP/config/system" ;;
+	esac
+}
+
+SET_VAR() {
+	BASE=$(GET_CONF_PATH "$1") || return 0
+	printf "%s" "$3" >"$BASE/$2"
+}
+
+GET_VAR() {
+	BASE=$(GET_CONF_PATH "$1") || return 0
+	cat "$BASE/$2" 2>/dev/null
+}
 
 SET_DEFAULT_GOVERNOR() {
 	DEF_GOV=$(GET_VAR "device" "cpu/default")
@@ -49,15 +66,15 @@ FRONTEND() {
 		stop)
 			while pgrep -x frontend.sh >/dev/null || pgrep -x muxfrontend >/dev/null; do
 				killall -9 frontend.sh muxfrontend
-				/opt/muos/bin/toybox sleep 1
+				$MP/bin/toybox sleep 1
 			done
 			;;
 		start)
 			pgrep -x frontend.sh >/dev/null && return 0
 			if [ -n "$2" ]; then
-				setsid -f /opt/muos/script/mux/frontend.sh "$2" </dev/null >/dev/null 2>&1
+				setsid -f $MP/script/mux/frontend.sh "$2" </dev/null >/dev/null 2>&1
 			else
-				setsid -f /opt/muos/script/mux/frontend.sh </dev/null >/dev/null 2>&1
+				setsid -f $MP/script/mux/frontend.sh </dev/null >/dev/null 2>&1
 			fi
 			;;
 		restart)
@@ -81,9 +98,9 @@ EXEC_MUX() {
 	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
 
 	SET_VAR "system" "foreground_process" "$MODULE"
-	nice --20 "/opt/muos/extra/$MODULE" "$@"
+	nice --20 "$MP/extra/$MODULE" "$@"
 
-	while [ ! -f "$SAFE_QUIT" ]; do /opt/muos/bin/toybox sleep 0.1; done
+	while [ ! -f "$SAFE_QUIT" ]; do $MP/bin/toybox sleep 0.1; done
 	PREVIOUS_MODULE="$MODULE"
 	EXIT_STATUS=$(head -n 1 "$SAFE_QUIT")
 }
@@ -102,14 +119,6 @@ PARSE_INI() {
 	sed -nr "/^\[$SECTION\]/ { :l /^${KEY}[ ]*=[ ]*/ { s/^[^=]*=[ ]*//; p; q; }; n; b l; }" "${INI_FILE}"
 }
 
-SET_VAR() {
-	printf "%s" "$3" >"/run/muos/$1/$2"
-}
-
-GET_VAR() {
-	cat "/run/muos/$1/$2" 2>/dev/null
-}
-
 LOG() {
 	SYMBOL="$1"
 	MODULE="$(basename "$2" ".sh")"
@@ -125,7 +134,7 @@ LOG() {
 
 	printf "[%6s] [%-3s${ESC}[0m] %s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$SPACER" "$@"
 	printf "[%6s] [%-3s${ESC}[0m] %s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$SPACER" "$@" >>"$MUOS_LOG_DIR/$(date +"%Y_%m_%d")_$MODULE.log"
-	# /opt/muos/extra/muxstart $PROGRESS "$(printf "%s\n\n%s${MSG}" "$TITLE" "$@")"
+	# $MP/extra/muxstart $PROGRESS "$(printf "%s\n\n%s${MSG}" "$TITLE" "$@")"
 }
 
 LOG_INFO() { (LOG "${CSI}33m*" "$@") & }
@@ -141,14 +150,14 @@ CRITICAL_FAILURE() {
 		*) MESSAGE=$(printf "Critical Failure\n\nAn unknown error occurred!") ;;
 	esac
 
-	/opt/muos/extra/muxstart 0 "$MESSAGE"
-	/opt/muos/bin/toybox sleep 10
-	/opt/muos/script/system/halt.sh poweroff
+	$MP/extra/muxstart 0 "$MESSAGE"
+	$MP/bin/toybox sleep 10
+	$MP/script/system/halt.sh poweroff
 }
 
 RUMBLE() {
 	echo 1 >"$1"
-	/opt/muos/bin/toybox sleep "$2"
+	$MP/bin/toybox sleep "$2"
 	echo 0 >"$1"
 }
 
@@ -168,7 +177,7 @@ FB_SWITCH() {
 		HEIGHT="$TMP_W"
 	fi
 
-	/opt/muos/extra/mufbset -w "$WIDTH" -h "$HEIGHT" -d "$DEPTH"
+	$MP/extra/mufbset -w "$WIDTH" -h "$HEIGHT" -d "$DEPTH"
 }
 
 HDMI_SWITCH() {
@@ -176,7 +185,7 @@ HDMI_SWITCH() {
 	HEIGHT=0
 	DEPTH=32
 
-	case "$(GET_VAR "global" "settings/hdmi/resolution")" in
+	case "$(GET_VAR "config" "settings/hdmi/resolution")" in
 		0 | 2)
 			WIDTH=640
 			HEIGHT=480
@@ -203,6 +212,18 @@ HDMI_SWITCH() {
 	SET_VAR "device" "screen/external/height" "$HEIGHT"
 
 	FB_SWITCH "$WIDTH" "$HEIGHT" "$DEPTH"
+}
+
+IS_INTERNAL_DISPLAY() {
+	HDMI_PATH=$(GET_VAR "device" "screen/hdmi")
+	HDMI_VALUE=0
+
+	[ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ] && HDMI_VALUE=$(cat "$HDMI_PATH")
+
+	case "$HDMI_VALUE" in
+		*[!0-9]*) return 0 ;;
+		*) [ "$HDMI_VALUE" -eq 0 ] ;;
+	esac
 }
 
 # Writes a setting value to the display driver.

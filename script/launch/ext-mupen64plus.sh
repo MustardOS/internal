@@ -16,7 +16,7 @@ FILE=${3%/}
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
-if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
+if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 	SDL_HQ_SCALER=2
 	SDL_ROTATION=0
 	SDL_BLITTER_DISABLED=1
@@ -71,7 +71,7 @@ HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus
 [ -n "$TMPDIR" ] && rm -r "$TMPDIR"
 
 SCREEN_TYPE="internal"
-if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
+if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 	SCREEN_TYPE="external"
 fi
 

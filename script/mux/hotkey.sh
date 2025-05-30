@@ -2,8 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
-if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
-	. /opt/muos/script/mux/idle.sh
+if [ "$(GET_VAR "config" "boot/factory_reset")" -eq 0 ]; then
+	IS_INTERNAL_DISPLAY && . /opt/muos/script/mux/idle.sh
 fi
 
 DPAD_FILE=/sys/class/power_supply/axp2202-battery/nds_pwrkey
@@ -14,7 +14,7 @@ RGBCONTROLLER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/RGB 
 READ_HOTKEYS() {
 	# Restart muhotkey if it exits. (tweak.sh kills it on config changes.)
 	while :; do
-		/opt/muos/extra/muhotkey /opt/muos/device/current/control/hotkey.json
+		/opt/muos/extra/muhotkey /opt/muos/device/control/hotkey.json
 	done
 }
 
@@ -22,9 +22,9 @@ HANDLE_HOTKEY() {
 	# This blocks the event loop, so commands here should finish quickly.
 	case "$1" in
 		# Input activity/idle:
-		IDLE_ACTIVE) DISPLAY_ACTIVE ;;
-		IDLE_DISPLAY) DISPLAY_IDLE ;;
-		IDLE_SLEEP) SLEEP ;;
+		IDLE_ACTIVE) IS_INTERNAL_DISPLAY && DISPLAY_ACTIVE ;;
+		IDLE_DISPLAY) IS_INTERNAL_DISPLAY && DISPLAY_IDLE ;;
+		IDLE_SLEEP) IS_INTERNAL_DISPLAY && SLEEP ;;
 
 		# Power combos:
 		OSF_R) /opt/muos/script/mux/quit.sh reboot osf ;;
@@ -32,14 +32,14 @@ HANDLE_HOTKEY() {
 		SLEEP) SLEEP ;;
 
 		# Utility combos:
-		SCREENSHOT) /opt/muos/script/mux/screenshot.sh ;;
+		SCREENSHOT) IS_INTERNAL_DISPLAY && /opt/muos/script/mux/screenshot.sh ;;
 		DPAD_TOGGLE) DPAD_TOGGLE ;;
 
 		# Brightness/volume combos:
-		BRIGHT_UP) /opt/muos/device/current/input/bright.sh U ;;
-		BRIGHT_DOWN) /opt/muos/device/current/input/bright.sh D ;;
-		VOL_UP) /opt/muos/device/current/input/audio.sh U ;;
-		VOL_DOWN) /opt/muos/device/current/input/audio.sh D ;;
+		BRIGHT_UP) IS_INTERNAL_DISPLAY && /opt/muos/device/input/bright.sh U ;;
+		BRIGHT_DOWN) IS_INTERNAL_DISPLAY && /opt/muos/device/input/bright.sh D ;;
+		VOL_UP) /opt/muos/device/input/audio.sh U ;;
+		VOL_DOWN) /opt/muos/device/input/audio.sh D ;;
 
 		# RGB combos:
 		RGB_MODE) RGBCLI -m up ;;
@@ -49,8 +49,8 @@ HANDLE_HOTKEY() {
 		RGB_COLOR_NEXT) RGBCLI -c up ;;
 
 		# "RetroArch Network Wait" combos:
-		RETROWAIT_IGNORE) [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ] && echo ignore >/tmp/net_start ;;
-		RETROWAIT_MENU) [ "$(GET_VAR "global" "settings/advanced/retrowait")" -eq 1 ] && echo menu >/tmp/net_start ;;
+		RETROWAIT_IGNORE) [ "$(GET_VAR "config" "settings/advanced/retrowait")" -eq 1 ] && echo ignore >/tmp/net_start ;;
+		RETROWAIT_MENU) [ "$(GET_VAR "config" "settings/advanced/retrowait")" -eq 1 ] && echo menu >/tmp/net_start ;;
 	esac
 }
 
@@ -62,10 +62,10 @@ LID_CLOSED() {
 }
 
 SLEEP() {
-	if [ "$(GET_VAR "global" "boot/factory_reset")" -eq 0 ]; then
+	if [ "$(GET_VAR "config" "boot/factory_reset")" -eq 0 ]; then
 		if [ "$(echo "$(UPTIME) - $(GET_VAR "system" "resume_uptime") >= 1" | bc)" -eq 1 ]; then
 			/opt/muos/script/system/suspend.sh &
-			UPTIME >"/run/muos/system/resume_uptime"
+			SET_VAR "system" "resume_uptime" UPTIME
 		fi
 	fi
 }
@@ -73,7 +73,7 @@ SLEEP() {
 DPAD_TOGGLE() {
 	RECENT_WAKE="/tmp/recent_wake"
 
-	if [ ! -f "$RECENT_WAKE" ] && [ "$(GET_VAR "global" "settings/advanced/dpad_swap")" -eq 1 ]; then
+	if [ ! -f "$RECENT_WAKE" ] && [ "$(GET_VAR "config" "settings/advanced/dpad_swap")" -eq 1 ]; then
 		RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
 
 		case "$(GET_VAR "system" "foreground_process")" in
@@ -103,7 +103,7 @@ RGBCLI() {
 
 READ_HOTKEYS | while read -r HOTKEY; do
 	# Don't respond to any hotkeys while in charge mode or with lid closed.
-	if [ "$(GET_VAR "system" "foreground_process")" = muxcharge ] || LID_CLOSED; then
+	if [ "$(GET_VAR "system" "foreground_process")" = "muxcharge" ] || LID_CLOSED; then
 		continue
 	fi
 

@@ -6,12 +6,12 @@
 
 FRONTEND stop
 
-MOUNT="$(GET_VAR device storage/rom/mount)"
+MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 
 echo "Restoring DraStic Configuration"
 rm -f "$MOUNT/MUOS/emulator/drastic-trngaje/config/drastic.cfg" \
 	"$MOUNT/MUOS/emulator/drastic-trngaje/resources/settings.json"
-/opt/muos/device/current/script/control.sh
+/opt/muos/device/script/control.sh
 
 echo "Sync Filesystem"
 sync

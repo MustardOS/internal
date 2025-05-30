@@ -19,7 +19,7 @@ case "$(GET_VAR "device" "board/name")" in
 	rg*)
 		PPSSPP_DIR="${PPSSPP_DIR}/rg"
 
-		if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
+		if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 			SDL_HQ_SCALER=2
 			SDL_ROTATION=0
 			SDL_BLITTER_DISABLED=1
@@ -80,7 +80,7 @@ cd "$PPSSPP_DIR" || exit
 
 SET_VAR "system" "foreground_process" "PPSSPP"
 
-SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/opt/muos/device/current/control/gamecontrollerdb_retro.txt") ./PPSSPP --pause-menu-exit "$FILE"
+SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/opt/muos/device/control/gamecontrollerdb_retro.txt") ./PPSSPP --pause-menu-exit "$FILE"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 

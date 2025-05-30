@@ -3,10 +3,10 @@
 . /opt/muos/script/var/func.sh
 
 ZRAM_FILE="/dev/zram0"
-ZRAM_SIZE=$(GET_VAR "global" "settings/advanced/zramfile")
+ZRAM_SIZE=$(GET_VAR "config" "settings/advanced/zramfile")
 
 SWAP_FILE="/opt/muswap"
-SWAP_SIZE=$(GET_VAR "global" "settings/advanced/swapfile")
+SWAP_SIZE=$(GET_VAR "config" "settings/advanced/swapfile")
 
 CREATE_ZRAM() {
 	if [ "$2" -eq 1 ]; then

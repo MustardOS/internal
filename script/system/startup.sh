@@ -2,22 +2,18 @@
 
 . /opt/muos/script/var/func.sh
 
-mkdir -p "/run/muos/system"
-touch "/run/muos/system/foreground_process"
-echo 0 >"/run/muos/system/idle_inhibit"
-cut -d ' ' -f 1 /proc/uptime >"/run/muos/system/resume_uptime"
 rm -f /opt/muos/log/*.log &
 rm -rf /opt/muxtmp &
+
+SET_VAR "system" "idle_inhibit" 0
+SET_VAR "system" "resume_uptime" "$(cut -d ' ' -f 1 /proc/uptime)"
+SET_VAR "config" "boot/device_mode" "0"
 
 LOG_INFO "$0" 0 "BOOTING" "Setting OS Release"
 /opt/muos/script/system/os_release.sh &
 
-LOG_INFO "$0" 0 "BOOTING" "Initialising System Variables"
-/opt/muos/script/var/init.sh init device
-/opt/muos/script/var/init.sh init global
-
 LOG_INFO "$0" 0 "BOOTING" "Reset temporary screen rotation and zoom"
-SCREEN_DIR=/run/muos/device/screen
+SCREEN_DIR="/opt/muos/device/config/screen"
 for T in s_rotate s_zoom; do
 	[ -f "$SCREEN_DIR/$T" ] && rm -f "$SCREEN_DIR/$T"
 done
@@ -26,16 +22,14 @@ LOG_INFO "$0" 0 "BOOTING" "Caching System Variables"
 GOVERNOR=$(GET_VAR "device" "cpu/governor")
 WIDTH=$(GET_VAR "device" "screen/internal/width")
 HEIGHT=$(GET_VAR "device" "screen/internal/height")
-RUMBLE_SETTING=$(GET_VAR "global" "settings/advanced/rumble")
+RUMBLE_SETTING=$(GET_VAR "config" "settings/advanced/rumble")
 RUMBLE_PIN=$(GET_VAR "device" "board/rumble")
-BOARD_NAME=$(GET_VAR "device" "board/name")
-HDMI_PATH=$(GET_VAR "device" "screen/hdmi")
 BOARD_HDMI=$(GET_VAR "device" "board/hdmi")
 ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
-PASSCODE_LOCK=$(GET_VAR "global" "settings/advanced/lock")
-FACTORY_RESET=$(GET_VAR "global" "boot/factory_reset")
+PASSCODE_LOCK=$(GET_VAR "config" "settings/advanced/lock")
+FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
-USER_INIT=$(GET_VAR "global" "settings/advanced/user_init")
+USER_INIT=$(GET_VAR "config" "settings/advanced/user_init")
 
 LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"
 echo "performance" >"$GOVERNOR"
@@ -52,14 +46,8 @@ done &
 LOG_INFO "$0" 0 "BOOTING" "Bringing Up 'localhost' Network"
 ifconfig lo up &
 
-LOG_INFO "$0" 0 "BOOTING" "Mounting Current Device Specifics"
-DEVICE_CURRENT="/opt/muos/device/current"
-[ -L "$DEVICE_CURRENT" ] && rm -rf "$DEVICE_CURRENT"
-mkdir -p "$DEVICE_CURRENT"
-mount --bind "/opt/muos/device/$BOARD_NAME" "$DEVICE_CURRENT"
-
 LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
-/opt/muos/device/current/script/module.sh load &
+/opt/muos/device/script/module.sh load &
 
 LOG_INFO "$0" 0 "BOOTING" "Starting Device Management System"
 /sbin/udevd -d || CRITICAL_FAILURE udev
@@ -82,28 +70,27 @@ if [ "$FACTORY_RESET" -eq 0 ]; then
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Detecting Console Mode"
-DEVICE_MODE=0
-if [ "$(cat "$HDMI_PATH")" -eq 1 ] && [ "$BOARD_HDMI" -eq 1 ]; then
-	LOG_INFO "$0" 0 "DEVICE MODE" "Entering Console Mode"
-	DEVICE_MODE=1
+if [ "$BOARD_HDMI" -eq 1 ]; then
+	if ! IS_INTERNAL_DISPLAY; then
+		SET_VAR "config" "boot/device_mode" "1"
+	fi
 fi
-SET_VAR "global" "boot/device_mode" "$DEVICE_MODE"
 
 LOG_INFO "$0" 0 "BOOTING" "Checking Swap Requirements"
 /opt/muos/script/system/swap.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"
-cp -f "/opt/muos/device/current/control/asound.conf" "/etc/asound.conf"
+cp -f "/opt/muos/device/control/asound.conf" "/etc/asound.conf"
 
 if [ -s "$ALSA_CONFIG" ]; then
 	LOG_INFO "$0" 0 "BOOTING" "ALSA Config Check Passed"
 else
 	LOG_WARN "$0" 0 "BOOTING" "ALSA Config Check Failed: Restoring"
-	cp -f "/opt/muos/config/alsa.conf" "$ALSA_CONFIG"
+	cp -f "/opt/muos/share/conf/alsa.conf" "$ALSA_CONFIG"
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Restoring Audio State"
-cp -f "/opt/muos/device/current/control/asound.state" "/var/lib/alsa/asound.state"
+cp -f "/opt/muos/device/control/asound.state" "/var/lib/alsa/asound.state"
 alsactl -U restore
 
 LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
@@ -119,7 +106,7 @@ LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"
 (chown -R root:root /opt && chmod -R 755 /opt) &
 
 LOG_INFO "$0" 0 "BOOTING" "Device Specific Startup"
-/opt/muos/device/current/script/start.sh &
+/opt/muos/device/script/start.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
 while [ ! -f /run/muos/storage/mounted ]; do /opt/muos/bin/toybox sleep 0.1; done
@@ -132,7 +119,7 @@ OOPS="$ROM_MOUNT/oops.sh"
 [ -e "$OOPS" ] && ./"$OOPS"
 
 LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
-/opt/muos/device/current/script/charge.sh
+/opt/muos/device/script/charge.sh
 
 LOG_INFO "$0" 0 "BOOTING" "Checking for Network Capability"
 if [ "$HAS_NETWORK" -eq 1 ]; then
@@ -142,12 +129,6 @@ fi
 
 LOG_INFO "$0" 0 "BOOTING" "Starting Hotkey Daemon"
 /opt/muos/script/mux/hotkey.sh &
-
-LOG_INFO "$0" 0 "BOOTING" "Checking for Kiosk Mode"
-KIOSK_HARD_CONFIG="/opt/muos/config/kiosk.ini"
-KIOSK_USER_CONFIG="$ROM_MOUNT/MUOS/kiosk.ini"
-[ -f "$KIOSK_USER_CONFIG" ] && [ ! -f "$KIOSK_HARD_CONFIG" ] && mv "$KIOSK_USER_CONFIG" "$KIOSK_HARD_CONFIG"
-[ -f "$KIOSK_HARD_CONFIG" ] && /opt/muos/script/var/init.sh init kiosk &
 
 LOG_INFO "$0" 0 "BOOTING" "Checking for Passcode Lock"
 HAS_UNLOCK=0
@@ -176,7 +157,7 @@ LOG_INFO "$0" 0 "BOOTING" "Starting USB Function"
 /opt/muos/script/system/usb.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Setting Device Controls"
-/opt/muos/device/current/script/control.sh &
+/opt/muos/device/script/control.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Setting up SDL Controller Map"
 /opt/muos/script/mux/sdl_map.sh &
@@ -185,6 +166,6 @@ LOG_INFO "$0" 0 "BOOTING" "Running Catalogue Generator"
 /opt/muos/script/system/catalogue.sh "$ROM_MOUNT" &
 
 LOG_INFO "$0" 0 "BOOTING" "Precaching RetroArch System"
-ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/config/preload.txt &
+ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/share/conf/preload.txt &
 
 dmesg >"$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &

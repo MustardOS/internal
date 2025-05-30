@@ -3,7 +3,7 @@
 . /opt/muos/script/var/func.sh
 
 
-[ "$(GET_VAR "global" "settings/general/activity")" -eq 0 ] && exit 0
+[ "$(GET_VAR "config" "settings/general/activity")" -eq 0 ] && exit 0
 
 NAME="$1"
 CORE="$2"
@@ -13,7 +13,7 @@ ACTION="$4"
 TRACK_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/track/playtime_data.json"
 TRACK_LOG="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/playtime_error.log"
 
-if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
+if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
     MODE="console"
 else
     MODE="handheld"

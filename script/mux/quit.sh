@@ -43,7 +43,7 @@ DISPLAY_BLANK() {
 
 # Clears the last-played content so we won't relaunch it on the next boot.
 CLEAR_LAST_PLAY() {
-	: >/opt/muos/config/lastplay.txt
+	: >/opt/muos/config/boot/last_play
 }
 
 # Cleanly halts, shuts down, or reboots the device.
@@ -69,7 +69,7 @@ HALT_SYSTEM() {
 		# Last Game: Always relaunch on boot.
 		# Resume Game: Only relaunch on boot if we're running content
 		# that was started via the launch script.
-		case "$(GET_VAR "global" "settings/general/startup")" in
+		case "$(GET_VAR "config" "settings/general/startup")" in
 			last) ;;
 			resume) pidof launch.sh >/dev/null || CLEAR_LAST_PLAY ;;
 			*) CLEAR_LAST_PLAY ;;
@@ -89,7 +89,7 @@ HALT_SYSTEM() {
 		esac
 
 		# Run syncthing scanner if enabled
-		if [ "$(GET_VAR "global" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
+		if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
 			SYNCTHING_API=$(cat /run/muos/storage/syncthing/config.xml | grep '<apikey>[^<]*</apikey>' | sed 's/.*<apikey>\([^<]*\)<\/apikey>.*/\1/')
 			curl -X POST -H "X-API-Key: $SYNCTHING_API" "localhost:7070/rest/db/scan"
 		fi

@@ -7,14 +7,14 @@
 FRONTEND stop
 
 echo "Reverting to original network settings"
-SET_VAR "global" "network/type" "0"
-SET_VAR "global" "network/ssid" ""
-SET_VAR "global" "network/pass" ""
-SET_VAR "global" "network/scan" ""
-SET_VAR "global" "network/address" ""
-SET_VAR "global" "network/gateway" ""
-SET_VAR "global" "network/subnet" ""
-SET_VAR "global" "network/dns" "1.1.1.1"
+SET_VAR "config" "network/type" "0"
+SET_VAR "config" "network/ssid" ""
+SET_VAR "config" "network/pass" ""
+SET_VAR "config" "network/scan" ""
+SET_VAR "config" "network/address" ""
+SET_VAR "config" "network/gateway" ""
+SET_VAR "config" "network/subnet" ""
+SET_VAR "config" "network/dns" "1.1.1.1"
 
 echo "Removing WPA Supplicant"
 rm -rf "/etc/wpa_supplicant.conf"

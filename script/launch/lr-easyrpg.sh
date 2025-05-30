@@ -16,7 +16,7 @@ FILE=${3%/}
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
-if [ "$(GET_VAR "global" "boot/device_mode")" -eq 1 ]; then
+if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 	SDL_HQ_SCALER=2
 	SDL_ROTATION=0
 	SDL_BLITTER_DISABLED=1
@@ -38,8 +38,8 @@ RA_CONF=/run/muos/storage/info/config/retroarch.cfg
 # in the retroarch.cfg will take precedence. Modified settings will save
 # to the main retroarch.cfg, not the included retroarch.device.cfg.)
 sed -n -e '/^#include /!p' \
-	-e '$a#include "/opt/muos/device/current/control/retroarch.device.cfg"' \
-	-e '$a#include "/opt/muos/device/current/control/retroarch.resolution.cfg"' \
+	-e '$a#include "/opt/muos/device/control/retroarch.device.cfg"' \
+	-e '$a#include "/opt/muos/device/control/retroarch.resolution.cfg"' \
 	-i "$RA_CONF"
 
 if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] 2>/dev/null; then

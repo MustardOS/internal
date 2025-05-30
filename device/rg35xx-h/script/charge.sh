@@ -3,7 +3,7 @@
 . /opt/muos/script/var/func.sh
 
 BOOT_MODE=$(GET_VAR "device" "battery/boot_mode")
-FACTORY_RESET=$(GET_VAR "global" "boot/factory_reset")
+FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 DEBUGFS=$(GET_VAR "device" "board/debugfs")
 GOVERNOR=$(GET_VAR "device" "cpu/governor")
 LED=$(GET_VAR "device" "led/normal")

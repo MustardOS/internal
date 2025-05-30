@@ -2,11 +2,11 @@
 
 . /opt/muos/script/var/func.sh
 
-DEVICE_MODE=$(GET_VAR global boot/device_mode)
+DEVICE_MODE=$(GET_VAR "config" "boot/device_mode")
 [ -z "$1" ] || [ "$DEVICE_MODE" -ne 0 ] && exit 0
 
-CURR_BRIGHT=$(GET_VAR global settings/general/brightness)
-MAX_BRIGHT=$(GET_VAR device screen/bright)
+CURR_BRIGHT=$(GET_VAR "config" "settings/general/brightness")
+MAX_BRIGHT=$(GET_VAR "device" "screen/bright")
 
 FB_BLANK="/tmp/fb_blank"
 
@@ -34,7 +34,7 @@ SET_CURRENT() {
 	esac
 
 	DISPLAY_WRITE lcd0 setbl "$NEW_BRIGHT"
-	SET_VAR global settings/general/brightness "$NEW_BRIGHT"
+	SET_VAR "config" "settings/general/brightness" "$NEW_BRIGHT"
 }
 
 case "$1" in

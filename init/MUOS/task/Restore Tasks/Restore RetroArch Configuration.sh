@@ -10,7 +10,7 @@ echo "Restoring RetroArch Configuration"
 rm -f /run/muos/storage/info/config/retroarch.cfg
 
 # control.sh recreates retroarch.cfg from retroarch.default.cfg.
-/opt/muos/device/current/script/control.sh
+/opt/muos/device/script/control.sh
 
 echo "Sync Filesystem"
 sync

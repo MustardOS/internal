@@ -144,6 +144,8 @@ if [ "$USER_INIT" -eq 1 ]; then
 	/opt/muos/script/system/user_init.sh &
 fi
 
+SET_VAR "system" "used_reset" 1
+
 LOG_INFO "$0" 0 "BOOTING" "Starting muX Frontend"
 /opt/muos/script/mux/frontend.sh &
 

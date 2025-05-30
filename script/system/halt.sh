@@ -157,6 +157,8 @@ HALT_CMD=$1
 shift
 
 {
+	printf 0 >/opt/muos/config/system/used_reset
+
 	# Kill the lid switch process if it exists.
 	if pgrep lid.sh >/dev/null 2>&1; then
 		printf 'Killing lid switch detection...\n'

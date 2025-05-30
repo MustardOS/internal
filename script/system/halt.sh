@@ -163,6 +163,18 @@ shift
 		killall -q lid.sh
 	fi
 
+	printf 'Killing muX modules...\n'
+	while :; do
+		PIDS=$(ps -e | grep '[m]ux' | grep -v 'muxsplash' | awk '{ print $1 }')
+		[ -z "$PIDS" ] && break
+
+		for PID in $PIDS; do
+			kill -9 "$PID" 2>/dev/null
+		done
+
+		/opt/muos/bin/toybox sleep 0.25
+	done
+
 	# Cleanly unmount filesystems to avoid fsck/chkdsk errors.
 	printf 'Stopping union mounts...\n'
 	/opt/muos/script/mount/union.sh stop

@@ -157,16 +157,19 @@ HALT_CMD=$1
 shift
 
 {
-	# Unloading kernel modules.
-	printf 'Unloading kernel modules...\n'
-	/opt/muos/device/script/module.sh unload
+	# Kill the lid switch process if it exists.
+	if pgrep lid.sh >/dev/null 2>&1; then
+		printf 'Killing lid switch detection...\n'
+		killall -q lid.sh
+	fi
 
 	# Cleanly unmount filesystems to avoid fsck/chkdsk errors.
 	printf 'Stopping union mounts...\n'
 	/opt/muos/script/mount/union.sh stop
 
-	# Kill the lid switch process if it exists
-	pgrep lid.sh >/dev/null 2>&1 && killall -q lid.sh
+	# Unloading kernel modules.
+	printf 'Unloading kernel modules...\n'
+	/opt/muos/device/script/module.sh unload
 
 	# Check if random theme is enabled and run the random theme script if necessary
 	#if [ "$(sed -n '/^\[settings\.advanced\]/,/^\[/{ /^random_theme[ ]*=[ ]*/{ s/^[^=]*=[ ]*//p }}' /opt/muos/config/config.ini)" -eq 1 ] 2>/dev/null; then
@@ -175,7 +178,7 @@ shift
 	#fi
 
 	printf 'Disabling swapfile...\n'
-    swapoff -a
+	swapoff -a
 
 	# Sync filesystems before beginning the standard halt sequence. If a
 	# subsequent step hangs (or the user hard resets), syncing here reduces

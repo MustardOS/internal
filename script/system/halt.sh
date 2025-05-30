@@ -217,10 +217,6 @@ umount -ar
 echo u >/proc/sysrq-trigger
 
 case "$HALT_CMD" in
-	halt | poweroff) echo o >/proc/sysrq-trigger ;;
 	reboot) echo b >/proc/sysrq-trigger ;;
+	*) echo o >/proc/sysrq-trigger ;;
 esac
-
-# If that didn't work, panic the kernel ^_^
-echo 'Sysrq shutdown failed, forcing kernel panic...'
-echo c >/proc/sysrq-trigger

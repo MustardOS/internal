@@ -9,5 +9,6 @@ This repository holds all of the key infrastructure of MustardOS (muOS):
 * `device`: Device specific files - Has its own script and input files
 * `extra`: The frontend files which are compiled from https://github.com/MustardOS/frontend
 * `init`: Content partition filesystem which is moved on first install
+* `kiosk`: Frontend and system kiosk values
 * `script`: Various POSIX compliant script files which is the backbone of muOS
 * `share`: Various shared resources used for internal scripts and applications

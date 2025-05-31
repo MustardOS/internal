@@ -72,7 +72,6 @@ cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
 
 # External Script
 if [ "$CORE" = external ]; then
-	SET_VAR "system" "foreground_process" "$(/opt/muos/script/system/extract_process.sh "$ROM")"
 	/opt/muos/script/launch/ext-general.sh "$NAME" "$CORE" "$ROM"
 # Amiberry External
 elif [ "$CORE" = ext-amiberry ]; then

@@ -118,7 +118,7 @@ LOG_INFO "$0" 0 "BOOTING" "Unionising ROMS on Storage Mounts"
 
 LOG_INFO "$0" 0 "BOOTING" "Checking for Safety Script"
 OOPS="$ROM_MOUNT/oops.sh"
-[ -e "$OOPS" ] && ./"$OOPS"
+[ -x "$OOPS" ] && "$OOPS"
 
 LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
 /opt/muos/device/script/charge.sh

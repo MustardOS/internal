@@ -1,5 +1,10 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
+RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
+RUMBLE_SETTING="$(GET_VAR "config" "settings/advanced/rumble")"
+
 # muOS shutdown/reboot script. This behaves a bit better than BusyBox
 # poweroff/reboot commands, which also make some odd choices (e.g., unmounting
 # disks before killing processes, so running programs can't save state).
@@ -209,6 +214,11 @@ shift
 	if ! KILL_AND_WAIT 10 TERM "$@"; then
 		KILL_AND_WAIT 1 KILL "$@"
 	fi
+
+	# Vibrate the device if the user has specifically set it on shutdown
+	case "$RUMBLE_SETTING" in
+		2 | 4 | 6) RUMBLE "$RUMBLE_DEVICE" 0.3 ;;
+	esac
 
 	# Log output for debugging, but close the log file before we sync and
 	# unmount to ensure it's written and avoid keeping the filesystem busy.

@@ -5,6 +5,8 @@
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
 RUMBLE_SETTING="$(GET_VAR "config" "settings/advanced/rumble")"
 
+SET_VAR "system" "used_reset" 0
+
 # muOS shutdown/reboot script. This behaves a bit better than BusyBox
 # poweroff/reboot commands, which also make some odd choices (e.g., unmounting
 # disks before killing processes, so running programs can't save state).
@@ -158,77 +160,65 @@ FIND_PROCS() {
 	return 1
 }
 
-HALT_CMD=$1
-shift
+# Kill the lid switch process if it exists.
+if pgrep lid.sh >/dev/null 2>&1; then
+	LOG_INFO "$0" 0 "HALT" "Killing lid switch detection"
+	killall -q lid.sh
+fi
 
-{
-	printf 0 >/opt/muos/config/system/used_reset
+LOG_INFO "$0" 0 "HALT" "Killing muX modules"
+while :; do
+	PIDS=$(ps -e | grep '[m]ux' | grep -v 'muxsplash' | awk '{ print $1 }')
+	[ -z "$PIDS" ] && break
 
-	# Kill the lid switch process if it exists.
-	if pgrep lid.sh >/dev/null 2>&1; then
-		printf 'Killing lid switch detection...\n'
-		killall -q lid.sh
-	fi
-
-	printf 'Killing muX modules...\n'
-	while :; do
-		PIDS=$(ps -e | grep '[m]ux' | grep -v 'muxsplash' | awk '{ print $1 }')
-		[ -z "$PIDS" ] && break
-
-		for PID in $PIDS; do
-			kill -9 "$PID" 2>/dev/null
-		done
-
-		/opt/muos/bin/toybox sleep 0.25
+	for PID in $PIDS; do
+		kill -9 "$PID" 2>/dev/null
 	done
 
-	# Cleanly unmount filesystems to avoid fsck/chkdsk errors.
-	printf 'Stopping union mounts...\n'
-	/opt/muos/script/mount/union.sh stop
+	/opt/muos/bin/toybox sleep 0.25
+done
 
-	# Unloading kernel modules.
-	printf 'Unloading kernel modules...\n'
-	/opt/muos/device/script/module.sh unload
+# Cleanly unmount filesystems to avoid fsck/chkdsk errors.
+LOG_INFO "$0" 0 "HALT" "Stopping union mounts"
+/opt/muos/script/mount/union.sh stop
 
-	# Check if random theme is enabled and run the random theme script if necessary
-	#if [ "$(sed -n '/^\[settings\.advanced\]/,/^\[/{ /^random_theme[ ]*=[ ]*/{ s/^[^=]*=[ ]*//p }}' /opt/muos/config/config.ini)" -eq 1 ] 2>/dev/null; then
-	#	printf 'Random theme is enabled. Changing to a random theme...\n'
-	#	/opt/muos/script/package/theme.sh install "?R"
-	#fi
+# Check if random theme is enabled and run the random theme script if necessary
+#if [ "$(sed -n '/^\[settings\.advanced\]/,/^\[/{ /^random_theme[ ]*=[ ]*/{ s/^[^=]*=[ ]*//p }}' /opt/muos/config/config.ini)" -eq 1 ] 2>/dev/null; then
+#	printf 'Random theme is enabled. Changing to a random theme...\n'
+#	/opt/muos/script/package/theme.sh install "?R"
+#fi
 
-	printf 'Disabling swapfile...\n'
-	swapoff -a
+LOG_INFO "$0" 0 "HALT" "Disabling any swapfile mounts"
+swapoff -a
 
-	# Sync filesystems before beginning the standard halt sequence. If a
-	# subsequent step hangs (or the user hard resets), syncing here reduces
-	# the likelihood of corrupting muOS configs, RetroArch autosaves, etc.
-	printf 'Syncing writes to disk...\n'
-	sync
+# Unloading kernel modules.
+LOG_INFO "$0" 0 "HALT" "Unloading kernel modules"
+/opt/muos/device/script/module.sh unload
 
-	# Stop system services. If shutdown scripts are still running after
-	# 10s, SIGTERM them, then wait 5s more before resorting to SIGKILL.
-	RUN_WITH_TIMEOUT 10 5 'shutdown scripts' /etc/init.d/rcK
+# Stop system services. If shutdown scripts are still running after
+# 10s, SIGTERM them, then wait 5s more before resorting to SIGKILL.
+LOG_INFO "$0" 0 "HALT" "Stopping system services"
+RUN_WITH_TIMEOUT 10 5 'shutdown scripts' /etc/init.d/rcK
 
-	# Send SIGTERM to remaining processes. Wait up to 10s before mopping up
-	# with SIGKILL, then wait up to 1s more for everything to die.
-	if ! KILL_AND_WAIT 10 TERM "$@"; then
-		KILL_AND_WAIT 1 KILL "$@"
-	fi
+# Send SIGTERM to remaining processes. Wait up to 10s before mopping up
+# with SIGKILL, then wait up to 1s more for everything to die.
+LOG_INFO "$0" 0 "HALT" "Terminating remaining processes"
+if ! KILL_AND_WAIT 10 TERM "$@"; then
+	KILL_AND_WAIT 1 KILL "$@"
+fi
 
-	# Vibrate the device if the user has specifically set it on shutdown
-	case "$RUMBLE_SETTING" in
-		2 | 4 | 6) RUMBLE "$RUMBLE_DEVICE" 0.3 ;;
-	esac
-
-	# Log output for debugging, but close the log file before we sync and
-	# unmount to ensure it's written and avoid keeping the filesystem busy.
-	printf 'Closing log file...\n'
-} 2>&1 | awk '{ cmd="date +\"%Y-%m-%d %H:%M:%S\""; cmd | getline t; close(cmd); print t, $0 }' >>/opt/muos/halt.log
-
-umount -ar
-echo u >/proc/sysrq-trigger
-
-case "$HALT_CMD" in
-	reboot) echo b >/proc/sysrq-trigger ;;
-	*) echo o >/proc/sysrq-trigger ;;
+# Vibrate the device if the user has specifically set it on shutdown
+LOG_INFO "$0" 0 "HALT" "Running shutdown rumble if set"
+case "$RUMBLE_SETTING" in
+	2 | 4 | 6) RUMBLE "$RUMBLE_DEVICE" 0.3 ;;
 esac
+
+# Sync filesystems before beginning the standard halt sequence. If a
+# subsequent step hangs (or the user hard resets), syncing here reduces
+# the likelihood of corrupting muOS configs, RetroArch autosaves, etc.
+LOG_INFO "$0" 0 "HALT" "Syncing writes to disk..."
+sync
+
+LOG_INFO "$0" 0 "HALT" "Unmounting storage devices..."
+sync && umount -ar
+exec "$1" -f

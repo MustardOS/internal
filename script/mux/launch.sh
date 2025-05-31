@@ -168,7 +168,7 @@ fi
 FB_SWITCH "$(GET_VAR "device" "screen/$SCREEN_TYPE/width")" "$(GET_VAR "device" "screen/$SCREEN_TYPE/height")" 32
 
 if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
- 	SYNCTHING_API=$(cat /run/muos/storage/syncthing/config.xml | grep '<apikey>[^<]*</apikey>' | sed 's/.*<apikey>\([^<]*\)<\/apikey>.*/\1/')
+ 	SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' /run/muos/storage/syncthing/config.xml)
 	curl -X POST -H "X-API-Key: $SYNCTHING_API" "localhost:7070/rest/db/scan"
 fi
 

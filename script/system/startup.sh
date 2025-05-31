@@ -147,9 +147,6 @@ fi
 LOG_INFO "$0" 0 "BOOTING" "Starting muX Frontend"
 /opt/muos/script/mux/frontend.sh &
 
-LOG_INFO "$0" 0 "BOOTING" "Backing up Global Configuration"
-/opt/muos/script/system/config_backup.sh &
-
 LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"
 /opt/muos/script/system/lowpower.sh &
 

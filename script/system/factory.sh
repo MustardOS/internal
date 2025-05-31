@@ -14,6 +14,8 @@ if [ "$LED_RGB" -eq 1 ]; then
 	esac
 fi
 
+/opt/muos/extra/muxwarn
+
 LOG_INFO "$0" 0 "FACTORY RESET" "Setting date time to default"
 date 010100002025
 hwclock -w

@@ -90,8 +90,10 @@ else
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Restoring Audio State"
-cp -f "/opt/muos/device/control/asound.state" "/var/lib/alsa/asound.state"
-alsactl -U restore
+if ! cmp -s "/opt/muos/device/control/asound.state" "/var/lib/alsa/asound.state"; then
+	cp -f "/opt/muos/device/control/asound.state" "/var/lib/alsa/asound.state"
+	alsactl -U restore
+fi
 
 LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
 /opt/muos/script/system/pipewire.sh &

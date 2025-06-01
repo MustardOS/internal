@@ -253,3 +253,22 @@ DISPLAY_READ() {
 		*) ;;
 	esac
 }
+
+PLAY_SOUND() {
+	SND="/opt/muos/share/media/$1.wav"
+	[ -e "$SND" ] && rm -f "$SND"
+
+	case "$NAV_SOUND" in
+		1)
+			WAV="/mnt/mmc/MUOS/sound/$1.wav"
+			[ -e "$WAV" ] && cp "$WAV" "$SND"
+			;;
+		2)
+			WAV="/run/muos/storage/theme/active/sound/$1.wav"
+			[ -e "$WAV" ] && cp "$WAV" "$SND"
+			;;
+		*) ;;
+	esac
+
+	[ -e "$SND" ] && /usr/bin/mpv "$SND"
+}

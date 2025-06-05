@@ -1,4 +1,6 @@
 #!/bin/sh
+# HELP: Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1
+# ICON: star
 
 . /opt/muos/script/var/func.sh
 

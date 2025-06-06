@@ -162,6 +162,9 @@ case "$1" in
 
 		LOG_INFO "$0" 0 "NETWORK" "Stopping Network Services"
 		/opt/muos/script/web/service.sh stopall &
+
+		LOG_INFO "$0" 0 "NETWORK" "Stopping Keepalive Script"
+		killall -9 "keepalive.sh" &
 		;;
 
 	connect)
@@ -174,9 +177,9 @@ case "$1" in
 
 		while [ "$RETRY_CURR" -lt "$RETRIES" ]; do
 			if TRY_CONNECT; then
-				LOG_SUCCESS "$0" 0 "NETWORK" "Network Connected Successfully!"
+				LOG_SUCCESS "$0" 0 "NETWORK" "Network Connected Successfully"
 
-				LOG_INFO "$0" 0 "NETWORK" "Starting Keepalive Service!"
+				LOG_INFO "$0" 0 "NETWORK" "Starting Keepalive Script"
 				/opt/muos/script/web/keepalive.sh &
 
 				LOG_INFO "$0" 0 "NETWORK" "Starting Enabled Network Services"

@@ -222,8 +222,8 @@ IS_INTERNAL_DISPLAY() {
 	[ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ] && HDMI_VALUE=$(cat "$HDMI_PATH")
 
 	case "$HDMI_VALUE" in
-		*[!0-9]*) return 0 ;;
-		*) [ "$HDMI_VALUE" -eq 0 ] ;;
+		1) return 1 ;;                # HDMI is active = external
+		*[!0-9]* | 0 | *) return 0 ;; # Non-numeric, 0, or fallback = internal
 	esac
 }
 

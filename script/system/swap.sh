@@ -31,14 +31,18 @@ CREATE_SWAP() {
 }
 
 PURGE_ZRAM() {
-	LOG_INFO "$1" 0 "ZRAMFILE" "Purging Zramfile"
-	swapoff "$ZRAM_FILE"
+	if [ -e "$ZRAM_FILE" ]; then
+		LOG_INFO "$1" 0 "ZRAMFILE" "Purging Zramfile"
+		swapoff "$ZRAM_FILE"
+	fi
 }
 
 PURGE_SWAP() {
-	LOG_INFO "$1" 0 "SWAPFILE" "Purging Swapfile"
-	swapoff "$SWAP_FILE"
-	rm -f "$SWAP_FILE"
+	if [ -e "$SWAP_FILE" ]; then
+		LOG_INFO "$1" 0 "SWAPFILE" "Purging Swapfile"
+		swapoff "$SWAP_FILE"
+		rm -f "$SWAP_FILE"
+	fi
 }
 
 if [ "$ZRAM_SIZE" -eq 0 ]; then

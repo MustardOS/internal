@@ -70,11 +70,19 @@ if [ "$FACTORY_RESET" -eq 0 ]; then
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Detecting Console Mode"
+CONSOLE_MODE=0
 if [ "$BOARD_HDMI" -eq 1 ]; then
-	if ! IS_INTERNAL_DISPLAY; then
-		SET_VAR "config" "boot/device_mode" "1"
-	fi
+	HDMI_PATH=$(GET_VAR "device" "screen/hdmi")
+	HDMI_VALUE=0
+
+	[ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ] && HDMI_VALUE=$(cat "$HDMI_PATH")
+
+	case "$HDMI_VALUE" in
+		1) CONSOLE_MODE=1 ;;                # HDMI is active = external
+		*[!0-9]* | 0 | *) CONSOLE_MODE=0 ;; # Non-numeric, 0, or fallback = internal
+	esac
 fi
+SET_VAR "config" "boot/device_mode" "$CONSOLE_MODE"
 
 LOG_INFO "$0" 0 "BOOTING" "Checking Swap Requirements"
 /opt/muos/script/system/swap.sh &

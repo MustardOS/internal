@@ -90,7 +90,12 @@ FRONTEND() {
 }
 
 EXEC_MUX() {
+	if [ "$(GET_VAR config boot/device_mode)" -eq 1 ]; then
+		while [ ! -f "/tmp/hdmi_in_use" ]; do $MP/bin/toybox sleep 0.1; done
+	fi
+
 	[ -f "$SAFE_QUIT" ] && rm "$SAFE_QUIT"
+
 	EXIT_STATUS=0
 	GOBACK="$1"
 	MODULE="$2"
@@ -102,6 +107,7 @@ EXEC_MUX() {
 	nice --20 "$MP/extra/$MODULE" "$@"
 
 	while [ ! -f "$SAFE_QUIT" ]; do $MP/bin/toybox sleep 0.1; done
+
 	PREVIOUS_MODULE="$MODULE"
 	EXIT_STATUS=$(head -n 1 "$SAFE_QUIT")
 }
@@ -215,16 +221,8 @@ HDMI_SWITCH() {
 	FB_SWITCH "$WIDTH" "$HEIGHT" "$DEPTH"
 }
 
-IS_INTERNAL_DISPLAY() {
-	HDMI_PATH=$(GET_VAR "device" "screen/hdmi")
-	HDMI_VALUE=0
-
-	[ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ] && HDMI_VALUE=$(cat "$HDMI_PATH")
-
-	case "$HDMI_VALUE" in
-		1) return 1 ;;                # HDMI is active = external
-		*[!0-9]* | 0 | *) return 0 ;; # Non-numeric, 0, or fallback = internal
-	esac
+IS_HANDHELD_MODE() {
+	[ "$(GET_VAR config boot/device_mode)" -eq 0 ]
 }
 
 # Writes a setting value to the display driver.

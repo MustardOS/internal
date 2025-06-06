@@ -3,7 +3,7 @@
 . /opt/muos/script/var/func.sh
 
 if [ "$(GET_VAR "config" "boot/factory_reset")" -eq 0 ]; then
-	IS_INTERNAL_DISPLAY && . /opt/muos/script/mux/idle.sh
+	IS_HANDHELD_MODE && . /opt/muos/script/mux/idle.sh
 fi
 
 DPAD_FILE=/sys/class/power_supply/axp2202-battery/nds_pwrkey
@@ -22,9 +22,9 @@ HANDLE_HOTKEY() {
 	# This blocks the event loop, so commands here should finish quickly.
 	case "$1" in
 		# Input activity/idle:
-		IDLE_ACTIVE) IS_INTERNAL_DISPLAY && DISPLAY_ACTIVE ;;
-		IDLE_DISPLAY) IS_INTERNAL_DISPLAY && DISPLAY_IDLE ;;
-		IDLE_SLEEP) IS_INTERNAL_DISPLAY && SLEEP ;;
+		IDLE_ACTIVE) IS_HANDHELD_MODE && DISPLAY_ACTIVE ;;
+		IDLE_DISPLAY) IS_HANDHELD_MODE && DISPLAY_IDLE ;;
+		IDLE_SLEEP) IS_HANDHELD_MODE && SLEEP ;;
 
 		# Power combos:
 		OSF_R) /opt/muos/script/mux/quit.sh reboot osf ;;
@@ -32,12 +32,12 @@ HANDLE_HOTKEY() {
 		SLEEP) SLEEP ;;
 
 		# Utility combos:
-		SCREENSHOT) IS_INTERNAL_DISPLAY && /opt/muos/script/mux/screenshot.sh ;;
+		SCREENSHOT) IS_HANDHELD_MODE && /opt/muos/script/mux/screenshot.sh ;;
 		DPAD_TOGGLE) DPAD_TOGGLE ;;
 
 		# Brightness/volume combos:
-		BRIGHT_UP) IS_INTERNAL_DISPLAY && /opt/muos/device/input/bright.sh U ;;
-		BRIGHT_DOWN) IS_INTERNAL_DISPLAY && /opt/muos/device/input/bright.sh D ;;
+		BRIGHT_UP) IS_HANDHELD_MODE && /opt/muos/device/input/bright.sh U ;;
+		BRIGHT_DOWN) IS_HANDHELD_MODE && /opt/muos/device/input/bright.sh D ;;
 		VOL_UP) /opt/muos/device/input/audio.sh U ;;
 		VOL_DOWN) /opt/muos/device/input/audio.sh D ;;
 

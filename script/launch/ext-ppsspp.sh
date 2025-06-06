@@ -80,7 +80,7 @@ cd "$PPSSPP_DIR" || exit
 
 SET_VAR "system" "foreground_process" "PPSSPP"
 
-SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/opt/muos/device/control/gamecontrollerdb_retro.txt") ./PPSSPP --pause-menu-exit "$FILE"
+SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/usr/lib/gamecontrollerdb.txt") ./PPSSPP --pause-menu-exit "$FILE"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 

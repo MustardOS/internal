@@ -92,9 +92,11 @@
     "Storage": "Storage"
   },
   "muxconnect": {
+    "Android Debug Bridge": "Android Debug Bridge",
     "Bluetooth": "Bluetooth",
     "CONNECTIVITY": "CONNECTIVITY",
     "Connect to a Wi-Fi network manually or via a saved profile": "Connect to a Wi-Fi network manually or via a saved profile",
+    "Media Transfer Protocol": "Media Transfer Protocol",
     "Toggle a range of configurable services you can access via an active network": "Toggle a range of configurable services you can access via an active network",
     "Toggle between ADB and MTP USB functionality": "Toggle between ADB and MTP USB functionality",
     "Toggle the visibility of the bluetooth glyph": "Toggle the visibility of the bluetooth glyph",
@@ -187,9 +189,7 @@
   },
   "muxinfo": {
     "Access network information": "Access network information",
-    "Access statistics of played content and other activity": "Access statistics of played content and other activity",
     "Access version information and system details": "Access version information and system details",
-    "Activity Tracker": "Activity Tracker",
     "INFORMATION": "INFORMATION",
     "Input Tester": "Input Tester",
     "Network Details": "Network Details",
@@ -201,6 +201,40 @@
     "View all of the current muOS supporters": "View all of the current muOS supporters",
     "View all of the screenshots taken on the device": "View all of the screenshots taken on the device",
     "View the current used space of the mounted storage devices": "View the current used space of the mounted storage devices"
+  },
+  "muxkiosk": {
+    "Advanced Settings": "Advanced Settings",
+    "Applications": "Applications",
+    "Archive Manager": "Archive Manager",
+    "Collections": "Collections",
+    "Configuration": "Configuration",
+    "Content Core": "Content Core",
+    "Content Explorer": "Content Explorer",
+    "Content Governor": "Content Governor",
+    "Content Options": "Content Options",
+    "Content Search": "Content Search",
+    "Content Tag": "Content Tag",
+    "Custom Bootlogo": "Custom Bootlogo",
+    "Custom Catalogue": "Custom Catalogue",
+    "Custom RetroArch Configs": "Custom RetroArch Configs",
+    "Custom Themes": "Custom Themes",
+    "Customisation": "Customisation",
+    "Date and Time": "Date and Time",
+    "General Settings": "General Settings",
+    "HDMI Settings": "HDMI Settings",
+    "History": "History",
+    "Information": "Information",
+    "Interface Options": "Interface Options",
+    "KIOSK SETTINGS": "KIOSK SETTINGS",
+    "Kiosk Mode": "Kiosk Mode",
+    "Language": "Language",
+    "Power Settings": "Power Settings",
+    "RetroArch Kiosk": "RetroArch Kiosk",
+    "Storage": "Storage",
+    "Task Toolkit": "Task Toolkit",
+    "Timezone": "Timezone",
+    "Web Services": "Web Services",
+    "Wi-Fi Network": "Wi-Fi Network"
   },
   "muxlanguage": {
     "LANGUAGE": "LANGUAGE",
@@ -307,9 +341,6 @@
     "WI-FI NETWORK": "WI-FI NETWORK"
   },
   "muxoption": {
-    "Assign Core": "Assign Core",
-    "Assign Governor": "Assign Governor",
-    "Assign Tag": "Assign Tag",
     "CONTENT OPTION": "CONTENT OPTION",
     "Core": "Core",
     "Current": "Current",
@@ -319,7 +350,7 @@
     "Name": "Name",
     "None": "None",
     "Not Assigned": "Not Assigned",
-    "Search Content": "Search Content",
+    "Search": "Search",
     "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Set the CPU governor for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Set the specific tag of the content selected to change the glyph",
@@ -412,18 +443,18 @@
     "SCREENSHOTS": "SCREENSHOTS",
     "View your current screenshots": "View your current screenshots"
   },
-  "muxsnapshot": {
-    "No Save Snapshots Found": "No Save Snapshots Found",
-    "Restore your saved game progress from a previous snapshot": "Restore your saved game progress from a previous snapshot",
-    "SAVE SNAPSHOT": "SAVE SNAPSHOT"
-  },
   "muxspace": {
+    "External Storage": "External Storage",
+    "Primary Storage": "Primary Storage",
     "STORAGE SPACE": "STORAGE SPACE",
+    "Secondary Storage": "Secondary Storage",
+    "System Storage": "System Storage",
     "View the current used space of the mounted storage devices": "View the current used space of the mounted storage devices"
   },
   "muxstorage": {
     "Assigned Core/Governor System": "Assigned Core/Governor System",
     "Background Music": "Background Music",
+    "Bootlogo Packages": "Bootlogo Packages",
     "Catalogue Packages": "Catalogue Packages",
     "Content Collection": "Content Collection",
     "Friendly Name System": "Friendly Name System",
@@ -437,6 +468,7 @@
     "Location of User Initialisation scripts": "Location of User Initialisation scripts",
     "Location of assigned core and governor configurations": "Location of assigned core and governor configurations",
     "Location of background music": "Location of background music",
+    "Location of bootlogo packages": "Location of bootlogo packages",
     "Location of catalogue packages": "Location of catalogue packages",
     "Location of content collection": "Location of content collection",
     "Location of content images and text": "Location of content images and text",

@@ -15,7 +15,7 @@ HEX_ESCAPE() {
 LOG_INFO "$0" 0 "SSID-SCAN" "Setting '%s' device up" "$IFCE"
 ip link set dev "$IFCE" up
 
-LOG_INFO "$0" 0 "SSID-SCAN" "Scanning for networks..." "$IFCE"
+LOG_INFO "$0" 0 "SSID-SCAN" "Scanning for networks..."
 timeout 15 iw dev "$IFCE" scan |
 	grep "SSID:" |
 	sed 's/^[[:space:]]*SSID: //' |

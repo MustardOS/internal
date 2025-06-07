@@ -111,9 +111,9 @@ if [ $SKIP -eq 0 ]; then
 	fi
 fi
 
-LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
-
 cp /opt/muos/log/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
+
+LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 
 while :; do
 	pkill -9 -f "gptokeyb" &
@@ -126,6 +126,8 @@ while :; do
 
 	[ -s "$ACT_GO" ] && {
 		IFS= read -r ACTION <"$ACT_GO"
+
+		LOG_INFO "$0" 0 "FRONTEND" "Loading '%s' Action" "$ACTION"
 
 		case "$ACTION" in
 			"launcher")

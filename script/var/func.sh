@@ -271,3 +271,46 @@ PLAY_SOUND() {
 
 	[ -e "$SND" ] && /usr/bin/mpv "$SND"
 }
+
+SETUP_SDL_ENVIRONMENT() {
+	if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
+		SDL_HQ_SCALER=2
+		SDL_ROTATION=0
+		SDL_BLITTER_DISABLED=1
+	else
+		SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
+		SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
+		SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+	fi
+
+	export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+}
+
+CONFIGURE_RETROARCH() {
+	RA_CONF=$1
+	RA_CONTROL="/opt/muos/device/control/retroarch"
+
+	# Include default button mappings from retroarch.device.cfg. Settings in the
+	# retroarch.cfg will take precedence. Modified settings will save to the main
+	# retroarch.cfg, not the included retroarch.device.cfg file.
+	RA_TYPES="device resolution"
+
+	# Create a temporary config file with all matching lines from the original config,
+	# excluding any existing include lines for the given RetroArch types in the var.
+	TMP_RA_CONF=$(mktemp)
+	for TYPE in $RA_TYPES; do
+		printf '#include "%s.%s.cfg"\n' "$RA_CONTROL" "$TYPE"
+	done | grep -vFf - "$RA_CONF" >"$TMP_RA_CONF"
+
+	# Append the required include lines to the clean config so they are always present.
+	for TYPE in $RA_TYPES; do
+		printf '#include "%s.%s.cfg"\n' "$RA_CONTROL" "$TYPE" >>"$TMP_RA_CONF"
+	done
+
+	# Replace the original config with the modified version.
+	mv "$TMP_RA_CONF" "$RA_CONF"
+
+	# Set kiosk mode value based on current configuration.
+	KIOSK_MODE=$([ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] && echo true || echo false)
+	sed -i "s/^kiosk_mode_enable = \".*\"$/kiosk_mode_enable = \"$KIOSK_MODE\"/" "$RA_CONF"
+}

@@ -34,7 +34,7 @@ if [ ! -f "$MP64GL64" ]; then
 fi
 
 # Move RetroArch configuration
-RA_CONF=/run/muos/storage/info/config/retroarch.cfg
+RA_CONF="/run/muos/storage/info/config/retroarch.cfg"
 if [ ! -f "$RA_CONF" ]; then
 	cp /run/muos/storage/retroarch/retroarch.default.cfg "$RA_CONF"
 fi

@@ -16,33 +16,18 @@ FILE=${3%/}
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
-if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-	SDL_HQ_SCALER=2
-	SDL_ROTATION=0
-	SDL_BLITTER_DISABLED=1
-else
-	SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
-	SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
-	SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
-fi
-
-export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
-
-LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/nxe.log"
+SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "retroarch"
+
+RA_CONF="/run/muos/storage/info/config/retroarch.cfg"
+CONFIGURE_RETROARCH "$RA_CONF"
+
+LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/nxe.log"
 
 echo "Starting Cave Story (libretro)" > "$LOGPATH"
 # Set nxengine BIOS path
 DOUK_BIOS="/run/muos/storage/bios/nxengine/Doukutsu.exe"
-
-RA_CONF=/run/muos/storage/info/config/retroarch.cfg
-
-if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] 2>/dev/null; then
-	sed -i 's/^kiosk_mode_enable = "false"$/kiosk_mode_enable = "true"/' "$RA_CONF"
-else
-	sed -i 's/^kiosk_mode_enable = "true"$/kiosk_mode_enable = "false"/' "$RA_CONF"
-fi
 
 if [ -e "$DOUK_BIOS" ]; then
 	echo "Doukutsu.exe found!" >> "$LOGPATH"
@@ -92,11 +77,13 @@ fi
 if [ "$GREENLIGHT" -eq 1 ]; then
 	echo "Launching Cave Story" >> "$LOGPATH"
 	/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
-	retroarch -v -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$DOUK" &
+
+	nice --20 retroarch -v -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$DOUK" &
 	RA_PID=$!
 
 	wait $RA_PID
+	unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+
 	/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 fi
 
-unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

@@ -16,22 +16,14 @@ FILE=${3%/}
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
-if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-	SDL_HQ_SCALER=2
-	SDL_ROTATION=0
-	SDL_BLITTER_DISABLED=1
-else
-	SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
-	SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
-	SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
-fi
-
-export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "retroarch"
 
-F_PATH=$(echo "$FILE" | awk -F'/' '{NF--; print}' OFS='/')
+RA_CONF="/run/muos/storage/info/config/retroarch.cfg"
+CONFIGURE_RETROARCH "$RA_CONF"
 
+F_PATH=$(echo "$FILE" | awk -F'/' '{NF--; print}' OFS='/')
 if [ -d "$F_PATH/.$NAME" ]; then
 	SUBFOLDER=".$NAME"
 else
@@ -39,32 +31,14 @@ else
 fi
 
 SCVM="$F_PATH/$SUBFOLDER/$NAME.scummvm"
-
 cp "$F_PATH/$NAME.scummvm" "$SCVM"
-
-RA_CONF=/run/muos/storage/info/config/retroarch.cfg
-
-# Include default button mappings from retroarch.device.cfg. (Settings in the
-# retroarch.cfg will take precedence. Modified settings will save to the main
-# retroarch.cfg, not the included retroarch.device.cfg.)
-sed -n -e '/^#include /!p' \
-	-e '$a#include "/opt/muos/device/control/retroarch.device.cfg"' \
-	-e '$a#include "/opt/muos/device/control/retroarch.resolution.cfg"' \
-	-i "$RA_CONF"
-
-if [ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] 2>/dev/null; then
-	sed -i 's/^kiosk_mode_enable = "false"$/kiosk_mode_enable = "true"/' "$RA_CONF"
-else
-	sed -i 's/^kiosk_mode_enable = "true"$/kiosk_mode_enable = "false"/' "$RA_CONF"
-fi
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/scummvm_libretro.so" "$SCVM" &
+nice --20 retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/scummvm_libretro.so" "$SCVM" &
 RA_PID=$!
 
 wait $RA_PID
+unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
-
-unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

@@ -16,17 +16,7 @@ FILE=${3%/}
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
-if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-	SDL_HQ_SCALER=2
-	SDL_ROTATION=0
-	SDL_BLITTER_DISABLED=1
-else
-	SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
-	SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
-	SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
-fi
-
-export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+SETUP_SDL_ENVIRONMENT
 
 IS_32BIT=0
 if grep -q '^[[:space:]]*[^#]*PORT_32BIT="Y"' "$FILE"; then
@@ -37,6 +27,7 @@ if [ $IS_32BIT -eq 1 ]; then
 	export PIPEWIRE_MODULE_DIR="/usr/lib32/pipewire-0.3"
 	export SPA_PLUGIN_DIR="/usr/lib32/spa-0.2"
 fi
+
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
 "$FILE"

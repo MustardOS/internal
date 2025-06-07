@@ -16,17 +16,7 @@ FILE=${3%/}
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
-if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-	SDL_HQ_SCALER=2
-	SDL_ROTATION=0
-	SDL_BLITTER_DISABLED=1
-else
-	SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
-	SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
-	SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
-fi
-
-export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+SETUP_SDL_ENVIRONMENT
 
 # Our OpenBOR builds hardcode Batocera /userdata paths. :( For example:
 # https://github.com/batocera-linux/batocera.linux/blob/master/package/batocera/emulators/openbor/openbor7530/002-adjust-paths.patch

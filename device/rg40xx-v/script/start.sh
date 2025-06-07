@@ -8,10 +8,8 @@ if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
 fi
 
-/opt/muos/device/input/bright.sh R
-
 if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-	/opt/muos/device/script/hdmi.sh start
+	/opt/muos/device/script/hdmi.sh
 else
 	if [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
 		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
@@ -21,6 +19,8 @@ else
 			/opt/muos/device/script/led_control.sh 1 0 0 0 0 0 0 0
 		fi
 	fi
+
+	/opt/muos/device/input/bright.sh R
 
 	case "$(GET_VAR "config" "settings/advanced/brightness")" in
 		"high")

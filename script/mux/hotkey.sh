@@ -63,9 +63,10 @@ LID_CLOSED() {
 
 SLEEP() {
 	if [ "$(GET_VAR "config" "boot/factory_reset")" -eq 0 ]; then
-		if [ "$(echo "$(UPTIME) - $(GET_VAR "system" "resume_uptime") >= 1" | bc)" -eq 1 ]; then
+	  	CURR_UPTIME=$(UPTIME)
+		if [ "$(echo "$CURR_UPTIME - $(GET_VAR "system" "resume_uptime") >= 1" | bc)" -eq 1 ]; then
 			/opt/muos/script/system/suspend.sh &
-			SET_VAR "system" "resume_uptime" UPTIME
+			SET_VAR "system" "resume_uptime" "$CURR_UPTIME"
 		fi
 	fi
 }

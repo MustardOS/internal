@@ -24,14 +24,21 @@ SLEEP() {
 	echo 4 >"/sys/class/graphics/fb0/blank"
 	touch "/tmp/mux_blank"
 
-	cat "$CPU_GOV_PATH" >"/tmp/orig_cpu_gov"
-	echo "powersave" >"$CPU_GOV_PATH"
+	# Shutdown all of the CPU cores for boards that have actual proper
+	# energy module within the kernel and device tree... unlike TrimUI
+	case "$(GET_VAR "device" "board/name")" in
+		rg*)
+			cat "$CPU_GOV_PATH" >"/tmp/orig_cpu_gov"
+			echo "powersave" >"$CPU_GOV_PATH"
 
-	C=1
-	while [ "$C" -lt "$CPU_CORES" ]; do
-		echo 0 >"/sys/devices/system/cpu/cpu${C}/online"
-		C=$((C + 1))
-	done
+			C=1
+			while [ "$C" -lt "$CPU_CORES" ]; do
+				echo 0 >"/sys/devices/system/cpu/cpu${C}/online"
+				C=$((C + 1))
+			done
+			;;
+		*) ;;
+	esac
 
 	if [ "$LED_RGB" -eq 1 ]; then
 		/opt/muos/device/script/led_control.sh 1 0 0 0 0 0 0 0
@@ -49,13 +56,18 @@ SLEEP() {
 }
 
 RESUME() {
-	cat "/tmp/orig_cpu_gov" >"$CPU_GOV_PATH"
+	case "$(GET_VAR "device" "board/name")" in
+		rg*)
+			cat "/tmp/orig_cpu_gov" >"$CPU_GOV_PATH"
 
-	C=1
-	while [ "$C" -lt "$CPU_CORES" ]; do
-		echo 1 >"/sys/devices/system/cpu/cpu${C}/online"
-		C=$((C + 1))
-	done
+			C=1
+			while [ "$C" -lt "$CPU_CORES" ]; do
+				echo 1 >"/sys/devices/system/cpu/cpu${C}/online"
+				C=$((C + 1))
+			done
+			;;
+		*) ;;
+	esac
 
 	/opt/muos/device/script/module.sh load
 

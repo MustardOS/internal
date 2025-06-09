@@ -160,6 +160,9 @@ FIND_PROCS() {
 	return 1
 }
 
+# Muting audio so we don't get any of those nasty clicks from the speaker.
+wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
+
 # Kill the lid switch process if it exists.
 if pgrep lid.sh >/dev/null 2>&1; then
 	LOG_INFO "$0" 0 "HALT" "Killing lid switch detection"

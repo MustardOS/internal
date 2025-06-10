@@ -45,23 +45,23 @@ if [ $SKIP -eq 0 ]; then
 
 				while :; do
 					NW_MSG=$(printf "Waiting for network to connect... (%s)\n\nPress START to continue loading\nPress SELECT to go to main menu" "$OIP")
-					/opt/muos/extra/muxstart 0 "$NW_MSG"
+					/opt/muos/extra/muxmessage 0 "$NW_MSG"
 					OIP=$((OIP + 1))
 
 					if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
 						LOG_SUCCESS "$0" 0 "FRONTEND" "Network connected"
-						/opt/muos/extra/muxstart 0 "Network connected"
+						/opt/muos/extra/muxmessage 0 "Network connected"
 
 						PIP=0
 						while ! ping -c 1 -W 5 8.8.8.8 >/dev/null 2>&1; do
 							PIP=$((PIP + 1))
 							LOG_INFO "$0" 0 "FRONTEND" "Verifying connectivity..."
-							/opt/muos/extra/muxstart 0 "Verifying connectivity... (%s)" "$PIP"
+							/opt/muos/extra/muxmessage 0 "Verifying connectivity... (%s)" "$PIP"
 							/opt/muos/bin/toybox sleep 1
 						done
 
 						LOG_SUCCESS "$0" 0 "FRONTEND" "Connectivity verified! Booting content!"
-						/opt/muos/extra/muxstart 0 "Connectivity verified! Booting content!"
+						/opt/muos/extra/muxmessage 0 "Connectivity verified! Booting content!"
 
 						GO_LAST_BOOT=1
 						break
@@ -69,7 +69,7 @@ if [ $SKIP -eq 0 ]; then
 
 					if [ "$(cat "$NET_START")" = "ignore" ]; then
 						LOG_SUCCESS "$0" 0 "FRONTEND" "Ignoring network connection"
-						/opt/muos/extra/muxstart 0 "Ignoring network connection... Booting content!"
+						/opt/muos/extra/muxmessage 0 "Ignoring network connection... Booting content!"
 
 						GO_LAST_BOOT=1
 						break
@@ -77,7 +77,7 @@ if [ $SKIP -eq 0 ]; then
 
 					if [ "$(cat "$NET_START")" = "menu" ]; then
 						LOG_SUCCESS "$0" 0 "FRONTEND" "Booting to main menu"
-						/opt/muos/extra/muxstart 0 "Booting to main menu!"
+						/opt/muos/extra/muxmessage 0 "Booting to main menu!"
 
 						GO_LAST_BOOT=0
 						break

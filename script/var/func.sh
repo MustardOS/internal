@@ -141,7 +141,7 @@ LOG() {
 
 	printf "[%6s] [%-3s${ESC}[0m] %s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$SPACER" "$@"
 	printf "[%6s] [%-3s${ESC}[0m] %s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$SPACER" "$@" >>"$MUOS_LOG_DIR/$(date +"%Y_%m_%d")_$MODULE.log"
-	# $MP/extra/muxstart $PROGRESS "$(printf "%s\n\n%s${MSG}" "$TITLE" "$@")"
+	# $MP/extra/muxmessage $PROGRESS "$(printf "%s\n\n%s${MSG}" "$TITLE" "$@")"
 }
 
 LOG_INFO() { (LOG "${CSI}33m*" "$@") & }
@@ -157,7 +157,7 @@ CRITICAL_FAILURE() {
 		*) MESSAGE=$(printf "Critical Failure\n\nAn unknown error occurred!") ;;
 	esac
 
-	$MP/extra/muxstart 0 "$MESSAGE"
+	$MP/extra/muxmessage 0 "$MESSAGE"
 	$MP/bin/toybox sleep 10
 	$MP/script/system/halt.sh poweroff
 }

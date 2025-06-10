@@ -33,7 +33,7 @@ export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED SDL_JOYSTICK_DEVICE SDL_G
 
 # Check if "pyxel" is already installed
 if ! /usr/bin/python3 -c "import pyxel" 2>/dev/null; then
-	/opt/muos/extra/muxstart 0 "$(printf "Installing Pyxel Libraries\n\nPlease wait...")"
+	/opt/muos/extra/muxmessage 0 "$(printf "Installing Pyxel Libraries\n\nPlease wait...")"
 	/usr/bin/python3 -m ensurepip --upgrade --user
 	/usr/bin/python3 -m pip install -U pyxel pip --user
 fi

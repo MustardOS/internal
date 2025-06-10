@@ -26,7 +26,7 @@ EXEC_MUX "reset" "muxfrontend"
 printf 0 >"/tmp/msg_progress"
 [ -f "/tmp/msg_finish" ] && rm -f "/tmp/msg_finish"
 
-/opt/muos/extra/muxstart 0 "/opt/muos/share/message.txt" -d 5
+/opt/muos/extra/muxmessage 0 "/opt/muos/share/message.txt" -d 5
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
 /opt/muos/script/mux/hotkey.sh &

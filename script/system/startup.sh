@@ -30,6 +30,7 @@ PASSCODE_LOCK=$(GET_VAR "config" "settings/advanced/lock")
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
 USER_INIT=$(GET_VAR "config" "settings/advanced/user_init")
+FIRST_INIT=$(GET_VAR "config" "boot/first_init")
 
 LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"
 echo "performance" >"$GOVERNOR"
@@ -107,6 +108,11 @@ LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
 if [ "$FACTORY_RESET" -eq 1 ]; then
 	/opt/muos/script/system/factory.sh
 	/opt/muos/script/system/halt.sh reboot
+fi
+
+if [ "$FIRST_INIT" -eq 0 ]; then
+		/opt/muos/extra/muxmessage 0 "$(printf 'SYSTEM INIT\n\nmuOS is Getting Ready!\nPlease wait a moment...')"
+		SET_VAR "config" "boot/first_init" 1
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"

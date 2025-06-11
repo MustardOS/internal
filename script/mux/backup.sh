@@ -43,10 +43,6 @@ elif [ "$DEST_MNT" != "SD1" ] && [ "$DEST_MNT" != "SD2" ] && [ "$DEST_MNT" != "U
 fi
 
 if [ "$ERROR_FLAG" -ne 1 ]; then
-    if [ "$SRC_MODE" = "BATCH" ]; then
-        BACKUP_FOLDER="BACKUP/$(date +"%Y%m%d_%H%M")"
-    fi
-
     case "$DEST_MNT" in
         SD1) DEST_PATH="$SD1/$BACKUP_FOLDER";;
         SD2) DEST_PATH="$SD2/$BACKUP_FOLDER";;
@@ -118,7 +114,7 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
             break
         fi
         
-        DEST_FILE="$DEST_PATH/$SRC_SHORTNAME$(date +"_%Y%m%d_%H%M").muxbak"
+        DEST_FILE="${DEST_PATH}/muOS-${SRC_SHORTNAME}-$(date +%Y%m%d-%H%M).muxzip"
         
         echo "Creating archive for $SRC_SHORTNAME at $DEST_FILE"
         if ! zip $ZIP_FLAGS "$DEST_FILE" "$SRC_PATH"; then

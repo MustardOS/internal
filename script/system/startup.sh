@@ -111,8 +111,8 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 fi
 
 if [ "$FIRST_INIT" -eq 0 ]; then
-		/opt/muos/extra/muxmessage 0 "$(printf 'SYSTEM INIT\n\nmuOS is Getting Ready!\nPlease wait a moment...')"
-		SET_VAR "config" "boot/first_init" 1
+	/opt/muos/extra/muxmessage 0 "$(printf 'SYSTEM INIT\n\nmuOS is Getting Ready!\nPlease wait a moment...')"
+	SET_VAR "config" "boot/first_init" 1
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"
@@ -158,9 +158,6 @@ if [ "$USER_INIT" -eq 1 ]; then
 	/opt/muos/script/system/user_init.sh &
 fi
 
-LOG_INFO "$0" 0 "BOOTING" "Starting muX Frontend"
-/opt/muos/script/mux/frontend.sh &
-
 LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"
 /opt/muos/script/system/lowpower.sh &
 
@@ -179,4 +176,8 @@ LOG_INFO "$0" 0 "BOOTING" "Running Catalogue Generator"
 LOG_INFO "$0" 0 "BOOTING" "Precaching RetroArch System"
 ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/share/conf/preload.txt &
 
+LOG_INFO "$0" 0 "BOOTING" "Saving Kernel Boot Log"
 dmesg >"$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
+
+LOG_INFO "$0" 0 "BOOTING" "Starting muX Frontend"
+/opt/muos/script/mux/frontend.sh &

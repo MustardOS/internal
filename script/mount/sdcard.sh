@@ -41,15 +41,7 @@ MOUNT_DEVICE() {
 		echo "write through" >"/sys/block/$SD_DEV/queue/write_cache"
 	fi
 
-	echo 8 >/proc/sys/vm/swappiness
-	echo 16 >/proc/sys/vm/dirty_ratio
-	echo 4 >/proc/sys/vm/dirty_background_ratio
-	echo 64 >/proc/sys/vm/vfs_cache_pressure
-
-	echo 2 >"/sys/block/$SD_DEV/queue/nomerges"
-	echo 128 >"/sys/block/$SD_DEV/queue/nr_requests"
-	echo 0 >"/sys/block/$SD_DEV/queue/iostats"
-	blockdev --setra 4096 "/dev/$SD_DEV"
+	KERNEL_TUNING "$SD_DEV"
 
 	mkdir -p "$SD_MOUNT/ROMS" "$SD_MOUNT/BACKUP" "$SD_MOUNT/ARCHIVE" "$SD_MOUNT/ports"
 }

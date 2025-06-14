@@ -314,3 +314,16 @@ CONFIGURE_RETROARCH() {
 	KIOSK_MODE=$([ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] && echo true || echo false)
 	sed -i "s/^kiosk_mode_enable = \".*\"$/kiosk_mode_enable = \"$KIOSK_MODE\"/" "$RA_CONF"
 }
+
+KERNEL_TUNING() {
+	GET_VAR "config" "danger/vmswap" >/proc/sys/vm/swappiness
+	GET_VAR "config" "danger/dirty_ratio" >/proc/sys/vm/dirty_ratio
+	GET_VAR "config" "danger/dirty_back_ratio" >/proc/sys/vm/dirty_background_ratio
+	GET_VAR "config" "danger/cache_pressure" >/proc/sys/vm/vfs_cache_pressure
+
+	GET_VAR "config" "danger/nomerges" >"/sys/block/$1/queue/nomerges"
+	GET_VAR "config" "danger/nr_requests" >"/sys/block/$1/queue/nr_requests"
+	GET_VAR "config" "danger/iostats" >"/sys/block/$1/queue/iostats"
+
+	blockdev --setra "$(GET_VAR "config" "danger/read_ahead")" "/dev/$1"
+}

@@ -1,6 +1,8 @@
 # Dumb macOS files
 .DS_Store
 ._*
+*Zone.Identifier
+
 
 # Ignore Portmaster libraries
 init/MUOS/PortMaster/libs/

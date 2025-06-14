@@ -1,0 +1,126 @@
+/dts-v1/;
+
+/ {
+	compatible = "board_manufacturer,board_model";
+	board_id = <0x20000>;
+	board_rev = <0x20001>;
+	another_hw_information = "some_data";
+	soc_id = <0x68000000>;
+
+	fragment@1 {
+		target = <0xffffffff>;
+
+		__overlay__ {
+			#address-cells = <0x01>;
+			#size-cells = <0x00>;
+			no_suspend = <0x01>;
+			status = "okay";
+
+			pmu {
+				compatible = "x-powers,axp1530";
+				reg = <0x36>;
+				wakeup-source;
+				linux,phandle = <0x02>;
+				phandle = <0x02>;
+
+				standby_param {
+					vcc-dram = <0x04>;
+					linux,phandle = <0x03>;
+					phandle = <0x03>;
+				};
+
+				regulators {
+
+					dcdc1 {
+						regulator-name = "axp1530-dcdc1";
+						regulator-min-microvolt = <0x7a120>;
+						regulator-max-microvolt = <0x33e140>;
+						regulator-step-delay-us = <0x19>;
+						regulator-final-delay-us = <0x32>;
+						regulator-always-on;
+						linux,phandle = <0x04>;
+						phandle = <0x04>;
+					};
+
+					dcdc2 {
+						regulator-name = "axp1530-dcdc2";
+						regulator-min-microvolt = <0x7a120>;
+						regulator-max-microvolt = <0x177fa0>;
+						regulator-step-delay-us = <0x19>;
+						regulator-final-delay-us = <0x32>;
+						regulator-ramp-delay = <0xc8>;
+						regulator-always-on;
+						linux,phandle = <0x01>;
+						phandle = <0x01>;
+					};
+
+					dcdc3 {
+						regulator-name = "axp1530-dcdc3";
+						regulator-min-microvolt = <0x16e360>;
+						regulator-max-microvolt = <0x16e360>;
+						regulator-step-delay-us = <0x19>;
+						regulator-final-delay-us = <0x32>;
+						regulator-always-on;
+						linux,phandle = <0x05>;
+						phandle = <0x05>;
+					};
+
+					ldo1 {
+						regulator-name = "axp1530-aldo1";
+						regulator-min-microvolt = <0x1b7740>;
+						regulator-max-microvolt = <0x1b7740>;
+						regulator-step-delay-us = <0x19>;
+						regulator-final-delay-us = <0x32>;
+						regulator-always-on;
+						linux,phandle = <0x06>;
+						phandle = <0x06>;
+					};
+
+					ldo2 {
+						regulator-name = "axp1530-dldo1";
+						regulator-min-microvolt = <0x325aa0>;
+						regulator-max-microvolt = <0x325aa0>;
+						regulator-step-delay-us = <0x19>;
+						regulator-final-delay-us = <0x32>;
+						regulator-always-on;
+						linux,phandle = <0x07>;
+						phandle = <0x07>;
+					};
+				};
+			};
+		};
+	};
+
+	fragment@2 {
+		target = <0xffffffff>;
+
+		__overlay__ {
+			cpu-supply = <0x01>;
+		};
+	};
+
+	__symbols__ {
+		pmu0 = "/fragment@1/__overlay__/pmu";
+		standby_param = "/fragment@1/__overlay__/pmu/standby_param";
+		reg_dcdc1 = "/fragment@1/__overlay__/pmu/regulators/dcdc1";
+		reg_dcdc2 = "/fragment@1/__overlay__/pmu/regulators/dcdc2";
+		reg_dcdc3 = "/fragment@1/__overlay__/pmu/regulators/dcdc3";
+		reg_aldo1 = "/fragment@1/__overlay__/pmu/regulators/ldo1";
+		reg_dldo1 = "/fragment@1/__overlay__/pmu/regulators/ldo2";
+	};
+
+	__fixups__ {
+		twi5 = "/fragment@1:target:0";
+		cpu0 = "/fragment@2:target:0";
+	};
+
+	__local_fixups__ {
+
+		fragment@2 {
+
+			__overlay__ {
+				cpu-supply = <0x00>;
+			};
+		};
+	};
+};

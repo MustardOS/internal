@@ -52,8 +52,6 @@ LOAD_MODULES() {
 }
 
 UNLOAD_MODULES() {
-	[ -e "$GPU_PATH/power_policy" ] && echo auto >"$GPU_PATH/power_policy"
-
 	[ "$(GET_VAR "device" "board/network")" -eq 1 ] && UNLOAD_NETWORK
 
 	rmmod mali_kbase.ko 2>/dev/null

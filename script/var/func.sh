@@ -316,14 +316,20 @@ CONFIGURE_RETROARCH() {
 }
 
 KERNEL_TUNING() {
-	GET_VAR "config" "danger/vmswap" >/proc/sys/vm/swappiness
-	GET_VAR "config" "danger/dirty_ratio" >/proc/sys/vm/dirty_ratio
-	GET_VAR "config" "danger/dirty_back_ratio" >/proc/sys/vm/dirty_background_ratio
-	GET_VAR "config" "danger/cache_pressure" >/proc/sys/vm/vfs_cache_pressure
+	GET_VAR "config" "danger/vmswap" >"/proc/sys/vm/swappiness"
+	GET_VAR "config" "danger/dirty_ratio" >"/proc/sys/vm/dirty_ratio"
+	GET_VAR "config" "danger/dirty_back_ratio" >"/proc/sys/vm/dirty_background_ratio"
+	GET_VAR "config" "danger/cache_pressure" >"/proc/sys/vm/vfs_cache_pressure"
 
 	GET_VAR "config" "danger/nomerges" >"/sys/block/$1/queue/nomerges"
 	GET_VAR "config" "danger/nr_requests" >"/sys/block/$1/queue/nr_requests"
 	GET_VAR "config" "danger/iostats" >"/sys/block/$1/queue/iostats"
+
+	GET_VAR "config" "danger/idle_flush" >"/proc/sys/vm/laptop_mode"
+	GET_VAR "config" "danger/page_cluster" >"/proc/sys/vm/page-cluster"
+	GET_VAR "config" "danger/child_first" >"/proc/sys/kernel/sched_child_runs_first"
+	GET_VAR "config" "danger/time_slice" >"/proc/sys/kernel/sched_rr_timeslice_ms"
+	GET_VAR "config" "danger/tune_scale" >"/proc/sys/kernel/sched_tunable_scaling"
 
 	blockdev --setra "$(GET_VAR "config" "danger/read_ahead")" "/dev/$1"
 }

@@ -211,9 +211,11 @@ if ! KILL_AND_WAIT 10 TERM "$@"; then
 fi
 
 # Vibrate the device if the user has specifically set it on shutdown
-LOG_INFO "$0" 0 "HALT" "Running shutdown rumble if set"
 case "$RUMBLE_SETTING" in
-	2 | 4 | 6) RUMBLE "$RUMBLE_DEVICE" 0.3 ;;
+	2 | 4 | 6)
+		LOG_INFO "$0" 0 "HALT" "Running shutdown rumble"
+		RUMBLE "$RUMBLE_DEVICE" 0.3
+		;;
 esac
 
 # Sync filesystems before beginning the standard halt sequence. If a

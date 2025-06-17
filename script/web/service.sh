@@ -34,10 +34,6 @@ MANAGE_WEBSERV() {
 						--no-browser \
 						--no-default-folder >/dev/null &
 					;;
-				"rslsync")
-					nice -2 /opt/muos/bin/rslsync \
-						--webui.listen 0.0.0.0:6060 >/dev/null &
-					;;
 				"ntp")
 					nice -2 /opt/muos/script/web/ntp.sh &
 					;;
@@ -55,7 +51,7 @@ MANAGE_WEBSERV() {
 	esac
 }
 
-for WEBSRV in sshd sftpgo ttyd syncthing rslsync ntp tailscaled; do
+for WEBSRV in sshd sftpgo ttyd syncthing ntp tailscaled; do
 	if [ ! "$1" = "stopall" ] && [ "$(GET_VAR "config" "web/$WEBSRV")" -eq 1 ]; then
 		TIMEOUT=30
 		WAIT=0

@@ -22,13 +22,12 @@ if [ "$(GET_VAR "config" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_LAUN
 	fi
 fi
 
-SOURCE=$1
 NAME=$(sed -n '1p' "$ROM_GO")
 CORE=$(sed -n '2p' "$ROM_GO" | tr -d '\n')
 ASSIGN=$(sed -n '3p' "$ROM_GO")
-LAUNCH=$(sed -n '5p' "$ROM_GO")
-R_DIR=$(sed -n '6p' "$ROM_GO")$(sed -n '7p' "$ROM_GO")
-ROM="$R_DIR"/$(sed -n '8p' "$ROM_GO")
+LAUNCH=$(sed -n '6p' "$ROM_GO")
+R_DIR=$(sed -n '7p' "$ROM_GO")$(sed -n '8p' "$ROM_GO")
+ROM="$R_DIR"/$(sed -n '9p' "$ROM_GO")
 PC_IP="$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/pc_ip.txt"
 
 if [ -s "$PC_IP" ]; then

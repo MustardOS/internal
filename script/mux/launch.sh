@@ -25,8 +25,10 @@ fi
 SOURCE=$1
 NAME=$(sed -n '1p' "$ROM_GO")
 CORE=$(sed -n '2p' "$ROM_GO" | tr -d '\n')
-R_DIR=$(sed -n '5p' "$ROM_GO")$(sed -n '6p' "$ROM_GO")
-ROM="$R_DIR"/$(sed -n '7p' "$ROM_GO")
+ASSIGN=$(sed -n '3p' "$ROM_GO")
+LAUNCH=$(sed -n '5p' "$ROM_GO")
+R_DIR=$(sed -n '6p' "$ROM_GO")$(sed -n '7p' "$ROM_GO")
+ROM="$R_DIR"/$(sed -n '8p' "$ROM_GO")
 PC_IP="$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/pc_ip.txt"
 
 if [ -s "$PC_IP" ]; then
@@ -70,74 +72,26 @@ sync &
 
 cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
 
-# External Script
-if [ "$CORE" = external ]; then
-	/opt/muos/script/launch/ext-general.sh "$NAME" "$CORE" "$ROM"
-# Amiberry External
-elif [ "$CORE" = ext-amiberry ]; then
-	/opt/muos/script/launch/ext-amiberry.sh "$NAME" "$CORE" "$ROM"
-# Flycast External
-elif [ "$CORE" = ext-flycast ]; then
-	/opt/muos/script/launch/ext-flycast.sh "$NAME" "$CORE" "$ROM"
-# Video Player (ffplay)
-elif [ "$CORE" = ext-ffplay ]; then
-	/opt/muos/script/launch/ext-ffplay.sh "$NAME" "$CORE" "$ROM"
-# Video Player (mpv)
-elif [ "${CORE#ext-mpv}" != "$CORE" ]; then
-	/opt/muos/script/launch/ext-mpv.sh "$NAME" "$CORE" "$ROM"
-# Book Reader (mreader)
-elif [ "${CORE#ext-mreader}" != "$CORE" ]; then
-	/opt/muos/script/launch/ext-mreader.sh "$NAME" "$CORE" "$ROM"
-# OpenBOR External
-elif [ "${CORE#ext-openbor}" != "$CORE" ]; then
-	/opt/muos/script/launch/ext-openbor.sh "$NAME" "$CORE" "$ROM"
-# PPSSPP External
-elif [ "$CORE" = ext-ppsspp ]; then
-	/opt/muos/script/launch/ext-ppsspp.sh "$NAME" "$CORE" "$ROM"
-# Pyxel External
-elif [ "$CORE" = ext-pyxel ]; then
-	/opt/muos/script/launch/ext-pyxel.sh "$NAME" "$CORE" "$ROM"
-# PICO-8 External
-elif [ "${CORE#ext-pico8}" != "$CORE" ]; then
-	/opt/muos/script/launch/ext-pico8.sh "$NAME" "$CORE" "$ROM"
-# DraStic External
-elif [ "$CORE" = ext-drastic ]; then
-	if [ "$SOURCE" = last ]; then
-		# HACK: Drastic-Steward hangs when restarting right after boot.
-		# Possibly a muOS bug, but no other emulator has this issue....
-		/opt/muos/bin/toybox sleep 1
-	fi
-	/opt/muos/script/launch/ext-drastic.sh "$NAME" "$CORE" "$ROM"
-# DraStic External - Legacy
-elif [ "$CORE" = ext-drastic-legacy ]; then
-	/opt/muos/script/launch/ext-drastic-legacy.sh "$NAME" "$CORE" "$ROM"
-# Mupen64Plus External
-elif [ "${CORE#ext-mupen64plus}" != "$CORE" ]; then
-	/opt/muos/script/launch/ext-mupen64plus.sh "$NAME" "$CORE" "$ROM"
-# ScummVM External
-elif [ "$CORE" = ext-scummvm ]; then
-	/opt/muos/script/launch/ext-scummvm.sh "$NAME" "$CORE" "$ROM"
-# YabaSanshiro External
-elif [ "${CORE#ext-yabasanshiro}" != "$CORE" ]; then
-	/opt/muos/script/launch/ext-yabasanshiro.sh "$NAME" "$CORE" "$ROM"
-# Flycast Extreme LibRetro
-elif [ "$CORE" = flycast_xtreme_libretro.so ]; then
-	/opt/muos/script/launch/lr-flycastx.sh "$NAME" "$CORE" "$ROM"
-# ScummVM LibRetro
-elif [ "$CORE" = scummvm_libretro.so ]; then
-	/opt/muos/script/launch/lr-scummvm.sh "$NAME" "$CORE" "$ROM"
-# PrBoom LibRetro
-elif [ "$CORE" = prboom_libretro.so ]; then
-	/opt/muos/script/launch/lr-prboom.sh "$NAME" "$CORE" "$ROM"
-# EasyRPG LibRetro
-elif [ "$CORE" = easyrpg_libretro.so ]; then
-	/opt/muos/script/launch/lr-easyrpg.sh "$NAME" "$CORE" "$ROM"
-# NX Engine (Cave Story)
-elif [ "$CORE" = nxengine_libretro.so ]; then
-	/opt/muos/script/launch/lr-nxengine.sh "$NAME" "$CORE" "$ROM"
-# Standard Libretro
+# Construct the path to the assigned launcher INI file based on device storage,
+# assignment name ($ASSIGN), and launcher name ($LAUNCH).  This is created within
+# the launching/assigning of the system and core.
+ASSIGN_INI=$(printf "%s/MUOS/info/assign/%s/%s.ini" "$(GET_VAR "device" "storage/rom/mount")" "$ASSIGN" "$LAUNCH")
+
+# Extract launcher stage commands from the INI file constructed above.
+# These are either the internal launch scripts or custom scripts if it
+# is a customised launch package if a user decides to create one...
+LAUNCH_PREP=$(PARSE_INI "$ASSIGN_INI" "launch" "prep") # Optional preparation step before content run
+LAUNCH_EXEC=$(PARSE_INI "$ASSIGN_INI" "launch" "exec") # REQUIRED main launcher to run the content
+LAUNCH_DONE=$(PARSE_INI "$ASSIGN_INI" "launch" "done") # Optional cleanup script after successful run
+
+# Ensure the main launcher was provided, could probably provide some visual feedback
+# on the frontend side of things but we'll deal with that later...
+if [ -z "$LAUNCH_EXEC" ]; then
+	echo "Missing launcher exec in $ASSIGN_INI" >&2
 else
-	/opt/muos/script/launch/lr-general.sh "$NAME" "$CORE" "$ROM"
+	if [ -n "$LAUNCH_PREP" ]; then "$LAUNCH_PREP" "$NAME" "$CORE" "$ROM"; fi
+	"$LAUNCH_EXEC" "$NAME" "$CORE" "$ROM"
+	if [ -n "$LAUNCH_DONE" ]; then "$LAUNCH_DONE" "$NAME" "$CORE" "$ROM"; fi
 fi
 
 # Filesystem sync
@@ -168,7 +122,7 @@ fi
 FB_SWITCH "$(GET_VAR "device" "screen/$SCREEN_TYPE/width")" "$(GET_VAR "device" "screen/$SCREEN_TYPE/height")" 32
 
 if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
- 	SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' /run/muos/storage/syncthing/config.xml)
+	SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' /run/muos/storage/syncthing/config.xml)
 	curl -X POST -H "X-API-Key: $SYNCTHING_API" "localhost:7070/rest/db/scan"
 fi
 

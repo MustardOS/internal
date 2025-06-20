@@ -79,6 +79,9 @@ touch "/tmp/msg_finish"
 LOG_INFO "$0" 0 "FACTORY RESET" "Purging Init Directory"
 rm -rf /opt/muos/init
 
+LOG_INFO "$0" 0 "FACTORY RESET" "Generating Automatic Core Assign"
+/opt/muos/script/system/assign.sh -p -v
+
 if [ "$NETWORK_ENABLED" -eq 1 ]; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Changing Network MAC Address"
 	macchanger -r "$NET_IFACE"

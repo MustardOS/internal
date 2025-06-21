@@ -1,0 +1,20 @@
+a_hk = esc
+
+a = p			# pause
+b = q			# stop and quit
+x = m			# mute sound
+y = o			# on screen display
+
+up = *			# volume increase
+up = add_shift
+down = /		# volume decrease
+left = [		# speed down 10%
+right = ]		# speed up 10%
+
+l1 = 3			# bright less
+l2 = 1			# contrast less
+r1 = 4			# bright more
+r2 = 2			# contrast more
+
+start = v		# subtitle visibility
+select = j		# subtitle next

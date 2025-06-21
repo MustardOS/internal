@@ -2,8 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
-rm -f /opt/muos/log/*.log &
-rm -rf /opt/muxtmp &
+rm -f /opt/muos/log/*.log
+rm -rf /opt/muxtmp
 
 SET_VAR "system" "idle_inhibit" 0
 SET_VAR "system" "resume_uptime" "$(cut -d ' ' -f 1 /proc/uptime)"

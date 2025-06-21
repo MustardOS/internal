@@ -14,7 +14,7 @@ RGBCONTROLLER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/RGB 
 READ_HOTKEYS() {
 	# Restart muhotkey if it exits. (tweak.sh kills it on config changes.)
 	while :; do
-		/opt/muos/extra/muhotkey /opt/muos/device/control/hotkey.json
+		/opt/muos/frontend/muhotkey /opt/muos/device/control/hotkey.json
 	done
 }
 

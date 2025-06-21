@@ -111,7 +111,7 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 fi
 
 if [ "$FIRST_INIT" -eq 0 ]; then
-	/opt/muos/extra/muxmessage 0 "$(printf 'SYSTEM INIT\n\nmuOS is Getting Ready!\nPlease wait a moment...')"
+	/opt/muos/frontend/muxmessage 0 "$(printf 'SYSTEM INIT\n\nmuOS is Getting Ready!\nPlease wait a moment...')"
 	SET_VAR "config" "boot/first_init" 1
 fi
 

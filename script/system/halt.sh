@@ -29,7 +29,7 @@ esac
 # Omit various programs from the termination process.
 # FUSE filesystems (e.g., exFAT) would unmount in parallel with other programs
 # exiting, preventing them from writing state to the SD card during cleanup.
-for OMIT_PID in $(pidof /opt/muos/extra/muterm /opt/muos/extra/muxsplash /sbin/mount.exfat-fuse 2>/dev/null); do
+for OMIT_PID in $(pidof /opt/muos/frontend/muterm /opt/muos/frontend/muxsplash /sbin/mount.exfat-fuse 2>/dev/null); do
 	set -- "$@" -o "$OMIT_PID"
 done
 

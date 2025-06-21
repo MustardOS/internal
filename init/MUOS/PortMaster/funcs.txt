@@ -18,7 +18,7 @@ export PM_CAN_MOUNT="${PM_CAN_MOUNT:-Y}"
 
 # muOS stuff.
 if [[ "$CFW_NAME" == "muOS" ]]; then
-    export LD_LIBRARY_PATH="/opt/muos/extra/lib:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH="/opt/muos/frontend/lib:$LD_LIBRARY_PATH"
 fi
 
 
@@ -138,7 +138,7 @@ pm_end_splash() {
 pm_message() {
     # Usage: pm_message "Some message here."
     if [[ "$CFW_NAME" == "muOS" ]]; then
-        /opt/muos/extra/muxmessage 0 "$1"
+        /opt/muos/frontend/muxmessage 0 "$1"
     elif [[ "$CFW_NAME" == "ROCKNIX" ]]; then
         foot -F /bin/bash -c "echo \"$1\"; sleep 5" & 
     else

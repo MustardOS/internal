@@ -48,24 +48,6 @@ GET_VAR "config" "settings/advanced/led" >/tmp/work_led_state
 cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
 rm -f "$GOV_GO"
 
-# Modify the RetroArch settings for device resolution output
-RA_WIDTH="$(GET_VAR "device" "screen/width")"
-RA_HEIGHT="$(GET_VAR "device" "screen/height")"
-
-(
-	printf "video_fullscreen_x = \"%s\"\n" "$RA_WIDTH"
-	printf "video_fullscreen_y = \"%s\"\n" "$RA_HEIGHT"
-	printf "video_window_auto_width_max = \"%s\"\n" "$RA_WIDTH"
-	printf "video_window_auto_height_max = \"%s\"\n" "$RA_HEIGHT"
-	printf "custom_viewport_width = \"%s\"\n" "$RA_WIDTH"
-	printf "custom_viewport_height = \"%s\"\n" "$RA_HEIGHT"
-	if [ "$RA_WIDTH" -ge 1280 ]; then
-		printf "rgui_aspect_ratio = \"%s\"" "1"
-	else
-		printf "rgui_aspect_ratio = \"%s\"" "0"
-	fi
-) >"/opt/muos/device/control/retroarch.resolution.cfg"
-
 # Filesystem sync
 sync &
 

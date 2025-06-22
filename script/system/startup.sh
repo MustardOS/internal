@@ -132,8 +132,10 @@ LOG_INFO "$0" 0 "BOOTING" "Checking for Safety Script"
 OOPS="$ROM_MOUNT/oops.sh"
 [ -x "$OOPS" ] && "$OOPS"
 
-LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
-/opt/muos/device/script/charge.sh
+if [ "$(GET_VAR "config" "boot/device_mode")" -eq 0 ]; then
+	LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
+	/opt/muos/device/script/charge.sh
+fi
 
 LOG_INFO "$0" 0 "BOOTING" "Checking for Network Capability"
 if [ "$HAS_NETWORK" -eq 1 ]; then

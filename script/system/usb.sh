@@ -41,7 +41,7 @@ USB_PRODUCT() {
 }
 
 FIRMWARE_VERSION() {
-	head -n 1 /opt/muos/config/version
+	head -n 1 /opt/muos/config/system/version
 }
 
 START() {

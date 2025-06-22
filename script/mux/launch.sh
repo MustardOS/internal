@@ -2,15 +2,9 @@
 
 . /opt/muos/script/var/func.sh
 
-ACT_GO=/tmp/act_go
-ROM_GO=/tmp/rom_go
-GOV_GO=/tmp/gov_go
-MUX_LAUNCHER_AUTH=/tmp/mux_launcher_auth
-
-GPTOKEYB_BIN=gptokeyb2
-GPTOKEYB_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb"
-GPTOKEYB_CONTROLLERCONFIG="/usr/lib/gamecontrollerdb.txt"
-GPTOKEYB_CONFDIR="/opt/muos/share/gptokeyb"
+ACT_GO="/tmp/act_go"
+ROM_GO="/tmp/rom_go"
+MUX_LAUNCHER_AUTH="/tmp/mux_launcher_auth"
 
 if [ "$(GET_VAR "config" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_LAUNCHER_AUTH" ]; then
 	EXEC_MUX "" "muxpass" -t launch
@@ -28,14 +22,19 @@ ASSIGN=$(sed -n '3p' "$ROM_GO")
 LAUNCH=$(sed -n '6p' "$ROM_GO")
 R_DIR=$(sed -n '7p' "$ROM_GO")$(sed -n '8p' "$ROM_GO")
 ROM="$R_DIR"/$(sed -n '9p' "$ROM_GO")
-PC_IP="$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/pc_ip.txt"
 
+PC_IP="$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/pc_ip.txt"
 if [ -s "$PC_IP" ]; then
 	python "$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/discord_presence_handheld.py" "$(cat "$PC_IP")" \
-		"On my $(GET_VAR "device" "board/name") with muOS $(cat /opt/muos/config/version)!" "Playing $NAME"
+		"On my $(GET_VAR "device" "board/name") with muOS $(cat /opt/muos/config/system/version)!" "Playing $NAME"
 fi
 
 rm "$ROM_GO"
+
+GPTOKEYB_BIN=gptokeyb2
+GPTOKEYB_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb"
+GPTOKEYB_CONTROLLERCONFIG="/usr/lib/gamecontrollerdb.txt"
+GPTOKEYB_CONFDIR="/opt/muos/share/gptokeyb"
 
 if [ -f "$GPTOKEYB_CONFDIR/$CORE.gptk" ]; then
 	SDL_GAMECONTROLLERCONFIG_FILE="$GPTOKEYB_CONTROLLERCONFIG" \
@@ -45,6 +44,7 @@ fi
 GET_VAR "config" "settings/advanced/led" >"$(GET_VAR "device" "led/normal")"
 GET_VAR "config" "settings/advanced/led" >/tmp/work_led_state
 
+GOV_GO="/tmp/gov_go"
 cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
 rm -f "$GOV_GO"
 
@@ -80,6 +80,8 @@ sync &
 
 SET_DEFAULT_GOVERNOR
 
+killall -q "$GPTOKEYB_BIN"
+
 echo 1 >"$(GET_VAR "device" "led/normal")"
 echo 1 >/tmp/work_led_state
 
@@ -88,18 +90,13 @@ cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
 # Disable any rumble just in case some core gets stuck!
 echo 0 >"$(GET_VAR "device" "board/rumble")"
 
-killall -q "$GPTOKEYB_BIN"
-
 case "$(GET_VAR "device" "board/name")" in
 	rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
 	*) ;;
 esac
 
 SCREEN_TYPE="internal"
-if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-	SCREEN_TYPE="external"
-fi
-
+[ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ] && SCREEN_TYPE="external"
 FB_SWITCH "$(GET_VAR "device" "screen/$SCREEN_TYPE/width")" "$(GET_VAR "device" "screen/$SCREEN_TYPE/height")" 32
 
 if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then

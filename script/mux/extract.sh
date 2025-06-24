@@ -37,7 +37,7 @@ case "$ARCHIVE_NAME" in
 		if unzip -l "$1" | awk '$NF ~ /^pico-8\// {FOLDERS[$NF]=1} $NF ~ /^pico-8\/(pico8_64|pico8\.dat)$/ {FILES[$NF]=1} END {if ("pico-8/" in FOLDERS && "pico-8/pico8_64" in FILES && "pico-8/pico8.dat" in FILES) exit 0; else exit 1}'; then
 			echo "Archive contains a valid PICO-8 folder with required files"
 			BIOS_DIR="/run/muos/storage/bios/"
-			if unzip -j "$1" "pico-8/*" -d "${BIOS_DIR}pico-8/"; then
+			if unzip -o -j "$1" "pico-8/*" -d "${BIOS_DIR}pico-8/"; then
 				echo "Extracted 'pico-8' Folder to '$BIOS_DIR'"
 			else
 				echo "Failed to Extract 'pico-8' Folder"

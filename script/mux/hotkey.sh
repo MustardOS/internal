@@ -36,10 +36,10 @@ HANDLE_HOTKEY() {
 		DPAD_TOGGLE) DPAD_TOGGLE ;;
 
 		# Brightness/volume combos:
-		BRIGHT_UP) IS_HANDHELD_MODE && /opt/muos/device/input/bright.sh U ;;
-		BRIGHT_DOWN) IS_HANDHELD_MODE && /opt/muos/device/input/bright.sh D ;;
-		VOL_UP) /opt/muos/device/input/audio.sh U ;;
-		VOL_DOWN) /opt/muos/device/input/audio.sh D ;;
+		BRIGHT_UP) IS_HANDHELD_MODE && /opt/muos/device/script/bright.sh U ;;
+		BRIGHT_DOWN) IS_HANDHELD_MODE && /opt/muos/device/script/bright.sh D ;;
+		VOL_UP) /opt/muos/device/script/audio.sh U ;;
+		VOL_DOWN) /opt/muos/device/script/audio.sh D ;;
 
 		# RGB combos:
 		RGB_MODE) RGBCLI -m up ;;

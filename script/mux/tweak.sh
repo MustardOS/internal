@@ -7,9 +7,9 @@ killall muhotkey
 
 C_BRIGHT="$(GET_VAR "config" "settings/general/brightness")"
 if [ "$C_BRIGHT" -lt 1 ]; then
-	/opt/muos/device/input/bright.sh U
+	/opt/muos/device/script/bright.sh U
 else
-	/opt/muos/device/input/bright.sh "$C_BRIGHT"
+	/opt/muos/device/script/bright.sh "$C_BRIGHT"
 fi
 
 GET_VAR "config" "settings/general/colour" >/sys/class/disp/disp/attr/color_temperature

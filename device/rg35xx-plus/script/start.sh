@@ -11,20 +11,20 @@ fi
 if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 	/opt/muos/device/script/hdmi.sh
 else
-	/opt/muos/device/input/bright.sh R
+	/opt/muos/device/script/bright.sh R
 
 	case "$(GET_VAR "config" "settings/advanced/brightness")" in
 		"high")
-			/opt/muos/device/input/bright.sh "$(GET_VAR "device" "screen/bright")"
+			/opt/muos/device/script/bright.sh "$(GET_VAR "device" "screen/bright")"
 			;;
 		"medium")
-			/opt/muos/device/input/bright.sh 90
+			/opt/muos/device/script/bright.sh 90
 			;;
 		"low")
-			/opt/muos/device/input/bright.sh 10
+			/opt/muos/device/script/bright.sh 10
 			;;
 		*)
-			/opt/muos/device/input/bright.sh "$(GET_VAR "config" "settings/general/brightness")"
+			/opt/muos/device/script/bright.sh "$(GET_VAR "config" "settings/general/brightness")"
 			;;
 	esac
 

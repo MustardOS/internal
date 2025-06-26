@@ -49,9 +49,10 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
         USB) DEST_PATH="$USB/$BACKUP_FOLDER";;
     esac
 
-    # Prepare destination
+    # Check if destination exists
     if [ ! -d "$DEST_PATH" ]; then
-        mkdir -p "$DEST_PATH"
+        echo "Destination path does not exist: $DEST_PATH"
+        ERROR_FLAG=1
     fi
 fi
 
@@ -74,56 +75,163 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
             break
         fi
 
-        # Validate and assign source mount point
-        case "$SRC_MNT" in
-            SD1) SRC_MNT_PATH="$SD1";;
-            SD2) SRC_MNT_PATH="$SD2";;
-            USB) SRC_MNT_PATH="$USB";;
-            *) echo "Invalid SRC_MNT: $SRC_MNT at line $LINE_NUM"; ERROR_FLAG=1; break;;
-        esac
+        if [ "$SRC_SHORTNAME" = "External" ]; then
+            # Define Dreamcast VMU source
+            if [ -d "/run/muos/storage/bios/dc" ]; then
+                if [ -f "/run/muos/storage/bios/dc/dc_nvmem.bin" ]; then
+                    DREAMCAST_NVMEM="/run/muos/storage/bios/dc/dc_nvmem.bin"
+                fi
+                VMU_SAVES=$(ls "/run/muos/storage/bios/dc/vmu_save_"* 2>/dev/null)
+                if [ -n "$VMU_SAVES" ]; then
+                    DREAMCAST_VMU="/run/muos/storage/bios/dc/vmu_save_"*
+                fi
+            fi
 
-        SRC_PATH="$SRC_MNT_PATH/$SRC_SUFFIX"
+            # Define DraStic source directories
+            if [ -d "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic" ]; then
+                DRASTIC_SAVE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/backup"
+                DRASTIC_SAVESTATE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/savestates"
+            else
+                DRASTIC_SAVE_DIR=""
+                DRASTIC_SAVESTATE_DIR=""
+            fi
 
-        # Check if source path exists
-        if [ ! -e "$SRC_PATH" ]; then
-            echo "Source path not found: $SRC_PATH"
-            ERROR_FLAG=1
-            break
-        fi
-        
-        # Get source path size
-        SRC_SIZE=$(du -sk "$SRC_PATH" | awk '{print $1}')
-        DEST_AVAIL=$(df -k "$DEST_PATH" | tail -1 | awk '{print $4}')
+            # Define additional RA source directories
+            if [ -d "$(GET_VAR "device" "storage/rom/mount")/.config" ]; then
+                PPSSPP_RA_SAVE_DIR="$(GET_VAR "device" "storage/rom/mount")/.config"
+            else
+                PPSSPP_RA_SAVE_DIR=""
+            fi
 
-        if [ $SRC_SIZE -gt $DEST_AVAIL ]; then
-            echo "Not enough space for $SRC_SHORTNAME ($SRC_SIZE KB needed, $DEST_AVAIL KB available)"
-            ERROR_FLAG=1
-            break
-        fi
+            if [ -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64" ]; then
+                PICO8_64="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64"
+            else
+                PICO8_64=""
+            fi
 
-        # Use -ru0 for already compressed packages, -ru9 for directories, -u9 for files
-        if [ "$SRC_SHORTNAME" = "CataloguePkg" ] || [ "$SRC_SHORTNAME" = "ConfigPkg" ] || ["$SRC_SHORTNAME" = "BootlogoPkg"]; then
-            ZIP_FLAGS="-ru0"
-        elif [ -d "$SRC_PATH" ]; then
-            ZIP_FLAGS="-ru9"
-        elif [ -f "$SRC_PATH" ]; then
-            ZIP_FLAGS="-u9"
+            if [ -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_dyn" ]; then
+                PICO8_DYN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_dyn"
+            else
+                PICO8_DYN=""
+            fi
+
+            if [ -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64" ]; then
+                PICO8_DAT="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64"
+            else
+                PICO8_DAT=""
+            fi
+
+            # Capture external emulator files
+            TO_BACKUP="
+            $PICO8_64
+            $PICO8_DYN
+            $PICO8_DAT
+            $PPSSPP_RA_SAVE_DIR
+            $DRASTIC_SAVE_DIR
+            $DRASTIC_SAVESTATE_DIR
+            $DREAMCAST_NVMEM
+            $DREAMCAST_VMU
+            "
+            SRC_PATHS=$(mktemp)
+
+            for BACKUP in $TO_BACKUP; do
+                if [ -e "$BACKUP" ]; then
+                    echo "$BACKUP" >>"$SRC_PATHS"
+                    echo "Found: $BACKUP"
+                fi
+            done
+
+            if [ -s "$SRC_PATHS" ]; then
+                SRC_PATH=""
+                while IFS= read -r FILE; do
+                    SRC_PATH="$SRC_PATH $FILE"
+                done <"$SRC_PATHS"
+                SRC_PATH=$(echo "$SRC_PATH" | sed 's/^ *//')
+            fi
+
+            rm "$SRC_PATHS"
         else
-            echo "Source path is neither file nor directory: $SRC_PATH"
-            ERROR_FLAG=1
-            break
-        fi
-        
-        DEST_FILE="${DEST_PATH}/muOS-${SRC_SHORTNAME}-$(date +%Y%m%d-%H%M).muxzip"
-        
-        echo "Creating archive for $SRC_SHORTNAME at $DEST_FILE"
-        if ! zip $ZIP_FLAGS "$DEST_FILE" "$SRC_PATH"; then
-            echo "Failed to create archive for $SRC_PATH"
-            ERROR_FLAG=1
-            break
-        fi
-        echo "Created archive for $SRC_SHORTNAME at $DEST_FILE"
+            # Validate and assign source mount point
+            case "$SRC_MNT" in
+                SD1) SRC_MNT_PATH="$SD1";;
+                SD2) SRC_MNT_PATH="$SD2";;
+                USB) SRC_MNT_PATH="$USB";;
+                *) echo "Invalid SRC_MNT: $SRC_MNT at line $LINE_NUM"; ERROR_FLAG=1; break;;
+            esac
 
+            SRC_PATH="$SRC_MNT_PATH/$SRC_SUFFIX"
+        
+            # Check if source path exists
+            if [ ! -e "$SRC_PATH" ]; then
+                echo "Source path not found: $SRC_PATH"
+                ERROR_FLAG=1
+                break
+            fi
+        fi
+
+        if [ "$ERROR_FLAG" -eq 0 ]; then
+            DEST_AVAIL=$(df -k "$DEST_PATH" | tail -1 | awk '{print $4}')
+
+             if [ "$SRC_SHORTNAME" = "External" ]; then
+                SRC_SIZE=0
+                for FILE in $SRC_PATH; do
+                    if [ -e "$FILE" ]; then
+                        FILE_SIZE=$(du -sk "$FILE" | awk '{print $1}')
+                        SRC_SIZE=$((SRC_SIZE + FILE_SIZE))
+                        echo "Found external source: $FILE ($FILE_SIZE KB)"
+                    fi
+                done
+            else
+                # Get source path size
+                SRC_SIZE=$(du -sk "$SRC_PATH" | awk '{print $1}')
+            fi
+
+            echo "Total size of all external sources: $SRC_SIZE KB"
+
+            if [ -z "$SRC_SIZE" ]; then
+                echo "Error: SRC_SIZE is not set for $SRC_SHORTNAME"
+                ERROR_FLAG=1
+                break
+            elif [ -z "$DEST_AVAIL" ]; then
+                echo "Error: DEST_AVAIL is not set for $SRC_SHORTNAME"
+                ERROR_FLAG=1
+                break
+            elif [ "$SRC_SIZE" -gt "$DEST_AVAIL" ]; then
+                echo "Not enough space for $SRC_SHORTNAME ($SRC_SIZE KB needed, $DEST_AVAIL KB available)"
+                ERROR_FLAG=1
+                break
+            fi
+
+            # Use -ru0 for already compressed packages, -ru9 for directories, -u9 for files
+            if [ "$SRC_SHORTNAME" = "CataloguePkg" ] || [ "$SRC_SHORTNAME" = "ConfigPkg" ] || [ "$SRC_SHORTNAME" = "BootlogoPkg" ]; then
+                ZIP_FLAGS="-ru0"
+            elif [ "$SRC_SHORTNAME" = "External" ] || [ -d "$SRC_PATH" ]; then
+                ZIP_FLAGS="-ru9"
+            elif [ -f "$SRC_PATH" ]; then
+                ZIP_FLAGS="-u9"
+            else
+                echo "Source path is neither file nor directory: $SRC_PATH"
+                ERROR_FLAG=1
+                break
+            fi
+
+            DEST_FILE="${DEST_PATH}/muOS-${SRC_SHORTNAME}-$(date +%Y%m%d-%H%M).muxzip"
+
+            echo "Creating archive for $SRC_SHORTNAME at $DEST_FILE"
+            if [ "$SRC_SHORTNAME" = "External" ]; then
+                # Use eval to expand the file list for zip in POSIX shell
+                if ! eval zip $ZIP_FLAGS "\"$DEST_FILE\"" $SRC_PATH; then
+                    echo "Failed to create archive for external sources"
+                    ERROR_FLAG=1
+                    break
+                fi
+            elif ! zip $ZIP_FLAGS "$DEST_FILE" "$SRC_PATH"; then
+                echo "Failed to create archive for $SRC_PATH"
+                ERROR_FLAG=1
+                break
+            fi
+            echo "Created archive for $SRC_SHORTNAME at $DEST_FILE"
+        fi
 
     done < "$MANIFEST_FILE"
 fi

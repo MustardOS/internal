@@ -12,7 +12,7 @@ HEX_ESCAPE() {
 	done
 }
 
-LOG_INFO "$0" 0 "SSID-SCAN" "Setting '%s' device up" "$IFCE"
+LOG_INFO "$0" 0 "SSID-SCAN" "$(printf "Setting '%s' device up" "$IFCE")"
 ip link set dev "$IFCE" up
 
 LOG_INFO "$0" 0 "SSID-SCAN" "Scanning for networks..."

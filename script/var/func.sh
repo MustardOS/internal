@@ -128,7 +128,7 @@ PARSE_INI() {
 
 LOG() {
 	SYMBOL="$1"
-	MODULE="$(basename "$2" ".sh")"
+	MODULE="$(basename "$2")"
 	PROGRESS="$3"
 	TITLE="$4"
 	shift 4
@@ -136,12 +136,18 @@ LOG() {
 	MSG="$1"
 	shift
 
-	SPACER=$(printf "%-10s\t" "$TITLE")
-	[ -z "$TITLE" ] && SPACER=$(printf "\t")
+	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+	[ -d "$MUOS_LOG_DIR" ] || mkdir -p "$MUOS_LOG_DIR"
+	LOG_FILE="$MUOS_LOG_DIR/$(date +"%Y_%m_%d")_$MODULE.log"
 
-	printf "[%6s] [%-3s${ESC}[0m] %s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$SPACER" "$@"
-	printf "[%6s] [%-3s${ESC}[0m] %s${MSG}\n" "$(UPTIME)" "$SYMBOL" "$SPACER" "$@" >>"$MUOS_LOG_DIR/$(date +"%Y_%m_%d")_$MODULE.log"
-	# $MP/frontend/muxmessage $PROGRESS "$(printf "%s\n\n%s${MSG}" "$TITLE" "$@")"
+	[ "$#" -gt 0 ] && EXTRA="$*" || EXTRA=""
+
+	LOG_LINE=$(printf "[%s]\t[%s] [%s%s] [%s]\t" "$(UPTIME)" "$TIMESTAMP" "$SYMBOL" "${ESC}[0m" "$MODULE")
+	LOG_LINE="$LOG_LINE$MSG $EXTRA"
+
+	printf "%s\n" "$LOG_LINE" | tee -a "$LOG_FILE"
+
+	# Optional: $MP/frontend/muxmessage $PROGRESS "$(printf "%s\n\n%s %s" "$TITLE" "$MSG" "$*")"
 }
 
 LOG_INFO() { (LOG "${CSI}33m*" "$@") & }

@@ -127,7 +127,7 @@ while :; do
 	[ -s "$ACT_GO" ] && {
 		IFS= read -r ACTION <"$ACT_GO"
 
-		LOG_INFO "$0" 0 "FRONTEND" "Loading '%s' Action" "$ACTION"
+		LOG_INFO "$0" 0 "FRONTEND" "$(printf "Loading '%s' Action" "$ACTION")"
 
 		case "$ACTION" in
 			"launcher")

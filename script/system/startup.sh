@@ -94,7 +94,7 @@ cp -f "/opt/muos/device/control/asound.conf" "/etc/asound.conf"
 if [ -s "$ALSA_CONFIG" ]; then
 	LOG_INFO "$0" 0 "BOOTING" "ALSA Config Check Passed"
 else
-	LOG_WARN "$0" 0 "BOOTING" "ALSA Config Check Failed: Restoring"
+	LOG_WARN "$0" 0 "BOOTING" "ALSA Config Restoring"
 	cp -f "/opt/muos/share/conf/alsa.conf" "$ALSA_CONFIG"
 fi
 

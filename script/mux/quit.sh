@@ -14,7 +14,7 @@ CLOSE_CONTENT() {
 	FG_PROC_PID="$(pidof "$FG_PROC_VAL")"
 
 	if [ -n "$FG_PROC_PID" ]; then
-		LOG_INFO "$0" 0 "QUIT" "Closing content (%s)..." "$FG_PROC_VAL"
+		LOG_INFO "$0" 0 "QUIT" "$(printf "Closing content (%s)..." "$FG_PROC_VAL")"
 
 		kill -CONT "$FG_PROC_PID" 2>/dev/null
 		/opt/muos/bin/toybox sleep 0.1
@@ -22,7 +22,7 @@ CLOSE_CONTENT() {
 
 		for _ in $(seq 1 40); do
 			if ! kill -KILL "$FG_PROC_PID" 2>/dev/null; then
-				LOG_INFO "$0" 0 "QUIT" "Killed (%s)..." "$FG_PROC_VAL"
+				LOG_INFO "$0" 0 "QUIT" "$(printf "Killed (%s)..." "$FG_PROC_VAL")"
 				return
 			fi
 

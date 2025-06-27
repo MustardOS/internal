@@ -68,10 +68,14 @@ case "$ARCHIVE_NAME" in
 			grep --line-buffered -E '^ *(extracting|inflating):' |
 			/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
 
-		case "$ARCHIVE_NAME" in
+		case "$ARCHIVE_NAME" in.
 			*.muxapp)
 				echo "Extracting Application Archive..."
 				SYNC_FOLDER "$MUX_TEMP" "$(GET_VAR "device" "storage/rom/mount")/MUOS/application"
+				;;
+			*.muxzip)
+				echo "Extracting ZIP Archive..."
+				SYNC_FOLDER "$FOLDER" "$DESTINATION"
 				;;
 			*)
 				if [ -d "$MUX_TEMP/run/muos/storage/info/catalogue/Folder/grid" ] || [ -d "$MUX_TEMP/catalogue/Folder/grid" ]; then

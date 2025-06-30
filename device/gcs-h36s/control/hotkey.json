@@ -1,0 +1,17 @@
+{
+  "BRIGHT_DOWN": {"handle_hold": true, "inputs": ["VOL_DOWN", "MENU_LONG"]},
+  "BRIGHT_UP": {"handle_hold": true, "inputs": ["VOL_UP", "MENU_LONG"]},
+  "OSF_R": {"handle_hold": false, "inputs": ["START", "R2", "L2"]},
+  "OSF_S": {"handle_hold": false, "inputs": ["SELECT", "R2", "L2"]},
+  "RETROWAIT_IGNORE": {"handle_hold": false, "inputs": ["START"]},
+  "RETROWAIT_MENU": {"handle_hold": false, "inputs": ["SELECT"]},
+  "RGB_BRIGHT_DOWN": {"handle_hold": false, "inputs": ["RS_DOWN", "MENU_LONG"]},
+  "RGB_BRIGHT_UP": {"handle_hold": false, "inputs": ["RS_UP", "MENU_LONG"]},
+  "RGB_COLOR_NEXT": {"handle_hold": false, "inputs": ["RS_RIGHT", "MENU_LONG"]},
+  "RGB_COLOR_PREV": {"handle_hold": false, "inputs": ["RS_LEFT", "MENU_LONG"]},
+  "RGB_MODE": {"handle_hold": false, "inputs": ["R3", "MENU_LONG"]},
+  "SCREENSHOT": {"handle_hold": false, "inputs": ["POWER_SHORT", "MENU_LONG"]},
+  "SLEEP": {"handle_hold": false, "inputs": ["POWER_LONG"]},
+  "VOL_DOWN": {"handle_hold": true, "inputs": ["VOL_DOWN"]},
+  "VOL_UP": {"handle_hold": true, "inputs": ["VOL_UP"]}
+}

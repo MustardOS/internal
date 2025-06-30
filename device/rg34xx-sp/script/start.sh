@@ -46,6 +46,8 @@ if [ "$(GET_VAR "config" "settings/advanced/thermal")" -eq 1 ]; then
 	done
 fi
 
+/opt/muos/device/script/lid.sh &
+
 # Add device specific Retroarch Binary
 RA_BIN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-rg"
 RA_MD5="$(cat "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-rg.md5")"

@@ -38,40 +38,16 @@ fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Restoring ROM Filesystem"
 
-INIT_SRC="/opt/muos/init"
 PROGRESS_FILE="/tmp/msg_progress"
-TMP_LIST="/tmp/file_list.txt"
+UD_ARCHIVE="/opt/muos/init/userdata.tar.gz"
 
-: >"$TMP_LIST"
-: >"$PROGRESS_FILE"
+printf 0 >"$PROGRESS_FILE"
 
-find "$INIT_SRC" ! -type d >"$TMP_LIST"
-TOTAL=$(wc -l <"$TMP_LIST")
-COUNT=0
-LAST_PERCENT=-1
+TOTAL=$(wc -c <"$UD_ARCHIVE")
+/opt/muos/bin/pv -n -f -s "$TOTAL" "$UD_ARCHIVE" 2>"$PROGRESS_FILE" | gzip -dc | tar -xf - -C "$ROM_MOUNT"
 
-LOG_INFO "$0" 0 "FACTORY RESET" "RSync Started"
-
-rsync --archive --whole-file --itemize-changes --outbuf=L "$INIT_SRC/" "$ROM_MOUNT"/ 2>/dev/null |
-	while IFS= read -r LINE; do
-		case "$LINE" in
-			[\>f]* | [\>c]* | [\>L]* | [\>D]*)
-				COUNT=$((COUNT + 1))
-				PERCENT=$((COUNT * 1000 / TOTAL))
-				PERCENT=$((PERCENT / 10))
-
-				if [ "$PERCENT" -ne "$LAST_PERCENT" ]; then
-					printf "%s\n" "$PERCENT" >"$PROGRESS_FILE"
-					LAST_PERCENT=$PERCENT
-				fi
-				;;
-		esac
-	done
-
-LOG_INFO "$0" 0 "FACTORY RESET" "RSync Completed"
-
-echo 100 >"$PROGRESS_FILE"
-rm -rf "$INIT_SRC"
+printf 100 >"$PROGRESS_FILE"
+LOG_INFO "$0" 0 "FACTORY RESET" "ROM Restore Complete"
 
 /opt/muos/bin/toybox sleep 5
 touch "/tmp/msg_finish"

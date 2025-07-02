@@ -40,11 +40,16 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Restoring ROM Filesystem"
 
 PROGRESS_FILE="/tmp/msg_progress"
 UD_ARCHIVE="/opt/muos/init/userdata.tar.gz"
+TOTAL=$(wc -c <"$UD_ARCHIVE")
 
 printf 0 >"$PROGRESS_FILE"
 
-TOTAL=$(wc -c <"$UD_ARCHIVE")
-/opt/muos/bin/pv -n -f -s "$TOTAL" "$UD_ARCHIVE" 2>"$PROGRESS_FILE" | gzip -dc | tar -xf - -C "$ROM_MOUNT"
+(
+	/opt/muos/bin/pv -n -f -s "$TOTAL" "$UD_ARCHIVE" 2>&1 1>&3 |
+		while IFS= read -r PERCENT; do
+			printf "%s" "$PERCENT" >"$PROGRESS_FILE"
+		done
+) 3>&1 | gzip -dc | tar -xf - -C "$ROM_MOUNT"
 
 printf 100 >"$PROGRESS_FILE"
 LOG_INFO "$0" 0 "FACTORY RESET" "ROM Restore Complete"

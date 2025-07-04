@@ -19,8 +19,14 @@ SET_BLANK() {
 	echo "$TARGET_BLANK" >"$FB_BLANK"
 
 	case "$TARGET_BLANK" in
-		4) touch /tmp/mux_blank ;;
-		*) rm -f /tmp/mux_blank ;;
+		4)
+			touch /tmp/mux_blank
+			LCD_DISABLE
+			;;
+		*)
+			rm -f /tmp/mux_blank
+			[ "$CURR_BRIGHT" -lt 5 ] && LCD_ENABLE
+			;;
 	esac
 }
 

@@ -259,6 +259,14 @@ DISPLAY_READ() {
 	esac
 }
 
+LCD_DISABLE() {
+	DISPLAY_WRITE lcd0 disable 0
+}
+
+LCD_ENABLE() {
+	DISPLAY_WRITE lcd0 enable 0
+}
+
 PLAY_SOUND() {
 	SND="/opt/muos/share/media/$1.wav"
 	[ -e "$SND" ] && rm -f "$SND"

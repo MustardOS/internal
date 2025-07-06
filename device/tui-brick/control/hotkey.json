@@ -1,6 +1,7 @@
 {
   "BRIGHT_DOWN": {"handle_hold": true, "inputs": ["SWITCH", "VOL_DOWN"]},
   "BRIGHT_UP": {"handle_hold": true, "inputs": ["SWITCH", "VOL_UP"]},
+  "FIX_PANEL": {"handle_hold": false, "inputs": ["MENU_SHORT", "R2", "L2"]},
   "OSF_R": {"handle_hold": false, "inputs": ["START", "R2", "L2"]},
   "OSF_S": {"handle_hold": false, "inputs": ["SELECT", "R2", "L2"]},
   "RETROWAIT_IGNORE": {"handle_hold": false, "inputs": ["START"]},

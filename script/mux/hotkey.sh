@@ -36,6 +36,7 @@ HANDLE_HOTKEY() {
 		DPAD_TOGGLE) DPAD_TOGGLE ;;
 
 		# Brightness/volume combos:
+		FIX_PANEL) IS_HANDHELD_MODE && /opt/muos/device/script/bright.sh F ;;
 		BRIGHT_UP) IS_HANDHELD_MODE && /opt/muos/device/script/bright.sh U ;;
 		BRIGHT_DOWN) IS_HANDHELD_MODE && /opt/muos/device/script/bright.sh D ;;
 		VOL_UP) /opt/muos/device/script/audio.sh U ;;

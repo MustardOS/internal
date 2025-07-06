@@ -58,6 +58,9 @@ case "$1" in
 		[ "$NEW_BL" -lt 0 ] && NEW_BL=0
 		SET_CURRENT "$NEW_BL"
 		;;
+	F)
+		LCD_DISABLE && /opt/muos/bin/toybox sleep 1 && LCD_ENABLE
+		;;
 	[0-9]*)
 		[ "$1" -eq "$1" ] 2>/dev/null && [ "$1" -ge 0 ] && [ "$1" -le "$MAX_BRIGHT" ] && SET_CURRENT "$1"
 		;;

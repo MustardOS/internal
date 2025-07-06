@@ -70,7 +70,7 @@ if [ "$NETWORK_ENABLED" -eq 1 ]; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Setting Hostname"
 	HN="$(hostname)-$(/opt/muos/script/system/serial.sh | tail -c 6)"
 	hostname "$HN"
-	echo "$HN" >/etc/hostname
+	printf "%s" "$HN" >/etc/hostname
 fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Syncing Partitions"

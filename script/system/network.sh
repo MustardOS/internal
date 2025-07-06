@@ -11,6 +11,9 @@ DDNS=$(GET_VAR "config" "network/dns") # The extra D is for dodecahedron!
 IFCE=$(GET_VAR "device" "network/iface")
 DRIV=$(GET_VAR "device" "network/type")
 
+SD1_HOST="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/hostname"
+SD2_HOST="$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/hostname"
+
 RETRIES="${RETRIES:-5}"
 RETRY_DELAY="${RETRY_DELAY:-2}"
 RETRY_CURR=0
@@ -32,6 +35,18 @@ TRY_CONNECT() {
 	IP="0.0.0.0"
 
 	[ -z "$SSID" ] && exit 0
+
+	LOG_INFO "$0" 0 "NETWORK" "Detecting Hostname Restore"
+	HOSTFILE=""
+	[ -e "$SD2_HOST" ] && HOSTFILE="$SD2_HOST"
+	[ -z "$HOSTFILE" ] && [ -e "$SD1_HOST" ] && HOSTFILE="$SD1_HOST"
+
+	if [ -n "$HOSTFILE" ]; then
+		HOSTNAME=$(cat "$HOSTFILE")
+		hostname "$HOSTNAME"
+		printf "%s" "$HOSTNAME" >/etc/hostname
+	fi
+
 	LOG_INFO "$0" 0 "NETWORK" "Starting Network Connection..."
 
 	pgrep dhcpcd >/dev/null && killall -q dhcpcd

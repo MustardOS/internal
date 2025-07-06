@@ -11,6 +11,7 @@ DDNS=$(GET_VAR "config" "network/dns") # The extra D is for dodecahedron!
 IFCE=$(GET_VAR "device" "network/iface")
 DRIV=$(GET_VAR "device" "network/type")
 
+DEV_HOST="$(GET_VAR "device" "network/hostname")"
 SD1_HOST="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/hostname"
 SD2_HOST="$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/hostname"
 
@@ -38,7 +39,8 @@ TRY_CONNECT() {
 
 	LOG_INFO "$0" 0 "NETWORK" "Detecting Hostname Restore"
 	HOSTFILE=""
-	[ -e "$SD2_HOST" ] && HOSTFILE="$SD2_HOST"
+	[ -e "$DEV_HOST" ] && HOSTFILE="$DEV_HOST"
+	[ -z "$HOSTFILE" ] && [ -e "$SD2_HOST" ] && HOSTFILE="$SD2_HOST"
 	[ -z "$HOSTFILE" ] && [ -e "$SD1_HOST" ] && HOSTFILE="$SD1_HOST"
 
 	if [ -n "$HOSTFILE" ]; then

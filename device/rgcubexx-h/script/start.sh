@@ -11,14 +11,29 @@ fi
 if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 	/opt/muos/device/script/hdmi.sh
 else
-	if [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
-		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
-		if [ -f "$RGBCONF_SCRIPT" ]; then
-			"$RGBCONF_SCRIPT"
+	(
+		LED_CONTROL_SCRIPT="/opt/muos/device/script/led_control.sh"
+
+		if [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] && [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
+			RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
+
+			TIMEOUT=10
+			WAIT=0
+
+			while [ ! -f "$RGBCONF_SCRIPT" ] && [ "$WAIT" -lt "$TIMEOUT" ]; do
+				sleep 1
+				WAIT=$((WAIT + 1))
+			done
+
+			if [ -f "$RGBCONF_SCRIPT" ]; then
+				"$RGBCONF_SCRIPT"
+			else
+				"$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
+			fi
 		else
-			/opt/muos/device/script/led_control.sh 1 0 0 0 0 0 0 0
+			[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 		fi
-	fi
+	) &
 
 	/opt/muos/device/script/bright.sh R
 

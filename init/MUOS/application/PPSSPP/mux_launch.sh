@@ -25,9 +25,12 @@ case "$(GET_VAR "device" "board/name")" in
 
 		export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
-		sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' \
-			"$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
-   		rm -f "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/FailedGraphicsBackends.txt"
+		INI="$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
+		if [ -f "$INI" ]; then
+			sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' "$INI"
+			echo "GraphicsBackend = 0" >> "$INI"
+			rm -f "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/FailedGraphicsBackends.txt"
+		fi
 		;;
 	tui*)
 		PPSSPP_DIR="${PPSSPP_DIR}/tui"

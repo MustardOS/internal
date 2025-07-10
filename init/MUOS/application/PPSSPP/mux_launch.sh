@@ -28,7 +28,6 @@ case "$(GET_VAR "device" "board/name")" in
 		INI="$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
 		if [ -f "$INI" ]; then
 			sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' "$INI"
-			echo "GraphicsBackend = 0" >> "$INI"
 			rm -f "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/FailedGraphicsBackends.txt"
 		fi
 		;;

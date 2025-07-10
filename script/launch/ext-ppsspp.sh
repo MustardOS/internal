@@ -15,6 +15,12 @@ FILE=${3%/}
 
 PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp"
 
+HOME="$PPSSPP_DIR"
+export HOME
+
+XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CONFIG_HOME
+
 case "$(GET_VAR "device" "board/name")" in
 	rg*)
 		PPSSPP_DIR="${PPSSPP_DIR}/rg"
@@ -31,11 +37,9 @@ case "$(GET_VAR "device" "board/name")" in
 
 		export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
-		INI="$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
-		if [ -f "$INI" ]; then
-			sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' "$INI"
-			rm -f "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/FailedGraphicsBackends.txt"
-		fi
+		sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' \
+			"$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
+   		rm -f "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/FailedGraphicsBackends.txt"
 		;;
 	tui*)
 		PPSSPP_DIR="${PPSSPP_DIR}/tui"
@@ -51,12 +55,6 @@ case "$(GET_VAR "device" "board/name")" in
 		echo 1000000 >"$(GET_VAR "device" "cpu/min_freq")"
 		;;
 esac
-
-HOME="$PPSSPP_DIR"
-export HOME
-
-XDG_CONFIG_HOME="$HOME/.config"
-export XDG_CONFIG_HOME
 
 case "$FILE" in
 	*.psp)

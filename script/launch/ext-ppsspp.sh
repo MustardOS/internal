@@ -15,6 +15,12 @@ FILE=${3%/}
 
 PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp"
 
+HOME="$PPSSPP_DIR"
+export HOME
+
+XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CONFIG_HOME
+
 case "$(GET_VAR "device" "board/name")" in
 	rg*)
 		PPSSPP_DIR="${PPSSPP_DIR}/rg"
@@ -49,12 +55,6 @@ case "$(GET_VAR "device" "board/name")" in
 		echo 1000000 >"$(GET_VAR "device" "cpu/min_freq")"
 		;;
 esac
-
-HOME="$PPSSPP_DIR"
-export HOME
-
-XDG_CONFIG_HOME="$HOME/.config"
-export XDG_CONFIG_HOME
 
 case "$FILE" in
 	*.psp)

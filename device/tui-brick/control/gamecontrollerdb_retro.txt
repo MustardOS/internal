@@ -1406,6 +1406,8 @@ xinput,XInput Controller,a:b0,b:b1,back:b6,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,
 19000000010000000100000000010000,RG35XX Gamepad,a:b0,b:b1,x:b2,y:b3,leftshoulder:b4,rightshoulder:b5,lefttrigger:b6,righttrigger:b7,guide:b8,start:b9,back:b10,dpup:b13,dpleft:b15,dpright:b16,dpdown:b14,volumedown:b11,volumeup:b12,platform:Linux,
 19000000010000000100000000010000,Deeplay-keys,a:b3,b:b4,x:b6,y:b5,leftshoulder:b7,rightshoulder:b8,lefttrigger:b12,righttrigger:b13,guide:b11,start:b10,back:b9,dpup:h0.1,dpleft:h0.8,dpright:h0.2,dpdown:h0.4,volumedown:b1,volumeup:b2,leftx:a0,lefty:a1,platform:Linux,
 030071f85e0400008e02000014010000,muOS-Keys,a:b1,b:b0,back:b6,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b8,leftshoulder:b4,leftstick:b9,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b10,righttrigger:a5,start:b7,x:b3,y:b2,platform:Linux,
+03000000000000000000000001000000,TRIMUI Smart Pro Controller,platform:Linux,x:b2,a:b0,b:b1,y:b3,back:b10,guide:b8,start:b9,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,dpup:h0.1,leftshoulder:b4,lefttrigger:b6,rightshoulder:b5,righttrigger:b7,leftx:a1,lefty:a0,rightx:a3,righty:a2,
+030000005e0400008e02000014010000,TRIMUI Brick Controller,platform:Linux,x:b7,a:b5,b:b4,y:b6,back:b14,guide:b12,start:b13,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,dpup:h0.1,leftshoulder:b8,lefttrigger:b10,rightshoulder:b9,righttrigger:b11,
 
 # Android
 38653964633230666463343334313533,8BitDo Adapter,a:b0,b:b1,back:b15,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b9,leftstick:b7,lefttrigger:b17,leftx:a0,lefty:a1,rightshoulder:b10,rightstick:b8,righttrigger:b18,rightx:a2,righty:a3,start:b6,x:b2,y:b3,platform:Android,

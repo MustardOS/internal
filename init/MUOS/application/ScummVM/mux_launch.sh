@@ -29,25 +29,17 @@ cd "$EMUDIR" || exit
 [ "$(GET_VAR "device" "board/stick")" -eq 0 ] && STICK_ROT=2 || STICK_ROT=0
 case "$(GET_VAR "device" "board/name")" in
 	rg*) echo "$STICK_ROT" >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
-	tui*)
-		if [ ! -f $TUI_DPAD ]; then
-			touch $TUI_DPAD
-		fi
-    ;;
+	tui*) [ ! -f $TUI_DPAD ] && touch $TUI_DPAD ;;
 	*) ;;
 esac
 
-HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG"
+HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt" nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG"
 
 # Switch analogue<>dpad back so we can navigate muX
 [ "$(GET_VAR "device" "board/stick")" -eq 0 ]
 case "$(GET_VAR "device" "board/name")" in
 	rg*) echo "0" >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
-	tui*)
-		if [ -f $TUI_DPAD ]; then
-			rm $TUI_DPAD
-		fi
-    ;;
+	tui*) [ -f $TUI_DPAD ] && rm $TUI_DPAD ;;
 	*) ;;
 esac
 

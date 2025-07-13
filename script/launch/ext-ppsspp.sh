@@ -39,7 +39,8 @@ case "$(GET_VAR "device" "board/name")" in
 
 		sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' \
 			"$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
-   		rm -f "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/FailedGraphicsBackends.txt"
+
+		rm -f "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/FailedGraphicsBackends.txt"
 		;;
 	tui*)
 		PPSSPP_DIR="${PPSSPP_DIR}/tui"
@@ -80,7 +81,7 @@ cd "$PPSSPP_DIR" || exit
 
 SET_VAR "system" "foreground_process" "PPSSPP"
 
-SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/usr/lib/gamecontrollerdb.txt") ./PPSSPP --pause-menu-exit "$FILE"
+SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt" ./PPSSPP --pause-menu-exit "$FILE"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 

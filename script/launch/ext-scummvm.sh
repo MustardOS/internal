@@ -69,58 +69,59 @@ extract_gameid() {
             exit
         }
     ' "$CONFIG")
-	
+
 	# Write gameid to .scummvm file.
-	echo "$GAMEID" > "$F_PATH/$NAME.scummvm"
+	echo "$GAMEID" >"$F_PATH/$NAME.scummvm"
 }
 
 case "$SCVM" in
-  "grim:grim")
-    # Legacy Grim Fandango entry found.
-	# Copy grim specific config into scummvm.ini
-	GRIMINI="$EMUDIR"/.config/scummvm/grimm.ini
-	sed -i "s|^path=.*$|path=$F_PATH/$SUBFOLDER|" "$GRIMINI"
-	if ! grep -q "\[grim-win\]" "$EMUDIR"/.config/scummvm/scummvm.ini; then
-		cat "$EMUDIR"/.config/scummvm/grimm.ini >>"$EMUDIR"/.config/scummvm/scummvm.ini
-	fi
-	extract_gameid
-    ;;
-  *:* | "")
-    # Legacy ScummVM entry found or game .scummvm file is blank.
-	# Auto Detect gameid based on game files and add to scummvm.ini
-	HOME="$EMUDIR" nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" --add
-	extract_gameid	
-    ;;
-  *)
-    # Game .scummvm file contains gameid entry.
-    if ! grep -q "^\[$SCVM\]" "$CONFIG"; then
-		# gameid missing from scummvm.ini, adding.
-        HOME="$EMUDIR" nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" --add
-    fi
-    ;;
+	"grim:grim")
+		# Legacy Grim Fandango entry found.
+		# Copy grim specific config into scummvm.ini
+		GRIMINI="$EMUDIR"/.config/scummvm/grimm.ini
+		sed -i "s|^path=.*$|path=$F_PATH/$SUBFOLDER|" "$GRIMINI"
+		if ! grep -q "\[grim-win\]" "$EMUDIR"/.config/scummvm/scummvm.ini; then
+			cat "$EMUDIR"/.config/scummvm/grimm.ini >>"$EMUDIR"/.config/scummvm/scummvm.ini
+		fi
+		extract_gameid
+		;;
+	*:* | "")
+		# Legacy ScummVM entry found or game .scummvm file is blank.
+		# Auto Detect gameid based on game files and add to scummvm.ini
+		HOME="$EMUDIR" nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" --add
+		extract_gameid
+		;;
+	*)
+		# Game .scummvm file contains gameid entry.
+		if ! grep -q "^\[$SCVM\]" "$CONFIG"; then
+			# gameid missing from scummvm.ini, adding.
+			HOME="$EMUDIR" nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" --add
+		fi
+		;;
 esac
 
 # Switch analogue<>dpad for stickless devices
 [ "$(GET_VAR "device" "board/stick")" -eq 0 ] && STICK_ROT=2 || STICK_ROT=0
 case "$(GET_VAR "device" "board/name")" in
 	rg*) echo "$STICK_ROT" >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
-	tui*)
-		if [ ! -f $TUI_DPAD ]; then
-			touch $TUI_DPAD
-		fi
-   	;;
+	tui*) [ ! -f $TUI_DPAD ] && touch $TUI_DPAD ;;
 	*) ;;
 esac
 
 # Read $SCVM again.
 SCVM=$(tr -d '[:space:]' <"$F_PATH/$NAME.scummvm" | head -n 1)
+
 # Launch game.
-HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG=$(grep "muOS-Keys" "/usr/lib/gamecontrollerdb.txt") nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" "$SCVM"
+HOME="$EMUDIR" SDL_ASSERT=always_ignore SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt" nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" "$SCVM"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
-if [ -f $TUI_DPAD ]; then
-	rm $TUI_DPAD
-fi
+# Switch analogue<>dpad back so we can navigate muX
+[ "$(GET_VAR "device" "board/stick")" -eq 0 ]
+case "$(GET_VAR "device" "board/name")" in
+	rg*) echo "0" >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
+	tui*) [ -f $TUI_DPAD ] && rm $TUI_DPAD ;;
+	*) ;;
+esac
 
 unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

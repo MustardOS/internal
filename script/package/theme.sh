@@ -64,7 +64,7 @@ INSTALL() {
 			WAIT=0
 
 			while [ ! -f "$RGBCONF_SCRIPT" ] && [ "$WAIT" -lt "$TIMEOUT" ]; do
-				sleep 1
+				/opt/muos/bin/toybox sleep 1
 				WAIT=$((WAIT + 1))
 			done
 

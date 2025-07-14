@@ -260,11 +260,11 @@ DISPLAY_READ() {
 }
 
 LCD_DISABLE() {
-	DISPLAY_WRITE lcd0 disable 0
+	[ "$(GET_VAR "config" "settings/advanced/disp_suspend")" -eq 1 ] && DISPLAY_WRITE lcd0 disable 0
 }
 
 LCD_ENABLE() {
-	DISPLAY_WRITE lcd0 enable 0
+	[ "$(GET_VAR "config" "settings/advanced/disp_suspend")" -eq 1 ] && DISPLAY_WRITE lcd0 enable 0
 }
 
 PLAY_SOUND() {

@@ -90,7 +90,7 @@ FRONTEND() {
 }
 
 EXEC_MUX() {
-	if [ "$(GET_VAR config boot/device_mode)" -eq 1 ]; then
+	if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 		while [ ! -f "/tmp/hdmi_in_use" ]; do $MP/bin/toybox sleep 0.1; done
 	fi
 
@@ -228,7 +228,7 @@ HDMI_SWITCH() {
 }
 
 IS_HANDHELD_MODE() {
-	[ "$(GET_VAR config boot/device_mode)" -eq 0 ]
+	[ "$(GET_VAR "config" "boot/device_mode")" -eq 0 ]
 }
 
 # Writes a setting value to the display driver.

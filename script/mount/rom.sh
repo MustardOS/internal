@@ -7,7 +7,7 @@ ROM_SEP="$(GET_VAR "device" "storage/rom/sep")"
 ROM_NUM="$(GET_VAR "device" "storage/rom/num")"
 ROM_TYPE="$(GET_VAR "device" "storage/rom/type")"
 ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
-CARD_MODE="$(GET_VAR "config" "settings/advanced/cardmode")"
+CARD_MODE="$(GET_VAR "config" "danger/cardmode")"
 
 DEVICE="${ROM_DEV}${ROM_SEP}${ROM_NUM}"
 mkdir -p "$ROM_MOUNT"

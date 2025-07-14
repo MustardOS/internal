@@ -6,7 +6,7 @@ SD_DEV="$(GET_VAR "device" "storage/sdcard/dev")"
 SD_SEP="$(GET_VAR "device" "storage/sdcard/sep")"
 SD_NUM="$(GET_VAR "device" "storage/sdcard/num")"
 SD_MOUNT="$(GET_VAR "device" "storage/sdcard/mount")"
-CARD_MODE="$(GET_VAR "config" "settings/advanced/cardmode")"
+CARD_MODE="$(GET_VAR "config" "danger/cardmode")"
 
 DEVICE="${SD_DEV}${SD_SEP}${SD_NUM}"
 mkdir -p "$SD_MOUNT"

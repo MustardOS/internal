@@ -53,7 +53,7 @@ fi
 /opt/muos/script/system/swap.sh &
 
 CARD_MODE_SWITCH() {
-	if [ "$(GET_VAR "config" "settings/advanced/cardmode")" = "noop" ]; then
+	if [ "$(GET_VAR "config" "danger/cardmode")" = "noop" ]; then
 		echo "noop" >"/sys/block/$1/queue/scheduler"
 		echo "write back" >"/sys/block/$1/queue/write_cache"
 	else

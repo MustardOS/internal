@@ -62,7 +62,7 @@ else
 	SET_VAR "device" "audio/max" "100"
 fi
 
-if [ "$(GET_VAR "config" "settings/advanced/thermal")" -eq 1 ]; then
+if [ "$(GET_VAR "config" "settings/advanced/thermal")" -eq 0 ]; then
 	for ZONE in /sys/class/thermal/thermal_zone*; do
 		if [ -e "$ZONE/mode" ]; then
 			echo "disabled" >"$ZONE/mode"

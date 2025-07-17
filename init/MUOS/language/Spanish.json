@@ -74,6 +74,7 @@
     "Friendly Name System": "Sistema de Nombres Amistosos",
     "History": "Historial",
     "Languages": "Idiomas",
+    "Location of External Emulator files (e.g. PPSSPP, Pico-8, Dreamcast, Drastic)": "Ubicación de los archivos del emulador externo (por ejemplo, PPSSPP, Pico-8, Dreamcast, Drastic)",
     "Location of Language files": "Ubicación de los archivos de idioma",
     "Location of Network Profiles": "Ubicación de los perfiles de red",
     "Location of RetroArch configuration packages": "Ubicación de los paquetes de configuración de RetroArch",
@@ -100,6 +101,7 @@
     "RetroArch System": "Sistema RetroArch",
     "Save Games + Save States": "Guardar Partidas + Guardar Estados",
     "Screenshots": "Capturas de pantalla",
+    "Standalone Emulator Files": "Ficheros del emulador autónomo",
     "Start Backup": "Iniciar copia de seguridad",
     "Start the backup process for the selected items": "Iniciar el proceso de copia de seguridad de los elementos seleccionados",
     "Syncthing Configs": "Configuraciones Syncthing",
@@ -682,6 +684,7 @@
     "Content Collection": "Colección de contenidos",
     "Content Explorer": "Explorador de contenido",
     "Date and Time": "Fecha y hora",
+    "Device RGB Lights": "Luces RGB del dispositivo",
     "Device Startup": "Inicio del dispositivo",
     "GENERAL SETTINGS": "CONFIGURACIÓN GENERAL",
     "HDMI Output": "Salida HDMI",
@@ -691,6 +694,7 @@
     "Resume Game": "Reanudar juego",
     "Settings that should only be changed by those who know what they are doing!": "¡Configuraciones que sólo deben ser cambiadas por aquellos que saben lo que hacen!",
     "Settings to change the HDMI output of the device": "Ajustes para cambiar la salida HDMI del dispositivo",
+    "Toggle the device fancy RGB light system": "Conmutar el sistema de iluminación RGB del dispositivo",
     "Volume": "Volumen"
   },
   "muxvisual": {

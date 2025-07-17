@@ -74,6 +74,7 @@
     "Friendly Name System": "Friendly Name System",
     "History": "History",
     "Languages": "Languages",
+    "Location of External Emulator files (e.g. PPSSPP, Pico-8, Dreamcast, Drastic)": "Location of External Emulator files (e.g. PPSSPP, Pico-8, Dreamcast, Drastic)",
     "Location of Language files": "Location of Language files",
     "Location of Network Profiles": "Location of Network Profiles",
     "Location of RetroArch configuration packages": "Location of RetroArch configuration packages",
@@ -100,6 +101,7 @@
     "RetroArch System": "RetroArch System",
     "Save Games + Save States": "Save Games + Save States",
     "Screenshots": "Screenshots",
+    "Standalone Emulator Files": "Standalone Emulator Files",
     "Start Backup": "Start Backup",
     "Start the backup process for the selected items": "Start the backup process for the selected items",
     "Syncthing Configs": "Syncthing Configs",
@@ -682,6 +684,7 @@
     "Content Collection": "Kolekcija Sadržaja",
     "Content Explorer": "Istražitelj Sadržaja",
     "Date and Time": "Datum i Vrijeme",
+    "Device RGB Lights": "Device RGB Lights",
     "Device Startup": "Pokretanje Uređaja",
     "GENERAL SETTINGS": "OPĆE POSTAVKE",
     "HDMI Output": "HDMI Output",
@@ -691,6 +694,7 @@
     "Resume Game": "Nastavi Igru",
     "Settings that should only be changed by those who know what they are doing!": "Postavke koje smiju mijenjati samo oni koji znaju što rade!",
     "Settings to change the HDMI output of the device": "Postavke za promijenu HDMI izlaza uređaja",
+    "Toggle the device fancy RGB light system": "Toggle the device fancy RGB light system",
     "Volume": "Glasnoća"
   },
   "muxvisual": {

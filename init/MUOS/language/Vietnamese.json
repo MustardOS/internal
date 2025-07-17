@@ -74,6 +74,7 @@
     "Friendly Name System": "Friendly Name System",
     "History": "History",
     "Languages": "Languages",
+    "Location of External Emulator files (e.g. PPSSPP, Pico-8, Dreamcast, Drastic)": "Location of External Emulator files (e.g. PPSSPP, Pico-8, Dreamcast, Drastic)",
     "Location of Language files": "Location of Language files",
     "Location of Network Profiles": "Location of Network Profiles",
     "Location of RetroArch configuration packages": "Location of RetroArch configuration packages",
@@ -100,6 +101,7 @@
     "RetroArch System": "RetroArch System",
     "Save Games + Save States": "Save Games + Save States",
     "Screenshots": "Screenshots",
+    "Standalone Emulator Files": "Standalone Emulator Files",
     "Start Backup": "Start Backup",
     "Start the backup process for the selected items": "Start the backup process for the selected items",
     "Syncthing Configs": "Syncthing Configs",
@@ -682,6 +684,7 @@
     "Content Collection": "Bộ sưu tập Nội dung",
     "Content Explorer": "Khám phá nội dung",
     "Date and Time": "Ngày và Giờ",
+    "Device RGB Lights": "Device RGB Lights",
     "Device Startup": "Cài đặt khởi động thiết bị",
     "GENERAL SETTINGS": "CÀI ĐẶT CHUNG",
     "HDMI Output": "Đầu ra HDMI",
@@ -691,6 +694,7 @@
     "Resume Game": "Tiếp tục trò chơi",
     "Settings that should only be changed by those who know what they are doing!": "Các cài đặt mà chỉ nên được thay đổi bởi những người biết mình đang làm gì!",
     "Settings to change the HDMI output of the device": "Các cài đặt để thay đổi đầu ra HDMI của thiết bị",
+    "Toggle the device fancy RGB light system": "Toggle the device fancy RGB light system",
     "Volume": "Âm lượng"
   },
   "muxvisual": {

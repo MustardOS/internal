@@ -74,6 +74,7 @@
     "Friendly Name System": "Córas Ainmneacha Cairdiúil",
     "History": "Stair",
     "Languages": "Teangacha",
+    "Location of External Emulator files (e.g. PPSSPP, Pico-8, Dreamcast, Drastic)": "Suíomh chomhaid Aithriseora Sheachtraigh (e.g. PPSSPP, Pico-8, Dreamcast, Drastic)",
     "Location of Language files": "Suíomh na gcomhad teanga",
     "Location of Network Profiles": "Suíomh Próifílí Líonra",
     "Location of RetroArch configuration packages": "Suíomh na bpacáistí cumraíochta RetroArch",
@@ -100,6 +101,7 @@
     "RetroArch System": "Córas RetroArch",
     "Save Games + Save States": "Sábháil Cluichí + Sábháil Stáit",
     "Screenshots": "Seat scáileáin",
+    "Standalone Emulator Files": "Comhaid Aithriseora Neamhspleácha",
     "Start Backup": "Tosaigh Cúltaca",
     "Start the backup process for the selected items": "Tosaigh an próiseas cúltaca do na míreanna roghnaithe",
     "Syncthing Configs": "Cumraíochtaí Sioncrónaithe",
@@ -682,6 +684,7 @@
     "Content Collection": "Bailiúchán Ábhar",
     "Content Explorer": "Taiscéalaí Inneachair",
     "Date and Time": "Dáta agus Am",
+    "Device RGB Lights": "Soilse RGB Gléas",
     "Device Startup": "Tosaithe Gléis",
     "GENERAL SETTINGS": "SOCRUITHE GINEARÁLTA",
     "HDMI Output": "Aschur HDMI",
@@ -691,6 +694,7 @@
     "Resume Game": "Atosaigh an Cluiche",
     "Settings that should only be changed by those who know what they are doing!": "Socruithe nár chóir a athrú ach amháin ag daoine a bhfuil a fhios acu cad atá á dhéanamh acu!",
     "Settings to change the HDMI output of the device": "Socruithe chun aschur HDMI an ghléis a athrú",
+    "Toggle the device fancy RGB light system": "Scoránaigh an córas solais RGB galánta feiste",
     "Volume": "Toirt"
   },
   "muxvisual": {

@@ -74,6 +74,7 @@
     "Friendly Name System": "Přátelský systém jmen",
     "History": "Historie",
     "Languages": "Jazyky",
+    "Location of External Emulator files (e.g. PPSSPP, Pico-8, Dreamcast, Drastic)": "Umístění souborů externího emulátoru (např. PPSSPP, Pico-8, Dreamcast, Drastic)",
     "Location of Language files": "Umístění jazykových souborů",
     "Location of Network Profiles": "Umístění síťových profilů",
     "Location of RetroArch configuration packages": "Umístění konfiguračních balíčků RetroArch",
@@ -100,6 +101,7 @@
     "RetroArch System": "RetroArch Systém",
     "Save Games + Save States": "Uložení her + Uložení stavů",
     "Screenshots": "Snímky obrazovky",
+    "Standalone Emulator Files": "Soubory samostatného emulátoru",
     "Start Backup": "Spusťte zálohování",
     "Start the backup process for the selected items": "Spustit proces zálohování vybraných položek",
     "Syncthing Configs": "Synchronizace konfigurací",
@@ -682,6 +684,7 @@
     "Content Collection": "Sbírka obsahu",
     "Content Explorer": "Průzkumník obsahu",
     "Date and Time": "Datum a čas",
+    "Device RGB Lights": "RGB světla zařízení",
     "Device Startup": "Spuštění zařízení",
     "GENERAL SETTINGS": "HLAVNÍ NASTAVENÍ",
     "HDMI Output": "HDMI výstup",
@@ -691,6 +694,7 @@
     "Resume Game": "Pokračovat ve hře",
     "Settings that should only be changed by those who know what they are doing!": "Nastavení, která by měli měnit pouze ti, kteří vědí, co dělají!",
     "Settings to change the HDMI output of the device": "Nastavení pro změnu výstupu HDMI zařízení",
+    "Toggle the device fancy RGB light system": "Přepnout efektní systém RGB osvětlení zařízení",
     "Volume": "Hlasitost"
   },
   "muxvisual": {

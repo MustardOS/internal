@@ -1,5 +1,5 @@
 #!/bin/sh
-# muxbackup.sh - A script to backup files from MUOS devices
+# backup.sh - A script to backup files from MUOS devices
 # This script reads a manifest file to determine which files to back up,
 # where to back them up, and whether to do it in individual or batch mode.
 # It supports both individual backups and batch processing of multiple files.
@@ -60,6 +60,7 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 	cd /
     # Read the manifest file line by line
     while read -r SRC_MNT SRC_SHORTNAME SRC_SUFFIX; do
+        SRC_PATH=""
         
         LINE_NUM=$((LINE_NUM+1))
 
@@ -75,63 +76,81 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
             break
         fi
 
-        if [ "$SRC_SHORTNAME" = "External" ]; then
-            # Define Dreamcast VMU source
-            if [ -d "/run/muos/storage/bios/dc" ]; then
-                if [ -f "/run/muos/storage/bios/dc/dc_nvmem.bin" ]; then
-                    DREAMCAST_NVMEM="/run/muos/storage/bios/dc/dc_nvmem.bin"
+        echo "$SRC_SHORTNAME: $SRC_MNT/$SRC_SUFFIX"
+        # Handle special cases
+        if [ "$SRC_SHORTNAME" = "External" ] || [ "$SRC_SHORTNAME" = "MuosConfig" ]; then
+
+            if [ "$SRC_SHORTNAME" = "External" ]; then
+                # Define Dreamcast VMU source
+                if [ -d "/run/muos/storage/bios/dc" ]; then
+                    if [ -f "/run/muos/storage/bios/dc/dc_nvmem.bin" ]; then
+                        DREAMCAST_NVMEM="/run/muos/storage/bios/dc/dc_nvmem.bin"
+                    fi
+                    VMU_SAVES=$(ls "/run/muos/storage/bios/dc/vmu_save_"* 2>/dev/null)
+                    if [ -n "$VMU_SAVES" ]; then
+                        DREAMCAST_VMU="/run/muos/storage/bios/dc/vmu_save_"*
+                    fi
                 fi
-                VMU_SAVES=$(ls "/run/muos/storage/bios/dc/vmu_save_"* 2>/dev/null)
-                if [ -n "$VMU_SAVES" ]; then
-                    DREAMCAST_VMU="/run/muos/storage/bios/dc/vmu_save_"*
+
+                # Define DraStic source directories
+                if [ -d "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic" ]; then
+                    DRASTIC_SAVE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/backup"
+                    DRASTIC_SAVESTATE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/savestates"
+                else
+                    DRASTIC_SAVE_DIR=""
+                    DRASTIC_SAVESTATE_DIR=""
                 fi
+
+                # Define additional RA source directories
+                if [ -d "$(GET_VAR "device" "storage/rom/mount")/.config" ]; then
+                    PPSSPP_RA_SAVE_DIR="$(GET_VAR "device" "storage/rom/mount")/.config"
+                else
+                    PPSSPP_RA_SAVE_DIR=""
+                fi
+
+                if [ -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64" ]; then
+                    PICO8_64="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64"
+                else
+                    PICO8_64=""
+                fi
+
+                if [ -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_dyn" ]; then
+                    PICO8_DYN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_dyn"
+                else
+                    PICO8_DYN=""
+                fi
+
+                if [ -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8.dat" ]; then
+                    PICO8_DAT="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8.dat"
+                else
+                    PICO8_DAT=""
+                fi
+
+                # Capture external emulator files
+                TO_BACKUP="
+                $PICO8_64
+                $PICO8_DYN
+                $PICO8_DAT
+                $PPSSPP_RA_SAVE_DIR
+                $DRASTIC_SAVE_DIR
+                $DRASTIC_SAVESTATE_DIR
+                $DREAMCAST_NVMEM
+                $DREAMCAST_VMU
+                "
+            elif [ "$SRC_SHORTNAME" = "MuosConfig" ]; then
+                # Define Dreamcast VMU source
+                if [ -d "/opt/muos/config" ]; then
+                    MUOS_CONFIG_DIR="/opt/muos/config"
+                else
+                    MUOS_CONFIG_DIR=""
+                fi
+            
+                # Capture muOS configuration files
+                TO_BACKUP="
+                $MUOS_CONFIG_DIR
+                "
             fi
 
-            # Define DraStic source directories
-            if [ -d "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic" ]; then
-                DRASTIC_SAVE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/backup"
-                DRASTIC_SAVESTATE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/savestates"
-            else
-                DRASTIC_SAVE_DIR=""
-                DRASTIC_SAVESTATE_DIR=""
-            fi
-
-            # Define additional RA source directories
-            if [ -d "$(GET_VAR "device" "storage/rom/mount")/.config" ]; then
-                PPSSPP_RA_SAVE_DIR="$(GET_VAR "device" "storage/rom/mount")/.config"
-            else
-                PPSSPP_RA_SAVE_DIR=""
-            fi
-
-            if [ -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64" ]; then
-                PICO8_64="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64"
-            else
-                PICO8_64=""
-            fi
-
-            if [ -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_dyn" ]; then
-                PICO8_DYN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_dyn"
-            else
-                PICO8_DYN=""
-            fi
-
-            if [ -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64" ]; then
-                PICO8_DAT="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64"
-            else
-                PICO8_DAT=""
-            fi
-
-            # Capture external emulator files
-            TO_BACKUP="
-            $PICO8_64
-            $PICO8_DYN
-            $PICO8_DAT
-            $PPSSPP_RA_SAVE_DIR
-            $DRASTIC_SAVE_DIR
-            $DRASTIC_SAVESTATE_DIR
-            $DREAMCAST_NVMEM
-            $DREAMCAST_VMU
-            "
             SRC_PATHS=$(mktemp)
 
             for BACKUP in $TO_BACKUP; do
@@ -150,6 +169,11 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
             fi
 
             rm "$SRC_PATHS"
+
+            if [ -z "$SRC_PATH" ]; then
+                echo "No source files found for $SRC_SHORTNAME"
+                continue
+            fi
         else
             # Validate and assign source mount point
             case "$SRC_MNT" in
@@ -172,13 +196,13 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
         if [ "$ERROR_FLAG" -eq 0 ]; then
             DEST_AVAIL=$(df -k "$DEST_PATH" | tail -1 | awk '{print $4}')
 
-             if [ "$SRC_SHORTNAME" = "External" ]; then
+             if [ "$SRC_SHORTNAME" = "External" ] || [ "$SRC_SHORTNAME" = "MuosConfig" ]; then
                 SRC_SIZE=0
                 for FILE in $SRC_PATH; do
                     if [ -e "$FILE" ]; then
                         FILE_SIZE=$(du -sk "$FILE" | awk '{print $1}')
                         SRC_SIZE=$((SRC_SIZE + FILE_SIZE))
-                        echo "Found external source: $FILE ($FILE_SIZE KB)"
+                        echo "Found source: $FILE ($FILE_SIZE KB)"
                     fi
                 done
             else
@@ -186,7 +210,7 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
                 SRC_SIZE=$(du -sk "$SRC_PATH" | awk '{print $1}')
             fi
 
-            echo "Total size of all external sources: $SRC_SIZE KB"
+            echo "Total size of source files: $SRC_SIZE KB"
 
             if [ -z "$SRC_SIZE" ]; then
                 echo "Error: SRC_SIZE is not set for $SRC_SHORTNAME"
@@ -205,7 +229,7 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
             # Use -ru0 for already compressed packages, -ru9 for directories, -u9 for files
             if [ "$SRC_SHORTNAME" = "CataloguePkg" ] || [ "$SRC_SHORTNAME" = "ConfigPkg" ] || [ "$SRC_SHORTNAME" = "BootlogoPkg" ]; then
                 ZIP_FLAGS="-ru0"
-            elif [ "$SRC_SHORTNAME" = "External" ] || [ -d "$SRC_PATH" ]; then
+            elif [ "$SRC_SHORTNAME" = "External" ] || [ "$SRC_SHORTNAME" = "MuosConfig" ] || [ -d "$SRC_PATH" ]; then
                 ZIP_FLAGS="-ru9"
             elif [ -f "$SRC_PATH" ]; then
                 ZIP_FLAGS="-u9"
@@ -218,7 +242,9 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
             DEST_FILE="${DEST_PATH}/muOS-${SRC_SHORTNAME}-$(date +%Y%m%d-%H%M).muxzip"
 
             echo "Creating archive for $SRC_SHORTNAME at $DEST_FILE"
-            if [ "$SRC_SHORTNAME" = "External" ]; then
+            if [ "$SRC_SHORTNAME" = "External" ] || [ "$SRC_SHORTNAME" = "MuosConfig" ]; then
+
+                echo "zip $ZIP_FLAGS "\"$DEST_FILE\"" $SRC_PATH" 
                 # Use eval to expand the file list for zip in POSIX shell
                 if ! eval zip $ZIP_FLAGS "\"$DEST_FILE\"" $SRC_PATH; then
                     echo "Failed to create archive for external sources"
@@ -232,7 +258,6 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
             fi
             echo "Created archive for $SRC_SHORTNAME at $DEST_FILE"
         fi
-
     done < "$MANIFEST_FILE"
 fi
 
@@ -240,12 +265,6 @@ if [ "$ERROR_FLAG" -ne 0 ]; then
     echo "An error occurred during the backup process."
 else
     echo "Backup completed successfully."
-fi
-
-# Remove temporary files if they exist
-if [ ! -z "$TMP_PATH" ]  && [ -d "$TMP_PATH" ]; then
-    echo "Removing temporary files from $TMP_PATH"
-    rm -rf "$TMP_PATH"
 fi
 
 # Remove the manifest file

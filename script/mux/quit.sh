@@ -88,13 +88,13 @@ HALT_SYSTEM() {
 			;;
 	esac
 
-	#TODO: Re-enable in the future using a config module
+	
 	# Run syncthing scanner if enabled
-	#LOG_INFO "$0" 0 "QUIT" "Running syncthing scanner if enabled"
-	#if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
-	#	SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' /run/muos/storage/syncthing/config.xml)
-	#	curl -X POST -H "X-API-Key: $SYNCTHING_API" "localhost:7070/rest/db/scan"
-	#fi
+	LOG_INFO "$0" 0 "QUIT" "Running syncthing scanner if enabled"
+	if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ] && [ "$(GET_VAR "config" "syncthing/auto_scan")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
+		SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' /run/muos/storage/syncthing/config.xml)
+		curl -X POST -H "X-API-Key: $SYNCTHING_API" "localhost:7070/rest/db/scan"
+	fi
 }
 
 [ "$#" -eq 2 ] || USAGE

@@ -27,7 +27,7 @@ elif [ "$SYNCTHING_ENABLED" -eq 1 ] && [ "$NETWORK_STATE" = "up" ]; then
     SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' /run/muos/storage/syncthing/config.xml)
 fi
 
-if [ ERROR_FLAG -eq 0 ] && [ -z "$SYNCTHING_API" ]; then 
+if [ "$ERROR_FLAG" -eq 0 ] && [ -z "$SYNCTHING_API" ]; then 
     echo "Error: Syncthing API key not found or config file is missing/malformed. Skipping scan."
     ERROR_FLAG=1
 else
@@ -41,7 +41,7 @@ else
     done
 fi
 
-if [ $ERROR_FLAG -eq 1 ]; then
+if [ "$ERROR_FLAG" -eq 1 ]; then
     echo "Error occurred during manual Syncthing scan."
 fi
 

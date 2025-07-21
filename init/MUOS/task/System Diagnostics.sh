@@ -74,6 +74,21 @@ cp -r "$INT_DIR/log" "$OUTPUT_DIR/int"
 cp "$INT_DIR/halt.log" "$OUTPUT_DIR/int"
 cp "$INT_DIR/ldconfig.log" "$OUTPUT_DIR/int"
 
+echo "Collecting muOS Config Variables"
+find /opt/muos/config -type f | while read file; do
+	relpath="${file#/opt/muos/config/}"
+	if echo "$relpath" | grep -qE 'network/pass|network/ssid'; then
+		continue
+	fi
+	echo "$relpath: $(cat "$file" 2>/dev/null)" >>"$OUTPUT_DIR/config.log"
+done
+
+echo "Collecting muOS Device Variables"
+find /opt/muos/device/config -type f | while read file; do
+	relpath="${file#/opt/muos/device/config/}"
+	echo "$relpath: $(cat "$file" 2>/dev/null)" >>"$OUTPUT_DIR/device.log"
+done
+
 echo "Creating Diagnostic Archive"
 cd "$OUTPUT_DIR" || exit 1
 zip -r "$ARCHIVE_FILE" ./* >/dev/null 2>&1

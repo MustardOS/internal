@@ -1,1 +1,1 @@
-/sys/class/power_supply/axp2202-battery/moto
+/sys/class/gpio/gpio227/value

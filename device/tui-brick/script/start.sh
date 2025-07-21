@@ -8,6 +8,11 @@ if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
 	mount -t debugfs debugfs /sys/kernel/debug
 fi
 
+# Enable rumble support
+echo 227 >/sys/class/gpio/export
+echo out >/sys/class/gpio/gpio227/direction
+echo 0 >/sys/class/gpio/gpio227/value
+
 if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 	/opt/muos/device/script/hdmi.sh
 else

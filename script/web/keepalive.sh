@@ -16,7 +16,18 @@ if [ -z "$DNS_SERVER" ]; then
 	exit 1
 fi
 
+FALLBACK_IP="8.8.8.8"
+
 while :; do
-	ping -c 1 -s 8 "$DNS_SERVER" >/dev/null 2>&1
+	if ! ping -c 1 -s 8 "$DNS_SERVER" >/dev/null 2>&1; then
+		if ! ping -c 1 -s 8 "$FALLBACK_IP" >/dev/null 2>&1; then
+			printf "Network failure detected. Disconnecting...\n"
+			/opt/muos/script/system/network.sh disconnect
+			if [ "$(GET_VAR "config" "network/monitor")" -eq 1 ]; then
+				printf "Trying to reconnect to network...\n"
+				/opt/muos/script/system/network.sh connect
+			fi
+		fi
+	fi
 	/opt/muos/bin/toybox sleep 60
 done &

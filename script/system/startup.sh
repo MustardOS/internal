@@ -29,6 +29,7 @@ ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 PASSCODE_LOCK=$(GET_VAR "config" "settings/advanced/lock")
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
+CONNECT_ON_BOOT=$(GET_VAR "config" "network/boot")
 USER_INIT=$(GET_VAR "config" "settings/advanced/user_init")
 FIRST_INIT=$(GET_VAR "config" "boot/first_init")
 
@@ -138,7 +139,7 @@ if [ "$(GET_VAR "config" "boot/device_mode")" -eq 0 ]; then
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Checking for Network Capability"
-if [ "$HAS_NETWORK" -eq 1 ]; then
+if [ "$CONNECT_ON_BOOT" -eq 1 ] && [ "$HAS_NETWORK" -eq 1 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Starting Network Services"
 	/opt/muos/script/system/network.sh connect &
 fi

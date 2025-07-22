@@ -19,6 +19,7 @@ for T in s_rotate s_zoom; do
 done
 
 LOG_INFO "$0" 0 "BOOTING" "Caching System Variables"
+BOARD_NAME=$(GET_VAR "device" "board/name")
 GOVERNOR=$(GET_VAR "device" "cpu/governor")
 WIDTH=$(GET_VAR "device" "screen/internal/width")
 HEIGHT=$(GET_VAR "device" "screen/internal/height")
@@ -32,6 +33,16 @@ HAS_NETWORK=$(GET_VAR "device" "board/network")
 CONNECT_ON_BOOT=$(GET_VAR "config" "network/boot")
 USER_INIT=$(GET_VAR "config" "settings/advanced/user_init")
 FIRST_INIT=$(GET_VAR "config" "boot/first_init")
+
+# Enable rumble support - primarily used for TrimUI devices at the moment...
+case "$BOARD_NAME" in
+	tui*)
+		echo 227 >/sys/class/gpio/export
+		echo out >/sys/class/gpio/gpio227/direction
+		echo 0 >/sys/class/gpio/gpio227/value
+		;;
+	*) ;;
+esac
 
 LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"
 echo "performance" >"$GOVERNOR"

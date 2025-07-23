@@ -54,29 +54,7 @@ INSTALL() {
 	BOOTLOGO_NEW="$THEME_ACTIVE_DIR/$(GET_VAR "device" "mux/width")x$(GET_VAR "device" "mux/height")/image/bootlogo.bmp"
 	[ -f "$BOOTLOGO_NEW" ] || BOOTLOGO_NEW="$THEME_ACTIVE_DIR/image/bootlogo.bmp"
 
-	(
-		LED_CONTROL_SCRIPT="/opt/muos/device/script/led_control.sh"
-
-		if [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] && [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
-			RGBCONF_SCRIPT="$THEME_ACTIVE_DIR/rgb/rgbconf.sh"
-
-			TIMEOUT=10
-			WAIT=0
-
-			while [ ! -f "$RGBCONF_SCRIPT" ] && [ "$WAIT" -lt "$TIMEOUT" ]; do
-				/opt/muos/bin/toybox sleep 1
-				WAIT=$((WAIT + 1))
-			done
-
-			if [ -f "$RGBCONF_SCRIPT" ]; then
-				"$RGBCONF_SCRIPT"
-			else
-				"$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
-			fi
-		else
-			[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
-		fi
-	) &
+	LED_CONTROL_CHANGE
 
 	if [ -f "$BOOTLOGO_NEW" ]; then
 		cp "$BOOTLOGO_NEW" "$BOOTLOGO_MOUNT/bootlogo.bmp"

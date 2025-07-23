@@ -8,6 +8,7 @@ RECENT_WAKE="/tmp/recent_wake"
 HAS_NETWORK=$(GET_VAR "device" "board/network")
 CPU_GOV_PATH="$(GET_VAR "device" "cpu/governor")"
 CPU_CORES="$(GET_VAR "device" "cpu/cores")"
+RGB_ENABLE=$(GET_VAR "config" "settings/general/rgb")
 LED_RGB="$(GET_VAR "device" "led/rgb")"
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
 RUMBLE_SETTING="$(GET_VAR "config" "settings/advanced/rumble")"
@@ -40,8 +41,9 @@ SLEEP() {
 		*) ;;
 	esac
 
-	if [ "$LED_RGB" -eq 1 ]; then
-		/opt/muos/device/script/led_control.sh 1 0 0 0 0 0 0 0
+	if [ "$RGB_ENABLE" -eq 1 ] && [ "$LED_RGB" -eq 1 ]; then
+		LED_CONTROL_SCRIPT="/opt/muos/device/script/led_control.sh"
+		[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 	fi
 
 	case "$RUMBLE_SETTING" in
@@ -71,14 +73,7 @@ RESUME() {
 
 	/opt/muos/device/script/module.sh load
 
-	if [ "$LED_RGB" -eq 1 ]; then
-		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
-		if [ -x "$RGBCONF_SCRIPT" ]; then
-			"$RGBCONF_SCRIPT"
-		else
-			/opt/muos/device/script/led_control.sh 1 0 0 0 0 0 0 0
-		fi
-	fi
+	LED_CONTROL_CHANGE
 
 	rm -f "/tmp/mux_blank"
 	echo 0 >"/sys/class/graphics/fb0/blank"

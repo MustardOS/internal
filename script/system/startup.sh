@@ -118,6 +118,8 @@ LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
 /opt/muos/script/system/pipewire.sh &
 
 if [ "$FACTORY_RESET" -eq 1 ]; then
+	LED_CONTROL_CHANGE
+
 	/opt/muos/script/system/factory.sh
 	/opt/muos/script/system/halt.sh reboot
 fi
@@ -147,6 +149,7 @@ OOPS="$ROM_MOUNT/oops.sh"
 if [ "$(GET_VAR "config" "boot/device_mode")" -eq 0 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
 	/opt/muos/device/script/charge.sh
+	LED_CONTROL_CHANGE
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Checking for Network Capability"

@@ -17,6 +17,7 @@ ALSA_CONFIG="/usr/share/alsa/alsa.conf"
 WPA_CONFIG="/etc/wpa_supplicant.conf"
 DEVICE_CONTROL_DIR="$MP/device/control"
 MUOS_LOG_DIR="$MP/log"
+LED_CONTROL_SCRIPT="/opt/muos/device/script/led_control.sh"
 
 export HOME KIOSK_CONFIG DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
 	XDG_RUNTIME_DIR ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR
@@ -368,8 +369,6 @@ KERNEL_TUNING() {
 
 LED_CONTROL_CHANGE() {
 	(
-		LED_CONTROL_SCRIPT="/opt/muos/device/script/led_control.sh"
-
 		if [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] && [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
 
 			RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"

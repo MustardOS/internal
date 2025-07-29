@@ -57,6 +57,8 @@ HALT_SYSTEM() {
 	HALT_CMD="$1"
 	HALT_SRC="$2"
 
+	[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
+
 	LOG_INFO "$0" 0 "QUIT" "Quitting system (cmd: %s) (src: %s)" "$HALT_CMD" "$HALT_SRC"
 
 	# Turn on power LED for visual feedback on halt success.
@@ -88,7 +90,6 @@ HALT_SYSTEM() {
 			;;
 	esac
 
-	
 	# Run syncthing scanner if enabled
 	LOG_INFO "$0" 0 "QUIT" "Running syncthing scanner if enabled"
 	if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ] && [ "$(GET_VAR "config" "syncthing/auto_scan")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then

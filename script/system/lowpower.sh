@@ -8,7 +8,6 @@ BATT_CAP=$(GET_VAR "device" "battery/capacity")
 BATT_LOW=$(GET_VAR "config" "settings/power/low_battery")
 LED_LOW=$(GET_VAR "device" "led/low")
 LED_RGB=$(GET_VAR "device" "led/rgb")
-LED_CONTROL_SCRIPT="/opt/muos/device/script/led_control.sh"
 
 LOW_BATTERY_WARNING() {
 	RGB_ENABLED=$(GET_VAR "config" "settings/general/rgb")

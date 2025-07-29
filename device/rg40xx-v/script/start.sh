@@ -11,8 +11,6 @@ fi
 if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 	/opt/muos/device/script/hdmi.sh
 else
-	LED_CONTROL_CHANGE
-
 	/opt/muos/device/script/bright.sh R
 
 	case "$(GET_VAR "config" "settings/advanced/brightness")" in

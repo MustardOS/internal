@@ -42,7 +42,6 @@ SLEEP() {
 	esac
 
 	if [ "$RGB_ENABLE" -eq 1 ] && [ "$LED_RGB" -eq 1 ]; then
-		LED_CONTROL_SCRIPT="/opt/muos/device/script/led_control.sh"
 		[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 	fi
 

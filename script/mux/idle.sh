@@ -6,9 +6,6 @@ INHIBIT_NONE=0
 INHIBIT_BOTH=1
 INHIBIT_SLEEP=2
 
-LED_CONTROL="/opt/muos/device/script/led_control.sh"
-RGBCONF="/run/muos/storage/theme/active/rgb/rgbconf.sh"
-
 DISPLAY_IDLE() {
 	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
 
@@ -16,9 +13,7 @@ DISPLAY_IDLE() {
 		DISPLAY_WRITE lcd0 setbl 10
 	fi
 
-	if [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] && [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
-		"$LED_CONTROL" 1 0 0 0 0 0 0 0
-	fi
+	[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 }
 
 DISPLAY_ACTIVE() {
@@ -30,9 +25,7 @@ DISPLAY_ACTIVE() {
 		DISPLAY_WRITE lcd0 setbl "$BL"
 	fi
 
-	if [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] && [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
-		[ -x "$RGBCONF" ] && "$RGBCONF"
-	fi
+	LED_CONTROL_CHANGE
 }
 
 # Monitor for specific programs that should inhibit idle timeout.

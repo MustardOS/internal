@@ -1,12 +1,12 @@
 {
   "BRIGHT_DOWN": {"handle_hold": true, "inputs": ["SWITCH", "VOL_DOWN"]},
   "BRIGHT_UP": {"handle_hold": true, "inputs": ["SWITCH", "VOL_UP"]},
-  "SCREENSHOT": {"handle_hold": false, "inputs": ["MENU_SHORT", "R2", "L2"]},
+  "SCREENSHOT": {"handle_hold": false, "inputs": ["X", "R2", "L2"]},
   "OSF_R": {"handle_hold": false, "inputs": ["START", "R2", "L2"]},
   "OSF_S": {"handle_hold": false, "inputs": ["SELECT", "R2", "L2"]},
   "RETROWAIT_IGNORE": {"handle_hold": false, "inputs": ["START"]},
   "RETROWAIT_MENU": {"handle_hold": false, "inputs": ["SELECT"]},
-  "SLEEP": {"handle_hold": false, "inputs": ["POWER_LONG"]},
+  "SLEEP": {"handle_hold": false, "inputs": ["POWER_SHORT"]},
   "VOL_DOWN": {"handle_hold": true, "inputs": ["VOL_DOWN"]},
   "VOL_UP": {"handle_hold": true, "inputs": ["VOL_UP"]}
 }

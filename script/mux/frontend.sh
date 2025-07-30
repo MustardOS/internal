@@ -116,10 +116,17 @@ cp /opt/muos/log/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/."
 LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 
 while :; do
-	pkill -9 -f "gptokeyb" &
+	killall -9 "gptokeyb" "gptokeyb2" &
 
-	# Reset DPAD<>ANALOGUE switch for H700 devices
-	[ "$DEVICE_BOARD" = "rg*" ] && echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+	# Reset ANALOGUE<>DIGITAL switch for the DPAD
+	case "$(GET_VAR "device" "board/name")" in
+		rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
+		tui*)
+			DPAD_FILE="/tmp/trimui_inputd/input_dpad_to_joystick"
+			[ -e "$DPAD_FILE" ] && rm -f "$DPAD_FILE"
+			;;
+		*) ;;
+	esac
 
 	# Content Loader
 	[ -s "$ROM_GO" ] && /opt/muos/script/mux/launch.sh

@@ -93,6 +93,10 @@ case "$(GET_VAR "device" "board/name")" in
 		echo 1 >"$(GET_VAR "device" "led/normal")"
 		echo 1 >/tmp/work_led_state
 		;;
+	tui*)
+		DPAD_FILE="/tmp/trimui_inputd/input_dpad_to_joystick"
+		[ -e "$DPAD_FILE" ] && rm -f "$DPAD_FILE"
+		;;
 	*) ;;
 esac
 

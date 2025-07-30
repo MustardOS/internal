@@ -100,10 +100,13 @@ DPAD_TOGGLE() {
 						DPAD_FILE="/tmp/trimui_inputd/input_dpad_to_joystick"
 						if [ -e "$DPAD_FILE" ]; then
 							rm -f "$DPAD_FILE"
+							RUMBLE "$RUMBLE_DEVICE" .1
 						else
 							touch "$DPAD_FILE"
+							RUMBLE "$RUMBLE_DEVICE" .1
+							/opt/muos/bin/toybox sleep .1
+							RUMBLE "$RUMBLE_DEVICE" .1
 						fi
-						RUMBLE "$RUMBLE_DEVICE" .1
 						;;
 				esac
 				;;

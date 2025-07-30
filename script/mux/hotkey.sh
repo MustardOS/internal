@@ -6,7 +6,6 @@ if [ "$(GET_VAR "config" "boot/factory_reset")" -eq 0 ]; then
 	IS_HANDHELD_MODE && . /opt/muos/script/mux/idle.sh
 fi
 
-DPAD_FILE=/sys/class/power_supply/axp2202-battery/nds_pwrkey
 HALL_KEY_FILE=/sys/class/power_supply/axp2202-battery/hallkey
 
 RGBCONTROLLER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/RGB Controller"
@@ -64,7 +63,7 @@ LID_CLOSED() {
 
 SLEEP() {
 	if [ "$(GET_VAR "config" "boot/factory_reset")" -eq 0 ]; then
-	  	CURR_UPTIME=$(UPTIME)
+		CURR_UPTIME=$(UPTIME)
 		if [ "$(echo "$CURR_UPTIME - $(GET_VAR "system" "resume_uptime") >= 1" | bc)" -eq 1 ]; then
 			/opt/muos/script/system/suspend.sh &
 			SET_VAR "system" "resume_uptime" "$CURR_UPTIME"
@@ -81,15 +80,29 @@ DPAD_TOGGLE() {
 		case "$(GET_VAR "system" "foreground_process")" in
 			mux*) ;;
 			*)
-				case "$(cat "$DPAD_FILE")" in
-					0)
-						echo 2 >"$DPAD_FILE"
-						RUMBLE "$RUMBLE_DEVICE" .1
+				case "$(GET_VAR "system" "foreground_process")" in
+					rg*)
+						DPAD_FILE="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
+						case "$(cat "$DPAD_FILE")" in
+							0)
+								echo 2 >"$DPAD_FILE"
+								RUMBLE "$RUMBLE_DEVICE" .1
+								;;
+							2)
+								echo 0 >"$DPAD_FILE"
+								RUMBLE "$RUMBLE_DEVICE" .1
+								/opt/muos/bin/toybox sleep .1
+								RUMBLE "$RUMBLE_DEVICE" .1
+								;;
+						esac
 						;;
-					2)
-						echo 0 >"$DPAD_FILE"
-						RUMBLE "$RUMBLE_DEVICE" .1
-						/opt/muos/bin/toybox sleep .1
+					tui*)
+						DPAD_FILE="/tmp/trimui_inputd/input_dpad_to_joystick"
+						if [ -e "$DPAD_FILE" ]; then
+							rm -f "$DPAD_FILE"
+						else
+							touch "$DPAD_FILE"
+						fi
 						RUMBLE "$RUMBLE_DEVICE" .1
 						;;
 				esac

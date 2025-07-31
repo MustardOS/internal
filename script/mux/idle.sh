@@ -2,6 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
+IS_IDLE="/tmp/is_idle"
+
 INHIBIT_NONE=0
 INHIBIT_BOTH=1
 INHIBIT_SLEEP=2
@@ -14,9 +16,13 @@ DISPLAY_IDLE() {
 	fi
 
 	[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
+
+	touch "$IS_IDLE"
 }
 
 DISPLAY_ACTIVE() {
+	[ -e "$IS_IDLE" ] && rm -f "$IS_IDLE"
+
 	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
 	BL="$(GET_VAR "config" "settings/general/brightness")"

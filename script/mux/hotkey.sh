@@ -6,10 +6,6 @@ if [ "$(GET_VAR "config" "boot/factory_reset")" -eq 0 ]; then
 	IS_HANDHELD_MODE && . /opt/muos/script/mux/idle.sh
 fi
 
-HALL_KEY_FILE=/sys/class/power_supply/axp2202-battery/hallkey
-
-RGBCONTROLLER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/RGB Controller"
-
 READ_HOTKEYS() {
 	# Restart muhotkey if it exits. (tweak.sh kills it on config changes.)
 	while :; do
@@ -56,7 +52,10 @@ HANDLE_HOTKEY() {
 
 LID_CLOSED() {
 	case "$(GET_VAR "device" "board/name")" in
-		rg35xx-sp) [ "$(cat "$HALL_KEY_FILE")" -eq 0 ] ;;
+		rg35xx-sp)
+			HALL_KEY_FILE=/sys/class/power_supply/axp2202-battery/hallkey
+			[ "$(cat "$HALL_KEY_FILE")" -eq 0 ]
+			;;
 		*) false ;;
 	esac
 }
@@ -115,6 +114,8 @@ DPAD_TOGGLE() {
 }
 
 RGBCLI() {
+	RGBCONTROLLER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/RGB Controller"
+
 	LD_LIBRARY_PATH="$RGBCONTROLLER_DIR/libs:$LD_LIBRARY_PATH" \
 		"$RGBCONTROLLER_DIR/love" "$RGBCONTROLLER_DIR/rgbcli" "$@"
 }

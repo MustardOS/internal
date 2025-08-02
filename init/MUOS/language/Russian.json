@@ -213,7 +213,7 @@
     "Cache Reclamation": "Восстановление кэша",
     "Controls how aggressively the system swaps memory to disk\n\nLower values keep processes in RAM longer": "Контролирует интенсивность создания файлов подкачки\n\nПри низких значениях процессы дольше остаются в оперативной памяти",
     "Controls how kernel merges I/O requests\n\nDisabling merges may benefit specific flash storage performance": "Контролирует как ядро объединяет запросы ввода-вывода\n\nОтключение объединений может повысить производительности определенных флэш-накопителей",
-    "DANGEROUS": "ОПАСНО",
+    "DANGER SETTINGS": "DANGER SETTINGS",
     "Disk Tuning": "Disk Tuning",
     "Enables or disables tracking of per-device I/O statistics\n\nDisabling may improve performance slightly": "Управляет отслеживанием статистики ввода-вывода каждого устройства\n\nВыключение может немного увеличить производительность",
     "Flushes dirty data on idle instead of using write back thresholds\n\nUseful for flash storage or reducing idle power": "Удаляет мусорные данные в режиме ожидания вместо использования порога обратной записи\n\nПолезно для флэш-накопителей или снижения энергопотребления в режиме ожидания",
@@ -237,6 +237,23 @@
     "Switch between system sleep suspend states\n\nChanges how the device reacts to sleep mode and wake locks": "Switch between system sleep suspend states\n\nChanges how the device reacts to sleep mode and wake locks",
     "When enabled, a newly forked child process runs before the parent\n\nMay improve load times for some apps": "При включении только что созданная ветка потомок процесса выполняется раньше родителя\n\nМожет улучшить время загрузки для некоторых приложений",
     "Write Back Threshold": "Порог обратной записи"
+  },
+  "muxdevice": {
+    "Bluetooth Integration": "Bluetooth Integration",
+    "DEVICE SETTINGS": "DEVICE SETTINGS",
+    "HDMI Integration": "HDMI Integration",
+    "Kernel Level DebugFS": "Kernel Level DebugFS",
+    "Lid Switch Integration": "Lid Switch Integration",
+    "Network Integration": "Network Integration",
+    "Portmaster Support": "Portmaster Support",
+    "RGB LED Integration": "RGB LED Integration",
+    "Toggles Bluetooth integration on device": "Toggles Bluetooth integration on device",
+    "Toggles HDMI integration on device": "Toggles HDMI integration on device",
+    "Toggles Network integration on device": "Toggles Network integration on device",
+    "Toggles RGB LED integration on device": "Toggles RGB LED integration on device",
+    "Toggles hall switch (lid) support on device\n\nDo not enable this on non-lid devices!": "Toggles hall switch (lid) support on device\n\nDo not enable this on non-lid devices!",
+    "Toggles internal Portmaster support on device": "Toggles internal Portmaster support on device",
+    "Toggles kernel level DebugFS mount on startup\n\nBest to leave this enabled unless otherwise advised!": "Toggles kernel level DebugFS mount on startup\n\nBest to leave this enabled unless otherwise advised!"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Настройка регулятор ЦП для динамической регулировки частоты ЦП и обеспечения сбалансированного энергопотребления и производительности",

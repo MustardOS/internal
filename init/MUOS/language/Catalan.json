@@ -213,7 +213,7 @@
     "Cache Reclamation": "Recuperació de Cache",
     "Controls how aggressively the system swaps memory to disk\n\nLower values keep processes in RAM longer": "Controla amb quina intensitat el sistema intercanvia memòria amb el disc.\n\nValors més baixos mantenen els processos a la RAM durant més temps",
     "Controls how kernel merges I/O requests\n\nDisabling merges may benefit specific flash storage performance": "Controla com el nucli combina les peticions d’entrada/sortida (E/S)\n\nDesactivar la combinació pot millorar el rendiment d’alguns dispositius d’emmagatzematge flash",
-    "DANGEROUS": "PERILLÓS",
+    "DANGER SETTINGS": "DANGER SETTINGS",
     "Disk Tuning": "Configuració del disc",
     "Enables or disables tracking of per-device I/O statistics\n\nDisabling may improve performance slightly": "Activa o desactiva el seguiment de les estadístiques d’E/S per dispositiu\n\nDesactivar-ho pot millorar lleugerament el rendiment",
     "Flushes dirty data on idle instead of using write back thresholds\n\nUseful for flash storage or reducing idle power": "Esborra les dades modificades durant la inactivitat en lloc d’utilitzar els llindars d’escriptura\n\nÚtil per a emmagatzematge flash o per reduir el consum d’energia en repòs",
@@ -237,6 +237,23 @@
     "Switch between system sleep suspend states\n\nChanges how the device reacts to sleep mode and wake locks": "Canvia entre els estats de suspensió del sistema\n\nCanvia la forma en que el dispositiu reacciona al mode de suspensió i als bloquejos d'activació",
     "When enabled, a newly forked child process runs before the parent\n\nMay improve load times for some apps": "Quan està activat, un procés fill recent creat amb fork s’executa abans que el procés pare\n\nPot millorar els temps de càrrega en algunes aplicacions",
     "Write Back Threshold": "Llindar d’escriptura diferida"
+  },
+  "muxdevice": {
+    "Bluetooth Integration": "Bluetooth Integration",
+    "DEVICE SETTINGS": "DEVICE SETTINGS",
+    "HDMI Integration": "HDMI Integration",
+    "Kernel Level DebugFS": "Kernel Level DebugFS",
+    "Lid Switch Integration": "Lid Switch Integration",
+    "Network Integration": "Network Integration",
+    "Portmaster Support": "Portmaster Support",
+    "RGB LED Integration": "RGB LED Integration",
+    "Toggles Bluetooth integration on device": "Toggles Bluetooth integration on device",
+    "Toggles HDMI integration on device": "Toggles HDMI integration on device",
+    "Toggles Network integration on device": "Toggles Network integration on device",
+    "Toggles RGB LED integration on device": "Toggles RGB LED integration on device",
+    "Toggles hall switch (lid) support on device\n\nDo not enable this on non-lid devices!": "Toggles hall switch (lid) support on device\n\nDo not enable this on non-lid devices!",
+    "Toggles internal Portmaster support on device": "Toggles internal Portmaster support on device",
+    "Toggles kernel level DebugFS mount on startup\n\nBest to leave this enabled unless otherwise advised!": "Toggles kernel level DebugFS mount on startup\n\nBest to leave this enabled unless otherwise advised!"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Configura governadors de CPU per ajustar dinàmicament la freqüència de la CPU i ajudar a equilibrar el consum d'energia i rendiment",

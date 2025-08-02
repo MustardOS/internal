@@ -213,7 +213,7 @@
     "Cache Reclamation": "Aisghabháil Taisce",
     "Controls how aggressively the system swaps memory to disk\n\nLower values keep processes in RAM longer": "Rialaíonn sé cé chomh ionsaitheach agus a mhalartaíonn an córas cuimhne go diosca\n\nCoinníonn luachanna níos ísle próisis i RAM ar feadh tréimhse níos faide",
     "Controls how kernel merges I/O requests\n\nDisabling merges may benefit specific flash storage performance": "Rialaíonn sé conas a chumascann an croí iarratais I/O\n\nD’fhéadfadh feidhmíocht stórála flash ar leith a bheith níos fearr má dhíchumasaítear cumasc",
-    "DANGEROUS": "CONTÚIRTEACH",
+    "DANGER SETTINGS": "DANGER SETTINGS",
     "Disk Tuning": "Tiúnáil Diosca",
     "Enables or disables tracking of per-device I/O statistics\n\nDisabling may improve performance slightly": "Cumasaíonn nó díchumasaíonn sé rianú staitisticí ionchuir/aschur in aghaidh an fheiste\n\nD’fhéadfadh feabhas beag a bheith tagtha ar fheidhmíocht má dhíchumasaítear é",
     "Flushes dirty data on idle instead of using write back thresholds\n\nUseful for flash storage or reducing idle power": "Glanann sé sonraí salacha ar dhíomhaointeas in ionad tairseacha aisscríofa a úsáid\n\nÚsáideach le haghaidh stórála flash nó chun cumhacht dhíomhaointeas a laghdú",
@@ -237,6 +237,23 @@
     "Switch between system sleep suspend states\n\nChanges how the device reacts to sleep mode and wake locks": "Athraigh idir stáit fionraí codlata an chórais\n\nAthraíonn sé an chaoi a n-imoibríonn an gléas le mód codlata agus le glasanna múscailte",
     "When enabled, a newly forked child process runs before the parent\n\nMay improve load times for some apps": "Nuair a bhíonn sé cumasaithe, ritheann próiseas linbh nua-fhorctha roimh an tuismitheoir\n\nD’fhéadfadh sé go bhfeabhsódh sé amanna lódála do roinnt aipeanna",
     "Write Back Threshold": "Tairseach Scríobh Ar Ais"
+  },
+  "muxdevice": {
+    "Bluetooth Integration": "Bluetooth Integration",
+    "DEVICE SETTINGS": "DEVICE SETTINGS",
+    "HDMI Integration": "HDMI Integration",
+    "Kernel Level DebugFS": "Kernel Level DebugFS",
+    "Lid Switch Integration": "Lid Switch Integration",
+    "Network Integration": "Network Integration",
+    "Portmaster Support": "Portmaster Support",
+    "RGB LED Integration": "RGB LED Integration",
+    "Toggles Bluetooth integration on device": "Toggles Bluetooth integration on device",
+    "Toggles HDMI integration on device": "Toggles HDMI integration on device",
+    "Toggles Network integration on device": "Toggles Network integration on device",
+    "Toggles RGB LED integration on device": "Toggles RGB LED integration on device",
+    "Toggles hall switch (lid) support on device\n\nDo not enable this on non-lid devices!": "Toggles hall switch (lid) support on device\n\nDo not enable this on non-lid devices!",
+    "Toggles internal Portmaster support on device": "Toggles internal Portmaster support on device",
+    "Toggles kernel level DebugFS mount on startup\n\nBest to leave this enabled unless otherwise advised!": "Toggles kernel level DebugFS mount on startup\n\nBest to leave this enabled unless otherwise advised!"
   },
   "muxgov": {
     "Configure CPU governors to dynamically adjust the CPU frequency and help balance power consumption and performance": "Cumraigh gobharnóirí LAP chun minicíocht an LAP a choigeartú go dinimiciúil agus cabhrú le tomhaltas agus feidhmíocht cumhachta a chothromú",

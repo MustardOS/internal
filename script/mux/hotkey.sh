@@ -79,7 +79,7 @@ DPAD_TOGGLE() {
 		case "$(GET_VAR "system" "foreground_process")" in
 			mux*) ;;
 			*)
-				case "$(GET_VAR "system" "foreground_process")" in
+				case "$(GET_VAR "device" "board/name")" in
 					rg*)
 						DPAD_FILE="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 						case "$(cat "$DPAD_FILE")" in

@@ -7,8 +7,13 @@
 
 echo app >/tmp/act_go
 
-export HOME=$(GET_VAR "device" "board/home")
+HOME="$(GET_VAR "device" "board/home")"
+export HOME
+
+SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "portmaster"
 
 nice --20 "$(GET_VAR "device" "storage/rom/mount")"/MUOS/PortMaster/PortMaster.sh
+
+unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

@@ -16,14 +16,10 @@ FILE=${3%/}
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
-SETUP_SDL_ENVIRONMENT
+SETUP_SDL_ENVIRONMENT modern
 
 P8_BIN="pico8_64"
 SET_VAR "system" "foreground_process" "$P8_BIN"
-
-# Set appropriate SDL controller file
-SDL_GAMECONTROLLERCONFIG_FILE="/opt/muos/device/control/gamecontrollerdb_modern.txt"
-export SDL_GAMECONTROLLERCONFIG_FILE
 
 EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8"
 
@@ -56,16 +52,16 @@ GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokey
 $GPTOKEYB "./$P8_BIN" -c "./pico8.gptk" &
 
 if [ "$NAME" = "Splore" ]; then
-	SDL_ASSERT=always_ignore PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS -root_path "$F_DIR" -splore
+	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS -root_path "$F_DIR" -splore
 else
-	SDL_ASSERT=always_ignore PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS -root_path "$F_DIR" -run "$FILE"
+	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS -root_path "$F_DIR" -run "$FILE"
 fi
 
 killall -9 "$(pidof $P8_BIN)" "$(pidof gptokeyb2)"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
-unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 FAVOURITE="/run/muos/storage/save/pico8/favourites.txt"
 if [ -e $FAVOURITE ]; then

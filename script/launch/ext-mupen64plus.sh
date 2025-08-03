@@ -55,7 +55,7 @@ esac
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-HOME="$EMUDIR" SDL_ASSERT=always_ignore ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$FILE"
+HOME="$EMUDIR" ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$FILE"
 
 # Clean up temp files if we unzipped the file
 [ -n "$TMPDIR" ] && rm -r "$TMPDIR"
@@ -69,4 +69,4 @@ FB_SWITCH "$(GET_VAR "device" "screen/$SCREEN_TYPE/width")" "$(GET_VAR "device" 
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
-unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

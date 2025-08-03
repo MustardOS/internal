@@ -12,8 +12,9 @@ LOVEDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/RGB Controller
 GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2.armhf"
 CONFDIR="$LOVEDIR/conf/"
 
+SETUP_SDL_ENVIRONMENT
+
 # Export environment variables
-export SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt"
 export XDG_DATA_HOME="$CONFDIR"
 
 # Launcher

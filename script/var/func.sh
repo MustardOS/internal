@@ -288,6 +288,17 @@ PLAY_SOUND() {
 }
 
 SETUP_SDL_ENVIRONMENT() {
+	case "$1" in
+		modern) SDL_GAMECONTROLLERCONFIG_FILE="/opt/muos/device/control/gamecontrollerdb_modern.txt" ;;
+		retro) SDL_GAMECONTROLLERCONFIG_FILE="/opt/muos/device/control/gamecontrollerdb_retro.txt" ;;
+		*) SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt" ;;
+	esac
+
+	[ ! -r "$SDL_GAMECONTROLLERCONFIG_FILE" ] && SDL_GAMECONTROLLERCONFIG_FILE="$DEF_DB"
+	SDL_GAMECONTROLLERCONFIG=$(grep "$(GET_VAR "device" "sdl/name")" "$SDL_GAMECONTROLLERCONFIG_FILE")
+
+	export SDL_GAMECONTROLLERCONFIG_FILE SDL_GAMECONTROLLERCONFIG
+
 	if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 		SDL_HQ_SCALER=2
 		SDL_ROTATION=0
@@ -299,6 +310,9 @@ SETUP_SDL_ENVIRONMENT() {
 	fi
 
 	export SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+
+	SDL_ASSERT=always_ignore
+	export SDL_ASSERT
 }
 
 CONFIGURE_RETROARCH() {

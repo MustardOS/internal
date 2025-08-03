@@ -11,7 +11,7 @@ LOVEDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Moonlight"
 MOONDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Moonlight/moonlight"
 GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
 
-export SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt"
+SETUP_SDL_ENVIRONMENT
 
 cd "$LOVEDIR" || exit
 SET_VAR "system" "foreground_process" "love"

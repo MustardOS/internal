@@ -38,6 +38,6 @@ nice --20 retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/moun
 RA_PID=$!
 
 wait $RA_PID
-unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop

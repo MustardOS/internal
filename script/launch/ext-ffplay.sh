@@ -26,4 +26,4 @@ SET_VAR "system" "foreground_process" "ffplay"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 
-unset SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

@@ -51,6 +51,12 @@ if [ ! -d "/tmp/trimui_inputd" ]; then
 	mkdir -p "/tmp/trimui_inputd"
 fi
 
+# Modified GPU parameters
+echo 1 >/sys/module/pvrsrvkm/parameters/DisableClockGating
+echo 1 >/sys/module/pvrsrvkm/parameters/EnableFWContextSwitch
+echo 1 >/sys/module/pvrsrvkm/parameters/EnableSoftResetContextSwitch
+echo 0 >/sys/module/pvrsrvkm/parameters/PVRDebugLevel
+
 # Add device specific Retroarch Binary
 RA_BIN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-tui"
 RA_MD5="$(cat "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-tui.md5")"

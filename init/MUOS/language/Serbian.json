@@ -501,7 +501,8 @@
     "Set the CPU governor for the selected content or directory": "Postavite CPU upravljača za odabrani sadržaj ili folder",
     "Set the specific tag of the content selected to change the glyph": "Podesite određenu oznaku za izabrani sadržaj kako biste promenili prikazani simbol (glif)",
     "Set the system core or external emulator for the selected content or directory": "Podesite sistemsku jezgru (core) ili eksterni emulator za izabrani sadržaj ili folder",
-    "Tag": "Oznaka"
+    "Tag": "Oznaka",
+    "Time Played": "Time Played"
   },
   "muxpass": {
     "PASSCODE": "LOZINKA"

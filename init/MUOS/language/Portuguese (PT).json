@@ -501,7 +501,8 @@
     "Set the CPU governor for the selected content or directory": "Defina o controlador do CPU para o conteúdo ou diretório seleccionado",
     "Set the specific tag of the content selected to change the glyph": "Set the specific tag of the content selected to change the glyph",
     "Set the system core or external emulator for the selected content or directory": "Defina o núcleo do sistema ou emulador externo para o conteúdo ou diretório seleccionado",
-    "Tag": "Tag"
+    "Tag": "Tag",
+    "Time Played": "Time Played"
   },
   "muxpass": {
     "PASSCODE": "CÓDIGO DE ACESSO"

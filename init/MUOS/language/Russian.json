@@ -501,7 +501,8 @@
     "Set the CPU governor for the selected content or directory": "Настройка регулятора ЦП для выбранной игры или папки",
     "Set the specific tag of the content selected to change the glyph": "Выбор определенного ярлыка для выбранной иконки игры",
     "Set the system core or external emulator for the selected content or directory": "Выбор ядра или внешнего эмулятора для указанной игры или папки",
-    "Tag": "Ярлык"
+    "Tag": "Ярлык",
+    "Time Played": "Time Played"
   },
   "muxpass": {
     "PASSCODE": "ПАРОЛЬ"

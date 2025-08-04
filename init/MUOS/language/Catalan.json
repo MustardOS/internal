@@ -501,7 +501,8 @@
     "Set the CPU governor for the selected content or directory": "Assigna el governador de CPU pel contingut o directori seleccionat",
     "Set the specific tag of the content selected to change the glyph": "Defineix l’etiqueta específica del contingut seleccionat per modificar la icona",
     "Set the system core or external emulator for the selected content or directory": "Assigna el nucli de sistema o emulador extern pel contingut o directori seleccionat",
-    "Tag": "Etiqueta"
+    "Tag": "Etiqueta",
+    "Time Played": "Time Played"
   },
   "muxpass": {
     "PASSCODE": "CODI D'ACCÉS"

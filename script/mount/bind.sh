@@ -80,5 +80,14 @@ BIND_EMULATOR "save/drastic-legacy/savestates" "drastic-legacy/savestates" &
 BIND_EMULATOR "save/file/OpenBOR-Ext" "openbor/userdata/saves/openbor" &
 BIND_EMULATOR "screenshot" "openbor/userdata/screenshots/openbor" &
 BIND_EMULATOR "save/pico8" "pico8/.lexaloffle/pico-8" &
-BIND_EMULATOR "save/file/PPSSPP-Ext" "ppsspp/.config/ppsspp/PSP/SAVEDATA" &
-BIND_EMULATOR "save/state/PPSSPP-Ext" "ppsspp/.config/ppsspp/PSP/PPSSPP_STATE" &
+
+case "$(GET_VAR "device" "board/name")" in
+	rg*)
+		BIND_EMULATOR "save/file/PPSSPP-Ext" "ppsspp/rg/.config/ppsspp/PSP/SAVEDATA" &
+		BIND_EMULATOR "save/state/PPSSPP-Ext" "ppsspp/rg/.config/ppsspp/PSP/PPSSPP_STATE" &
+		;;
+	tui*)
+		BIND_EMULATOR "save/file/PPSSPP-Ext" "ppsspp/tui/.config/ppsspp/PSP/SAVEDATA" &
+		BIND_EMULATOR "save/state/PPSSPP-Ext" "ppsspp/tui/.config/ppsspp/PSP/PPSSPP_STATE" &
+		;;
+esac

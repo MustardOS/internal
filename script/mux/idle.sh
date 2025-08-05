@@ -45,7 +45,7 @@ while :; do
 
 	# Inhibit idle display and sleep during long-running processes.
 	case "$(GET_VAR "system" "foreground_process")" in
-		muterm | ffplay | mpv | muxcharge | muxcredits | muxmessage) INHIBIT="$INHIBIT_BOTH" ;;
+		muterm | ffplay | mpv | muxcharge | muxcredits | muxmessage | muxbackup) INHIBIT="$INHIBIT_BOTH" ;;
 	esac
 
 	SET_VAR "system" "idle_inhibit" "$INHIBIT"

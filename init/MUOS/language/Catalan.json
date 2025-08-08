@@ -121,7 +121,7 @@
     "Voltage": "Voltatge"
   },
   "muxcollect": {
-    "COLLECTIONS": "COL·LECCIONS",
+    "COLLECTION": "COLLECTION",
     "Collection folder is not empty": "La carpeta de col·lecció no és buida",
     "Error loading content file": "Error al carregar el fitxer de contingut",
     "Error removing from Collections": "Error a l'eliminar de Col·leccions",
@@ -156,6 +156,11 @@
     "USB Function": "Funció USB",
     "Web Services": "Serveis Web",
     "Wi-Fi Network": "Xarxa Wi-Fi"
+  },
+  "muxcontrol": {
+    "CONTROL": "CONTROL",
+    "Change the control scheme of your current selected content": "Change the control scheme of your current selected content",
+    "No Control Schemes Found…": "No Control Schemes Found…"
   },
   "muxcustom": {
     "Allows for testing different theme resolutions": "Permet provar diferents resolucions de temes",
@@ -318,6 +323,7 @@
     "Allow editing of network settings": "Allow editing of network settings",
     "Allow modifying HDMI display settings": "Allow modifying HDMI display settings",
     "Allow searching for content": "Allow searching for content",
+    "Allow selection of content control scheme": "Allow selection of content control scheme",
     "Allow selection of content cores": "Allow selection of content cores",
     "Allow selection of content governor": "Allow selection of content governor",
     "Allow user to migrate or sync user based content": "Allow user to migrate or sync user based content",
@@ -326,11 +332,13 @@
     "Allow viewing system information": "Allow viewing system information",
     "Applications": "Aplicacions",
     "Archive Manager": "Gestor d'arxius",
+    "Collection Access": "Collection Access",
     "Collection Adding Content": "Collection Adding Content",
     "Collection Folder Creation": "Collection Folder Creation",
     "Collection Removal": "Collection Removal",
     "Collection Viewing": "Collection Viewing",
     "Configuration": "Configuració",
+    "Content Control Scheme": "Content Control Scheme",
     "Content Core": "Nucli de contingut",
     "Content Explorer": "Explorador de contingut",
     "Content Governor": "Governador de contingut",
@@ -348,6 +356,7 @@
     "Enable access to general settings": "Enable access to general settings",
     "Enable access to recently used content": "Enable access to recently used content",
     "Enable access to system configuration": "Enable access to system configuration",
+    "Enable or disable kiosk mode messages": "Enable or disable kiosk mode messages",
     "Enable or disable kiosk mode restrictions": "Enable or disable kiosk mode restrictions",
     "Enable or restrict RetroArch settings": "Enable or restrict RetroArch settings",
     "Enable use of web based features": "Enable use of web based features",
@@ -371,6 +380,8 @@
     "Permit power options such as shutdown or sleep": "Permit power options such as shutdown or sleep",
     "Permit tagging and metadata changes": "Permit tagging and metadata changes",
     "Power Settings": "Configuració d’energia",
+    "Restrict to specific 'kiosk' directory within collections": "Restrict to specific 'kiosk' directory within collections",
+    "Restricted Messages": "Restricted Messages",
     "RetroArch Kiosk": "Quisoc RetroArch",
     "Storage": "Emmagatzematge",
     "Task Toolkit": "Kit d’eines per a tasques",
@@ -488,9 +499,11 @@
   },
   "muxoption": {
     "CONTENT OPTION": "OPCIÓ DE CONTINGUT",
+    "Control Scheme": "Control Scheme",
     "Core": "Nucli",
     "Current": "Actual",
     "Directory": "Directori",
+    "Glyph Tag": "Glyph Tag",
     "Governor": "Governador",
     "Individual": "Individual",
     "Name": "Nom",
@@ -499,9 +512,9 @@
     "Search": "Cercar",
     "Search for content within the selected directory": "Cerca contingut dins del directori seleccionat",
     "Set the CPU governor for the selected content or directory": "Assigna el governador de CPU pel contingut o directori seleccionat",
+    "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Defineix l’etiqueta específica del contingut seleccionat per modificar la icona",
     "Set the system core or external emulator for the selected content or directory": "Assigna el nucli de sistema o emulador extern pel contingut o directori seleccionat",
-    "Tag": "Etiqueta",
     "Time Played": "Time Played"
   },
   "muxpass": {

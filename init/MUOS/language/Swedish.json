@@ -121,7 +121,7 @@
     "Voltage": "Spänning"
   },
   "muxcollect": {
-    "COLLECTIONS": "COLLECTIONS",
+    "COLLECTION": "COLLECTION",
     "Collection folder is not empty": "Collection folder is not empty",
     "Error loading content file": "Error loading content file",
     "Error removing from Collections": "Error removing from Collections",
@@ -156,6 +156,11 @@
     "USB Function": "USB Function",
     "Web Services": "Web Services",
     "Wi-Fi Network": "Wi-Fi Network"
+  },
+  "muxcontrol": {
+    "CONTROL": "CONTROL",
+    "Change the control scheme of your current selected content": "Change the control scheme of your current selected content",
+    "No Control Schemes Found…": "No Control Schemes Found…"
   },
   "muxcustom": {
     "Allows for testing different theme resolutions": "Allows for testing different theme resolutions",
@@ -318,6 +323,7 @@
     "Allow editing of network settings": "Allow editing of network settings",
     "Allow modifying HDMI display settings": "Allow modifying HDMI display settings",
     "Allow searching for content": "Allow searching for content",
+    "Allow selection of content control scheme": "Allow selection of content control scheme",
     "Allow selection of content cores": "Allow selection of content cores",
     "Allow selection of content governor": "Allow selection of content governor",
     "Allow user to migrate or sync user based content": "Allow user to migrate or sync user based content",
@@ -326,11 +332,13 @@
     "Allow viewing system information": "Allow viewing system information",
     "Applications": "Applications",
     "Archive Manager": "Archive Manager",
+    "Collection Access": "Collection Access",
     "Collection Adding Content": "Collection Adding Content",
     "Collection Folder Creation": "Collection Folder Creation",
     "Collection Removal": "Collection Removal",
     "Collection Viewing": "Collection Viewing",
     "Configuration": "Configuration",
+    "Content Control Scheme": "Content Control Scheme",
     "Content Core": "Content Core",
     "Content Explorer": "Content Explorer",
     "Content Governor": "Content Governor",
@@ -348,6 +356,7 @@
     "Enable access to general settings": "Enable access to general settings",
     "Enable access to recently used content": "Enable access to recently used content",
     "Enable access to system configuration": "Enable access to system configuration",
+    "Enable or disable kiosk mode messages": "Enable or disable kiosk mode messages",
     "Enable or disable kiosk mode restrictions": "Enable or disable kiosk mode restrictions",
     "Enable or restrict RetroArch settings": "Enable or restrict RetroArch settings",
     "Enable use of web based features": "Enable use of web based features",
@@ -371,6 +380,8 @@
     "Permit power options such as shutdown or sleep": "Permit power options such as shutdown or sleep",
     "Permit tagging and metadata changes": "Permit tagging and metadata changes",
     "Power Settings": "Power Settings",
+    "Restrict to specific 'kiosk' directory within collections": "Restrict to specific 'kiosk' directory within collections",
+    "Restricted Messages": "Restricted Messages",
     "RetroArch Kiosk": "RetroArch Kiosk",
     "Storage": "Storage",
     "Task Toolkit": "Task Toolkit",
@@ -488,9 +499,11 @@
   },
   "muxoption": {
     "CONTENT OPTION": "CONTENT OPTION",
+    "Control Scheme": "Control Scheme",
     "Core": "Core",
     "Current": "Current",
     "Directory": "Directory",
+    "Glyph Tag": "Glyph Tag",
     "Governor": "Governor",
     "Individual": "Individual",
     "Name": "Name",
@@ -499,9 +512,9 @@
     "Search": "Search",
     "Search for content within the selected directory": "Search for content within the selected directory",
     "Set the CPU governor for the selected content or directory": "Ställ in CPU-regleraren för det valda innehållet eller katalogen.",
+    "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Set the specific tag of the content selected to change the glyph",
     "Set the system core or external emulator for the selected content or directory": "Ställ in systemkärnan eller extern emulator för det valda innehållet eller katalogen.",
-    "Tag": "Tag",
     "Time Played": "Time Played"
   },
   "muxpass": {

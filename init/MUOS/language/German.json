@@ -121,7 +121,7 @@
     "Voltage": "Spannung"
   },
   "muxcollect": {
-    "COLLECTIONS": "BIBLIOTHEK",
+    "COLLECTION": "COLLECTION",
     "Collection folder is not empty": "In der Bibliothek ist bereits etwas enthalten",
     "Error loading content file": "Es ist ein Fehler beim Laden der Datei aufgetreten",
     "Error removing from Collections": "Es gab einen Fehler beim Entfernen aus der Bibliothek",
@@ -156,6 +156,11 @@
     "USB Function": "USB-Funktion",
     "Web Services": "Webdienste",
     "Wi-Fi Network": "Wlannetzwerk"
+  },
+  "muxcontrol": {
+    "CONTROL": "CONTROL",
+    "Change the control scheme of your current selected content": "Change the control scheme of your current selected content",
+    "No Control Schemes Found…": "No Control Schemes Found…"
   },
   "muxcustom": {
     "Allows for testing different theme resolutions": "Erlaubt das Testen verschiedener Skinauflösungen",
@@ -318,6 +323,7 @@
     "Allow editing of network settings": "Allow editing of network settings",
     "Allow modifying HDMI display settings": "Allow modifying HDMI display settings",
     "Allow searching for content": "Allow searching for content",
+    "Allow selection of content control scheme": "Allow selection of content control scheme",
     "Allow selection of content cores": "Allow selection of content cores",
     "Allow selection of content governor": "Allow selection of content governor",
     "Allow user to migrate or sync user based content": "Allow user to migrate or sync user based content",
@@ -326,11 +332,13 @@
     "Allow viewing system information": "Allow viewing system information",
     "Applications": "Anwendungen",
     "Archive Manager": "Archiv-Manager",
+    "Collection Access": "Collection Access",
     "Collection Adding Content": "Collection Adding Content",
     "Collection Folder Creation": "Collection Folder Creation",
     "Collection Removal": "Collection Removal",
     "Collection Viewing": "Collection Viewing",
     "Configuration": "Konfiguration",
+    "Content Control Scheme": "Content Control Scheme",
     "Content Core": "Zu verwendender Kern",
     "Content Explorer": "Inhalts-Explorer",
     "Content Governor": "Content Governor",
@@ -348,6 +356,7 @@
     "Enable access to general settings": "Enable access to general settings",
     "Enable access to recently used content": "Enable access to recently used content",
     "Enable access to system configuration": "Enable access to system configuration",
+    "Enable or disable kiosk mode messages": "Enable or disable kiosk mode messages",
     "Enable or disable kiosk mode restrictions": "Enable or disable kiosk mode restrictions",
     "Enable or restrict RetroArch settings": "Enable or restrict RetroArch settings",
     "Enable use of web based features": "Enable use of web based features",
@@ -371,6 +380,8 @@
     "Permit power options such as shutdown or sleep": "Permit power options such as shutdown or sleep",
     "Permit tagging and metadata changes": "Permit tagging and metadata changes",
     "Power Settings": "Energieeinstellungen",
+    "Restrict to specific 'kiosk' directory within collections": "Restrict to specific 'kiosk' directory within collections",
+    "Restricted Messages": "Restricted Messages",
     "RetroArch Kiosk": "RetroArch-Kiosk",
     "Storage": "Speicher",
     "Task Toolkit": "Aufgaben-Tools",
@@ -488,9 +499,11 @@
   },
   "muxoption": {
     "CONTENT OPTION": "DATENOPTIONEN",
+    "Control Scheme": "Control Scheme",
     "Core": "Kern",
     "Current": "Aktuell",
     "Directory": "Verzeichnis",
+    "Glyph Tag": "Glyph Tag",
     "Governor": "Regler",
     "Individual": "Individuell",
     "Name": "Name",
@@ -499,9 +512,9 @@
     "Search": "Suche",
     "Search for content within the selected directory": "Dateien innerhalb des ausgewählten Verzeichnisses durchsuchen",
     "Set the CPU governor for the selected content or directory": "Die CPU-Geschwindigkeit für den ausgewählten Inhalt oder das Verzeichnis einstellen",
+    "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Label des ausgewählten Inhalts definieren, um das Symbolbild zu ändern",
     "Set the system core or external emulator for the selected content or directory": "Den System- oder externen Emulator für den ausgewählter Datei oder das Verzeichnis zuweisen",
-    "Tag": "Tag",
     "Time Played": "Time Played"
   },
   "muxpass": {

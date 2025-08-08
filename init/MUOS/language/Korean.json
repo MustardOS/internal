@@ -121,7 +121,7 @@
     "Voltage": "배터리 전압"
   },
   "muxcollect": {
-    "COLLECTIONS": "컬렉션",
+    "COLLECTION": "COLLECTION",
     "Collection folder is not empty": "컬렉션 폴더가 비어 있음",
     "Error loading content file": "콘텐츠 파일 불러오기 에러",
     "Error removing from Collections": "컬렉션에서 제거 오류",
@@ -156,6 +156,11 @@
     "USB Function": "USB 기능",
     "Web Services": "웹 서비스",
     "Wi-Fi Network": "Wi-Fi 네트워크"
+  },
+  "muxcontrol": {
+    "CONTROL": "CONTROL",
+    "Change the control scheme of your current selected content": "Change the control scheme of your current selected content",
+    "No Control Schemes Found…": "No Control Schemes Found…"
   },
   "muxcustom": {
     "Allows for testing different theme resolutions": "상이한 테마 해상도 테스트 허용",
@@ -318,6 +323,7 @@
     "Allow editing of network settings": "Allow editing of network settings",
     "Allow modifying HDMI display settings": "Allow modifying HDMI display settings",
     "Allow searching for content": "Allow searching for content",
+    "Allow selection of content control scheme": "Allow selection of content control scheme",
     "Allow selection of content cores": "Allow selection of content cores",
     "Allow selection of content governor": "Allow selection of content governor",
     "Allow user to migrate or sync user based content": "Allow user to migrate or sync user based content",
@@ -326,11 +332,13 @@
     "Allow viewing system information": "Allow viewing system information",
     "Applications": "어플리케이션",
     "Archive Manager": "아카이브 매니저",
+    "Collection Access": "Collection Access",
     "Collection Adding Content": "Collection Adding Content",
     "Collection Folder Creation": "Collection Folder Creation",
     "Collection Removal": "Collection Removal",
     "Collection Viewing": "Collection Viewing",
     "Configuration": "구성",
+    "Content Control Scheme": "Content Control Scheme",
     "Content Core": "콘텐츠 코어",
     "Content Explorer": "콘텐츠 탐색기",
     "Content Governor": "콘텐츠 거버너",
@@ -348,6 +356,7 @@
     "Enable access to general settings": "Enable access to general settings",
     "Enable access to recently used content": "Enable access to recently used content",
     "Enable access to system configuration": "Enable access to system configuration",
+    "Enable or disable kiosk mode messages": "Enable or disable kiosk mode messages",
     "Enable or disable kiosk mode restrictions": "Enable or disable kiosk mode restrictions",
     "Enable or restrict RetroArch settings": "Enable or restrict RetroArch settings",
     "Enable use of web based features": "Enable use of web based features",
@@ -371,6 +380,8 @@
     "Permit power options such as shutdown or sleep": "Permit power options such as shutdown or sleep",
     "Permit tagging and metadata changes": "Permit tagging and metadata changes",
     "Power Settings": "전원 설정",
+    "Restrict to specific 'kiosk' directory within collections": "Restrict to specific 'kiosk' directory within collections",
+    "Restricted Messages": "Restricted Messages",
     "RetroArch Kiosk": "레트로아크 키오스크",
     "Storage": "저장소",
     "Task Toolkit": "태스크 툴킷",
@@ -488,9 +499,11 @@
   },
   "muxoption": {
     "CONTENT OPTION": "콘텐츠 옵션",
+    "Control Scheme": "Control Scheme",
     "Core": "코어",
     "Current": "현재",
     "Directory": "폴더",
+    "Glyph Tag": "Glyph Tag",
     "Governor": "거버너",
     "Individual": "파일",
     "Name": "파일명",
@@ -499,9 +512,9 @@
     "Search": "검색",
     "Search for content within the selected directory": "선택한 폴더 내의 콘텐츠 검색",
     "Set the CPU governor for the selected content or directory": "선택한 콘텐츠 또는 폴더에 대한 CPU 거버너를 설정",
+    "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "글리프를 변경하기 위해 선택된 콘텐츠의 특정 태그를 설정",
     "Set the system core or external emulator for the selected content or directory": "선택한 콘텐츠 또는 폴더에 대한 시스템 코어 또는 외부 에뮬레이터 설정",
-    "Tag": "태그",
     "Time Played": "Time Played"
   },
   "muxpass": {

@@ -121,7 +121,7 @@
     "Voltage": "电压"
   },
   "muxcollect": {
-    "COLLECTIONS": "收藏",
+    "COLLECTION": "COLLECTION",
     "Collection folder is not empty": "收藏夹不为空",
     "Error loading content file": "加载内容文件出错",
     "Error removing from Collections": "从收藏中移除出错",
@@ -156,6 +156,11 @@
     "USB Function": "USB 功能",
     "Web Services": "网络服务",
     "Wi-Fi Network": "Wi-Fi 网络"
+  },
+  "muxcontrol": {
+    "CONTROL": "CONTROL",
+    "Change the control scheme of your current selected content": "Change the control scheme of your current selected content",
+    "No Control Schemes Found…": "No Control Schemes Found…"
   },
   "muxcustom": {
     "Allows for testing different theme resolutions": "Allows for testing different theme resolutions",
@@ -318,6 +323,7 @@
     "Allow editing of network settings": "Allow editing of network settings",
     "Allow modifying HDMI display settings": "Allow modifying HDMI display settings",
     "Allow searching for content": "Allow searching for content",
+    "Allow selection of content control scheme": "Allow selection of content control scheme",
     "Allow selection of content cores": "Allow selection of content cores",
     "Allow selection of content governor": "Allow selection of content governor",
     "Allow user to migrate or sync user based content": "Allow user to migrate or sync user based content",
@@ -326,11 +332,13 @@
     "Allow viewing system information": "Allow viewing system information",
     "Applications": "Applications",
     "Archive Manager": "Archive Manager",
+    "Collection Access": "Collection Access",
     "Collection Adding Content": "Collection Adding Content",
     "Collection Folder Creation": "Collection Folder Creation",
     "Collection Removal": "Collection Removal",
     "Collection Viewing": "Collection Viewing",
     "Configuration": "Configuration",
+    "Content Control Scheme": "Content Control Scheme",
     "Content Core": "Content Core",
     "Content Explorer": "Content Explorer",
     "Content Governor": "Content Governor",
@@ -348,6 +356,7 @@
     "Enable access to general settings": "Enable access to general settings",
     "Enable access to recently used content": "Enable access to recently used content",
     "Enable access to system configuration": "Enable access to system configuration",
+    "Enable or disable kiosk mode messages": "Enable or disable kiosk mode messages",
     "Enable or disable kiosk mode restrictions": "Enable or disable kiosk mode restrictions",
     "Enable or restrict RetroArch settings": "Enable or restrict RetroArch settings",
     "Enable use of web based features": "Enable use of web based features",
@@ -371,6 +380,8 @@
     "Permit power options such as shutdown or sleep": "Permit power options such as shutdown or sleep",
     "Permit tagging and metadata changes": "Permit tagging and metadata changes",
     "Power Settings": "Power Settings",
+    "Restrict to specific 'kiosk' directory within collections": "Restrict to specific 'kiosk' directory within collections",
+    "Restricted Messages": "Restricted Messages",
     "RetroArch Kiosk": "RetroArch Kiosk",
     "Storage": "Storage",
     "Task Toolkit": "Task Toolkit",
@@ -488,9 +499,11 @@
   },
   "muxoption": {
     "CONTENT OPTION": "内容选项",
+    "Control Scheme": "Control Scheme",
     "Core": "Core",
     "Current": "当前",
     "Directory": "目录",
+    "Glyph Tag": "Glyph Tag",
     "Governor": "Governor",
     "Individual": "单文件",
     "Name": "名称",
@@ -499,9 +512,9 @@
     "Search": "Search",
     "Search for content within the selected directory": "在选定目录内搜索内容",
     "Set the CPU governor for the selected content or directory": "为选定内容或目录设置 CPU 性能调节器",
+    "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Set the specific tag of the content selected to change the glyph",
     "Set the system core or external emulator for the selected content or directory": "为选定内容或目录配置 RetroArch 核心或独立模拟器",
-    "Tag": "Tag",
     "Time Played": "Time Played"
   },
   "muxpass": {

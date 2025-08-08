@@ -30,10 +30,10 @@ echo "Collecting Network Information"
 mkdir -p "$OUTPUT_DIR/network"
 ifconfig -a >"$OUTPUT_DIR/network/ifconfig.log" 2>/dev/null
 netstat -tuln >"$OUTPUT_DIR/network/netstat.log" 2>/dev/null
-ping -c 4 8.8.8.8 >"$OUTPUT_DIR/network/pingGoogle.log" 2>/dev/null  #Google
+ping -c 4 8.8.8.8 >"$OUTPUT_DIR/network/pingGoogle.log" 2>/dev/null     #Google
 ping -c 4 1.1.1.1 >"$OUTPUT_DIR/network/pingCloudflare.log" 2>/dev/null #Cloudflare
-awk '/^nameserver/ { print $2 }' /etc/resolv.conf | while read ns; do
-    ping -c 4 "$ns" >"$OUTPUT_DIR/network/pingLocal.log" 2>/dev/null #Ping local
+awk '/^nameserver/ { print $2 }' /etc/resolv.conf | while read -r ns; do
+	ping -c 4 "$ns" >"$OUTPUT_DIR/network/pingLocal.log" 2>/dev/null #Ping local
 done
 route -n >"$OUTPUT_DIR/network/route.log" 2>/dev/null
 cat /etc/resolv.conf >"$OUTPUT_DIR/network/resolv.log" 2>/dev/null
@@ -62,7 +62,7 @@ echo "Capturing All Processes"
 ps -ef >"$OUTPUT_DIR/ps.log" 2>/dev/null
 
 echo "Collecting Kernel Messages"
-dmesg > "$OUTPUT_DIR/dmesg.log" 2>/dev/null
+dmesg >"$OUTPUT_DIR/dmesg.log" 2>/dev/null
 
 echo "Collecting muOS Log Files"
 LOG_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/log"
@@ -75,7 +75,7 @@ cp "$INT_DIR/halt.log" "$OUTPUT_DIR/int"
 cp "$INT_DIR/ldconfig.log" "$OUTPUT_DIR/int"
 
 echo "Collecting muOS Config Variables"
-find /opt/muos/config -type f | while read file; do
+find /opt/muos/config -type f | while read -r file; do
 	relpath="${file#/opt/muos/config/}"
 	if echo "$relpath" | grep -qE 'network/pass|network/ssid'; then
 		continue
@@ -84,9 +84,15 @@ find /opt/muos/config -type f | while read file; do
 done
 
 echo "Collecting muOS Device Variables"
-find /opt/muos/device/config -type f | while read file; do
+find /opt/muos/device/config -type f | while read -r file; do
 	relpath="${file#/opt/muos/device/config/}"
 	echo "$relpath: $(cat "$file" 2>/dev/null)" >>"$OUTPUT_DIR/device.log"
+done
+
+echo "Collecting muOS Kiosk Variables"
+find /opt/muos/kiosk -type f | while read -r file; do
+	relpath="${file#/opt/muos/kiosk/}"
+	echo "$relpath: $(cat "$file" 2>/dev/null)" >>"$OUTPUT_DIR/kiosk.log"
 done
 
 echo "Creating Diagnostic Archive"

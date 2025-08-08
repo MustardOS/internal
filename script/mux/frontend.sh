@@ -2,11 +2,10 @@
 
 . /opt/muos/script/var/func.sh
 
-DEVICE_BOARD="$(GET_VAR "device" "board/name")"
-
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
 GOV_GO=/tmp/gov_go
+CON_GO=/tmp/con_go
 ROM_GO=/tmp/rom_go
 
 EX_CARD=/tmp/explore_card
@@ -91,17 +90,31 @@ if [ $SKIP -eq 0 ]; then
 				LOG_INFO "$0" 0 "FRONTEND" "Booting to last launched content"
 				cat "$LAST_PLAY" >"$ROM_GO"
 
-				CONTENT_GOV="$(basename "$LAST_PLAY" .cfg).gov"
-				if [ -e "$CONTENT_GOV" ]; then
-					printf "%s" "$(cat "$CONTENT_GOV")" >$GOV_GO
-				else
-					CONTENT_GOV="$(dirname "$LAST_PLAY")/core.gov"
-					if [ -e "$CONTENT_GOV" ]; then
-						printf "%s" "$(cat "$CONTENT_GOV")" >$GOV_GO
+				BASE="$(basename "$LAST_PLAY" .cfg)"
+				DIR="$(dirname "$LAST_PLAY")"
+
+				for TYPE in "governor" "control scheme"; do
+					case "$TYPE" in
+						"governor")
+							CONTENT_FILE="${BASE}.gov"
+							FALLBACK_FILE="${DIR}/core.gov"
+							OUTPUT_FILE="$GOV_GO"
+							;;
+						"control scheme")
+							CONTENT_FILE="${BASE}.con"
+							FALLBACK_FILE="${DIR}/core.con"
+							OUTPUT_FILE="$CON_GO"
+							;;
+					esac
+
+					if [ -e "$CONTENT_FILE" ]; then
+						cat "$CONTENT_FILE" >"$OUTPUT_FILE"
+					elif [ -e "$FALLBACK_FILE" ]; then
+						cat "$FALLBACK_FILE" >"$OUTPUT_FILE"
 					else
-						LOG_INFO "$0" 0 "FRONTEND" "No governor found for launched content"
+						LOG_INFO "$0" 0 "FRONTEND" "No ${TYPE} file found for launched content"
 					fi
-				fi
+				done
 
 				/opt/muos/script/mux/launch.sh last
 			fi

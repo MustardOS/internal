@@ -288,12 +288,20 @@ PLAY_SOUND() {
 }
 
 SETUP_SDL_ENVIRONMENT() {
-	case "$1" in
-		modern) SDL_GAMECONTROLLERCONFIG_FILE="/opt/muos/device/control/gamecontrollerdb_modern.txt" ;;
-		retro) SDL_GAMECONTROLLERCONFIG_FILE="/opt/muos/device/control/gamecontrollerdb_retro.txt" ;;
-		*) SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt" ;;
-	esac
+	CON_GO="/tmp/con_go"
 
+	# Grab the control scheme if one has been set from the content options
+	if [ -e "$CON_GO" ]; then
+		case "$(cat "$CON_GO")" in
+			modern) SDL_GAMECONTROLLERCONFIG_FILE="/opt/muos/device/control/gamecontrollerdb_modern.txt" ;;
+			retro) SDL_GAMECONTROLLERCONFIG_FILE="/opt/muos/device/control/gamecontrollerdb_retro.txt" ;;
+			*) SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt" ;;
+		esac
+	else
+		SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt"
+	fi
+
+	# Set both the SDL controller file and configuration
 	[ ! -r "$SDL_GAMECONTROLLERCONFIG_FILE" ] && SDL_GAMECONTROLLERCONFIG_FILE="$DEF_DB"
 	SDL_GAMECONTROLLERCONFIG=$(grep "$(GET_VAR "device" "sdl/name")" "$SDL_GAMECONTROLLERCONFIG_FILE")
 
@@ -318,6 +326,9 @@ SETUP_SDL_ENVIRONMENT() {
 CONFIGURE_RETROARCH() {
 	RA_CONF=$1
 	RA_CONTROL="/opt/muos/device/control/retroarch"
+
+	# Set the device specific SDL Controller Map
+	/opt/muos/script/mux/sdl_map.sh
 
 	# Modify the RetroArch settings for device resolution output
 	RA_WIDTH="$(GET_VAR "device" "screen/width")"

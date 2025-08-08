@@ -16,7 +16,7 @@ FILE=${3%/}
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
-SETUP_SDL_ENVIRONMENT modern
+SETUP_SDL_ENVIRONMENT
 
 P8_BIN="pico8_64"
 SET_VAR "system" "foreground_process" "$P8_BIN"

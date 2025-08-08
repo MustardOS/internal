@@ -7,7 +7,7 @@
 
 echo app >/tmp/act_go
 
-SETUP_SDL_ENVIRONMENT retro
+SETUP_SDL_ENVIRONMENT
 
 DINGUX_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Dingux Commander"
 cd "$DINGUX_DIR" || exit

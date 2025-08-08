@@ -15,22 +15,30 @@ UPDATE_BUTTON_VALUE() {
 	fi
 }
 
-# Determine the selected control style based on swap setting [0=Retro, 1=Modern]
-if [ "$(GET_VAR "config" "settings/advanced/swap")" -eq 0 ]; then
-	SELECTED_STYLE="Retro"
-	SELECTED_MAP="gamecontrollerdb_retro.txt"
-	UPDATE_BUTTON_VALUE "menu_swap_ok_cancel_buttons" "false"
+SWAP_CONTROL_SCHEME() {
+	# Determine the selected control style based on swap setting [0=Retro, 1=Modern]
+	if [ "$1" -eq 0 ]; then
+		UPDATE_BUTTON_VALUE "menu_swap_ok_cancel_buttons" "false"
+		echo "retro"
+	else
+		UPDATE_BUTTON_VALUE "menu_swap_ok_cancel_buttons" "true"
+		echo "modern"
+	fi
+}
+
+if [ -e "$CON_GO" ]; then
+	case "$(cat "$CON_GO")" in
+		modern) UPDATE_BUTTON_VALUE "menu_swap_ok_cancel_buttons" "true" ;;
+		retro) UPDATE_BUTTON_VALUE "menu_swap_ok_cancel_buttons" "false" ;;
+		*) SWAP_CONTROL_SCHEME "$(GET_VAR "config" "settings/advanced/swap")" ;;
+	esac
 else
-	SELECTED_STYLE="Modern"
-	SELECTED_MAP="gamecontrollerdb_modern.txt"
-	UPDATE_BUTTON_VALUE "menu_swap_ok_cancel_buttons" "true"
+	SELECTED_MAP=$(SWAP_CONTROL_SCHEME "$(GET_VAR "config" "settings/advanced/swap")")
+
+	# Remove any existing SDL map symlink and create a new one based on selected style
+	for LIB_D in lib lib32; do
+		SDL_MAP_PATH="/usr/$LIB_D/gamecontrollerdb.txt"
+		[ -f "$SDL_MAP_PATH" ] && rm -f "$SDL_MAP_PATH"
+		ln -s "/opt/muos/device/control/gamecontrollerdb_${SELECTED_MAP}.txt" "$SDL_MAP_PATH"
+	done
 fi
-
-printf "%s Style Selected\n" "$SELECTED_STYLE"
-
-# Remove any existing SDL map symlink and create a new one based on selected style
-for LIB_D in lib lib32; do
-	SDL_MAP_PATH="/usr/$LIB_D/gamecontrollerdb.txt"
-	[ -f "$SDL_MAP_PATH" ] && rm -f "$SDL_MAP_PATH"
-	ln -s "/opt/muos/device/control/$SELECTED_MAP" "$SDL_MAP_PATH"
-done

@@ -4,6 +4,8 @@
 
 ACT_GO="/tmp/act_go"
 ROM_GO="/tmp/rom_go"
+CON_GO="/tmp/con_go"
+
 MUX_LAUNCHER_AUTH="/tmp/mux_launcher_auth"
 
 if [ "$(GET_VAR "config" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_LAUNCHER_AUTH" ]; then
@@ -26,7 +28,7 @@ ROM="$R_DIR"/$(sed -n '9p' "$ROM_GO")
 PC_IP="$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/pc_ip.txt"
 if [ -s "$PC_IP" ]; then
 	python "$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/discord_presence_handheld.py" "$(cat "$PC_IP")" \
-		"On my $(GET_VAR "device" "board/name") with muOS $(cat /opt/muos/config/system/version)!" "Playing $NAME"
+		"On my $(GET_VAR "device" "board/name") with muOS $(GET_VAR "config" "system/version")!" "Playing $NAME"
 fi
 
 rm "$ROM_GO"
@@ -84,6 +86,7 @@ fi
 sync &
 
 SET_DEFAULT_GOVERNOR
+[ -e "$CON_GO" ] && rm -f "$CON_GO"
 
 killall -q "$GPTOKEYB_BIN"
 

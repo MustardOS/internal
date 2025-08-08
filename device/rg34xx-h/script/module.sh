@@ -41,8 +41,8 @@ UNLOAD_NETWORK() {
 }
 
 LOAD_MODULES() {
-	insmod /lib/modules/squashfs.ko
-	insmod /lib/modules/mali_kbase.ko
+	insmod /lib/modules/4.9.170/kernel/drivers/fs/squashfs.ko
+	insmod /lib/modules/4.9.170/kernel/drivers/video/gpu/mali_kbase.ko
 
 	[ "$(GET_VAR "device" "board/network")" -eq 1 ] && LOAD_NETWORK
 
@@ -54,8 +54,8 @@ LOAD_MODULES() {
 UNLOAD_MODULES() {
 	[ "$(GET_VAR "device" "board/network")" -eq 1 ] && UNLOAD_NETWORK
 
-	rmmod mali_kbase.ko 2>/dev/null
-	rmmod squashfs.ko 2>/dev/null
+	rmmod mali_kbase 2>/dev/null
+	rmmod squashfs 2>/dev/null
 }
 
 case "$ACTION" in

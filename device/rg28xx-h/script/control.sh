@@ -96,3 +96,9 @@ if [ -f "$RA_AUTO" ]; then
 	rm -f "$RA_AUTO"
 	cp "$DEVICE_CONTROL_DIR/Deeplay-keys.cfg" "$RA_AUTO"
 fi
+
+# Add device specific Task Toolkit scripts
+NETWORK_TASK="$(GET_VAR "device" "storage/rom/mount")/MUOS/task/Network Tasks"
+if [ ! -d "$NETWORK_TASK" ]; then
+	cp -f "$DEVICE_CONTROL_DIR/Network Tasks" "$NETWORK_TASK"
+fi

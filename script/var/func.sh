@@ -371,6 +371,17 @@ CONFIGURE_RETROARCH() {
 	# Set kiosk mode value based on current configuration.
 	KIOSK_MODE=$([ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] && echo true || echo false)
 	sed -i "s/^kiosk_mode_enable = \".*\"$/kiosk_mode_enable = \"$KIOSK_MODE\"/" "$RA_CONF"
+
+	# The following will stop auto load from happening if they hold A on content
+	EXTRA_ARGS=""
+	EXTRA_CONF="/tmp/ra_autoload_once.cfg"
+
+	if [ -e "/tmp/ra_no_load" ]; then
+		printf 'savestate_auto_load = "false"\n' >"$EXTRA_CONF"
+		EXTRA_ARGS="--appendconfig $EXTRA_CONF"
+	fi
+
+	echo "$EXTRA_ARGS"
 }
 
 KERNEL_TUNING() {

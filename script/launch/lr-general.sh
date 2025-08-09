@@ -21,7 +21,7 @@ SETUP_SDL_ENVIRONMENT
 SET_VAR "system" "foreground_process" "retroarch"
 
 RA_CONF="/run/muos/storage/info/config/retroarch.cfg"
-CONFIGURE_RETROARCH "$RA_CONF"
+RA_ARGS=$(CONFIGURE_RETROARCH "$RA_CONF")
 
 if echo "$CORE" | grep -qE "flycast|morpheuscast"; then
 	export SDL_NO_SIGNAL_HANDLERS=1
@@ -34,7 +34,9 @@ fi
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-nice --20 retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$FILE"
+nice --20 retroarch -v -f -c "$RA_CONF" $RA_ARGS -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$FILE"
+
+[ -e "/tmp/ra_no_load" ] && rm -f "/tmp/ra_no_load" "$EXTRA_CONF"
 
 unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 

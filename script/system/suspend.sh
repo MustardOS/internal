@@ -17,7 +17,19 @@ DEFAULT_BRIGHTNESS="$(GET_VAR "config" "settings/general/brightness")"
 RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
 SHUTDOWN_TIME_SETTING="$(GET_VAR "config" "settings/power/shutdown")"
 
+CHECK_RA_AND_SAVE() {
+	# This is the safest bet to get RetroArch to save state automatically
+	# if the user has configured their settings to do so...
+
+	[ "$(GET_VAR "system" "foreground_process")" = "retroarch" ] && /usr/bin/retroarch --command CLOSE_CONTENT
+
+	# If you're reading this and thinking "WhAt AbOuT pOrTmAsTeR gAmEs?"
+	# My answer is, you find out how to restore save game content and let us know!
+}
+
 SLEEP() {
+	CHECK_RA_AND_SAVE
+
 	touch "$RECENT_WAKE"
 
 	DISPLAY_WRITE lcd0 setbl "0"
@@ -100,7 +112,10 @@ case "$SHUTDOWN_TIME_SETTING" in
 		/opt/muos/bin/toybox sleep 0.5
 		RESUME
 		;;
-	2) /opt/muos/script/mux/quit.sh poweroff sleep ;;
+	2)
+		CHECK_RA_AND_SAVE
+		/opt/muos/script/mux/quit.sh poweroff sleep
+		;;
 	*)
 		S_EPOCH="$RTC_WAKE_PATH/since_epoch"
 		W_ALARM="$RTC_WAKE_PATH/wakealarm"

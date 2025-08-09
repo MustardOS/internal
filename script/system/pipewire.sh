@@ -89,6 +89,8 @@ for TIMEOUT in $(seq 1 30); do
 			amixer -c 0 sset "$(GET_VAR "device" "audio/control")" "$(GET_VAR "device" "audio/volume")"% unmute
 			wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
+			SET_VAR "device" "audio/ready" "1"
+
 			exit 0
 		else
 			printf "Node with ID '%s' not found\n" "$DEFAULT_NODE_ID"

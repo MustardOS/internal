@@ -25,25 +25,25 @@ CONFIGURE_RETROARCH "$RA_CONF"
 
 LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/nxe.log"
 
-echo "Starting Cave Story (libretro)" > "$LOGPATH"
+echo "Starting Cave Story (libretro)" >"$LOGPATH"
 # Set nxengine BIOS path
 DOUK_BIOS="/run/muos/storage/bios/nxengine/Doukutsu.exe"
 
 if [ -e "$DOUK_BIOS" ]; then
-	echo "Doukutsu.exe found!" >> "$LOGPATH"
+	echo "Doukutsu.exe found!" >>"$LOGPATH"
 	GREENLIGHT=1
 
 else
-	echo "Doukutsu.exe NOT found!" >> "$LOGPATH"
+	echo "Doukutsu.exe NOT found!" >>"$LOGPATH"
 	CZ_NAME="Cave Story (En).zip"
 	CAVE_URL="https://bot.libretro.com/assets/cores/Cave Story/$CZ_NAME"
-	echo "Cave Story URL: $CAVE_URL" >> "$LOGPATH"
+	echo "Cave Story URL: $CAVE_URL" >>"$LOGPATH"
 	BIOS_FOLDER="/run/muos/storage/bios/"
 
 	echo "$DOUK_BIOS not found in $BIOS_FOLDER"
 	# Is this thing on(line)?
 	check_internet() {
-		echo "Pinging github.com" >> "$LOGPATH"
+		echo "Pinging github.com" >>"$LOGPATH"
 		ping -c 1 github.com >/dev/null 2>&1
 		return $?
 	}
@@ -51,39 +51,36 @@ else
 		# Download
 		echo "Downloading from $CAVE_URL" >>"$LOGPATH"
 		wget -O "$BIOS_FOLDER$CZ_NAME" "$CAVE_URL"
-	
+
 		# Extract
-		echo "Extracting $CZ_NAME to $BIOS_FOLDER/Cave Story (En)" >> "$LOGPATH"
+		echo "Extracting $CZ_NAME to $BIOS_FOLDER/Cave Story (En)" >>"$LOGPATH"
 		unzip -o "$BIOS_FOLDER$CZ_NAME" -d "$BIOS_FOLDER"
 		if [ -e "$BIOS_FOLDER/Cave Story (En)" ]; then
-			echo "Renaming Cave Story (En) Folder to nxengine" >> "$LOGPATH"
+			echo "Renaming Cave Story (En) Folder to nxengine" >>"$LOGPATH"
 			mv "$BIOS_FOLDER/Cave Story (En)" "$BIOS_FOLDER/nxengine"
 			# Cleanup
 			echo "Removing $CZ_NAME"
 			rm -f "$BIOS_FOLDER$CZ_NAME"
 			GREENLIGHT=1
 		elif [ -e "$BIOS_FOLDER/nxengine" ]; then
-			echo "Already renamed" >> "$LOGPATH"
+			echo "Already renamed" >>"$LOGPATH"
 			GREENLIGHT=1
 		else
-			echo "Did extraction fail?" >> "$LOGPATH"
+			echo "Did extraction fail?" >>"$LOGPATH"
 		fi
 	else
-		echo "Unable to download $CZ_NAME" >> "$LOGPATH"
+		echo "Unable to download $CZ_NAME" >>"$LOGPATH"
 		GREENLIGHT=0
 	fi
 fi
 
 if [ "$GREENLIGHT" -eq 1 ]; then
-	echo "Launching Cave Story" >> "$LOGPATH"
+	echo "Launching Cave Story" >>"$LOGPATH"
 	/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-	nice --20 retroarch -v -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$DOUK" &
-	RA_PID=$!
+	nice --20 retroarch -v -f -c "$RA_CONF" -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$DOUK"
 
-	wait $RA_PID
 	unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 	/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 fi
-

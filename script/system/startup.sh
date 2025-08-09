@@ -8,6 +8,7 @@ rm -rf /opt/muxtmp
 SET_VAR "system" "idle_inhibit" 0
 SET_VAR "system" "resume_uptime" "$(cut -d ' ' -f 1 /proc/uptime)"
 SET_VAR "config" "boot/device_mode" "0"
+SET_VAR "device" "audio/ready" "0"
 
 LOG_INFO "$0" 0 "BOOTING" "Setting OS Release"
 /opt/muos/script/system/os_release.sh &
@@ -137,7 +138,7 @@ LOG_INFO "$0" 0 "BOOTING" "Device Specific Startup"
 /opt/muos/device/script/start.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
-while [ ! -f /run/muos/storage/mounted ]; do /opt/muos/bin/toybox sleep 0.1; done
+while [ ! -f "/run/muos/storage/mounted" ]; do /opt/muos/bin/toybox sleep 0.1; done
 
 LOG_INFO "$0" 0 "BOOTING" "Unionising ROMS on Storage Mounts"
 /opt/muos/script/mount/union.sh start &

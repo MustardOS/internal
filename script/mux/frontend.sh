@@ -116,7 +116,18 @@ if [ $SKIP -eq 0 ]; then
 					fi
 				done
 
-				/opt/muos/script/mux/launch.sh last
+				# Waiting for pipewire to be initialised before we continue!
+				while [ "$(GET_VAR "device" "audio/ready")" -eq 0 ]; do /opt/muos/bin/toybox sleep 0.1; done
+
+				# We'll set a few extra things here so that the user doesn't get
+				# a stupid "yOu UsEd tHe ReSeT bUtToN" message because ultimately
+				# we don't really care in this particular instance...
+				[ -e "/tmp/safe_quit" ] && rm -f "/tmp/safe_quit"
+				[ ! -e "/tmp/done_reset" ] && printf 1 >"/tmp/done_reset"
+				SET_VAR "config" "system/used_reset" 0
+
+				# Okay we're all set, time to launch whatever we were playing last
+				/opt/muos/script/mux/launch.sh
 			fi
 		fi
 

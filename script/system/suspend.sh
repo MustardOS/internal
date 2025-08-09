@@ -91,7 +91,11 @@ RESUME() {
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
 	E_BRIGHT="$DEFAULT_BRIGHTNESS"
-	[ "$E_BRIGHT" -lt 1 ] && E_BRIGHT=90
+
+	# Some display panels don't like to resume on lower backlights due
+	# to potential voltage lines or some shit... so let's resume on
+	# a bit more brightness unfortunately!
+	[ "$E_BRIGHT" -lt 11 ] && E_BRIGHT=40
 	DISPLAY_WRITE lcd0 setbl "$E_BRIGHT"
 
 	# We're going to wait for 5 seconds to stop sleep suspend from triggering again

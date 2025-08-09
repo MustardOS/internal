@@ -124,6 +124,7 @@ if [ $SKIP -eq 0 ]; then
 				# we don't really care in this particular instance...
 				[ -e "/tmp/safe_quit" ] && rm -f "/tmp/safe_quit"
 				[ ! -e "/tmp/done_reset" ] && printf 1 >"/tmp/done_reset"
+				[ ! -e "/tmp/chime_done" ] && printf 1 >"/tmp/chime_done"
 				SET_VAR "config" "system/used_reset" 0
 
 				# Okay we're all set, time to launch whatever we were playing last

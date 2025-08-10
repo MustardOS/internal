@@ -40,6 +40,6 @@ fi
 # Remove any existing SDL map symlink and create a new one based on selected style
 for LIB_D in lib lib32; do
 	SDL_MAP_PATH="/usr/$LIB_D/gamecontrollerdb.txt"
-	[ -f "$SDL_MAP_PATH" ] && rm -f "$SDL_MAP_PATH"
+	[ -e "$SDL_MAP_PATH" ] || [ -h "$SDL_MAP_PATH" ] && rm -f "$SDL_MAP_PATH"
 	ln -s "/opt/muos/device/control/gamecontrollerdb_${SELECTED_MAP}.txt" "$SDL_MAP_PATH"
 done

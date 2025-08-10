@@ -323,6 +323,38 @@ SETUP_SDL_ENVIRONMENT() {
 	export SDL_ASSERT
 }
 
+UPDATE_RA_VALUE() {
+	BUTTON_NAME=$1
+	EXPECTED_VALUE=$2
+	RA_DEV_CONF=$3
+
+	# Read and update current value if it doesn't match the expected value
+	if ! grep -q "^$BUTTON_NAME = \"$EXPECTED_VALUE\"" "$RA_DEV_CONF"; then
+		sed -i "s|^$BUTTON_NAME = \".*\"|$BUTTON_NAME = \"$EXPECTED_VALUE\"|" "$RA_DEV_CONF"
+	fi
+}
+
+DETECT_CONTROL_SWAP() {
+	RA_DEV_CONF="/opt/muos/device/control/retroarch.device.cfg"
+	CON_GO="/tmp/con_go"
+	IS_SWAP=0
+
+	DO_SWAP() {
+		/opt/muos/script/mux/swap_abxy.sh "$RA_DEV_CONF"
+		IS_SWAP=1
+	}
+
+	if [ -e "$CON_GO" ]; then
+		case "$(cat "$CON_GO")" in
+			modern) DO_SWAP ;;
+			retro) ;;
+			*) [ "$(GET_VAR "config" "settings/advanced/swap")" -eq 1 ] && DO_SWAP ;;
+		esac
+	fi
+
+	echo $IS_SWAP
+}
+
 CONFIGURE_RETROARCH() {
 	RA_CONF=$1
 	RA_CONTROL="/opt/muos/device/control/retroarch"

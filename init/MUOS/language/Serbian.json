@@ -97,6 +97,7 @@
     "Location of system BIOS files": "Lokacija BIOS fajlova sistema",
     "Location of the RetroArch emulator": "Lokacija RetroArch emulatora",
     "Location of themes": "Lokacija tema",
+    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
     "Metadata Catalogue": "Metadata katalog",
     "Network Profiles": "Mrežni profili",
     "RetroArch Config Packages": "Konfiguracioni paketi za RetroArch",
@@ -111,6 +112,7 @@
     "System BIOS": "BIOS sistem-a",
     "Themes": "Teme",
     "Toggle the target storage device for the backup": "Promeni lokaciju za čuvanje bekapa",
+    "User Game Activity Tracker": "User Game Activity Tracker",
     "User Init Scripts": "Korisničke početne skripte",
     "muOS Settings": "muOS podešavanja"
   },
@@ -183,6 +185,7 @@
     "Content Box Art": "Content Box Art",
     "Content Box Art Alignment": "Content Box Art poravnanje",
     "Content Launch Splash": "Početni ekran pri pokretanju sadržaja",
+    "Content Shuffle": "Content Shuffle",
     "Front": "Ispred",
     "Fullscreen + Behind": "Pun ekran + Pozadi",
     "Fullscreen + Front": "Pun ekran + Ispred",
@@ -208,6 +211,7 @@
     "Toggle the navigation sound of the frontend": "Uključi ili isključi zvuk prilikom navigacije kroz interfejs",
     "Toggle the splash image on content launching": "Uključi/isključi uvodnu sliku prilikom pokretanja sadržaja",
     "Toggle the startup chime of the frontend": "Uključi ili isključi zvuk prilikom pokretanja interfejsa",
+    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
     "Top Left": "Gore Levo",
     "Top Middle": "Gore Sredina",
     "Top Right": "Gore Desno"
@@ -515,7 +519,8 @@
     "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Podesite određenu oznaku za izabrani sadržaj kako biste promenili prikazani simbol (glif)",
     "Set the system core or external emulator for the selected content or directory": "Podesite sistemsku jezgru (core) ili eksterni emulator za izabrani sadržaj ili folder",
-    "Time Played": "Time Played"
+    "Time Played": "Time Played",
+    "Times Launched": "Times Launched"
   },
   "muxpass": {
     "PASSCODE": "LOZINKA"

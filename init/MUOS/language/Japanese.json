@@ -97,6 +97,7 @@
     "Location of system BIOS files": "システム BIOS ファイルの保存先です",
     "Location of the RetroArch emulator": "RetroArch エミュレータの保存先です",
     "Location of themes": "テーマファイルの保存先です",
+    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
     "Metadata Catalogue": "メタデータカタログ",
     "Network Profiles": "ネットワーク設定",
     "RetroArch Config Packages": "RetroArch 設定パッケージ集",
@@ -111,6 +112,7 @@
     "System BIOS": "システム BIOS",
     "Themes": "テーマ集",
     "Toggle the target storage device for the backup": "バックアップの保存先を切り替えます",
+    "User Game Activity Tracker": "User Game Activity Tracker",
     "User Init Scripts": "ユーザ初期化スクリプト",
     "muOS Settings": "muOS 設定"
   },
@@ -183,6 +185,7 @@
     "Content Box Art": "コンテンツ画像",
     "Content Box Art Alignment": "コンテンツ画像表示位置",
     "Content Launch Splash": "コンテンツ起動スプラッシュ",
+    "Content Shuffle": "Content Shuffle",
     "Front": "前面",
     "Fullscreen + Behind": "全画面 + 背面",
     "Fullscreen + Front": "全画面 + 前面",
@@ -208,6 +211,7 @@
     "Toggle the navigation sound of the frontend": "フロントエンドの操作音を切り替えます",
     "Toggle the splash image on content launching": "コンテンツ起動時にスプラッシュ画像を表示します",
     "Toggle the startup chime of the frontend": "フロントエンドの起動音を切り替えます",
+    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
     "Top Left": "上段 左側",
     "Top Middle": "上段 中央",
     "Top Right": "上段 右側"
@@ -515,7 +519,8 @@
     "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Set the specific tag of the content selected to change the glyph",
     "Set the system core or external emulator for the selected content or directory": "選択したコンテンツまたはディレクトリに\nコアまたは個別のエミュレーターを設定します。",
-    "Time Played": "Time Played"
+    "Time Played": "Time Played",
+    "Times Launched": "Times Launched"
   },
   "muxpass": {
     "PASSCODE": "パスコード"

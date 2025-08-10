@@ -97,6 +97,7 @@
     "Location of system BIOS files": "Расположение файлов BIOS",
     "Location of the RetroArch emulator": "Расположение эмулятора RetroArch",
     "Location of themes": "Расположение тем",
+    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
     "Metadata Catalogue": "Каталог метаданных",
     "Network Profiles": "Сетевые профили",
     "RetroArch Config Packages": "Пакеты конфигураций RetroArch",
@@ -111,6 +112,7 @@
     "System BIOS": "BIOS",
     "Themes": "Темы",
     "Toggle the target storage device for the backup": "Выбор элементов устройства для резервного копирования",
+    "User Game Activity Tracker": "User Game Activity Tracker",
     "User Init Scripts": "Пользовательские скрипты",
     "muOS Settings": "muOS Settings"
   },
@@ -183,6 +185,7 @@
     "Content Box Art": "Обложки игр",
     "Content Box Art Alignment": "Выравнивание обложек игр",
     "Content Launch Splash": "Анимация при запуске игр",
+    "Content Shuffle": "Content Shuffle",
     "Front": "Спереди",
     "Fullscreen + Behind": "Полный экран + сзади",
     "Fullscreen + Front": "Полный экран + спереди",
@@ -208,6 +211,7 @@
     "Toggle the navigation sound of the frontend": "Воспроизведение звуков навигации по интерфейсу",
     "Toggle the splash image on content launching": "Всплывающее изображение при запуске игр",
     "Toggle the startup chime of the frontend": "Воспроизведение мелодии запуска системы",
+    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
     "Top Left": "Сверху слева",
     "Top Middle": "Сверху по центру",
     "Top Right": "Сверху справа"
@@ -515,7 +519,8 @@
     "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Выбор определенного ярлыка для выбранной иконки игры",
     "Set the system core or external emulator for the selected content or directory": "Выбор ядра или внешнего эмулятора для указанной игры или папки",
-    "Time Played": "Time Played"
+    "Time Played": "Time Played",
+    "Times Launched": "Times Launched"
   },
   "muxpass": {
     "PASSCODE": "ПАРОЛЬ"

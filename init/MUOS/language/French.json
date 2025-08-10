@@ -97,6 +97,7 @@
     "Location of system BIOS files": "Emplacement des fichiers BIOS",
     "Location of the RetroArch emulator": "Emplacement de l'émulateur RetroArch",
     "Location of themes": "Emplacement des thèmes",
+    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
     "Metadata Catalogue": "Données du catalogue",
     "Network Profiles": "Profils réseaux",
     "RetroArch Config Packages": "Packs de configurations RetroArch",
@@ -111,6 +112,7 @@
     "System BIOS": "Systèmes BIOS",
     "Themes": "Thèmes",
     "Toggle the target storage device for the backup": "Basculer le périphérique de stockage cible pour la sauvegarde",
+    "User Game Activity Tracker": "User Game Activity Tracker",
     "User Init Scripts": "Scripts d'initialisation personnalisés",
     "muOS Settings": "Paramètres muOS"
   },
@@ -183,6 +185,7 @@
     "Content Box Art": "Illustrations des contenus",
     "Content Box Art Alignment": "Alignement des illustrations",
     "Content Launch Splash": "Image au démarrage du contenu",
+    "Content Shuffle": "Content Shuffle",
     "Front": "Devant",
     "Fullscreen + Behind": "Plein écran + Derrière",
     "Fullscreen + Front": "Plein écran + Devant",
@@ -208,6 +211,7 @@
     "Toggle the navigation sound of the frontend": "Activer/désactiver le son de navigation de l'interface",
     "Toggle the splash image on content launching": "Activez/désactivez l'image de démarrage lors du lancement du contenu",
     "Toggle the startup chime of the frontend": "Activer/désactiver le son de démarrage de l'interface",
+    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
     "Top Left": "En haut à gauche",
     "Top Middle": "En haut au centre",
     "Top Right": "En haut à droite"
@@ -515,7 +519,8 @@
     "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Définissez l'étiquette spécifique du contenu sélectionné pour modifier l'icône",
     "Set the system core or external emulator for the selected content or directory": "Définissez l'émulateur principal ou externe pour le contenu ou le répertoire sélectionné",
-    "Time Played": "Time Played"
+    "Time Played": "Time Played",
+    "Times Launched": "Times Launched"
   },
   "muxpass": {
     "PASSCODE": "MOT DE PASSE"

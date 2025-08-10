@@ -97,6 +97,7 @@
     "Location of system BIOS files": "Plassering for System BIOS filer",
     "Location of the RetroArch emulator": "Plassering for RetroArch emulator",
     "Location of themes": "Plassering for temaer",
+    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
     "Metadata Catalogue": "Metadata Katalog",
     "Network Profiles": "Nettverksprofiler",
     "RetroArch Config Packages": "RetroArch Konfigurasjons Pakker",
@@ -111,6 +112,7 @@
     "System BIOS": "System BIOS",
     "Themes": "Temaer",
     "Toggle the target storage device for the backup": "Velg foretrukket lagringsenhet for sikkerhetskopieringen",
+    "User Game Activity Tracker": "User Game Activity Tracker",
     "User Init Scripts": "Brukerinitieringsskript",
     "muOS Settings": "muOS Settings"
   },
@@ -183,6 +185,7 @@
     "Content Box Art": "Innhold Box Art",
     "Content Box Art Alignment": "Innhold Box Art Plassering",
     "Content Launch Splash": "Innholds Lanserings-splash",
+    "Content Shuffle": "Content Shuffle",
     "Front": "Front",
     "Fullscreen + Behind": "Fullskjerm + Bak",
     "Fullscreen + Front": "Fullskjerm + Front",
@@ -208,6 +211,7 @@
     "Toggle the navigation sound of the frontend": "Skru av/på navigasjons-lyder i frontend",
     "Toggle the splash image on content launching": "Skru av/på splash-bildet under lansering av innhold",
     "Toggle the startup chime of the frontend": "Skru av/på oppstarts-lyden i frontend",
+    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
     "Top Left": "Øverst Venstre",
     "Top Middle": "Øverst Midten",
     "Top Right": "Øverst Høyre"
@@ -515,7 +519,8 @@
     "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Set the specific tag of the content selected to change the glyph",
     "Set the system core or external emulator for the selected content or directory": "Set the system core or external emulator for the selected content or directory",
-    "Time Played": "Time Played"
+    "Time Played": "Time Played",
+    "Times Launched": "Times Launched"
   },
   "muxpass": {
     "PASSCODE": "PASSCODE"

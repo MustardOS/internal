@@ -97,6 +97,7 @@
     "Location of system BIOS files": "Suíomh chomhaid BIOS an chórais",
     "Location of the RetroArch emulator": "Suíomh an aithriseora RetroArch",
     "Location of themes": "Suíomh na dtéamaí",
+    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
     "Metadata Catalogue": "Catalóg Meiteashonraí",
     "Network Profiles": "Próifílí Líonra",
     "RetroArch Config Packages": "Pacáistí Cumraíochta RetroArch",
@@ -111,6 +112,7 @@
     "System BIOS": "BIOS an Chórais",
     "Themes": "Téamaí",
     "Toggle the target storage device for the backup": "Athraigh an gléas stórála sprice don chúltaca",
+    "User Game Activity Tracker": "User Game Activity Tracker",
     "User Init Scripts": "Scripteanna Tosaithe Úsáideora",
     "muOS Settings": "Socruithe muOS"
   },
@@ -183,6 +185,7 @@
     "Content Box Art": "Ealaín Bosca Ábhar",
     "Content Box Art Alignment": "Ailíniú Ealaíne Bosca Ábhar",
     "Content Launch Splash": "Seoladh Ábhar Splais",
+    "Content Shuffle": "Content Shuffle",
     "Front": "Tosaigh",
     "Fullscreen + Behind": "Lánscáileán + Taobh thiar",
     "Fullscreen + Front": "Lánscáileán + Tosaigh",
@@ -208,6 +211,7 @@
     "Toggle the navigation sound of the frontend": "Scoraigh fuaim nascleanúna an tosaigh",
     "Toggle the splash image on content launching": "Scoránaigh an splancscáileán ar sheoladh ábhair",
     "Toggle the startup chime of the frontend": "Scoraigh clog tosaithe an tosaigh",
+    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
     "Top Left": "Barr ar Chlé",
     "Top Middle": "Barr Meán",
     "Top Right": "Barr Ar dheis"
@@ -515,7 +519,8 @@
     "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Socraigh an chlib shonrach den ábhar roghnaithe chun an glifín a athrú",
     "Set the system core or external emulator for the selected content or directory": "Socraigh croí an chórais nó aithriseoir seachtrach don inneachar nó don chomhadlann roghnaithe",
-    "Time Played": "Time Played"
+    "Time Played": "Time Played",
+    "Times Launched": "Times Launched"
   },
   "muxpass": {
     "PASSCODE": "PASCHÓD"

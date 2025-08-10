@@ -97,6 +97,7 @@
     "Location of system BIOS files": "Ubicació dels fitxers BIOS",
     "Location of the RetroArch emulator": "Ubicació del emulador RetroArch",
     "Location of themes": "Ubicació dels temes",
+    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
     "Metadata Catalogue": "Catàleg de metadades",
     "Network Profiles": "Perfils de xarxa",
     "RetroArch Config Packages": "Paquets de configuració de RetroArch",
@@ -111,6 +112,7 @@
     "System BIOS": "BIOS dels sistemes",
     "Themes": "Temes",
     "Toggle the target storage device for the backup": "Canvia el dispositiu d’emmagatzematge de destinació per a la còpia de seguretat",
+    "User Game Activity Tracker": "User Game Activity Tracker",
     "User Init Scripts": "Scripts d'inicialització personalitzats",
     "muOS Settings": "Ajustaments de muOS"
   },
@@ -183,6 +185,7 @@
     "Content Box Art": "Il·lustració de la caixa del contingut",
     "Content Box Art Alignment": "Alineació de les il·lustracions de la caixa",
     "Content Launch Splash": "Imatge d'arrencada del contingut",
+    "Content Shuffle": "Content Shuffle",
     "Front": "Davant",
     "Fullscreen + Behind": "Pantalla completa + Darrere",
     "Fullscreen + Front": "Pantalla completa + Davant",
@@ -208,6 +211,7 @@
     "Toggle the navigation sound of the frontend": "Activa o desactiva el so de navegació de la interfície",
     "Toggle the splash image on content launching": "Activa o desactiva la imatge d’inici durant el llançament del contingut",
     "Toggle the startup chime of the frontend": "Activa o desactiva el so d’inici de la interfície",
+    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
     "Top Left": "A dalt a l’esquerra",
     "Top Middle": "A dalt al centre",
     "Top Right": "A dalt a la dreta"
@@ -515,7 +519,8 @@
     "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Defineix l’etiqueta específica del contingut seleccionat per modificar la icona",
     "Set the system core or external emulator for the selected content or directory": "Assigna el nucli de sistema o emulador extern pel contingut o directori seleccionat",
-    "Time Played": "Time Played"
+    "Time Played": "Time Played",
+    "Times Launched": "Times Launched"
   },
   "muxpass": {
     "PASSCODE": "CODI D'ACCÉS"

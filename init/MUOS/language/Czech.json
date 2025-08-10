@@ -97,6 +97,7 @@
     "Location of system BIOS files": "Umístění souborů systému BIOS",
     "Location of the RetroArch emulator": "Umístění emulátoru RetroArch",
     "Location of themes": "Umístění témat",
+    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
     "Metadata Catalogue": "Katalog metadat",
     "Network Profiles": "Síťové profily",
     "RetroArch Config Packages": "Konfigurační balíčky RetroArch",
@@ -111,6 +112,7 @@
     "System BIOS": "Systém BIOS",
     "Themes": "Témata",
     "Toggle the target storage device for the backup": "Přepnout cílové úložné zařízení pro zálohu",
+    "User Game Activity Tracker": "User Game Activity Tracker",
     "User Init Scripts": "Uživatelské inicializační skripty",
     "muOS Settings": "Nastavení muOS"
   },
@@ -158,9 +160,9 @@
     "Wi-Fi Network": "Wi-Fi síť"
   },
   "muxcontrol": {
-    "CONTROL": "CONTROL",
-    "Change the control scheme of your current selected content": "Change the control scheme of your current selected content",
-    "No Control Schemes Found…": "No Control Schemes Found…"
+    "CONTROL": "ŘÍZENÍ",
+    "Change the control scheme of your current selected content": "Změna schématu ovládání aktuálně vybraného obsahu",
+    "No Control Schemes Found…": "Nenalezeny žádné kontrolní schémata…"
   },
   "muxcustom": {
     "Allows for testing different theme resolutions": "Umožňuje testování různých rozlišení témat",
@@ -183,6 +185,7 @@
     "Content Box Art": "Obsah Box Art",
     "Content Box Art Alignment": "Zarovnání obsahu rámečku",
     "Content Launch Splash": "Splash pro spuštění obsahu",
+    "Content Shuffle": "Content Shuffle",
     "Front": "Přední",
     "Fullscreen + Behind": "Celá obrazovka + vzadu",
     "Fullscreen + Front": "Celá obrazovka + v popředí",
@@ -208,6 +211,7 @@
     "Toggle the navigation sound of the frontend": "Přepnout zvuk navigace frontendu",
     "Toggle the splash image on content launching": "Přepnout úvodní obrázek při spouštění obsahu",
     "Toggle the startup chime of the frontend": "Přepněte spouštěcí zvonek frontendu",
+    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
     "Top Left": "Vlevo nahoře",
     "Top Middle": "Nahoře uprostřed",
     "Top Right": "Vpravo nahoře"
@@ -323,7 +327,7 @@
     "Allow editing of network settings": "Povolit úpravu nastavení sítě",
     "Allow modifying HDMI display settings": "Povolit úpravu nastavení zobrazení HDMI",
     "Allow searching for content": "Povolit vyhledávání obsahu",
-    "Allow selection of content control scheme": "Allow selection of content control scheme",
+    "Allow selection of content control scheme": "Povolit výběr schématu správy obsahu",
     "Allow selection of content cores": "Povolit výběr obsahových jader",
     "Allow selection of content governor": "Povolit výběr regulátoru obsahu",
     "Allow user to migrate or sync user based content": "Povolit uživateli migraci nebo synchronizaci uživatelského obsahu",
@@ -338,7 +342,7 @@
     "Collection Removal": "Odstranění sbírky",
     "Collection Viewing": "Prohlížení sbírky",
     "Configuration": "Nastavení",
-    "Content Control Scheme": "Content Control Scheme",
+    "Content Control Scheme": "Schéma kontroly obsahu",
     "Content Core": "Obsahové Jádro",
     "Content Explorer": "Průzkumník Obsahu",
     "Content Governor": "Správce Obsahu",
@@ -356,7 +360,7 @@
     "Enable access to general settings": "Povolit přístup k obecným nastavením",
     "Enable access to recently used content": "Povolit přístup k nedávno použitému obsahu",
     "Enable access to system configuration": "Povolit přístup ke konfiguraci systému",
-    "Enable or disable kiosk mode messages": "Enable or disable kiosk mode messages",
+    "Enable or disable kiosk mode messages": "Povolení nebo zakázání zpráv v režimu kiosku",
     "Enable or disable kiosk mode restrictions": "Povolení nebo zakázání omezení režimu kiosku",
     "Enable or restrict RetroArch settings": "Povolení nebo omezení nastavení RetroArchu",
     "Enable use of web based features": "Povolit používání webových funkcí",
@@ -381,7 +385,7 @@
     "Permit tagging and metadata changes": "Povolit změny označování a metadat",
     "Power Settings": "Nastavení Napájení",
     "Restrict to specific 'kiosk' directory within collections": "Omezit na konkrétní adresář „kiosk“ v rámci kolekcí",
-    "Restricted Messages": "Restricted Messages",
+    "Restricted Messages": "Omezené zprávy",
     "RetroArch Kiosk": "Kiosek RetroArch",
     "Storage": "Uložiště",
     "Task Toolkit": "Sada nástrojů",
@@ -499,7 +503,7 @@
   },
   "muxoption": {
     "CONTENT OPTION": "MOŽNOST OBSAHU",
-    "Control Scheme": "Control Scheme",
+    "Control Scheme": "Kontrolní schéma",
     "Core": "Jádro",
     "Current": "Současný",
     "Directory": "Adresář",
@@ -512,10 +516,11 @@
     "Search": "Vyhledávání",
     "Search for content within the selected directory": "Vyhledejte obsah ve vybraném adresáři",
     "Set the CPU governor for the selected content or directory": "Nastavte regulátor CPU pro vybraný obsah nebo adresář",
-    "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
+    "Set the control scheme for the selected content or directory": "Nastavení schématu řízení pro vybraný obsah nebo adresář",
     "Set the specific tag of the content selected to change the glyph": "Chcete-li změnit glyf, nastavte konkrétní značku obsahu vybraného",
     "Set the system core or external emulator for the selected content or directory": "Nastavte jádro systému nebo externí emulátor pro vybraný obsah nebo adresář",
-    "Time Played": "Nahraný čas"
+    "Time Played": "Nahraný čas",
+    "Times Launched": "Times Launched"
   },
   "muxpass": {
     "PASSCODE": "HESLO"

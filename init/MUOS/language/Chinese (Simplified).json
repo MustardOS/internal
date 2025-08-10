@@ -97,6 +97,7 @@
     "Location of system BIOS files": "Location of system BIOS files",
     "Location of the RetroArch emulator": "Location of the RetroArch emulator",
     "Location of themes": "Location of themes",
+    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
     "Metadata Catalogue": "Metadata Catalogue",
     "Network Profiles": "Network Profiles",
     "RetroArch Config Packages": "RetroArch Config Packages",
@@ -111,6 +112,7 @@
     "System BIOS": "System BIOS",
     "Themes": "Themes",
     "Toggle the target storage device for the backup": "Toggle the target storage device for the backup",
+    "User Game Activity Tracker": "User Game Activity Tracker",
     "User Init Scripts": "User Init Scripts",
     "muOS Settings": "muOS Settings"
   },
@@ -183,6 +185,7 @@
     "Content Box Art": "内容盒绘",
     "Content Box Art Alignment": "内容盒绘对齐方式",
     "Content Launch Splash": "内容启动闪屏",
+    "Content Shuffle": "Content Shuffle",
     "Front": "前置",
     "Fullscreen + Behind": "全屏 + 后置",
     "Fullscreen + Front": "全屏 + 前置",
@@ -208,6 +211,7 @@
     "Toggle the navigation sound of the frontend": "Toggle the navigation sound of the frontend",
     "Toggle the splash image on content launching": "启用 / 禁用内容启动时的闪屏画面",
     "Toggle the startup chime of the frontend": "Toggle the startup chime of the frontend",
+    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
     "Top Left": "左上",
     "Top Middle": "正上",
     "Top Right": "右上"
@@ -515,7 +519,8 @@
     "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Set the specific tag of the content selected to change the glyph",
     "Set the system core or external emulator for the selected content or directory": "为选定内容或目录配置 RetroArch 核心或独立模拟器",
-    "Time Played": "Time Played"
+    "Time Played": "Time Played",
+    "Times Launched": "Times Launched"
   },
   "muxpass": {
     "PASSCODE": "密码"

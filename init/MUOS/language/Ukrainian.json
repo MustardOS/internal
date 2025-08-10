@@ -97,6 +97,7 @@
     "Location of system BIOS files": "Location of system BIOS files",
     "Location of the RetroArch emulator": "Location of the RetroArch emulator",
     "Location of themes": "Location of themes",
+    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
     "Metadata Catalogue": "Metadata Catalogue",
     "Network Profiles": "Network Profiles",
     "RetroArch Config Packages": "RetroArch Config Packages",
@@ -111,6 +112,7 @@
     "System BIOS": "System BIOS",
     "Themes": "Themes",
     "Toggle the target storage device for the backup": "Toggle the target storage device for the backup",
+    "User Game Activity Tracker": "User Game Activity Tracker",
     "User Init Scripts": "User Init Scripts",
     "muOS Settings": "muOS Settings"
   },
@@ -183,6 +185,7 @@
     "Content Box Art": "Обкладинки контенту",
     "Content Box Art Alignment": "Вирівнювання обкладинок контенту",
     "Content Launch Splash": "Анімації запуску контенту",
+    "Content Shuffle": "Content Shuffle",
     "Front": "Спереду",
     "Fullscreen + Behind": "Повноекранно + позаду",
     "Fullscreen + Front": "Повноекранна + спереду",
@@ -208,6 +211,7 @@
     "Toggle the navigation sound of the frontend": "Увімкнути/вимкнути звук навігації інтерфейсу",
     "Toggle the splash image on content launching": "Увімкнути/вимкнути заставку під час запуску контенту",
     "Toggle the startup chime of the frontend": "Увімкнути/вимкнути звуковий сигнал запуску інтерфейсу",
+    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
     "Top Left": "Зверху зліва",
     "Top Middle": "Зверху по центру",
     "Top Right": "Зверху справа"
@@ -515,7 +519,8 @@
     "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
     "Set the specific tag of the content selected to change the glyph": "Set the specific tag of the content selected to change the glyph",
     "Set the system core or external emulator for the selected content or directory": "Встановити системне ядро або зовнішній емулятор для обраного контенту або директорії",
-    "Time Played": "Time Played"
+    "Time Played": "Time Played",
+    "Times Launched": "Times Launched"
   },
   "muxpass": {
     "PASSCODE": "ПАРОЛЬ"

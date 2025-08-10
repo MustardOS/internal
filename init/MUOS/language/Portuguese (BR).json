@@ -97,6 +97,7 @@
     "Location of system BIOS files": "Localização dos Arquivos de BIOS",
     "Location of the RetroArch emulator": "Localização do Emulador de RetroArch",
     "Location of themes": "Localização dos Temas",
+    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
     "Metadata Catalogue": "Metadados do Catálogo",
     "Network Profiles": "Perfís de Rede",
     "RetroArch Config Packages": "Pacotes de Configuração do RetroArch",
@@ -111,6 +112,7 @@
     "System BIOS": "BIOS do Sistema",
     "Themes": "Temas",
     "Toggle the target storage device for the backup": "Marque para selecionar o dispositivo de armazenamento do backup",
+    "User Game Activity Tracker": "User Game Activity Tracker",
     "User Init Scripts": "Scripts de Inicialização do Usuário",
     "muOS Settings": "Configurações do muOS"
   },
@@ -158,9 +160,9 @@
     "Wi-Fi Network": "Rede Wi-Fi"
   },
   "muxcontrol": {
-    "CONTROL": "CONTROL",
-    "Change the control scheme of your current selected content": "Change the control scheme of your current selected content",
-    "No Control Schemes Found…": "No Control Schemes Found…"
+    "CONTROL": "CONTROLE",
+    "Change the control scheme of your current selected content": "Altera a disposição dos botões do controle para o conteúdo selecionado atualmente",
+    "No Control Schemes Found…": "Nenhuma Disposição dos Botões do Controle Encontrado…"
   },
   "muxcustom": {
     "Allows for testing different theme resolutions": "Permite testar diferentes resoluções de temas",
@@ -183,6 +185,7 @@
     "Content Box Art": "Arte da Capa dos Conteúdos",
     "Content Box Art Alignment": "Alinhamento das Artes das Capas",
     "Content Launch Splash": "Tela de inicialização",
+    "Content Shuffle": "Content Shuffle",
     "Front": "Frente",
     "Fullscreen + Behind": "Tela Cheia + Atrás",
     "Fullscreen + Front": "Tela Cheia + Frente",
@@ -208,6 +211,7 @@
     "Toggle the navigation sound of the frontend": "Habilita os sons de navegação",
     "Toggle the splash image on content launching": "Habilita a imagem de inicialização quando carregando um conteúdo",
     "Toggle the startup chime of the frontend": "Habilita a melodia de inicialização",
+    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
     "Top Left": "No Topo e à Esquerda",
     "Top Middle": "No Topo e no Meio",
     "Top Right": "No topo e à Direita"
@@ -323,7 +327,7 @@
     "Allow editing of network settings": "Permitir edição de configurações de rede",
     "Allow modifying HDMI display settings": "Permitir modificar configurações do HDMI",
     "Allow searching for content": "Permitir busca pelo conteúdo",
-    "Allow selection of content control scheme": "Allow selection of content control scheme",
+    "Allow selection of content control scheme": "Permitir a seleção da disposição dos botões do controle para o conteúdo",
     "Allow selection of content cores": "Permitir a seleção de núcleos de conteúdo",
     "Allow selection of content governor": "Permitir a seleção de governador para o conteúdo",
     "Allow user to migrate or sync user based content": "Permitir ao usuário migrar ou sincronizar seu conteúdo",
@@ -338,7 +342,7 @@
     "Collection Removal": "Remoção da Coleção",
     "Collection Viewing": "Visualização da Coleção",
     "Configuration": "Configuração",
-    "Content Control Scheme": "Content Control Scheme",
+    "Content Control Scheme": "Disposição dos Botões do Controle para o Conteúdo",
     "Content Core": "Núcleo do Conteúdo",
     "Content Explorer": "Explorador de Conteúdo",
     "Content Governor": "Governador do Conteúdo",
@@ -356,7 +360,7 @@
     "Enable access to general settings": "Habilitar acesso às configurações gerais",
     "Enable access to recently used content": "Habilitar acesso ao conteúdo usado recentemente",
     "Enable access to system configuration": "Habilitar acesso às configurações do sistema",
-    "Enable or disable kiosk mode messages": "Enable or disable kiosk mode messages",
+    "Enable or disable kiosk mode messages": "Habilita ou desabilita mensagens no modo quiosque",
     "Enable or disable kiosk mode restrictions": "Habilitar ou desabilitar as restrições do modo quiosque",
     "Enable or restrict RetroArch settings": "Habilitar ou restringir as configurações Retroarch",
     "Enable use of web based features": "Habilitar o uso de funcionalidades web",
@@ -381,7 +385,7 @@
     "Permit tagging and metadata changes": "Permitir alterações nas tags e metadados",
     "Power Settings": "Configurações de Energia",
     "Restrict to specific 'kiosk' directory within collections": "Restringir a um diretório específico do modo quiosque dentro de coleções",
-    "Restricted Messages": "Restricted Messages",
+    "Restricted Messages": "Mensagens Restritas",
     "RetroArch Kiosk": "Quiosque do RetroArch",
     "Storage": "Armazenamento",
     "Task Toolkit": "Kit de Ferramentas",
@@ -499,11 +503,11 @@
   },
   "muxoption": {
     "CONTENT OPTION": "OPÇÃO DE CONTEÚDO",
-    "Control Scheme": "Control Scheme",
+    "Control Scheme": "Disposição dos Botões do Controle",
     "Core": "Núcleo",
     "Current": "Atual",
     "Directory": "Diretório",
-    "Glyph Tag": "Glyph Tag",
+    "Glyph Tag": "Tag de Glifo",
     "Governor": "Governador",
     "Individual": "Individual",
     "Name": "Nome",
@@ -512,10 +516,11 @@
     "Search": "Busca",
     "Search for content within the selected directory": "Procurar conteúdo dentro do diretório selecionado",
     "Set the CPU governor for the selected content or directory": "Defina o governador da CPU para o conteúdo ou diretório selecionado",
-    "Set the control scheme for the selected content or directory": "Set the control scheme for the selected content or directory",
+    "Set the control scheme for the selected content or directory": "Define a disposição dos botões do controle para o conteúdo ou diretório selecionado",
     "Set the specific tag of the content selected to change the glyph": "Defina a tag específica do conteúdo selecionado para alterar o glifo",
     "Set the system core or external emulator for the selected content or directory": "Defina o sistema principal ou emulador externo para o conteúdo ou diretório selecionado",
-    "Time Played": "Tempo Jogado"
+    "Time Played": "Tempo Jogado",
+    "Times Launched": "Times Launched"
   },
   "muxpass": {
     "PASSCODE": "SENHA"
@@ -793,7 +798,7 @@
     "Checkerboard (4px)": "Checkerboard (4px)",
     "Clock": "Relógio",
     "Content Dash Replacement": "Substituir Traço no Conteúdo",
-    "Content Name Scheme": "Esquema de Nome do Conteúdo",
+    "Content Name Scheme": "Formato do Nome do Conteúdo",
     "Diagonal Lines (1px)": "Linhas Diagonais (1px)",
     "Diagonal Lines (2px)": "Linhas Diagonais (2px)",
     "Diagonal Lines (4px)": "Linhas Diagonais (4px)",

@@ -15,7 +15,7 @@ export HOME
 XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CONFIG_HOME
 
-SETUP_SDL_ENVIRONMENT
+SETUP_SDL_ENVIRONMENT modern
 
 case "$(GET_VAR "device" "board/name")" in
 	rg*)

@@ -288,21 +288,42 @@ PLAY_SOUND() {
 }
 
 SETUP_SDL_ENVIRONMENT() {
-	CON_GO="/tmp/con_go"
+	# Optional priority override: $1 = retro | modern
+	REQ_STYLE=$1
 
-	# Grab the control scheme if one has been set from the content options
-	if [ -e "$CON_GO" ]; then
-		case "$(cat "$CON_GO")" in
-			modern) SDL_GAMECONTROLLERCONFIG_FILE="/opt/muos/device/control/gamecontrollerdb_modern.txt" ;;
-			retro) SDL_GAMECONTROLLERCONFIG_FILE="/opt/muos/device/control/gamecontrollerdb_retro.txt" ;;
-			*) SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt" ;;
-		esac
-	else
-		SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt"
-	fi
+	GCDB_DEFAULT="/usr/lib/gamecontrollerdb.txt"
+	GCDB_MODERN="/opt/muos/device/control/gamecontrollerdb_modern.txt"
+	GCDB_RETRO="/opt/muos/device/control/gamecontrollerdb_retro.txt"
+
+	# Decide controller DB (priority: arg -> /tmp/con_go -> default)
+	case "$REQ_STYLE" in
+		modern) SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_MODERN" ;;
+		retro) SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_RETRO" ;;
+		*)
+			CON_GO="/tmp/con_go"
+			if [ -e "$CON_GO" ]; then
+				SEL="$(cat "$CON_GO")"
+				case "$SEL" in
+					# honour "system" - fallback map to modern/retro via advanced setting swap...
+					system)
+						if [ "$(GET_VAR "config" "settings/advanced/swap")" -eq 1 ]; then
+							SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_MODERN"
+						else
+							SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_RETRO"
+						fi
+						;;
+					modern) SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_MODERN" ;;
+					retro) SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_RETRO" ;;
+					*) SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_DEFAULT" ;;
+				esac
+			else
+				SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_DEFAULT"
+			fi
+			;;
+	esac
 
 	# Set both the SDL controller file and configuration
-	[ ! -r "$SDL_GAMECONTROLLERCONFIG_FILE" ] && SDL_GAMECONTROLLERCONFIG_FILE="$DEF_DB"
+	[ ! -r "$SDL_GAMECONTROLLERCONFIG_FILE" ] && SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_DEFAULT"
 	SDL_GAMECONTROLLERCONFIG=$(grep "$(GET_VAR "device" "sdl/name")" "$SDL_GAMECONTROLLERCONFIG_FILE")
 
 	export SDL_GAMECONTROLLERCONFIG_FILE SDL_GAMECONTROLLERCONFIG

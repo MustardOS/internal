@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# This is something fun and exciting...
+# See, https://www.man7.org/linux/man-pages/man1/flock.1.html
+exec 9>/tmp/bright.lock
+flock -n 9 || exit 0
+
 . /opt/muos/script/var/func.sh
 
 DEVICE_MODE=$(GET_VAR "config" "boot/device_mode")
@@ -18,6 +23,8 @@ SET_BLANK() {
 	echo "$TARGET_BLANK" >/sys/class/graphics/fb0/blank
 	echo "$TARGET_BLANK" >"$FB_BLANK"
 
+	# Please note that the LCD toggles below are not enabled by default on muOS
+	# as it causes display panel issues, however feel free to re-enable it...
 	case "$TARGET_BLANK" in
 		4)
 			touch /tmp/mux_blank
@@ -25,28 +32,48 @@ SET_BLANK() {
 			;;
 		*)
 			rm -f /tmp/mux_blank
-			[ "$CURR_BRIGHT" -lt 5 ] && LCD_ENABLE
+			[ "$CURR_BRIGHT" -le 10 ] && LCD_ENABLE
 			;;
 	esac
 }
 
 SET_CURRENT() {
 	NEW_BRIGHT=$1
-	[ "$NEW_BRIGHT" -eq "$CURR_BRIGHT" ] && return
 
-	case "$NEW_BRIGHT" in
-		0) SET_BLANK 4 ;;
-		*) SET_BLANK 0 ;;
-	esac
+	# 1=force reapply display value to LCD
+	FORCE=${2:-0}
 
-	DISPLAY_WRITE lcd0 setbl "$NEW_BRIGHT"
-	SET_VAR "config" "settings/general/brightness" "$NEW_BRIGHT"
+	DESIRED_BLANK=$([ "$NEW_BRIGHT" -eq 0 ] && printf 4 || printf 0)
+	CURRENT_BLANK=$(cat "$FB_BLANK" 2>/dev/null || printf 0)
+
+	# Keep framebuffer blank state in sync
+	[ "$CURRENT_BLANK" -ne "$DESIRED_BLANK" ] && SET_BLANK "$DESIRED_BLANK"
+
+	# Additional checks to reapply to LCD if forced OR changed (but only when >0)
+	if [ "$NEW_BRIGHT" -gt 0 ] && { [ "$FORCE" -eq 1 ] || [ "$NEW_BRIGHT" -ne "$CURR_BRIGHT" ]; }; then
+		DISPLAY_WRITE lcd0 setbl "$NEW_BRIGHT"
+	else
+		# This is stupid but works...
+		# Detect for a specific charger file and new brightness and force blank the LCD
+		if [ -e "/tmp/charger_bright" ] && [ "$NEW_BRIGHT" -eq 0 ]; then
+			DISPLAY_WRITE lcd0 setbl "$NEW_BRIGHT"
+		fi
+	fi
+
+	# Okay so we'll try clamping the brightness values...
+	# This should NOT affect blanking as we do that above!
+	PERSIST="$NEW_BRIGHT"
+	[ "$PERSIST" -lt 1 ] && PERSIST=1
+	[ "$PERSIST" -gt "$MAX_BRIGHT" ] && PERSIST="$MAX_BRIGHT"
+
+	# Set the new value regardless of previous brightness value!
+	SET_VAR "config" "settings/general/brightness" "$PERSIST"
 }
 
 case "$1" in
 	R)
-		[ "$CURR_BRIGHT" -lt 5 ] && CURR_BRIGHT=90
-		DISPLAY_WRITE lcd0 setbl "$CURR_BRIGHT"
+		[ "$CURR_BRIGHT" -le 10 ] && CURR_BRIGHT=90
+		SET_CURRENT "$CURR_BRIGHT" 1
 		;;
 	U)
 		[ "$CURR_BRIGHT" -le 14 ] && NEW_BL=$((CURR_BRIGHT + 1)) || NEW_BL=$((CURR_BRIGHT + 15))

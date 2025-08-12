@@ -16,9 +16,11 @@ SET_VAR "device" "board/portmaster" "1"
 if [ "$(GET_VAR "device" "network/iface")" = "wlan0" ]; then
 	echo "Switching to 'eth0'"
 	SET_VAR "device" "network/iface" "eth0"
+	SET_VAR "device" "network/state" "/sys/class/net/eth0/operstate"
 else
 	echo "Switching to 'wlan0'"
 	SET_VAR "device" "network/iface" "wlan0"
+	SET_VAR "device" "network/state" "/sys/class/net/wlan0/operstate"
 fi
 
 /opt/openssh/bin/ssh-keygen -A

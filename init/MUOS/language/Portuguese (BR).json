@@ -97,7 +97,7 @@
     "Location of system BIOS files": "Localização dos Arquivos de BIOS",
     "Location of the RetroArch emulator": "Localização do Emulador de RetroArch",
     "Location of themes": "Localização dos Temas",
-    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
+    "Location of user's Game Activity Tracker": "Localização do rastreador de atividades de jogo do usuário",
     "Metadata Catalogue": "Metadados do Catálogo",
     "Network Profiles": "Perfís de Rede",
     "RetroArch Config Packages": "Pacotes de Configuração do RetroArch",
@@ -112,7 +112,7 @@
     "System BIOS": "BIOS do Sistema",
     "Themes": "Temas",
     "Toggle the target storage device for the backup": "Marque para selecionar o dispositivo de armazenamento do backup",
-    "User Game Activity Tracker": "User Game Activity Tracker",
+    "User Game Activity Tracker": "Rastreador de Atividades de Jogo do Usuário",
     "User Init Scripts": "Scripts de Inicialização do Usuário",
     "muOS Settings": "Configurações do muOS"
   },
@@ -185,11 +185,13 @@
     "Content Box Art": "Arte da Capa dos Conteúdos",
     "Content Box Art Alignment": "Alinhamento das Artes das Capas",
     "Content Launch Splash": "Tela de inicialização",
-    "Content Shuffle": "Content Shuffle",
+    "Content Save State Launch": "Inicialização do Save State do Conteúdo",
+    "Content Shuffle": "Embaralhar Conteúdo",
     "Front": "Frente",
     "Fullscreen + Behind": "Tela Cheia + Atrás",
     "Fullscreen + Front": "Tela Cheia + Frente",
     "Global": "Global",
+    "Hold A": "Segurar A",
     "Interface Font Type": "Tipo da Fonte do Sistema",
     "Language": "Idioma",
     "Load user created RetroArch configurations": "Carrega configurações criadas pelo usuário no RetroArch",
@@ -198,10 +200,12 @@
     "Middle Left": "No Meio à Esquerda",
     "Middle Right": "No Meio à Direita",
     "Navigation Sound": "Sons de Navegação",
+    "Press A": "Pressionar A",
     "RetroArch Configurations": "Configurações do RetroArch",
     "Screen": "Tela",
     "Startup Chime": "Melodia de Inicialização",
     "Switch between different theme alternatives": "Alterna entre diferentes opções de temas",
+    "Switch between pressing A or holding A to launch content save state automatically": "Alterna entre pressionar A ou segurar A para iniciar o save state do conteúdo automaticamente",
     "Theme": "Tema",
     "Theme Picker": "Escolher Tema",
     "Theme Resolution": "Resolução do Tema",
@@ -211,7 +215,7 @@
     "Toggle the navigation sound of the frontend": "Habilita os sons de navegação",
     "Toggle the splash image on content launching": "Habilita a imagem de inicialização quando carregando um conteúdo",
     "Toggle the startup chime of the frontend": "Habilita a melodia de inicialização",
-    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
+    "Toggles the ability to shuffle content using the R2 button": "Alterna a capacidade de embaralhar o conteúdo usando o botão R2",
     "Top Left": "No Topo e à Esquerda",
     "Top Middle": "No Topo e no Meio",
     "Top Right": "No topo e à Direita"
@@ -520,7 +524,7 @@
     "Set the specific tag of the content selected to change the glyph": "Defina a tag específica do conteúdo selecionado para alterar o glifo",
     "Set the system core or external emulator for the selected content or directory": "Defina o sistema principal ou emulador externo para o conteúdo ou diretório selecionado",
     "Time Played": "Tempo Jogado",
-    "Times Launched": "Times Launched"
+    "Times Launched": "Vezes Inicializado"
   },
   "muxpass": {
     "PASSCODE": "SENHA"

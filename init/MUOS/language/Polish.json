@@ -97,7 +97,7 @@
     "Location of system BIOS files": "Lokalizacja plików BIOS systemów",
     "Location of the RetroArch emulator": "Lokalizacja emulatora RetroArch",
     "Location of themes": "Lokalizacja motywów",
-    "Location of user's Game Activity Tracker": "Location of user's Game Activity Tracker",
+    "Location of user's Game Activity Tracker": "Lokalizacja śledzenia aktywności w grze dla użytkownika",
     "Metadata Catalogue": "Katalog metadanych",
     "Network Profiles": "Profile sieciowe",
     "RetroArch Config Packages": "Paczki konfiguracji RetroArch",
@@ -112,7 +112,7 @@
     "System BIOS": "BIOS systemów",
     "Themes": "Motywy",
     "Toggle the target storage device for the backup": "Wybierz docelowe urządzenie pamięci dla kopii zapasowej",
-    "User Game Activity Tracker": "User Game Activity Tracker",
+    "User Game Activity Tracker": "Śledzenie aktywności w grze dla użytkownika",
     "User Init Scripts": "Skrypty inicjalizacji użytkownika",
     "muOS Settings": "Ustawienia muOS"
   },
@@ -185,11 +185,13 @@
     "Content Box Art": "Okładki zawartości",
     "Content Box Art Alignment": "Ułożenie okładek zawartości",
     "Content Launch Splash": "Ekran uruchomienia zawartości",
-    "Content Shuffle": "Content Shuffle",
+    "Content Save State Launch": "Uruchamianie zawartości ze stanu zapisu",
+    "Content Shuffle": "Losowanie zawartości",
     "Front": "Przód",
     "Fullscreen + Behind": "Pełny ekran + Tył",
     "Fullscreen + Front": "Pełny ekran + Przód",
     "Global": "Globalne",
+    "Hold A": "Przytrzymaj A",
     "Interface Font Type": "Typ czcionki interfejsu",
     "Language": "Język",
     "Load user created RetroArch configurations": "Wczytaj konfiguracje RetroArch stworzone przez użytkownika",
@@ -198,10 +200,12 @@
     "Middle Left": "Lewy środek",
     "Middle Right": "Prawy środek",
     "Navigation Sound": "Dźwięk nawigacji",
+    "Press A": "Wciśnij A",
     "RetroArch Configurations": "Konfiguracje RetroArch",
     "Screen": "Ekran",
     "Startup Chime": "Dźwięk startu",
     "Switch between different theme alternatives": "Wybierz między różnymi alternatywami motywu",
+    "Switch between pressing A or holding A to launch content save state automatically": "Wybierz między wciskaniem A lub przytrzymaniem A, by automatycznie uruchomić zawartość ze stanu zapisu",
     "Theme": "Motyw",
     "Theme Picker": "Wybór motywu",
     "Theme Resolution": "Rozdzielczość motywu",
@@ -211,7 +215,7 @@
     "Toggle the navigation sound of the frontend": "Włącz dźwięki nawigacji frontendu",
     "Toggle the splash image on content launching": "Włącz ekran uruchamiania zawartości",
     "Toggle the startup chime of the frontend": "Włącz dźwięk startu frontendu",
-    "Toggles the ability to shuffle content using the R2 button": "Toggles the ability to shuffle content using the R2 button",
+    "Toggles the ability to shuffle content using the R2 button": "Włącza możliwość losowania zawartości przy użyciu przycisku R2",
     "Top Left": "Górne lewo",
     "Top Middle": "Górny środek",
     "Top Right": "Górne prawo"
@@ -520,7 +524,7 @@
     "Set the specific tag of the content selected to change the glyph": "Wybierz konkretną etykietę zawartości, by zmienić ikonę",
     "Set the system core or external emulator for the selected content or directory": "Ustaw rdzeń lub zewnętrzny emulator dla wybranej zawartości lub folderu",
     "Time Played": "Czas gry",
-    "Times Launched": "Times Launched"
+    "Times Launched": "Liczba uruchomień"
   },
   "muxpass": {
     "PASSCODE": "HASŁO"

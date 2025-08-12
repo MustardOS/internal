@@ -21,14 +21,14 @@ CHECK_RA_AND_SAVE() {
 	# This is the safest bet to get RetroArch to save state automatically
 	# if the user has configured their settings to do so...
 
-	[ "$(GET_VAR "system" "foreground_process")" = "retroarch" ] && /usr/bin/retroarch --command CLOSE_CONTENT
+	[ "$(GET_VAR "system" "foreground_process")" = "retroarch" ] && /usr/bin/retroarch --command "$1"
 
 	# If you're reading this and thinking "WhAt AbOuT pOrTmAsTeR gAmEs?"
 	# My answer is, you find out how to restore save game content and let us know!
 }
 
 SLEEP() {
-	CHECK_RA_AND_SAVE
+	CHECK_RA_AND_SAVE "SAVE_STATE"
 
 	touch "$RECENT_WAKE"
 
@@ -117,7 +117,7 @@ case "$SHUTDOWN_TIME_SETTING" in
 		RESUME
 		;;
 	2)
-		CHECK_RA_AND_SAVE
+		CHECK_RA_AND_SAVE "CLOSE_CONTENT"
 		/opt/muos/script/mux/quit.sh poweroff sleep
 		;;
 	*)

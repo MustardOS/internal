@@ -142,7 +142,6 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
                 $DREAMCAST_VMU
                 "
 			elif [ "$SRC_SHORTNAME" = "MuosConfig" ]; then
-				# Define Dreamcast VMU source
 				if [ -d "/opt/muos/config" ]; then
 					MUOS_CONFIG_DIR="/opt/muos/config"
 				else

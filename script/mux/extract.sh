@@ -15,11 +15,11 @@ SYNC_FOLDER() {
 
 ALL_DONE() {
 	/opt/muos/bin/toybox sleep 2
-	FRONTEND start archive
+	FRONTEND start "$FRONTEND_START_PROGRAM"
 	exit "$1"
 }
 
-if [ "$#" -ne 1 ]; then
+if [ "$#" -ne 1 ] && [ "$#" -ne 2 ]; then
 	echo "Usage: $0 <archive>"
 	ALL_DONE 1
 fi
@@ -30,6 +30,7 @@ if [ ! -e "$1" ]; then
 fi
 
 ARCHIVE_NAME="${1##*/}"
+FRONTEND_START_PROGRAM="${2:-archive}"
 echo "Inspecting Archive..."
 
 case "$ARCHIVE_NAME" in

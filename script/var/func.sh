@@ -292,29 +292,26 @@ SETUP_SDL_ENVIRONMENT() {
 	REQ_STYLE=$1
 
 	GCDB_DEFAULT="/usr/lib/gamecontrollerdb.txt"
-	GCDB_MODERN="/opt/muos/device/control/gamecontrollerdb_modern.txt"
-	GCDB_RETRO="/opt/muos/device/control/gamecontrollerdb_retro.txt"
+	GCDB_STORE="/run/muos/storage/info/gamecontrollerdb"
 
 	# Decide controller DB (priority: arg -> /tmp/con_go -> default)
 	case "$REQ_STYLE" in
-		modern) SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_MODERN" ;;
-		retro) SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_RETRO" ;;
+		modern) SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_STORE/modern.txt" ;;
+		retro) SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_STORE/retro.txt" ;;
 		*)
 			CON_GO="/tmp/con_go"
 			if [ -e "$CON_GO" ]; then
 				SEL="$(cat "$CON_GO")"
 				case "$SEL" in
-					# honour "system" - fallback map to modern/retro via advanced setting swap...
+					# honour "system" - otherwise use whatever was selected from content...
 					system)
 						if [ "$(GET_VAR "config" "settings/advanced/swap")" -eq 1 ]; then
-							SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_MODERN"
+							SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_STORE/modern.txt"
 						else
-							SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_RETRO"
+							SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_STORE/retro.txt"
 						fi
 						;;
-					modern) SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_MODERN" ;;
-					retro) SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_RETRO" ;;
-					*) SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_DEFAULT" ;;
+					*) SDL_GAMECONTROLLERCONFIG_FILE="$SEL" ;;
 				esac
 			else
 				SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_DEFAULT"

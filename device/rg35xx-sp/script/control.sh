@@ -40,6 +40,11 @@ if [ ! -f "$RA_CONF" ]; then
 	cp /run/muos/storage/retroarch/retroarch.default.cfg "$RA_CONF"
 fi
 
+# Move gamecontrollerdb files - overwrite existing for users protection!
+GCDB_STORE="/run/muos/storage/info/gamecontrollerdb"
+[ -d "$GCDB_STORE" ] || mkdir -p "$GCDB_STORE"
+cp -f "$DEVICE_CONTROL_DIR/gamecontrollerdb"/*.txt "$GCDB_STORE"/
+
 # Move Drastic trngaje config
 DRASTIC_T_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-trngaje/resources/settings.json"
 DRASTIC_T_CFG="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-trngaje/config/drastic.cfg"

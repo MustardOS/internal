@@ -43,6 +43,9 @@ fi
 GCDB_STORE="/run/muos/storage/info/gamecontrollerdb"
 [ -d "$GCDB_STORE" ] || mkdir -p "$GCDB_STORE"
 cp -f "$DEVICE_CONTROL_DIR/gamecontrollerdb"/*.txt "$GCDB_STORE"/
+# Purge anything with the 'system' reserved name!
+rm -f "$GCDB_STORE/system.txt"
+touch "$GCDB_STORE/system.txt"
 
 # Move Drastic trngaje config
 DRASTIC_T_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-trngaje/resources/settings.json"

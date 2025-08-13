@@ -90,6 +90,9 @@ if [ -d "$DEVICE_CONFIG_DIR" ]; then
 	done
 fi
 
+# Copy the RetroArch global shader if it doesn't already exist
+[ ! -f "$RA_CONFIG_DIR/global.glslp" ] && cp -f "$DEVICE_CONTROL_DIR/global.glslp" "$RA_CONFIG_DIR/global.glslp"
+
 # Copy Device Specific Deeplay-keys.cfg udev autoconfig
 RA_AUTO="/run/muos/storage/retroarch/autoconfig/udev/Deeplay-keys.cfg"
 if [ -f "$RA_AUTO" ]; then

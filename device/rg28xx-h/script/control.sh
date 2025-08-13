@@ -102,6 +102,16 @@ fi
 
 # Add device specific Task Toolkit scripts
 NETWORK_TASK="$(GET_VAR "device" "storage/rom/mount")/MUOS/task/Network Tasks"
-if [ ! -d "$NETWORK_TASK" ]; then
-	cp -f "$DEVICE_CONTROL_DIR/Network Tasks" "$NETWORK_TASK"
-fi
+
+mkdir -p "$NETWORK_TASK"
+
+for SRC_TASK in "$DEVICE_CONTROL_DIR/Network Tasks/"*; do
+    # Skip if not a regular file
+    [ -f "$SRC_TASK" ] || continue
+
+    DEST_TASK="$NETWORK_TASK/$(basename "$SRC_TASK")"
+
+    if [ ! -f "$DEST_TASK" ]; then
+        cp -f "$SRC_TASK" "$DEST_TASK"
+    fi
+done

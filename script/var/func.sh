@@ -422,6 +422,12 @@ CONFIGURE_RETROARCH() {
 	KIOSK_MODE=$([ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] && echo true || echo false)
 	sed -i "s/^kiosk_mode_enable = \".*\"$/kiosk_mode_enable = \"$KIOSK_MODE\"/" "$RA_CONF"
 
+	# Mark these as false permanently unless users toggle it off in advanced settings.
+	if [ "$(GET_VAR "config" "settings/advanced/retrofree")" -eq 0 ]; then
+		sed -i "s/^preemptive_frames_enable = \".*\"$/preemptive_frames_enable = \"false\"/" "$RA_CONF"
+		sed -i "s/^run_ahead_enabled = \".*\"$/run_ahead_enabled = \"false\"/" "$RA_CONF"
+	fi
+
 	# The following will stop auto load from happening if they hold A on content
 	EXTRA_ARGS=""
 	EXTRA_CONF="/tmp/ra_autoload_once.cfg"

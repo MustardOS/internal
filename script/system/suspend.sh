@@ -29,6 +29,7 @@ CHECK_RA_AND_SAVE() {
 
 SLEEP() {
 	CHECK_RA_AND_SAVE "SAVE_STATE"
+	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
 	touch "$RECENT_WAKE"
 
@@ -97,6 +98,8 @@ RESUME() {
 	# a bit more brightness unfortunately!
 	[ "$E_BRIGHT" -lt 11 ] && E_BRIGHT=40
 	DISPLAY_WRITE lcd0 setbl "$E_BRIGHT"
+
+	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
 	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
 	(

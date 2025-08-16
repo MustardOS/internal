@@ -221,7 +221,7 @@
     "name":"hh0",
     "bg":"bg_hh0.png",
     "type":2,
-    "rotate":90,
+    "rotate":270,
 
     "screen0_x":0,
     "screen0_y":26,

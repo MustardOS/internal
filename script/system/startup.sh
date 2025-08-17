@@ -35,12 +35,18 @@ CONNECT_ON_BOOT=$(GET_VAR "config" "network/boot")
 USER_INIT=$(GET_VAR "config" "settings/advanced/user_init")
 FIRST_INIT=$(GET_VAR "config" "boot/first_init")
 
-# Enable rumble support - primarily used for TrimUI devices at the moment...
+# Enable rumble support - primarily used for TrimUI/RK3326 devices at the moment...
 case "$BOARD_NAME" in
 	tui*)
 		echo 227 >/sys/class/gpio/export
 		echo out >/sys/class/gpio/gpio227/direction
 		echo 0 >/sys/class/gpio/gpio227/value
+		;;
+	rk*)
+		echo 0 > /sys/class/pwm/pwmchip0/export
+		echo 1000000 > /sys/class/pwm/pwmchip0/pwm0/period
+		echo 1000000 > /sys/class/pwm/pwmchip0/pwm0/duty_cycle
+		echo 1 > /sys/class/pwm/pwmchip0/pwm0/enable
 		;;
 	*) ;;
 esac

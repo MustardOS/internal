@@ -29,10 +29,8 @@ MANAGE_WEBSERV() {
 					[ ! -s /opt/muos/bin/syncthing ] && cp /opt/muos/bin/syncthing.backup /opt/muos/bin/syncthing
 					nice -2 /opt/muos/bin/syncthing serve \
 						--home=/run/muos/storage/syncthing \
-						--skip-port-probing \
 						--gui-address="0.0.0.0:7070" \
-						--no-browser \
-						--no-default-folder >/dev/null &
+						--no-browser >/dev/null &
 					;;
 				"ntp")
 					nice -2 /opt/muos/script/web/ntp.sh &

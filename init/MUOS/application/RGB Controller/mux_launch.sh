@@ -7,20 +7,27 @@
 
 echo app >/tmp/act_go
 
-# Define paths and commands
-LOVEDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/RGB Controller"
-GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2.armhf"
-CONFDIR="$LOVEDIR/conf/"
+GOV_GO="/tmp/gov_go"
+[ -e "$GOV_GO" ] && cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
 
+CON_GO="/tmp/con_go"
 SETUP_SDL_ENVIRONMENT
 
-# Export environment variables
+LOVEDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/RGB Controller"
+GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
+CONFDIR="$LOVEDIR/conf/"
+
 export XDG_DATA_HOME="$CONFDIR"
 
-# Launcher
 cd "$LOVEDIR" || exit
 SET_VAR "system" "foreground_process" "love"
 export LD_LIBRARY_PATH="$LOVEDIR/libs:$LD_LIBRARY_PATH"
 $GPTOKEYB "love" &
 ./love rgbcontroller
-kill -9 "$(pidof gptokeyb2.armhf)"
+kill -9 "$(pidof gptokeyb2)"
+
+[ -e "$GOV_GO" ] && rm -f "$GOV_GO"
+[ -e "$CON_GO" ] && rm -f "$CON_GO"
+
+SET_DEFAULT_GOVERNOR
+unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

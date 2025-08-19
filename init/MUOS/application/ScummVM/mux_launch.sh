@@ -7,10 +7,14 @@
 
 echo app >/tmp/act_go
 
+GOV_GO="/tmp/gov_go"
+[ -e "$GOV_GO" ] && cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
+
+CON_GO="/tmp/con_go"
+SETUP_SDL_ENVIRONMENT
+
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
-
-SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "scummvm"
 
@@ -35,7 +39,7 @@ case "$(GET_VAR "device" "board/name")" in
 	*) ;;
 esac
 
-HOME="$EMUDIR" nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG"
+HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG"
 
 # Switch analogue<>dpad back so we can navigate muX
 [ "$(GET_VAR "device" "board/stick")" -eq 0 ]
@@ -45,4 +49,8 @@ case "$(GET_VAR "device" "board/name")" in
 	*) ;;
 esac
 
+[ -e "$GOV_GO" ] && rm -f "$GOV_GO"
+[ -e "$CON_GO" ] && rm -f "$CON_GO"
+
+SET_DEFAULT_GOVERNOR
 unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

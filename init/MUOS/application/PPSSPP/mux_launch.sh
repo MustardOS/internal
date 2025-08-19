@@ -7,15 +7,13 @@
 
 echo app >/tmp/act_go
 
+GOV_GO="/tmp/gov_go"
+[ -e "$GOV_GO" ] && cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
+
+CON_GO="/tmp/con_go"
+SETUP_SDL_ENVIRONMENT
+
 PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp"
-
-HOME="$PPSSPP_DIR"
-export HOME
-
-XDG_CONFIG_HOME="$HOME/.config"
-export XDG_CONFIG_HOME
-
-SETUP_SDL_ENVIRONMENT modern
 
 case "$(GET_VAR "device" "board/name")" in
 	rg*)
@@ -34,6 +32,12 @@ case "$(GET_VAR "device" "board/name")" in
 		;;
 esac
 
+HOME="$PPSSPP_DIR"
+export HOME
+
+XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CONFIG_HOME
+
 rm -rf "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/CACHE/"*
 cd "$PPSSPP_DIR" || exit
 
@@ -41,4 +45,8 @@ SET_VAR "system" "foreground_process" "PPSSPP"
 
 ./PPSSPP
 
+[ -e "$GOV_GO" ] && rm -f "$GOV_GO"
+[ -e "$CON_GO" ] && rm -f "$CON_GO"
+
+SET_DEFAULT_GOVERNOR
 unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

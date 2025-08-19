@@ -15,12 +15,6 @@ FILE=${3%/}
 
 PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp"
 
-HOME="$PPSSPP_DIR"
-export HOME
-
-XDG_CONFIG_HOME="$HOME/.config"
-export XDG_CONFIG_HOME
-
 SETUP_SDL_ENVIRONMENT
 
 case "$(GET_VAR "device" "board/name")" in
@@ -57,6 +51,12 @@ case "$FILE" in
 		fi
 		;;
 esac
+
+HOME="$PPSSPP_DIR"
+export HOME
+
+XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CONFIG_HOME
 
 rm -rf "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/CACHE/"*
 cd "$PPSSPP_DIR" || exit

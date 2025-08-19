@@ -32,7 +32,7 @@ MOUNT_DEVICE() {
 		SET_VAR "device" "storage/usb/label" "$FS_LABEL"
 	fi
 
-	mkdir -p "$USB_MOUNT/ROMS" "$USB_MOUNT/BACKUP" "$USB_MOUNT/ARCHIVE" "$USB_MOUNT/ports"
+	mkdir -p "$USB_MOUNT/ROMS" "$USB_MOUNT/BACKUP" "$USB_MOUNT/ARCHIVE" "$USB_MOUNT/PORTS"
 }
 
 # Asynchronously monitor insertion/eject

@@ -272,7 +272,7 @@ PLAY_SOUND() {
 	SND="/opt/muos/share/media/$1.wav"
 	[ -e "$SND" ] && rm -f "$SND"
 
-	case "$NAV_SOUND" in
+	case "$(GET_VAR "config" "settings/general/sound")" in
 		1)
 			WAV="/mnt/mmc/MUOS/sound/$1.wav"
 			[ -e "$WAV" ] && cp "$WAV" "$SND"
@@ -284,7 +284,7 @@ PLAY_SOUND() {
 		*) ;;
 	esac
 
-	[ -e "$SND" ] && /usr/bin/mpv "$SND"
+	[ -e "$SND" ] && /usr/bin/mpv --really-quiet "$SND"
 }
 
 SETUP_SDL_ENVIRONMENT() {

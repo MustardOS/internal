@@ -30,7 +30,7 @@ printf 0 >"/tmp/msg_progress"
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
 /opt/muos/script/mux/hotkey.sh &
-/usr/bin/mpv /opt/muos/share/media/factory.mp3 &
+/usr/bin/mpv --really-quiet /opt/muos/share/media/factory.mp3 &
 
 if [ "$NETWORK_ENABLED" -eq 1 ]; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Generating SSH Host Keys"

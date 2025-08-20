@@ -63,8 +63,12 @@ SET_CURRENT() {
 		else
 			# This is stupid but works...
 			# Detect for a specific charger file and new brightness and force blank the LCD
-			if [ -e "$CHARGER" ] && [ "$NEW_BRIGHT" -eq 0 ]; then
-				DISPLAY_WRITE lcd0 setbl "$NEW_BRIGHT"
+			if [ -e "$CHARGER" ]; then
+				if [ "$NEW_BRIGHT" -eq 0 ]; then
+					DISPLAY_WRITE lcd0 setbl 0
+				else
+					DISPLAY_WRITE lcd0 setbl "$NEW_BRIGHT"
+				fi
 			fi
 		fi
 

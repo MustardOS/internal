@@ -176,6 +176,9 @@ while :; do
 					IFS= read -r RUN_APP <"$APP_GO"
 					rm "$APP_GO"
 					"$(GET_VAR "device" "storage/rom/mount")/MUOS/application/${RUN_APP}/mux_launch.sh"
+                    [ -e "$GOV_GO" ] && rm -f "$GOV_GO"
+                    [ -e "$CON_GO" ] && rm -f "$CON_GO"
+                    SET_DEFAULT_GOVERNOR
 					echo appmenu >$ACT_GO
 				fi
 				;;

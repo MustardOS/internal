@@ -7,7 +7,7 @@ READ_WRITE_TYPE="RW"
 ROM_SUBDIR="ROMS"
 ROM_TARGET="/mnt/union/$ROM_SUBDIR"
 
-PORT_SUBDIR="PORTS"
+PORT_SUBDIR="ports"
 PORT_TARGET="/mnt/union/$PORT_SUBDIR"
 
 UFS_BIN="/opt/muos/bin/ufs/unionfs"

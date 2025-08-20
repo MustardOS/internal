@@ -1,1 +1,1 @@
-/sys/class/power_supply/axp2202-battery/moto
+/sys/class/pwm/pwmchip0/pwm0/duty_cycle

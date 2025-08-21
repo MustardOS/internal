@@ -33,10 +33,8 @@ SLEEP() {
 
 	touch "$RECENT_WAKE"
 
-	DISPLAY_WRITE lcd0 setbl "0"
+	/opt/muos/device/script/bright.sh 0
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
-	echo 4 >"/sys/class/graphics/fb0/blank"
-	touch "/tmp/mux_blank"
 
 	# Shutdown all of the CPU cores for boards that have actual proper
 	# energy module within the kernel and device tree... unlike TrimUI
@@ -83,12 +81,10 @@ RESUME() {
 		*) ;;
 	esac
 
-	/opt/muos/device/script/module.sh load
+	/opt/muos/device/script/module.sh load &
 
 	LED_CONTROL_CHANGE
 
-	rm -f "/tmp/mux_blank"
-	echo 0 >"/sys/class/graphics/fb0/blank"
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
 	E_BRIGHT="$DEFAULT_BRIGHTNESS"
@@ -97,7 +93,21 @@ RESUME() {
 	# to potential voltage lines or some shit... so let's resume on
 	# a bit more brightness unfortunately!
 	[ "$E_BRIGHT" -lt 11 ] && E_BRIGHT=40
-	DISPLAY_WRITE lcd0 setbl "$E_BRIGHT"
+
+	# We're going to do this twice because of how our brightness script
+	# works with existing integer values.  It's a precise system!
+	B=0
+	while [ $B -lt 2 ]; do
+		# Pick +1 or -1 randomly... and no $RANDOM is not posix!
+		if [ $(($(od -An -N2 -tu2 /dev/urandom | tr -d ' ') % 2)) -eq 0 ]; then
+			E_BRIGHT=$((E_BRIGHT + 1))
+		else
+			E_BRIGHT=$((E_BRIGHT - 1))
+		fi
+
+		/opt/muos/device/script/bright.sh "$E_BRIGHT"
+		B=$((B + 1))
+	done
 
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 

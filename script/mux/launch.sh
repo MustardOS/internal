@@ -19,7 +19,7 @@ if [ "$(GET_VAR "config" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_LAUN
 fi
 
 NAME=$(sed -n '1p' "$ROM_GO")
-CORE=$(sed -n '2p' "$ROM_GO" | tr -d '\n')
+CORE=$(sed -n '2p' "$ROM_GO")
 ASSIGN=$(sed -n '3p' "$ROM_GO")
 LAUNCH=$(sed -n '6p' "$ROM_GO")
 R_DIR=$(sed -n '7p' "$ROM_GO")$(sed -n '8p' "$ROM_GO")
@@ -69,7 +69,20 @@ ASSIGN_INI=$(printf "%s/MUOS/info/assign/%s/%s.ini" "$(GET_VAR "device" "storage
 # These are either the internal launch scripts or custom scripts if it
 # is a customised launch package if a user decides to create one...
 LAUNCH_PREP=$(PARSE_INI "$ASSIGN_INI" "launch" "prep") # Optional preparation step before content run
-LAUNCH_EXEC=$(PARSE_INI "$ASSIGN_INI" "launch" "exec") # REQUIRED main launcher to run the content
+
+# Override launch script priority: ROM -> CORE -> DIR
+OVERRIDE_ROOT="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/override"
+
+if [ -f "$OVERRIDE_ROOT/${NAME}.sh" ]; then
+	LAUNCH_EXEC="$OVERRIDE_ROOT/${NAME}.sh"
+elif [ -f "$OVERRIDE_ROOT/${LAUNCH}.sh" ]; then
+	LAUNCH_EXEC="$OVERRIDE_ROOT/${LAUNCH}.sh"
+elif [ -f "$OVERRIDE_ROOT/${R_DIR##*/}.sh" ]; then
+	LAUNCH_EXEC="$OVERRIDE_ROOT/${R_DIR##*/}.sh"
+else
+	LAUNCH_EXEC=$(PARSE_INI "$ASSIGN_INI" "launch" "exec") # REQUIRED main launcher to run the content
+fi
+
 LAUNCH_DONE=$(PARSE_INI "$ASSIGN_INI" "launch" "done") # Optional cleanup script after successful run
 
 # Ensure the main launcher was provided, could probably provide some visual feedback

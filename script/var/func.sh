@@ -311,8 +311,15 @@ PLAY_SOUND() {
 }
 
 SETUP_SDL_ENVIRONMENT() {
-	# Optional priority override: $1 = retro | modern
-	REQ_STYLE=$1
+	REQ_STYLE=""
+	SKIP_BLITTER=0
+
+	for A in "$@"; do
+		case "$A" in
+			retro | modern) REQ_STYLE="$A" ;; # Optional priority override: $1 = retro | modern
+			skip_blitter) SKIP_BLITTER=1 ;;   # Used primarily for external ScummVM at the moment
+		esac
+	done
 
 	GCDB_DEFAULT="/usr/lib/gamecontrollerdb.txt"
 	GCDB_STORE="/run/muos/storage/info/gamecontrollerdb"
@@ -351,16 +358,20 @@ SETUP_SDL_ENVIRONMENT() {
 	if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
 		SDL_HQ_SCALER=2
 		SDL_ROTATION=0
-		SDL_BLITTER_DISABLED=1
+		[ "$SKIP_BLITTER" -eq 0 ] && SDL_BLITTER_DISABLED=1
 	else
 		SDL_HQ_SCALER="$(GET_VAR "device" "sdl/scaler")"
 		SDL_ROTATION="$(GET_VAR "device" "sdl/rotation")"
-		SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
+		[ "$SKIP_BLITTER" -eq 0 ] && SDL_BLITTER_DISABLED="$(GET_VAR "device" "sdl/blitter_disabled")"
 	fi
 
 	SDL_ASSERT=always_ignore
 
-	export SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+	if [ "$SKIP_BLITTER" -eq 0 ]; then
+		export SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+	else
+		export SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION
+	fi
 }
 
 UPDATE_RA_VALUE() {

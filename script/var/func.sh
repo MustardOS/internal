@@ -66,8 +66,8 @@ SET_DEFAULT_GOVERNOR() {
 FRONTEND() {
 	case "$1" in
 		stop)
-			while pgrep -x frontend.sh >/dev/null || pgrep -x muxfrontend >/dev/null; do
-				killall -9 frontend.sh muxfrontend
+			while pgrep -x muxfrontend >/dev/null || pgrep -x frontend.sh >/dev/null; do
+				killall -9 muxfrontend frontend.sh
 				$MP/bin/toybox sleep 1
 			done
 			;;
@@ -85,6 +85,29 @@ FRONTEND() {
 			;;
 		*)
 			printf "Usage: FRONTEND start [module] | stop | restart [module]\n"
+			return 1
+			;;
+	esac
+}
+
+HOTKEY() {
+	case "$1" in
+		stop)
+			while pgrep -x muhotkey >/dev/null || pgrep -x hotkey.sh >/dev/null; do
+				killall -9 muhotkey hotkey.sh
+				$MP/bin/toybox sleep 1
+			done
+			;;
+		start)
+			pgrep -x muhotkey >/dev/null && return 0
+			setsid -f $MP/script/mux/hotkey.sh </dev/null >/dev/null 2>&1
+			;;
+		restart)
+			HOTKEY stop
+			HOTKEY start
+			;;
+		*)
+			printf "Usage: HOTKEY start | stop | restart\n"
 			return 1
 			;;
 	esac

@@ -90,6 +90,7 @@ for TIMEOUT in $(seq 1 30); do
 			wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
 			SET_VAR "device" "audio/ready" "1"
+			/opt/muos/script/system/speaker.sh start
 
 			exit 0
 		else

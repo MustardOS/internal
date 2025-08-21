@@ -2,6 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
+mkdir -p "/tmp/muos"
+
 rm -f /opt/muos/log/*.log
 rm -rf /opt/muxtmp
 

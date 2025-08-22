@@ -116,9 +116,6 @@ if [ $SKIP -eq 0 ]; then
 					fi
 				done
 
-				# Waiting for pipewire to be initialised before we continue!
-				while [ "$(GET_VAR "device" "audio/ready")" -eq 0 ]; do /opt/muos/bin/toybox sleep 0.1; done
-
 				# We'll set a few extra things here so that the user doesn't get
 				# a stupid "yOu UsEd tHe ReSeT bUtToN" message because ultimately
 				# we don't really care in this particular instance...

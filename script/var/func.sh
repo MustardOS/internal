@@ -193,9 +193,20 @@ CRITICAL_FAILURE() {
 }
 
 RUMBLE() {
-	echo 1 >"$1"
-	$MP/bin/toybox sleep "$2"
-	echo 0 >"$1"
+	if [ -n "$(GET_VAR "device" "board/rumble")" ]; then
+		case "$(GET_VAR "device" "board/name")" in
+			rk*)
+				echo 1 >"$1"
+				$MP/bin/toybox sleep "$2"
+				echo 1000000 >"$1"
+				;;
+			*)
+				echo 1 >"$1"
+				$MP/bin/toybox sleep "$2"
+				echo 0 >"$1"
+				;;
+		esac
+	fi
 }
 
 FB_SWITCH() {

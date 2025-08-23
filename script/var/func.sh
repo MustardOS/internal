@@ -127,7 +127,6 @@ EXEC_MUX() {
 
 	[ -f "$SAFE_QUIT" ] && rm "$SAFE_QUIT"
 
-	EXIT_STATUS=0
 	GOBACK="$1"
 	MODULE="$2"
 	shift
@@ -138,9 +137,6 @@ EXEC_MUX() {
 	nice --20 "$MP/frontend/$MODULE" "$@"
 
 	while [ ! -f "$SAFE_QUIT" ]; do TBOX sleep 0.1; done
-
-	PREVIOUS_MODULE="$MODULE"
-	EXIT_STATUS=$(head -n 1 "$SAFE_QUIT")
 }
 
 # Prints current system uptime in hundredths of a second. Unlike date or

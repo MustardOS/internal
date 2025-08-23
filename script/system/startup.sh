@@ -66,15 +66,15 @@ for MODE in screen mux; do
 done &
 
 LOG_INFO "$0" 0 "BOOTING" "Bringing Up 'localhost' Network"
-ifconfig lo up &
+ifconfig lo up
 
 LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
-/opt/muos/device/script/module.sh load &
+/opt/muos/device/script/module.sh load
 
 LOG_INFO "$0" 0 "BOOTING" "Starting Device Management System"
 /sbin/udevd -d || CRITICAL_FAILURE udev
-udevadm trigger --type=subsystems --action=add &
-udevadm trigger --type=devices --action=add &
+udevadm trigger --type=subsystems --action=add
+udevadm trigger --type=devices --action=add
 udevadm settle --timeout=10 || LOG_ERROR "$0" 0 "BOOTING" "Udevadm Settle Failure"
 
 if [ "$FACTORY_RESET" -eq 0 ]; then
@@ -155,7 +155,7 @@ LOG_INFO "$0" 0 "BOOTING" "Checking for Safety Script"
 OOPS="$ROM_MOUNT/oops.sh"
 [ -x "$OOPS" ] && "$OOPS"
 
-if [ "$(GET_VAR "config" "boot/device_mode")" -eq 0 ]; then
+if [ $CONSOLE_MODE -eq 0 ] && [ "$(GET_VAR "config" "boot/device_mode")" -eq 0 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
 	/opt/muos/device/script/charge.sh
 	LED_CONTROL_CHANGE

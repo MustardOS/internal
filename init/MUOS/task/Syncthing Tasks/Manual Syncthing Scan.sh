@@ -49,7 +49,7 @@ echo "Sync Filesystem"
 sync
 
 echo "Manual Syncthing Scan completed at $(date +"%Y-%m-%d %H:%M:%S")"
-/opt/muos/bin/toybox sleep 2
+TBOX sleep 2
 
 FRONTEND start task
 exit 0

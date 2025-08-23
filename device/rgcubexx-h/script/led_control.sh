@@ -42,7 +42,7 @@ stty -F $SERIAL_DEVICE 115200 -opost -isig -icanon -echo
 # Ensure MCU has power enabled
 echo 1 >/sys/class/power_supply/axp2202-battery/mcu_pwr
 #echo 1 > /sys/class/power_supply/axp2202-battery/mcu_esckey
-/opt/muos/bin/toybox sleep 0.05
+TBOX sleep 0.05
 
 # Ensure correct number of arguments
 if [ $# -lt 2 ]; then

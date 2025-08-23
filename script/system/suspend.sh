@@ -113,7 +113,7 @@ RESUME() {
 
 	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
 	(
-		/opt/muos/bin/toybox sleep 5
+		TBOX sleep 5
 		rm "$RECENT_WAKE"
 	) &
 
@@ -126,7 +126,7 @@ case "$SHUTDOWN_TIME_SETTING" in
 	-2) ;;
 	-1)
 		SLEEP
-		/opt/muos/bin/toybox sleep 0.5
+		TBOX sleep 0.5
 		RESUME
 		;;
 	2)
@@ -142,7 +142,7 @@ case "$SHUTDOWN_TIME_SETTING" in
 		echo "$WAKE_EPOCH" >"$W_ALARM"
 
 		SLEEP
-		/opt/muos/bin/toybox sleep 0.5
+		TBOX sleep 0.5
 
 		CURRENT_TIME=$(cat "$S_EPOCH")
 		if [ "$CURRENT_TIME" -ge "$WAKE_EPOCH" ]; then

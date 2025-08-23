@@ -90,7 +90,7 @@ DPAD_TOGGLE() {
 							2)
 								echo 0 >"$DPAD_FILE"
 								RUMBLE "$RUMBLE_DEVICE" .1
-								/opt/muos/bin/toybox sleep .1
+								TBOX sleep .1
 								RUMBLE "$RUMBLE_DEVICE" .1
 								;;
 						esac
@@ -103,7 +103,7 @@ DPAD_TOGGLE() {
 						else
 							touch "$DPAD_FILE"
 							RUMBLE "$RUMBLE_DEVICE" .1
-							/opt/muos/bin/toybox sleep .1
+							TBOX sleep .1
 							RUMBLE "$RUMBLE_DEVICE" .1
 						fi
 						;;

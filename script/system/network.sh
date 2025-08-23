@@ -60,7 +60,7 @@ TRY_CONNECT() {
 
 		LOG_WARN "$0" 0 "NETWORK" "Waiting for interface '%s' to appear... (%ds)" "$IFCE" "$WAIT_IFACE"
 
-		/opt/muos/bin/toybox sleep 1
+		TBOX sleep 1
 		WAIT_IFACE=$((WAIT_IFACE - 1))
 	done
 
@@ -92,7 +92,7 @@ TRY_CONNECT() {
 			fi
 			LOG_WARN "$0" 0 "NETWORK" "Waiting for Wi-Fi Association... (%ds)" "$WAIT_CARRIER"
 			WAIT_CARRIER=$((WAIT_CARRIER - 1))
-			/opt/muos/bin/toybox sleep 1
+			TBOX sleep 1
 		done
 
 		if [ "$WAIT_CARRIER" -eq 0 ]; then
@@ -123,7 +123,7 @@ TRY_CONNECT() {
 				break
 			fi
 
-			/opt/muos/bin/toybox sleep 1
+			TBOX sleep 1
 			WAIT_IP=$((WAIT_IP - 1))
 		done
 
@@ -207,7 +207,7 @@ case "$1" in
 
 			RETRY_CURR=$((RETRY_CURR + 1))
 			LOG_WARN "$0" 0 "NETWORK" "Retrying Network Connection (%s/%s)" "$RETRY_CURR" "$RETRIES"
-			/opt/muos/bin/toybox sleep "$RETRY_DELAY"
+			TBOX sleep "$RETRY_DELAY"
 		done
 
 		LOG_ERROR "$0" 0 "NETWORK" "All Connection Attempts Failed"

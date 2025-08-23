@@ -8,7 +8,7 @@ for TIMEOUT in $(seq 1 30); do
 		break
 	fi
 	printf "(%d of 30) Waiting for D-Bus...\n" "$TIMEOUT"
-	/opt/muos/bin/toybox sleep 1
+	TBOX sleep 1
 done
 
 if [ ! -e /run/dbus/system_bus_socket ]; then
@@ -32,7 +32,7 @@ for TIMEOUT in $(seq 1 30); do
 	fi
 	printf "(%d of 30) PipeWire not responsive yet...\n" "$TIMEOUT"
 	pgrep -l pipewire
-	/opt/muos/bin/toybox sleep 1
+	TBOX sleep 1
 done
 
 if ! pw-cli info >/dev/null 2>&1; then
@@ -104,7 +104,7 @@ for TIMEOUT in $(seq 1 30); do
 	fi
 
 	printf "(%d of 30) PipeWire sink not found yet\n" "$TIMEOUT"
-	/opt/muos/bin/toybox sleep 1
+	TBOX sleep 1
 done
 
 printf "Timeout expired waiting for PipeWire sink...\n%s\n\nCheck your audio configuration\n" "$(pw-cli ls Node)"

@@ -62,5 +62,5 @@ while :; do
 	done
 
 	SET_VAR "system" "idle_inhibit" "$INHIBIT"
-	/opt/muos/bin/toybox sleep 5
+	TBOX sleep 5
 done &

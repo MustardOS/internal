@@ -144,7 +144,7 @@ MANAGE_WEBSERV() {
 				else
 					HARD_KILL
 				fi
-				/opt/muos/bin/toybox sleep 0.1
+				TBOX sleep 0.1
 			done
 			;;
 	esac
@@ -164,7 +164,7 @@ for WEBSRV in $SERVICE_LIST; do
 
 			WAIT=$((WAIT + 1))
 			LOG_INFO "$0" 0 "WEB SERVICES" "$(printf "Waiting for network connection... (%d)" "$WAIT")"
-			/opt/muos/bin/toybox sleep 1
+			TBOX sleep 1
 		done
 
 		MANAGE_WEBSERV start "$WEBSRV" &

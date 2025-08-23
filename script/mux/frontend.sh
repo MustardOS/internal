@@ -56,7 +56,7 @@ if [ $SKIP -eq 0 ]; then
 							PIP=$((PIP + 1))
 							LOG_INFO "$0" 0 "FRONTEND" "Verifying connectivity..."
 							/opt/muos/frontend/muxmessage 0 "Verifying connectivity... (%s)" "$PIP"
-							/opt/muos/bin/toybox sleep 1
+							TBOX sleep 1
 						done
 
 						LOG_SUCCESS "$0" 0 "FRONTEND" "Connectivity verified! Booting content!"
@@ -82,7 +82,7 @@ if [ $SKIP -eq 0 ]; then
 						break
 					fi
 
-					/opt/muos/bin/toybox sleep 1
+					TBOX sleep 1
 				done
 			fi
 

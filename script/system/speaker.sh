@@ -41,7 +41,7 @@ TRY_BACKEND() {
 	[ -z "$PID" ] && return 1
 
 	echo "$PID" >"$PID_FILE"
-	/opt/muos/bin/toybox sleep 0.5
+	TBOX sleep 0.5
 
 	kill -0 "$PID" 2>/dev/null || {
 		rm -f "$PID_FILE"

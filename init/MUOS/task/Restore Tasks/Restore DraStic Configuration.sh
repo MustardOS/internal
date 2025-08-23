@@ -17,7 +17,7 @@ echo "Sync Filesystem"
 sync
 
 echo "All Done!"
-/opt/muos/bin/toybox sleep 2
+TBOX sleep 2
 
 FRONTEND start task
 exit 0

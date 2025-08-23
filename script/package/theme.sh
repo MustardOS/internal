@@ -36,14 +36,14 @@ INSTALL() {
 			for PID in $(lsof +D "$THEME_ACTIVE_DIR" 2>/dev/null | grep -i "\.$EXT" | awk '{print $2}' | sort -u); do
 				kill -9 "$PID" 2>/dev/null
 			done
-			/opt/muos/bin/toybox sleep 1
+			TBOX sleep 1
 		fi
 	done
 
 	while [ -d "$THEME_ACTIVE_DIR" ]; do
 		rm -rf "$THEME_ACTIVE_DIR"
 		sync
-		/opt/muos/bin/toybox sleep 1
+		TBOX sleep 1
 	done
 
 	unzip "$THEME" -d "$THEME_ACTIVE_DIR"

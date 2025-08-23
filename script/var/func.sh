@@ -31,6 +31,13 @@ SAFE_QUIT=/tmp/safe_quit
 EXIT_STATUS=0
 PREVIOUS_MODULE=""
 
+TBOX() {
+	CMD=$1
+	shift
+
+	/opt/muos/bin/toybox "$CMD" "$@"
+}
+
 GET_CONF_PATH() {
 	case "$1" in
 		global | config) echo "$MP/config" ;;
@@ -68,7 +75,7 @@ FRONTEND() {
 		stop)
 			while pgrep -x muxfrontend >/dev/null || pgrep -x frontend.sh >/dev/null; do
 				killall -9 muxfrontend frontend.sh
-				$MP/bin/toybox sleep 1
+				TBOX sleep 1
 			done
 			;;
 		start)
@@ -95,7 +102,7 @@ HOTKEY() {
 		stop)
 			while pgrep -x muhotkey >/dev/null || pgrep -x hotkey.sh >/dev/null; do
 				killall -9 muhotkey hotkey.sh
-				$MP/bin/toybox sleep 1
+				TBOX sleep 1
 			done
 			;;
 		start)
@@ -115,7 +122,7 @@ HOTKEY() {
 
 EXEC_MUX() {
 	if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-		while [ ! -f "/tmp/hdmi_in_use" ]; do $MP/bin/toybox sleep 0.1; done
+		while [ ! -f "/tmp/hdmi_in_use" ]; do TBOX sleep 0.1; done
 	fi
 
 	[ -f "$SAFE_QUIT" ] && rm "$SAFE_QUIT"
@@ -130,7 +137,7 @@ EXEC_MUX() {
 	SET_VAR "system" "foreground_process" "$MODULE"
 	nice --20 "$MP/frontend/$MODULE" "$@"
 
-	while [ ! -f "$SAFE_QUIT" ]; do $MP/bin/toybox sleep 0.1; done
+	while [ ! -f "$SAFE_QUIT" ]; do TBOX sleep 0.1; done
 
 	PREVIOUS_MODULE="$MODULE"
 	EXIT_STATUS=$(head -n 1 "$SAFE_QUIT")
@@ -188,7 +195,7 @@ CRITICAL_FAILURE() {
 	esac
 
 	$MP/frontend/muxmessage 0 "$MESSAGE"
-	$MP/bin/toybox sleep 10
+	TBOX sleep 10
 	$MP/script/system/halt.sh poweroff
 }
 
@@ -197,12 +204,12 @@ RUMBLE() {
 		case "$(GET_VAR "device" "board/name")" in
 			rk*)
 				echo 1 >"$1"
-				$MP/bin/toybox sleep "$2"
+				TBOX sleep "$2"
 				echo 1000000 >"$1"
 				;;
 			*)
 				echo 1 >"$1"
-				$MP/bin/toybox sleep "$2"
+				TBOX sleep "$2"
 				echo 0 >"$1"
 				;;
 		esac
@@ -512,7 +519,7 @@ LED_CONTROL_CHANGE() {
 			WAIT=0
 
 			while [ ! -f "$RGBCONF_SCRIPT" ] && [ "$WAIT" -lt "$TIMEOUT" ]; do
-				/opt/muos/bin/toybox sleep 1
+				TBOX sleep 1
 				WAIT=$((WAIT + 1))
 			done
 

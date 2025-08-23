@@ -10,7 +10,7 @@ PM_ZIP="/opt/muos/share/archive/muos.portmaster.zip"
 
 if [ ! -e "$PM_ZIP" ]; then
 	echo "Error: PortMaster archive not found!"
-	/opt/muos/bin/toybox sleep 2
+	TBOX sleep 2
 
 	FRONTEND start task
 	exit 1
@@ -40,7 +40,7 @@ echo "Sync Filesystem"
 sync
 
 echo "All Done!"
-/opt/muos/bin/toybox sleep 2
+TBOX sleep 2
 
 FRONTEND start task
 exit 0

@@ -146,7 +146,7 @@ LOG_INFO "$0" 0 "BOOTING" "Device Specific Startup"
 /opt/muos/device/script/start.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
-while [ ! -f "/run/muos/storage/mounted" ]; do /opt/muos/bin/toybox sleep 0.1; done
+while [ ! -f "/run/muos/storage/mounted" ]; do TBOX sleep 0.1; done
 
 LOG_INFO "$0" 0 "BOOTING" "Unionising ROMS on Storage Mounts"
 /opt/muos/script/mount/union.sh start &
@@ -206,7 +206,7 @@ LOG_INFO "$0" 0 "BOOTING" "Saving Kernel Boot Log"
 dmesg >"$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
 
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
-while [ "$(GET_VAR "device" "audio/ready")" -eq 0 ]; do /opt/muos/bin/toybox sleep 0.1; done
+while [ "$(GET_VAR "device" "audio/ready")" -eq 0 ]; do TBOX sleep 0.1; done
 
 LOG_INFO "$0" 0 "BOOTING" "Starting muX Frontend"
 /opt/muos/script/mux/frontend.sh &

@@ -20,10 +20,10 @@ cd "$DINGUX_DIR" || exit
 
 (
 	while ! pgrep -f "dingux" >/dev/null; do
-		/opt/muos/bin/toybox sleep 0.25
+		TBOX sleep 0.25
 	done
 
-	/opt/muos/bin/toybox sleep 1
+	TBOX sleep 1
 
 	evemu-event "$(GET_VAR "device" "input/general")" --type "$(GET_VAR "device" "input/type/dpad/right")" --code "$(GET_VAR "device" "input/code/dpad/right")" --value 1
 	evemu-event "$(GET_VAR "device" "input/general")" --type "$(GET_VAR "device" "input/type/dpad/left")" --code "$(GET_VAR "device" "input/code/dpad/left")" --value -1

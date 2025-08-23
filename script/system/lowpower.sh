@@ -26,10 +26,10 @@ LOW_BATTERY_WARNING() {
 		fi
 
 		echo 1 >"$LED_LOW"
-		/opt/muos/bin/toybox sleep 0.5
+		TBOX sleep 0.5
 
 		echo 0 >"$LED_LOW"
-		/opt/muos/bin/toybox sleep 0.5
+		TBOX sleep 0.5
 
 		[ "$USING_RGB" -eq 1 ] && [ ! -e "$IS_IDLE" ] && LED_CONTROL_CHANGE
 	fi
@@ -41,5 +41,5 @@ while :; do
 
 	LOW_BATTERY_WARNING
 
-	/opt/muos/bin/toybox sleep 60
+	TBOX sleep 60
 done &

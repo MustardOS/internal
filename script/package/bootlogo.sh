@@ -7,7 +7,7 @@ FRONTEND stop
 COMMAND=$(basename "$0")
 
 END() {
-	/opt/muos/bin/toybox sleep 3
+	TBOX sleep 3
 	FRONTEND start picker
 	exit 1
 }

@@ -54,7 +54,7 @@ printf 0 >"$PROGRESS_FILE"
 printf 100 >"$PROGRESS_FILE"
 LOG_INFO "$0" 0 "FACTORY RESET" "ROM Restore Complete"
 
-/opt/muos/bin/toybox sleep 5
+TBOX sleep 5
 touch "/tmp/msg_finish"
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Purging Init Directory"

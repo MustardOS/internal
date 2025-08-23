@@ -14,5 +14,5 @@ while :; do
 		fi
 	fi
 
-	/opt/muos/bin/toybox sleep 0.25
+	TBOX sleep 0.25
 done &

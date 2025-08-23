@@ -49,7 +49,7 @@ done
 
 if [ ! -s "$VALID_BACKUP" ]; then
 	echo "No valid files found to backup!"
-	/opt/muos/bin/toybox sleep 1
+	TBOX sleep 1
 	rm "$VALID_BACKUP"
 else
 	cd /
@@ -68,7 +68,7 @@ echo "Sync Filesystem"
 sync
 
 echo "All Done!"
-/opt/muos/bin/toybox sleep 2
+TBOX sleep 2
 
 FRONTEND start task
 exit 0

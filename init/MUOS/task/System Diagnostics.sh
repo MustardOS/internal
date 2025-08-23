@@ -107,7 +107,7 @@ echo "muOS Diagnostics Collected: $ARCHIVE_FILE"
 echo "Sync Filesystem"
 sync
 
-/opt/muos/bin/toybox sleep 5
+TBOX sleep 5
 
 FRONTEND start task
 exit 0

@@ -64,12 +64,12 @@ RUN_WITH_TIMEOUT() {
 		"$@" &
 		CMD_PID=$!
 		(
-			/opt/muos/bin/toybox sleep "$TERM_SEC"
+			TBOX sleep "$TERM_SEC"
 			kill -TERM "$CMD_PID" 2>/dev/null
 		) &
 		TERM_PID=$!
 		(
-			/opt/muos/bin/toybox sleep $((TERM_SEC + KILL_SEC))
+			TBOX sleep $((TERM_SEC + KILL_SEC))
 			kill -KILL "$CMD_PID" 2>/dev/null
 		) &
 		KILL_PID=$!
@@ -111,7 +111,7 @@ KILL_AND_WAIT() {
 			printf 'done\n'
 			return 0
 		}
-		/opt/muos/bin/toybox sleep 0.25
+		TBOX sleep 0.25
 		i=$((i + 1))
 	done
 

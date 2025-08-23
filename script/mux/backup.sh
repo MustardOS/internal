@@ -283,7 +283,7 @@ echo "Finished backup script at $(date +"%Y-%m-%d %H:%M:%S")"
 echo "Sync Filesystem"
 sync
 
-/opt/muos/bin/toybox sleep 5
+TBOX sleep 5
 FRONTEND start backup
 
 SET_VAR "system" "foreground_process" "muxfrontend"

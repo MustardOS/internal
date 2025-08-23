@@ -14,7 +14,7 @@ SYNC_FOLDER() {
 }
 
 ALL_DONE() {
-	/opt/muos/bin/toybox sleep 2
+	TBOX sleep 2
 	FRONTEND start "$FRONTEND_START_PROGRAM"
 	exit "$1"
 }

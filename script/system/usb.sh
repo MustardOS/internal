@@ -72,7 +72,7 @@ START() {
 		adb) /usr/bin/adbd & ;;
 		mtp) UPDATE_UMTPRD_CONF && /usr/bin/umtprd & ;;
 	esac
-	/opt/muos/bin/toybox sleep 1
+	TBOX sleep 1
 
 	# Enable USB gadget.
 	echo "$UDC" >"$GADGET/UDC"
@@ -103,7 +103,7 @@ STOP() {
 
 	# Stop daemon.
 	killall -q adbd umtprd
-	/opt/muos/bin/toybox sleep 1
+	TBOX sleep 1
 
 	# Clean up USB function.
 	for FUNCTION in adb mtp; do

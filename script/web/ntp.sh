@@ -9,5 +9,5 @@ while :; do
 		wait $NTP_PID
 		hwclock -w
 	fi
-	/opt/muos/bin/toybox sleep 10
+	TBOX sleep 10
 done &

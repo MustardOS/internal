@@ -14,7 +14,7 @@ LOAD_NETWORK() {
 		DNS_ADDR=$(GET_VAR "config" "network/dns")
 
 		modprobe --force-modversion "$NET_MODULE"
-		while [ ! -d "/sys/class/net/$NET_IFACE" ]; do /opt/muos/bin/toybox sleep 0.5; done
+		while [ ! -d "/sys/class/net/$NET_IFACE" ]; do TBOX sleep 0.5; done
 
 		rfkill unblock all
 

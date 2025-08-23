@@ -17,7 +17,7 @@ sync
 
 echo "All Done!"
 echo "Please reboot your device."
-/opt/muos/bin/toybox sleep 5
+TBOX sleep 5
 
 FRONTEND start task
 exit 0

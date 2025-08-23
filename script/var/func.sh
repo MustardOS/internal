@@ -1,22 +1,20 @@
 #!/bin/sh
 # shellcheck disable=SC2086
 
-MP="/opt/muos"
-
 case ":$LD_LIBRARY_PATH:" in
-	*":$MP/frontend/lib:"*) ;;
-	*) export LD_LIBRARY_PATH="$MP/frontend/lib:$LD_LIBRARY_PATH" ;;
+	*":/opt/muos/frontend/lib:"*) ;;
+	*) export LD_LIBRARY_PATH="/opt/muos/frontend/lib:$LD_LIBRARY_PATH" ;;
 esac
 
 HOME="/root"
-KIOSK_CONFIG="$MP/config/kiosk.ini"
+KIOSK_CONFIG="/opt/muos/config/kiosk.ini"
 DBUS_SESSION_BUS_ADDRESS="unix:path=/run/dbus/system_bus_socket"
 PIPEWIRE_RUNTIME_DIR="/var/run"
 XDG_RUNTIME_DIR="$PIPEWIRE_RUNTIME_DIR"
 ALSA_CONFIG="/usr/share/alsa/alsa.conf"
 WPA_CONFIG="/etc/wpa_supplicant.conf"
-DEVICE_CONTROL_DIR="$MP/device/control"
-MUOS_LOG_DIR="$MP/log"
+DEVICE_CONTROL_DIR="/opt/muos/device/control"
+MUOS_LOG_DIR="/opt/muos/log"
 LED_CONTROL_SCRIPT="/opt/muos/device/script/led_control.sh"
 
 export HOME KIOSK_CONFIG DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
@@ -28,8 +26,6 @@ ESC=$(printf '\x1b')
 CSI="${ESC}[38;5;"
 
 SAFE_QUIT=/tmp/safe_quit
-EXIT_STATUS=0
-PREVIOUS_MODULE=""
 
 TBOX() {
 	CMD=$1
@@ -40,10 +36,10 @@ TBOX() {
 
 GET_CONF_PATH() {
 	case "$1" in
-		global | config) echo "$MP/config" ;;
-		device) echo "$MP/device/config" ;;
-		kiosk) echo "$MP/kiosk" ;;
-		system) echo "$MP/config/system" ;;
+		global | config) echo "/opt/muos/config" ;;
+		device) echo "/opt/muos/device/config" ;;
+		kiosk) echo "/opt/muos/kiosk" ;;
+		system) echo "/opt/muos/config/system" ;;
 	esac
 }
 
@@ -81,9 +77,9 @@ FRONTEND() {
 		start)
 			pgrep -x frontend.sh >/dev/null && return 0
 			if [ -n "$2" ]; then
-				setsid -f $MP/script/mux/frontend.sh "$2" </dev/null >/dev/null 2>&1
+				setsid -f /opt/muos/script/mux/frontend.sh "$2" </dev/null >/dev/null 2>&1
 			else
-				setsid -f $MP/script/mux/frontend.sh </dev/null >/dev/null 2>&1
+				setsid -f /opt/muos/script/mux/frontend.sh </dev/null >/dev/null 2>&1
 			fi
 			;;
 		restart)
@@ -107,7 +103,7 @@ HOTKEY() {
 			;;
 		start)
 			pgrep -x muhotkey >/dev/null && return 0
-			setsid -f $MP/script/mux/hotkey.sh </dev/null >/dev/null 2>&1
+			setsid -f /opt/muos/script/mux/hotkey.sh </dev/null >/dev/null 2>&1
 			;;
 		restart)
 			HOTKEY stop
@@ -134,7 +130,7 @@ EXEC_MUX() {
 	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
 
 	SET_VAR "system" "foreground_process" "$MODULE"
-	nice --20 "$MP/frontend/$MODULE" "$@"
+	nice --20 "/opt/muos/frontend/$MODULE" "$@"
 
 	while [ ! -f "$SAFE_QUIT" ]; do TBOX sleep 0.1; done
 }
@@ -174,7 +170,7 @@ LOG() {
 
 	printf "%s\n" "$LOG_LINE" | tee -a "$LOG_FILE"
 
-	# Optional: $MP/frontend/muxmessage $PROGRESS "$(printf "%s\n\n%s %s" "$TITLE" "$MSG" "$*")"
+	# /opt/muos/frontend/muxmessage $PROGRESS "$(printf "%s\n\n%s %s" "$TITLE" "$MSG" "$*")"
 }
 
 LOG_INFO() { (LOG "${CSI}33m*" "$@") & }
@@ -190,9 +186,9 @@ CRITICAL_FAILURE() {
 		*) MESSAGE=$(printf "Critical Failure\n\nAn unknown error occurred!") ;;
 	esac
 
-	$MP/frontend/muxmessage 0 "$MESSAGE"
+	/opt/muos/frontend/muxmessage 0 "$MESSAGE"
 	TBOX sleep 10
-	$MP/script/system/halt.sh poweroff
+	/opt/muos/script/system/halt.sh poweroff
 }
 
 RUMBLE() {
@@ -228,7 +224,7 @@ FB_SWITCH() {
 		HEIGHT="$TMP_W"
 	fi
 
-	$MP/frontend/mufbset -w "$WIDTH" -h "$HEIGHT" -d "$DEPTH"
+	/opt/muos/frontend/mufbset -w "$WIDTH" -h "$HEIGHT" -d "$DEPTH"
 }
 
 HDMI_SWITCH() {

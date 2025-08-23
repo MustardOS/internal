@@ -179,17 +179,24 @@ if pgrep lid.sh >/dev/null 2>&1; then
 	killall -q lid.sh
 fi
 
-LOG_INFO "$0" 0 "HALT" "Killing muX modules"
-while :; do
-	PIDS=$(ps -e | grep '[m]ux' | grep -v 'muxsplash' | awk '{ print $1 }')
-	[ -z "$PIDS" ] && break
+LOG_INFO "$0" 0 "HALT" "Stopping muX Hotkey Service"
+HOTKEY stop
 
-	for PID in $PIDS; do
-		kill -9 "$PID" 2>/dev/null
+LOG_INFO "$0" 0 "HALT" "Stopping muX Frontend"
+FRONTEND stop
+
+if pgrep '^mux' >/dev/null 2>&1; then
+	LOG_INFO "$0" 0 "HALT" "Killing muX modules"
+	while :; do
+		PIDS=$(pgrep '^mux') || break
+
+		for PID in $PIDS; do
+			kill -9 "$PID" 2>/dev/null
+		done
+
+		TSLEEP 0.25
 	done
-
-	/opt/muos/bin/toybox sleep 0.25
-done
+fi
 
 # Cleanly unmount filesystems to avoid fsck/chkdsk errors.
 LOG_INFO "$0" 0 "HALT" "Stopping union mounts"

@@ -4,10 +4,13 @@
 
 FIRST_INIT=$(GET_VAR "config" "boot/first_init")
 
+ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
+
 SD_DEV="$(GET_VAR "device" "storage/sdcard/dev")"
 SD_SEP="$(GET_VAR "device" "storage/sdcard/sep")"
 SD_NUM="$(GET_VAR "device" "storage/sdcard/num")"
 SD_MOUNT="$(GET_VAR "device" "storage/sdcard/mount")"
+
 CARD_MODE="$(GET_VAR "config" "danger/cardmode")"
 
 DEVICE="${SD_DEV}${SD_SEP}${SD_NUM}"
@@ -46,6 +49,8 @@ MOUNT_DEVICE() {
 	KERNEL_TUNING "$SD_DEV"
 
 	mkdir -p "$SD_MOUNT/ROMS" "$SD_MOUNT/BACKUP" "$SD_MOUNT/ARCHIVE" "$SD_MOUNT/ports"
+
+	SYNC_FILE "$ROM_MOUNT" "$SD_MOUNT" "MUOS/info/name/tag.txt" size
 
 	# Checking for junk
 	[ "$FIRST_INIT" -eq 0 ] && DELETE_CRUFT "$SD_MOUNT"

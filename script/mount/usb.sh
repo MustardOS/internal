@@ -4,6 +4,8 @@
 
 FIRST_INIT=$(GET_VAR "config" "boot/first_init")
 
+ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
+
 USB_DEV="$(GET_VAR "device" "storage/usb/dev")"
 USB_SEP="$(GET_VAR "device" "storage/usb/sep")"
 USB_NUM="$(GET_VAR "device" "storage/usb/num")"
@@ -35,6 +37,8 @@ MOUNT_DEVICE() {
 	fi
 
 	mkdir -p "$USB_MOUNT/ROMS" "$USB_MOUNT/BACKUP" "$USB_MOUNT/ARCHIVE" "$USB_MOUNT/ports"
+
+	SYNC_FILE "$ROM_MOUNT" "$USB_MOUNT" "MUOS/info/name/tag.txt" size
 
 	# Checking for junk
 	[ "$FIRST_INIT" -eq 0 ] && DELETE_CRUFT "$USB_MOUNT"

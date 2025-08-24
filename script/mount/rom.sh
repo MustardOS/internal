@@ -2,6 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
+FIRST_INIT=$(GET_VAR "config" "boot/first_init")
+
 ROM_DEV="$(GET_VAR "device" "storage/rom/dev")"
 ROM_SEP="$(GET_VAR "device" "storage/rom/sep")"
 ROM_NUM="$(GET_VAR "device" "storage/rom/num")"
@@ -31,4 +33,4 @@ KERNEL_TUNING "$ROM_DEV"
 mkdir -p "$ROM_MOUNT/ROMS" "$ROM_MOUNT/BACKUP" "$ROM_MOUNT/ARCHIVE" "$ROM_MOUNT/ports"
 
 # Checking for junk
-DELETE_CRUFT "$ROM_MOUNT"
+[ "$FIRST_INIT" -eq 0 ] && DELETE_CRUFT "$ROM_MOUNT"

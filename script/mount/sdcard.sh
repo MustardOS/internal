@@ -2,6 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
+FIRST_INIT=$(GET_VAR "config" "boot/first_init")
+
 SD_DEV="$(GET_VAR "device" "storage/sdcard/dev")"
 SD_SEP="$(GET_VAR "device" "storage/sdcard/sep")"
 SD_NUM="$(GET_VAR "device" "storage/sdcard/num")"
@@ -46,7 +48,7 @@ MOUNT_DEVICE() {
 	mkdir -p "$SD_MOUNT/ROMS" "$SD_MOUNT/BACKUP" "$SD_MOUNT/ARCHIVE" "$SD_MOUNT/ports"
 
 	# Checking for junk
-	DELETE_CRUFT "$SD_MOUNT"
+	[ "$FIRST_INIT" -eq 0 ] && DELETE_CRUFT "$SD_MOUNT"
 }
 
 # Synchronously mount SD card (if media is inserted) so it's available as a

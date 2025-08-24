@@ -2,6 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
+FIRST_INIT=$(GET_VAR "config" "boot/first_init")
+
 USB_DEV="$(GET_VAR "device" "storage/usb/dev")"
 USB_SEP="$(GET_VAR "device" "storage/usb/sep")"
 USB_NUM="$(GET_VAR "device" "storage/usb/num")"
@@ -35,7 +37,7 @@ MOUNT_DEVICE() {
 	mkdir -p "$USB_MOUNT/ROMS" "$USB_MOUNT/BACKUP" "$USB_MOUNT/ARCHIVE" "$USB_MOUNT/ports"
 
 	# Checking for junk
-	DELETE_CRUFT "$USB_MOUNT"
+	[ "$FIRST_INIT" -eq 0 ] && DELETE_CRUFT "$USB_MOUNT"
 }
 
 # Asynchronously monitor insertion/eject

@@ -135,7 +135,6 @@ fi
 
 if [ "$FIRST_INIT" -eq 0 ]; then
 	/opt/muos/frontend/muxmessage 0 "$(printf 'SYSTEM INIT\n\nmuOS is Getting Ready!\nPlease wait a moment...')"
-	SET_VAR "config" "boot/first_init" 1
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"
@@ -207,6 +206,8 @@ dmesg >"$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
 
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
 while [ "$(GET_VAR "device" "audio/ready")" -eq 0 ]; do TBOX sleep 0.1; done
+
+[ "$FIRST_INIT" -eq 0 ] && SET_VAR "config" "boot/first_init" 1
 
 LOG_INFO "$0" 0 "BOOTING" "Starting muX Frontend"
 /opt/muos/script/mux/frontend.sh &

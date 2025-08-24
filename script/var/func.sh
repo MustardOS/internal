@@ -141,6 +141,24 @@ UPTIME() {
 	cut -d ' ' -f 1 /proc/uptime
 }
 
+DELETE_CRUFT() {
+	find "$1" -type f \( \
+		-name "._*" -o \
+		-name ".DS_Store" -o \
+		-name "desktop.ini" -o \
+		-name "Thumbs.db" \
+		-name ".DStore" \
+		-name ".gitkeep" \
+		\) -exec rm -f {} +
+
+	find "$1" -type d \( \
+		-name "System Volume Information" -o \
+		-name ".Trashes" -o \
+		-name ".Spotlight" -o \
+		-name ".fseventsd" \
+		\) -exec rm -rf {} +
+}
+
 PARSE_INI() {
 	INI_FILE="$1"
 	SECTION="$2"

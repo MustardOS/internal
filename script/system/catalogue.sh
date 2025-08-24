@@ -10,12 +10,14 @@ fi
 ASSIGN_DIR="$1/MUOS/info/assign"
 BASE_PATH="/run/muos/storage/info/catalogue"
 TARGET_DIRS="box grid preview text splash"
-EXTRA_DIRS="Application Archive Collection Folder Root Task"
+EXTRA_DIRS="Application Archive Collection Folder Root Task Theme"
 
-# Create core catalogue directories from assign directories
+# Create core catalogue directories from assign directories only
 for A_DIR in "$ASSIGN_DIR"/*; do
+	[ -d "$A_DIR" ] || continue
+	C_NAME=$(basename "$A_DIR")
 	for T_DIR in $TARGET_DIRS; do
-		mkdir -p "$BASE_PATH/$(basename "$A_DIR")/$T_DIR"
+		mkdir -p "$BASE_PATH/$C_NAME/$T_DIR"
 	done
 done
 

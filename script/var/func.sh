@@ -542,39 +542,3 @@ LED_CONTROL_CHANGE() {
 		fi
 	) &
 }
-
-# FILE_OK <mode> <path>
-# <mode> is either checking for "size" (size > 0) or anything else
-FILE_OK() {
-	MODE="$1"
-	FILE="$2"
-
-	case "$MODE" in
-		size) [ -s "$FILE" ] ;;
-		*) [ -s "$FILE" ] && grep -q '[^[:space:]]' "$FILE" 2>/dev/null ;;
-	esac
-}
-
-# SYNC_FILE <SOURCE> <DEST> <FILE> [mode]
-# Copies only if DEST is missing, or empty, and SOURCE is valid (by mode checking above)
-# Returns an integer of, 0 done or the same, 1 mkdir fail, 2 no valid source, 3 copy fail
-SYNC_FILE() {
-	SRC_ROOT="$1"
-	DST_ROOT="$2"
-	REL_PATH="$3"
-
-	MODE="${4:-content}"
-
-	SRC="$SRC_ROOT/$REL_PATH"
-	DST="$DST_ROOT/$REL_PATH"
-	DST_DIR=${DST%/*}
-
-	[ -d "$DST_DIR" ] || mkdir -p "$DST_DIR" || return 1
-
-	FILE_OK "$MODE" "$DST" && return 0
-	FILE_OK "$MODE" "$SRC" || return 2
-
-	[ -f "$DST" ] && cmp -s "$SRC" "$DST" 2>/dev/null && return 0
-
-	cp -f "$SRC" "$DST" 2>/dev/null || return 3
-}

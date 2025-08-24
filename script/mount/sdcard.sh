@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/sync.sh
 
 FIRST_INIT=$(GET_VAR "config" "boot/first_init")
 
@@ -50,7 +51,7 @@ MOUNT_DEVICE() {
 
 	mkdir -p "$SD_MOUNT/ROMS" "$SD_MOUNT/BACKUP" "$SD_MOUNT/ARCHIVE" "$SD_MOUNT/ports"
 
-	SYNC_FILE "$ROM_MOUNT" "$SD_MOUNT" "MUOS/info/name/tag.txt" size
+	SYNC_FILE "$ROM_MOUNT" "$SD_MOUNT" "MUOS/info/name/tag.txt" size "atomic,verify"
 
 	# Checking for junk
 	[ "$FIRST_INIT" -eq 0 ] && DELETE_CRUFT "$SD_MOUNT"

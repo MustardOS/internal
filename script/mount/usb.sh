@@ -33,6 +33,9 @@ MOUNT_DEVICE() {
 	fi
 
 	mkdir -p "$USB_MOUNT/ROMS" "$USB_MOUNT/BACKUP" "$USB_MOUNT/ARCHIVE" "$USB_MOUNT/ports"
+
+	# Checking for junk
+	DELETE_CRUFT "$USB_MOUNT"
 }
 
 # Asynchronously monitor insertion/eject
@@ -45,7 +48,7 @@ while :; do
 			/opt/muos/script/mount/union.sh start
 		fi
 	elif MOUNTED; then
-	  	/opt/muos/script/mount/union.sh stop
+		/opt/muos/script/mount/union.sh stop
 		umount "$USB_MOUNT"
 		SET_VAR "device" "storage/usb/active" "0"
 		/opt/muos/script/mount/bind.sh

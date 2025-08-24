@@ -44,6 +44,9 @@ MOUNT_DEVICE() {
 	KERNEL_TUNING "$SD_DEV"
 
 	mkdir -p "$SD_MOUNT/ROMS" "$SD_MOUNT/BACKUP" "$SD_MOUNT/ARCHIVE" "$SD_MOUNT/ports"
+
+	# Checking for junk
+	DELETE_CRUFT "$SD_MOUNT"
 }
 
 # Synchronously mount SD card (if media is inserted) so it's available as a

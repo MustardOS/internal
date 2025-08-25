@@ -4,9 +4,9 @@ mount -t configfs none /sys/kernel/config &
 
 # These scripts return as soon as the necessary mounts are available, but also
 # leave background jobs running that respond to future media add/remove events.
-/opt/muos/script/mount/rom.sh &
-/opt/muos/script/mount/sdcard.sh &
-/opt/muos/script/mount/usb.sh &
+/opt/muos/script/mount/rom.sh
+/opt/muos/script/mount/sdcard.sh mount
+/opt/muos/script/mount/usb.sh mount
 
 # Wait for mounts required by the boot process to become available
 wait

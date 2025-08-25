@@ -29,7 +29,7 @@ esac
 # Omit various programs from the termination process.
 # FUSE filesystems (e.g., exFAT) would unmount in parallel with other programs
 # exiting, preventing them from writing state to the SD card during cleanup.
-for OMIT_PID in $(pidof /opt/muos/frontend/muterm /opt/muos/frontend/muxsplash /sbin/mount.exfat-fuse 2>/dev/null); do
+for OMIT_PID in $(pidof /opt/muos/frontend/muterm /sbin/mount.exfat-fuse 2>/dev/null); do
 	set -- "$@" -o "$OMIT_PID"
 done
 
@@ -201,6 +201,11 @@ fi
 # Cleanly unmount filesystems to avoid fsck/chkdsk errors.
 LOG_INFO "$0" 0 "HALT" "Stopping union mounts"
 /opt/muos/script/mount/union.sh stop
+
+# Unmount SD2 and USB - we do USB first as it is the higher priority!
+LOG_INFO "$0" 0 "HALT" "Stopping external storage mounts"
+/opt/muos/script/mount/usb.sh down
+/opt/muos/script/mount/sdcard.sh down
 
 # Check if random theme is enabled and run the random theme script if necessary
 #if [ "$(sed -n '/^\[settings\.advanced\]/,/^\[/{ /^random_theme[ ]*=[ ]*/{ s/^[^=]*=[ ]*//p }}' /opt/muos/config/config.ini)" -eq 1 ] 2>/dev/null; then

@@ -1,11 +1,11 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
 if [ $# -ne 1 ]; then
 	echo "Usage: $0 <mount>"
 	exit 1
 fi
-
-. /opt/muos/script/var/func.sh
 
 ASSIGN_DIR="$1/MUOS/info/assign"
 BASE_PATH="/run/muos/storage/info/catalogue"

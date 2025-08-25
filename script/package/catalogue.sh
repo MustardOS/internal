@@ -36,7 +36,7 @@ INSTALL() {
 	unzip -q "$CATALOGUE_ZIP" -d "$CATALOGUE_DIR" && sync
 
 	printf "Running catalogue generation script\n"
-	/opt/muos/script/system/catalogue.sh
+	/opt/muos/script/system/catalogue.sh "$(GET_VAR "device" "storage/rom/mount")"
 
 	CLEANED_CATALOGUE_NAME=$(printf "%s\n" "$CATALOGUE_ARG" | sed -E 's/-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}$//')
 	printf "%s\n" "$CLEANED_CATALOGUE_NAME" >"$CATALOGUE_DIR/name.txt"

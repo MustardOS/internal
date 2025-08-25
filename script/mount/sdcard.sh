@@ -17,16 +17,16 @@ DEVICE="${SD_DEV}${SD_SEP}${SD_NUM}"
 mkdir -p "$SD_MOUNT"
 
 USAGE() {
-	printf "Usage: %s {mount|eject|status}\n" "$0" >&2
+	printf "Usage: %s {mount|eject|down|status}\n" "$0" >&2
 	exit 2
 }
 
 MOUNTED() {
-	[ "$(GET_VAR "device" "storage/sdcard/active")" -eq 1 ]
+	grep -qs " $SD_MOUNT " /proc/mounts
 }
 
 HAS_DEVICE() {
-	grep -q "$DEVICE" /proc/partitions
+	grep -qw "$DEVICE" /proc/partitions
 }
 
 MOUNT_DEVICE() {

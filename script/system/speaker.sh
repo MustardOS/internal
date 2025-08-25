@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
 PID_FILE=/tmp/muos/speaker.pid
 RATE=${RATE:-8000}
 CHANNELS=${CHANNELS:-1}

@@ -92,7 +92,7 @@ for TIMEOUT in $(seq 1 30); do
 			SET_VAR "device" "audio/ready" "1"
 
 			case "$(GET_VAR "device" "board/name")" in
-				rg*) /opt/muos/script/system/speaker.sh start ;;
+				rg*) exec /opt/muos/script/system/speaker.sh start ;;
 				*) ;;
 			esac
 

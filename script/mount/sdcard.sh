@@ -106,11 +106,14 @@ DO_MOUNT() {
 	/opt/muos/script/mount/union.sh start
 
 	printf "Secondary storage mount failed: /dev/%s\n" "$DEVICE" >&2
+	SET_VAR "device" "storage/sdcard/active" "0"
+
 	exit 1
 }
 
 DO_EJECT() {
 	if ! MOUNTED; then
+		SET_VAR "device" "storage/sdcard/active" "0"
 		printf "Secondary storage already unmounted\n"
 		exit 0
 	fi
@@ -128,11 +131,14 @@ DO_EJECT() {
 	/opt/muos/script/mount/union.sh start
 
 	printf "Secondary storage eject failed: %s\n" "$SD_MOUNT" >&2
+	SET_VAR "device" "storage/sdcard/active" "0"
+
 	exit 1
 }
 
 DO_DOWN() {
 	if ! MOUNTED; then
+		SET_VAR "device" "storage/sdcard/active" "0"
 		printf "Secondary storage already unmounted\n"
 		exit 0
 	fi
@@ -143,6 +149,8 @@ DO_DOWN() {
 	fi
 
 	printf "Secondary storage down failed: %s\n" "$SD_MOUNT" >&2
+	SET_VAR "device" "storage/sdcard/active" "0"
+
 	exit 1
 }
 

@@ -96,11 +96,14 @@ DO_MOUNT() {
 	/opt/muos/script/mount/union.sh start
 
 	printf "USB External storage mount failed: /dev/%s\n" "$DEVICE" >&2
+	SET_VAR "device" "storage/usb/active" "0"
+
 	exit 1
 }
 
 DO_EJECT() {
 	if ! MOUNTED; then
+		SET_VAR "device" "storage/usb/active" "0"
 		printf "USB External storage already unmounted\n"
 		exit 0
 	fi
@@ -118,11 +121,14 @@ DO_EJECT() {
 	/opt/muos/script/mount/union.sh start
 
 	printf "USB External storage eject failed: %s\n" "$USB_MOUNT" >&2
+	SET_VAR "device" "storage/usb/active" "0"
+
 	exit 1
 }
 
 DO_DOWN() {
 	if ! MOUNTED; then
+		SET_VAR "device" "storage/usb/active" "0"
 		printf "USB External storage already unmounted\n"
 		exit 0
 	fi
@@ -133,6 +139,8 @@ DO_DOWN() {
 	fi
 
 	printf "USB External storage down failed: %s\n" "$USB_MOUNT" >&2
+	SET_VAR "device" "storage/usb/active" "0"
+
 	exit 1
 }
 

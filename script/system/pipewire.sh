@@ -89,12 +89,8 @@ for TIMEOUT in $(seq 1 30); do
 			amixer -c 0 sset "$(GET_VAR "device" "audio/control")" "$(GET_VAR "device" "audio/volume")"% unmute
 			wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
+			/opt/muos/frontend/muspeaker &
 			SET_VAR "device" "audio/ready" "1"
-
-			case "$(GET_VAR "device" "board/name")" in
-				rg*) exec /opt/muos/script/system/speaker.sh start ;;
-				*) ;;
-			esac
 
 			exit 0
 		else

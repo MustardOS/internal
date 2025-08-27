@@ -19,6 +19,10 @@ USAGE() {
 	exit 2
 }
 
+PURGE_MOUNT() {
+	[ -d "$USB_MOUNT" ] && rm -rf "$USB_MOUNT"
+}
+
 MOUNTED() {
 	grep -qs " $USB_MOUNT " /proc/mounts
 }
@@ -54,7 +58,7 @@ MOUNT_DEVICE() {
 		return 0
 	fi
 
-	rm -rf "$USB_MOUNT"
+	PURGE_MOUNT
 
 	return 1
 }
@@ -64,7 +68,7 @@ UNMOUNT_DEVICE() {
 
 	if umount "$USB_MOUNT" 2>/dev/null; then
 		SET_VAR "device" "storage/usb/active" "0"
-		rm -rf "$USB_MOUNT"
+		PURGE_MOUNT
 
 		return 0
 	fi
@@ -72,7 +76,7 @@ UNMOUNT_DEVICE() {
 	# Fallback lazy unmount if busy...
 	if umount -l "$USB_MOUNT" 2>/dev/null; then
 		SET_VAR "device" "storage/usb/active" "0"
-		rm -rf "$USB_MOUNT"
+		PURGE_MOUNT
 
 		return 0
 	fi
@@ -106,7 +110,6 @@ DO_MOUNT() {
 
 	printf "USB External storage mount failed: /dev/%s\n" "$DEVICE" >&2
 	SET_VAR "device" "storage/usb/active" "0"
-	rm -rf "$USB_MOUNT"
 
 	/opt/muos/script/mount/union.sh start
 
@@ -135,7 +138,6 @@ DO_EJECT() {
 	/opt/muos/script/mount/union.sh start
 
 	printf "USB External storage eject failed: %s\n" "$USB_MOUNT" >&2
-	SET_VAR "device" "storage/usb/active" "0"
 
 	exit 1
 }
@@ -150,14 +152,12 @@ DO_DOWN() {
 
 	if UNMOUNT_DEVICE; then
 		printf "USB External storage down: %s\n" "$USB_MOUNT"
-		rm -rf "$USB_MOUNT"
 
 		exit 0
 	fi
 
 	printf "USB External storage down failed: %s\n" "$USB_MOUNT" >&2
 	SET_VAR "device" "storage/usb/active" "0"
-	rm -rf "$USB_MOUNT"
 
 	exit 1
 }
@@ -173,6 +173,8 @@ DO_STATUS() {
 
 	exit 1
 }
+
+PURGE_MOUNT
 
 case "${1-}" in
 	mount) DO_MOUNT ;;

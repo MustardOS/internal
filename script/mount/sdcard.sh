@@ -21,6 +21,10 @@ USAGE() {
 	exit 2
 }
 
+PURGE_MOUNT() {
+	[ -d "$SD_MOUNT" ] && rm -rf "$SD_MOUNT"
+}
+
 MOUNTED() {
 	grep -qs " $SD_MOUNT " /proc/mounts
 }
@@ -64,7 +68,7 @@ MOUNT_DEVICE() {
 		return 0
 	fi
 
-	rm -rf "$SD_MOUNT"
+	PURGE_MOUNT
 
 	return 1
 }
@@ -74,7 +78,7 @@ UNMOUNT_DEVICE() {
 
 	if umount "$SD_MOUNT" 2>/dev/null; then
 		SET_VAR "device" "storage/sdcard/active" "0"
-		rm -rf "$SD_MOUNT"
+		PURGE_MOUNT
 
 		return 0
 	fi
@@ -82,7 +86,7 @@ UNMOUNT_DEVICE() {
 	# Fallback lazy unmount if busy...
 	if umount -l "$SD_MOUNT" 2>/dev/null; then
 		SET_VAR "device" "storage/sdcard/active" "0"
-		rm -rf "$SD_MOUNT"
+		PURGE_MOUNT
 
 		return 0
 	fi
@@ -116,7 +120,6 @@ DO_MOUNT() {
 
 	printf "Secondary storage mount failed: /dev/%s\n" "$DEVICE" >&2
 	SET_VAR "device" "storage/sdcard/active" "0"
-	rm -rf "$SD_MOUNT"
 
 	/opt/muos/script/mount/union.sh start
 
@@ -145,7 +148,6 @@ DO_EJECT() {
 	/opt/muos/script/mount/union.sh start
 
 	printf "Secondary storage eject failed: %s\n" "$SD_MOUNT" >&2
-	SET_VAR "device" "storage/sdcard/active" "0"
 
 	exit 1
 }
@@ -160,14 +162,12 @@ DO_DOWN() {
 
 	if UNMOUNT_DEVICE; then
 		printf "Secondary storage down: %s\n" "$SD_MOUNT"
-		rm -rf "$SD_MOUNT"
 
 		exit 0
 	fi
 
 	printf "Secondary storage down failed: %s\n" "$SD_MOUNT" >&2
 	SET_VAR "device" "storage/sdcard/active" "0"
-	rm -rf "$SD_MOUNT"
 
 	exit 1
 }
@@ -183,6 +183,8 @@ DO_STATUS() {
 
 	exit 1
 }
+
+PURGE_MOUNT
 
 case "${1-}" in
 	mount) DO_MOUNT ;;

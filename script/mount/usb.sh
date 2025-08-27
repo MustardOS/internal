@@ -12,10 +12,10 @@ USB_NUM="$(GET_VAR "device" "storage/usb/num")"
 USB_MOUNT="$(GET_VAR "device" "storage/usb/mount")"
 
 DEVICE="${USB_DEV}${USB_SEP}${USB_NUM}"
-mkdir -p "$USB_MOUNT"
 
 USAGE() {
 	printf "Usage: %s {mount|eject|down|status}\n" "$0" >&2
+
 	exit 2
 }
 
@@ -30,6 +30,8 @@ HAS_DEVICE() {
 MOUNT_DEVICE() {
 	FS_TYPE="$(blkid -o value -s TYPE "/dev/$DEVICE" 2>/dev/null || true)"
 	FS_LABEL="$(blkid -o value -s LABEL "/dev/$DEVICE" 2>/dev/null || true)"
+
+	mkdir -p "$USB_MOUNT"
 
 	case "$FS_TYPE" in
 		vfat | exfat) FS_OPTS="rw,utf8,noatime,nofail" ;;
@@ -52,6 +54,8 @@ MOUNT_DEVICE() {
 		return 0
 	fi
 
+	rm -rf "$USB_MOUNT"
+
 	return 1
 }
 
@@ -60,12 +64,16 @@ UNMOUNT_DEVICE() {
 
 	if umount "$USB_MOUNT" 2>/dev/null; then
 		SET_VAR "device" "storage/usb/active" "0"
+		rm -rf "$USB_MOUNT"
+
 		return 0
 	fi
 
 	# Fallback lazy unmount if busy...
 	if umount -l "$USB_MOUNT" 2>/dev/null; then
 		SET_VAR "device" "storage/usb/active" "0"
+		rm -rf "$USB_MOUNT"
+
 		return 0
 	fi
 
@@ -75,11 +83,13 @@ UNMOUNT_DEVICE() {
 DO_MOUNT() {
 	if MOUNTED; then
 		printf "USB External storage already mounted\n"
+
 		exit 0
 	fi
 
 	if ! HAS_DEVICE; then
 		printf "USB External storage device not present: /dev/%s\n" "$DEVICE" >&2
+
 		exit 1
 	fi
 
@@ -90,13 +100,15 @@ DO_MOUNT() {
 		/opt/muos/script/mount/union.sh start
 
 		printf "USB External storage mounted: /dev/%s -> %s\n" "$DEVICE" "$USB_MOUNT"
+
 		exit 0
 	fi
 
-	/opt/muos/script/mount/union.sh start
-
 	printf "USB External storage mount failed: /dev/%s\n" "$DEVICE" >&2
 	SET_VAR "device" "storage/usb/active" "0"
+	rm -rf "$USB_MOUNT"
+
+	/opt/muos/script/mount/union.sh start
 
 	exit 1
 }
@@ -105,6 +117,7 @@ DO_EJECT() {
 	if ! MOUNTED; then
 		SET_VAR "device" "storage/usb/active" "0"
 		printf "USB External storage already unmounted\n"
+
 		exit 0
 	fi
 
@@ -115,6 +128,7 @@ DO_EJECT() {
 		/opt/muos/script/mount/union.sh start
 
 		printf "USB External storage ejected: %s\n" "$USB_MOUNT"
+
 		exit 0
 	fi
 
@@ -130,16 +144,20 @@ DO_DOWN() {
 	if ! MOUNTED; then
 		SET_VAR "device" "storage/usb/active" "0"
 		printf "USB External storage already unmounted\n"
+
 		exit 0
 	fi
 
 	if UNMOUNT_DEVICE; then
 		printf "USB External storage down: %s\n" "$USB_MOUNT"
+		rm -rf "$USB_MOUNT"
+
 		exit 0
 	fi
 
 	printf "USB External storage down failed: %s\n" "$USB_MOUNT" >&2
 	SET_VAR "device" "storage/usb/active" "0"
+	rm -rf "$USB_MOUNT"
 
 	exit 1
 }
@@ -147,10 +165,12 @@ DO_DOWN() {
 DO_STATUS() {
 	if MOUNTED; then
 		printf "USB External storage mounted\n"
+
 		exit 0
 	fi
 
 	printf "USB External storage not mounted\n"
+
 	exit 1
 }
 

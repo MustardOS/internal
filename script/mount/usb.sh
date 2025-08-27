@@ -13,12 +13,6 @@ USB_MOUNT="$(GET_VAR "device" "storage/usb/mount")"
 
 DEVICE="${USB_DEV}${USB_SEP}${USB_NUM}"
 
-USAGE() {
-	printf "Usage: %s {mount|eject|down|status}\n" "$0" >&2
-
-	exit 2
-}
-
 PURGE_MOUNT() {
 	[ -d "$USB_MOUNT" ] && rm -rf "$USB_MOUNT"
 }
@@ -174,7 +168,11 @@ DO_STATUS() {
 	exit 1
 }
 
-PURGE_MOUNT
+USAGE() {
+	printf "Usage: %s {mount|eject|down|status}\n" "$0" >&2
+
+	exit 2
+}
 
 case "${1-}" in
 	mount) DO_MOUNT ;;

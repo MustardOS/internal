@@ -15,12 +15,6 @@ CARD_MODE="$(GET_VAR "config" "danger/cardmode")"
 
 DEVICE="${SD_DEV}${SD_SEP}${SD_NUM}"
 
-USAGE() {
-	printf "Usage: %s {mount|eject|down|status}\n" "$0" >&2
-
-	exit 2
-}
-
 PURGE_MOUNT() {
 	[ -d "$SD_MOUNT" ] && rm -rf "$SD_MOUNT"
 }
@@ -184,7 +178,12 @@ DO_STATUS() {
 	exit 1
 }
 
-PURGE_MOUNT
+
+USAGE() {
+	printf "Usage: %s {mount|eject|down|status}\n" "$0" >&2
+
+	exit 2
+}
 
 case "${1-}" in
 	mount) DO_MOUNT ;;

@@ -127,11 +127,7 @@ RESTART_UNION() {
 }
 
 USAGE() {
-	INVALID_MSG=$(printf "Invalid argument: %s" "$1")
-	EXPECT_MSG=$(printf "Usage: %s {start|stop|restart}" "$(basename "$0")")
-
-	LOG_ERROR "$0" 0 "UNIONFS" "$INVALID_MSG - $EXPECT_MSG"
-	printf "%s - %s\n" "$INVALID_MSG" "$EXPECT_MSG"
+	printf "Usage: %s {start|stop|restart}\n" "$0" >&2
 
 	exit 2
 }

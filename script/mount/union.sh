@@ -11,7 +11,6 @@ PORT_SUBDIR="ports"
 PORT_TARGET="/mnt/union/$PORT_SUBDIR"
 
 UFS_BIN="/opt/muos/bin/ufs/unionfs"
-UFS_OPTS="cow" # Moo!
 
 USB_MOUNT=$(GET_VAR "device" "storage/usb/mount")
 SDCARD_MOUNT=$(GET_VAR "device" "storage/sdcard/mount")
@@ -78,7 +77,7 @@ START_ONE() {
 		return 1
 	fi
 
-	if "$UFS_BIN" -o "$UFS_OPTS" "$UNION_SOURCES" "$TARGET"; then
+	if "$UFS_BIN" "$UNION_SOURCES" "$TARGET"; then
 		if UFS_MOUNTED "$TARGET"; then
 			LOG_INFO "$0" 0 "UNIONFS" "Union mount for $SOURCE started at $TARGET"
 			return 0

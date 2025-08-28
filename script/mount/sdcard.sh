@@ -56,8 +56,27 @@ MOUNT_DEVICE() {
 
 		SYNC_FILE "$ROM_MOUNT" "$SD_MOUNT" "MUOS/info/name/tag.txt" size "atomic,verify"
 
-		# Checking for junk
-		[ "$FIRST_INIT" -eq 0 ] && DELETE_CRUFT "$SD_MOUNT"
+		if [ "$FIRST_INIT" -eq 0 ]; then
+			# Checking for junk
+			DELETE_CRUFT "$SD_MOUNT"
+
+			BACKUP_DIR="$SD_MOUNT/MUOS_backup"
+			mkdir -p "$BACKUP_DIR"
+
+			for REL in \
+				log \
+				theme \
+				info/config \
+				info/core \
+				info/name; do
+				SRC="$SD_MOUNT/MUOS/$REL" || exit
+				[ -d "$SRC" ] || continue
+
+				DEST="$BACKUP_DIR/$REL"
+				mkdir -p "${DEST%/*}"
+				mv "$SRC" "$DEST"
+			done
+		fi
 
 		return 0
 	fi
@@ -177,7 +196,6 @@ DO_STATUS() {
 
 	exit 1
 }
-
 
 USAGE() {
 	printf "Usage: %s {mount|eject|down|status}\n" "$0" >&2

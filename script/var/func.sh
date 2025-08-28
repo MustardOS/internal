@@ -65,16 +65,76 @@ SET_DEFAULT_GOVERNOR() {
 	fi
 }
 
+ENSURE_REMOVED() {
+	P="$1"
+	C=0
+
+	while [ -e "$P" ] && [ "$C" -lt 10 ]; do
+		rm -f -- "$P" 2>/dev/null || :
+
+		[ -e "$P" ] || break
+
+		C=$((C + 1))
+		TBOX sleep 0.1
+	done
+}
+
+GET_FRONTEND_PIDS() {
+	MUX="$(pgrep -x muxfrontend 2>/dev/null || :)"
+	FRO="$(pgrep -x frontend.sh 2>/dev/null || :)"
+
+	[ -n "$MUX" ] && printf '%s\n' "$MUX"
+	[ -n "$FRO" ] && printf '%s\n' "$FRO"
+}
+
+FRONTEND_RUNNING() {
+	PIDS="$(GET_FRONTEND_PIDS)"
+	[ -n "$PIDS" ]
+}
+
+SIGNAL_FRONTEND() {
+	SIG="$1"
+	PIDS="$(GET_FRONTEND_PIDS)"
+
+	[ -z "$PIDS" ] && return 0
+
+	for PID in $PIDS; do
+		kill "-$SIG" "$PID" 2>/dev/null || :
+	done
+}
+
 FRONTEND() {
 	case "$1" in
 		stop)
-			while pgrep -x muxfrontend >/dev/null || pgrep -x frontend.sh >/dev/null; do
-				killall -9 muxfrontend frontend.sh
+			[ -n "$SAFE_QUIT" ] && { : >"$SAFE_QUIT" 2>/dev/null || :; }
+
+			SIGNAL_FRONTEND USR1
+
+			I=5
+			while FRONTEND_RUNNING && [ "$I" -gt 0 ]; do
 				TBOX sleep 1
+				I=$((I - 1))
 			done
+
+			if FRONTEND_RUNNING; then
+				SIGNAL_FRONTEND TERM
+
+				J=3
+				while FRONTEND_RUNNING && [ "$J" -gt 0 ]; do
+					TBOX sleep 1
+					J=$((J - 1))
+				done
+			fi
+
+			if FRONTEND_RUNNING; then
+				SIGNAL_FRONTEND KILL
+			fi
 			;;
 		start)
-			pgrep -x frontend.sh >/dev/null && return 0
+			if FRONTEND_RUNNING; then
+				return 0
+			fi
+
 			if [ -n "$2" ]; then
 				setsid -f /opt/muos/script/mux/frontend.sh "$2" </dev/null >/dev/null 2>&1
 			else
@@ -142,21 +202,24 @@ UPTIME() {
 }
 
 DELETE_CRUFT() {
-	find "$1" -type f \( \
-		-name "._*" -o \
-		-name ".DS_Store" -o \
-		-name "desktop.ini" -o \
-		-name "Thumbs.db" \
-		-name ".DStore" \
-		-name ".gitkeep" \
-		\) -exec rm -f {} +
+	[ "$1" ] || return
 
-	find "$1" -type d \( \
-		-name "System Volume Information" -o \
-		-name ".Trashes" -o \
-		-name ".Spotlight" -o \
-		-name ".fseventsd" \
-		\) -exec rm -rf {} +
+	find "$1"
+	\( -type d \( \
+		-name 'System Volume Information' -o \
+		-name '.Trashes' -o \
+		-name '.Spotlight' -o \
+		-name '.fseventsd' \
+		\) -prune -exec rm -rf -- {} + \) \
+		-o
+	\( -type f \( \
+		-name '._*' -o \
+		-name '.DS_Store' -o \
+		-name 'desktop.ini' -o \
+		-name 'Thumbs.db' -o \
+		-name '.DStore' -o \
+		-name '.gitkeep' \
+		\) -exec rm -f -- {} + \)
 }
 
 PARSE_INI() {
@@ -320,7 +383,7 @@ LCD_ENABLE() {
 
 PLAY_SOUND() {
 	SND="/opt/muos/share/media/$1.wav"
-	[ -e "$SND" ] && rm -f "$SND"
+	[ -e "$SND" ] && ENSURE_REMOVED "$SND"
 
 	case "$(GET_VAR "config" "settings/general/sound")" in
 		1)

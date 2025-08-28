@@ -138,7 +138,7 @@ cp /opt/muos/log/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/."
 LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
 
 while :; do
-	killall -9 "gptokeyb" "gptokeyb2" &
+	killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1
 
 	# Reset ANALOGUE<>DIGITAL switch for the DPAD
 	case "$(GET_VAR "device" "board/name")" in
@@ -172,11 +172,16 @@ while :; do
 				if [ -s "$APP_GO" ]; then
 					IFS= read -r RUN_APP <"$APP_GO"
 					rm "$APP_GO"
+
 					"$(GET_VAR "device" "storage/rom/mount")/MUOS/application/${RUN_APP}/mux_launch.sh"
-                    [ -e "$GOV_GO" ] && rm -f "$GOV_GO"
-                    [ -e "$CON_GO" ] && rm -f "$CON_GO"
-                    SET_DEFAULT_GOVERNOR
 					echo appmenu >$ACT_GO
+
+					LOG_INFO "$0" 0 "FRONTEND" "Clearing Governor and Control Scheme files"
+					[ -e "$GOV_GO" ] && ENSURE_REMOVED "$GOV_GO"
+					[ -e "$CON_GO" ] && ENSURE_REMOVED "$CON_GO"
+
+					LOG_INFO "$0" 0 "FRONTEND" "Setting Governor back to default"
+					SET_DEFAULT_GOVERNOR
 				fi
 				;;
 

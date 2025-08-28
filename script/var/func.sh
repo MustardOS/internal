@@ -204,15 +204,14 @@ UPTIME() {
 DELETE_CRUFT() {
 	[ "$1" ] || return
 
-	find "$1"
-	\( -type d \( \
+	find "$1" \
+		\( -type d \( \
 		-name 'System Volume Information' -o \
 		-name '.Trashes' -o \
 		-name '.Spotlight' -o \
 		-name '.fseventsd' \
-		\) -prune -exec rm -rf -- {} + \) \
-		-o
-	\( -type f \( \
+		\) -prune -exec rm -rf -- {} + \) -o \
+		\( -type f \( \
 		-name '._*' -o \
 		-name '.DS_Store' -o \
 		-name 'desktop.ini' -o \

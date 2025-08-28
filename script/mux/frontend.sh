@@ -119,7 +119,7 @@ if [ $SKIP -eq 0 ]; then
 				# We'll set a few extra things here so that the user doesn't get
 				# a stupid "yOu UsEd tHe ReSeT bUtToN" message because ultimately
 				# we don't really care in this particular instance...
-				[ -e "/tmp/safe_quit" ] && rm -f "/tmp/safe_quit"
+				[ -e "/tmp/safe_quit" ] && ENSURE_REMOVED "/tmp/safe_quit"
 				[ ! -e "/tmp/done_reset" ] && printf 1 >"/tmp/done_reset"
 				[ ! -e "/tmp/chime_done" ] && printf 1 >"/tmp/chime_done"
 				SET_VAR "config" "system/used_reset" 0
@@ -145,7 +145,7 @@ while :; do
 		rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
 		tui*)
 			DPAD_FILE="/tmp/trimui_inputd/input_dpad_to_joystick"
-			[ -e "$DPAD_FILE" ] && rm -f "$DPAD_FILE"
+			[ -e "$DPAD_FILE" ] && ENSURE_REMOVED "$DPAD_FILE"
 			;;
 		*) ;;
 	esac
@@ -160,9 +160,18 @@ while :; do
 
 		case "$ACTION" in
 			"launcher")
+				LOG_INFO "$0" 0 "FRONTEND" "Clearing Governor and Control Scheme files"
+				[ -e "$GOV_GO" ] && ENSURE_REMOVED "$GOV_GO"
+				[ -e "$CON_GO" ] && ENSURE_REMOVED "$CON_GO"
+
+				LOG_INFO "$0" 0 "FRONTEND" "Setting Governor back to default"
+				SET_DEFAULT_GOVERNOR
+
 				touch /tmp/pdi_go
-				[ -s "$MUX_AUTH" ] && rm "$MUX_AUTH"
-				[ -s "$MUX_LAUNCHER_AUTH" ] && rm "$MUX_LAUNCHER_AUTH"
+
+				[ -s "$MUX_AUTH" ] && ENSURE_REMOVED "$MUX_AUTH"
+				[ -s "$MUX_LAUNCHER_AUTH" ] && ENSURE_REMOVED "$MUX_LAUNCHER_AUTH"
+
 				EXEC_MUX "launcher" "muxfrontend"
 				;;
 
@@ -171,7 +180,7 @@ while :; do
 			"app")
 				if [ -s "$APP_GO" ]; then
 					IFS= read -r RUN_APP <"$APP_GO"
-					rm "$APP_GO"
+					ENSURE_REMOVED "$APP_GO"
 
 					"$(GET_VAR "device" "storage/rom/mount")/MUOS/application/${RUN_APP}/mux_launch.sh"
 					echo appmenu >$ACT_GO
@@ -185,7 +194,16 @@ while :; do
 				fi
 				;;
 
-			"appmenu") EXEC_MUX "app" "muxfrontend" ;;
+			"appmenu")
+				LOG_INFO "$0" 0 "FRONTEND" "Clearing Governor and Control Scheme files"
+				[ -e "$GOV_GO" ] && ENSURE_REMOVED "$GOV_GO"
+				[ -e "$CON_GO" ] && ENSURE_REMOVED "$CON_GO"
+
+				LOG_INFO "$0" 0 "FRONTEND" "Setting Governor back to default"
+				SET_DEFAULT_GOVERNOR
+
+				EXEC_MUX "app" "muxfrontend"
+				;;
 
 			"collection") EXEC_MUX "collection" "muxfrontend" ;;
 

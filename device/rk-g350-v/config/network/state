@@ -1,0 +1,1 @@
+/sys/class/net/eth0/operstate

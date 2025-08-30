@@ -44,7 +44,11 @@ MOUNT_DEVICE() {
 
 		mkdir -p "$USB_MOUNT/ROMS" "$USB_MOUNT/BACKUP" "$USB_MOUNT/ARCHIVE" "$USB_MOUNT/ports"
 
-		SYNC_FILE "$ROM_MOUNT" "$USB_MOUNT" "MUOS/info/name/tag.txt" size "atomic,verify"
+		if [ -d "$USB_MOUNT/MUOS/info/name" ]; then
+			SYNC_FILE "$ROM_MOUNT" "$USB_MOUNT" "MUOS/info/name/tag.txt" size "atomic,verify"
+			SYNC_FILE "$ROM_MOUNT" "$USB_MOUNT" "MUOS/info/name/folder.json" size "atomic,verify"
+			SYNC_FILE "$ROM_MOUNT" "$USB_MOUNT" "MUOS/info/name/global.json" size "atomic,verify"
+		fi
 
 		if [ "$FIRST_INIT" -eq 0 ]; then
 			# Checking for junk

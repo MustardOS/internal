@@ -54,7 +54,11 @@ MOUNT_DEVICE() {
 
 		mkdir -p "$SD_MOUNT/ROMS" "$SD_MOUNT/BACKUP" "$SD_MOUNT/ARCHIVE" "$SD_MOUNT/ports"
 
-		SYNC_FILE "$ROM_MOUNT" "$SD_MOUNT" "MUOS/info/name/tag.txt" size "atomic,verify"
+		if [ -d "$SD_MOUNT/MUOS/info/name" ]; then
+			SYNC_FILE "$ROM_MOUNT" "$SD_MOUNT" "MUOS/info/name/tag.txt" size "atomic,verify"
+			SYNC_FILE "$ROM_MOUNT" "$SD_MOUNT" "MUOS/info/name/folder.json" size "atomic,verify"
+			SYNC_FILE "$ROM_MOUNT" "$SD_MOUNT" "MUOS/info/name/global.json" size "atomic,verify"
+		fi
 
 		if [ "$FIRST_INIT" -eq 0 ]; then
 			# Checking for junk

@@ -411,7 +411,7 @@ SETUP_SDL_ENVIRONMENT() {
 	done
 
 	GCDB_DEFAULT="/usr/lib/gamecontrollerdb.txt"
-	GCDB_STORE="/run/muos/storage/info/gamecontrollerdb"
+	GCDB_STORE="/opt/muos/share/info/gamecontrollerdb"
 
 	# Decide controller DB (priority: arg -> /tmp/con_go -> default)
 	case "$REQ_STYLE" in

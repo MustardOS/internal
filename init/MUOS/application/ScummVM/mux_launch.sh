@@ -17,7 +17,7 @@ export HOME
 
 SET_VAR "system" "foreground_process" "scummvm"
 
-EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/scummvm"
+EMUDIR="/opt/muos/share/emulator/scummvm"
 CONFIG="$EMUDIR/.config/scummvm/scummvm.ini"
 LOGPATH="/mnt/mmc/MUOS/log/scummvm/log.txt"
 SAVE="/run/muos/storage/save/file/ScummVM-Ext"

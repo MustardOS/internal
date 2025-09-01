@@ -17,7 +17,7 @@ DISPLAY_IDLE() {
 	BL="$(GET_VAR "config" "settings/general/brightness")"
 	KEEP_BRIGHT=$BL
 
-	[ "$BL" -gt "$DO_BRIGHT" ] && /opt/muos/device/script/bright.sh "$DO_BRIGHT"
+	[ "$BL" -gt "$DO_BRIGHT" ] && /opt/muos/script/device/bright.sh "$DO_BRIGHT"
 
 	[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 
@@ -29,7 +29,7 @@ DISPLAY_ACTIVE() {
 
 	BL="$(GET_VAR "config" "settings/general/brightness")"
 
-	[ "$BL" -ne "$KEEP_BRIGHT" ] && /opt/muos/device/script/bright.sh "$KEEP_BRIGHT"
+	[ "$BL" -ne "$KEEP_BRIGHT" ] && /opt/muos/script/device/bright.sh "$KEEP_BRIGHT"
 
 	LED_CONTROL_CHANGE
 

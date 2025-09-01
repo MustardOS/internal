@@ -16,7 +16,7 @@ USAGE() {
 
 MODE="$1"
 CATALOGUE_ARG="$2"
-CATALOGUE_DIR="/run/muos/storage/info/catalogue"
+CATALOGUE_DIR="/opt/muos/share/info/catalogue"
 CATALOGUE_ZIP_DIR="/run/muos/storage/package/catalogue"
 
 INSTALL() {
@@ -36,7 +36,7 @@ INSTALL() {
 	unzip -q "$CATALOGUE_ZIP" -d "$CATALOGUE_DIR" && sync
 
 	printf "Running catalogue generation script\n"
-	/opt/muos/script/system/catalogue.sh "$(GET_VAR "device" "storage/rom/mount")"
+	/opt/muos/script/system/catalogue.sh
 
 	CLEANED_CATALOGUE_NAME=$(printf "%s\n" "$CATALOGUE_ARG" | sed -E 's/-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}$//')
 	printf "%s\n" "$CLEANED_CATALOGUE_NAME" >"$CATALOGUE_DIR/name.txt"

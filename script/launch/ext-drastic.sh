@@ -20,7 +20,7 @@ SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "drastic"
 
-EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic-trngaje"
+EMUDIR="/opt/muos/share/emulator/drastic-trngaje"
 
 chmod +x "$EMUDIR"/launch.sh
 cd "$EMUDIR" || exit

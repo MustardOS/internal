@@ -13,7 +13,7 @@ FILE=${3%/}
 	LOG_INFO "$0" 0 "FILE" "$FILE"
 ) &
 
-PPSSPP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/ppsspp"
+PPSSPP_DIR="/opt/muos/share/emulator/ppsspp"
 
 SETUP_SDL_ENVIRONMENT
 

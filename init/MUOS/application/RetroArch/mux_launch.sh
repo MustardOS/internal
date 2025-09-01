@@ -17,7 +17,7 @@ export HOME
 
 SET_VAR "system" "foreground_process" "retroarch"
 
-RA_CONF="/run/muos/storage/info/config/retroarch.cfg"
+RA_CONF="/opt/muos/share/info/config/retroarch.cfg"
 RA_ARGS=$(CONFIGURE_RETROARCH "$RA_CONF")
 
 IS_SWAP=$(DETECT_CONTROL_SWAP)

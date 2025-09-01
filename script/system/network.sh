@@ -165,7 +165,7 @@ TRY_CONNECT() {
 case "$1" in
 	disconnect)
 		case "$(GET_VAR "device" "board/name")" in
-			tui*) /opt/muos/device/script/module.sh unload-network ;;
+			tui*) /opt/muos/script/device/module.sh unload-network ;;
 			*) ;;
 		esac
 
@@ -186,7 +186,7 @@ case "$1" in
 
 	connect)
 		case "$(GET_VAR "device" "board/name")" in
-			tui*) /opt/muos/device/script/module.sh load-network ;;
+			tui*) /opt/muos/script/device/module.sh load-network ;;
 			*) ;;
 		esac
 

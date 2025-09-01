@@ -14,7 +14,7 @@ SETUP_SDL_ENVIRONMENT
 
 LOVEDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Moonlight"
 MOONDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Moonlight/moonlight"
-GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
+GPTOKEYB="/opt/muos/share/emulator/gptokeyb/gptokeyb2"
 
 cd "$LOVEDIR" || exit
 SET_VAR "system" "foreground_process" "love"

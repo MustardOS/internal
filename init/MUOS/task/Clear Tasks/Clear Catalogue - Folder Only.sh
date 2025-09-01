@@ -14,7 +14,7 @@ CATALOGUE_DIR="/run/muos/storage/info/catalogue"
 }
 
 echo "Generating Predefined Catalogue"
-/opt/muos/script/system/catalogue.sh "$(GET_VAR "device" "storage/rom/mount")"
+/opt/muos/script/system/catalogue.sh
 
 echo "Sync Filesystem"
 sync

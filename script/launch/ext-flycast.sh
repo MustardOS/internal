@@ -20,7 +20,7 @@ SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "flycast"
 
-EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/flycast"
+EMUDIR="/opt/muos/share/emulator/flycast"
 
 chmod +x "$EMUDIR"/flycast
 cd "$EMUDIR" || exit

@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-ASSIGN_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/assign"
+ASSIGN_DIR="/opt/muos/share/info/assign"
 
 OUTPUT_FILE="$ASSIGN_DIR/assign.json"
 LOG_FILE="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/assign_gen.txt"

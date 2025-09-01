@@ -60,22 +60,8 @@ MOUNT_DEVICE() {
 			# Checking for junk
 			DELETE_CRUFT "$SD_MOUNT"
 
-			BACKUP_DIR="$SD_MOUNT/MUOS_backup"
-			mkdir -p "$BACKUP_DIR"
-
-			for REL in \
-				log \
-				theme \
-				info/config \
-				info/core \
-				info/name; do
-				SRC="$SD_MOUNT/MUOS/$REL" || exit
-				[ -d "$SRC" ] || continue
-
-				DEST="$BACKUP_DIR/$REL"
-				mkdir -p "${DEST%/*}"
-				mv "$SRC" "$DEST"
-			done
+			# Move old MUOS directory
+			mv "$SD_MOUNT/MUOS" "$SD_MOUNT/MUOS_old"
 		fi
 
 		return 0

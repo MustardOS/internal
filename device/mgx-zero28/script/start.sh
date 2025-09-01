@@ -9,22 +9,22 @@ if [ "$(GET_VAR "device" "board/debugfs")" -eq 1 ]; then
 fi
 
 if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-	/opt/muos/device/script/hdmi.sh
+	/opt/muos/script/device/hdmi.sh
 else
-	/opt/muos/device/script/bright.sh R
+	/opt/muos/script/device/bright.sh R
 
 	case "$(GET_VAR "config" "settings/advanced/brightness")" in
 		"high")
-			/opt/muos/device/script/bright.sh "$(GET_VAR "device" "screen/bright")"
+			/opt/muos/script/device/bright.sh "$(GET_VAR "device" "screen/bright")"
 			;;
 		"medium")
-			/opt/muos/device/script/bright.sh 90
+			/opt/muos/script/device/bright.sh 90
 			;;
 		"low")
-			/opt/muos/device/script/bright.sh 10
+			/opt/muos/script/device/bright.sh 10
 			;;
 		*)
-			/opt/muos/device/script/bright.sh "$(GET_VAR "config" "settings/general/brightness")"
+			/opt/muos/script/device/bright.sh "$(GET_VAR "config" "settings/general/brightness")"
 			;;
 	esac
 
@@ -47,17 +47,18 @@ if [ "$(GET_VAR "config" "settings/advanced/thermal")" -eq 0 ]; then
 fi
 
 # Add device specific Retroarch Binary
-RA_BIN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-tui"
-RA_MD5="$(cat "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/retroarch/retroarch-tui.md5")"
-RA_TARGET="/usr/bin/retroarch"
+RA_DIR="/opt/muos/share/emulator/retroarch"
+RA_BIN="$RA_DIR/retroarch-tui"
+RA_MD5="$RA_DIR/retroarch-tui.md5"
+RA_TGT="/usr/bin/retroarch"
 
-if [ -f "$RA_TARGET" ]; then
-	CURRENT_MD5=$(md5sum "$RA_TARGET" | awk '{ print $1 }')
+if [ -f "$RA_TGT" ]; then
+	CURRENT_MD5=$(md5sum "$RA_TGT" | awk '{ print $1 }')
 	if [ "$CURRENT_MD5" != "$RA_MD5" ]; then
-		cp -f "$RA_BIN" "$RA_TARGET"
-		chmod +x "$RA_TARGET"
+		cp -f "$RA_BIN" "$RA_TGT"
+		chmod +x "$RA_TGT"
 	fi
 else
-	cp -f "$RA_BIN" "$RA_TARGET"
-	chmod +x "$RA_TARGET"
+	cp -f "$RA_BIN" "$RA_TGT"
+	chmod +x "$RA_TGT"
 fi

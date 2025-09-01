@@ -13,8 +13,8 @@ FILE=${3%/}
 	LOG_INFO "$0" 0 "FILE" "$FILE"
 ) &
 
-GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
-MREADER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/mreader"
+GPTOKEYB="/opt/muos/share/emulator/gptokeyb/gptokeyb2"
+MREADER_DIR="/opt/muos/share/emulator/mreader"
 
 HOME="$(GET_VAR "device" "board/home")"
 export HOME

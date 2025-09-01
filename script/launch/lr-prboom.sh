@@ -20,7 +20,7 @@ SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "retroarch"
 
-RA_CONF="/run/muos/storage/info/config/retroarch.cfg"
+RA_CONF="/opt/muos/share/info/config/retroarch.cfg"
 RA_ARGS=$(CONFIGURE_RETROARCH "$RA_CONF")
 
 IS_SWAP=$(DETECT_CONTROL_SWAP)
@@ -40,7 +40,7 @@ cp -f "$F_PATH/.IWAD/$IWAD" "$F_PATH/.$NAME/$IWAD"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-nice --20 retroarch -v -f -c "$RA_CONF" $RA_ARGS -L "$(GET_VAR "device" "storage/rom/mount")/MUOS/core/$CORE" "$F_PATH/.$NAME/$IWAD"
+nice --20 retroarch -v -f -c "$RA_CONF" $RA_ARGS -L "/opt/muos/share/core/$CORE" "$F_PATH/.$NAME/$IWAD"
 
 [ -e "/tmp/ra_no_load" ] && rm -f "/tmp/ra_no_load" "$EXTRA_CONF"
 [ "$IS_SWAP" -eq 1 ] && DETECT_CONTROL_SWAP

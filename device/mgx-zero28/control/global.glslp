@@ -1,5 +1,5 @@
 shaders = "1"
-shader0 = "/run/muos/storage/retroarch/shaders/interpolation/shaders/sharp-bilinear-simple.glsl"
+shader0 = "/opt/muos/share/emulator/retroarch/shaders/interpolation/shaders/sharp-bilinear-simple.glsl"
 alias0 = ""
 wrap_mode0 = "clamp_to_border"
 mipmap_input0 = "false"

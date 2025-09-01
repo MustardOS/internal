@@ -34,13 +34,12 @@ fi
 rm "$ROM_GO"
 
 GPTOKEYB_BIN=gptokeyb2
-GPTOKEYB_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb"
+GPTOKEYB_DIR="/opt/muos/share/emulator/gptokeyb"
 GPTOKEYB_CONTROLLERCONFIG="/usr/lib/gamecontrollerdb.txt"
-GPTOKEYB_CONFDIR="/opt/muos/share/gptokeyb"
 
-if [ -f "$GPTOKEYB_CONFDIR/$CORE.gptk" ]; then
+if [ -f "$GPTOKEYB_DIR/$CORE.gptk" ]; then
 	SDL_GAMECONTROLLERCONFIG_FILE="$GPTOKEYB_CONTROLLERCONFIG" \
-		"$GPTOKEYB_DIR/$GPTOKEYB_BIN" -c "$GPTOKEYB_CONFDIR/$CORE.gptk" &
+		"$GPTOKEYB_DIR/$GPTOKEYB_BIN" -c "$GPTOKEYB_DIR/$CORE.gptk" &
 fi
 
 case "$(GET_VAR "device" "board/name")" in
@@ -63,7 +62,7 @@ cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
 # Construct the path to the assigned launcher INI file based on device storage,
 # assignment name ($ASSIGN), and launcher name ($LAUNCH).  This is created within
 # the launching/assigning of the system and core.
-ASSIGN_INI=$(printf "%s/MUOS/info/assign/%s/%s.ini" "$(GET_VAR "device" "storage/rom/mount")" "$ASSIGN" "$LAUNCH")
+ASSIGN_INI=$(printf "/opt/muos/share/info/assign/%s/%s.ini" "$ASSIGN" "$LAUNCH")
 
 # Extract launcher stage commands from the INI file constructed above.
 # These are either the internal launch scripts or custom scripts if it
@@ -71,7 +70,7 @@ ASSIGN_INI=$(printf "%s/MUOS/info/assign/%s/%s.ini" "$(GET_VAR "device" "storage
 LAUNCH_PREP=$(PARSE_INI "$ASSIGN_INI" "launch" "prep") # Optional preparation step before content run
 
 # Override launch script priority: ROM -> CORE -> DIR
-OVERRIDE_ROOT="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/override"
+OVERRIDE_ROOT="/opt/muos/share/info/override"
 
 if [ -f "$OVERRIDE_ROOT/${NAME}.sh" ]; then
 	LAUNCH_EXEC="$OVERRIDE_ROOT/${NAME}.sh"

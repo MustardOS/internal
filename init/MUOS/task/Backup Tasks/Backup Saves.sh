@@ -51,9 +51,9 @@ if [ -d "/run/muos/storage/bios/dc" ]; then
 fi
 
 # Define DraStic source directories
-if [ -d "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic" ]; then
-	DRASTIC_SAVE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/backup"
-	DRASTIC_SAVESTATE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/savestates"
+if [ -d "/opt/muos/share/emulator/drastic" ]; then
+	DRASTIC_SAVE_DIR="/opt/muos/share/emulator/drastic/backup"
+	DRASTIC_SAVESTATE_DIR="/opt/muos/share/emulator/drastic/savestates"
 else
 	DRASTIC_SAVE_DIR=""
 	DRASTIC_SAVESTATE_DIR=""

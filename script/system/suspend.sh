@@ -33,7 +33,7 @@ SLEEP() {
 
 	touch "$RECENT_WAKE"
 
-	/opt/muos/device/script/bright.sh 0
+	/opt/muos/script/device/bright.sh 0
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
 
 	# Shutdown all of the CPU cores for boards that have actual proper
@@ -62,7 +62,7 @@ SLEEP() {
 
 	[ "$HAS_NETWORK" -eq 1 ] && /opt/muos/script/system/network.sh disconnect
 
-	/opt/muos/device/script/module.sh unload
+	/opt/muos/script/device/module.sh unload
 
 	echo "$SUSPEND_STATE" >/sys/power/state
 }
@@ -81,7 +81,7 @@ RESUME() {
 		*) ;;
 	esac
 
-	/opt/muos/device/script/module.sh load &
+	/opt/muos/script/device/module.sh load &
 
 	LED_CONTROL_CHANGE
 
@@ -105,7 +105,7 @@ RESUME() {
 			E_BRIGHT=$((E_BRIGHT - 1))
 		fi
 
-		/opt/muos/device/script/bright.sh "$E_BRIGHT"
+		/opt/muos/script/device/bright.sh "$E_BRIGHT"
 		B=$((B + 1))
 	done
 

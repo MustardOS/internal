@@ -16,7 +16,7 @@ USAGE() {
 
 MODE="$1"
 CONFIG_ARG="$2"
-CONFIG_DIR="/run/muos/storage/info/config"
+CONFIG_DIR="/opt/muos/share/info/config"
 CONFIG_ZIP_DIR="/run/muos/storage/package/config"
 
 INSTALL() {

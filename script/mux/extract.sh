@@ -97,7 +97,6 @@ case "$ARCHIVE_NAME" in
 							info) DESTINATION="/run/muos/storage/info" ;;
 							muos) DESTINATION="/run/muos/storage" ;;
 							bios) DESTINATION="/run/muos/storage/bios" ;;
-							language) DESTINATION="/run/muos/storage/language" ;;
 							theme) DESTINATION="/run/muos/storage/theme" ;;
 							*) DESTINATION="/$FOLDER_NAME" ;;
 						esac

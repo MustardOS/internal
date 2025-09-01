@@ -13,7 +13,7 @@ SET_VAR "config" "boot/device_mode" "0"
 SET_VAR "device" "audio/ready" "0"
 
 LOG_INFO "$0" 0 "BOOTING" "Setting OS Release"
-/opt/muos/script/system/os_release.sh &
+/opt/muos/script/system/os_release.sh
 
 LOG_INFO "$0" 0 "BOOTING" "Reset temporary screen rotation and zoom"
 SCREEN_DIR="/opt/muos/device/config/screen"
@@ -53,6 +53,12 @@ case "$BOARD_NAME" in
 	*) ;;
 esac
 
+LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
+/opt/muos/script/device/module.sh load
+
+LOG_INFO "$0" 0 "BOOTING" "Loading First Init Disclaimer"
+[ "$FACTORY_RESET" -eq 1 ] && /opt/muos/frontend/muxwarn &
+
 LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"
 echo "performance" >"$GOVERNOR"
 
@@ -67,9 +73,6 @@ done &
 
 LOG_INFO "$0" 0 "BOOTING" "Bringing Up 'localhost' Network"
 ifconfig lo up
-
-LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
-/opt/muos/device/script/module.sh load
 
 LOG_INFO "$0" 0 "BOOTING" "Starting Device Management System"
 /sbin/udevd -d || CRITICAL_FAILURE udev
@@ -89,25 +92,25 @@ if [ "$FACTORY_RESET" -eq 0 ]; then
 
 	echo 1 >/tmp/work_led_state
 	: >/tmp/net_start
+
+	LOG_INFO "$0" 0 "BOOTING" "Detecting Console Mode"
+	CONSOLE_MODE=0
+	if [ "$BOARD_HDMI" -eq 1 ]; then
+		HDMI_PATH=$(GET_VAR "device" "screen/hdmi")
+		HDMI_VALUE=0
+
+		[ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ] && HDMI_VALUE=$(cat "$HDMI_PATH")
+
+		case "$HDMI_VALUE" in
+			1) CONSOLE_MODE=1 ;;                # HDMI is active = external
+			*[!0-9]* | 0 | *) CONSOLE_MODE=0 ;; # Non-numeric, 0, or fallback = internal
+		esac
+	fi
+	SET_VAR "config" "boot/device_mode" "$CONSOLE_MODE"
+
+	LOG_INFO "$0" 0 "BOOTING" "Checking Swap Requirements"
+	/opt/muos/script/system/swap.sh &
 fi
-
-LOG_INFO "$0" 0 "BOOTING" "Detecting Console Mode"
-CONSOLE_MODE=0
-if [ "$BOARD_HDMI" -eq 1 ]; then
-	HDMI_PATH=$(GET_VAR "device" "screen/hdmi")
-	HDMI_VALUE=0
-
-	[ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ] && HDMI_VALUE=$(cat "$HDMI_PATH")
-
-	case "$HDMI_VALUE" in
-		1) CONSOLE_MODE=1 ;;                # HDMI is active = external
-		*[!0-9]* | 0 | *) CONSOLE_MODE=0 ;; # Non-numeric, 0, or fallback = internal
-	esac
-fi
-SET_VAR "config" "boot/device_mode" "$CONSOLE_MODE"
-
-LOG_INFO "$0" 0 "BOOTING" "Checking Swap Requirements"
-/opt/muos/script/system/swap.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"
 cp -f "/opt/muos/device/control/asound.conf" "/etc/asound.conf"
@@ -124,7 +127,7 @@ cp -f "/opt/muos/device/control/asound.state" "/var/lib/alsa/asound.state"
 alsactl -U restore
 
 LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
-/opt/muos/script/system/pipewire.sh &
+/opt/muos/script/system/pipewire.sh start &
 
 if [ "$FACTORY_RESET" -eq 1 ]; then
 	LED_CONTROL_CHANGE
@@ -147,21 +150,24 @@ LOG_INFO "$0" 0 "BOOTING" "Device Specific Startup"
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
 while [ ! -f "/run/muos/storage/mounted" ]; do TBOX sleep 0.1; done
 
-LOG_INFO "$0" 0 "BOOTING" "Unionising ROMS on Storage Mounts"
-/opt/muos/script/mount/union.sh start &
-
 LOG_INFO "$0" 0 "BOOTING" "Checking for Safety Script"
 OOPS="$ROM_MOUNT/oops.sh"
 [ -x "$OOPS" ] && "$OOPS"
 
+LOG_INFO "$0" 0 "BOOTING" "Unionising ROMS on Storage Mounts"
+/opt/muos/script/mount/union.sh start &
+
 if [ $CONSOLE_MODE -eq 0 ] && [ "$(GET_VAR "config" "boot/device_mode")" -eq 0 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
-	/opt/muos/device/script/charge.sh
+	/opt/muos/script/device/charge.sh
 	LED_CONTROL_CHANGE
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Checking for Network Capability"
 if [ "$CONNECT_ON_BOOT" -eq 1 ] && [ "$HAS_NETWORK" -eq 1 ]; then
+	LOG_INFO "$0" 0 "BOOTING" "Loading Network Module"
+	/opt/muos/script/device/module.sh load-network
+
 	LOG_INFO "$0" 0 "BOOTING" "Starting Network Services"
 	/opt/muos/script/system/network.sh connect &
 fi
@@ -196,7 +202,7 @@ LOG_INFO "$0" 0 "BOOTING" "Setting up SDL Controller Map"
 /opt/muos/script/mux/sdl_map.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Running Catalogue Generator"
-/opt/muos/script/system/catalogue.sh "$ROM_MOUNT" &
+/opt/muos/script/system/catalogue.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Precaching RetroArch System"
 ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/share/conf/preload.txt &

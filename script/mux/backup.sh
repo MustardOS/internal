@@ -97,9 +97,9 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 				fi
 
 				# Define DraStic source directories
-				if [ -d "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic" ]; then
-					DRASTIC_SAVE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/backup"
-					DRASTIC_SAVESTATE_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/drastic/savestates"
+				if [ -d "/opt/muos/share/emulator/drastic" ]; then
+					DRASTIC_SAVE_DIR="/opt/muos/share/emulator/drastic/backup"
+					DRASTIC_SAVESTATE_DIR="/opt/muos/share/emulator/drastic/savestates"
 				else
 					DRASTIC_SAVE_DIR=""
 					DRASTIC_SAVESTATE_DIR=""
@@ -112,20 +112,20 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 					PPSSPP_RA_SAVE_DIR=""
 				fi
 
-				if [ -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64" ]; then
-					PICO8_64="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64"
+				if [ -f "/opt/muos/share/emulator/pico8/pico8_64" ]; then
+					PICO8_64="/opt/muos/share/emulator/pico8/pico8_64"
 				else
 					PICO8_64=""
 				fi
 
-				if [ -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_dyn" ]; then
-					PICO8_DYN="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_dyn"
+				if [ -f "/opt/muos/share/emulator/pico8/pico8_dyn" ]; then
+					PICO8_DYN="/opt/muos/share/emulator/pico8/pico8_dyn"
 				else
 					PICO8_DYN=""
 				fi
 
-				if [ -f "$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8.dat" ]; then
-					PICO8_DAT="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8.dat"
+				if [ -f "/opt/muos/share/emulator/pico8/pico8.dat" ]; then
+					PICO8_DAT="/opt/muos/share/emulator/pico8/pico8.dat"
 				else
 					PICO8_DAT=""
 				fi

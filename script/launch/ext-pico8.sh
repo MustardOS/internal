@@ -21,7 +21,7 @@ SETUP_SDL_ENVIRONMENT
 P8_BIN="pico8_64"
 SET_VAR "system" "foreground_process" "$P8_BIN"
 
-EMUDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8"
+EMUDIR="/opt/muos/share/emulator/pico8"
 
 # First look for emulator in BIOS directory, which allows it to follow the
 # user's storage preference. Fall back on the old path for compatibility.
@@ -48,7 +48,7 @@ cd "$EMUDIR" || exit
 
 F_DIR="$(dirname "$FILE")"
 
-GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2"
+GPTOKEYB="/opt/muos/share/emulator/gptokeyb/gptokeyb2"
 $GPTOKEYB "./$P8_BIN" -c "./pico8.gptk" &
 
 if [ "$NAME" = "Splore" ]; then

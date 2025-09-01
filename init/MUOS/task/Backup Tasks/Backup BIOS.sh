@@ -30,9 +30,9 @@ DEST_FILE="$DEST_DIR/muOS-BIOS-$(date +"%Y-%m-%d_%H-%M").muxzip"
 
 # Capture PICO-8 files and backup
 PICO8_FILES="
-$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_64
-$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8_dyn
-$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/pico8/pico8.dat
+/opt/muos/share/emulator/pico8/pico8_64
+/opt/muos/share/emulator/pico8/pico8_dyn
+/opt/muos/share/emulator/pico8/pico8.dat
 "
 
 TO_BACKUP="

@@ -165,13 +165,11 @@ if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ]; then
 	LOG_INFO "$0" 0 "HALT" "Shutdown Syncthing gracefully"
 	SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' /run/muos/storage/syncthing/config.xml)
 	CURL_OUTPUT=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "X-API-Key: $SYNCTHING_API" "http://localhost:7070/rest/system/shutdown")
-	if [ "$CURL_OUTPUT" -eq 200 ]; then
-		LOG_INFO "$0" 0 "HALT" "Syncthing shutdown request sent successfully."
-	fi
+	[ "$CURL_OUTPUT" -eq 200 ] && LOG_INFO "$0" 0 "HALT" "Syncthing shutdown request sent successfully"
 fi
 
-# Muting audio so we don't get any of those nasty clicks from the speaker.
-wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
+LOG_INFO "$0" 0 "BOOTING" "Stopping Pipewire"
+/opt/muos/script/system/pipewire.sh stop &
 
 # Kill the lid switch process if it exists.
 if pgrep lid.sh >/dev/null 2>&1; then
@@ -218,7 +216,7 @@ swapoff -a
 
 # Unloading kernel modules.
 LOG_INFO "$0" 0 "HALT" "Unloading kernel modules"
-/opt/muos/device/script/module.sh unload
+/opt/muos/script/device/module.sh unload
 
 # Stop system services. If shutdown scripts are still running after
 # 10s, SIGTERM them, then wait 5s more before resorting to SIGKILL.

@@ -1,10 +1,11 @@
-INSTALLING MUOS
+INSTALLING SYSTEM
 A cucumber a day keeps the weasels away
 A jellyfish is just a haunted plastic bag with a vendetta
 All of my books are sorted by the authors first name
 All roads lead to Rome, but I'm pretty sure I took a wrong turn
 Always be yourself, unless you can be a unicorn
 Always trust a llama; they spit when they're honest
+And the question is?
 Antisocial tendencies: a selective social approach?
 A platypus is proof evolution had a sense of humour
 Are we still here? I want to play games already...
@@ -42,6 +43,7 @@ Cows are just grass-powered milk machines
 Critical Error 14E... no just kidding!
 Dancing in the rain is just nature's way of testing your waterproofing
 Dangerously close to making a good decision...
+Did you have a giant pork roll for $10 today?
 Did you hear about the lazy baker? He kneaded a break
 Do clouds ever get tired of floating?
 Do frogs know they're moist?

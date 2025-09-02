@@ -5,15 +5,14 @@
 RMP_LOG="/mnt/mmc/MUOS/log/device.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 
-# Set ppsspp-sa root directory
-PPSSPP_DIR="/opt/muos/share/emulator/ppsspp"
-
-# Move configs for ppsspp-sa
 DEVICE_PREFIX="rg tui"
 for PREFIX in $DEVICE_PREFIX; do
+	PPSSPP_DIR="/opt/muos/share/emulator/ppsspp"
+
 	PPSSPP_CONTROL_INI="${PPSSPP_DIR}/${PREFIX}/.config/ppsspp/PSP/SYSTEM/controls.ini"
 	PPSSPP_SYSTEM_INI="${PPSSPP_DIR}/${PREFIX}/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
 
+	mkdir -p "${PPSSPP_DIR}/${PREFIX}/.config/ppsspp/PSP/SYSTEM"
 	if [ ! -f "$PPSSPP_CONTROL_INI" ]; then
 		cp "$DEVICE_CONTROL_DIR/ppsspp/${PREFIX}/controls.ini" "$PPSSPP_CONTROL_INI"
 	fi
@@ -25,12 +24,14 @@ done
 # Move mupen64plus-rice.cfg for external mupen64plus
 MP64RICE="/opt/muos/share/emulator/mupen64plus/mupen64plus-rice.cfg"
 if [ ! -f "$MP64RICE" ]; then
+	mkdir -p "/opt/muos/share/emulator/mupen64plus"
 	cp "$DEVICE_CONTROL_DIR/mupen64plus-rice.cfg" "$MP64RICE"
 fi
 
 # Move mupen64plus-gl64.cfg for external mupen64plus
 MP64GL64="/opt/muos/share/emulator/mupen64plus/mupen64plus-gl64.cfg"
 if [ ! -f "$MP64GL64" ]; then
+	mkdir -p "/opt/muos/share/emulator/mupen64plus"
 	cp "$DEVICE_CONTROL_DIR/mupen64plus-gl64.cfg" "$MP64GL64"
 fi
 
@@ -52,27 +53,32 @@ touch "$GCDB_STORE/system.txt"
 DRASTIC_T_JSON="/opt/muos/share/emulator/drastic-trngaje/resources/settings.json"
 DRASTIC_T_CFG="/opt/muos/share/emulator/drastic-trngaje/config/drastic.cfg"
 if [ ! -f "$DRASTIC_T_JSON" ]; then
+	mkdir -p "/opt/muos/share/emulator/drastic-trngaje/resources"
 	cp -f "$DEVICE_CONTROL_DIR/drastic-trngaje/settings.json" "$DRASTIC_T_JSON"
 fi
 if [ ! -f "$DRASTIC_T_CFG" ]; then
+	mkdir -p "/opt/muos/share/emulator/drastic-trngaje/config"
 	cp -f "$DEVICE_CONTROL_DIR/drastic-trngaje/drastic.cfg" "$DRASTIC_T_CFG"
 fi
 
 # Move DraStic Legacy config
 DRASTIC_CFG="/opt/muos/share/emulator/drastic-legacy/config/drastic.cfg"
 if [ ! -f "$DRASTIC_CFG" ]; then
+	mkdir -p "/opt/muos/share/emulator/drastic-legacy/config"
 	cp -f "$DEVICE_CONTROL_DIR/drastic.cfg" "$DRASTIC_CFG"
 fi
 
 # Move YabaSanshiro config
 YABASANSHIRO="/opt/muos/share/emulator/yabasanshiro/.emulationstation/es_temporaryinput.cfg"
 if [ ! -f "$YABASANSHIRO" ]; then
+	mkdir -p "/opt/muos/share/emulator/yabasanshiro/.emulationstation"
 	cp "$DEVICE_CONTROL_DIR/yabasanshiro/es_temporaryinput.cfg" "$YABASANSHIRO"
 fi
 
 # Move OpenBOR config
 for file in "$DEVICE_CONTROL_DIR/openbor/"*.ini; do
 	if [ ! -f "/opt/muos/share/emulator/openbor/userdata/system/configs/openbor/$(basename "$file")" ]; then
+		mkdir -p "/opt/muos/share/emulator/openbor/userdata/system/configs/openbor/"
 		cp "$file" "/opt/muos/share/emulator/openbor/userdata/system/configs/openbor/"
 	fi
 done
@@ -162,7 +168,6 @@ fi
 
 # Set device-specific overlays
 # Automatically process all files in the ra-config directory if it exists
-
 RA_CONFIG_DIR="/opt/muos/share/info/config"
 DEVICE_CONFIG_DIR="$DEVICE_CONTROL_DIR/ra-config"
 

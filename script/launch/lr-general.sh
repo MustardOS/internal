@@ -38,7 +38,10 @@ fi
 
 nice --20 retroarch -v -f -c "$RA_CONF" $RA_ARGS -L "/opt/muos/share/core/$CORE" "$FILE"
 
-[ -e "/tmp/ra_no_load" ] && rm -f "/tmp/ra_no_load" "$EXTRA_CONF"
+for RF in ra_no_load ra_autoload_once.cfg; do
+	[ -e "$RF" ] && ENSURE_REMOVED "$RF"
+done
+
 [ "$IS_SWAP" -eq 1 ] && DETECT_CONTROL_SWAP
 
 unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

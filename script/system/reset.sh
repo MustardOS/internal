@@ -51,14 +51,54 @@ printf 0 >"$PROGRESS_FILE"
 		done
 ) 3>&1 | gzip -dc | tar -xf - -C "$ROM_MOUNT"
 
-printf 100 >"$PROGRESS_FILE"
 LOG_INFO "$0" 0 "FACTORY RESET" "ROM Restore Complete"
+printf 100 >"$PROGRESS_FILE"
 
-TBOX sleep 5
-touch "/tmp/msg_finish"
+LOG_INFO "$0" 0 "FACTORY RESET" "Generating Filesystem Paths"
+MUOS_DIR="$ROM_MOUNT/MUOS"
+DIRS='
+info/catalogue
+info/collection
+info/history
+info/name
+info/track
+init
+log/boot
+log/dmesg
+log/retroarch
+network
+package/catalogue
+package/config
+save/drastic/backup
+save/drastic/savestates
+save/drastic-legacy/backup
+save/drastic-legacy/savestates
+save/file/OpenBOR-Ext
+save/file/PPSSPP-Ext
+save/file/YabaSanshiro-Ext
+save/pico8/bbs
+save/pico8/cdata
+save/pico8/cstore
+save/pico8/desktop
+save/state/PPSSPP-Ext
+save/state/YabaSanshiro-Ext
+screenshot
+'
 
-LOG_INFO "$0" 0 "FACTORY RESET" "Purging Init Directory"
-rm -rf /opt/muos/init
+for D in $DIRS; do
+	mkdir -p "$MUOS_DIR/$D"
+done
+
+LOG_INFO "$0" 0 "FACTORY RESET" "Generating Default RetroArch Config Archive"
+ARCHIVE="$MUOS_DIR/package/config/MustardOS Default.muxcfg"
+SRC_DIR="/opt/muos/share/info/config"
+(cd "$SRC_DIR" && zip -r -9 -q -y -X "$ARCHIVE" .)
+
+LOG_INFO "$0" 0 "FACTORY RESET" "Copying Default Friendly Name Files"
+SRC_DIR="/opt/muos/share/info"
+DST_DIR="$MUOS_DIR/info"
+cp -f "$SRC_DIR"/name/* "$DST_DIR/name/"
+cp -f "$SRC_DIR"/pass.ini "$SRC_DIR"/skip.ini "$DST_DIR/"
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Automatic Core Assign"
 /opt/muos/script/system/assign.sh -p -v

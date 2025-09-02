@@ -386,7 +386,7 @@ PLAY_SOUND() {
 
 	case "$(GET_VAR "config" "settings/general/sound")" in
 		1)
-			WAV="/mnt/mmc/MUOS/sound/$1.wav"
+			WAV="/opt/muos/share/media/sound/$1.wav"
 			[ -e "$WAV" ] && cp "$WAV" "$SND"
 			;;
 		2)

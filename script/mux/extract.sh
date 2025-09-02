@@ -127,7 +127,8 @@ case "$ARCHIVE_NAME" in
 		;;
 esac
 
-touch "$(GET_VAR "device" "storage/rom/mount")/MUOS/update/installed/$ARCHIVE_NAME.done"
+mkdir -p "/opt/muos/update/installed"
+touch "/opt/muos/update/installed/$ARCHIVE_NAME.done"
 
 echo "Sync Filesystem"
 sync

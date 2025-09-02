@@ -83,7 +83,7 @@ if [ "$GREENLIGHT" -eq 1 ]; then
 	nice --20 retroarch -v -f -c "$RA_CONF" $RA_ARGS -L "/opt/muos/share/core/$CORE" "$DOUK"
 
 	for RF in ra_no_load ra_autoload_once.cfg; do
-		[ -e "$RF" ] && ENSURE_REMOVED "$RF"
+		[ -e "/tmp/$RF" ] && ENSURE_REMOVED "/tmp/$RF"
 	done
 
 	[ "$IS_SWAP" -eq 1 ] && DETECT_CONTROL_SWAP

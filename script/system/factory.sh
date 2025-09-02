@@ -4,9 +4,9 @@
 
 if [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
 	case "$(GET_VAR "device" "board/name")" in
-		rg*) /opt/muos/device/script/led_control.sh 2 255 225 173 1 ;;
-		tui-brick) /opt/muos/device/script/led_control.sh 1 10 225 173 1 225 173 1 225 173 1 225 173 1 225 173 1 ;;
-		tui-spoon) /opt/muos/device/script/led_control.sh 1 10 225 173 1 225 173 1 225 173 1 ;;
+		rg*) /opt/muos/script/device/rgb.sh 2 255 225 173 1 ;;
+		tui-brick) /opt/muos/script/device/rgb.sh 1 10 225 173 1 225 173 1 225 173 1 225 173 1 225 173 1 ;;
+		tui-spoon) /opt/muos/script/device/rgb.sh 1 10 225 173 1 225 173 1 225 173 1 ;;
 		*) ;;
 	esac
 fi

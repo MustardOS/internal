@@ -17,17 +17,6 @@ SET_VAR "system" "foreground_process" "dingux"
 DINGUX_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Dingux Commander"
 cd "$DINGUX_DIR" || exit
 
-(
-	while ! pgrep -f "dingux" >/dev/null; do
-		TBOX sleep 0.25
-	done
-
-	TBOX sleep 1
-
-	evemu-event "$(GET_VAR "device" "input/general")" --type "$(GET_VAR "device" "input/type/dpad/right")" --code "$(GET_VAR "device" "input/code/dpad/right")" --value 1
-	evemu-event "$(GET_VAR "device" "input/general")" --type "$(GET_VAR "device" "input/type/dpad/left")" --code "$(GET_VAR "device" "input/code/dpad/left")" --value -1
-) &
-
 ./dingux --config "$DINGUX_DIR/dingux.cfg"
 
 unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

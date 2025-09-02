@@ -42,6 +42,8 @@ ldconfig -v >"/opt/muos/ldconfig.log"
 LOG_INFO "$0" 0 "FACTORY RESET" "Initialising Factory Reset Script"
 /opt/muos/script/system/reset.sh
 
+touch "/tmp/msg_finish"
+TBOX sleep 1
 killall -q "mpv"
 
 /opt/muos/bin/nosefart "/opt/muos/share/media/support.nsf" &

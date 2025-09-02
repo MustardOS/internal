@@ -65,7 +65,19 @@ MOUNT_DEVICE() {
 			DELETE_CRUFT "$SD_MOUNT"
 
 			# Move old MUOS directory
-			mv "$SD_MOUNT/MUOS" "$SD_MOUNT/MUOS_old"
+			SRC="$SD_MOUNT/MUOS"
+			if [ -d "$SRC" ]; then
+				BASE="$SD_MOUNT/MUOS_old"
+				DEST="$BASE"
+
+				N=0
+				while [ -d "$DEST" ]; do
+					N=$((N + 1))
+					DEST="${BASE}_$N"
+				done
+
+				mv "$SRC" "$DEST"
+			fi
 		fi
 
 		return 0

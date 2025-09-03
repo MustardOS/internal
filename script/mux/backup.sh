@@ -234,7 +234,7 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 			fi
 
 			# Use -ru0 for already compressed packages, -ru9 for directories, -u9 for files
-			if [ "$SRC_SHORTNAME" = "CataloguePkg" ] || [ "$SRC_SHORTNAME" = "ConfigPkg" ] || [ "$SRC_SHORTNAME" = "BootlogoPkg" ]; then
+			if [ "$SRC_SHORTNAME" = "CataloguePkg" ] || [ "$SRC_SHORTNAME" = "ConfigPkg" ]; then
 				ZIP_FLAGS="-ru0"
 			elif [ "$SRC_SHORTNAME" = "External" ] || [ "$SRC_SHORTNAME" = "MuosConfig" ] || [ -d "$SRC_PATH" ]; then
 				ZIP_FLAGS="-ru9"

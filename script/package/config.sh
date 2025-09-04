@@ -36,7 +36,7 @@ INSTALL() {
 	unzip -q "$CONFIG_ZIP" -d "$CONFIG_DIR" && sync
 
 	printf "Restoring device control configuration\n"
-	/opt/muos/device/script/control.sh
+	/opt/muos/script/device/control.sh
 
 	CLEANED_CONFIG_NAME=$(printf "%s\n" "$CONFIG_ARG" | sed -E 's/-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}$//')
 	printf "%s\n" "$CLEANED_CONFIG_NAME" >"$CONFIG_DIR/name.txt"

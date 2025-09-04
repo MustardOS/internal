@@ -21,7 +21,7 @@ else
 			/opt/muos/script/device/bright.sh 90
 			;;
 		"low")
-			/opt/muos/script/device/bright.sh 10
+			/opt/muos/script/device/bright.sh 35
 			;;
 		*)
 			/opt/muos/script/device/bright.sh "$(GET_VAR "config" "settings/general/brightness")"
@@ -40,9 +40,7 @@ fi
 
 if [ "$(GET_VAR "config" "settings/advanced/thermal")" -eq 0 ]; then
 	for ZONE in /sys/class/thermal/thermal_zone*; do
-		if [ -e "$ZONE/mode" ]; then
-			echo "disabled" >"$ZONE/mode"
-		fi
+		[ -e "$ZONE/mode" ] && echo "disabled" >"$ZONE/mode"
 	done
 fi
 

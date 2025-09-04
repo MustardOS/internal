@@ -610,7 +610,6 @@ KERNEL_TUNING() {
 LED_CONTROL_CHANGE() {
 	(
 		if [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] && [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
-
 			RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
 			TIMEOUT=10
 			WAIT=0

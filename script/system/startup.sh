@@ -197,7 +197,7 @@ LOG_INFO "$0" 0 "BOOTING" "Starting USB Function"
 [ "$USB_FUNCTION" != "none" ] && /opt/muos/script/system/usb_gadget.sh start
 
 LOG_INFO "$0" 0 "BOOTING" "Setting Device Controls"
-/opt/muos/device/script/control.sh &
+/opt/muos/script/device/control.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Setting up SDL Controller Map"
 /opt/muos/script/mux/sdl_map.sh &

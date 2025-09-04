@@ -9,9 +9,11 @@ FRONTEND stop
 MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 
 echo "Restoring DraStic Configuration"
-rm -f "$MOUNT/MUOS/emulator/drastic-trngaje/config/drastic.cfg" \
-	"$MOUNT/MUOS/emulator/drastic-trngaje/resources/settings.json"
-/opt/muos/device/script/control.sh
+
+DRASTIC_DIR="$MOUNT/MUOS/emulator/drastic-trngaje"
+rm -f "${DRASTIC_DIR}/config/drastic.cfg" "${DRASTIC_DIR}/resources/settings.json"
+
+/opt/muos/script/control/drastic.sh
 
 echo "Sync Filesystem"
 sync

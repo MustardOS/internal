@@ -7,10 +7,10 @@
 FRONTEND stop
 
 echo "Restoring RetroArch Overrides"
+
 rsync --archive --checksum --delete --exclude /retroarch.cfg /opt/muos/default/info/config/ /opt/muos/share/info/config/
 
-# control.sh recreates device-specific RetroArch core overrides and remaps.
-/opt/muos/device/script/control.sh
+/opt/muos/script/control/retroarch.sh
 
 echo "Sync Filesystem"
 sync

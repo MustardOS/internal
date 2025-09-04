@@ -8,19 +8,18 @@ FRONTEND stop
 
 MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 
-# Restore control config
 echo "Restoring YabaSanshiro Controls"
-rm -f "$MOUNT/MUOS/emulator/yabasanshiro/.emulationstation/es_temporaryinput.cfg" \
-	"$MOUNT/MUOS/emulator/yabasanshiro/.yabasanshiro/keymapv2.json"
-/opt/muos/device/script/control.sh
 
-# Remove any per-game configs
-CONF_DIR="$MOUNT/MUOS/emulator/yabasanshiro/.yabasanshiro"
+YABA_DIR="$MOUNT/MUOS/emulator/yabasanshiro"
+rm -f "${YABA_DIR}/.emulationstation/es_temporaryinput.cfg" "${YABA_DIR}/.yabasanshiro/keymapv2.json"
+
+/opt/muos/script/control/yabasanshiro.sh
+
 echo "Removing Per-game YabaSanshiro Configurations"
-for file in "$CONF_DIR"/*.config; do
-    if [ "$(basename "$file")" != "28xx.config" ]; then
-        rm -f "$file"
-    fi
+
+CONF_DIR="${YABA_DIR}/.yabasanshiro"
+for CFG in "$CONF_DIR"/*.config; do
+	[ "$(basename "$CFG")" != "28xx.config" ] && rm -f "$CFG"
 done
 
 echo "Sync Filesystem"

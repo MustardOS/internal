@@ -7,10 +7,10 @@
 FRONTEND stop
 
 echo "Restoring RetroArch Configuration"
+
 rm -f /opt/muos/share/info/config/retroarch.cfg
 
-# control.sh recreates retroarch.cfg from retroarch.default.cfg.
-/opt/muos/device/script/control.sh
+/opt/muos/script/control/retroarch.sh
 
 echo "Sync Filesystem"
 sync

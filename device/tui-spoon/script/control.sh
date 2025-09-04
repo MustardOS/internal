@@ -189,9 +189,8 @@ fi
 # Copy the RetroArch global shader if it doesn't already exist
 [ ! -f "$RA_CONFIG_DIR/global.glslp" ] && cp -f "$DEVICE_CONTROL_DIR/global.glslp" "$RA_CONFIG_DIR/global.glslp"
 
-# Copy Device Specific Deeplay-keys.cfg udev autoconfig
-RA_AUTO="/opt/muos/share/emulator/retroarch/autoconfig/udev/Deeplay-keys.cfg"
-if [ -f "$RA_AUTO" ]; then
-	rm -f "$RA_AUTO"
-	cp "$DEVICE_CONTROL_DIR/Deeplay-keys.cfg" "$RA_AUTO"
-fi
+# Remove tasks that are not used for this device
+MUOS_TASK_DIR="/opt/muos/share/task"
+rm -f "$MUOS_TASK_DIR/Network Tasks/Enable Wi-Fi (8188eu).sh"
+rm -f "$MUOS_TASK_DIR/Storage Tasks/Eject Secondary Storage.sh"
+rm -f "$MUOS_TASK_DIR/Storage Tasks/Mount Secondary Storage.sh"

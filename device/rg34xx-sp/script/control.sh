@@ -195,3 +195,7 @@ if [ -f "$RA_AUTO" ]; then
 	rm -f "$RA_AUTO"
 	cp "$DEVICE_CONTROL_DIR/Deeplay-keys.cfg" "$RA_AUTO"
 fi
+
+# Remove tasks that are not used for this device
+MUOS_TASK_DIR="/opt/muos/share/task"
+rm -f "$MUOS_TASK_DIR/Network Tasks/Enable Wi-Fi (8188eu).sh"

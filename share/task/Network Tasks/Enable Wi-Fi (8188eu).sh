@@ -13,17 +13,15 @@ FRONTEND stop
 SET_VAR "device" "board/network" "1"
 SET_VAR "device" "board/portmaster" "1"
 
-SET_VAR "device" "network/module" /lib/modules/4.9.170/kernel/drivers/net/wireless/rtl8188eu/8188eu.ko
+SET_VAR "device" "network/module" "/lib/modules/4.9.170/kernel/drivers/net/wireless/rtl8188eu/8188eu.ko"
 SET_VAR "device" "network/name" "8188eu"
-
-/opt/openssh/bin/ssh-keygen -A
 
 echo "Sync Filesystem"
 sync
 
 echo "All Done!"
-echo "Please restart your device."
-TBOX sleep 2
+echo "Please restart your device!"
+TBOX sleep 3
 
 FRONTEND start task
 exit 0

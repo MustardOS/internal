@@ -16,6 +16,7 @@ SUSPEND_STATE="$(GET_VAR "config" "danger/state")"
 DEFAULT_BRIGHTNESS="$(GET_VAR "config" "settings/general/brightness")"
 RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
 SHUTDOWN_TIME_SETTING="$(GET_VAR "config" "settings/power/shutdown")"
+MAX_BRIGHT=$(GET_VAR "device" "screen/bright")
 
 CHECK_RA_AND_SAVE() {
 	# This is the safest bet to get RetroArch to save state automatically
@@ -104,6 +105,8 @@ RESUME() {
 		else
 			E_BRIGHT=$((E_BRIGHT - 1))
 		fi
+
+		[ "$E_BRIGHT" -gt "$MAX_BRIGHT" ] && E_BRIGHT="$MAX_BRIGHT"
 
 		/opt/muos/script/device/bright.sh "$E_BRIGHT"
 		B=$((B + 1))

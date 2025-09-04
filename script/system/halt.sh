@@ -209,6 +209,9 @@ LOG_INFO "$0" 0 "HALT" "Stopping external storage mounts"
 #	/opt/muos/script/package/theme.sh install "?R"
 #fi
 
+LOG_INFO "$0" 0 "HALT" "Stopping USB Function"
+/opt/muos/script/system/usb_gadget.sh stop
+
 LOG_INFO "$0" 0 "HALT" "Disabling any swapfile mounts"
 swapoff -a
 

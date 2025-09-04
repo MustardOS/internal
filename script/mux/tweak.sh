@@ -22,7 +22,33 @@ else
 	SET_VAR "device" "audio/max" "100"
 fi
 
-/opt/muos/script/system/usb.sh &
+USB_GADGET_RUN="/opt/muos/script/system/usb_gadget.sh"
+LOCK_PID="/run/muos/lock/usb_gadgetd.lock/pid"
+
+GADGET_WD() {
+	[ -r "$LOCK_PID" ] && kill -0 "$(cat "$LOCK_PID" 2>/dev/null)" 2>/dev/null
+}
+
+case "$(GET_VAR "config" "settings/advanced/usb_function")" in
+	none)
+		# Disable and remove all usb functions and then stop...
+		"$USB_GADGET_RUN" disable
+		"$USB_GADGET_RUN" stop
+		;;
+	adb)
+		# Start only if ADB daemon is missing OR watchdog isn't running
+		if ! pidof adbd >/dev/null 2>&1 || ! GADGET_WD; then
+			"$USB_GADGET_RUN" start
+		fi
+		;;
+	mtp)
+		# Same idea as above but for MTP
+		if ! pidof umtprd >/dev/null 2>&1 || ! GADGET_WD; then
+			"$USB_GADGET_RUN" start
+		fi
+		;;
+	*) ;;
+esac
 
 # Set the device specific SDL Controller Map
 /opt/muos/script/mux/sdl_map.sh &

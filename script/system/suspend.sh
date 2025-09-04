@@ -109,6 +109,8 @@ RESUME() {
 		B=$((B + 1))
 	done
 
+	[ "$USB_FUNCTION" != "none" ] && /opt/muos/script/system/usb_gadget.sh resume
+
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
 	# We're going to wait for 5 seconds to stop sleep suspend from triggering again

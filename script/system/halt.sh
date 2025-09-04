@@ -5,8 +5,6 @@
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
 RUMBLE_SETTING="$(GET_VAR "config" "settings/advanced/rumble")"
 
-SET_VAR "system" "used_reset" 0
-
 # muOS shutdown/reboot script. This behaves a bit better than BusyBox
 # poweroff/reboot commands, which also make some odd choices (e.g., unmounting
 # disks before killing processes, so running programs can't save state).
@@ -168,9 +166,6 @@ if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ]; then
 	[ "$CURL_OUTPUT" -eq 200 ] && LOG_INFO "$0" 0 "HALT" "Syncthing shutdown request sent successfully"
 fi
 
-LOG_INFO "$0" 0 "BOOTING" "Stopping Pipewire"
-/opt/muos/script/system/pipewire.sh stop &
-
 # Kill the lid switch process if it exists.
 if pgrep lid.sh >/dev/null 2>&1; then
 	LOG_INFO "$0" 0 "HALT" "Killing lid switch detection"
@@ -192,9 +187,12 @@ if pgrep '^mux' >/dev/null 2>&1; then
 			kill -9 "$PID" 2>/dev/null
 		done
 
-		TSLEEP 0.25
+		TBOX sleep 0.1
 	done
 fi
+
+LOG_INFO "$0" 0 "HALT" "Stopping Pipewire"
+/opt/muos/script/system/pipewire.sh stop
 
 # Cleanly unmount filesystems to avoid fsck/chkdsk errors.
 LOG_INFO "$0" 0 "HALT" "Stopping union mounts"
@@ -214,9 +212,11 @@ LOG_INFO "$0" 0 "HALT" "Stopping external storage mounts"
 LOG_INFO "$0" 0 "HALT" "Disabling any swapfile mounts"
 swapoff -a
 
-# Unloading kernel modules.
 LOG_INFO "$0" 0 "HALT" "Unloading kernel modules"
 /opt/muos/script/device/module.sh unload
+
+LOG_INFO "$0" 0 "HALT" "Reset the used reset variable"
+SET_VAR "system" "used_reset" 0
 
 # Stop system services. If shutdown scripts are still running after
 # 10s, SIGTERM them, then wait 5s more before resorting to SIGKILL.

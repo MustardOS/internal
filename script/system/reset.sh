@@ -83,6 +83,7 @@ save/pico8/desktop
 save/state/PPSSPP-Ext
 save/state/YabaSanshiro-Ext
 screenshot
+syncthing
 '
 
 for D in $DIRS; do
@@ -99,6 +100,9 @@ SRC_DIR="/opt/muos/share/info"
 DST_DIR="$MUOS_DIR/info"
 cp -f "$SRC_DIR"/name/* "$DST_DIR/name/"
 cp -f "$SRC_DIR"/pass.ini "$SRC_DIR"/skip.ini "$DST_DIR/"
+
+LOG_INFO "$0" 0 "FACTORY RESET" "Generating Blank Syncthing API File"
+: >"$MUOS_DIR/syncthing/api.txt"
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Decompressing PortMaster Application"
 unzip -oq "/opt/muos/share/archive/muos.portmaster.zip" -d /

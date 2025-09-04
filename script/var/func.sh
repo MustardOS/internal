@@ -48,8 +48,18 @@ SET_VAR() {
 }
 
 GET_VAR() {
-	BASE=$(GET_CONF_PATH "$1") || return 0
-	cat "$BASE/$2" 2>/dev/null
+	BASE="$(GET_CONF_PATH "$1")" || return 0
+
+	FILE="$BASE/$2"
+	[ -r "$FILE" ] || return 0
+
+	VAL=
+	IFS= read -r VAL <"$FILE"
+
+	CR=$(printf "\r")
+	[ "${VAL%$CR}" != "$VAL" ] && VAL=${VAL%$CR}
+
+	printf "%s" "$VAL"
 }
 
 SET_DEFAULT_GOVERNOR() {
@@ -252,11 +262,20 @@ LOG() {
 	# /opt/muos/frontend/muxmessage $PROGRESS "$(printf "%s\n\n%s %s" "$TITLE" "$MSG" "$*")"
 }
 
-LOG_INFO() { (LOG "${CSI}33m*" "$@") & }
-LOG_WARN() { (LOG "${CSI}226m!" "$@") & }
-LOG_ERROR() { (LOG "${CSI}196m-" "$@") & }
-LOG_SUCCESS() { (LOG "${CSI}46m+" "$@") & }
-LOG_DEBUG() { (LOG "${CSI}202m?" "$@") & }
+DEBUG_MODE=$(GET_VAR "system" "debug_mode" 2>/dev/null || echo 0)
+if [ "$DEBUG_MODE" -eq 0 ]; then
+	LOG_INFO() { :; }
+	LOG_WARN() { LOG "${CSI}226m!" "$@"; }
+	LOG_ERROR() { LOG "${CSI}196m-" "$@"; }
+	LOG_SUCCESS() { :; }
+	LOG_DEBUG() { :; }
+else
+	LOG_INFO() { LOG "${CSI}33m*" "$@"; }
+	LOG_WARN() { LOG "${CSI}226m!" "$@"; }
+	LOG_ERROR() { LOG "${CSI}196m-" "$@"; }
+	LOG_SUCCESS() { LOG "${CSI}46m+" "$@"; }
+	LOG_DEBUG() { LOG "${CSI}202m?" "$@"; }
+fi
 
 CRITICAL_FAILURE() {
 	case "$1" in

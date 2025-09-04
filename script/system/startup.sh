@@ -7,8 +7,9 @@ mkdir -p "/tmp/muos"
 rm -f /opt/muos/log/*.log
 rm -rf /opt/muxtmp
 
+read -r MU_UPTIME _ </proc/uptime
+SET_VAR "system" "resume_uptime" "$MU_UPTIME"
 SET_VAR "system" "idle_inhibit" 0
-SET_VAR "system" "resume_uptime" "$(cut -d ' ' -f 1 /proc/uptime)"
 SET_VAR "config" "boot/device_mode" "0"
 SET_VAR "device" "audio/ready" "0"
 
@@ -41,17 +42,16 @@ USB_FUNCTION="$(GET_VAR "config" "settings/advanced/usb_function")"
 # Enable rumble support - primarily used for TrimUI/RK3326 devices at the moment...
 case "$BOARD_NAME" in
 	tui*)
-		echo 227 >/sys/class/gpio/export
+		[ -e /sys/class/gpio/gpio227 ] || echo 227 >/sys/class/gpio/export
 		echo out >/sys/class/gpio/gpio227/direction
 		echo 0 >/sys/class/gpio/gpio227/value
 		;;
 	rk*)
-		echo 0 >/sys/class/pwm/pwmchip0/export
+		[ -e /sys/class/pwm/pwmchip0/pwm0 ] || echo 0 >/sys/class/pwm/pwmchip0/export
 		echo 1000000 >/sys/class/pwm/pwmchip0/pwm0/period
 		echo 1000000 >/sys/class/pwm/pwmchip0/pwm0/duty_cycle
 		echo 1 >/sys/class/pwm/pwmchip0/pwm0/enable
 		;;
-	*) ;;
 esac
 
 LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
@@ -79,7 +79,7 @@ LOG_INFO "$0" 0 "BOOTING" "Starting Device Management System"
 /sbin/udevd -d || CRITICAL_FAILURE udev
 udevadm trigger --type=subsystems --action=add
 udevadm trigger --type=devices --action=add
-udevadm settle --timeout=10 || LOG_ERROR "$0" 0 "BOOTING" "Udevadm Settle Failure"
+udevadm settle --timeout=5 || LOG_WARN "$0" 0 "BOOTING" "Device Management Settle Failure"
 
 if [ "$FACTORY_RESET" -eq 0 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Setting RTC Maximum Frequency"
@@ -158,7 +158,7 @@ OOPS="$ROM_MOUNT/oops.sh"
 LOG_INFO "$0" 0 "BOOTING" "Unionising ROMS on Storage Mounts"
 /opt/muos/script/mount/union.sh start &
 
-if [ $CONSOLE_MODE -eq 0 ] && [ "$(GET_VAR "config" "boot/device_mode")" -eq 0 ]; then
+if [ $CONSOLE_MODE -eq 0 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
 	/opt/muos/script/device/charge.sh
 	LED_CONTROL_CHANGE

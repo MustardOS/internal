@@ -135,7 +135,10 @@ fi
 
 cp /opt/muos/log/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
-LOG_INFO "$0" 0 "FRONTEND" "Starting frontend launcher"
+LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Launcher"
+
+read -r START_TIME _ </proc/uptime
+SET_VAR "system" "start_time" "$START_TIME"
 
 while :; do
 	killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1

@@ -63,7 +63,7 @@ LOAD_NETWORK() {
 	# Not really necessary for the TrimUI devices but because the H700 devices
 	# run this just before probing the network module we are going to add it
 	# here "just in case" but also somewhat uniformity...
-	udevadm settle --timeout=10
+	udevadm settle --timeout=5
 	! modprobe -q "$NET_MODULE" && return 1
 
 	# On certain devices we have to actually wait for the SDIO controller
@@ -76,7 +76,7 @@ LOAD_NETWORK() {
 	esac
 
 	# We'll do this again because fuck it why not...
-	udevadm settle --timeout=10
+	udevadm settle --timeout=5
 	NET_IFACE=$(WAIT_FOR_IFACE "$NET_IFACE") || return 1
 
 	rfkill unblock all 2>/dev/null

@@ -553,11 +553,16 @@ CONFIGURE_RETROARCH() {
 
 	# The following will stop auto load from happening if they hold A on content
 	EXTRA_ARGS=""
-	EXTRA_CONF="/tmp/ra_autoload_once.cfg"
 
+	AUTOLOAD_CONF="/tmp/ra_autoload_once.cfg"
 	if [ -e "/tmp/ra_no_load" ]; then
-		printf 'savestate_auto_load = "false"\n' >"$EXTRA_CONF"
-		EXTRA_ARGS="--appendconfig $EXTRA_CONF"
+		printf 'savestate_auto_load = "false"\n' >"$AUTOLOAD_CONF"
+		EXTRA_ARGS="$EXTRA_ARGS --appendconfig $AUTOLOAD_CONF"
+	fi
+
+	CHEEVOS_CONF="$(dirname "$RA_CONF")/retroarch.cheevos.cfg"
+	if [ -e "$CHEEVOS_CONF" ]; then
+		EXTRA_ARGS="$EXTRA_ARGS --appendconfig $CHEEVOS_CONF"
 	fi
 
 	echo "$EXTRA_ARGS"

@@ -49,11 +49,9 @@ SYSFS:
   Brightness : 0–60 (clamped)
   Args:
     <L_r> <L_g> <L_b> <R_r> <R_g> <R_b> [M_r M_g M_b] [F1_r F1_g F1_b] [F2_r F2_g F2_b]
-    (F1/F2 nodes are optional; if not present in the driver, they are ignored.)
   Options:
     --dur, --dur-l, --dur-r, --dur-m, --dur-f1, --dur-f2         (default 1000 ms)
     --cycles, --cycles-l, --cycles-r, --cycles-m, --cycles-f1, --cycles-f2   (default -1)
-    (* If L and R values are equal and *_lr nodes exist, they are used.)
 
 SERIAL:
   Modes      : 1=solid, 2=breath fast, 3=breath med, 4=breath slow, 5=mono rainbow, 6=multi rainbow
@@ -81,10 +79,7 @@ CLAMP_RGB() {
 }
 
 TO_HEX3() {
-	R=$1
-	G=$2
-	B=$3
-	printf "%02X%02X%02X" "$R" "$G" "$B"
+	printf "%02X%02X%02X" "$1" "$2" "$3"
 }
 
 EFFECT_MAP_SYSFS() {
@@ -114,8 +109,7 @@ DETECT_BACKEND() {
 }
 
 ENSURE_DIR() {
-	D=$1
-	[ -d "$D" ] || mkdir -p "$D"
+	[ -d "$1" ] || mkdir -p "$1"
 }
 
 SLEEP_MS() {
@@ -125,8 +119,7 @@ SLEEP_MS() {
 
 IS_PID_ALIVE() {
 	PID=$1
-	[ -n "$PID" ] || return 1
-	kill -0 "$PID" 2>/dev/null
+	[ -n "$PID" ] && kill -0 "$PID" 2>/dev/null
 }
 
 READ_PID() {
@@ -147,11 +140,7 @@ RANDOM_BYTE() {
 }
 
 RANDOM_RGB() {
-	R=$(RANDOM_BYTE)
-	G=$(RANDOM_BYTE)
-	B=$(RANDOM_BYTE)
-
-	printf "%s %s %s\n" "$R" "$G" "$B"
+	printf "%s %s %s\n" "$(RANDOM_BYTE)" "$(RANDOM_BYTE)" "$(RANDOM_BYTE)"
 }
 
 CHECKSUM_U8() {
@@ -163,46 +152,31 @@ CHECKSUM_U8() {
 	printf "%d" "$SUM"
 }
 
-APPEND_HEX() {
-	VAR="$1"
-	shift
-	for B in "$@"; do
-		HEX=$(printf "%02X" "$B")
-		eval "$VAR=\${$VAR}\\x$HEX"
-	done
-}
-
-WRITE_BINARY_TO_SERIAL() {
-	PAYLOAD_HEX=$1
-	printf %b "$PAYLOAD_HEX" >"$SERIAL_DEVICE"
+SERIAL_WRITE() {
+	# argv are decimal bytes 0..255; convert to a single escaped string then output as raw bytes
+	# shellcheck disable=SC2059
+	printf %b "$(printf '\\x%02X' "$@")" >"$SERIAL_DEVICE"
 }
 
 SERIAL_PREPARE() {
 	[ -w "$MCU_PWR" ] && printf "1\n" >"$MCU_PWR"
-	stty -F "$SERIAL_DEVICE" 115200 -opost -isig -icanon -echo 2>/dev/null
+	stty -F "$SERIAL_DEVICE" 115200 cs8 -parenb -cstopb -opost -isig -icanon -echo 2>/dev/null
+
+	# Small warm-up so first frame is not lost
+	TBOX sleep 0.1
 }
 
 SERIAL_SEND_MODE1_COLORS() {
 	# Args: <brightness> <RR> <RG> <RB> <LR> <LG> <LB>
-	BRI=$1
+	BRI=$(CLAMP "$1" 0 255)
 
-	RR=$2
-	RG=$3
-	RB=$4
+	RR=$(CLAMP_RGB "$2")
+	RG=$(CLAMP_RGB "$3")
+	RB=$(CLAMP_RGB "$4")
 
-	LR=$5
-	LG=$6
-	LB=$7
-
-	BRI=$(CLAMP "$BRI" 0 255)
-
-	RR=$(CLAMP_RGB "$RR")
-	RG=$(CLAMP_RGB "$RG")
-	RB=$(CLAMP_RGB "$RB")
-
-	LR=$(CLAMP_RGB "$LR")
-	LG=$(CLAMP_RGB "$LG")
-	LB=$(CLAMP_RGB "$LB")
+	LR=$(CLAMP_RGB "$5")
+	LG=$(CLAMP_RGB "$6")
+	LB=$(CLAMP_RGB "$7")
 
 	BYTES="1 $BRI"
 
@@ -219,10 +193,15 @@ SERIAL_SEND_MODE1_COLORS() {
 	done
 
 	CHK=$(CHECKSUM_U8 $BYTES)
-	PAYLOAD=""
+	set -- $BYTES "$CHK"
 
-	APPEND_HEX PAYLOAD $BYTES "$CHK"
-	WRITE_BINARY_TO_SERIAL "$PAYLOAD"
+	[ "${RGB_DEBUG:-0}" -eq 1 ] && {
+		printf 'TX:' >&2
+		for X; do printf ' %02X' "$X" >&2; done
+		printf '\n' >&2
+	}
+
+	SERIAL_WRITE "$@"
 }
 
 SERIAL_RANDOMISE_DAEMON() {
@@ -270,12 +249,10 @@ APPLY_SYSFS() {
 	BRI=$2
 	shift 2
 
-	case "$MODE" in
-		1 | 2 | 3 | 4 | 5 | 6 | 7) : ;;
-		*)
-			printf "Invalid mode for SYSFS: %s (1–7)\n" "$MODE" >&2
-			exit 1
-			;;
+	case "$MODE" in 1 | 2 | 3 | 4 | 5 | 6 | 7) : ;; *)
+		printf "Invalid mode for SYSFS: %s (1–7)\n" "$MODE" >&2
+		exit 1
+		;;
 	esac
 
 	BRI=$(CLAMP "$BRI" 0 60)
@@ -430,12 +407,10 @@ APPLY_SERIAL() {
 	BRI=$2
 	shift 2
 
-	case "$MODE" in
-		1 | 2 | 3 | 4 | 5 | 6) : ;;
-		*)
-			printf "Invalid mode for SERIAL: %s (1–6)\n" "$MODE" >&2
-			exit 1
-			;;
+	case "$MODE" in 1 | 2 | 3 | 4 | 5 | 6) : ;; *)
+		printf "Invalid mode for SERIAL: %s (1–6)\n" "$MODE" >&2
+		exit 1
+		;;
 	esac
 
 	BRI=$(CLAMP "$BRI" 0 255)
@@ -448,14 +423,15 @@ APPLY_SERIAL() {
 		}
 
 		SPEED=$(CLAMP "$1" 0 255)
-		BYTES="$MODE $BRI 1 1 $SPEED"
+		CHK=$(CHECKSUM_U8 $MODE $BRI 1 1 $SPEED)
 
-		CHK=$(CHECKSUM_U8 $BYTES)
-		PAYLOAD=""
+		[ "${RGB_DEBUG:-0}" -eq 1 ] && {
+			printf 'TX:' >&2
+			for X in $MODE $BRI 1 1 $SPEED $CHK; do printf ' %02X' "$X" >&2; done
+			printf '\n' >&2
+		}
 
-		APPEND_HEX PAYLOAD $MODE $BRI 1 1 $SPEED "$CHK"
-		WRITE_BINARY_TO_SERIAL "$PAYLOAD"
-
+		SERIAL_WRITE "$MODE" "$BRI" 1 1 "$SPEED" "$CHK"
 		printf "LED mode %s set with brightness %s (SERIAL)\n" "$MODE" "$BRI"
 	elif [ "$MODE" -eq 1 ] && [ $# -ge 1 ] && [ "$1" = "random" ]; then
 		printf "Use service mode for random:\n  %s service start -b serial 1 %s random [interval_ms]\n" "$0" "$BRI" >&2
@@ -489,11 +465,15 @@ APPLY_SERIAL() {
 		done
 
 		CHK=$(CHECKSUM_U8 $BYTES)
-		PAYLOAD=""
+		set -- $BYTES "$CHK"
 
-		APPEND_HEX PAYLOAD $BYTES "$CHK"
-		WRITE_BINARY_TO_SERIAL "$PAYLOAD"
+		[ "${RGB_DEBUG:-0}" -eq 1 ] && {
+			printf 'TX:' >&2
+			for X; do printf ' %02X' "$X" >&2; done
+			printf '\n' >&2
+		}
 
+		SERIAL_WRITE "$@"
 		printf "LED mode %s set with brightness %s (SERIAL)\n" "$MODE" "$BRI"
 	else
 		[ $# -eq 3 ] || {
@@ -514,11 +494,15 @@ APPLY_SERIAL() {
 		done
 
 		CHK=$(CHECKSUM_U8 $BYTES)
-		PAYLOAD=""
+		set -- $BYTES "$CHK"
 
-		APPEND_HEX PAYLOAD $BYTES "$CHK"
-		WRITE_BINARY_TO_SERIAL "$PAYLOAD"
+		[ "${RGB_DEBUG:-0}" -eq 1 ] && {
+			printf 'TX:' >&2
+			for X; do printf ' %02X' "$X" >&2; done
+			printf '\n' >&2
+		}
 
+		SERIAL_WRITE "$@"
 		printf "LED mode %s set with brightness %s (SERIAL)\n" "$MODE" "$BRI"
 	fi
 }
@@ -713,10 +697,10 @@ while :; do
 	esac
 done
 
-if [ $# -lt 2 ]; then
+[ $# -ge 2 ] || {
 	USAGE
 	exit 1
-fi
+}
 
 MODE=$1
 BRI=$2
@@ -726,17 +710,19 @@ DETECT_BACKEND
 
 case "$BACKEND" in
 	SYSFS)
-		if [ ! -d "$LED_SYSFS" ]; then
+		[ -d "$LED_SYSFS" ] || {
 			printf "Error: SYSFS backend selected but %s not present.\n" "$LED_SYSFS" >&2
 			exit 1
-		fi
+		}
+
 		APPLY_SYSFS "$MODE" "$BRI" "$@"
 		;;
 	SERIAL)
-		if [ ! -c "$SERIAL_DEVICE" ]; then
+		[ -c "$SERIAL_DEVICE" ] || {
 			printf "Error: SERIAL backend selected but %s not present.\n" "$SERIAL_DEVICE" >&2
 			exit 1
-		fi
+		}
+
 		APPLY_SERIAL "$MODE" "$BRI" "$@"
 		;;
 	*)

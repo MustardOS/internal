@@ -551,20 +551,21 @@ CONFIGURE_RETROARCH() {
 	KIOSK_MODE=$([ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] && echo true || echo false)
 	sed -i "s/^kiosk_mode_enable = \".*\"$/kiosk_mode_enable = \"$KIOSK_MODE\"/" "$RA_CONF"
 
-	# The following will stop auto load from happening if they hold A on content
 	EXTRA_ARGS=""
+	APPEND_LIST=""
 
-	AUTOLOAD_CONF="/tmp/ra_autoload_once.cfg"
+	# The following will stop auto load from happening if they hold A on content
+	AUTOLOAD_CONF="$(dirname "$RA_CONF")/retroarch.autoload.cfg"
 	if [ -e "/tmp/ra_no_load" ]; then
-		printf 'savestate_auto_load = "false"\n' >"$AUTOLOAD_CONF"
-		EXTRA_ARGS="$EXTRA_ARGS --appendconfig $AUTOLOAD_CONF"
+		printf "savestate_auto_load = \"false\"\n" >"$AUTOLOAD_CONF"
+		APPEND_LIST="${APPEND_LIST}${APPEND_LIST:+|}$AUTOLOAD_CONF"
 	fi
 
+	# The following will load a users retro achievement settings if saved
 	CHEEVOS_CONF="$(dirname "$RA_CONF")/retroarch.cheevos.cfg"
-	if [ -e "$CHEEVOS_CONF" ]; then
-		EXTRA_ARGS="$EXTRA_ARGS --appendconfig $CHEEVOS_CONF"
-	fi
+	[ -e "$CHEEVOS_CONF" ] && APPEND_LIST="${APPEND_LIST}${APPEND_LIST:+|}$CHEEVOS_CONF"
 
+	[ -n "$APPEND_LIST" ] && EXTRA_ARGS="--appendconfig=$APPEND_LIST"
 	echo "$EXTRA_ARGS"
 }
 

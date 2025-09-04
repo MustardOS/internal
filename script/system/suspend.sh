@@ -92,7 +92,7 @@ RESUME() {
 	# Some display panels don't like to resume on lower backlights due
 	# to potential voltage lines or some shit... so let's resume on
 	# a bit more brightness unfortunately!
-	[ "$E_BRIGHT" -lt 11 ] && E_BRIGHT=40
+	[ "$E_BRIGHT" -lt 11 ] && E_BRIGHT=35
 
 	# We're going to do this twice because of how our brightness script
 	# works with existing integer values.  It's a precise system!

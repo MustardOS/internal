@@ -85,7 +85,7 @@ SET_CURRENT() {
 
 case "$1" in
 	R)
-		[ "$CURR_BRIGHT" -le $SAFE_BRIGHT ] && CURR_BRIGHT=90
+		[ "$CURR_BRIGHT" -le $SAFE_BRIGHT ] && CURR_BRIGHT=35
 		SET_CURRENT "$CURR_BRIGHT" 1
 		;;
 	U)

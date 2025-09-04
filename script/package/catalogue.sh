@@ -16,7 +16,7 @@ USAGE() {
 
 MODE="$1"
 CATALOGUE_ARG="$2"
-CATALOGUE_DIR="/opt/muos/share/info/catalogue"
+CATALOGUE_DIR="/run/muos/storage/info/catalogue"
 CATALOGUE_ZIP_DIR="/run/muos/storage/package/catalogue"
 
 INSTALL() {

@@ -6,11 +6,9 @@
 
 FRONTEND stop
 
-MOUNT="$(GET_VAR "device" "storage/rom/mount")"
-
 echo "Restoring YabaSanshiro Controls"
 
-YABA_DIR="$MOUNT/MUOS/emulator/yabasanshiro"
+YABA_DIR="/opt/muos/share/emulator/yabasanshiro"
 rm -f "${YABA_DIR}/.emulationstation/es_temporaryinput.cfg" "${YABA_DIR}/.yabasanshiro/keymapv2.json"
 
 /opt/muos/script/control/yabasanshiro.sh

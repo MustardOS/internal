@@ -14,7 +14,7 @@ START_CONTROL() {
 	"$CONTROL_SCRIPT" </dev/null >/dev/null 2>&1 &
 }
 
-CONTROLS="drastic gamecontrollerdb mupen64plus openbor ppsspp retroarch yabasanshiro"
+CONTROLS="drastic gamecontrollerdb mupen64plus openbor ppsspp retroarch task yabasanshiro"
 [ "$(GET_VAR "device" "board/stick")" -gt 0 ] && CONTROLS="$CONTROLS playstation"
 
 for CONTROL in $CONTROLS; do

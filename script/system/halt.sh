@@ -191,6 +191,12 @@ if pgrep '^mux' >/dev/null 2>&1; then
 	done
 fi
 
+if [ "$(GET_VAR "device" "board/network")" -eq 1 ]; then
+	LOG_INFO "$0" 0 "HALT" "Stopping Network"
+	/opt/muos/script/system/network.sh disconnect
+	/opt/muos/script/device/module.sh unload-network
+fi
+
 LOG_INFO "$0" 0 "HALT" "Stopping Pipewire"
 /opt/muos/script/system/pipewire.sh stop
 

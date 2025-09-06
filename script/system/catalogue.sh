@@ -2,11 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-if [ $# -ne 1 ]; then
-	echo "Usage: $0 <mount>"
-	exit 1
-fi
-
 ASSIGN_DIR="/opt/muos/share/info/assign"
 BASE_PATH="/run/muos/storage/info/catalogue"
 TARGET_DIRS="box grid preview text splash"

@@ -144,6 +144,7 @@
   },
   "muxconfig": {
     "CONFIGURATION": "IMPOSTAZIONI",
+    "Connect your device via Wi-Fi, enable web services, or enable USB functions": "Connect your device via Wi-Fi, enable web services, or enable USB functions",
     "Connectivity": "Connettività",
     "Customisation": "Personalizzazione",
     "Customise your muOS setup with user created packages": "Personalizza la tua configurazione di muOS con contenuti creati dagli utenti",
@@ -184,7 +185,6 @@
     "Background Music": "Musica di Sottofondo",
     "Behind": "Dietro",
     "Black Fade Animation": "Animazione Dissolvenza Nera",
-    "Bootlogo Images": "Immagini di Bootlogo",
     "Bottom Left": "Basso - Sinistra",
     "Bottom Middle": "Basso - Centro",
     "Bottom Right": "Basso - Destra",
@@ -211,7 +211,6 @@
     "Load State": "Load State",
     "Load user created RetroArch configurations": "Carica configurazioni di RetroArch create dagli utenti",
     "Load user created artwork catalogue for content": "Carica il catalogo di illustrazioni creato dagli utenti per i contenuti",
-    "Load user created boot logos for your device": "Carica boot logos creati dagli utenti per il tuo dispositivo",
     "Middle Left": "Centro - Sinistra",
     "Middle Right": "Centro - Destra",
     "Navigation Sound": "Suono Navigazione",
@@ -353,7 +352,6 @@
     "Allow changing the system clock": "Abilita modifiche all'orologio di sistema",
     "Allow clearing items from history": "Abilita la rimozione di elementi dai recenti",
     "Allow creation of new collection folders": "Abilita la creazione di nuove cartelle dei preferiti",
-    "Allow custom bootlogo selection": "Abilita la selezione di una immagine di avvio personalizzata",
     "Allow editing of network settings": "Abilita la modifica delle impostazioni di rete",
     "Allow modifying HDMI display settings": "Abilita la modifica delle impostazioni dello schermo HDMI",
     "Allow searching for content": "Abilita la ricerca dei contenuti",
@@ -381,7 +379,6 @@
     "Content Options": "Opzioni del Contenuto",
     "Content Search": "Ricerca Contenuto",
     "Content Tag": "Tag Contenuto",
-    "Custom Bootlogo": "Bootlogo Personalizzato",
     "Custom Catalogue": "Catalogo Personalizzato",
     "Custom RetroArch Configs": "Impostazioni Personalizzate RetroArch",
     "Custom Themes": "Temi Personalizzati",
@@ -428,7 +425,7 @@
     "Wi-Fi Network": "Rete Wi-Fi"
   },
   "muxlanguage": {
-    "Downloading Language Updates": "Scarica Aggiornamenti Lingua",
+    "Downloading Language Updates": "Scaricando Aggiornamenti Lingua",
     "Error Retrieving Language Data": "Errore durante il recupero dei dati relativi alla lingua",
     "LANGUAGE": "LINGUA",
     "No Languages Found…": "Nessuna Lingua Trovata…",
@@ -563,20 +560,21 @@
     "PASSCODE": "CODICE"
   },
   "muxpicker": {
-    "BOOTLOGO PICKER": "SELETTORE BOOTLOGO",
     "CATALOGUE PICKER": "SELETTORE CATALOGO",
     "CONFIG PICKER": "SELETTORE CONFIGURAZIONI",
     "CUSTOM PICKER": "SELETTORE PERSONALIZZATO",
+    "Failed to remove item…": "Failed to remove item…",
+    "Hold L2 and press X to confirm deletion!": "Hold L2 and press X to confirm deletion!",
     "Incompatible Theme Resolution Detected": "Rilevata Risoluzione Tema Incompatibile",
     "Incompatible Theme Version Detected": "Rilevata Versione Tema Incompatibile",
-    "No Boot Logos Found": "Nessun Boot Logos Trovato",
     "No Catalogue Packages Found": "Nessun Pacchetto del Catalogo Trovato",
     "No Configuration Packages Found": "Nessun Pacchetto di Configurazione Trovato",
     "No Custom Packages Found": "Nessun Pacchetto Personalizzato Trovato",
     "No Theme Packages Found": "Nessun Pacchetto Tema Trovato",
     "THEME PICKER": "SELETTORE TEMA",
     "Theme Download": "Scarica Temi",
-    "There are no attributed credits!": "Non ci sono crediti attribuiti!"
+    "There are no attributed credits!": "Non ci sono crediti attribuiti!",
+    "This theme is protected from deletion!": "This theme is protected from deletion!"
   },
   "muxplore": {
     "Content is not associated with system or core": "Il contenuto non è associato al sistema o al core",
@@ -596,7 +594,7 @@
     "30s": "30s",
     "5m": "5m",
     "60s": "60s",
-    "Configure how the power button functions on long press (2 seconds)": "Configura come funziona il pulsante di accensione se premuto a lungo (2 secondi)",
+    "Configure how the power button functions on short press": "Configure how the power button functions on short press",
     "Configure the time the device will sleep when no input is detected": "Configura il tempo dopo il quale il dispositivo entrerà in modalità sospensione quando non viene rilevato alcun input",
     "Configure the time the screen will dim when no input is detected": "Configura il tempo dopo il quale lo schermo si attenuerà quando non viene rilevato alcun input",
     "Configure when the red LED will display based on the current capacity percentage": "Configura quando il LED rosso si accenderà in base alla percentuale di capacità attuale",

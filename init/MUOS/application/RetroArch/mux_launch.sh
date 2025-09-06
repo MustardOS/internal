@@ -33,6 +33,12 @@ if [ -n "$CHEEVOS_USER" ] && [ -n "$CHEEVOS_PASS" ]; then
 	TMP_CONF="/tmp/ra-cheevos.tmp"
 
 	sed -n '/^[[:space:]]*cheevos_/p' "$RA_CONF" >"$TMP_CONF" && mv "$TMP_CONF" "$CHEEVOS_CONF"
+
+	# The menu sublabels need to be shown for some weird RetroArch quirk
+	# that has to do with the message pop ups or something like that...
+	if ! grep -Eq '^[[:space:]]*menu_show_sublabels[[:space:]]*=' "$CHEEVOS_CONF"; then
+		printf '%s\n' 'menu_show_sublabels = "true"' >>"$CHEEVOS_CONF"
+	fi
 fi
 
 unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

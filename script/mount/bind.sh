@@ -81,13 +81,12 @@ BIND_EMULATOR "save/file/OpenBOR-Ext" "openbor/userdata/saves/openbor" &
 BIND_EMULATOR "screenshot" "openbor/userdata/screenshots/openbor" &
 BIND_EMULATOR "save/pico8" "pico8/.lexaloffle/pico-8" &
 
+PSP_DEVICE=
 case "$(GET_VAR "device" "board/name")" in
-	rg*)
-		BIND_EMULATOR "save/file/PPSSPP-Ext" "ppsspp/rg/.config/ppsspp/PSP/SAVEDATA" &
-		BIND_EMULATOR "save/state/PPSSPP-Ext" "ppsspp/rg/.config/ppsspp/PSP/PPSSPP_STATE" &
-		;;
-	tui*)
-		BIND_EMULATOR "save/file/PPSSPP-Ext" "ppsspp/tui/.config/ppsspp/PSP/SAVEDATA" &
-		BIND_EMULATOR "save/state/PPSSPP-Ext" "ppsspp/tui/.config/ppsspp/PSP/PPSSPP_STATE" &
-		;;
+	rg*) PSP_DEVICE="rg" ;;
+	tui*) PSP_DEVICE="tui" ;;
 esac
+
+BIND_EMULATOR "save/game/PPSSPP-Ext" "ppsspp/${PSP_DEVICE}/.config/ppsspp/PSP/GAME" &
+BIND_EMULATOR "save/file/PPSSPP-Ext" "ppsspp/${PSP_DEVICE}/.config/ppsspp/PSP/SAVEDATA" &
+BIND_EMULATOR "save/state/PPSSPP-Ext" "ppsspp/${PSP_DEVICE}/.config/ppsspp/PSP/PPSSPP_STATE" &

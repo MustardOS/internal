@@ -61,7 +61,10 @@ SLEEP() {
 		3 | 5 | 6) RUMBLE "$RUMBLE_DEVICE" 0.3 ;;
 	esac
 
-	[ "$HAS_NETWORK" -eq 1 ] && /opt/muos/script/system/network.sh disconnect
+	if [ "$HAS_NETWORK" -eq 1 ]; then
+		/opt/muos/script/system/network.sh disconnect
+		/opt/muos/script/device/module.sh unload-network
+	fi
 
 	/opt/muos/script/device/module.sh unload
 
@@ -106,7 +109,7 @@ RESUME() {
 			E_BRIGHT=$((E_BRIGHT - 1))
 		fi
 
-		[ "$E_BRIGHT" -gt "$MAX_BRIGHT" ] && E_BRIGHT="$MAX_BRIGHT"
+		[ "$E_BRIGHT" -gt "$MAX_BRIGHT" ] && E_BRIGHT="$((MAX_BRIGHT - 35))"
 
 		/opt/muos/script/device/bright.sh "$E_BRIGHT"
 		B=$((B + 1))
@@ -122,7 +125,10 @@ RESUME() {
 		rm "$RECENT_WAKE"
 	) &
 
-	[ "$HAS_NETWORK" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
+	if [ "$HAS_NETWORK" -eq 1 ]; then
+		/opt/muos/script/device/module.sh load-network
+		nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
+	fi
 }
 
 [ -f "$RECENT_WAKE" ] && exit 0

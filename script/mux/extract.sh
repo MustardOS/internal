@@ -1,117 +1,83 @@
 #!/bin/sh
+set -eu
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/zip.sh
 
 FRONTEND stop
 
-SYNC_FOLDER() {
-	SOURCE="$1"
-	DEST="$2"
-	echo "Syncing '${SOURCE##*/}' to '$DEST'..."
-	rsync --archive --ignore-times --remove-source-files --itemize-changes --outbuf=L "$SOURCE/" "$DEST/" |
-		grep --line-buffered '^>f' |
-		/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
-}
-
 ALL_DONE() {
+	printf "\nSync Filesystem\n"
+	sync
+
+	printf "All Done!\n"
 	TBOX sleep 2
-	FRONTEND start "$FRONTEND_START_PROGRAM"
-	exit "$1"
+	FRONTEND start "${FRONTEND_START_PROGRAM:-archive}"
+
+	exit "${1:-0}"
 }
 
-if [ "$#" -ne 1 ] && [ "$#" -ne 2 ]; then
-	echo "Usage: $0 <archive>"
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+	printf "Usage: %s <archive> [mux module]\n" "$0"
 	ALL_DONE 1
 fi
 
-if [ ! -e "$1" ]; then
-	echo "Error: ARCHIVE '$1' not found"
+ARCHIVE="$1"
+[ -e "$ARCHIVE" ] || {
+	printf "\nError: Archive '%s' not found\n" "$ARCHIVE"
 	ALL_DONE 1
-fi
+}
 
-ARCHIVE_NAME="${1##*/}"
+ARCHIVE_NAME="${ARCHIVE##*/}"
 FRONTEND_START_PROGRAM="${2:-archive}"
-echo "Inspecting Archive..."
+printf "Inspecting Archive...\n"
 
 case "$ARCHIVE_NAME" in
 	pico-8_*)
-		if unzip -l "$1" | awk '$NF ~ /^pico-8\// {FOLDERS[$NF]=1} $NF ~ /^pico-8\/(pico8_64|pico8\.dat)$/ {FILES[$NF]=1} END {if ("pico-8/" in FOLDERS && "pico-8/pico8_64" in FILES && "pico-8/pico8.dat" in FILES) exit 0; else exit 1}'; then
-			echo "Archive contains a valid PICO-8 folder with required files"
-			BIOS_DIR="/run/muos/storage/bios/"
-			if unzip -o -j "$1" "pico-8/*" -d "${BIOS_DIR}pico-8/"; then
-				echo "Extracted 'pico-8' Folder to '$BIOS_DIR'"
+		if unzip -l "$ARCHIVE" | awk '
+			$NF ~ /^pico-8\// {FOLDERS[$NF]=1}
+			$NF ~ /^pico-8\/(pico8_64|pico8\.dat)$/ {FILES[$NF]=1}
+			END {
+				if ("pico-8/" in FOLDERS && "pico-8/pico8_64" in FILES && "pico-8/pico8.dat" in FILES) exit 0; else exit 1
+			}'; then
+			printf "\nArchive contains a valid PICO-8 folder with required files!\n"
+			BIOS_DIR="/run/muos/storage/bios"
+
+			P8_REQ="$(GET_ARCHIVE_BYTES "$ARCHIVE" "pico-8/")"
+			! CHECK_SPACE_FOR_DEST "$P8_REQ" "$BIOS_DIR" && ALL_DONE 1
+
+			if unzip -o -j "$ARCHIVE" "pico-8/*" -d "${BIOS_DIR}/pico-8/"; then
+				printf "Extracted 'pico-8' Folder to '%s'\n" "$BIOS_DIR"
 			else
-				echo "Failed to Extract 'pico-8' Folder"
+				printf "Failed to Extract 'pico-8' Folder\n"
 				ALL_DONE 1
 			fi
 		fi
 		;;
 	*.muxthm)
-		echo "Moving Archive to THEME Folder"
-		mv "$1" "/run/muos/storage/theme/"
+		printf "Detected Theme Package\nMoving archive to 'MUOS/theme'\n"
+		mv "$ARCHIVE" "/run/muos/storage/theme/"
 		;;
 	*.muxcat)
-		echo "Moving Archive to PACKAGE/CATALOGUE Folder"
-		mv "$1" "/run/muos/storage/package/catalogue/"
+		printf "Detected Catalogue Package\nMoving archive to 'MUOS/package/catalogue'\n"
+		mv "$ARCHIVE" "/run/muos/storage/package/catalogue/"
 		;;
 	*.muxcfg)
-		echo "Moving archive to PACKAGE/CONFIG folder"
-		mv "$1" "/run/muos/storage/package/config/"
+		printf "Detected RetroArch Configuration Package\nMoving archive to 'MUOS/package/config'\n"
+		mv "$ARCHIVE" "/run/muos/storage/package/config/"
 		;;
-	*.muxapp | *.muxupd | *.muxzip)
-		# Count total files in ARCHIVE for progress tracking
-		FILE_COUNT="$(unzip -Z1 "$1" | grep -cv '/$')"
-		MUX_TEMP="/opt/muxtmp"
-		mkdir "$MUX_TEMP"
+	*.muxapp | *.muxupd | *.muxzip | *.zip)
+		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
 
-		echo "Extracting Files..."
-		unzip -o "$1" -d "$MUX_TEMP/" |
-			grep --line-buffered -E '^ *(extracting|inflating):' |
-			/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
-
-		case "$ARCHIVE_NAME" in
-			*.muxapp)
-				echo "Extracting Application Archive..."
-				SYNC_FOLDER "$MUX_TEMP" "$(GET_VAR "device" "storage/rom/mount")/MUOS/application"
-				;;
-			*)
-				if [ -d "$MUX_TEMP/run/muos/storage/info/catalogue/Folder/grid" ] || [ -d "$MUX_TEMP/catalogue/Folder/grid" ]; then
-					echo "Clearing existing Grid images..."
-					rm -rf "/run/muos/storage/info/catalogue/Folder/grid"
-				fi
-
-				if [ -d "$MUX_TEMP/run/muos/storage/info/catalogue/Application/grid" ] || [ -d "$MUX_TEMP/catalogue/Application/grid" ]; then
-					echo "Clearing existing Application Grid images..."
-					rm -rf "/run/muos/storage/info/catalogue/Application/grid"
-				fi
-
-				echo "Processing and Moving Files..."
-				for FOLDER in "$MUX_TEMP"/*; do
-					if [ -d "$FOLDER" ]; then
-						FOLDER_NAME=$(basename "$FOLDER")
-						echo "Processing Folder: $FOLDER_NAME"
-
-						case "$FOLDER_NAME" in
-							archive) DESTINATION="/mnt/mmc/ARCHIVE" ;;
-							catalogue) DESTINATION="/run/muos/storage/info/catalogue" ;;
-							info) DESTINATION="/run/muos/storage/info" ;;
-							muos) DESTINATION="/run/muos/storage" ;;
-							bios) DESTINATION="/run/muos/storage/bios" ;;
-							theme) DESTINATION="/run/muos/storage/theme" ;;
-							*) DESTINATION="/$FOLDER_NAME" ;;
-						esac
-
-						SYNC_FOLDER "$FOLDER" "$DESTINATION"
-					fi
-				done
-				;;
-		esac
-
-		rm -rf "$MUX_TEMP"
+		if ! EXTRACT_ARCHIVE "Archive" "$ARCHIVE" "/"; then
+			printf "\nExtraction Failed...\n"
+			ALL_DONE 1
+		fi
 		;;
+	*) printf "\nNo Extraction Method '%s'\n" "$ARCHIVE_NAME" ;;
 esac
 
-echo "Correcting Permissions..."
+printf "Correcting Permissions...\n"
 chmod -R 755 /opt/muos
 
 # Only allow update archives to run the update script!
@@ -119,19 +85,15 @@ case "$ARCHIVE_NAME" in
 	*.muxupd)
 		UPDATE_SCRIPT=/opt/update.sh
 		if [ -s "$UPDATE_SCRIPT" ]; then
-			echo "Running Update Script..."
+			printf "Running Update Script...\n"
 			chmod 755 "$UPDATE_SCRIPT"
 			"$UPDATE_SCRIPT"
-			rm "$UPDATE_SCRIPT"
+			rm -f "$UPDATE_SCRIPT"
 		fi
 		;;
 esac
 
 mkdir -p "/opt/muos/update/installed"
-touch "/opt/muos/update/installed/$ARCHIVE_NAME.done"
+: >"/opt/muos/update/installed/$ARCHIVE_NAME.done"
 
-echo "Sync Filesystem"
-sync
-
-echo "All Done!"
 ALL_DONE 0

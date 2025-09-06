@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/zip.sh
 
 FRONTEND stop
 
@@ -19,37 +20,51 @@ CATALOGUE_ARG="$2"
 CATALOGUE_DIR="/run/muos/storage/info/catalogue"
 CATALOGUE_ZIP_DIR="/run/muos/storage/package/catalogue"
 
+ALL_DONE() {
+	printf "\nSync Filesystem\n"
+	sync
+
+	printf "All Done!\n"
+	TBOX sleep 2
+	FRONTEND start picker
+
+	exit "${1:-0}"
+}
+
 INSTALL() {
 	[ -d "$CATALOGUE_DIR" ] && {
-		printf "Purging catalogue directory: %s\n" "$CATALOGUE_DIR"
+		printf "Purging Catalogue Directory: %s\n" "$CATALOGUE_DIR"
 		find "$CATALOGUE_DIR" -mindepth 1 -exec rm -rf {} + 2>/dev/null
 		sync
 	}
 
 	CATALOGUE_ZIP="$CATALOGUE_ZIP_DIR/$CATALOGUE_ARG.muxcat"
 	[ ! -f "$CATALOGUE_ZIP" ] && {
-		printf "Catalogue zip not found: %s\n" "$CATALOGUE_ZIP"
+		printf "Catalogue Package Not Found: %s\n" "$CATALOGUE_ZIP"
 		exit 1
 	}
 
-	printf "Unzipping catalogue: %s\n" "$CATALOGUE_ZIP"
-	unzip -q "$CATALOGUE_ZIP" -d "$CATALOGUE_DIR" && sync
+	CHECK_ARCHIVE "$CATALOGUE_ZIP"
+	CAT_GRID_CLEAR "$CATALOGUE_ZIP"
 
-	printf "Running catalogue generation script\n"
+	SPACE_REQ="$(GET_ARCHIVE_BYTES "$CATALOGUE_ZIP" "")"
+	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$CATALOGUE_DIR" && ALL_DONE 1
+
+	EXTRACT_ARCHIVE "Catalogue" "$CATALOGUE_ZIP" "$CATALOGUE_DIR" || printf "\nExtraction Failed...\n" && ALL_DONE 1
+
+	printf "Running Catalogue Generation\n"
 	/opt/muos/script/system/catalogue.sh
 
 	CLEANED_CATALOGUE_NAME=$(printf "%s\n" "$CATALOGUE_ARG" | sed -E 's/-[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}$//')
 	printf "%s\n" "$CLEANED_CATALOGUE_NAME" >"$CATALOGUE_DIR/name.txt"
 
-	printf "Install complete\n"
-	sync
-
-	FRONTEND start picker
+	printf "Install Complete\n"
+	ALL_DONE 0
 }
 
 SAVE() {
 	[ ! -d "$CATALOGUE_DIR" ] && {
-		printf "Source directory not found: %s\n" "$CATALOGUE_DIR"
+		printf "Source Directory Not Found: %s\n" "$CATALOGUE_DIR"
 		exit 1
 	}
 
@@ -57,19 +72,17 @@ SAVE() {
 		BASE_CATALOGUE_NAME=$(sed -n '1p' "$CATALOGUE_DIR/name.txt")
 	else
 		BASE_CATALOGUE_NAME="current_catalogue"
-		printf "Using default catalogue name: %s\n" "$BASE_CATALOGUE_NAME"
+		printf "Using Default Catalogue Name: %s\n" "$BASE_CATALOGUE_NAME"
 	fi
 
 	TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 	DEST_FILE="$CATALOGUE_ZIP_DIR/$BASE_CATALOGUE_NAME-$TIMESTAMP.muxcat"
 
-	printf "Backing up contents of %s to %s\n" "$CATALOGUE_DIR" "$DEST_FILE"
-	cd "$CATALOGUE_DIR" && zip -9r "$DEST_FILE" .
+	printf "Backing Up Contents of '%s' to '%s'\n" "$CATALOGUE_DIR" "$DEST_FILE"
+	cd "$CATALOGUE_DIR" && zip -ru0 "$DEST_FILE" .
 
-	printf "Backup complete: %s\n" "$DEST_FILE"
-	sync
-
-	FRONTEND start picker
+	printf "Backup Complete: %s\n" "$DEST_FILE"
+	ALL_DONE 0
 }
 
 case "$MODE" in

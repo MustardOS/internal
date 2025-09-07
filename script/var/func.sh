@@ -629,3 +629,37 @@ LED_CONTROL_CHANGE() {
 		fi
 	) &
 }
+
+UPDATE_BOOTLOGO() {
+	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
+
+	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
+	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
+
+	SPEC_BL="/run/muos/storage/theme/active/${DEVICE_W}x${DEVICE_H}/image/bootlogo.bmp"
+	NORM_BL="/run/muos/storage/theme/active/image/bootlogo.bmp"
+
+	if [ -e "$SPEC_BL" ]; then
+		printf "\nBootlogo found at: %s\n" "$SPEC_BL"
+		cp -f "$SPEC_BL" "$BOOT_MOUNT/bootlogo.bmp"
+	else
+		if [ -e "$NORM_BL" ]; then
+			printf "\nBootlogo found at: %s\n" "$NORM_BL"
+			cp -f "$NORM_BL" "$BOOT_MOUNT/bootlogo.bmp"
+		else
+			printf "\nReverting to system bootlogo: %s\n" "$NORM_BL"
+			cp -f "/opt/muos/device/bootlogo.bmp" "$BOOT_MOUNT/bootlogo.bmp"
+		fi
+	fi
+
+	BL_ROTATE=0
+
+	case "$(GET_VAR "device" "board/name")" in
+		rg28xx-h)
+			BL_ROTATE=1
+			convert "$BOOTLOGO_MOUNT/bootlogo.bmp" -rotate 270 "$BOOTLOGO_MOUNT/bootlogo.bmp"
+			;;
+	esac
+
+	[ $BL_ROTATE ] && printf "\nRotated Bootlogo Image\n"
+}

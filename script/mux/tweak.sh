@@ -68,4 +68,3 @@ CARD_MODE_SWITCH() {
 
 CARD_MODE_SWITCH "$(GET_VAR "device" "storage/rom/dev")"
 [ "$(GET_VAR "device" "storage/sdcard/active")" -eq 1 ] && CARD_MODE_SWITCH "$(GET_VAR "device" "storage/sdcard/dev")"
-[ "$(GET_VAR "device" "storage/usb/active")" -eq 1 ] && CARD_MODE_SWITCH "$(GET_VAR "device" "storage/usb/dev")"

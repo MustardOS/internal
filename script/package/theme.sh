@@ -36,7 +36,7 @@ INSTALL() {
 	#if [ "$THEME_ARG" = "?R" ] && [ "$(GET_VAR "config" "settings/advanced/random_theme")" -eq 1 ]; then
 	#	THEME_ZIP=$(find "$THEME_DIR" -name '*.muxthm' | shuf -n 1)
 	#else
-	THEME_ZIP="$THEME_DIR/$THEME_ARG.muxthm"
+		THEME_ZIP="$THEME_DIR/$THEME_ARG.muxthm"
 	#fi
 
 	cp "/opt/muos/device/bootlogo.bmp" "$BOOTLOGO_MOUNT/bootlogo.bmp"
@@ -71,26 +71,8 @@ INSTALL() {
 	THEME_NAME=$(basename "$THEME_ZIP" .muxthm)
 	[ -f "$THEME_ACTIVE_DIR/name.txt" ] && echo "${THEME_NAME%-[0-9]*_[0-9]*}" >"$THEME_ACTIVE_DIR/name.txt"
 
-	BOOTLOGO_NEW="$THEME_ACTIVE_DIR/$(GET_VAR "device" "mux/width")x$(GET_VAR "device" "mux/height")/image/bootlogo.bmp"
-	[ -f "$BOOTLOGO_NEW" ] || BOOTLOGO_NEW="$THEME_ACTIVE_DIR/image/bootlogo.bmp"
-
+	UPDATE_BOOTLOGO
 	LED_CONTROL_CHANGE
-
-	if [ -f "$BOOTLOGO_NEW" ]; then
-		printf "Theme Bootlogo Detected: %s\n" "$BOOTLOGO_NEW"
-		cp "$BOOTLOGO_NEW" "$BOOTLOGO_MOUNT/bootlogo.bmp"
-
-		BL_ROTATE=0
-
-		case "$(GET_VAR "device" "board/name")" in
-			rg28xx-h)
-				BL_ROTATE=1
-				convert "$BOOTLOGO_MOUNT/bootlogo.bmp" -rotate 270 "$BOOTLOGO_MOUNT/bootlogo.bmp"
-				;;
-		esac
-
-		[ $BL_ROTATE ] && printf "Rotated Bootlogo Image\n"
-	fi
 
 	ASSETS_ZIP="$THEME_ACTIVE_DIR/assets.muxzip"
 	if [ -f "$ASSETS_ZIP" ]; then

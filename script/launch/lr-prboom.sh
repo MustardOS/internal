@@ -40,7 +40,7 @@ cp -f "$F_PATH/.IWAD/$IWAD" "$F_PATH/.$NAME/$IWAD"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-nice --20 retroarch -v -f -c "$RA_CONF" $RA_ARGS -L "/opt/muos/share/core/$CORE" "$F_PATH/.$NAME/$IWAD"
+nice --20 retroarch -v -f -c "$RA_CONF" $RA_ARGS -L "/opt/muos/share/core/prboom_libretro.so" "$F_PATH/.$NAME/$IWAD"
 
 for RF in ra_no_load ra_autoload_once.cfg; do
 	[ -e "/tmp/$RF" ] && ENSURE_REMOVED "/tmp/$RF"

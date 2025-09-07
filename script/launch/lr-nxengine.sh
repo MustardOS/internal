@@ -23,46 +23,44 @@ SET_VAR "system" "foreground_process" "retroarch"
 RA_CONF="/opt/muos/share/info/config/retroarch.cfg"
 RA_ARGS=$(CONFIGURE_RETROARCH "$RA_CONF")
 
-IS_SWAP=$(DETECT_CONTROL_SWAP)
-
-LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/nxe.log"
+LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/nxengine.log"
 
 echo "Starting Cave Story (libretro)" >"$LOGPATH"
-# Set nxengine BIOS path
 DOUK_BIOS="/run/muos/storage/bios/nxengine/Doukutsu.exe"
 
 if [ -e "$DOUK_BIOS" ]; then
 	echo "Doukutsu.exe found!" >>"$LOGPATH"
 	GREENLIGHT=1
-
 else
 	echo "Doukutsu.exe NOT found!" >>"$LOGPATH"
+
 	CZ_NAME="Cave Story (En).zip"
 	CAVE_URL="https://bot.libretro.com/assets/cores/Cave Story/$CZ_NAME"
 	echo "Cave Story URL: $CAVE_URL" >>"$LOGPATH"
-	BIOS_FOLDER="/run/muos/storage/bios/"
 
+	BIOS_FOLDER="/run/muos/storage/bios/"
 	echo "$DOUK_BIOS not found in $BIOS_FOLDER"
-	# Is this thing on(line)?
-	check_internet() {
+
+	CHECK_INTERNET() {
 		echo "Pinging github.com" >>"$LOGPATH"
 		ping -c 1 github.com >/dev/null 2>&1
 		return $?
 	}
-	if check_internet; then
-		# Download
+
+	if CHECK_INTERNET; then
 		echo "Downloading from $CAVE_URL" >>"$LOGPATH"
 		wget -O "$BIOS_FOLDER$CZ_NAME" "$CAVE_URL"
 
-		# Extract
 		echo "Extracting $CZ_NAME to $BIOS_FOLDER/Cave Story (En)" >>"$LOGPATH"
 		unzip -o "$BIOS_FOLDER$CZ_NAME" -d "$BIOS_FOLDER"
+
 		if [ -e "$BIOS_FOLDER/Cave Story (En)" ]; then
 			echo "Renaming Cave Story (En) Folder to nxengine" >>"$LOGPATH"
 			mv "$BIOS_FOLDER/Cave Story (En)" "$BIOS_FOLDER/nxengine"
-			# Cleanup
+
 			echo "Removing $CZ_NAME"
 			rm -f "$BIOS_FOLDER$CZ_NAME"
+
 			GREENLIGHT=1
 		elif [ -e "$BIOS_FOLDER/nxengine" ]; then
 			echo "Already renamed" >>"$LOGPATH"
@@ -77,10 +75,12 @@ else
 fi
 
 if [ "$GREENLIGHT" -eq 1 ]; then
+	IS_SWAP=$(DETECT_CONTROL_SWAP)
+
 	echo "Launching Cave Story" >>"$LOGPATH"
 	/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-	nice --20 retroarch -v -f -c "$RA_CONF" $RA_ARGS -L "/opt/muos/share/core/$CORE" "$DOUK"
+	nice --20 retroarch -v -f -c "$RA_CONF" $RA_ARGS -L "/opt/muos/share/core/nxengine_libretro.so" "$DOUK"
 
 	for RF in ra_no_load ra_autoload_once.cfg; do
 		[ -e "/tmp/$RF" ] && ENSURE_REMOVED "/tmp/$RF"

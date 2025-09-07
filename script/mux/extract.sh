@@ -66,6 +66,16 @@ case "$ARCHIVE_NAME" in
 		printf "Detected RetroArch Configuration Package\nMoving archive to 'MUOS/package/config'\n"
 		mv "$ARCHIVE" "/run/muos/storage/package/config/"
 		;;
+	*.muxalt)
+		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
+
+		if ! EXTRACT_ARCHIVE "Theme Alternative" "$ARCHIVE" "/run/muos/storage/theme/active"; then
+			printf "\nExtraction Failed...\n"
+			ALL_DONE 1
+		fi
+
+		UPDATE_BOOTLOGO
+		;;
 	*.muxapp | *.muxupd | *.muxzip | *.zip)
 		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
 

@@ -608,26 +608,26 @@ KERNEL_TUNING() {
 }
 
 LED_CONTROL_CHANGE() {
-	(
-		if [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] && [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
-			RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
-			TIMEOUT=10
-			WAIT=0
+	if [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] && [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
+		RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
+		TIMEOUT=10
+		WAIT=0
 
-			while [ ! -f "$RGBCONF_SCRIPT" ] && [ "$WAIT" -lt "$TIMEOUT" ]; do
-				TBOX sleep 1
-				WAIT=$((WAIT + 1))
-			done
+		while [ ! -f "$RGBCONF_SCRIPT" ] && [ "$WAIT" -lt "$TIMEOUT" ]; do
+			TBOX sleep 1
+			WAIT=$((WAIT + 1))
+		done
 
-			if [ -f "$RGBCONF_SCRIPT" ]; then
-				"$RGBCONF_SCRIPT"
-			elif [ -f "$LED_CONTROL_SCRIPT" ]; then
-				"$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
-			fi
-		else
+		if [ -f "$RGBCONF_SCRIPT" ]; then
+			"$RGBCONF_SCRIPT"
+		elif [ -f "$LED_CONTROL_SCRIPT" ]; then
+			"$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
+		fi
+	else
+		if [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
 			[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 		fi
-	) &
+	fi
 }
 
 UPDATE_BOOTLOGO() {

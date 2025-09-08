@@ -19,7 +19,6 @@ MODE="$1"
 THEME_ARG="$2"
 THEME_DIR="/run/muos/storage/theme"
 THEME_ACTIVE_DIR="$THEME_DIR/active"
-BOOTLOGO_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
 
 ALL_DONE() {
 	printf "\nSync Filesystem\n"
@@ -64,7 +63,10 @@ INSTALL() {
 	SPACE_REQ="$(GET_ARCHIVE_BYTES "$THEME_ZIP" "")"
 	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$THEME_ACTIVE_DIR" && ALL_DONE 1
 
-	EXTRACT_ARCHIVE "Theme" "$THEME_ZIP" "$THEME_ACTIVE_DIR" || printf "\nExtraction Failed...\n" && ALL_DONE 1
+	if ! EXTRACT_ARCHIVE "Theme" "$THEME_ZIP" "$THEME_ACTIVE_DIR"; then
+		printf "\nExtraction Failed...\n"
+		ALL_DONE 1
+	fi
 
 	THEME_NAME=$(basename "$THEME_ZIP" .muxthm)
 	[ -f "$THEME_ACTIVE_DIR/name.txt" ] && echo "${THEME_NAME%-[0-9]*_[0-9]*}" >"$THEME_ACTIVE_DIR/name.txt"

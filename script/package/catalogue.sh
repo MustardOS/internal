@@ -50,7 +50,10 @@ INSTALL() {
 	SPACE_REQ="$(GET_ARCHIVE_BYTES "$CATALOGUE_ZIP" "")"
 	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$CATALOGUE_DIR" && ALL_DONE 1
 
-	EXTRACT_ARCHIVE "Catalogue" "$CATALOGUE_ZIP" "$CATALOGUE_DIR" || printf "\nExtraction Failed...\n" && ALL_DONE 1
+	if ! EXTRACT_ARCHIVE "Catalogue" "$CATALOGUE_ZIP" "$CATALOGUE_DIR"; then
+		printf "\nExtraction Failed...\n"
+		ALL_DONE 1
+	fi
 
 	printf "Running Catalogue Generation\n"
 	/opt/muos/script/system/catalogue.sh

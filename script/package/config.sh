@@ -49,7 +49,10 @@ INSTALL() {
 	SPACE_REQ="$(GET_ARCHIVE_BYTES "$CONFIG_ZIP" "")"
 	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$CONFIG_DIR" && ALL_DONE 1
 
-	EXTRACT_ARCHIVE "Configuration" "$CONFIG_ZIP" "$CONFIG_DIR" || printf "\nExtraction Failed...\n" && ALL_DONE 1
+	if ! EXTRACT_ARCHIVE "Configuration" "$CONFIG_ZIP" "$CONFIG_DIR"; then
+		printf "\nExtraction Failed...\n"
+		ALL_DONE 1
+	fi
 
 	printf "Running Device Control Configuration\n"
 	/opt/muos/script/device/control.sh

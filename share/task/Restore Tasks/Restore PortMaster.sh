@@ -3,43 +3,36 @@
 # ICON: sdcard
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/zip.sh
 
 FRONTEND stop
 
+PM_DIR="/mnt/mmc/MUOS/PortMaster"
 PM_ZIP="/opt/muos/share/archive/muos.portmaster.zip"
 
 if [ ! -e "$PM_ZIP" ]; then
-	echo "Error: PortMaster archive not found!"
+	printf "\nError: PortMaster archive not found!\n"
 	TBOX sleep 2
 
 	FRONTEND start task
 	exit 1
 fi
 
-# PortMaster Purge Time!
-rm -rf /mnt/mmc/MUOS/PortMaster
+rm -rf "$PM_DIR"
+mkdir -p "$PM_DIR"
 
-FILE_COUNT="$(unzip -Z1 "$PM_ZIP" | grep -cv '/$')"
+SPACE_REQ="$(GET_ARCHIVE_BYTES "$PM_ZIP" "")"
+! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$PM_DIR" && ALL_DONE 1
 
-MUX_TEMP="/opt/muxtmp"
-mkdir "$MUX_TEMP"
+if ! EXTRACT_ARCHIVE "PortMaster" "$PM_ZIP" "$PM_DIR"; then
+	printf "\nExtraction Failed...\n"
+	ALL_DONE 1
+fi
 
-echo "Extracting files..."
-unzip -o "$PM_ZIP" -d "$MUX_TEMP/" |
-	grep --line-buffered -E '^ *(extracting|inflating):' |
-	/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
-
-echo "Moving files..."
-rsync --archive --ignore-times --remove-source-files --itemize-changes --outbuf=L "$MUX_TEMP/" / |
-	grep --line-buffered '^>f' |
-	/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
-
-rm -rf "$MUX_TEMP"
-
-echo "Sync Filesystem"
+printf "\nSync Filesystem"
 sync
 
-echo "All Done!"
+printf "\nAll Done!"
 TBOX sleep 2
 
 FRONTEND start task

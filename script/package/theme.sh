@@ -39,8 +39,6 @@ INSTALL() {
 		THEME_ZIP="$THEME_DIR/$THEME_ARG.muxthm"
 	#fi
 
-	cp "/opt/muos/device/bootlogo.bmp" "$BOOTLOGO_MOUNT/bootlogo.bmp"
-
 	printf "Checking for processes using theme media files...\n"
 	for EXT in ogg wav ttf; do
 		if lsof +D "$THEME_ACTIVE_DIR" 2>/dev/null | grep -i "\.$EXT" >/dev/null; then

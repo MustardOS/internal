@@ -648,7 +648,7 @@ UPDATE_BOOTLOGO() {
 			cp -f "$NORM_BL" "$BOOT_MOUNT/bootlogo.bmp"
 		else
 			printf "\nReverting to system bootlogo: %s\n" "$NORM_BL"
-			cp -f "/opt/muos/device/bootlogo.bmp" "$BOOT_MOUNT/bootlogo.bmp"
+			cp -f "/opt/muos/share/bootlogo/${DEVICE_W}x${DEVICE_H}/bootlogo.bmp" "$BOOT_MOUNT/bootlogo.bmp"
 		fi
 	fi
 

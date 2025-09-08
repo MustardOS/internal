@@ -69,14 +69,30 @@ CAT_GRID_CLEAR() {
 }
 
 EXTRACT_ARCHIVE() {
-	FILE_COUNT="$(unzip -Z1 "$2" | grep -cv '/$' || true)"
-	[ "$FILE_COUNT" -gt 0 ] || FILE_COUNT=1
+	LABEL="$1"
+	ARCHIVE_PATH="$2"
+	DEST_DIR="$3"
+	PATTERN="${4-}"
 
-	echo "Extracting $1..."
+	if [ -n "$PATTERN" ]; then
+		FILE_COUNT="$(unzip -Z1 "$ARCHIVE_PATH" "$PATTERN" 2>/dev/null | grep -cv '/$' || true)"
+	else
+		FILE_COUNT="$(unzip -Z1 "$ARCHIVE_PATH" 2>/dev/null | grep -cv '/$' || true)"
+	fi
 
-	unzip -o "$2" -d "$3" 2>/dev/null |
-		grep --line-buffered -E '^ *(extracting|inflating):' |
-		/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+	[ "${FILE_COUNT:-0}" -gt 0 ] || FILE_COUNT=1
+
+	printf "Extracting %s...\n" "$LABEL"
+
+	if [ -n "$PATTERN" ]; then
+		unzip -o "$ARCHIVE_PATH" "$PATTERN" -d "$DEST_DIR" 2>/dev/null |
+			grep --line-buffered -E '^ *(extracting|inflating):' |
+			/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+	else
+		unzip -o "$ARCHIVE_PATH" -d "$DEST_DIR" 2>/dev/null |
+			grep --line-buffered -E '^ *(extracting|inflating):' |
+			/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+	fi
 }
 
 CHECK_ARCHIVE() {

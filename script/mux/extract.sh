@@ -111,6 +111,10 @@ case "$ARCHIVE_NAME" in
 					DEST="$ROM_MOUNT/MUOS"
 					LABEL="Application"
 					;;
+				archive)
+					DEST="$ROM_MOUNT"
+					LABEL="Archive"
+					;;
 				bios)
 					DEST="$STORAGE_BASE"
 					LABEL="BIOS"

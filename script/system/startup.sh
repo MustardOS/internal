@@ -114,7 +114,7 @@ if [ "$FACTORY_RESET" -eq 0 ]; then
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"
-cp -f "/opt/muos/device/control/asound.conf" "/etc/asound.conf"
+cp -f "/opt/muos/share/conf/asound.conf" "/etc/asound.conf"
 
 if [ -s "$ALSA_CONFIG" ]; then
 	LOG_INFO "$0" 0 "BOOTING" "ALSA Config Check Passed"

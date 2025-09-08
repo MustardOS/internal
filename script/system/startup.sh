@@ -146,7 +146,7 @@ LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"
 (chown -R root:root /opt && chmod -R 755 /opt) &
 
 LOG_INFO "$0" 0 "BOOTING" "Device Specific Startup"
-/opt/muos/device/script/start.sh &
+/opt/muos/script/device/start.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
 while [ ! -f "/run/muos/storage/mounted" ]; do TBOX sleep 0.1; done

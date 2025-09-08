@@ -44,21 +44,52 @@ if [ "$(GET_VAR "config" "settings/advanced/thermal")" -eq 0 ]; then
 	done
 fi
 
-/opt/muos/script/device/speaker.sh &
+DEV_BOARD=$(GET_VAR "device" "board/name")
+RA_VER=
+
+case "$DEV_BOARD" in
+	rg*)
+		RA_VER="rg"
+		case "$DEV_BOARD" in
+			rg34xx-sp | rg35xx-sp)
+				/opt/muos/script/device/lid.sh &
+				;;
+			rg40xx-h | rgcubexx-h)
+				/opt/muos/script/device/speaker.sh &
+				;;
+		esac
+		;;
+	tui*)
+		RA_VER="tui"
+
+		# Create TrimUI Input folder
+		if [ ! -d "/tmp/trimui_inputd" ]; then
+			mkdir -p "/tmp/trimui_inputd"
+		fi
+
+		# Modified GPU parameters
+		echo 1 >/sys/module/pvrsrvkm/parameters/DisableClockGating
+		echo 1 >/sys/module/pvrsrvkm/parameters/EnableFWContextSwitch
+		echo 1 >/sys/module/pvrsrvkm/parameters/EnableSoftResetContextSwitch
+		echo 0 >/sys/module/pvrsrvkm/parameters/PVRDebugLevel
+		;;
+esac
 
 # Add device specific Retroarch Binary
 RA_DIR="/opt/muos/share/emulator/retroarch"
-RA_BIN="$RA_DIR/retroarch-rg"
-RA_MD5="$RA_DIR/retroarch-rg.md5"
+RA_BIN="$RA_DIR/retroarch-${RA_VER}"
+RA_MD5="$RA_DIR/retroarch-${RA_VER}.md5"
 RA_TGT="/usr/bin/retroarch"
 
-if [ -f "$RA_TGT" ]; then
-	CURRENT_MD5=$(md5sum "$RA_TGT" | awk '{ print $1 }')
-	if [ "$CURRENT_MD5" != "$RA_MD5" ]; then
+if [ -e "$RA_BIN" ]; then
+	if [ -f "$RA_TGT" ]; then
+		CURRENT_MD5=$(md5sum "$RA_TGT" | awk '{ print $1 }')
+		if [ "$CURRENT_MD5" != "$RA_MD5" ]; then
+			cp -f "$RA_BIN" "$RA_TGT"
+			chmod +x "$RA_TGT"
+		fi
+	else
 		cp -f "$RA_BIN" "$RA_TGT"
 		chmod +x "$RA_TGT"
 	fi
-else
-	cp -f "$RA_BIN" "$RA_TGT"
-	chmod +x "$RA_TGT"
 fi

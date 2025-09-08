@@ -144,7 +144,7 @@
   },
   "muxconfig": {
     "CONFIGURATION": "CUMRAÍOCHT",
-    "Connect your device via Wi-Fi, enable web services, or enable USB functions": "Connect your device via Wi-Fi, enable web services, or enable USB functions",
+    "Connect your device via Wi-Fi, enable web services, or enable USB functions": "Ceangail do ghléas trí Wi-Fi, cumasaigh seirbhísí gréasáin, nó cumasaigh feidhmeanna USB",
     "Connectivity": "Nascacht",
     "Customisation": "Saincheapadh",
     "Customise your muOS setup with user created packages": "Saincheap do shocrú muOS le pacáistí cruthaithe ag úsáideoirí",
@@ -205,6 +205,8 @@
     "Fullscreen + Behind": "Lánscáileán + Taobh thiar",
     "Fullscreen + Front": "Lánscáileán + Tosaigh",
     "Global": "Domhanda",
+    "Hide Grid Mode Box Art": "Hide Grid Mode Box Art",
+    "Hide system box art images in Content Explorer when theme uses grid mode": "Hide system box art images in Content Explorer when theme uses grid mode",
     "Hold A": "Coinnigh A",
     "Interface Font Type": "Cineál Cló Chomhéadain",
     "Language": "Teanga",
@@ -563,8 +565,8 @@
     "CATALOGUE PICKER": "PIOCADH CATALÓG",
     "CONFIG PICKER": "ROGHNÓIR CUMRAÍOCHTA",
     "CUSTOM PICKER": "ROGHNÓIR SAINRÉITHE",
-    "Failed to remove item…": "Failed to remove item…",
-    "Hold L2 and press X to confirm deletion!": "Hold L2 and press X to confirm deletion!",
+    "Failed to remove item…": "Theip ar mhír a bhaint…",
+    "Hold L2 and press X to confirm deletion!": "Coinnigh L2 agus brúigh X chun an scriosadh a dhearbhú!",
     "Incompatible Theme Resolution Detected": "Braitheadh Taifeach Neamh-chomhoiriúnach don Téama",
     "Incompatible Theme Version Detected": "Braitheadh Leagan Téama Neamh-chomhoiriúnach",
     "No Catalogue Packages Found": "Níor Aimsíodh Pacáistí Catalóga",
@@ -574,7 +576,7 @@
     "THEME PICKER": "ROGHNÓIR TÉAMA",
     "Theme Download": "Íoslódáil Téama",
     "There are no attributed credits!": "Níl aon creidmheasanna leithdháilte!",
-    "This theme is protected from deletion!": "This theme is protected from deletion!"
+    "This theme is protected from deletion!": "Tá an téama seo cosanta ó scriosadh!"
   },
   "muxplore": {
     "Content is not associated with system or core": "Ní bhaineann an t-ábhar le córas nó croí",
@@ -594,7 +596,7 @@
     "30s": "30idí",
     "5m": "5m",
     "60s": "60idí",
-    "Configure how the power button functions on short press": "Configure how the power button functions on short press",
+    "Configure how the power button functions on short press": "Cumraigh conas a oibríonn an cnaipe cumhachta ar bhrú gearr",
     "Configure the time the device will sleep when no input is detected": "Cumraigh an t-am a chodlóidh an gléas nuair nach mbraitear ionchur",
     "Configure the time the screen will dim when no input is detected": "Cumraigh an t-am a mhaolóidh an scáileán nuair nach mbraitear aon ionchur",
     "Configure when the red LED will display based on the current capacity percentage": "Cumraigh nuair a thaispeánfaidh an LED dearg bunaithe ar an gcéatadán acmhainne reatha",

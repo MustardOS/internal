@@ -144,7 +144,7 @@
   },
   "muxconfig": {
     "CONFIGURATION": "KONFIGURACJA",
-    "Connect your device via Wi-Fi, enable web services, or enable USB functions": "Connect your device via Wi-Fi, enable web services, or enable USB functions",
+    "Connect your device via Wi-Fi, enable web services, or enable USB functions": "Połącz swoje urządzenie przez Wi-Fi, włącz usługi sieciowe lub włącz funkcje USB",
     "Connectivity": "Łączność",
     "Customisation": "Personalizacja",
     "Customise your muOS setup with user created packages": "Spersonalizuj muOS dzięki paczkom stworzonym przez użytkowników",
@@ -205,6 +205,8 @@
     "Fullscreen + Behind": "Pełny ekran + Tył",
     "Fullscreen + Front": "Pełny ekran + Przód",
     "Global": "Globalne",
+    "Hide Grid Mode Box Art": "Ukryj okładki w trybie siatki",
+    "Hide system box art images in Content Explorer when theme uses grid mode": "Ukryj okładki systemów w Przeglądaniu Zawartości, jeśli motyw używa trybu siatki",
     "Hold A": "Przytrzymaj A",
     "Interface Font Type": "Typ czcionki interfejsu",
     "Language": "Język",
@@ -563,8 +565,8 @@
     "CATALOGUE PICKER": "WYBÓR OKŁADEK",
     "CONFIG PICKER": "WYBÓR KONFIGURACJI",
     "CUSTOM PICKER": "WYBÓR PACZKI UŻYTKOWNIKA",
-    "Failed to remove item…": "Failed to remove item…",
-    "Hold L2 and press X to confirm deletion!": "Hold L2 and press X to confirm deletion!",
+    "Failed to remove item…": "Usunięcie nie powiodło się…",
+    "Hold L2 and press X to confirm deletion!": "Przytrzymaj L2 i wciśnij X, aby potwierdzić usunięcie!",
     "Incompatible Theme Resolution Detected": "Wykryto niekompatybilną rozdzielczość motywu",
     "Incompatible Theme Version Detected": "Wykryto niekompatybilną wersję motywu",
     "No Catalogue Packages Found": "Nie znaleziono paczek z okładkami",
@@ -574,7 +576,7 @@
     "THEME PICKER": "WYBÓR MOTYWU",
     "Theme Download": "Pobieranie motywu",
     "There are no attributed credits!": "Nie przypisano autora!",
-    "This theme is protected from deletion!": "This theme is protected from deletion!"
+    "This theme is protected from deletion!": "Ten motyw jest chroniony przed usunięciem!"
   },
   "muxplore": {
     "Content is not associated with system or core": "Zawartość nie ma przypisanego systemu lub rdzenia",
@@ -594,7 +596,7 @@
     "30s": "30s",
     "5m": "5m",
     "60s": "60s",
-    "Configure how the power button functions on short press": "Configure how the power button functions on short press",
+    "Configure how the power button functions on short press": "Skonfiguruj, jak przycisk zasilania zachowuje się przy krótkim wciśnięciu",
     "Configure the time the device will sleep when no input is detected": "Skonfiguruj, kiedy uśpić urządzenie, jeśli nie wykryto żadnej interakcji",
     "Configure the time the screen will dim when no input is detected": "Skonfiguruj, kiedy ekran ma się ściemnić, jeśli nie wykryto żadnej interakcji",
     "Configure when the red LED will display based on the current capacity percentage": "Skonfiguruj, kiedy ma zapalić się czerwona dioda LED na podstawie bieżącej pojemności baterii",

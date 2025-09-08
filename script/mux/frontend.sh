@@ -25,10 +25,30 @@ printf '%s\n' "$ACT" >"$ACT_GO"
 
 echo "root" >$EX_CARD
 
+LAST_APP_FILE="/opt/muos/config/boot/last_app"
 LAST_PLAY=$(cat "/opt/muos/config/boot/last_play")
 
 LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
 SET_DEFAULT_GOVERNOR
+
+handle_app_go() {
+    # Only proceed if the APP_GO file exists and is not empty
+    if [[ -s "$APP_GO" ]]; then
+		IFS= read -r RUN_APP <"$APP_GO"
+        echo "$RUN_APP" >"$LAST_APP_FILE"
+		ENSURE_REMOVED "$APP_GO"
+
+		"$(GET_VAR "device" "storage/rom/mount")/MUOS/application/${RUN_APP}/mux_launch.sh"
+		echo appmenu >$ACT_GO
+
+		LOG_INFO "$0" 0 "FRONTEND" "Clearing Governor and Control Scheme files"
+		[ -e "$GOV_GO" ] && ENSURE_REMOVED "$GOV_GO"
+		[ -e "$CON_GO" ] && ENSURE_REMOVED "$CON_GO"
+
+		LOG_INFO "$0" 0 "FRONTEND" "Setting Governor back to default"
+		SET_DEFAULT_GOVERNOR    fi
+}
+
 
 if [ $SKIP -eq 0 ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"
@@ -130,6 +150,23 @@ if [ $SKIP -eq 0 ]; then
 		fi
 
 		echo launcher >$ACT_GO
+	elif [ "$(GET_VAR "config" "settings/general/startup")" = "lastapp" ]; then
+		LOG_INFO "$0" 0 "FRONTEND" "Startup is last app and LAST_APP is ${LAST_APP}"
+		if [[ -f "$LAST_APP_FILE" ]]; then
+			LAST_APP=$(cat "$LAST_APP_FILE")
+			LOG_INFO "$0" 0 "FRONTEND" "LAST_APP read as '${LAST_APP}'"
+		else
+			LOG_INFO "$0" 0 "FRONTEND" "${LAST_APP_FILE} does not exist"
+			LAST_APP=""
+		fi
+		# Check if LAST_APP is not an empty string
+		if [[ -n "$LAST_APP" ]]; then
+			# Rewrite LAST_APP to the file path stored in $APP_GO for next boot up
+			echo "$LAST_APP" > "$APP_GO"
+			echo app > $ACT_GO
+			handle_app_go
+		fi
+
 	fi
 fi
 
@@ -181,20 +218,7 @@ while :; do
 			"explore") EXEC_MUX "explore" "muxfrontend" ;;
 
 			"app")
-				if [ -s "$APP_GO" ]; then
-					IFS= read -r RUN_APP <"$APP_GO"
-					ENSURE_REMOVED "$APP_GO"
-
-					"$(GET_VAR "device" "storage/rom/mount")/MUOS/application/${RUN_APP}/mux_launch.sh"
-					echo appmenu >$ACT_GO
-
-					LOG_INFO "$0" 0 "FRONTEND" "Clearing Governor and Control Scheme files"
-					[ -e "$GOV_GO" ] && ENSURE_REMOVED "$GOV_GO"
-					[ -e "$CON_GO" ] && ENSURE_REMOVED "$CON_GO"
-
-					LOG_INFO "$0" 0 "FRONTEND" "Setting Governor back to default"
-					SET_DEFAULT_GOVERNOR
-				fi
+				handle_app_go
 				;;
 
 			"appmenu")

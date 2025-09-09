@@ -106,7 +106,8 @@ if [ -e "$PPSSPP_ARCHIVE" ]; then
 
 	if [ "$CURRENT_MD5" != "$EXPECTED_MD5" ]; then
 		TMPDIR=$(mktemp -d "$PPSSPP_DIR/ppsspp-tmp.XXXXXX") || exit 1
-		tar -xzf "$PPSSPP_ARCHIVE" -C "$TMPDIR"
+		# Use gzip stdin to extract, no '-z' available in busybox tar.
+		gzip -dc -- "$PPSSPP_ARCHIVE" | tar -xf - -C "$TMPDIR"
 
 		# Find the extracted binary (PPSSPP-rg or PPSSPP-tui)
 		SRC_BIN=$(find "$TMPDIR" -maxdepth 1 -type f -name 'PPSSPP-*' | head -n 1)

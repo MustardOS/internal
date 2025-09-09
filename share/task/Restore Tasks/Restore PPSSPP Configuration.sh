@@ -8,11 +8,8 @@ FRONTEND stop
 
 echo "Restoring PPSSPP Configuration"
 
-DEVICE_PREFIX="rg tui"
-for PREFIX in $DEVICE_PREFIX; do
-	PPSSPP_SYS="$MUOS_SHARE_DIR/emulator/ppsspp/${PREFIX}/.config/ppsspp/PSP/SYSTEM"
-	rm -f "${PPSSPP_SYS}/controls.ini" "${PPSSPP_SYS}/ppsspp.ini"
-done
+PPSSPP_SYS="$MUOS_SHARE_DIR/emulator/ppsspp/.config/ppsspp/PSP/SYSTEM"
+rm -f "${PPSSPP_SYS}/controls.ini" "${PPSSPP_SYS}/ppsspp.ini"
 
 /opt/muos/script/control/ppsspp.sh
 

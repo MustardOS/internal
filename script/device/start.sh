@@ -76,7 +76,7 @@ case "$DEV_BOARD" in
 esac
 
 # Add device specific Retroarch Binary
-RA_DIR="/opt/muos/share/emulator/retroarch"
+RA_DIR="$MUOS_SHARE_DIR/emulator/retroarch"
 RA_BIN="$RA_DIR/retroarch-${RA_VER}"
 RA_MD5="$RA_DIR/retroarch-${RA_VER}.md5"
 RA_TGT="/usr/bin/retroarch"

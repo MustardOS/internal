@@ -4,21 +4,20 @@
 
 PRIORITY_LOCS="bios init info/track save theme"
 STANDARD_LOCS="info/catalogue info/name info/collection info/history network screenshot syncthing package/catalogue package/config"
-STORAGE_RUN="/run/muos/storage"
 MOUNT_FAILURE="/tmp/muos_mount_failure"
 
 SDCARD_MOUNT="$(GET_VAR "device" "storage/sdcard/mount")"
 ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 
-rm -f "$STORAGE_RUN/mounted" "$MOUNT_FAILURE"
-mkdir -p "$STORAGE_RUN"
+rm -f "$MUOS_STORE_DIR/mounted" "$MOUNT_FAILURE"
+mkdir -p "$MUOS_STORE_DIR"
 
 MOUNT_STORAGE() {
 	LIST="$1"
 	GROUP="$2"
 
 	for S_LOC in $LIST; do
-		TGT="$STORAGE_RUN/$S_LOC"
+		TGT="$MUOS_STORE_DIR/$S_LOC"
 		mkdir -p "$TGT"
 
 		if [ -d "$SDCARD_MOUNT/MUOS/$S_LOC" ]; then
@@ -49,18 +48,18 @@ LOG_INFO "$0" 0 "BIND MOUNT" "Mounting PRIORITY paths"
 MOUNT_STORAGE "$PRIORITY_LOCS" "PRIORITY"
 
 [ -s "$MOUNT_FAILURE" ] && CRITICAL_FAILURE mount
-touch "$STORAGE_RUN/mounted"
+touch "$MUOS_STORE_DIR/mounted"
 
 LOG_INFO "$0" 0 "BIND MOUNT" "Mounting STANDARD paths"
 MOUNT_STORAGE "$STANDARD_LOCS" "STANDARD"
 
 [ -s "$MOUNT_FAILURE" ] && CRITICAL_FAILURE mount
 
-# Bind hardcoded paths on SD1's ROM partition (where we can't use symlinks) to
-# subdirs of the appropriate locations under /run/muos/storage (bound above).
+# Bind hardcoded paths on SD1's ROM partition (where we can't use symlinks) to subdirs
+# of the appropriate locations under /run/muos/storage ($MUOS_STORE_DIR) bound above.
 BIND_EMULATOR() {
-	TARGET="$STORAGE_RUN/$1"
-	MOUNT="/opt/muos/share/emulator/$2"
+	TARGET="$MUOS_STORE_DIR/$1"
+	MOUNT="$MUOS_SHARE_DIR/emulator/$2"
 	mkdir -p "$TARGET" "$MOUNT"
 
 	umount "$MOUNT"

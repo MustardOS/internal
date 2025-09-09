@@ -108,7 +108,7 @@ REQUIRE_DBUS() {
 START_PIPEWIRE() {
 	if ! pgrep -x "pipewire" >/dev/null; then
 		LOG_INFO "$0" 0 "PIPEWIRE" "Starting PipeWire..."
-		chrt -f 88 pipewire -c "/opt/muos/share/conf/pipewire.conf" &
+		chrt -f 88 pipewire -c "$MUOS_SHARE_DIR/conf/pipewire.conf" &
 	else
 		LOG_WARN "$0" 0 "PIPEWIRE" "PipeWire is already running!"
 		return 1

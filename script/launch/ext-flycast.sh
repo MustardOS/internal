@@ -20,14 +20,14 @@ SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "flycast"
 
-EMUDIR="/opt/muos/share/emulator/flycast"
+EMUDIR="$MUOS_SHARE_DIR/emulator/flycast"
 
 chmod +x "$EMUDIR"/flycast
 cd "$EMUDIR" || exit
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-HOME="$EMUDIR" FLYCAST_BIOS_PATH=/run/muos/storage/bios/dc/ ./flycast "$FILE"
+HOME="$EMUDIR" FLYCAST_BIOS_PATH="$MUOS_STORE_DIR/bios/dc/" ./flycast "$FILE"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 

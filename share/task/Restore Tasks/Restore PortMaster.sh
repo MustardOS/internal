@@ -8,7 +8,7 @@
 FRONTEND stop
 
 PM_DIR="/mnt/mmc/MUOS/PortMaster"
-PM_ZIP="/opt/muos/share/archive/muos.portmaster.zip"
+PM_ZIP="$MUOS_SHARE_DIR/archive/muos.portmaster.zip"
 
 if [ ! -e "$PM_ZIP" ]; then
 	printf "\nError: PortMaster archive not found!\n"

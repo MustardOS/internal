@@ -29,10 +29,10 @@ else
 	SUBFOLDER="$NAME"
 fi
 
-EMUDIR="/opt/muos/share/emulator/scummvm"
+EMUDIR="$MUOS_SHARE_DIR/emulator/scummvm"
 CONFIG="$EMUDIR/.config/scummvm/scummvm.ini"
 LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/scummvm/log.txt"
-SAVE="/run/muos/storage/save/file/ScummVM-Ext"
+SAVE="$MUOS_STORE_DIR/save/file/ScummVM-Ext"
 
 RG_DPAD="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 TUI_DPAD="/tmp/trimui_inputd/input_dpad_to_joystick"

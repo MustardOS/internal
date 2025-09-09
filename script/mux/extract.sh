@@ -33,7 +33,6 @@ FRONTEND_START_PROGRAM="${2:-archive}"
 printf "Inspecting Archive...\n"
 
 ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
-STORAGE_BASE="/run/muos/storage"
 
 case "$ARCHIVE_NAME" in
 	pico-8_*)
@@ -44,7 +43,7 @@ case "$ARCHIVE_NAME" in
 				if ("pico-8/" in FOLDERS && "pico-8/pico8_64" in FILES && "pico-8/pico8.dat" in FILES) exit 0; else exit 1
 			}'; then
 			printf "\nArchive contains a valid PICO-8 folder with required files!\n"
-			BIOS_DIR="$STORAGE_BASE/bios"
+			BIOS_DIR="$MUOS_STORE_DIR/bios"
 
 			P8_REQ="$(GET_ARCHIVE_BYTES "$ARCHIVE" "pico-8/")"
 			! CHECK_SPACE_FOR_DEST "$P8_REQ" "$BIOS_DIR" && ALL_DONE 1
@@ -59,20 +58,20 @@ case "$ARCHIVE_NAME" in
 		;;
 	*.muxthm)
 		printf "Detected Theme Package\nMoving archive to 'MUOS/theme'\n"
-		mv "$ARCHIVE" "$STORAGE_BASE/theme/"
+		mv "$ARCHIVE" "$MUOS_STORE_DIR/theme/"
 		;;
 	*.muxcat)
 		printf "Detected Catalogue Package\nMoving archive to 'MUOS/package/catalogue'\n"
-		mv "$ARCHIVE" "$STORAGE_BASE/package/catalogue/"
+		mv "$ARCHIVE" "$MUOS_STORE_DIR/package/catalogue/"
 		;;
 	*.muxcfg)
 		printf "Detected RetroArch Configuration Package\nMoving archive to 'MUOS/package/config'\n"
-		mv "$ARCHIVE" "$STORAGE_BASE/package/config/"
+		mv "$ARCHIVE" "$MUOS_STORE_DIR/package/config/"
 		;;
 	*.muxalt)
 		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
 
-		if ! EXTRACT_ARCHIVE "Theme Alternative" "$ARCHIVE" "$STORAGE_BASE/theme/active"; then
+		if ! EXTRACT_ARCHIVE "Theme Alternative" "$ARCHIVE" "$MUOS_STORE_DIR/theme/active"; then
 			printf "\nExtraction Failed...\n"
 			ALL_DONE 1
 		fi
@@ -116,59 +115,59 @@ case "$ARCHIVE_NAME" in
 					LABEL="Archive"
 					;;
 				bios)
-					DEST="$STORAGE_BASE"
+					DEST="$MUOS_STORE_DIR"
 					LABEL="BIOS"
 					;;
 				catalogue)
-					DEST="$STORAGE_BASE/info"
+					DEST="$MUOS_STORE_DIR/info"
 					LABEL="Catalogue"
 					;;
 				collection)
-					DEST="$STORAGE_BASE/info"
+					DEST="$MUOS_STORE_DIR/info"
 					LABEL="Collection"
 					;;
 				history)
-					DEST="$STORAGE_BASE/info"
+					DEST="$MUOS_STORE_DIR/info"
 					LABEL="History"
 					;;
 				info)
-					DEST="$STORAGE_BASE"
+					DEST="$MUOS_STORE_DIR"
 					LABEL="Info"
 					;;
 				init)
-					DEST="$STORAGE_BASE"
+					DEST="$MUOS_STORE_DIR"
 					LABEL="Init Scripts"
 					;;
 				language)
-					DEST="$STORAGE_BASE"
+					DEST="$MUOS_STORE_DIR"
 					LABEL="Language"
 					;;
 				name)
-					DEST="$STORAGE_BASE/info"
+					DEST="$MUOS_STORE_DIR/info"
 					LABEL="Name Configuration"
 					;;
 				network)
-					DEST="$STORAGE_BASE"
+					DEST="$MUOS_STORE_DIR"
 					LABEL="Network Profiles"
 					;;
 				package)
-					DEST="$STORAGE_BASE"
+					DEST="$MUOS_STORE_DIR"
 					LABEL="Package"
 					;;
 				save)
-					DEST="$STORAGE_BASE"
+					DEST="$MUOS_STORE_DIR"
 					LABEL="Save Files"
 					;;
 				syncthing)
-					DEST="$STORAGE_BASE"
+					DEST="$MUOS_STORE_DIR"
 					LABEL="Syncthing Configuration"
 					;;
 				theme)
-					DEST="$STORAGE_BASE"
+					DEST="$MUOS_STORE_DIR"
 					LABEL="Theme"
 					;;
 				track)
-					DEST="$STORAGE_BASE/info"
+					DEST="$MUOS_STORE_DIR/info"
 					LABEL="Playtime Data"
 					;;
 				bin | etc | home | lib | lib32 | lib64 | mnt | opt | roms | root | run | sbin | usr | var)

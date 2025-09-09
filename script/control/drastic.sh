@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-DRASTIC_ADV="/opt/muos/share/emulator/drastic-trngaje"
+DRASTIC_ADV="$MUOS_SHARE_DIR/emulator/drastic-trngaje"
 DRASTIC_ADV_JSON="${DRASTIC_ADV}/resources/settings.json"
 DRASTIC_ADV_CFG="${DRASTIC_ADV}/config/drastic.cfg"
 
@@ -16,7 +16,7 @@ if [ ! -f "$DRASTIC_ADV_CFG" ]; then
 	cp -f "$DEVICE_CONTROL_DIR/drastic-trngaje/drastic.cfg" "$DRASTIC_ADV_CFG"
 fi
 
-DRASTIC_LEG="/opt/muos/share/emulator/drastic-legacy"
+DRASTIC_LEG="$MUOS_SHARE_DIR/emulator/drastic-legacy"
 DRASTIC_LEG_CFG="${DRASTIC_LEG}/config/drastic.cfg"
 if [ ! -f "$DRASTIC_LEG_CFG" ]; then
 	mkdir -p "${DRASTIC_LEG}/config"

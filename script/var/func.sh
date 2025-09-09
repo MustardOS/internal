@@ -403,16 +403,16 @@ LCD_ENABLE() {
 }
 
 PLAY_SOUND() {
-	SND="/opt/muos/share/media/$1.wav"
+	SND="$MUOS_SHARE_DIR/media/$1.wav"
 	[ -e "$SND" ] && ENSURE_REMOVED "$SND"
 
 	case "$(GET_VAR "config" "settings/general/sound")" in
 		1)
-			WAV="/opt/muos/share/media/sound/$1.wav"
+			WAV="$MUOS_SHARE_DIR/media/sound/$1.wav"
 			[ -e "$WAV" ] && cp "$WAV" "$SND"
 			;;
 		2)
-			WAV="/run/muos/storage/theme/active/sound/$1.wav"
+			WAV="$MUOS_STORE_DIR/theme/active/sound/$1.wav"
 			[ -e "$WAV" ] && cp "$WAV" "$SND"
 			;;
 		*) ;;
@@ -433,7 +433,7 @@ SETUP_SDL_ENVIRONMENT() {
 	done
 
 	GCDB_DEFAULT="/usr/lib/gamecontrollerdb.txt"
-	GCDB_STORE="/opt/muos/share/info/gamecontrollerdb"
+	GCDB_STORE="$MUOS_SHARE_DIR/info/gamecontrollerdb"
 
 	# Decide controller DB (priority: arg -> /tmp/con_go -> default)
 	case "$REQ_STYLE" in
@@ -618,7 +618,7 @@ KERNEL_TUNING() {
 LED_CONTROL_CHANGE() {
 	if [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
 		if [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ]; then
-			RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
+			RGBCONF_SCRIPT="$MUOS_STORE_DIR/theme/active/rgb/rgbconf.sh"
 			TIMEOUT=10
 			WAIT=0
 
@@ -644,8 +644,8 @@ UPDATE_BOOTLOGO() {
 	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
 	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
 
-	SPEC_BL="/run/muos/storage/theme/active/${DEVICE_W}x${DEVICE_H}/image/bootlogo.bmp"
-	NORM_BL="/run/muos/storage/theme/active/image/bootlogo.bmp"
+	SPEC_BL="$MUOS_STORE_DIR/theme/active/${DEVICE_W}x${DEVICE_H}/image/bootlogo.bmp"
+	NORM_BL="$MUOS_STORE_DIR/theme/active/image/bootlogo.bmp"
 
 	if [ -e "$SPEC_BL" ]; then
 		printf "\nBootlogo found at: %s\n" "$SPEC_BL"
@@ -656,7 +656,7 @@ UPDATE_BOOTLOGO() {
 			cp -f "$NORM_BL" "$BOOT_MOUNT/bootlogo.bmp"
 		else
 			printf "\nReverting to system bootlogo: %s\n" "$NORM_BL"
-			cp -f "/opt/muos/share/bootlogo/${DEVICE_W}x${DEVICE_H}/bootlogo.bmp" "$BOOT_MOUNT/bootlogo.bmp"
+			cp -f "${MUOS_SHARE_DIR}/bootlogo/${DEVICE_W}x${DEVICE_H}/bootlogo.bmp" "$BOOT_MOUNT/bootlogo.bmp"
 		fi
 	fi
 

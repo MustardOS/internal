@@ -4,7 +4,7 @@
 
 DEVICE_PREFIX="rg tui"
 for PREFIX in $DEVICE_PREFIX; do
-	PPSSPP_SYS="/opt/muos/share/emulator/ppsspp/${PREFIX}/.config/ppsspp/PSP/SYSTEM"
+	PPSSPP_SYS="$MUOS_SHARE_DIR/emulator/ppsspp/${PREFIX}/.config/ppsspp/PSP/SYSTEM"
 	mkdir -p "$PPSSPP_SYS"
 
 	PPSSPP_TYPE="controls ppsspp"

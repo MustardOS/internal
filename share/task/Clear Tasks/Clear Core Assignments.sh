@@ -6,7 +6,7 @@
 
 FRONTEND stop
 
-MUOS_CORE_DIR="/opt/muos/share/info/core"
+MUOS_CORE_DIR="$MUOS_SHARE_DIR/info/core"
 
 echo "Removing all core assignments"
 rm -rf "${MUOS_CORE_DIR:?}"/*

@@ -348,7 +348,7 @@
   "muxkiosk": {
     "Advanced Settings": "Advanced Settings",
     "Allow access to archive manager": "Allow access to archive manager",
-    "Allow access to install content catalogues": "Allow access to install content catalogues",
+    "Allow access to install content catalog": "Allow access to install content catalogues",
     "Allow access to use custom RetroArch configs": "Allow access to use custom RetroArch configs",
     "Allow changes to interface visuals": "Allow changes to interface visuals",
     "Allow changing the system clock": "Allow changing the system clock",

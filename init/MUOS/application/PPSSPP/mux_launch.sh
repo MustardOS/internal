@@ -16,18 +16,22 @@ PPSSPP_DIR="/opt/muos/share/emulator/ppsspp"
 
 case "$(GET_VAR "device" "board/name")" in
 	rg*)
-		PPSSPP_DIR="${PPSSPP_DIR}/rg"
-
 		sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' \
 			"$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
 
 		rm -f "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/FailedGraphicsBackends.txt"
 		;;
 	tui*)
-		PPSSPP_DIR="${PPSSPP_DIR}/tui"
+		# Prevent blackscreen due to "an issue with the ordering of the RGBA 8888 or something like that" (acmeplus 2025)
+		setalpha 0
 
-		export LD_LIBRARY_PATH="$PPSSPP_DIR/lib:$LD_LIBRARY_PATH"
 		echo 1000000 >"$(GET_VAR "device" "cpu/min_freq")"
+
+		# Keep this until we build with Vulkan
+		sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' \
+			"$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"
+
+		rm -f "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/FailedGraphicsBackends.txt"
 		;;
 esac
 

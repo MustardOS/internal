@@ -45,11 +45,11 @@ if [ "$(GET_VAR "config" "settings/advanced/thermal")" -eq 0 ]; then
 fi
 
 DEV_BOARD=$(GET_VAR "device" "board/name")
-RA_VER=
+EMU_VER=
 
 case "$DEV_BOARD" in
 	rg*)
-		RA_VER="rg"
+		EMU_VER="rg"
 		case "$DEV_BOARD" in
 			rg34xx-sp | rg35xx-sp)
 				/opt/muos/script/device/lid.sh &
@@ -60,7 +60,7 @@ case "$DEV_BOARD" in
 		esac
 		;;
 	tui*)
-		RA_VER="tui"
+		EMU_VER="tui"
 
 		# Create TrimUI Input folder
 		if [ ! -d "/tmp/trimui_inputd" ]; then
@@ -77,8 +77,8 @@ esac
 
 # Add device specific Retroarch Binary
 RA_DIR="/opt/muos/share/emulator/retroarch"
-RA_BIN="$RA_DIR/retroarch-${RA_VER}"
-RA_MD5="$RA_DIR/retroarch-${RA_VER}.md5"
+RA_BIN="$RA_DIR/retroarch-${EMU_VER}"
+RA_MD5="$RA_DIR/retroarch-${EMU_VER}.md5"
 RA_TGT="/usr/bin/retroarch"
 
 if [ -e "$RA_BIN" ]; then
@@ -92,4 +92,37 @@ if [ -e "$RA_BIN" ]; then
 		cp -f "$RA_BIN" "$RA_TGT"
 		chmod +x "$RA_TGT"
 	fi
+fi
+
+# Add device specific PPSSPP Binary
+PPSSPP_DIR="/opt/muos/share/emulator/ppsspp"
+PPSSPP_BIN="$PPSSPP_DIR/PPSSPP"
+PPSSPP_ARCHIVE="${PPSSPP_BIN}-${EMU_VER}.tar.gz"
+PPSSPP_MD5="$PPSSPP_BIN-${EMU_VER}.md5"
+
+if [ -e "$PPSSPP_ARCHIVE" ]; then
+    EXPECTED_MD5=$(cat "$PPSSPP_MD5")
+
+    if [ -f "$PPSSPP_BIN" ]; then
+        CURRENT_MD5=$(md5sum "$PPSSPP_BIN" | awk '{ print $1 }')
+    else
+        CURRENT_MD5=""
+    fi
+
+    if [ "$CURRENT_MD5" != "$EXPECTED_MD5" ]; then
+        TMPDIR=$(mktemp -d "$PPSSPP_DIR/ppsspp-tmp.XXXXXX") || exit 1
+        tar -xzf "$PPSSPP_ARCHIVE" -C "$TMPDIR"
+
+        # Find the extracted binary (PPSSPP-rg or PPSSPP-tui)
+        SRC_BIN=$(find "$TMPDIR" -maxdepth 1 -type f -name 'PPSSPP-*' | head -n 1)
+
+        if [ -n "$SRC_BIN" ]; then
+            cp -f "$SRC_BIN" "$PPSSPP_BIN"
+            chmod +x "$PPSSPP_BIN"
+        else
+            echo "Error: no PPSSPP-* binary found in archive $PPSSPP_ARCHIVE" >&2
+        fi
+
+        rm -rf "$TMPDIR"
+    fi
 fi

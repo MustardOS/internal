@@ -20,13 +20,12 @@ SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "retroarch"
 
-RA_CONF="/opt/muos/share/info/config/retroarch.cfg"
-RA_ARGS=$(CONFIGURE_RETROARCH "$RA_CONF")
+RA_ARGS=$(CONFIGURE_RETROARCH)
 
 LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/nxengine.log"
 
 echo "Starting Cave Story (libretro)" >"$LOGPATH"
-DOUK_BIOS="/run/muos/storage/bios/nxengine/Doukutsu.exe"
+DOUK_BIOS="$MUOS_STORE_DIR/bios/nxengine/Doukutsu.exe"
 
 if [ -e "$DOUK_BIOS" ]; then
 	echo "Doukutsu.exe found!" >>"$LOGPATH"
@@ -38,7 +37,7 @@ else
 	CAVE_URL="https://bot.libretro.com/assets/cores/Cave Story/$CZ_NAME"
 	echo "Cave Story URL: $CAVE_URL" >>"$LOGPATH"
 
-	BIOS_FOLDER="/run/muos/storage/bios/"
+	BIOS_FOLDER="$MUOS_STORE_DIR/bios/"
 	echo "$DOUK_BIOS not found in $BIOS_FOLDER"
 
 	CHECK_INTERNET() {
@@ -80,7 +79,7 @@ if [ "$GREENLIGHT" -eq 1 ]; then
 	echo "Launching Cave Story" >>"$LOGPATH"
 	/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-	nice --20 retroarch -v -f -c "$RA_CONF" $RA_ARGS -L "/opt/muos/share/core/nxengine_libretro.so" "$DOUK"
+	nice --20 retroarch -v -f $RA_ARGS -L "$MUOS_SHARE_DIR/core/nxengine_libretro.so" "$DOUK"
 
 	for RF in ra_no_load ra_autoload_once.cfg; do
 		[ -e "/tmp/$RF" ] && ENSURE_REMOVED "/tmp/$RF"

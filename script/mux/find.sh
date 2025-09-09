@@ -12,7 +12,7 @@ USAGE() {
 . /opt/muos/script/var/func.sh
 
 RESULTS_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/search.json"
-FRIENDLY_JSON="/run/muos/storage/info/name/general.json"
+FRIENDLY_JSON="$MUOS_STORE_DIR/info/name/general.json"
 SKIP_FILE="$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/skip.ini"
 [ ! -s "$SKIP_FILE" ] && SKIP_FILE="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/skip.ini"
 

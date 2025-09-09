@@ -8,9 +8,9 @@ FRONTEND stop
 
 echo "Restoring RetroArch Configuration"
 
-rm -f /opt/muos/share/info/config/retroarch.cfg
-rm -f /opt/muos/share/info/config/retroarch.autoload.cfg
-rm -f /opt/muos/share/info/config/retroarch.cheevos.cfg
+rm -f "$MUOS_SHARE_DIR/info/config/retroarch.cfg"
+rm -f "$MUOS_SHARE_DIR/info/config/retroarch.autoload.cfg"
+rm -f "$MUOS_SHARE_DIR/info/config/retroarch.cheevos.cfg"
 
 /opt/muos/script/control/retroarch.sh
 SET_VAR "config" "settings/advanced/retrofree" "0"

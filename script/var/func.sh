@@ -15,9 +15,12 @@ WPA_CONFIG="/etc/wpa_supplicant.conf"
 DEVICE_CONTROL_DIR="/opt/muos/device/control"
 MUOS_LOG_DIR="/opt/muos/log"
 LED_CONTROL_SCRIPT="/opt/muos/script/device/rgb.sh"
+MUOS_SHARE_DIR="/opt/muos/share"
+MUOS_STORE_DIR="/run/muos/storage"
 
 export HOME DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR XDG_RUNTIME_DIR \
-	ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR LED_CONTROL_SCRIPT
+	ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR LED_CONTROL_SCRIPT \
+	MUOS_SHARE_DIR MUOS_STORE_DIR
 
 mkdir -p "$MUOS_LOG_DIR"
 
@@ -400,16 +403,16 @@ LCD_ENABLE() {
 }
 
 PLAY_SOUND() {
-	SND="/opt/muos/share/media/$1.wav"
+	SND="$MUOS_SHARE_DIR/media/$1.wav"
 	[ -e "$SND" ] && ENSURE_REMOVED "$SND"
 
 	case "$(GET_VAR "config" "settings/general/sound")" in
 		1)
-			WAV="/opt/muos/share/media/sound/$1.wav"
+			WAV="$MUOS_SHARE_DIR/media/sound/$1.wav"
 			[ -e "$WAV" ] && cp "$WAV" "$SND"
 			;;
 		2)
-			WAV="/run/muos/storage/theme/active/sound/$1.wav"
+			WAV="$MUOS_STORE_DIR/theme/active/sound/$1.wav"
 			[ -e "$WAV" ] && cp "$WAV" "$SND"
 			;;
 		*) ;;
@@ -430,7 +433,7 @@ SETUP_SDL_ENVIRONMENT() {
 	done
 
 	GCDB_DEFAULT="/usr/lib/gamecontrollerdb.txt"
-	GCDB_STORE="/opt/muos/share/info/gamecontrollerdb"
+	GCDB_STORE="$MUOS_SHARE_DIR/info/gamecontrollerdb"
 
 	# Decide controller DB (priority: arg -> /tmp/con_go -> default)
 	case "$REQ_STYLE" in
@@ -515,9 +518,9 @@ DETECT_CONTROL_SWAP() {
 }
 
 CONFIGURE_RETROARCH() {
-	RA_CONF=$1
+	RA_CONF="$MUOS_SHARE_DIR/info/config/retroarch.cfg"
+	RA_DEF="$MUOS_SHARE_DIR/emulator/retroarch/retroarch.default.cfg"
 	RA_CONTROL="/opt/muos/device/control/retroarch"
-	RA_DEF="/opt/muos/share/emulator/retroarch/retroarch.default.cfg"
 
 	# Stop the user from doing anything harmful to the main RetroArch configuration.
 	[ "$(GET_VAR "config" "settings/advanced/retrofree")" -eq 0 ] && rm -f "$RA_CONF"
@@ -570,6 +573,12 @@ CONFIGURE_RETROARCH() {
 	KIOSK_MODE=$([ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] && echo true || echo false)
 	sed -i "s/^kiosk_mode_enable = \".*\"$/kiosk_mode_enable = \"$KIOSK_MODE\"/" "$RA_CONF"
 
+	# Re-define the symlink to current configuration.
+	HOME_CFG="$(GET_VAR "device" "board/home")/.config"
+	rm -rf "$HOME_CFG/retroarch" # Purge it just in case it was created by something else!
+	ln -s "$MUOS_SHARE_DIR/emulator/retroarch" "$HOME_CFG/retroarch"
+	ln -s "$MUOS_SHARE_DIR/info/config/retroarch.cfg" "$HOME_CFG/retroarch/retroarch.cfg"
+
 	EXTRA_ARGS=""
 	APPEND_LIST=""
 
@@ -610,7 +619,7 @@ KERNEL_TUNING() {
 LED_CONTROL_CHANGE() {
 	if [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
 		if [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ]; then
-			RGBCONF_SCRIPT="/run/muos/storage/theme/active/rgb/rgbconf.sh"
+			RGBCONF_SCRIPT="$MUOS_STORE_DIR/theme/active/rgb/rgbconf.sh"
 			TIMEOUT=10
 			WAIT=0
 
@@ -636,8 +645,8 @@ UPDATE_BOOTLOGO() {
 	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
 	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
 
-	SPEC_BL="/run/muos/storage/theme/active/${DEVICE_W}x${DEVICE_H}/image/bootlogo.bmp"
-	NORM_BL="/run/muos/storage/theme/active/image/bootlogo.bmp"
+	SPEC_BL="$MUOS_STORE_DIR/theme/active/${DEVICE_W}x${DEVICE_H}/image/bootlogo.bmp"
+	NORM_BL="$MUOS_STORE_DIR/theme/active/image/bootlogo.bmp"
 
 	if [ -e "$SPEC_BL" ]; then
 		printf "\nBootlogo found at: %s\n" "$SPEC_BL"
@@ -648,7 +657,7 @@ UPDATE_BOOTLOGO() {
 			cp -f "$NORM_BL" "$BOOT_MOUNT/bootlogo.bmp"
 		else
 			printf "\nReverting to system bootlogo: %s\n" "$NORM_BL"
-			cp -f "/opt/muos/share/bootlogo/${DEVICE_W}x${DEVICE_H}/bootlogo.bmp" "$BOOT_MOUNT/bootlogo.bmp"
+			cp -f "${MUOS_SHARE_DIR}/bootlogo/${DEVICE_W}x${DEVICE_H}/bootlogo.bmp" "$BOOT_MOUNT/bootlogo.bmp"
 		fi
 	fi
 

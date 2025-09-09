@@ -3,7 +3,7 @@
 . /opt/muos/script/var/func.sh
 
 # Move gamecontrollerdb files - overwrite existing for users protection!
-GCDB_STORE="/opt/muos/share/info/gamecontrollerdb"
+GCDB_STORE="$MUOS_SHARE_DIR/info/gamecontrollerdb"
 
 [ -d "$GCDB_STORE" ] || mkdir -p "$GCDB_STORE"
 cp -f "$DEVICE_CONTROL_DIR/gamecontrollerdb"/*.txt "$GCDB_STORE"/

@@ -19,7 +19,7 @@ if [ -z "$SELECTED_MAP" ]; then
 	fi
 fi
 
-SRC="/opt/muos/share/info/gamecontrollerdb/${SELECTED_MAP}.txt"
+SRC="$MUOS_SHARE_DIR/info/gamecontrollerdb/${SELECTED_MAP}.txt"
 
 for LIB_D in lib lib32; do
 	BASE="/usr/$LIB_D"

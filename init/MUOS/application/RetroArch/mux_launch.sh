@@ -17,12 +17,10 @@ export HOME
 
 SET_VAR "system" "foreground_process" "retroarch"
 
-RA_CONF="/opt/muos/share/info/config/retroarch.cfg"
-RA_ARGS=$(CONFIGURE_RETROARCH "$RA_CONF")
-
+RA_ARGS=$(CONFIGURE_RETROARCH)
 IS_SWAP=$(DETECT_CONTROL_SWAP)
 
-/usr/bin/retroarch -v -f -c "$RA_CONF" $RA_ARGS
+nice --20 retroarch -v -f $RA_ARGS
 
 [ "$IS_SWAP" -eq 1 ] && DETECT_CONTROL_SWAP
 

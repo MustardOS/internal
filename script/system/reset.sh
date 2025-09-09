@@ -92,11 +92,11 @@ done
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Default RetroArch Config Archive"
 ARCHIVE="$MUOS_DIR/package/config/MustardOS Default.muxcfg"
-SRC_DIR="/opt/muos/share/info/config"
+SRC_DIR="$MUOS_SHARE_DIR/info/config"
 (cd "$SRC_DIR" && zip -r -9 -q -y -X "$ARCHIVE" .)
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Copying Default Friendly Name Files"
-SRC_DIR="/opt/muos/share/info"
+SRC_DIR="$MUOS_SHARE_DIR/info"
 DST_DIR="$MUOS_DIR/info"
 cp -f "$SRC_DIR"/name/* "$DST_DIR/name/"
 cp -f "$SRC_DIR"/pass.ini "$SRC_DIR"/skip.ini "$DST_DIR/"
@@ -108,7 +108,7 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Calculating FNV-1a Hash of Default Theme"
 /opt/muos/bin/fnv1a "$MUOS_DIR/theme/MustardOS.muxthm" >"/opt/muos/config/theme/default"
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Decompressing PortMaster Application"
-unzip -oq "/opt/muos/share/archive/muos.portmaster.zip" -d /
+unzip -oq "$MUOS_SHARE_DIR/archive/muos.portmaster.zip" -d /
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Automatic Core Assign"
 /opt/muos/script/system/assign.sh -p -v

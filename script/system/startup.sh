@@ -114,13 +114,13 @@ if [ "$FACTORY_RESET" -eq 0 ]; then
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"
-cp -f "/opt/muos/share/conf/asound.conf" "/etc/asound.conf"
+cp -f "$MUOS_SHARE_DIR/conf/asound.conf" "/etc/asound.conf"
 
 if [ -s "$ALSA_CONFIG" ]; then
 	LOG_INFO "$0" 0 "BOOTING" "ALSA Config Check Passed"
 else
 	LOG_WARN "$0" 0 "BOOTING" "ALSA Config Restoring"
-	cp -f "/opt/muos/share/conf/alsa.conf" "$ALSA_CONFIG"
+	cp -f "$MUOS_SHARE_DIR/conf/alsa.conf" "$ALSA_CONFIG"
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Restoring Audio State"
@@ -149,7 +149,7 @@ LOG_INFO "$0" 0 "BOOTING" "Device Specific Startup"
 /opt/muos/script/device/start.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
-while [ ! -f "/run/muos/storage/mounted" ]; do TBOX sleep 0.1; done
+while [ ! -f "$MUOS_STORE_DIR/mounted" ]; do TBOX sleep 0.1; done
 
 LOG_INFO "$0" 0 "BOOTING" "Checking for Safety Script"
 OOPS="$ROM_MOUNT/oops.sh"
@@ -206,7 +206,7 @@ LOG_INFO "$0" 0 "BOOTING" "Running Catalogue Generator"
 /opt/muos/script/system/catalogue.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Precaching RetroArch System"
-ionice -c idle /opt/muos/bin/vmtouch -tfb /opt/muos/share/conf/preload.txt &
+ionice -c idle /opt/muos/bin/vmtouch -tfb "$MUOS_SHARE_DIR/conf/preload.txt" &
 
 LOG_INFO "$0" 0 "BOOTING" "Saving Kernel Boot Log"
 dmesg >"$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &

@@ -215,7 +215,7 @@ while :; do
 			"info") EXEC_MUX "info" "muxfrontend" ;;
 
 			"credits")
-				/opt/muos/bin/nosefart /opt/muos/share/media/support.nsf &
+				/opt/muos/bin/nosefart "$MUOS_SHARE_DIR/media/support.nsf" &
 				EXEC_MUX "info" "muxcredits"
 				pkill -9 -f "nosefart" &
 				;;

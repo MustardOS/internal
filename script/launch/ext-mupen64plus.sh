@@ -22,7 +22,7 @@ SET_VAR "system" "foreground_process" "mupen64plus"
 
 FB_SWITCH 320 240 32
 
-EMUDIR="/opt/muos/share/emulator/mupen64plus"
+EMUDIR="$MUOS_SHARE_DIR/emulator/mupen64plus"
 MP64_CFG="$EMUDIR/mupen64plus.cfg"
 
 RICE_CFG="$EMUDIR/mupen64plus-rice.cfg"

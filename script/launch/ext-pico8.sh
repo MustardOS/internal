@@ -21,14 +21,14 @@ SETUP_SDL_ENVIRONMENT
 P8_BIN="pico8_64"
 SET_VAR "system" "foreground_process" "$P8_BIN"
 
-EMUDIR="/opt/muos/share/emulator/pico8"
+EMUDIR="$MUOS_SHARE_DIR/emulator/pico8"
 
 # First look for emulator in BIOS directory, which allows it to follow the
 # user's storage preference. Fall back on the old path for compatibility.
 # People often seem to copy the "pico-8" folder directly from their purchased files, so let's check for that.
-EMU="/run/muos/storage/bios/pico8/$P8_BIN"
+EMU="$MUOS_STORE_DIR/bios/pico8/$P8_BIN"
 if [ ! -f "$EMU" ]; then
-	EMU="/run/muos/storage/bios/pico-8/$P8_BIN"
+	EMU="$MUOS_STORE_DIR/bios/pico-8/$P8_BIN"
 	[ ! -f "$EMU" ] && EMU="$EMUDIR/$P8_BIN"
 fi
 
@@ -48,7 +48,7 @@ cd "$EMUDIR" || exit
 
 F_DIR="$(dirname "$FILE")"
 
-GPTOKEYB="/opt/muos/share/emulator/gptokeyb/gptokeyb2"
+GPTOKEYB="$MUOS_SHARE_DIR/emulator/gptokeyb/gptokeyb2"
 $GPTOKEYB "./$P8_BIN" -c "./pico8.gptk" &
 
 if [ "$NAME" = "Splore" ]; then
@@ -63,14 +63,14 @@ killall -9 "$(pidof $P8_BIN)" "$(pidof gptokeyb2)"
 
 unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
-FAVOURITE="/run/muos/storage/save/pico8/favourites.txt"
-if [ -e $FAVOURITE ]; then
+FAVOURITE="$MUOS_STORE_DIR/save/pico8/favourites.txt"
+if [ -e "$FAVOURITE" ]; then
 	# SAVE THE FAVOURITES CHARLIE!
 	# Grab the PICO-8 ROM Folder
 	STORAGE_DIR=${FILE%/*}
 
-	CART_DIR="/run/muos/storage/save/pico8/bbs"
-	BOXART_DIR="/run/muos/storage/info/catalogue/PICO-8/box"
+	CART_DIR="$MUOS_STORE_DIR/save/pico8/bbs"
+	BOXART_DIR="$MUOS_STORE_DIR/info/catalogue/PICO-8/box"
 
 	# TODO: Work out what these other fields mean?! (maybe useful?)
 	while IFS='|' read -r _ RAW_NAME _ _ _ _ GOOD_NAME; do

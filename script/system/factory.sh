@@ -23,11 +23,11 @@ EXEC_MUX "reset" "muxfrontend"
 printf 0 >"/tmp/msg_progress"
 [ -f "/tmp/msg_finish" ] && rm -f "/tmp/msg_finish"
 
-/opt/muos/frontend/muxmessage 0 "/opt/muos/share/message.txt" -d 5
+/opt/muos/frontend/muxmessage 0 "$MUOS_SHARE_DIR/message.txt" -d 5
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
 /opt/muos/script/mux/hotkey.sh &
-/usr/bin/mpv --really-quiet "/opt/muos/share/media/factory.mp3" &
+/usr/bin/mpv --really-quiet "$MUOS_SHARE_DIR/media/factory.mp3" &
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating SSH Host Keys"
 /opt/openssh/bin/ssh-keygen -A &
@@ -46,7 +46,7 @@ touch "/tmp/msg_finish"
 TBOX sleep 1
 killall -q "mpv"
 
-/opt/muos/bin/nosefart "/opt/muos/share/media/support.nsf" &
+/opt/muos/bin/nosefart "$MUOS_SHARE_DIR/media/support.nsf" &
 /opt/muos/frontend/muxcredits
 
 SET_VAR "config" "boot/factory_reset" "0"

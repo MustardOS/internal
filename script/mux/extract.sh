@@ -150,6 +150,10 @@ case "$ARCHIVE_NAME" in
 					DEST="$MUOS_STORE_DIR"
 					LABEL="Network Profiles"
 					;;
+				override)
+					DEST="$MUOS_STORE_DIR/info"
+					LABEL="Launch Overrides"
+					;;
 				package)
 					DEST="$MUOS_STORE_DIR"
 					LABEL="Package"

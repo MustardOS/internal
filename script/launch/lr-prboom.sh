@@ -20,9 +20,7 @@ SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "retroarch"
 
-RA_CONF="/opt/muos/share/info/config/retroarch.cfg"
-RA_ARGS=$(CONFIGURE_RETROARCH "$RA_CONF")
-
+RA_ARGS=$(CONFIGURE_RETROARCH)
 IS_SWAP=$(DETECT_CONTROL_SWAP)
 
 F_PATH=$(echo "$FILE" | awk -F'/' '{NF--; print}' OFS='/')
@@ -33,14 +31,14 @@ dos2unix -n "$F_PATH/$NAME.doom" "$F_PATH/$NAME.doom"
 
 PRBC="$F_PATH/.$NAME/prboom.cfg"
 cp -f "$F_PATH/$NAME.doom" "$PRBC"
-cp -f "/run/muos/storage/bios/prboom.wad" "$F_PATH/.$NAME/prboom.wad"
+cp -f "$MUOS_STORE_DIR/bios/prboom.wad" "$F_PATH/.$NAME/prboom.wad"
 
 IWAD=$(awk -F'"' '/parentwad/ {print $2}' "$F_PATH/$NAME.doom")
 cp -f "$F_PATH/.IWAD/$IWAD" "$F_PATH/.$NAME/$IWAD"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-nice --20 retroarch -v -f -c "$RA_CONF" $RA_ARGS -L "/opt/muos/share/core/prboom_libretro.so" "$F_PATH/.$NAME/$IWAD"
+nice --20 retroarch -v -f $RA_ARGS -L "$MUOS_SHARE_DIR/core/prboom_libretro.so" "$F_PATH/.$NAME/$IWAD"
 
 for RF in ra_no_load ra_autoload_once.cfg; do
 	[ -e "/tmp/$RF" ] && ENSURE_REMOVED "/tmp/$RF"

@@ -575,6 +575,7 @@ CONFIGURE_RETROARCH() {
 
 	# Re-define the symlink to current configuration.
 	HOME_CFG="$(GET_VAR "device" "board/home")/.config"
+	rm -rf "$HOME_CFG/retroarch" # Purge it just in case it was created by something else!
 	ln -s "$MUOS_SHARE_DIR/emulator/retroarch" "$HOME_CFG/retroarch"
 	ln -s "$MUOS_SHARE_DIR/info/config/retroarch.cfg" "$HOME_CFG/retroarch/retroarch.cfg"
 

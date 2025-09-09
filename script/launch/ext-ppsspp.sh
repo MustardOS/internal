@@ -28,8 +28,6 @@ case "$(GET_VAR "device" "board/name")" in
 		# Prevent blackscreen due to "an issue with the ordering of the RGBA 8888 or something like that" (acmeplus 2025)
 		setalpha 0
 
-		echo 1000000 >"$(GET_VAR "device" "cpu/min_freq")"
-
 		# Keep this until we build with Vulkan
 		sed -i '/^GraphicsBackend\|^FailedGraphicsBackends\|^DisabledGraphicsBackends/d' \
 			"$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/ppsspp.ini"

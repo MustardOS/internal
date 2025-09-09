@@ -5,6 +5,7 @@
 # Lonely, oh so lonely...
 RECENT_WAKE="/tmp/recent_wake"
 
+DEV_BOARD=$(GET_VAR "device" "board/name")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
 CPU_GOV_PATH="$(GET_VAR "device" "cpu/governor")"
 CPU_CORES="$(GET_VAR "device" "cpu/cores")"
@@ -39,7 +40,7 @@ SLEEP() {
 
 	# Shutdown all of the CPU cores for boards that have actual proper
 	# energy module within the kernel and device tree... unlike TrimUI
-	case "$(GET_VAR "device" "board/name")" in
+	case "$DEV_BOARD" in
 		rg*)
 			cat "$CPU_GOV_PATH" >"/tmp/orig_cpu_gov"
 			echo "powersave" >"$CPU_GOV_PATH"
@@ -72,7 +73,7 @@ SLEEP() {
 }
 
 RESUME() {
-	case "$(GET_VAR "device" "board/name")" in
+	case "$DEV_BOARD" in
 		rg*)
 			cat "/tmp/orig_cpu_gov" >"$CPU_GOV_PATH"
 
@@ -118,6 +119,11 @@ RESUME() {
 	[ "$USB_FUNCTION" != "none" ] && /opt/muos/script/system/usb_gadget.sh resume
 
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
+
+	# Some stupid TrimUI GPU shenanigans
+	case "$DEV_BOARD" in
+		tui*) setalpha 0 ;;
+	esac
 
 	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
 	(

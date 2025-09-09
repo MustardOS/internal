@@ -63,15 +63,13 @@ case "$DEV_BOARD" in
 		EMU_VER="tui"
 
 		# Create TrimUI Input folder
-		if [ ! -d "/tmp/trimui_inputd" ]; then
-			mkdir -p "/tmp/trimui_inputd"
-		fi
+		mkdir -p "/tmp/trimui_inputd"
 
 		# Modified GPU parameters
-		echo 1 >/sys/module/pvrsrvkm/parameters/DisableClockGating
-		echo 1 >/sys/module/pvrsrvkm/parameters/EnableFWContextSwitch
-		echo 1 >/sys/module/pvrsrvkm/parameters/EnableSoftResetContextSwitch
 		echo 0 >/sys/module/pvrsrvkm/parameters/PVRDebugLevel
+
+		# Some stupid TrimUI GPU shenanigans
+		setalpha 0
 		;;
 esac
 
@@ -101,25 +99,25 @@ PPSSPP_ARCHIVE="${PPSSPP_BIN}-${EMU_VER}.tar.gz"
 PPSSPP_MD5="$PPSSPP_BIN-${EMU_VER}.md5"
 
 if [ -e "$PPSSPP_ARCHIVE" ]; then
-    EXPECTED_MD5=$(cat "$PPSSPP_MD5")
+	EXPECTED_MD5=$(cat "$PPSSPP_MD5")
 
-    CURRENT_MD5=""
-    [ -f "$PPSSPP_BIN" ] && CURRENT_MD5=$(md5sum "$PPSSPP_BIN" | awk '{ print $1 }')
+	CURRENT_MD5=""
+	[ -f "$PPSSPP_BIN" ] && CURRENT_MD5=$(md5sum "$PPSSPP_BIN" | awk '{ print $1 }')
 
-    if [ "$CURRENT_MD5" != "$EXPECTED_MD5" ]; then
-        TMPDIR=$(mktemp -d "$PPSSPP_DIR/ppsspp-tmp.XXXXXX") || exit 1
-        tar -xzf "$PPSSPP_ARCHIVE" -C "$TMPDIR"
+	if [ "$CURRENT_MD5" != "$EXPECTED_MD5" ]; then
+		TMPDIR=$(mktemp -d "$PPSSPP_DIR/ppsspp-tmp.XXXXXX") || exit 1
+		tar -xzf "$PPSSPP_ARCHIVE" -C "$TMPDIR"
 
-        # Find the extracted binary (PPSSPP-rg or PPSSPP-tui)
-        SRC_BIN=$(find "$TMPDIR" -maxdepth 1 -type f -name 'PPSSPP-*' | head -n 1)
+		# Find the extracted binary (PPSSPP-rg or PPSSPP-tui)
+		SRC_BIN=$(find "$TMPDIR" -maxdepth 1 -type f -name 'PPSSPP-*' | head -n 1)
 
-        if [ -n "$SRC_BIN" ]; then
-            cp -f "$SRC_BIN" "$PPSSPP_BIN"
-            chmod +x "$PPSSPP_BIN"
-        else
-            echo "Error: no PPSSPP-* binary found in archive $PPSSPP_ARCHIVE" >&2
-        fi
+		if [ -n "$SRC_BIN" ]; then
+			cp -f "$SRC_BIN" "$PPSSPP_BIN"
+			chmod +x "$PPSSPP_BIN"
+		else
+			echo "Error: no PPSSPP-* binary found in archive $PPSSPP_ARCHIVE" >&2
+		fi
 
-        rm -rf "$TMPDIR"
-    fi
+		rm -rf "$TMPDIR"
+	fi
 fi

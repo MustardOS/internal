@@ -76,7 +76,7 @@ case "$DEV_BOARD" in
 esac
 
 # Add device specific Retroarch Binary
-RA_DIR="/opt/muos/share/emulator/retroarch"
+RA_DIR="$MUOS_SHARE_DIR/emulator/retroarch"
 RA_BIN="$RA_DIR/retroarch-${EMU_VER}"
 RA_MD5="$RA_DIR/retroarch-${EMU_VER}.md5"
 RA_TGT="/usr/bin/retroarch"
@@ -95,7 +95,7 @@ if [ -e "$RA_BIN" ]; then
 fi
 
 # Add device specific PPSSPP Binary
-PPSSPP_DIR="/opt/muos/share/emulator/ppsspp"
+PPSSPP_DIR="$MUOS_SHARE_DIR/emulator/ppsspp"
 PPSSPP_BIN="$PPSSPP_DIR/PPSSPP"
 PPSSPP_ARCHIVE="${PPSSPP_BIN}-${EMU_VER}.tar.gz"
 PPSSPP_MD5="$PPSSPP_BIN-${EMU_VER}.md5"
@@ -103,11 +103,8 @@ PPSSPP_MD5="$PPSSPP_BIN-${EMU_VER}.md5"
 if [ -e "$PPSSPP_ARCHIVE" ]; then
     EXPECTED_MD5=$(cat "$PPSSPP_MD5")
 
-    if [ -f "$PPSSPP_BIN" ]; then
-        CURRENT_MD5=$(md5sum "$PPSSPP_BIN" | awk '{ print $1 }')
-    else
-        CURRENT_MD5=""
-    fi
+    CURRENT_MD5=""
+    [ -f "$PPSSPP_BIN" ] && CURRENT_MD5=$(md5sum "$PPSSPP_BIN" | awk '{ print $1 }')
 
     if [ "$CURRENT_MD5" != "$EXPECTED_MD5" ]; then
         TMPDIR=$(mktemp -d "$PPSSPP_DIR/ppsspp-tmp.XXXXXX") || exit 1

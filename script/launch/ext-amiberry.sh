@@ -20,7 +20,7 @@ SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "amiberry"
 
-EMUDIR="/opt/muos/share/emulator/amiberry"
+EMUDIR="$MUOS_SHARE_DIR/emulator/amiberry"
 
 chmod +x "$EMUDIR"/amiberry
 cd "$EMUDIR" || exit

@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-SCRIPT_DIR="/run/muos/storage/init"
+SCRIPT_DIR="$MUOS_STORE_DIR/init"
 INIT_LOG="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/user_init.log"
 
 : >"$INIT_LOG"

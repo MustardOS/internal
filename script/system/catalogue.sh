@@ -2,8 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
-ASSIGN_DIR="/opt/muos/share/info/assign"
-BASE_PATH="/run/muos/storage/info/catalogue"
+ASSIGN_DIR="$MUOS_SHARE_DIR/info/assign"
+BASE_PATH="$MUOS_STORE_DIR/info/catalogue"
 TARGET_DIRS="box grid preview text splash"
 EXTRA_DIRS="Application Archive Collection Folder Root Task Theme"
 

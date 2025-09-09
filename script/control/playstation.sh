@@ -5,7 +5,7 @@
 RMP_LOG="/mnt/mmc/MUOS/log/psx.remap.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 
-REMAP_DIR="/opt/muos/share/info/config/remaps"
+REMAP_DIR="$MUOS_SHARE_DIR/info/config/remaps"
 
 # Check for DuckStation remap
 DUCK_RMP="${REMAP_DIR}/DuckStation/DuckStation.rmp"

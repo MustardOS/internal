@@ -17,8 +17,8 @@ USAGE() {
 
 MODE="$1"
 CATALOGUE_ARG="$2"
-CATALOGUE_DIR="/run/muos/storage/info/catalogue"
-CATALOGUE_ZIP_DIR="/run/muos/storage/package/catalogue"
+CATALOGUE_DIR="$MUOS_STORE_DIR/info/catalogue"
+CATALOGUE_ZIP_DIR="$MUOS_STORE_DIR/package/catalogue"
 
 ALL_DONE() {
 	printf "\nSync Filesystem\n"

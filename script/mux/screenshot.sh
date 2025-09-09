@@ -13,7 +13,7 @@ if [ ! -e "$SS_LOCK" ]; then
 
 	touch "$SS_LOCK"
 
-	BASE_DIR="/run/muos/storage/screenshot"
+	BASE_DIR="$MUOS_STORE_DIR/screenshot"
 	CURRENT_DATE="$(date +"%Y%m%d_%H%M")"
 	INDEX=0
 

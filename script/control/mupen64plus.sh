@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-MP64_DIR="/opt/muos/share/emulator/mupen64plus"
+MP64_DIR="$MUOS_SHARE_DIR/emulator/mupen64plus"
 
 MP64_TYPE="rice gl64"
 for MP64 in $MP64_TYPE; do

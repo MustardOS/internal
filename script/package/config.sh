@@ -17,8 +17,8 @@ USAGE() {
 
 MODE="$1"
 CONFIG_ARG="$2"
-CONFIG_DIR="/opt/muos/share/info/config"
-CONFIG_ZIP_DIR="/run/muos/storage/package/config"
+CONFIG_DIR="$MUOS_SHARE_DIR/info/config"
+CONFIG_ZIP_DIR="$MUOS_STORE_DIR/package/config"
 
 ALL_DONE() {
 	printf "\nSync Filesystem\n"

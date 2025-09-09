@@ -8,7 +8,7 @@
 FRONTEND stop
 
 PM_DIR="/mnt/mmc/MUOS/PortMaster"
-PM_ZIP="/opt/muos/share/archive/muos.portmaster.zip"
+PM_ZIP="$MUOS_SHARE_DIR/archive/muos.portmaster.zip"
 
 if [ ! -e "$PM_ZIP" ]; then
 	printf "\nError: PortMaster archive not found!\n"
@@ -24,7 +24,7 @@ mkdir -p "$PM_DIR"
 SPACE_REQ="$(GET_ARCHIVE_BYTES "$PM_ZIP" "")"
 ! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$PM_DIR" && ALL_DONE 1
 
-if ! EXTRACT_ARCHIVE "PortMaster" "$PM_ZIP" "$PM_DIR"; then
+if ! EXTRACT_ARCHIVE "PortMaster" "$PM_ZIP" "/"; then
 	printf "\nExtraction Failed...\n"
 	ALL_DONE 1
 fi

@@ -63,7 +63,7 @@ CAT_GRID_CLEAR() {
 	for CAT_TYPE in $EXTRA_DIRS; do
 		if CORRECT_PATH_ARCHIVE "$1" "run/muos/storage/info/catalogue/${CAT_TYPE}/grid/"; then
 			echo "Clearing existing ${CAT_TYPE} grid images..."
-			rm -rf "/run/muos/storage/info/catalogue/${CAT_TYPE}/grid"
+			rm -rf "$MUOS_STORE_DIR/info/catalogue/${CAT_TYPE}/grid"
 		fi
 	done
 }

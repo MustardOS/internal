@@ -8,7 +8,7 @@ fi
 . /opt/muos/script/var/func.sh
 
 # Define base directory and resolution
-ACTIVE_DIR="/run/muos/storage/theme/active"
+ACTIVE_DIR="$MUOS_STORE_DIR/theme/active"
 DEVICE_RES="$(GET_VAR "device" "mux/width")x$(GET_VAR "device" "mux/height")"
 
 # Determine SCHEME based on file availability

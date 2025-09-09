@@ -8,7 +8,7 @@ FRONTEND stop
 
 echo "Restoring DraStic Configuration"
 
-DRASTIC_DIR="/opt/muos/share/emulator/drastic-trngaje"
+DRASTIC_DIR="$MUOS_SHARE_DIR/emulator/drastic-trngaje"
 rm -f "${DRASTIC_DIR}/config/drastic.cfg" "${DRASTIC_DIR}/resources/settings.json"
 
 /opt/muos/script/control/drastic.sh

@@ -86,20 +86,20 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 
 			if [ "$SRC_SHORTNAME" = "External" ]; then
 				# Define Dreamcast VMU source
-				if [ -d "/run/muos/storage/bios/dc" ]; then
-					if [ -f "/run/muos/storage/bios/dc/dc_nvmem.bin" ]; then
-						DREAMCAST_NVMEM="/run/muos/storage/bios/dc/dc_nvmem.bin"
+				if [ -d "$MUOS_STORE_DIR/bios/dc" ]; then
+					if [ -f "$MUOS_STORE_DIR/bios/dc/dc_nvmem.bin" ]; then
+						DREAMCAST_NVMEM="$MUOS_STORE_DIR/bios/dc/dc_nvmem.bin"
 					fi
-					VMU_SAVES=$(ls "/run/muos/storage/bios/dc/vmu_save_"* 2>/dev/null)
+					VMU_SAVES=$(ls "$MUOS_STORE_DIR/bios/dc/vmu_save_"* 2>/dev/null)
 					if [ -n "$VMU_SAVES" ]; then
-						DREAMCAST_VMU="/run/muos/storage/bios/dc/vmu_save_"*
+						DREAMCAST_VMU="$MUOS_STORE_DIR/bios/dc/vmu_save_"*
 					fi
 				fi
 
 				# Define DraStic source directories
-				if [ -d "/opt/muos/share/emulator/drastic" ]; then
-					DRASTIC_SAVE_DIR="/opt/muos/share/emulator/drastic/backup"
-					DRASTIC_SAVESTATE_DIR="/opt/muos/share/emulator/drastic/savestates"
+				if [ -d "$MUOS_SHARE_DIR/emulator/drastic" ]; then
+					DRASTIC_SAVE_DIR="$MUOS_SHARE_DIR/emulator/drastic/backup"
+					DRASTIC_SAVESTATE_DIR="$MUOS_SHARE_DIR/emulator/drastic/savestates"
 				else
 					DRASTIC_SAVE_DIR=""
 					DRASTIC_SAVESTATE_DIR=""
@@ -112,20 +112,20 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 					PPSSPP_RA_SAVE_DIR=""
 				fi
 
-				if [ -f "/opt/muos/share/emulator/pico8/pico8_64" ]; then
-					PICO8_64="/opt/muos/share/emulator/pico8/pico8_64"
+				if [ -f "$MUOS_SHARE_DIR/emulator/pico8/pico8_64" ]; then
+					PICO8_64="$MUOS_SHARE_DIR/emulator/pico8/pico8_64"
 				else
 					PICO8_64=""
 				fi
 
-				if [ -f "/opt/muos/share/emulator/pico8/pico8_dyn" ]; then
-					PICO8_DYN="/opt/muos/share/emulator/pico8/pico8_dyn"
+				if [ -f "$MUOS_SHARE_DIR/emulator/pico8/pico8_dyn" ]; then
+					PICO8_DYN="$MUOS_SHARE_DIR/emulator/pico8/pico8_dyn"
 				else
 					PICO8_DYN=""
 				fi
 
-				if [ -f "/opt/muos/share/emulator/pico8/pico8.dat" ]; then
-					PICO8_DAT="/opt/muos/share/emulator/pico8/pico8.dat"
+				if [ -f "$MUOS_SHARE_DIR/emulator/pico8/pico8.dat" ]; then
+					PICO8_DAT="$MUOS_SHARE_DIR/emulator/pico8/pico8.dat"
 				else
 					PICO8_DAT=""
 				fi

@@ -17,7 +17,7 @@ USAGE() {
 
 MODE="$1"
 THEME_ARG="$2"
-THEME_DIR="/run/muos/storage/theme"
+THEME_DIR="$MUOS_STORE_DIR/theme"
 THEME_ACTIVE_DIR="$THEME_DIR/active"
 
 ALL_DONE() {

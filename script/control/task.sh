@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-MUOS_TASK_DIR="/opt/muos/share/task"
+MUOS_TASK_DIR="$MUOS_SHARE_DIR/task"
 
 TASK_8188="$MUOS_TASK_DIR/Network Tasks/Enable Wi-Fi (8188eu).sh"
 TASK_SD2_MOUNT="$MUOS_TASK_DIR/Storage Tasks/Mount Secondary Storage.sh"

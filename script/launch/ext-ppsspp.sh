@@ -13,7 +13,7 @@ FILE=${3%/}
 	LOG_INFO "$0" 0 "FILE" "$FILE"
 ) &
 
-PPSSPP_DIR="/opt/muos/share/emulator/ppsspp"
+PPSSPP_DIR="$MUOS_SHARE_DIR/emulator/ppsspp"
 
 SETUP_SDL_ENVIRONMENT
 

@@ -117,7 +117,7 @@ MANAGE_WEBSERV() {
 					syncthing)
 						[ ! -s /opt/muos/bin/syncthing ] && cp "/opt/muos/bin/syncthing.backup" "/opt/muos/bin/syncthing"
 						nice -2 /opt/muos/bin/syncthing serve \
-							--home=/run/muos/storage/syncthing \
+							--home="$MUOS_STORE_DIR/syncthing" \
 							--no-port-probing \
 							--gui-address="0.0.0.0:7070" \
 							--no-browser \

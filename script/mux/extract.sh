@@ -105,7 +105,7 @@ case "$ARCHIVE_NAME" in
 			LABEL=""
 			PATTERN="${TOP}/*"
 
-			EXTRACTOR="/opt/muos/script/extract/$TOP.sh"
+			EXTRACTOR="/opt/muos/script/archive/$TOP.sh"
 			if [ ! -r "$EXTRACTOR" ]; then
 				printf "\nSkipping unsupported archive: %s\n\n" "$TOP"
 				continue

@@ -140,7 +140,8 @@ SELECT_DEFAULT_NODE_AND_VOLUME() {
 			INTERNAL_NODE_ID=$(GET_NODE_ID "$(GET_VAR "device" "audio/pf_internal")")
 			EXTERNAL_NODE_ID=$(GET_NODE_ID "$(GET_VAR "device" "audio/pf_external")")
 
-			if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
+			CONSOLE_MODE="$(GET_VAR "config" "boot/device_mode")"
+			if [ "$CONSOLE_MODE" -eq 1 ]; then
 				DEFAULT_NODE_ID=$EXTERNAL_NODE_ID
 				if [ "$(GET_VAR "config" "settings/hdmi/audio")" -eq 1 ]; then
 					DEFAULT_NODE_ID=$INTERNAL_NODE_ID
@@ -160,7 +161,15 @@ SELECT_DEFAULT_NODE_AND_VOLUME() {
 					*) VOLUME="$(GET_VAR "config" "settings/general/volume")" ;;
 				esac
 
-				/opt/muos/script/device/audio.sh "$VOLUME"
+				if [ "$CONSOLE_MODE" -eq 1 ]; then
+					if [ "$(GET_VAR "config" "settings/advanced/overdrive")" -eq 1 ]; then
+						wpctl set-volume @DEFAULT_AUDIO_SINK@ 100%
+					else
+						wpctl set-volume @DEFAULT_AUDIO_SINK@ 100%
+					fi
+				else
+					/opt/muos/script/device/audio.sh "$VOLUME"
+				fi
 
 				AUDIO_CONTROL="$(GET_VAR "device" "audio/control")"
 				AUDIO_VOL_PCT="$(GET_VAR "device" "audio/volume")"

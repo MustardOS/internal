@@ -29,6 +29,10 @@ CSI="${ESC}[38;5;"
 
 SAFE_QUIT=/tmp/safe_quit
 
+CAPITALISE() {
+	printf '%s' "$1" | sed 's/\(^\|[[:space:]]\)\([[:alpha:]]\)/\1\u\2/g'
+}
+
 TBOX() {
 	CMD=$1
 	shift

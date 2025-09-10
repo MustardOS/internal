@@ -105,84 +105,34 @@ case "$ARCHIVE_NAME" in
 			LABEL=""
 			PATTERN="${TOP}/*"
 
-			case "$TOP" in
-				application)
-					DEST="$ROM_MOUNT/MUOS"
-					LABEL="Application"
-					;;
-				archive)
-					DEST="$ROM_MOUNT"
-					LABEL="Archive"
-					;;
-				bios)
-					DEST="$MUOS_STORE_DIR"
-					LABEL="BIOS"
-					;;
-				catalogue)
-					DEST="$MUOS_STORE_DIR/info"
-					LABEL="Catalogue"
-					;;
-				collection)
-					DEST="$MUOS_STORE_DIR/info"
-					LABEL="Collection"
-					;;
-				history)
-					DEST="$MUOS_STORE_DIR/info"
-					LABEL="History"
-					;;
-				info)
-					DEST="$MUOS_STORE_DIR"
-					LABEL="Info"
-					;;
-				init)
-					DEST="$MUOS_STORE_DIR"
-					LABEL="Init Scripts"
-					;;
-				language)
-					DEST="$MUOS_STORE_DIR"
-					LABEL="Language"
-					;;
-				name)
-					DEST="$MUOS_STORE_DIR/info"
-					LABEL="Name Configuration"
-					;;
-				network)
-					DEST="$MUOS_STORE_DIR"
-					LABEL="Network Profiles"
-					;;
-				override)
-					DEST="$MUOS_STORE_DIR/info"
-					LABEL="Launch Overrides"
-					;;
-				package)
-					DEST="$MUOS_STORE_DIR"
-					LABEL="Package"
-					;;
-				save)
-					DEST="$MUOS_STORE_DIR"
-					LABEL="Save Files"
-					;;
-				syncthing)
-					DEST="$MUOS_STORE_DIR"
-					LABEL="Syncthing Configuration"
-					;;
-				theme)
-					DEST="$MUOS_STORE_DIR"
-					LABEL="Theme"
-					;;
-				track)
-					DEST="$MUOS_STORE_DIR/info"
-					LABEL="Playtime Data"
-					;;
-				bin | etc | home | lib | lib32 | lib64 | mnt | opt | roms | root | run | sbin | usr | var)
-					DEST="/"
-					LABEL="System ($TOP)"
-					;;
-				*)
-					printf "\nSkipping Unrecognised Directory: %s\n" "$TOP"
-					continue
-					;;
-			esac
+			EXTRACTOR="/opt/muos/script/extract/$TOP.sh"
+			if [ ! -r "$EXTRACTOR" ]; then
+				printf "\nSkipping unsupported archive: %s\n\n" "$TOP"
+				continue
+			fi
+
+			# shellcheck disable=SC1090
+			. "$EXTRACTOR" || {
+				printf "\n\nInvalid extractor for: %s\nExtractor not executable or cannot be sourced\n\n" "$TOP"
+				continue
+			}
+
+			if ! command -v MU_EXTRACT >/dev/null 2>&1; then
+				printf "\n\nInvalid extractor for: %s\nMissing 'MU_EXTRACT' function\n\n" "$TOP"
+				continue
+			fi
+
+			MU_EXTRACT || {
+				printf "\n\nInvalid extractor for: %s\nCannot source 'MU_EXTRACT' function\n\n" "$TOP"
+				unset -f MU_EXTRACT 2>/dev/null
+				continue
+			}
+
+			if [ -z "${DEST}" ] || [ -z "${LABEL}" ]; then
+				printf "\n\nInvalid extractor for: %s\nMissing DEST or LABEL variables\n\n" "$TOP"
+				unset -f MU_EXTRACT 2>/dev/null
+				continue
+			fi
 
 			REQ="$(GET_ARCHIVE_BYTES "$ARCHIVE" "$TOP/")"
 			! CHECK_SPACE_FOR_DEST "$REQ" "$DEST" && ALL_DONE 1
@@ -192,8 +142,9 @@ case "$ARCHIVE_NAME" in
 				printf "Extracted '%s' successfully\n" "$LABEL"
 			else
 				printf "Failed to extract '%s'\n" "$LABEL"
-				continue
 			fi
+
+			unset -f MU_EXTRACT 2>/dev/null
 		done
 		;;
 	*) printf "\nNo Extraction Method '%s'\n" "$ARCHIVE_NAME" ;;

@@ -4,6 +4,15 @@
 SPACE_BUFFER_BYTES="${SPACE_BUFFER_BYTES:-67108864}" # 64 MiB
 SPACE_BUFFER_PCT="${SPACE_BUFFER_PCT:-5}"            # 5%
 
+THROBBER_USEC="${THROBBER_USEC:-250000}"
+THROBBER() {
+	_PID="$1"
+	while kill -0 "$_PID" 2>/dev/null; do
+		printf '.'
+		usleep "$THROBBER_USEC"
+	done
+}
+
 BYTES_FREE() {
 	AVAIL_KB="$(df -Pk "$1" 2>/dev/null | awk 'NR==2{print $4}')"
 	[ -n "${AVAIL_KB:-}" ] || AVAIL_KB=0
@@ -116,6 +125,7 @@ CREATE_ARCHIVE() {
 	# $3 = SRC_MNT_PATH  (/run/muos/storage)
 	# $4 = SRC_SHORTNAME (bios, package, name)
 	# $5 = SRC_SUFFIX    (bios, package/catalogue, /run/muos/storage/bios, /opt/muos/share/info/config)
+	# $6 = COMPRESSION   (level of compression from the archive extensions)
 
 	LABEL="$1"
 	DEST_FILE="$2"
@@ -181,20 +191,28 @@ CREATE_ARCHIVE() {
 		}
 	fi
 
-	printf "Creating Archive at: '%s'\n" "$DEST_FILE"
+	UPDATE_FLAG=""
+	[ -e "$DEST_FILE" ] && UPDATE_FLAG="u"
 
 	(
 		cd "$TMP_ROOT" || exit 2
-		zip -ru0 "$DEST_FILE" "$SRC_SHORTNAME"
-	)
+		# shellcheck disable=SC2086
+		zip -q -r${UPDATE_FLAG}${COMP} "$DEST_FILE" "$SRC_SHORTNAME"
+	) >/dev/null 2>&1 &
+	ZIP_PID=$!
+
+	THROBBER "$ZIP_PID"
+	wait "$ZIP_PID"
 	RC=$?
 
 	rm -rf "$TMP_ROOT"
 
-	if [ $RC -ne 0 ]; then
-		echo "Archive creation failed for: $LABEL"
+	if [ "$RC" -ne 0 ]; then
+		printf " Failure!\n"
+		printf "Archive creation failed for: %s\n\n" "$LABEL"
 		return 1
 	fi
 
+	printf " Complete!\n\n"
 	return 0
 }

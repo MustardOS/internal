@@ -47,35 +47,73 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 fi
 
 LINE_NUM=0
+INDEX=1
+
+TOTAL=$(($(wc -l <"$MANIFEST_FILE") - 1))
+[ "$TOTAL" -lt 0 ] && TOTAL=0
 
 if [ "$ERROR_FLAG" -ne 1 ]; then
-	while read -r SRC_MNT SRC_SHORTNAME SRC_SUFFIX; do
+	while read -r SRC_MNT SRC_SHORTNAME; do
 		LINE_NUM=$((LINE_NUM + 1))
 
 		# Skip header
-		if [ $LINE_NUM -eq 1 ]; then
+		if [ "$LINE_NUM" -eq 1 ]; then
 			continue
 		elif [ "$ERROR_FLAG" -ne 0 ]; then
 			break
 		# Validate line format
-		elif [ -z "$SRC_MNT" ] || [ -z "$SRC_SHORTNAME" ] || [ -z "$SRC_SUFFIX" ]; then
-			printf "\nInvalid line %s in manifest: %s %s %s\n" "$LINE_NUM" "$SRC_MNT" "$SRC_SHORTNAME" "$SRC_SUFFIX"
+		elif [ -z "$SRC_MNT" ] || [ -z "$SRC_SHORTNAME" ]; then
+			printf "\nInvalid line %s in manifest: %s %s\n" "$LINE_NUM" "$SRC_MNT" "$SRC_SHORTNAME"
 			ERROR_FLAG=1
 			break
 		fi
 
-		[ ! -e "$SRC_SUFFIX" ] && printf "\nSource path not found: %s\n" "$SRC_SUFFIX" && ERROR_FLAG=1 && break
+		CREATOR="/opt/muos/script/archive/$SRC_SHORTNAME.sh"
+		if [ ! -r "$CREATOR" ]; then
+			printf "\nSkipping unsupported archive: %s\n" "$SRC_SHORTNAME"
+			continue
+		fi
+
+		# shellcheck disable=SC1090
+		. "$CREATOR" || {
+			printf "\n\nInvalid creator for: %s\nCreator not executable or cannot be sourced\n\n" "$SRC_SHORTNAME"
+			continue
+		}
+
+		if ! command -v MU_CREATE >/dev/null 2>&1; then
+			printf "\n\nInvalid extractor for: %s\nMissing 'MU_CREATE' function\n\n" "$SRC_SHORTNAME"
+			continue
+		fi
+
+		MU_CREATE || {
+			printf "\n\nInvalid extractor for: %s\nCannot source 'MU_CREATE' function\n\n" "$SRC_SHORTNAME"
+			unset -f MU_CREATE 2>/dev/null
+			continue
+		}
+
+		SRC_SUFFIX="${SRC}/${SRC_SHORTNAME}"
+
+		if [ ! -e "$SRC_SUFFIX" ]; then
+			printf "\nSource path not found: %s\n" "$SRC_SUFFIX"
+			unset -f MU_CREATE 2>/dev/null
+			continue
+		fi
 
 		if [ "$ERROR_FLAG" -eq 0 ]; then
-			DEST_FILE="${DEST_PATH}/MustardOS-${SRC_SHORTNAME}-$(date +%Y%m%d-%H%M).muxzip"
+			CAP_SRC_SN=$(CAPITALISE "$SRC_SHORTNAME")
+			ZIP_FILE="MustardOS.${CAP_SRC_SN}.$(date +%Y%m%d).muxzip"
+			DEST_FILE="${DEST_PATH}/${ZIP_FILE}"
 
-			CREATE_ARCHIVE "$SRC_SHORTNAME" "$DEST_FILE" "$SRC_SUFFIX" "$SRC_SHORTNAME" "$SRC_SUFFIX" || {
+			printf "(%s/%s) Creating %s Archive: %s\n" "$INDEX" "$TOTAL" "$LABEL" "$ZIP_FILE"
+
+			CREATE_ARCHIVE "$SRC_SHORTNAME" "$DEST_FILE" "$SRC_MNT" "$SRC_SHORTNAME" "$SRC_SUFFIX" "$COMP" || {
 				printf "\nFailed to add %s for %s\n" "$SRC_SUFFIX" "$SRC_SHORTNAME"
 				ERROR_FLAG=1
 				break
 			}
 
-			printf "\nCreated archive for %s at %s\n" "$SRC_SHORTNAME" "$DEST_FILE"
+			INDEX=$((INDEX + 1))
+			TBOX sleep 1
 		fi
 	done <"$MANIFEST_FILE"
 fi

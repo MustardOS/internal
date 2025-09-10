@@ -6,19 +6,16 @@ ACTION=$1
 CARD="${CARD:-0}"
 
 GET_NODE_ID() {
-	pw-cli ls Node | awk -v PAT="$1" '
-        BEGIN { ID = "" }
-        /^[[:space:]]*id [0-9]+,/ {
-            ID = $2
-            gsub(/,/, "", ID)
-        }
-        /node.name/ {
-            if (index($0, PAT)) {
-                print ID
-                exit
-            }
-        }
-    '
+	PAT="$1"
+	pw-dump |
+		jq -r --arg pat "$PAT" '
+		.[]
+		| select(.type == "PipeWire:Interface:Node")
+		| select((.info.props["media.class"] // "") | startswith("Audio/Sink"))
+		| select((.info.props["node.name"] // "" | ascii_downcase)
+		         | contains($pat | ascii_downcase))
+		| .id
+	' | head -n1
 }
 
 AMIX_TRY() {

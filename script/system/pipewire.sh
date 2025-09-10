@@ -160,7 +160,7 @@ SELECT_DEFAULT_NODE_AND_VOLUME() {
 
 				if [ "$CONSOLE_MODE" -eq 1 ]; then
 					if [ "$(GET_VAR "config" "settings/advanced/overdrive")" -eq 1 ]; then
-						wpctl set-volume @DEFAULT_AUDIO_SINK@ 100%
+						wpctl set-volume @DEFAULT_AUDIO_SINK@ 200%
 					else
 						wpctl set-volume @DEFAULT_AUDIO_SINK@ 100%
 					fi

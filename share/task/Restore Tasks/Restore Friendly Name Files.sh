@@ -3,53 +3,55 @@
 # ICON: sdcard
 
 . /opt/muos/script/var/func.sh
-
-# Define Directories
-USER_CONF="/run/muos/storage/info/name/"
-DEFAULT_CONF="/opt/muos/default/MUOS/info/name/"
-
-# Define log file
-LOG_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/task"
-LOG_FILE="$LOG_DIR/restore_friendly_names__$(date +'%Y_%m_%d__%H_%M').log"
-
-# Create log directory if it doesn't exist
-mkdir -p "$LOG_DIR"
-
-# Redirect stdout and stderr to both terminal and log file
-exec > >(tee -a "$LOG_FILE") 2>&1
+. /opt/muos/script/var/zip.sh
 
 FRONTEND stop
 
-# Function to restore backup and verify
-sync_and_verify() {
-    rsync --archive --checksum --delete --progress "$DEFAULT_CONF" "$USER_CONF"
-    diff -r "$DEFAULT_CONF" "$USER_CONF"
+NAME_DIR="$MUOS_STORE_DIR/info/name"
+NAME_ZIP="$MUOS_SHARE_DIR/archive/muos.name.zip"
+
+ALL_DONE() {
+	unset -f MU_EXTRACT 2>/dev/null
+
+	echo "Sync Filesystem"
+	sync
+
+	TBOX sleep 2
+
+	FRONTEND start task
+	exit "$1"
 }
 
-# Initial Restore
-sync_and_verify
-
-# Loop with a retry limit
-MAX_TRY=3
-TRY_COUNT=0
-
-while ! sync_and_verify && [ $TRY_COUNT -lt $MAX_TRY ]; do
-    echo "Differences found between default and local. Retrying restore... Attempt $((TRY_COUNT + 1)) of $MAX_TRY"
-    sync_and_verify
-    TRY_COUNT=$((TRY_COUNT + 1))
-done
-
-if [ $TRY_COUNT -eq $MAX_TRY ]; then
-    echo "Restore failed after $MAX_TRY attempts."
-else
-    echo "Files successfully restored!"
+if [ ! -e "$NAME_ZIP" ]; then
+	printf "\nError: Name archive not found!\n"
+	ALL_DONE 1
 fi
 
-echo "Sync Filesystem"
-sync
+DEST=""
+LABEL=""
+PATTERN="name/*"
+
+EXTRACTOR="/opt/muos/script/archive/name.sh"
+# shellcheck disable=SC1090
+. "$EXTRACTOR" || {
+	printf "\n\nInvalid extractor for: %s\nExtractor not executable or cannot be sourced\n\n" "$TOP"
+	ALL_DONE 1
+}
+
+MU_EXTRACT || {
+	printf "\n\nInvalid extractor for: %s\nCannot source 'MU_EXTRACT' function\n\n" "$TOP"
+	ALL_DONE 1
+}
+
+SPACE_REQ="$(GET_ARCHIVE_BYTES "$NAME_ZIP" "")"
+! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$NAME_DIR" && ALL_DONE 1
+
+printf "\nExtracting '%s' to '%s'\n" "$LABEL" "$DEST"
+if EXTRACT_ARCHIVE "$LABEL" "$NAME_ZIP" "$DEST" "$PATTERN"; then
+	printf "Extracted '%s' successfully\n" "$LABEL"
+else
+	printf "Failed to extract '%s'\n" "$LABEL"
+fi
 
 echo "All Done!"
-TBOX sleep 2
-
-FRONTEND start task
-exit 0
+ALL_DONE 0

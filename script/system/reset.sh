@@ -36,26 +36,13 @@ else
 	CRITICAL_FAILURE device "$ROM_MOUNT" "$ROM_PART"
 fi
 
+MUOS_DIR="$ROM_MOUNT/MUOS"
+
 LOG_INFO "$0" 0 "FACTORY RESET" "Restoring ROM Filesystem"
-
-PROGRESS_FILE="/tmp/msg_progress"
-UD_ARCHIVE="/opt/muos/init/userdata.tar.gz"
-TOTAL=$(wc -c <"$UD_ARCHIVE")
-
-printf 0 >"$PROGRESS_FILE"
-
-(
-	/opt/muos/bin/pv -n -f -s "$TOTAL" "$UD_ARCHIVE" 2>&1 1>&3 |
-		while IFS= read -r PERCENT; do
-			printf "%s" "$PERCENT" >"$PROGRESS_FILE"
-		done
-) 3>&1 | gzip -dc | tar -xf - -C "$ROM_MOUNT"
-
-LOG_INFO "$0" 0 "FACTORY RESET" "ROM Restore Complete"
-printf 100 >"$PROGRESS_FILE"
+mkdir -p "$MUOS_DIR"
+unzip -oq "$MUOS_SHARE_DIR/archive/muos.init.zip" "init/*" -d "$ROM_MOUNT"
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Filesystem Paths"
-MUOS_DIR="$ROM_MOUNT/MUOS"
 DIRS='
 info/catalogue
 info/collection
@@ -84,6 +71,7 @@ save/state/PPSSPP-Ext
 save/state/YabaSanshiro-Ext
 screenshot
 syncthing
+theme/active
 '
 
 for D in $DIRS; do
@@ -98,8 +86,13 @@ SRC_DIR="$MUOS_SHARE_DIR/info/config"
 LOG_INFO "$0" 0 "FACTORY RESET" "Copying Default Friendly Name Files"
 SRC_DIR="$MUOS_SHARE_DIR/info"
 DST_DIR="$MUOS_DIR/info"
-cp -f "$SRC_DIR"/name/* "$DST_DIR/name/"
-cp -f "$SRC_DIR"/pass.ini "$SRC_DIR"/skip.ini "$DST_DIR/"
+cp -rf "$SRC_DIR"/name/* "$DST_DIR/name/"
+cp -rf "$SRC_DIR"/pass.ini "$SRC_DIR"/skip.ini "$DST_DIR/"
+
+LOG_INFO "$0" 0 "FACTORY RESET" "Copying Default MustardOS Themes"
+SRC_DIR="$MUOS_SHARE_DIR/theme"
+DST_DIR="$MUOS_DIR/theme"
+cp -rf "$SRC_DIR"/* "$DST_DIR/"
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Blank Syncthing API File"
 : >"$MUOS_DIR/syncthing/api.txt"

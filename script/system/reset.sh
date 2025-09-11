@@ -42,6 +42,13 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Restoring ROM Filesystem"
 mkdir -p "$MUOS_DIR"
 unzip -oq "$MUOS_SHARE_DIR/archive/muos.init.zip" "init/*" -d "$ROM_MOUNT"
 
+# Because of how we prepare the archive we need to do some extra juggling
+INIT_DIR="$ROM_MOUNT/init"
+if [ -d "$INIT_DIR" ]; then
+    find "$INIT_DIR" -mindepth 1 -maxdepth 1 -exec mv -f {} "$ROM_MOUNT"/ \;
+    rm -rf "$INIT_DIR"
+fi
+
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Filesystem Paths"
 DIRS='
 info/catalogue

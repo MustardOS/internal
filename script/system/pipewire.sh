@@ -76,7 +76,7 @@ DISABLE_AMP() {
 }
 
 STOP_AUDIO_STACK() {
-	for PROC in muspeaker pipewire wireplumber; do
+	for PROC in pipewire wireplumber; do
 		LOG_INFO "$0" 0 "PIPEWIRE" "Stopping: %s (if running)" "$PROC"
 
 		if killall -q -15 "$PROC" 2>/dev/null; then
@@ -173,7 +173,6 @@ SELECT_DEFAULT_NODE_AND_VOLUME() {
 				amixer -c 0 sset "$AUDIO_CONTROL" "${AUDIO_VOL_PCT}%" unmute
 				wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
 
-				/opt/muos/frontend/muspeaker &
 				SET_VAR "device" "audio/ready" "1"
 
 				return 0

@@ -51,6 +51,7 @@ fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Filesystem Paths"
 DIRS='
+application
 info/catalogue
 info/collection
 info/history

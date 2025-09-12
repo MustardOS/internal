@@ -12,8 +12,8 @@ GOV_GO="/tmp/gov_go"
 
 SETUP_SDL_ENVIRONMENT
 
-LOVEDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Moonlight"
-MOONDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Moonlight/moonlight"
+LOVEDIR="$1"
+MOONDIR="$1/moonlight"
 GPTOKEYB="/opt/muos/share/emulator/gptokeyb/gptokeyb2"
 
 cd "$LOVEDIR" || exit

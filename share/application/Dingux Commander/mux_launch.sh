@@ -14,7 +14,7 @@ SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "dingux"
 
-DINGUX_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/Dingux Commander"
+DINGUX_DIR="$1"
 cd "$DINGUX_DIR" || exit
 
 ./dingux --config "$DINGUX_DIR/dingux.cfg"

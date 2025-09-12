@@ -12,7 +12,8 @@ GOV_GO="/tmp/gov_go"
 
 SETUP_SDL_ENVIRONMENT
 
-LOVEDIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/RGB Controller"
+LOVEDIR="$1"
+
 GPTOKEYB="/opt/muos/share/emulator/gptokeyb/gptokeyb2"
 CONFDIR="$LOVEDIR/conf/"
 

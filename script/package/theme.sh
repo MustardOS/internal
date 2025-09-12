@@ -99,7 +99,7 @@ SAVE() {
 	DEST_FILE="$THEME_DIR/$BASE_THEME_NAME-$TIMESTAMP.muxthm"
 
 	printf "Backing up Contents of '%s' to '%s'\n" "$THEME_ACTIVE_DIR" "$DEST_FILE"
-	cd "$THEME_ACTIVE_DIR" && zip -ru0 "$DEST_FILE" .
+	cd "$THEME_ACTIVE_DIR" && zip -ru "$DEST_FILE" .
 
 	printf "Backup Complete: %s\n" "$DEST_FILE"
 	ALL_DONE 0

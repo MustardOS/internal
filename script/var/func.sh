@@ -674,5 +674,5 @@ UPDATE_BOOTLOGO() {
 			;;
 	esac
 
-	[ $BL_ROTATE ] && printf "\nRotated Bootlogo Image\n"
+	[ $BL_ROTATE -ne 0 ] && printf "\nRotated Bootlogo Image\n"
 }

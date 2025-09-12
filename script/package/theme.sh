@@ -59,8 +59,7 @@ INSTALL() {
 	mkdir -p "$THEME_ACTIVE_DIR"
 
 	CHECK_ARCHIVE "$THEME_ZIP"
-	CAT_GRID_CLEAR "$THEME_ZIP"
-
+	
 	SPACE_REQ="$(GET_ARCHIVE_BYTES "$THEME_ZIP" "")"
 	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$THEME_ACTIVE_DIR" && ALL_DONE 1
 
@@ -70,15 +69,18 @@ INSTALL() {
 	fi
 
 	THEME_NAME=$(basename "$THEME_ZIP" .muxthm)
-	[ -f "$THEME_ACTIVE_DIR/name.txt" ] && echo "${THEME_NAME%-[0-9]*_[0-9]*}" >"$THEME_ACTIVE_DIR/name.txt"
+	[ ! -f "$THEME_ACTIVE_DIR/name.txt" ] && echo "${THEME_NAME%-[0-9]*_[0-9]*}" >"$THEME_ACTIVE_DIR/name.txt"
 
 	UPDATE_BOOTLOGO
 	LED_CONTROL_CHANGE
 
 	ASSETS_ZIP="$THEME_ACTIVE_DIR/assets.muxzip"
 	if [ -f "$ASSETS_ZIP" ]; then
+		CAT_GRID_CLEAR "$ASSETS_ZIP"
 		printf "Extracting Theme Assets\n"
+		export THEME_INSTALLING=1
 		/opt/muos/script/mux/extract.sh "$ASSETS_ZIP" picker
+		unset THEME_INSTALLING
 	fi
 
 	printf "Install Complete\n"
@@ -97,7 +99,7 @@ SAVE() {
 	DEST_FILE="$THEME_DIR/$BASE_THEME_NAME-$TIMESTAMP.muxthm"
 
 	printf "Backing up Contents of '%s' to '%s'\n" "$THEME_ACTIVE_DIR" "$DEST_FILE"
-	cd "$THEME_ACTIVE_DIR" && zip -ru0 "$DEST_FILE" .
+	cd "$THEME_ACTIVE_DIR" && zip -ru "$DEST_FILE" .
 
 	printf "Backup Complete: %s\n" "$DEST_FILE"
 	ALL_DONE 0

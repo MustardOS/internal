@@ -56,7 +56,7 @@ CHECK_SPACE_FOR_DEST() {
 
 CORRECT_PATH_ARCHIVE() {
 	unzip -l "$1" >/dev/null 2>&1 || return 1
-	unzip -Z1 "$1" | grep -q "^$2"
+	unzip -Z1 "$1" | grep -q -E "^($2|$3)"
 }
 
 SAFE_ARCHIVE() {
@@ -69,7 +69,7 @@ SAFE_ARCHIVE() {
 CAT_GRID_CLEAR() {
 	EXTRA_DIRS="Application Archive Collection Folder Root Task Theme"
 	for CAT_TYPE in $EXTRA_DIRS; do
-		if CORRECT_PATH_ARCHIVE "$1" "run/muos/storage/info/catalogue/${CAT_TYPE}/grid/"; then
+		if CORRECT_PATH_ARCHIVE "$1" "run/muos/storage/info/catalogue/${CAT_TYPE}/grid/" "catalogue/${CAT_TYPE}/grid/"; then
 			printf "\nClearing existing %s grid images...\n" "$CAT_TYPE"
 			rm -rf "$MUOS_STORE_DIR/info/catalogue/${CAT_TYPE}/grid"
 		fi

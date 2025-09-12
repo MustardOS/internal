@@ -78,7 +78,9 @@ INSTALL() {
 	ASSETS_ZIP="$THEME_ACTIVE_DIR/assets.muxzip"
 	if [ -f "$ASSETS_ZIP" ]; then
 		printf "Extracting Theme Assets\n"
+		export THEME_INSTALLING=1
 		/opt/muos/script/mux/extract.sh "$ASSETS_ZIP" picker
+		unset THEME_INSTALLING
 	fi
 
 	printf "Install Complete\n"

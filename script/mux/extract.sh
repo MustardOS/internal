@@ -4,7 +4,9 @@ set -eu
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/var/zip.sh
 
-FRONTEND stop
+if [[ -z "${THEME_INSTALLING-}" ]]; then
+	FRONTEND stop
+fi
 
 ALL_DONE() {
 	printf "\nSync Filesystem\n"
@@ -12,7 +14,9 @@ ALL_DONE() {
 
 	printf "All Done!\n"
 	TBOX sleep 2
-	FRONTEND start "${FRONTEND_START_PROGRAM:-archive}"
+	if [[ -z "${THEME_INSTALLING-}" ]]; then
+		FRONTEND start "${FRONTEND_START_PROGRAM:-archive}"
+	fi
 
 	exit "${1:-0}"
 }

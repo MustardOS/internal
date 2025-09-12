@@ -70,7 +70,7 @@ INSTALL() {
 	fi
 
 	THEME_NAME=$(basename "$THEME_ZIP" .muxthm)
-	[ -f "$THEME_ACTIVE_DIR/name.txt" ] && echo "${THEME_NAME%-[0-9]*_[0-9]*}" >"$THEME_ACTIVE_DIR/name.txt"
+	[ ! -f "$THEME_ACTIVE_DIR/name.txt" ] && echo "${THEME_NAME%-[0-9]*_[0-9]*}" >"$THEME_ACTIVE_DIR/name.txt"
 
 	UPDATE_BOOTLOGO
 	LED_CONTROL_CHANGE

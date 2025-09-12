@@ -59,8 +59,7 @@ INSTALL() {
 	mkdir -p "$THEME_ACTIVE_DIR"
 
 	CHECK_ARCHIVE "$THEME_ZIP"
-	CAT_GRID_CLEAR "$THEME_ZIP"
-
+	
 	SPACE_REQ="$(GET_ARCHIVE_BYTES "$THEME_ZIP" "")"
 	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$THEME_ACTIVE_DIR" && ALL_DONE 1
 
@@ -77,6 +76,7 @@ INSTALL() {
 
 	ASSETS_ZIP="$THEME_ACTIVE_DIR/assets.muxzip"
 	if [ -f "$ASSETS_ZIP" ]; then
+		CAT_GRID_CLEAR "$ASSETS_ZIP"
 		printf "Extracting Theme Assets\n"
 		export THEME_INSTALLING=1
 		/opt/muos/script/mux/extract.sh "$ASSETS_ZIP" picker

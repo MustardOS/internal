@@ -1,7 +1,7 @@
 #!/bin/sh
 # shellcheck disable=SC2034
 
-ARC_DIR="$MUOS_STORE_DIR"
+ARC_DIR="$MUOS_SHARE_DIR"
 ARC_LABEL="Language"
 
 MU_EXTRACT() {

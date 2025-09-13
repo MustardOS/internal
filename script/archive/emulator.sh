@@ -1,7 +1,7 @@
 #!/bin/sh
 # shellcheck disable=SC2034
 
-ARC_DIR="$MUOS_SHARE_DIR/emulator"
+ARC_DIR="$MUOS_SHARE_DIR"
 ARC_LABEL="Emulators"
 
 MU_EXTRACT() {

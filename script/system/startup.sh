@@ -113,22 +113,22 @@ if [ "$FACTORY_RESET" -eq 0 ]; then
 	/opt/muos/script/system/swap.sh &
 fi
 
-LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"
-cp -f "$MUOS_SHARE_DIR/conf/asound.conf" "/etc/asound.conf"
+(
+	LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"
+	cp -f "$MUOS_SHARE_DIR/conf/asound.conf" "/etc/asound.conf"
 
-if [ -s "$ALSA_CONFIG" ]; then
-	LOG_INFO "$0" 0 "BOOTING" "ALSA Config Check Passed"
-else
-	LOG_WARN "$0" 0 "BOOTING" "ALSA Config Restoring"
-	cp -f "$MUOS_SHARE_DIR/conf/alsa.conf" "$ALSA_CONFIG"
-fi
+	if [ ! -s "$ALSA_CONFIG" ]; then
+		LOG_WARN "$0" 0 "BOOTING" "ALSA Config Restoring"
+		cp -f "$MUOS_SHARE_DIR/conf/alsa.conf" "$ALSA_CONFIG"
+	fi
 
-LOG_INFO "$0" 0 "BOOTING" "Restoring Audio State"
-cp -f "/opt/muos/device/control/asound.state" "/var/lib/alsa/asound.state"
-alsactl -U restore
+	LOG_INFO "$0" 0 "BOOTING" "Restoring Audio State"
+	cp -f "/opt/muos/device/control/asound.state" "/var/lib/alsa/asound.state"
+	alsactl -U restore
 
-LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
-/opt/muos/script/system/pipewire.sh start &
+	LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
+	/opt/muos/script/system/pipewire.sh start &
+) &
 
 if [ "$FACTORY_RESET" -eq 1 ]; then
 	LED_CONTROL_CHANGE
@@ -142,8 +142,10 @@ if [ "$FIRST_INIT" -eq 0 ]; then
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"
-(chown -R root:root /root && chmod -R 755 /root) &
-(chown -R root:root /opt && chmod -R 755 /opt) &
+(
+	chown -R root:root /root /opt
+	chmod -R 755 /root /opt
+) &
 
 LOG_INFO "$0" 0 "BOOTING" "Device Specific Startup"
 /opt/muos/script/device/start.sh &
@@ -164,14 +166,13 @@ if [ $CONSOLE_MODE -eq 0 ]; then
 	LED_CONTROL_CHANGE
 fi
 
-LOG_INFO "$0" 0 "BOOTING" "Checking for Network Capability"
-if [ "$CONNECT_ON_BOOT" -eq 1 ] && [ "$HAS_NETWORK" -eq 1 ]; then
-	LOG_INFO "$0" 0 "BOOTING" "Loading Network Module"
-	/opt/muos/script/device/module.sh load-network
-
-	LOG_INFO "$0" 0 "BOOTING" "Starting Network Services"
-	/opt/muos/script/system/network.sh connect &
-fi
+(
+	LOG_INFO "$0" 0 "BOOTING" "Checking for Network Capability"
+	if [ "$CONNECT_ON_BOOT" -eq 1 ] && [ "$HAS_NETWORK" -eq 1 ]; then
+		/opt/muos/script/device/module.sh load-network
+		/opt/muos/script/system/network.sh connect &
+	fi
+) &
 
 LOG_INFO "$0" 0 "BOOTING" "Starting Hotkey Daemon"
 /opt/muos/script/mux/hotkey.sh &

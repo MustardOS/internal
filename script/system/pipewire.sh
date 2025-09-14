@@ -5,10 +5,49 @@
 ACTION=$1
 CARD="${CARD:-0}"
 
+FAST_READY_TIMEOUT_MS=5000
+FAST_READY_POLL_MS=100
+SINK_DISCOVERY_TIMEOUT_MS=3000
+SINK_DISCOVERY_POLL_MS=100
+PROC_GONE_TIMEOUT_MS=3000
+
+RUNTIME_DIR="${PIPEWIRE_RUNTIME_DIR:-${XDG_RUNTIME_DIR:-/run/pipewire-0}}"
+RUNTIME_SOCK="$RUNTIME_DIR/pipewire-0"
+
+RUNTIME_DIR_INIT() {
+	mkdir -p "$RUNTIME_DIR" || true
+	chmod 700 "$RUNTIME_DIR" || true
+	export XDG_RUNTIME_DIR="$RUNTIME_DIR"
+}
+
+SOCKET_READY() {
+	[ -S "$RUNTIME_SOCK" ] || return 1
+	XDG_RUNTIME_DIR="$RUNTIME_DIR" pw-cli info >/dev/null 2>&1 || return 1
+	return 0
+}
+
+SLEEP_MS() {
+	SEC=$(awk "BEGIN{printf \"%.3f\", $1/1000}")
+	TBOX sleep "$SEC"
+}
+
+PROC_GONE() {
+	NAME=$1
+	LIMIT_MS=${2:-$PROC_GONE_TIMEOUT_MS}
+	ELAPSED=0
+
+	while pgrep -x "$NAME" >/dev/null 2>&1; do
+		SLEEP_MS 100
+		ELAPSED=$((ELAPSED + 100))
+		[ "$ELAPSED" -ge "$LIMIT_MS" ] && return 1
+	done
+
+	return 0
+}
+
 GET_NODE_ID() {
-	PAT="$1"
 	pw-dump |
-		jq -r --arg pat "$PAT" '
+		jq -r --arg pat "$1" '
 		.[]
 		| select(.type == "PipeWire:Interface:Node")
 		| select((.info.props["media.class"] // "") | startswith("Audio/Sink"))
@@ -26,28 +65,16 @@ AMIX_TRY() {
 	amixer -c "$CARD" -q sset "$CTL" "$@" >/dev/null 2>&1
 }
 
-WAIT_GONE() {
-	NAME=$1
-
-	I=0
-	while pgrep -x "$NAME" >/dev/null 2>&1; do
-		TBOX sleep 0.1
-		I=$((I + 1))
-		[ "$I" -ge 30 ] && break
-	done
-
-	pgrep -x "$NAME" >/dev/null 2>&1 && return 1
-	return 0
-}
-
 FADE_DOWN() {
 	LOG_INFO "$0" 0 "PIPEWIRE" "Fading sink volume down..."
-	for _ in $(seq 1 8); do
+	N=0
+	while [ "$N" -lt 8 ]; do
 		wpctl set-volume @DEFAULT_AUDIO_SINK@ 16%- || break
-		TBOX sleep 0.1
+		SLEEP_MS 100
+		N=$((N + 1))
 	done
 
-	wpctl set-volume @DEFAULT_AUDIO_SINK@ 0% 2>/dev/null
+	wpctl set-volume @DEFAULT_AUDIO_SINK@ 0%
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ 1
 }
 
@@ -78,66 +105,74 @@ DISABLE_AMP() {
 STOP_AUDIO_STACK() {
 	for PROC in pipewire wireplumber; do
 		LOG_INFO "$0" 0 "PIPEWIRE" "Stopping: %s (if running)" "$PROC"
-
-		if killall -q -15 "$PROC" 2>/dev/null; then
-			if ! WAIT_GONE "$PROC"; then
-				killall -q -15 "$PROC" 2>/dev/null
-			fi
-		fi
+		killall -q -15 "$PROC" 2>/dev/null || true
+		PROC_GONE "$PROC" "$PROC_GONE_TIMEOUT_MS" || killall -q -9 "$PROC" 2>/dev/null || true
 	done
 }
 
 REQUIRE_DBUS() {
-	for TIMEOUT in $(seq 1 30); do
-		if [ -e "/run/dbus/system_bus_socket" ]; then
-			LOG_SUCCESS "$0" 0 "PIPEWIRE" "D-Bus socket is available"
-			return 0
-		fi
+	ELAPSED=0
 
-		printf "(%d of 30) Waiting for D-Bus...\n" "$TIMEOUT"
-		TBOX sleep 1
+	while [ ! -S "/run/dbus/system_bus_socket" ]; do
+		SLEEP_MS 100
+		ELAPSED=$((ELAPSED + 100))
+		[ "$ELAPSED" -ge 3000 ] && break
 	done
 
-	LOG_ERROR "$0" 0 "PIPEWIRE" "Timeout expired waiting for D-Bus"
-	return 1
+	if [ -S "/run/dbus/system_bus_socket" ]; then
+		LOG_SUCCESS "$0" 0 "PIPEWIRE" "D-Bus socket is available"
+	else
+		LOG_WARN "$0" 0 "PIPEWIRE" "D-Bus not ready after 3s; proceeding"
+	fi
+
+	return 0
 }
 
 START_PIPEWIRE() {
-	if ! pgrep -x "pipewire" >/dev/null; then
-		LOG_INFO "$0" 0 "PIPEWIRE" "Starting PipeWire..."
-		chrt -f 88 pipewire -c "$MUOS_SHARE_DIR/conf/pipewire.conf" &
+	RUNTIME_DIR_INIT
+
+	if ! pgrep -x "pipewire" >/dev/null 2>&1; then
+		LOG_INFO "$0" 0 "PIPEWIRE" "Starting PipeWire (runtime: %s)" "$RUNTIME_DIR"
+		XDG_RUNTIME_DIR="$RUNTIME_DIR" chrt -f 88 pipewire -c "$MUOS_SHARE_DIR/conf/pipewire.conf" &
 	else
-		LOG_WARN "$0" 0 "PIPEWIRE" "PipeWire is already running!"
-		return 1
+		LOG_WARN "$0" 0 "PIPEWIRE" "PipeWire already running"
 	fi
 
-	LOG_INFO "$0" 0 "PIPEWIRE" "Waiting for PipeWire init..."
+	if ! pgrep -x "wireplumber" >/dev/null 2>&1; then
+		LOG_INFO "$0" 0 "PIPEWIRE" "Starting WirePlumber..."
+		XDG_RUNTIME_DIR="$RUNTIME_DIR" wireplumber &
+	fi
 
-	for TIMEOUT in $(seq 1 30); do
-		if pw-cli info >/dev/null 2>&1; then
-			LOG_SUCCESS "$0" 0 "PIPEWIRE" "PipeWire is now active!"
-			return 0
-		fi
-		printf "(%d of 30) PipeWire not responsive yet...\n" "$TIMEOUT"
-
-		pgrep -l pipewire
-		TBOX sleep 1
+	ELAPSED=0
+	while ! SOCKET_READY; do
+		SLEEP_MS "$FAST_READY_POLL_MS"
+		ELAPSED=$((ELAPSED + FAST_READY_POLL_MS))
+		[ "$ELAPSED" -ge "$FAST_READY_TIMEOUT_MS" ] && break
 	done
 
-	LOG_ERROR "$0" 0 "PIPEWIRE" "Timeout expired waiting for PipeWire...\nPipeWire:\n\t%s\nWirePlumber:\n\t%s\nPipeWire Socket:\n\t%s\n" \
-		"$(pgrep -l pipewire)" \
-		"$(pgrep -l wireplumber)" \
-		"$(ls -l /run/pipewire-0 2>/dev/null)"
+	if SOCKET_READY; then
+		LOG_SUCCESS "$0" 0 "PIPEWIRE" "Socket responsive at %s" "$RUNTIME_SOCK"
+		return 0
+	fi
+
+	LOG_ERROR "$0" 0 "PIPEWIRE" "Not responsive after %dms (dir=%s)\n\tps: %s\n\tls: %s" \
+		"$FAST_READY_TIMEOUT_MS" \
+		"$RUNTIME_DIR" \
+		"$(ps | grep -E 'pipewire|wireplumber' | grep -v grep)" \
+		"$(ls -l "$RUNTIME_DIR" 2>/dev/null || printf 'n/a')"
 	return 1
 }
 
-SELECT_DEFAULT_NODE_AND_VOLUME() {
-	for TIMEOUT in $(seq 1 30); do
+FINALISE_AUDIO() {
+	ELAPSED=0
+	while :; do
 		if pw-cli ls Node 2>/dev/null | grep -q "Audio/Sink"; then
 			INTERNAL_NODE_ID=$(GET_NODE_ID "$(GET_VAR "device" "audio/pf_internal")")
 			EXTERNAL_NODE_ID=$(GET_NODE_ID "$(GET_VAR "device" "audio/pf_external")")
 
 			CONSOLE_MODE="$(GET_VAR "config" "boot/device_mode")"
+			DEFAULT_NODE_ID=""
+
 			if [ "$CONSOLE_MODE" -eq 1 ]; then
 				DEFAULT_NODE_ID=$EXTERNAL_NODE_ID
 				if [ "$(GET_VAR "config" "settings/hdmi/audio")" -eq 1 ]; then
@@ -148,13 +183,13 @@ SELECT_DEFAULT_NODE_AND_VOLUME() {
 			fi
 
 			if [ -n "$DEFAULT_NODE_ID" ]; then
-				LOG_INFO "$0" 0 "PIPEWIRE" "Setting default note to ID: %s" "$DEFAULT_NODE_ID"
+				LOG_INFO "$0" 0 "PIPEWIRE" "Setting default node to ID: %s" "$DEFAULT_NODE_ID"
 				wpctl set-default "$DEFAULT_NODE_ID"
 
 				case "$(GET_VAR "config" "settings/advanced/volume")" in
-					"loud") VOLUME="$(GET_VAR "device" "audio/max")" ;;
-					"soft") VOLUME="35" ;;
-					"silent") VOLUME="0" ;;
+					loud) VOLUME="$(GET_VAR "device" "audio/max")" ;;
+					soft) VOLUME="35" ;;
+					silent) VOLUME="0" ;;
 					*) VOLUME="$(GET_VAR "config" "settings/general/volume")" ;;
 				esac
 
@@ -170,51 +205,54 @@ SELECT_DEFAULT_NODE_AND_VOLUME() {
 
 				AUDIO_CONTROL="$(GET_VAR "device" "audio/control")"
 				AUDIO_VOL_PCT="$(GET_VAR "device" "audio/volume")"
-				amixer -c 0 sset "$AUDIO_CONTROL" "${AUDIO_VOL_PCT}%" unmute
+				amixer -c "$CARD" sset "$AUDIO_CONTROL" "${AUDIO_VOL_PCT}%" unmute >/dev/null 2>&1
 				wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
 
-				SET_VAR "device" "audio/ready" "1"
-
+				LOG_SUCCESS "$0" 0 "PIPEWIRE" "Audio finalised (node + volume)"
 				return 0
-			else
-				LOG_WARN "$0" 0 "PIPEWIRE" "Node with ID '%s' not found" "$DEFAULT_NODE_ID"
-				return 1
 			fi
+
+			LOG_WARN "$0" 0 "PIPEWIRE" "Desired node not found yet"
+			return 1
 		fi
 
-		printf "(%d of 30) PipeWire sink not found yet\n" "$TIMEOUT"
-		TBOX sleep 1
+		SLEEP_MS "$SINK_DISCOVERY_POLL_MS"
+		ELAPSED=$((ELAPSED + SINK_DISCOVERY_POLL_MS))
+		[ "$ELAPSED" -ge "$SINK_DISCOVERY_TIMEOUT_MS" ] && break
 	done
 
-	LOG_ERROR "$0" 0 "PIPEWIRE" "Timeout expired waiting for PipeWire sink...\n%s\n\nCheck audio configuration" "$(pw-cli ls Node)"
+	LOG_ERROR "$0" 0 "PIPEWIRE" "Timeout waiting for PipeWire sinks"
 	return 1
 }
 
 DO_START() {
 	LOG_INFO "$0" 0 "PIPEWIRE" "D-Bus requirement checking"
-	REQUIRE_DBUS || exit 1
+	REQUIRE_DBUS || true
 
-	LOG_INFO "$0" 0 "PIPEWIRE" "Starting PipeWire itself"
-	START_PIPEWIRE || exit 1
+	LOG_INFO "$0" 0 "PIPEWIRE" "Launching PipeWire + WirePlumber"
+	! START_PIPEWIRE && exit 1
 
-	LOG_INFO "$0" 0 "PIPEWIRE" "Choosing device specific node and setting volume"
-	SELECT_DEFAULT_NODE_AND_VOLUME || exit 1
+	SET_VAR "device" "audio/ready" "1"
+	LOG_SUCCESS "$0" 0 "PIPEWIRE" "Audio fast-ready (daemon up)"
+
+	(
+		LOG_INFO "$0" 0 "PIPEWIRE" "Finalising: default node + volume"
+		! FINALISE_AUDIO && LOG_WARN "$0" 0 "PIPEWIRE" "Finalisation deferred; relying on policy defaults"
+	) &
 }
 
 DO_STOP() {
-	LOG_INFO "$0" 0 "PIPEWIRE" "Starting PipeWire audio shutdown sequence..."
-
+	LOG_INFO "$0" 0 "PIPEWIRE" "Audio shutdown sequence..."
 	FADE_DOWN
 	MUTE_CODEC_PATH
-	TBOX sleep 0.25
 
-	DISABLE_AMP
-	TBOX sleep 0.25
+	SLEEP_MS 250
+	DISABLE_AMP || true
+	SLEEP_MS 250
 
 	STOP_AUDIO_STACK
 	SET_VAR "device" "audio/ready" "0"
-
-	LOG_SUCCESS "$0" 0 "PIPEWIRE" "PipeWire audio shutdown complete!"
+	LOG_SUCCESS "$0" 0 "PIPEWIRE" "Audio shutdown complete"
 }
 
 case "$ACTION" in

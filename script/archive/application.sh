@@ -1,7 +1,7 @@
 #!/bin/sh
 # shellcheck disable=SC2034
 
-ARC_DIR="$ROM_MOUNT/MUOS"
+ARC_DIR="$MUOS_STORE_DIR"
 ARC_LABEL="Application"
 
 MU_EXTRACT() {

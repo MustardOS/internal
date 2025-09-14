@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-PRIORITY_LOCS="bios init info/track save theme"
+PRIORITY_LOCS="application bios init info/track save theme"
 STANDARD_LOCS="info/catalogue info/name info/collection info/history network screenshot syncthing package/catalogue package/config"
 MOUNT_FAILURE="/tmp/muos_mount_failure"
 

@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Backup Target": "Мета резервної копії",
     "Content Collection": "Обране",
     "Content Launch Overrides": "Content Launch Overrides",
@@ -106,6 +107,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Location of friendly name configurations",
     "Location of history": "Location of history",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Location of save states and files",
     "Location of screenshots": "Location of screenshots",
     "Location of system BIOS files": "Location of system BIOS files",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "View all of the current muOS supporters and extra credits",
     "View all of the screenshots taken on the device": "Переглянути всі знімки екрану зроблені на пристрої",
     "View the current used space of the mounted storage devices": "Переглянути використане місце на підключених пристроях зберігання даних"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "Change your current date, time, and timezone",
+    "Clock": "Clock",
+    "Date and Time": "Date and Time",
+    "INSTALLER": "INSTALLER",
+    "Install": "Install",
+    "Language": "Language",
+    "Prepare and install MustardOS": "Prepare and install MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Select your preferred language\n\nTranslations supported by Weblate",
+    "Shut down your device safely": "Shut down your device safely",
+    "Shutdown": "Shutdown"
   },
   "muxkiosk": {
     "Advanced Settings": "Розширені налаштування",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Content Collection": "Вміст Колекцій",
     "Custom Packages": "Custom Packages",
     "Friendly Name System": "Система Дружніх Імен",
@@ -672,6 +687,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Розташування конфігурації дружніх імен",
     "Location of history": "Розташування історії",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Розташування файлів збереження та станів",
     "Location of screenshots": "Розташування знімків екрану",
     "Location of system BIOS files": "Розташування системних файлів BIOS",

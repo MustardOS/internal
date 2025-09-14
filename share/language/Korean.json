@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "활동 추적기",
+    "Applications": "Applications",
     "Backup Target": "백업 타겟",
     "Content Collection": "콘텐츠 컬렉션",
     "Content Launch Overrides": "콘텐츠 실행 오버라이드",
@@ -106,6 +107,7 @@
     "Location of custom packages": "커스텀 패키지 위치",
     "Location of friendly name configurations": "친숙한 이름 구성 위치",
     "Location of history": "최근 실행 위치",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "상태 저장과 저장 파일 위치",
     "Location of screenshots": "스크린샷 위치",
     "Location of system BIOS files": "시스템 바이오스 파일 위치",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "현재 muOS 지원자와 추가 크레딧을 모두 확인",
     "View all of the screenshots taken on the device": "기기에서 촬영한 모든 스크린샷 보기",
     "View the current used space of the mounted storage devices": "마운트된 저장 장치의 현재 사용된 공간 보기"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "현재 날짜, 시간, 타임존을 변경함",
+    "Clock": "시계",
+    "Date and Time": "날짜와 시간",
+    "INSTALLER": "설치 프로그램",
+    "Install": "설치",
+    "Language": "언어",
+    "Prepare and install MustardOS": "MustardOS 준비 및 설치",
+    "Select your preferred language\n\nTranslations supported by Weblate": "선호하는 언어를 선택\n\nWeblate에서 지원하는 번역",
+    "Shut down your device safely": "장치를 안전하게 시스템 종료",
+    "Shutdown": "시스템 종료"
   },
   "muxkiosk": {
     "Advanced Settings": "고급 설정",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "활동 추적기",
+    "Applications": "Applications",
     "Content Collection": "콘텐츠 컬렉션",
     "Custom Packages": "커스텀 패키지",
     "Friendly Name System": "친숙한 이름 시스템",
@@ -672,6 +687,7 @@
     "Location of custom packages": "커스텀 패키지 위치",
     "Location of friendly name configurations": "친숙한 이름 구성 위치",
     "Location of history": "최근 실행 위치",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "상태 저장과 파일 위치",
     "Location of screenshots": "스크린샷 위치",
     "Location of system BIOS files": "시스템 바이오스 파일 위치",

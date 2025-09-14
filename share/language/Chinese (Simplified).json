@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "活动追踪器",
+    "Applications": "Applications",
     "Backup Target": "备份存放位置",
     "Content Collection": "内容收藏",
     "Content Launch Overrides": "内容启动覆盖",
@@ -106,6 +107,7 @@
     "Location of custom packages": "自定义包路径",
     "Location of friendly name configurations": "友好名称配置文件路径",
     "Location of history": "游戏记录路径",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "游戏存档与即时存档路径",
     "Location of screenshots": "截图保存路径",
     "Location of system BIOS files": "系统BIOS文件路径",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "查看所有当前muOS支持者和额外鸣谢",
     "View all of the screenshots taken on the device": "查看设备上的所有截图",
     "View the current used space of the mounted storage devices": "查看当前已挂载存储设备的使用空间"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "更改您当前的日期、时间和时区",
+    "Clock": "时钟",
+    "Date and Time": "日期和时间",
+    "INSTALLER": "安装程序",
+    "Install": "安装",
+    "Language": "语言",
+    "Prepare and install MustardOS": "准备并安装MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "选择您偏好的语言\n\n翻译由 Weblate 提供支持",
+    "Shut down your device safely": "安全关闭您的设备",
+    "Shutdown": "关机"
   },
   "muxkiosk": {
     "Advanced Settings": "高级设置",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "活动追踪器",
+    "Applications": "Applications",
     "Content Collection": "内容收藏",
     "Custom Packages": "自定义包",
     "Friendly Name System": "友好名称系统",
@@ -672,6 +687,7 @@
     "Location of custom packages": "自定义包位置",
     "Location of friendly name configurations": "友好名称配置文件位置",
     "Location of history": "历史记录位置",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "存档状态和文件位置",
     "Location of screenshots": "截图存储位置",
     "Location of system BIOS files": "系统BIOS文件位置",

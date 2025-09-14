@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Monitor de actividad",
+    "Applications": "Applications",
     "Backup Target": "Objetivo de la copia de seguridad",
     "Content Collection": "Colección de contenidos",
     "Content Launch Overrides": "Modificaciones de lanzamiento de contenido",
@@ -106,6 +107,7 @@
     "Location of custom packages": "Ubicación de los paquetes personalizados",
     "Location of friendly name configurations": "Ubicación de las configuraciones de nombres amistosos",
     "Location of history": "Ubicación del historial",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Ubicación de los estados salvados y archivos",
     "Location of screenshots": "Ubicación de las capturas de pantalla",
     "Location of system BIOS files": "Ubicación de los archivos de la BIOS del sistema",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "Ver todos los patrocinadores actuales de muOS y créditos adicionales",
     "View all of the screenshots taken on the device": "Ver todas las capturas de pantalla realizadas en el dispositivo",
     "View the current used space of the mounted storage devices": "Ver el espacio utilizado actualmente de los dispositivos de almacenamiento montados"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "Cambia la fecha, la hora y la zona horaria actuales",
+    "Clock": "Reloj",
+    "Date and Time": "Fecha y hora",
+    "INSTALLER": "INSTALADOR",
+    "Install": "Instalar",
+    "Language": "Idioma",
+    "Prepare and install MustardOS": "Prepare e instale MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Seleccione su idioma preferido\n\nTraducciones compatibles con Weblate",
+    "Shut down your device safely": "Apague su dispositivo de forma segura",
+    "Shutdown": "Apagado"
   },
   "muxkiosk": {
     "Advanced Settings": "Configuración avanzada",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Monitor de actividad",
+    "Applications": "Applications",
     "Content Collection": "Colección de contenido",
     "Custom Packages": "Paquetes personalizados",
     "Friendly Name System": "Sistema de Nombres Amigables",
@@ -672,6 +687,7 @@
     "Location of custom packages": "Ubicación de los paquetes personalizados",
     "Location of friendly name configurations": "Ubicación de las configuraciones de nombres amigables",
     "Location of history": "Ubicación de la historia",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Ubicación de los estados y archivos guardados",
     "Location of screenshots": "Ubicación de las capturas de pantalla",
     "Location of system BIOS files": "Ubicación de los archivos de la BIOS del sistema",

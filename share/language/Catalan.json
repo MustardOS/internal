@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Backup Target": "Destinació de la còpia de seguretat",
     "Content Collection": "Col·lecció de contingut",
     "Content Launch Overrides": "Content Launch Overrides",
@@ -106,6 +107,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Ubicació de la configuració de noms identificables",
     "Location of history": "Ubicació del historial",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Ubicació dels estats de guardat i fitxers",
     "Location of screenshots": "Ubicació de les captures de pantalla",
     "Location of system BIOS files": "Ubicació dels fitxers BIOS",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "Consulta tots els col·laboradors actuals de muOS i crèdits addicionals",
     "View all of the screenshots taken on the device": "Veure totes les captures de pantalla realitzades al dispositiu",
     "View the current used space of the mounted storage devices": "Visualitza l’espai actualment ocupat dels dispositius d’emmagatzematge muntats"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "Change your current date, time, and timezone",
+    "Clock": "Clock",
+    "Date and Time": "Date and Time",
+    "INSTALLER": "INSTALLER",
+    "Install": "Install",
+    "Language": "Language",
+    "Prepare and install MustardOS": "Prepare and install MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Select your preferred language\n\nTranslations supported by Weblate",
+    "Shut down your device safely": "Shut down your device safely",
+    "Shutdown": "Shutdown"
   },
   "muxkiosk": {
     "Advanced Settings": "Configuració avançada",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Content Collection": "Col·lecció de contingut",
     "Custom Packages": "Custom Packages",
     "Friendly Name System": "Sistema de noms amigables",
@@ -672,6 +687,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Ubicació de la configuració dels noms fàcils d'identificar",
     "Location of history": "Ubicació de la història",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Ubicació dels fitxers i dels estats de partida",
     "Location of screenshots": "Ubicació de las captures de pantalla",
     "Location of system BIOS files": "Ubicació dels fitxers de la BIOS del sistema",

@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Śledzenie aktywności",
+    "Applications": "Applications",
     "Backup Target": "Cel kopii zapasowej",
     "Content Collection": "Kolekcja zawartości",
     "Content Launch Overrides": "Nadpisanie uruchamiania zawartości",
@@ -106,6 +107,7 @@
     "Location of custom packages": "Lokalizacja paczek użytkownika",
     "Location of friendly name configurations": "Lokalizacja konfiguracji przyjaznych nazw",
     "Location of history": "Lokalizacja historii",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Lokalizacja stanów i plików zapisu",
     "Location of screenshots": "Lokalizacja zrzutów ekranu",
     "Location of system BIOS files": "Lokalizacja plików BIOS systemów",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "Zobacz wszystkich bieżących wspierających muOS oraz twórców",
     "View all of the screenshots taken on the device": "Zobacz wszystkie zrzuty ekranu z tego urządzenia",
     "View the current used space of the mounted storage devices": "Zobacz wykorzystaną przestrzeń podłączonych urządzeń"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "Zmień bieżącą datę, czas i strefę czasową",
+    "Clock": "Zegar",
+    "Date and Time": "Data i czas",
+    "INSTALLER": "INSTALATOR",
+    "Install": "Instaluj",
+    "Language": "Język",
+    "Prepare and install MustardOS": "Przygotuj i zainstaluj MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Wybierz preferowany język\n\nWsparcie tłumaczeń przez Weblate",
+    "Shut down your device safely": "Bezpiecznie wyłącz urządzenie",
+    "Shutdown": "Zamknij"
   },
   "muxkiosk": {
     "Advanced Settings": "Zaawansowane ustawienia",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Śledzenie aktywności",
+    "Applications": "Applications",
     "Content Collection": "Kolekcja zawartości",
     "Custom Packages": "Paczki użytkownika",
     "Friendly Name System": "System przyjaznych nazw",
@@ -672,6 +687,7 @@
     "Location of custom packages": "Lokalizacja paczek użytkownika",
     "Location of friendly name configurations": "Lokalizacja konfiguracji przyjaznych nazw",
     "Location of history": "Lokalizacja historii",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Lokalizacja stanów zapisu i plików zapisu",
     "Location of screenshots": "Lokalizacja zrzutów ekranu",
     "Location of system BIOS files": "Lokalizacja plików BIOS systemów",

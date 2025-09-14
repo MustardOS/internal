@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Backup Target": "Backup Target",
     "Content Collection": "Content Collection",
     "Content Launch Overrides": "Content Launch Overrides",
@@ -106,6 +107,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Location of friendly name configurations",
     "Location of history": "Location of history",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Location of save states and files",
     "Location of screenshots": "Location of screenshots",
     "Location of system BIOS files": "Location of system BIOS files",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "View all of the current muOS supporters and extra credits",
     "View all of the screenshots taken on the device": "Xem tất cả ảnh chụp màn hình trên thiết bị",
     "View the current used space of the mounted storage devices": "Xem dung lượng đã sử dụng của các thiết bị lưu trữ kết nối vào"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "Change your current date, time, and timezone",
+    "Clock": "Clock",
+    "Date and Time": "Date and Time",
+    "INSTALLER": "INSTALLER",
+    "Install": "Install",
+    "Language": "Language",
+    "Prepare and install MustardOS": "Prepare and install MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Select your preferred language\n\nTranslations supported by Weblate",
+    "Shut down your device safely": "Shut down your device safely",
+    "Shutdown": "Shutdown"
   },
   "muxkiosk": {
     "Advanced Settings": "Advanced Settings",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Content Collection": "Bộ sưu tập Nội dung",
     "Custom Packages": "Custom Packages",
     "Friendly Name System": "Hệ thống Tên gợi nhớ",
@@ -672,6 +687,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Vị trí các cài đặt tên gợi nhớ",
     "Location of history": "Vị trí lịch sử",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Vị trí các trạng thái lưu và tập tin",
     "Location of screenshots": "Vị trí các ảnh chụp màn hình",
     "Location of system BIOS files": "Vị trí của các tập tin hệ thống BIOS",

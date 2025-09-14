@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Backup Target": "Sicherungsziel",
     "Content Collection": "Inhalts-Sammlungen",
     "Content Launch Overrides": "Content Launch Overrides",
@@ -106,6 +107,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Speicherort der Konfigurationsdatei für Konsolbezeichnungsmapping",
     "Location of history": "Speichort der Historie der aufgerufenen Inhalten",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Speichort der Spiel-Sicherungs- und State-Dateien",
     "Location of screenshots": "Speicherort der Screenshots",
     "Location of system BIOS files": "Speicherort der System-BIOS-Dateien",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "Alle aktuellen muOS-Unterstützer- und Extras-Credits",
     "View all of the screenshots taken on the device": "Alle mit dem System aufgenommenen Screenshots anzeigen",
     "View the current used space of the mounted storage devices": "Aktuell belegter Speicherplatz aller Systeme anzeigen"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "Change your current date, time, and timezone",
+    "Clock": "Clock",
+    "Date and Time": "Date and Time",
+    "INSTALLER": "INSTALLER",
+    "Install": "Install",
+    "Language": "Language",
+    "Prepare and install MustardOS": "Prepare and install MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Select your preferred language\n\nTranslations supported by Weblate",
+    "Shut down your device safely": "Shut down your device safely",
+    "Shutdown": "Shutdown"
   },
   "muxkiosk": {
     "Advanced Settings": "Erweiterte Einstellungen",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Content Collection": "Dateiensammlung",
     "Custom Packages": "Custom Packages",
     "Friendly Name System": "System für FriendlyName",
@@ -672,6 +687,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Speicherort der FriendlyName Konfigurationen",
     "Location of history": "Speicherort der Verläufe",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Speicherort von Savestates und Speicherstände",
     "Location of screenshots": "Speicherort der Bildschirmaufnahmen",
     "Location of system BIOS files": "Speicherort von BIOS-Dateien",

@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Backup Target": "バックアップ元",
     "Content Collection": "コンテンツコレクション",
     "Content Launch Overrides": "Content Launch Overrides",
@@ -106,6 +107,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "やさしい名称設定の保存先です",
     "Location of history": "履歴の保存先です",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "中断セーブとセーブファイルの保存先です",
     "Location of screenshots": "スクリーンショットの保存先です",
     "Location of system BIOS files": "システム BIOS ファイルの保存先です",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "現在の muOS サポーターの皆さんと特別な謝辞を表示します",
     "View all of the screenshots taken on the device": "デバイスで保存されたスクリーンショットの一覧を表示します",
     "View the current used space of the mounted storage devices": "現在利用しているストレージの使用量を表示します"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "Change your current date, time, and timezone",
+    "Clock": "Clock",
+    "Date and Time": "Date and Time",
+    "INSTALLER": "INSTALLER",
+    "Install": "Install",
+    "Language": "Language",
+    "Prepare and install MustardOS": "Prepare and install MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Select your preferred language\n\nTranslations supported by Weblate",
+    "Shut down your device safely": "Shut down your device safely",
+    "Shutdown": "Shutdown"
   },
   "muxkiosk": {
     "Advanced Settings": "高度な設定",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Content Collection": "コンテンツコレクション",
     "Custom Packages": "Custom Packages",
     "Friendly Name System": "わかりやすいフォルダ名の設定",
@@ -672,6 +687,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "わかりやすいフォルダ名設定の保存先です",
     "Location of history": "履歴の保存先です",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "セーブファイルと中断セーブの保存先です",
     "Location of screenshots": "スクリーンショットの保存先です",
     "Location of system BIOS files": "BIOS ファイルの保存先です",

@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Backup Target": "Выбор рез. копирования",
     "Content Collection": "Коллекция игр",
     "Content Launch Overrides": "Content Launch Overrides",
@@ -106,6 +107,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Расположение конфигураций дружественных названий",
     "Location of history": "Расположение истории",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Расположение сейв-стейтов и файлов",
     "Location of screenshots": "Расположение скриншотов",
     "Location of system BIOS files": "Расположение файлов BIOS",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "Все, кто поддержал muOS дополнительные слова благодарности",
     "View all of the screenshots taken on the device": "Все скриншоты, сделанные на устройстве",
     "View the current used space of the mounted storage devices": "Используемое пространство на установленных устройствах хранения данных"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "Change your current date, time, and timezone",
+    "Clock": "Clock",
+    "Date and Time": "Date and Time",
+    "INSTALLER": "INSTALLER",
+    "Install": "Install",
+    "Language": "Language",
+    "Prepare and install MustardOS": "Prepare and install MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Select your preferred language\n\nTranslations supported by Weblate",
+    "Shut down your device safely": "Shut down your device safely",
+    "Shutdown": "Shutdown"
   },
   "muxkiosk": {
     "Advanced Settings": "Расширенные настройки",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Content Collection": "Коллекция игр",
     "Custom Packages": "Custom Packages",
     "Friendly Name System": "Дружественные названия систем",
@@ -672,6 +687,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Расположение конфигураций дружественных названий",
     "Location of history": "Расположение истории",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Расположение сейв-стейтов и файлов",
     "Location of screenshots": "Расположение скриншотов",
     "Location of system BIOS files": "Расположение файлов BIOS",

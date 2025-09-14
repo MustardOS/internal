@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Backup Target": "Backup Target",
     "Content Collection": "Content Collection",
     "Content Launch Overrides": "Content Launch Overrides",
@@ -106,6 +107,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Location of friendly name configurations",
     "Location of history": "Location of history",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Location of save states and files",
     "Location of screenshots": "Location of screenshots",
     "Location of system BIOS files": "Location of system BIOS files",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "View all of the current muOS supporters and extra credits",
     "View all of the screenshots taken on the device": "View all of the screenshots taken on the device",
     "View the current used space of the mounted storage devices": "View the current used space of the mounted storage devices"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "Change your current date, time, and timezone",
+    "Clock": "Clock",
+    "Date and Time": "Date and Time",
+    "INSTALLER": "INSTALLER",
+    "Install": "Install",
+    "Language": "Language",
+    "Prepare and install MustardOS": "Prepare and install MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Select your preferred language\n\nTranslations supported by Weblate",
+    "Shut down your device safely": "Shut down your device safely",
+    "Shutdown": "Shutdown"
   },
   "muxkiosk": {
     "Advanced Settings": "Advanced Settings",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Content Collection": "Колекция Съдържание",
     "Custom Packages": "Custom Packages",
     "Friendly Name System": "Системен Прякор",
@@ -672,6 +687,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Пътека на конфигурации на прякори",
     "Location of history": "Пътека на историята",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Пътека на запазени състояния и файлове",
     "Location of screenshots": "Пътека на екранните снимки",
     "Location of system BIOS files": "Пътека на системните BIOS файлове",

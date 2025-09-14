@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Rastreador de Atividades",
+    "Applications": "Applications",
     "Backup Target": "Destino do Backup",
     "Content Collection": "Coleção de Conteúdos",
     "Content Launch Overrides": "Substituições de Inicialização de Conteúdo",
@@ -106,6 +107,7 @@
     "Location of custom packages": "Localização dos pacotes personalizados",
     "Location of friendly name configurations": "Localização das Configurações de Nomes Amigáveis",
     "Location of history": "Localização do Histórico",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Localização dos Jogos Salvos e Arquivos",
     "Location of screenshots": "Localização das Capturas de Tela",
     "Location of system BIOS files": "Localização dos Arquivos de BIOS",
@@ -155,7 +157,7 @@
     "Interface Options": "Opções de Interface",
     "Language": "Idioma",
     "Power Settings": "Configurações de Energia",
-    "Select your preferred language\n\nTranslations supported by Weblate": "Selecione seu idioma preferido\n\nTraduções suportadas pelo Weblate",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Selecione seu idioma preferido\n\nTraduções suportadas por Weblate",
     "Settings to change the power features of the device": "Modificar as configurações de energia do dispositivo",
     "Settings to change the visual aspects of the frontend": "Modificar os aspectos visuais do sistema",
     "Storage Options": "Opções de Armazenamento"
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "Veja todos os apoiadores atuais e créditos adicionais do muOS",
     "View all of the screenshots taken on the device": "Ver todas as capturas de tela feitas no dispositivo",
     "View the current used space of the mounted storage devices": "Ver o espaço utilizado atualmente pelos dispositivos montados"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "Altere a data, a hora e o fuso horário atuais",
+    "Clock": "Relógio",
+    "Date and Time": "Data e Hora",
+    "INSTALLER": "INSTALADOR",
+    "Install": "Instalar",
+    "Language": "Idioma",
+    "Prepare and install MustardOS": "Preparar e instalar MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Selecione seu idioma preferido\n\nTraduções suportadas por Weblate",
+    "Shut down your device safely": "Desligar seu dispositivo de forma segura",
+    "Shutdown": "Desligar"
   },
   "muxkiosk": {
     "Advanced Settings": "Configurações Avançadas",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Rastreador de Atividades",
+    "Applications": "Applications",
     "Content Collection": "Conteúdos das Coleções",
     "Custom Packages": "Pacotes Customizados",
     "Friendly Name System": "Sistema de Nomes Amigáveis",
@@ -672,6 +687,7 @@
     "Location of custom packages": "Localização dos pacotes customizados",
     "Location of friendly name configurations": "Localização de configurações de nome amigáveis",
     "Location of history": "Localização do histórico",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Localização dos arquivos e estados salvos",
     "Location of screenshots": "Localização das capturas de tela",
     "Location of system BIOS files": "Localização dos arquivos de sistema BIOS",

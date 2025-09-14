@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Backup Target": "Mesto za čuvanje rezervne kopije",
     "Content Collection": "Kolekcija sadržaja",
     "Content Launch Overrides": "Content Launch Overrides",
@@ -106,6 +107,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Lokacija podešavanja korisničkih naziva",
     "Location of history": "Lokacija istorije",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Lokacija sačuvanih stanja i fajlova",
     "Location of screenshots": "Lokacija snimaka ekrana",
     "Location of system BIOS files": "Lokacija BIOS fajlova sistema",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "View all of the current muOS supporters and extra credits",
     "View all of the screenshots taken on the device": "Prikaži sve snimke ekrana na uređaju",
     "View the current used space of the mounted storage devices": "Prikaži trenutno iskorišćen prostor dodatnih memorijskih uređaja"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "Change your current date, time, and timezone",
+    "Clock": "Clock",
+    "Date and Time": "Date and Time",
+    "INSTALLER": "INSTALLER",
+    "Install": "Install",
+    "Language": "Language",
+    "Prepare and install MustardOS": "Prepare and install MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Select your preferred language\n\nTranslations supported by Weblate",
+    "Shut down your device safely": "Shut down your device safely",
+    "Shutdown": "Shutdown"
   },
   "muxkiosk": {
     "Advanced Settings": "Advanced Settings",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Activity Tracker",
+    "Applications": "Applications",
     "Content Collection": "Kolekcija sadržaja",
     "Custom Packages": "Custom Packages",
     "Friendly Name System": "Sistem prilagođenog imena",
@@ -672,6 +687,7 @@
     "Location of custom packages": "Location of custom packages",
     "Location of friendly name configurations": "Lokacija konfiguracija prilagođenog imena",
     "Location of history": "Lokacija istorija",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Lokacija sačuvanih state-ova i fajlova",
     "Location of screenshots": "Lokacija snimaka ekrana (screenshots)",
     "Location of system BIOS files": "Lokacija BIOS fajlova sistema",

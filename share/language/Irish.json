@@ -88,6 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Rianaitheoir Gníomhaíochta",
+    "Applications": "Applications",
     "Backup Target": "Sprioc Cúltaca",
     "Content Collection": "Bailiúchán Ábhair",
     "Content Launch Overrides": "Sáruithe ar Sheoladh Ábhair",
@@ -106,6 +107,7 @@
     "Location of custom packages": "Suíomh na bpacáistí saincheaptha",
     "Location of friendly name configurations": "Suíomh chumraíochtaí ainmneacha cairdiúla",
     "Location of history": "Suíomh na staire",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Suíomh na stát sábhála agus na gcomhad",
     "Location of screenshots": "Suíomh na ngrianghraf",
     "Location of system BIOS files": "Suíomh chomhaid BIOS an chórais",
@@ -344,6 +346,18 @@
     "View all of the current muOS supporters and extra credits": "Féach ar gach duine de lucht tacaíochta reatha muOS agus creidmheasanna breise",
     "View all of the screenshots taken on the device": "Féach ar na screenshots go léir a glacadh ar an ngléas",
     "View the current used space of the mounted storage devices": "Féach ar an spás a úsáidtear faoi láthair de na gléasanna stórála gléasta"
+  },
+  "muxinstall": {
+    "Change your current date, time, and timezone": "Change your current date, time, and timezone",
+    "Clock": "Clock",
+    "Date and Time": "Date and Time",
+    "INSTALLER": "INSTALLER",
+    "Install": "Install",
+    "Language": "Language",
+    "Prepare and install MustardOS": "Prepare and install MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Select your preferred language\n\nTranslations supported by Weblate",
+    "Shut down your device safely": "Shut down your device safely",
+    "Shutdown": "Shutdown"
   },
   "muxkiosk": {
     "Advanced Settings": "Socruithe Ardleibhéil",
@@ -659,6 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Rianaitheoir Gníomhaíochta",
+    "Applications": "Applications",
     "Content Collection": "Bailiúchán Ábhar",
     "Custom Packages": "Pacáistí Saincheaptha",
     "Friendly Name System": "Córas Ainmneacha Cairdiúla",
@@ -672,6 +687,7 @@
     "Location of custom packages": "Suíomh na bpacáistí saincheaptha",
     "Location of friendly name configurations": "Suíomh cumraíochtaí ainm cairdiúil",
     "Location of history": "Suíomh na staire",
+    "Location of installed applications": "Location of installed applications",
     "Location of save states and files": "Suíomh na stát agus na gcomhad sábhála",
     "Location of screenshots": "Suíomh seatanna scáileáin",
     "Location of system BIOS files": "Suíomh comhaid BIOS an chórais",

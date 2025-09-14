@@ -21,7 +21,9 @@ while :; do
 				EXEC_MUX "installer" "muxfrontend"
 				;;
 
-			"install") ;;
+			# We could have just done a straight exit but I'm going to leave
+			# this in just in case we have to expand in the future...
+			"install") break ;;
 
 			"shutdown")
 				PLAY_SOUND shutdown

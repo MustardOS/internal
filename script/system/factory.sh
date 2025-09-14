@@ -15,10 +15,10 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Setting date time to default"
 date 010100002025
 hwclock -w
 
-while pgrep "muxwarn" >/dev/null 2>&1; do TBOX sleep 1; done
+while pgrep "muxwarn" >/dev/null 2>&1; do TBOX sleep 0.25; done
 
-printf "timezone" >"/tmp/act_go"
-EXEC_MUX "reset" "muxfrontend"
+printf "installer" >"/tmp/act_go"
+/opt/muos/script/mux/install.sh
 
 printf 0 >"/tmp/msg_progress"
 [ -f "/tmp/msg_finish" ] && rm -f "/tmp/msg_finish"
@@ -33,9 +33,10 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Generating SSH Host Keys"
 /opt/openssh/bin/ssh-keygen -A &
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Setting ARMHF Requirements"
-if [ ! -f "/lib/ld-linux-armhf.so.3" ]; then
+ARMHF="ld-linux-armhf.so.3"
+if [ ! -f "/lib/${ARMHF}" ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
-	ln -s "/lib32/ld-linux-armhf.so.3" "/lib/ld-linux-armhf.so.3"
+	ln -s "/lib32/${ARMHF}" "/lib/${ARMHF}"
 fi
 ldconfig -v >"/opt/muos/ldconfig.log"
 

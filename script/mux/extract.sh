@@ -4,9 +4,7 @@ set -eu
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/var/zip.sh
 
-if [[ -z "${THEME_INSTALLING-}" ]]; then
-	FRONTEND stop
-fi
+[ -z "${THEME_INSTALLING:-}" ] && FRONTEND stop
 
 ALL_DONE() {
 	printf "\nSync Filesystem\n"
@@ -14,9 +12,8 @@ ALL_DONE() {
 
 	printf "All Done!\n"
 	TBOX sleep 2
-	if [[ -z "${THEME_INSTALLING-}" ]]; then
-		FRONTEND start "${FRONTEND_START_PROGRAM:-archive}"
-	fi
+
+	[ -z "${THEME_INSTALLING:-}" ] && FRONTEND start "${FRONTEND_START_PROGRAM:-archive}"
 
 	exit "${1:-0}"
 }
@@ -121,20 +118,29 @@ case "$ARCHIVE_NAME" in
 				continue
 			}
 
-			if ! command -v MU_EXTRACT >/dev/null 2>&1; then
-				printf "\n\nInvalid extractor for: %s\nMissing 'MU_EXTRACT' function\n\n" "$TOP"
+			if ! command -v ARC_EXTRACT >/dev/null 2>&1; then
+				printf "\n\nInvalid extractor for: %s\nMissing 'ARC_EXTRACT' function\n\n" "$TOP"
+				ARC_UNSET
 				continue
 			fi
 
-			MU_EXTRACT || {
-				printf "\n\nInvalid extractor for: %s\nCannot source 'MU_EXTRACT' function\n\n" "$TOP"
-				unset -f MU_EXTRACT 2>/dev/null
+			ARC_EXTRACT || {
+				printf "\n\nInvalid extractor for: %s\nCannot source 'ARC_EXTRACT' function\n\n" "$TOP"
+				ARC_UNSET
 				continue
 			}
 
+			if command -v ARC_EXTRACT_PRE >/dev/null 2>&1; then
+				if ! ARC_EXTRACT_PRE; then
+					printf "\nPre-extract hook failed for: %s — skipping\n" "$TOP"
+					ARC_UNSET
+					continue
+				fi
+			fi
+
 			if [ -z "${DEST}" ] || [ -z "${LABEL}" ]; then
-				printf "\n\nInvalid extractor for: %s\nMissing DEST or LABEL variables\n\n" "$TOP"
-				unset -f MU_EXTRACT 2>/dev/null
+				printf "\n\nInvalid extractor for: %s\nMissing 'DEST' or 'LABEL' variables\n\n" "$TOP"
+				ARC_UNSET
 				continue
 			fi
 
@@ -144,11 +150,17 @@ case "$ARCHIVE_NAME" in
 			printf "\nExtracting '%s' to '%s'\n" "$LABEL" "$DEST"
 			if EXTRACT_ARCHIVE "$LABEL" "$ARCHIVE" "$DEST" "$PATTERN"; then
 				printf "Extracted '%s' successfully\n" "$LABEL"
+				ARC_STATUS=0
 			else
 				printf "Failed to extract '%s'\n" "$LABEL"
+				ARC_STATUS=1
 			fi
 
-			unset -f MU_EXTRACT 2>/dev/null
+			if command -v ARC_EXTRACT_POST >/dev/null 2>&1; then
+				ARC_EXTRACT_POST "$ARC_STATUS" || true
+			fi
+
+			ARC_UNSET
 		done
 		;;
 	*) printf "\nNo Extraction Method '%s'\n" "$ARCHIVE_NAME" ;;

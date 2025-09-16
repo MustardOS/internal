@@ -4,12 +4,17 @@
 ARC_DIR="/opt/muos"
 ARC_LABEL="Internal Scripts"
 
-MU_EXTRACT() {
+ARC_EXTRACT() {
 	DEST="$ARC_DIR"
 	LABEL="$ARC_LABEL"
 }
 
-MU_CREATE() {
+ARC_EXTRACT_POST() {
+  	printf "Marking scripts as executable...\n"
+	chmod -R 755 "$ARC_DIR" >/dev/null 2>&1
+}
+
+ARC_CREATE() {
 	SRC="$ARC_DIR"
 	LABEL="$ARC_LABEL"
 	COMP=0

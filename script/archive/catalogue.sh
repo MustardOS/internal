@@ -4,12 +4,17 @@
 ARC_DIR="$MUOS_STORE_DIR/info"
 ARC_LABEL="Catalogue"
 
-MU_EXTRACT() {
+ARC_EXTRACT() {
 	DEST="$ARC_DIR"
 	LABEL="$ARC_LABEL"
 }
 
-MU_CREATE() {
+ARC_EXTRACT_POST() {
+  	printf "Updating Catalogue...\n"
+	/opt/muos/script/system/catalogue.sh >/dev/null 2>&1
+}
+
+ARC_CREATE() {
 	SRC="$ARC_DIR"
 	LABEL="$ARC_LABEL"
 	COMP=0

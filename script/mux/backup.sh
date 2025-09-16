@@ -56,12 +56,10 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 	while read -r SRC_MNT SRC_SHORTNAME; do
 		LINE_NUM=$((LINE_NUM + 1))
 
-		# Skip header
 		if [ "$LINE_NUM" -eq 1 ]; then
 			continue
 		elif [ "$ERROR_FLAG" -ne 0 ]; then
 			break
-		# Validate line format
 		elif [ -z "$SRC_MNT" ] || [ -z "$SRC_SHORTNAME" ]; then
 			printf "\nInvalid line %s in manifest: %s %s\n" "$LINE_NUM" "$SRC_MNT" "$SRC_SHORTNAME"
 			ERROR_FLAG=1
@@ -80,22 +78,37 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 			continue
 		}
 
-		if ! command -v MU_CREATE >/dev/null 2>&1; then
-			printf "\n\nInvalid extractor for: %s\nMissing 'MU_CREATE' function\n\n" "$SRC_SHORTNAME"
+		if ! command -v ARC_CREATE >/dev/null 2>&1; then
+			printf "\n\nInvalid extractor for: %s\nMissing 'ARC_CREATE' function\n\n" "$SRC_SHORTNAME"
+			ARC_UNSET
 			continue
 		fi
 
-		MU_CREATE || {
-			printf "\n\nInvalid extractor for: %s\nCannot source 'MU_CREATE' function\n\n" "$SRC_SHORTNAME"
-			unset -f MU_CREATE 2>/dev/null
+		ARC_CREATE || {
+			printf "\n\nInvalid extractor for: %s\nCannot source 'ARC_CREATE' function\n\n" "$SRC_SHORTNAME"
+			ARC_UNSET
 			continue
 		}
+
+		if command -v ARC_CREATE_PRE >/dev/null 2>&1; then
+			if ! ARC_CREATE_PRE; then
+				printf "\nPre-create hook failed for: %s — skipping\n" "$SRC_SHORTNAME"
+				ARC_UNSET
+				continue
+			fi
+		fi
+
+		if [ -z "${SRC}" ] || [ -z "${LABEL}" ]; then
+			printf "\n\nInvalid extractor for: %s\nMissing 'SRC' or 'LABEL' variables\n\n" "$SRC_SHORTNAME"
+			ARC_UNSET
+			continue
+		fi
 
 		SRC_SUFFIX="${SRC}/${SRC_SHORTNAME}"
 
 		if [ ! -e "$SRC_SUFFIX" ]; then
 			printf "\nSource path not found: %s\n" "$SRC_SUFFIX"
-			unset -f MU_CREATE 2>/dev/null
+			ARC_UNSET
 			continue
 		fi
 
@@ -106,11 +119,21 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 
 			printf "(%s/%s) Creating %s Archive: %s\n" "$INDEX" "$TOTAL" "$LABEL" "$ZIP_FILE"
 
-			CREATE_ARCHIVE "$SRC_SHORTNAME" "$DEST_FILE" "$SRC_MNT" "$SRC_SHORTNAME" "$SRC_SUFFIX" "$COMP" || {
+			if CREATE_ARCHIVE "$SRC_SHORTNAME" "$DEST_FILE" "$SRC_MNT" "$SRC_SHORTNAME" "$SRC_SUFFIX" "$COMP"; then
+				printf "Created '%s' successfully\n" "$LABEL"
+				ARC_STATUS=0
+			else
 				printf "\nFailed to add %s for %s\n" "$SRC_SUFFIX" "$SRC_SHORTNAME"
 				ERROR_FLAG=1
-				break
-			}
+				ARC_STATUS=1
+				continue
+			fi
+
+			if command -v ARC_CREATE_POST >/dev/null 2>&1; then
+				ARC_CREATE_POST "$ARC_STATUS" || true
+			fi
+
+			ARC_UNSET
 
 			INDEX=$((INDEX + 1))
 			TBOX sleep 1
@@ -120,6 +143,7 @@ fi
 
 if [ "$ERROR_FLAG" -ne 0 ]; then
 	printf "\nErrors occurred during the backup process\n\n"
+	sleep 3
 else
 	printf "\nBackup completed successfully\n\n"
 fi

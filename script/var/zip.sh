@@ -87,6 +87,12 @@ CHECK_ARCHIVE() {
 	fi
 }
 
+ARC_UNSET() {
+	for F in ARC_EXTRACT ARC_EXTRACT_PRE ARC_EXTRACT_POST ARC_CREATE ARC_CREATE_PRE ARC_CREATE_POST; do
+		unset "$F" 2>/dev/null
+	done
+}
+
 EXTRACT_ARCHIVE() {
 	# $1 = LABEL        (for display purposes)
 	# $2 = ARCHIVE_PATH (path to .muxzip or whatever)

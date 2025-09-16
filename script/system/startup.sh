@@ -57,8 +57,14 @@ esac
 LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
 /opt/muos/script/device/module.sh load
 
-LOG_INFO "$0" 0 "BOOTING" "Loading First Init Disclaimer"
-[ "$FACTORY_RESET" -eq 1 ] && /opt/muos/frontend/muxwarn &
+if [ "$FIRST_INIT" -eq 0 ]; then
+	if [ "$FACTORY_RESET" -eq 1 ]; then
+		LOG_INFO "$0" 0 "BOOTING" "Loading First Init Disclaimer"
+		/opt/muos/frontend/muxwarn &
+	else
+		/opt/muos/frontend/muxmessage 0 "$(printf 'FIRST INIT\n\nMustardOS is Getting Ready!\nPlease wait a moment...')" &
+	fi
+fi
 
 LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"
 echo "performance" >"$GOVERNOR"
@@ -135,10 +141,6 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 
 	/opt/muos/script/system/factory.sh
 	/opt/muos/script/system/halt.sh reboot
-fi
-
-if [ "$FIRST_INIT" -eq 0 ]; then
-	/opt/muos/frontend/muxmessage 0 "$(printf 'SYSTEM INIT\n\nmuOS is Getting Ready!\nPlease wait a moment...')"
 fi
 
 LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"

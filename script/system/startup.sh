@@ -119,22 +119,18 @@ if [ "$FACTORY_RESET" -eq 0 ]; then
 	/opt/muos/script/system/swap.sh &
 fi
 
-(
-	LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"
-	cp -f "$MUOS_SHARE_DIR/conf/asound.conf" "/etc/asound.conf"
+LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"
+cp -f "$MUOS_SHARE_DIR/conf/asound.conf" "/etc/asound.conf"
 
-	if [ ! -s "$ALSA_CONFIG" ]; then
-		LOG_WARN "$0" 0 "BOOTING" "ALSA Config Restoring"
-		cp -f "$MUOS_SHARE_DIR/conf/alsa.conf" "$ALSA_CONFIG"
-	fi
+LOG_WARN "$0" 0 "BOOTING" "ALSA Config Restoring"
+cp -f "$MUOS_SHARE_DIR/conf/alsa.conf" "$ALSA_CONFIG"
 
-	LOG_INFO "$0" 0 "BOOTING" "Restoring Audio State"
-	cp -f "/opt/muos/device/control/asound.state" "/var/lib/alsa/asound.state"
-	alsactl -U restore
+LOG_INFO "$0" 0 "BOOTING" "Restoring Audio State"
+cp -f "/opt/muos/device/control/asound.state" "/var/lib/alsa/asound.state"
+alsactl -U restore
 
-	LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
-	/opt/muos/script/system/pipewire.sh start &
-) &
+LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
+/opt/muos/script/system/pipewire.sh start
 
 if [ "$FACTORY_RESET" -eq 1 ]; then
 	LED_CONTROL_CHANGE

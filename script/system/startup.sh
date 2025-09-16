@@ -3,24 +3,20 @@
 . /opt/muos/script/var/func.sh
 
 mkdir -p "/tmp/muos"
-
-rm -f /opt/muos/log/*.log
-rm -rf /opt/muxtmp
+rm -rf /opt/muos/log/*.log /opt/muxtmp
 
 read -r MU_UPTIME _ </proc/uptime
 SET_VAR "system" "resume_uptime" "$MU_UPTIME"
-SET_VAR "system" "idle_inhibit" 0
+SET_VAR "system" "idle_inhibit" "0"
 SET_VAR "config" "boot/device_mode" "0"
 SET_VAR "device" "audio/ready" "0"
 
 LOG_INFO "$0" 0 "BOOTING" "Setting OS Release"
-/opt/muos/script/system/os_release.sh
+/opt/muos/script/system/os_release.sh &
 
 LOG_INFO "$0" 0 "BOOTING" "Reset temporary screen rotation and zoom"
 SCREEN_DIR="/opt/muos/device/config/screen"
-for T in s_rotate s_zoom; do
-	[ -f "$SCREEN_DIR/$T" ] && rm -f "$SCREEN_DIR/$T"
-done
+rm -f "$SCREEN_DIR/s_rotate" "$SCREEN_DIR/s_zoom" &
 
 LOG_INFO "$0" 0 "BOOTING" "Caching System Variables"
 BOARD_NAME=$(GET_VAR "device" "board/name")
@@ -37,7 +33,7 @@ HAS_NETWORK=$(GET_VAR "device" "board/network")
 CONNECT_ON_BOOT=$(GET_VAR "config" "network/boot")
 USER_INIT=$(GET_VAR "config" "settings/advanced/user_init")
 FIRST_INIT=$(GET_VAR "config" "boot/first_init")
-USB_FUNCTION="$(GET_VAR "config" "settings/advanced/usb_function")"
+USB_FUNCTION=$(GET_VAR "config" "settings/advanced/usb_function")
 
 # Enable rumble support - primarily used for TrimUI/RK3326 devices at the moment...
 case "$BOARD_NAME" in
@@ -219,7 +215,7 @@ dmesg >"$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
 while [ "$(GET_VAR "device" "audio/ready")" -eq 0 ]; do TBOX sleep 0.1; done
 
-[ "$FIRST_INIT" -eq 0 ] && SET_VAR "config" "boot/first_init" 1
+[ "$FIRST_INIT" -eq 0 ] && SET_VAR "config" "boot/first_init" "1"
 
 LOG_INFO "$0" 0 "BOOTING" "Starting muX Frontend"
 /opt/muos/script/mux/frontend.sh &

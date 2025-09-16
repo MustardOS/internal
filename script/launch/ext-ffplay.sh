@@ -18,11 +18,13 @@ export HOME
 
 SETUP_SDL_ENVIRONMENT
 
-SET_VAR "system" "foreground_process" "ffplay"
+FFPLAY_BIN="ffplay"
+SET_VAR "system" "foreground_process" "$FFPLAY_BIN"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-/usr/bin/ffplay "$FILE" -fs
+GPTOKEYB "$FFPLAY_BIN"
+$FFPLAY_BIN "$FILE" -fs
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 

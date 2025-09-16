@@ -687,3 +687,12 @@ UPDATE_BOOTLOGO() {
 			;;
 	esac
 }
+
+GPTOKEYB() {
+	PM_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/PortMaster"
+	GPTOKEYB_DIR="$MUOS_SHARE_DIR/emulator/gptokeyb"
+	if [ -f "$GPTOKEYB_DIR/$CORE.gptk" ]; then
+		ln -s "$PM_DIR/libinterpose.aarch64.so" "/usr/lib/libinterpose.aarch64.so" >/dev/null 2>&1
+		"$PM_DIR"/gptokeyb2 "$1" -c "$GPTOKEYB_DIR/$CORE.gptk" >/dev/null 2>&1 &
+	fi
+}

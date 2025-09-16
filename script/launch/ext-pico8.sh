@@ -48,8 +48,7 @@ cd "$EMUDIR" || exit
 
 F_DIR="$(dirname "$FILE")"
 
-GPTOKEYB="$MUOS_SHARE_DIR/emulator/gptokeyb/gptokeyb2"
-$GPTOKEYB "./$P8_BIN" -c "./pico8.gptk" &
+GPTOKEYB "$P8_BIN"
 
 if [ "$NAME" = "Splore" ]; then
 	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS -root_path "$F_DIR" -splore
@@ -57,7 +56,7 @@ else
 	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS -root_path "$F_DIR" -run "$FILE"
 fi
 
-killall -9 "$(pidof $P8_BIN)" "$(pidof gptokeyb2)"
+killall -9 "$(pidof $P8_BIN)"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 

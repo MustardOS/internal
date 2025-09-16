@@ -14,7 +14,8 @@ SETUP_SDL_ENVIRONMENT
 
 LOVEDIR="$1"
 
-GPTOKEYB="/opt/muos/share/emulator/gptokeyb/gptokeyb2"
+PM_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/PortMaster"
+GPTOKEYB="$PM_DIR"/gptokeyb2
 CONFDIR="$LOVEDIR/conf/"
 
 export XDG_DATA_HOME="$CONFDIR"

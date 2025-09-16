@@ -12,7 +12,7 @@ GOV_GO="/tmp/gov_go"
 
 SETUP_SDL_ENVIRONMENT
 
-PPSSPP_DIR="/opt/muos/share/emulator/ppsspp"
+PPSSPP_DIR="$MUOS_SHARE_DIR/emulator/ppsspp"
 
 case "$(GET_VAR "device" "board/name")" in
 	rg*)

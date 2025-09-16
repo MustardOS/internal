@@ -27,20 +27,11 @@ ROM="$R_DIR"/$(sed -n '9p' "$ROM_GO")
 
 PC_IP="$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/pc_ip.txt"
 if [ -s "$PC_IP" ]; then
-	python "$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/discord_presence_handheld.py" "$(cat "$PC_IP")" \
-		"On my $(GET_VAR "device" "board/name") with muOS $(GET_VAR "config" "system/version")!" "Playing $NAME"
+	python "$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/discord_presence_handheld.py" \
+		"$(cat "$PC_IP")" "On my $(GET_VAR "device" "board/name") with MustardOS!" "Playing $NAME"
 fi
 
 rm "$ROM_GO"
-
-GPTOKEYB_BIN=gptokeyb2
-GPTOKEYB_DIR="$MUOS_SHARE_DIR/emulator/gptokeyb"
-GPTOKEYB_CONTROLLERCONFIG="/usr/lib/gamecontrollerdb.txt"
-
-if [ -f "$GPTOKEYB_DIR/$CORE.gptk" ]; then
-	SDL_GAMECONTROLLERCONFIG_FILE="$GPTOKEYB_CONTROLLERCONFIG" \
-		"$GPTOKEYB_DIR/$GPTOKEYB_BIN" -c "$GPTOKEYB_DIR/$CORE.gptk" &
-fi
 
 case "$(GET_VAR "device" "board/name")" in
 	rg*)
@@ -53,9 +44,6 @@ esac
 GOV_GO="/tmp/gov_go"
 cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
 rm -f "$GOV_GO"
-
-# Filesystem sync
-sync &
 
 cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
 
@@ -94,13 +82,16 @@ else
 	if [ -n "$LAUNCH_DONE" ]; then "$LAUNCH_DONE" "$NAME" "$CORE" "$ROM"; fi
 fi
 
+# Disable any rumble just in case some core gets stuck!
+echo 0 >"$(GET_VAR "device" "board/rumble")"
+
 # Filesystem sync
 sync &
 
 SET_DEFAULT_GOVERNOR
 [ -e "$CON_GO" ] && rm -f "$CON_GO"
 
-killall -q "$GPTOKEYB_BIN"
+killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1
 
 case "$(GET_VAR "device" "board/name")" in
 	rg*)
@@ -116,9 +107,6 @@ case "$(GET_VAR "device" "board/name")" in
 esac
 
 cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
-
-# Disable any rumble just in case some core gets stuck!
-echo 0 >"$(GET_VAR "device" "board/rumble")"
 
 SCREEN_TYPE="internal"
 [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ] && SCREEN_TYPE="external"

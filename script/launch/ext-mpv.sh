@@ -13,34 +13,25 @@ FILE=${3%/}
 	LOG_INFO "$0" 0 "FILE" "$FILE"
 ) &
 
-GPTOKEYB="$MUOS_SHARE_DIR/emulator/gptokeyb/gptokeyb2"
-MPV_DIR="$MUOS_SHARE_DIR/emulator/mpv"
-
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
 SETUP_SDL_ENVIRONMENT
 
-SET_VAR "system" "foreground_process" "mpv"
+MPV_BIN="mpv"
+SET_VAR "system" "foreground_process" "$MPV_BIN"
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
 
-if [ "$CORE" = "ext-mpv-general" ]; then
-	$GPTOKEYB "mpv" -c "$MPV_DIR/general.gptk" &
-	/usr/bin/mpv "$FILE"
-elif [ "$CORE" = "ext-mpv-livetv" ]; then
-	$GPTOKEYB "mpv" -c "$MPV_DIR/livetv.gptk" &
-	/usr/bin/mpv "$(cat "$FILE")"
-# The following does not want to work for whatever reason!
-#elif [ "$CORE" = "ext-mpv-radio" ]; then
-#	cat /dev/zero >/dev/fb0 2>/dev/null
-#	echo 4 >/sys/class/graphics/fb0/blank
-#	$GPTOKEYB "mpv" -c "$MPV_DIR/radio.gptk" &
-#	/usr/bin/mpv --no-video "$(cat "$FILE")"
-#	echo 0 >/sys/class/graphics/fb0/blank
-fi
+GPTOKEYB "$MPV_BIN"
 
-killall -q gptokeyb2
+if [ "$CORE" = "ext-mpv-general" ]; then
+	$MPV_BIN "$FILE"
+elif [ "$CORE" = "ext-mpv-livetv" ]; then
+	$MPV_BIN "$(cat "$FILE")"
+elif [ "$CORE" = "ext-mpv-radio" ]; then
+	$MPV_BIN --no-video "$(cat "$FILE")"
+fi
 
 /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
 

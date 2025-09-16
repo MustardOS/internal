@@ -680,14 +680,10 @@ UPDATE_BOOTLOGO() {
 		fi
 	fi
 
-	BL_ROTATE=0
-
 	case "$(GET_VAR "device" "board/name")" in
 		rg28xx-h)
-			BL_ROTATE=1
-			convert "$BOOTLOGO_MOUNT/bootlogo.bmp" -rotate 270 "$BOOTLOGO_MOUNT/bootlogo.bmp"
+			convert "$BOOT_MOUNT/bootlogo.bmp" -rotate 270 "$BOOT_MOUNT/bootlogo.bmp"
+			printf "\nRotated Bootlogo Image\n"
 			;;
 	esac
-
-	[ $BL_ROTATE -ne 0 ] && printf "\nRotated Bootlogo Image\n"
 }

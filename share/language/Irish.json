@@ -88,7 +88,7 @@
   },
   "muxbackup": {
     "Activity Tracker": "Rianaitheoir Gníomhaíochta",
-    "Applications": "Applications",
+    "Applications": "Feidhmchláir",
     "Backup Target": "Sprioc Cúltaca",
     "Content Collection": "Bailiúchán Ábhair",
     "Content Launch Overrides": "Sáruithe ar Sheoladh Ábhair",
@@ -107,7 +107,7 @@
     "Location of custom packages": "Suíomh na bpacáistí saincheaptha",
     "Location of friendly name configurations": "Suíomh chumraíochtaí ainmneacha cairdiúla",
     "Location of history": "Suíomh na staire",
-    "Location of installed applications": "Location of installed applications",
+    "Location of installed applications": "Suíomh na bhfeidhmchlár suiteáilte",
     "Location of save states and files": "Suíomh na stát sábhála agus na gcomhad",
     "Location of screenshots": "Suíomh na ngrianghraf",
     "Location of system BIOS files": "Suíomh chomhaid BIOS an chórais",
@@ -348,16 +348,16 @@
     "View the current used space of the mounted storage devices": "Féach ar an spás a úsáidtear faoi láthair de na gléasanna stórála gléasta"
   },
   "muxinstall": {
-    "Change your current date, time, and timezone": "Change your current date, time, and timezone",
-    "Clock": "Clock",
-    "Date and Time": "Date and Time",
-    "INSTALLER": "INSTALLER",
-    "Install": "Install",
-    "Language": "Language",
-    "Prepare and install MustardOS": "Prepare and install MustardOS",
-    "Select your preferred language\n\nTranslations supported by Weblate": "Select your preferred language\n\nTranslations supported by Weblate",
-    "Shut down your device safely": "Shut down your device safely",
-    "Shutdown": "Shutdown"
+    "Change your current date, time, and timezone": "Athraigh do dháta, d'am agus do chrios ama reatha",
+    "Clock": "Clog",
+    "Date and Time": "Dáta agus Am",
+    "INSTALLER": "SUITEÁLAÍ",
+    "Install": "Suiteáil",
+    "Language": "Teanga",
+    "Prepare and install MustardOS": "Ullmhaigh agus suiteáil MustardOS",
+    "Select your preferred language\n\nTranslations supported by Weblate": "Roghnaigh do theanga is fearr leat\n\nAistriúcháin a dtacaítear leo ag Weblate",
+    "Shut down your device safely": "Múch do ghléas go sábháilte",
+    "Shutdown": "Múchadh"
   },
   "muxkiosk": {
     "Advanced Settings": "Socruithe Ardleibhéil",
@@ -673,7 +673,7 @@
   },
   "muxstorage": {
     "Activity Tracker": "Rianaitheoir Gníomhaíochta",
-    "Applications": "Applications",
+    "Applications": "Feidhmchláir",
     "Content Collection": "Bailiúchán Ábhar",
     "Custom Packages": "Pacáistí Saincheaptha",
     "Friendly Name System": "Córas Ainmneacha Cairdiúla",
@@ -687,7 +687,7 @@
     "Location of custom packages": "Suíomh na bpacáistí saincheaptha",
     "Location of friendly name configurations": "Suíomh cumraíochtaí ainm cairdiúil",
     "Location of history": "Suíomh na staire",
-    "Location of installed applications": "Location of installed applications",
+    "Location of installed applications": "Suíomh na bhfeidhmchlár suiteáilte",
     "Location of save states and files": "Suíomh na stát agus na gcomhad sábhála",
     "Location of screenshots": "Suíomh seatanna scáileáin",
     "Location of system BIOS files": "Suíomh comhaid BIOS an chórais",

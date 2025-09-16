@@ -6,7 +6,7 @@
 
 FRONTEND stop
 
-MUOS_NP_DIR="/run/muos/storage/network"
+MUOS_NP_DIR="$MUOS_STORE_DIR/network"
 
 echo "Deleting Network Profiles"
 rm -rf "${MUOS_NP_DIR:?}"/*

@@ -10,7 +10,7 @@
 
 FRONTEND stop
 
-INI_FILE="/run/muos/storage/theme/override/muxcollect.ini"
+INI_FILE="$MUOS_STORE_DIR/theme/override/muxcollect.ini"
 GRID_SECTION="[grid]"
 COLUMN_SETTING="COLUMN_COUNT = 0"
 ROW_SETTING="ROW_COUNT = 0"

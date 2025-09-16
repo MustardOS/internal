@@ -6,9 +6,9 @@
 
 FRONTEND stop
 
-COLLECTION_DIR="/run/muos/storage/info/collection"
+COLLECTION_DIR="$MUOS_STORE_DIR/info/collection"
 COLLECTION_OUTPUT="$(GET_VAR "device" "storage/rom/mount")/collection.html"
-THEME_TEMPLATE="/run/muos/storage/theme/active/collect.html"
+THEME_TEMPLATE="$MUOS_STORE_DIR/theme/active/collect.html"
 FALLBACK_TEMPLATE="$MUOS_SHARE_DIR/media/collect.html"
 TEMP_SECTIONS="/tmp/sections.html"
 TEMP_TEMPLATE="/tmp/template_collect.tmp"
@@ -61,7 +61,7 @@ RENDER_SECTION() {
 				printf '\t\t\t\t<div class="game-card">\n'
 				printf '\t\t\t\t\t<div class="game-label">%s</div>\n' "$ESCAPED_FILE"
 
-				IMG_PATH="/run/muos/storage/info/catalogue/$SYSTEM_NAME/box/$GAME_NAME.png"
+				IMG_PATH="$MUOS_STORE_DIR/info/catalogue/$SYSTEM_NAME/box/$GAME_NAME.png"
 				if [ -f "$IMG_PATH" ]; then
 					echo "    Encoding image: $IMG_PATH" >&2
 					printf '\t\t\t\t\t<div class="game-preview"><img src="data:image/webp;base64,'

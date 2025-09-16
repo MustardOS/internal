@@ -6,7 +6,7 @@
 
 FRONTEND stop
 
-CATALOGUE_DIR="/run/muos/storage/info/catalogue"
+CATALOGUE_DIR="$MUOS_STORE_DIR/info/catalogue"
 
 [ -d "$CATALOGUE_DIR" ] && {
 	printf "Purging catalogue directory: %s\n" "$CATALOGUE_DIR"

@@ -6,7 +6,7 @@
 
 FRONTEND stop
 
-MUOS_PLAY_DIR="/run/muos/storage/info/track"
+MUOS_PLAY_DIR="$MUOS_STORE_DIR/info/track"
 
 echo "Deleting Playtime Data"
 rm -f "$MUOS_PLAY_DIR/playtime_data.json"

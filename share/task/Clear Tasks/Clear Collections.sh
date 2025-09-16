@@ -6,7 +6,7 @@
 
 FRONTEND stop
 
-MUOS_COLL_DIR="/run/muos/storage/info/collection"
+MUOS_COLL_DIR="$MUOS_STORE_DIR/info/collection"
 
 echo "Deleting Collection Files"
 rm -rf "${MUOS_COLL_DIR:?}"/*

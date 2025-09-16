@@ -24,7 +24,7 @@ elif [ -z "$NETWORK_STATE" ]; then
     echo "Error: Could not determine network state. Skipping scan."
     ERROR_FLAG=1
 elif [ "$SYNCTHING_ENABLED" -eq 1 ] && [ "$NETWORK_STATE" = "up" ]; then
-    SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' /run/muos/storage/syncthing/config.xml)
+    SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' "$MUOS_STORE_DIR/syncthing/config.xml")
 fi
 
 if [ "$ERROR_FLAG" -eq 0 ] && [ -z "$SYNCTHING_API" ]; then 

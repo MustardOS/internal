@@ -6,7 +6,7 @@
 
 FRONTEND stop
 
-MUOS_HIST_DIR="/run/muos/storage/info/history"
+MUOS_HIST_DIR="$MUOS_STORE_DIR/info/history"
 
 echo "Deleting History Files"
 rm -rf "${MUOS_HIST_DIR:?}"/*

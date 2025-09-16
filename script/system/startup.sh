@@ -169,6 +169,12 @@ if [ $CONSOLE_MODE -eq 0 ]; then
 fi
 
 (
+	LOG_INFO "$0" 0 "BOOTING" "Preparing System Sounds"
+	PREP_SOUND reboot
+	PREP_SOUND shutdown
+) &
+
+(
 	LOG_INFO "$0" 0 "BOOTING" "Checking for Network Capability"
 	if [ "$CONNECT_ON_BOOT" -eq 1 ] && [ "$HAS_NETWORK" -eq 1 ]; then
 		/opt/muos/script/device/module.sh load-network

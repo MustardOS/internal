@@ -3,7 +3,6 @@
 . /opt/muos/script/var/func.sh
 
 ACTION=$1
-CARD="${CARD:-0}"
 
 FAST_READY_TIMEOUT_MS=5000
 FAST_READY_POLL_MS=100
@@ -57,14 +56,6 @@ GET_NODE_ID() {
 	' | head -n1
 }
 
-AMIX_TRY() {
-	CTL=$1
-	shift
-
-	amixer -c "$CARD" sget "$CTL" >/dev/null 2>&1 || return 1
-	amixer -c "$CARD" -q sset "$CTL" "$@" >/dev/null 2>&1
-}
-
 FADE_DOWN() {
 	LOG_INFO "$0" 0 "PIPEWIRE" "Fading sink volume down..."
 	N=0
@@ -76,30 +67,6 @@ FADE_DOWN() {
 
 	wpctl set-volume @DEFAULT_AUDIO_SINK@ 0%
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ 1
-}
-
-MUTE_CODEC_PATH() {
-	for CTL in \
-		"Master" "PCM" "DAC" "Speaker" "Speaker Playback Volume" "SPK" "Line Out" \
-		"LOUT" "Playback" "Playback Volume" "DAC Playback Volume" "Digital"; do
-		AMIX_TRY "$CTL" 0%
-		AMIX_TRY "$CTL" mute
-		AMIX_TRY "$CTL" off
-	done
-}
-
-DISABLE_AMP() {
-	# These are all of the controls I could see and some extras from examples
-	# of amplifier names found on the information superhighway...
-	for CTL in \
-		"PA Enable" "Power Amplifier" "External Speaker" \
-		"ClassD" "Speaker Amp" "SPK Amp" "AMP Enable"; do
-		if AMIX_TRY "$CTL" off || AMIX_TRY "$CTL" 0; then
-			return 0
-		fi
-	done
-
-	return 1
 }
 
 STOP_AUDIO_STACK() {
@@ -203,9 +170,6 @@ FINALISE_AUDIO() {
 					/opt/muos/script/device/audio.sh "$VOLUME"
 				fi
 
-				AUDIO_CONTROL="$(GET_VAR "device" "audio/control")"
-				AUDIO_VOL_PCT="$(GET_VAR "device" "audio/volume")"
-				amixer -c "$CARD" sset "$AUDIO_CONTROL" "${AUDIO_VOL_PCT}%" unmute >/dev/null 2>&1
 				wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
 
 				LOG_SUCCESS "$0" 0 "PIPEWIRE" "Audio finalised (node + volume)"
@@ -232,23 +196,20 @@ DO_START() {
 	LOG_INFO "$0" 0 "PIPEWIRE" "Launching PipeWire + WirePlumber"
 	! START_PIPEWIRE && exit 1
 
-	SET_VAR "device" "audio/ready" "1"
-	LOG_SUCCESS "$0" 0 "PIPEWIRE" "Audio fast-ready (daemon up)"
+	LOG_INFO "$0" 0 "PIPEWIRE" "Finalising audio setup"
+	! FINALISE_AUDIO && exit 1
 
-	(
-		LOG_INFO "$0" 0 "PIPEWIRE" "Finalising: default node + volume"
-		! FINALISE_AUDIO && LOG_WARN "$0" 0 "PIPEWIRE" "Finalisation deferred; relying on policy defaults"
-	) &
+	AUDIO_CONTROL="$(GET_VAR "device" "audio/control")"
+	AUDIO_VOL_PCT="$(GET_VAR "device" "audio/volume")"
+	amixer -c 0 sset "$AUDIO_CONTROL" "${AUDIO_VOL_PCT}%" unmute >/dev/null 2>&1
+
+	LOG_SUCCESS "$0" 0 "PIPEWIRE" "Audio is now ready"
+	SET_VAR "device" "audio/ready" "1"
 }
 
 DO_STOP() {
 	LOG_INFO "$0" 0 "PIPEWIRE" "Audio shutdown sequence..."
 	FADE_DOWN
-	MUTE_CODEC_PATH
-
-	SLEEP_MS 250
-	DISABLE_AMP || true
-	SLEEP_MS 250
 
 	STOP_AUDIO_STACK
 	SET_VAR "device" "audio/ready" "0"

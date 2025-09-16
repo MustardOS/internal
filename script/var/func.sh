@@ -399,11 +399,19 @@ DISPLAY_READ() {
 }
 
 LCD_DISABLE() {
-	[ "$(GET_VAR "config" "settings/advanced/disp_suspend")" -eq 1 ] && DISPLAY_WRITE lcd0 disable 0
+	if [ "$(GET_VAR "config" "settings/advanced/disp_suspend")" -eq 1 ]; then
+		TBOX sleep 0.5
+		DISPLAY_WRITE lcd0 disable 0
+		TBOX sleep 0.5
+	fi
 }
 
 LCD_ENABLE() {
-	[ "$(GET_VAR "config" "settings/advanced/disp_suspend")" -eq 1 ] && DISPLAY_WRITE lcd0 enable 0
+	if [ "$(GET_VAR "config" "settings/advanced/disp_suspend")" -eq 1 ]; then
+		TBOX sleep 0.5
+		DISPLAY_WRITE lcd0 enable 0
+		TBOX sleep 0.5
+	fi
 }
 
 PLAY_SOUND() {

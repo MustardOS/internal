@@ -19,19 +19,13 @@ export HOME
 SETUP_SDL_ENVIRONMENT
 
 IS_32BIT=0
-if grep -q '^[[:space:]]*[^#]*PORT_32BIT="Y"' "$FILE"; then
-	IS_32BIT=1
-fi
+grep -q '^[[:space:]]*[^#]*PORT_32BIT="Y"' "$FILE" && IS_32BIT=1
 
 if [ $IS_32BIT -eq 1 ]; then
 	export PIPEWIRE_MODULE_DIR="/usr/lib32/pipewire-0.3"
 	export SPA_PLUGIN_DIR="/usr/lib32/spa-0.2"
 fi
 
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
-
 "$FILE"
 
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
-
-unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED PIPEWIRE_MODULE_DIR SPA_PLUGIN_DIR
+unset PIPEWIRE_MODULE_DIR SPA_PLUGIN_DIR

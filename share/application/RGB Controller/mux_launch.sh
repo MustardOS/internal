@@ -14,16 +14,17 @@ SETUP_SDL_ENVIRONMENT
 
 LOVEDIR="$1"
 
-PM_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/PortMaster"
-GPTOKEYB="$PM_DIR"/gptokeyb2
-CONFDIR="$LOVEDIR/conf/"
-
-export XDG_DATA_HOME="$CONFDIR"
-
 cd "$LOVEDIR" || exit
+
 SET_VAR "system" "foreground_process" "love"
 export LD_LIBRARY_PATH="$LOVEDIR/libs:$LD_LIBRARY_PATH"
-$GPTOKEYB "love" &
+
+PM_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/PortMaster"
+"$PM_DIR"/gptokeyb2 "love" &
+
+CONFDIR="$LOVEDIR/conf/"
+export XDG_DATA_HOME="$CONFDIR"
+
 ./love rgbcontroller
 kill -9 "$(pidof gptokeyb2)"
 

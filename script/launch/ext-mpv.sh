@@ -21,9 +21,7 @@ SETUP_SDL_ENVIRONMENT
 MPV_BIN="mpv"
 SET_VAR "system" "foreground_process" "$MPV_BIN"
 
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
-
-GPTOKEYB "$MPV_BIN"
+GPTOKEYB "$MPV_BIN" "$CORE"
 
 if [ "$CORE" = "ext-mpv-general" ]; then
 	$MPV_BIN "$FILE"
@@ -32,7 +30,3 @@ elif [ "$CORE" = "ext-mpv-livetv" ]; then
 elif [ "$CORE" = "ext-mpv-radio" ]; then
 	$MPV_BIN --no-video "$(cat "$FILE")"
 fi
-
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
-
-unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

@@ -45,8 +45,6 @@ chmod +x "$EMUDIR"/scummvm
 
 cd "$EMUDIR" || exit
 
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
-
 extract_gameid() {
 	# Extract gameid from scummvm.ini
 	GAMEID=$(awk -v target_path="$F_PATH/$SUBFOLDER" '
@@ -66,13 +64,13 @@ extract_gameid() {
 }
 
 case "$SCVM" in
-	"grim:grim")
+	grim*)
 		# Legacy Grim Fandango entry found.
 		# Copy grim specific config into scummvm.ini
-		GRIMINI="$EMUDIR"/.config/scummvm/grimm.ini
+		GRIMINI="$(dirname "$CONFIG")/grimm.ini"
 		sed -i "s|^path=.*$|path=$F_PATH/$SUBFOLDER|" "$GRIMINI"
-		if ! grep -q "\[grim-win\]" "$EMUDIR"/.config/scummvm/scummvm.ini; then
-			cat "$EMUDIR"/.config/scummvm/grimm.ini >>"$EMUDIR"/.config/scummvm/scummvm.ini
+		if ! grep -q "\[grim-win\]" "$CONFIG"; then
+			cat "$GRIMINI" >>"$CONFIG"
 		fi
 		extract_gameid
 		;;
@@ -105,8 +103,6 @@ SCVM=$(tr -d '[:space:]' <"$F_PATH/$NAME.scummvm" | head -n 1)
 # Launch game.
 HOME="$EMUDIR" nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" "$SCVM"
 
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
-
 # Switch analogue<>dpad back so we can navigate muX
 [ "$(GET_VAR "device" "board/stick")" -eq 0 ]
 case "$(GET_VAR "device" "board/name")" in
@@ -114,5 +110,3 @@ case "$(GET_VAR "device" "board/name")" in
 	tui*) [ -f $TUI_DPAD ] && rm $TUI_DPAD ;;
 	*) ;;
 esac
-
-unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

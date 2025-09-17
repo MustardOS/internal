@@ -26,6 +26,7 @@ nice --20 retroarch -v -f $RA_ARGS
 
 CHEEVOS_USER=$(sed -n 's/^[[:space:]]*cheevos_username[[:space:]]*=[[:space:]]*"\(.*\)".*/\1/p' "$RA_CONF" | head -n 1)
 CHEEVOS_PASS=$(sed -n 's/^[[:space:]]*cheevos_password[[:space:]]*=[[:space:]]*"\(.*\)".*/\1/p' "$RA_CONF" | head -n 1)
+
 if [ -n "$CHEEVOS_USER" ] && [ -n "$CHEEVOS_PASS" ]; then
 	CHEEVOS_CONF="$(dirname "$RA_CONF")/retroarch.cheevos.cfg"
 	TMP_CONF="/tmp/ra-cheevos.tmp"

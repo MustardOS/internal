@@ -53,20 +53,12 @@ case "$FILE" in *.zip)
 	;;
 esac
 
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
-
 HOME="$EMUDIR" ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$FILE"
 
 # Clean up temp files if we unzipped the file
 [ -n "$TMPDIR" ] && rm -r "$TMPDIR"
 
 SCREEN_TYPE="internal"
-if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-	SCREEN_TYPE="external"
-fi
+[ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ] && SCREEN_TYPE="external"
 
 FB_SWITCH "$(GET_VAR "device" "screen/$SCREEN_TYPE/width")" "$(GET_VAR "device" "screen/$SCREEN_TYPE/height")" 32
-
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
-
-unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

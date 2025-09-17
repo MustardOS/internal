@@ -25,10 +25,4 @@ EMUDIR="$MUOS_SHARE_DIR/emulator/amiberry"
 chmod +x "$EMUDIR"/amiberry
 cd "$EMUDIR" || exit
 
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
-
 HOME="$EMUDIR" ./amiberry "$FILE"
-
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
-
-unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

@@ -39,28 +39,15 @@ elif [ "$CORE" = "ext-pico8-pixel" ]; then
 	PICO_FLAGS="-windowed 0 -pixel_perfect 1"
 fi
 
-chmod +x "$EMUDIR"/wget
-chmod +x "$EMU"
-
+chmod +x "$EMU" "$EMUDIR"/wget
 cd "$EMUDIR" || exit
 
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
+GPTOKEYB "$P8_BIN" "$CORE"
 
-F_DIR="$(dirname "$FILE")"
+P8_MODE="-run $FILE"
+[ "$NAME" = "Splore" ] && P8_MODE="-splore"
 
-GPTOKEYB "$P8_BIN"
-
-if [ "$NAME" = "Splore" ]; then
-	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS -root_path "$F_DIR" -splore
-else
-	PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS -root_path "$F_DIR" -run "$FILE"
-fi
-
-killall -9 "$(pidof $P8_BIN)"
-
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
-
-unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS -root_path "$(dirname "$FILE")" $P8_MODE
 
 FAVOURITE="$MUOS_STORE_DIR/save/pico8/favourites.txt"
 if [ -e "$FAVOURITE" ]; then

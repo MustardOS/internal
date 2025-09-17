@@ -21,11 +21,5 @@ SETUP_SDL_ENVIRONMENT
 FFPLAY_BIN="ffplay"
 SET_VAR "system" "foreground_process" "$FFPLAY_BIN"
 
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
-
-GPTOKEYB "$FFPLAY_BIN"
+GPTOKEYB "$FFPLAY_BIN" "$CORE"
 $FFPLAY_BIN "$FILE" -fs
-
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
-
-unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

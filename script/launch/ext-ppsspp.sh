@@ -57,12 +57,6 @@ export XDG_CONFIG_HOME
 rm -rf "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/CACHE/"*
 cd "$PPSSPP_DIR" || exit
 
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
-
 SET_VAR "system" "foreground_process" "PPSSPP"
 
 ./PPSSPP --pause-menu-exit "$FILE"
-
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
-
-unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

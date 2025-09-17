@@ -25,10 +25,4 @@ EMUDIR="$MUOS_SHARE_DIR/emulator/drastic-trngaje"
 chmod +x "$EMUDIR"/launch.sh
 cd "$EMUDIR" || exit
 
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" start
-
 HOME="$EMUDIR" ./launch.sh "$FILE"
-
-/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$FILE" stop
-
-unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

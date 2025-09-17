@@ -15,18 +15,20 @@ SETUP_SDL_ENVIRONMENT
 LOVEDIR="$1"
 MOONDIR="$1/moonlight"
 
-PM_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/PortMaster"
-GPTOKEYB="$PM_DIR"/gptokeyb2
-
 cd "$LOVEDIR" || exit
+
 SET_VAR "system" "foreground_process" "love"
 export LD_LIBRARY_PATH="$LOVEDIR/libs:$LD_LIBRARY_PATH"
-$GPTOKEYB "love" &
+
+PM_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/PortMaster"
+"$PM_DIR"/gptokeyb2 "love" &
+
 ./love gui
 kill -9 "$(pidof gptokeyb2)"
 
 cd "$MOONDIR" || exit
 COMMAND=$(cat command.txt)
+
 eval "./moonlight $COMMAND"
 rm -f "command.txt"
 

@@ -78,9 +78,19 @@ if [ -z "$LAUNCH_EXEC" ]; then
 	echo "Missing launcher exec in $ASSIGN_INI" >&2
 else
 	if [ -n "$LAUNCH_PREP" ]; then "$LAUNCH_PREP" "$NAME" "$CORE" "$ROM"; fi
+
+	/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" start
 	"$LAUNCH_EXEC" "$NAME" "$CORE" "$ROM"
+	/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" stop
+
 	if [ -n "$LAUNCH_DONE" ]; then "$LAUNCH_DONE" "$NAME" "$CORE" "$ROM"; fi
 fi
+
+for RF in ra_no_load ra_autoload_once.cfg; do
+	[ -e "/tmp/$RF" ] && ENSURE_REMOVED "/tmp/$RF"
+done
+
+unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 # Disable any rumble just in case some core gets stuck!
 echo 0 >"$(GET_VAR "device" "board/rumble")"

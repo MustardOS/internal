@@ -21,12 +21,13 @@ THEME_DIR="$MUOS_STORE_DIR/theme"
 THEME_ACTIVE_DIR="$THEME_DIR/active"
 
 ALL_DONE() {
+	local frontend_cmd="${2:-picker}"
 	printf "\nSync Filesystem\n"
 	sync
 
 	printf "All Done!\n"
 	TBOX sleep 2
-	FRONTEND start picker
+	FRONTEND start "$frontend_cmd"
 
 	exit "${1:-0}"
 }
@@ -111,6 +112,9 @@ BOOTLOGO() {
 	if ! UPDATE_BOOTLOGO_PNG; then
 		UPDATE_BOOTLOGO
 	fi
+
+	printf "Bootlogo Updated\n"
+	ALL_DONE 0 "custom"
 }
 
 case "$MODE" in

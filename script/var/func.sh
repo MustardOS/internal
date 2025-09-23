@@ -658,6 +658,73 @@ LED_CONTROL_CHANGE() {
 	) &
 }
 
+UPDATE_BOOTLOGO_PNG() {
+	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
+
+	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
+	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
+
+	SPEC_BL="$MUOS_STORE_DIR/theme/active/${DEVICE_W}x${DEVICE_H}/image/bootlogo.png"
+	NORM_BL="$MUOS_STORE_DIR/theme/active/image/bootlogo.png"
+
+	if [ -e "$SPEC_BL" ]; then
+		printf "\nBootlogo found at: %s\n" "$SPEC_BL"
+		CREATE_BOOTLOGO_FROM_PNG "$SPEC_BL"
+	else
+		if [ -e "$NORM_BL" ]; then
+			printf "\nBootlogo found at: %s\n" "$NORM_BL"
+			CREATE_BOOTLOGO_FROM_PNG "$BOOT_MOUNT/bootlogo.png"
+		else
+			return 1;
+		fi
+	fi
+
+	case "$(GET_VAR "device" "board/name")" in
+		rg28xx-h)
+			convert "$BOOT_MOUNT/bootlogo.bmp" -rotate 270 "$BOOT_MOUNT/bootlogo.bmp"
+			printf "\nRotated Bootlogo Image\n"
+			;;
+	esac
+	return 0;
+}
+
+CREATE_BOOTLOGO_FROM_PNG() {
+	BOOTLOGO_PNG_PATH=$1
+	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
+	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
+	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
+	THEME_ACTIVE_DIR="$MUOS_STORE_DIR/theme/active"
+	BACKGROUND_COLOUR="#000000"
+	PNG_RECOLOUR="#FFFFFF"
+	PNG_RECOLOUR_ALPHA=0
+	JSONPATH="$THEME_ACTIVE_DIR/bootlogo.json"
+
+	if [ -e "$THEME_ACTIVE_DIR/active.txt" ]; then
+		read -r THEME_ALTERNATE < "$THEME_ACTIVE_DIR/active.txt"
+		printf "Theme Alternate: %s\n" "$THEME_ALTERNATE"
+		if [ -e "$THEME_ACTIVE_DIR/alternate/${THEME_ALTERNATE}_bootlogo.json" ]; then
+			JSONPATH="$THEME_ACTIVE_DIR/alternate/${THEME_ALTERNATE}_bootlogo.json"
+		fi
+	fi
+
+	if [ -e "$JSONPATH" ]; then
+		printf "Found Bootlogo Json: %s\n" "$JSONPATH"
+		BACKGROUND_COLOUR=$(jq -r '.background_colour' "$JSONPATH")
+		PNG_RECOLOUR=$(jq -r '.png_recolour' "$JSONPATH")
+		RAW_ALPHA=$(jq -r '.png_recolour_alpha' "$JSONPATH")
+		PNG_RECOLOUR_ALPHA=$(( RAW_ALPHA * 100 / 255 ))
+	fi
+
+	printf "Creating Bootlogo with settings:\n"
+	printf "BACKGROUND_COLOUR: %s\n" "$BACKGROUND_COLOUR"
+	printf "PNG_RECOLOUR: %s\n" "$PNG_RECOLOUR"
+	printf "PNG_RECOLOUR_ALPHA: %s\n" "$PNG_RECOLOUR_ALPHA"
+
+	magick -size "${DEVICE_W}x${DEVICE_H}" xc:"#${BACKGROUND_COLOUR}" -depth 24 "$BOOT_MOUNT/bootlogo.bmp"
+	magick "$BOOTLOGO_PNG_PATH" -fill "#${PNG_RECOLOUR}" -colorize "$PNG_RECOLOUR_ALPHA" /tmp/bootlogo-recolor.png
+	magick "$BOOT_MOUNT/bootlogo.bmp" /tmp/bootlogo-recolor.png -gravity center -composite "$BOOT_MOUNT/bootlogo.bmp"
+}
+
 UPDATE_BOOTLOGO() {
 	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
 

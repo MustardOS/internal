@@ -71,6 +71,9 @@ case "$DEV_BOARD" in
 		# Some stupid TrimUI GPU shenanigans
 		setalpha 0
 		;;
+	rk*)
+		EMU_VER="rk"
+	;;
 esac
 
 # Add device specific Retroarch Binary

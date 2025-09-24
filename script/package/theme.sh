@@ -21,7 +21,7 @@ THEME_DIR="$MUOS_STORE_DIR/theme"
 THEME_ACTIVE_DIR="$THEME_DIR/active"
 
 ALL_DONE() {
-	local frontend_cmd="${2:-picker}"
+	frontend_cmd="${2:-picker}"
 	printf "\nSync Filesystem\n"
 	sync
 

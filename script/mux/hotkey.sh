@@ -124,7 +124,7 @@ DPAD_TOGGLE() {
 }
 
 RGBCLI() {
-	RGBCONTROLLER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application/RGB Controller"
+	RGBCONTROLLER_DIR="$MUOS_SHARE_DIR/application/RGB Controller"
 
 	LD_LIBRARY_PATH="$RGBCONTROLLER_DIR/libs:$LD_LIBRARY_PATH" \
 		"$RGBCONTROLLER_DIR/love" "$RGBCONTROLLER_DIR/rgbcli" "$@"

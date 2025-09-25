@@ -8,7 +8,7 @@ FRONTEND stop
 COMMAND=$(basename "$0")
 
 USAGE() {
-	printf "Usage: %s <install|save> <theme>\n" "$COMMAND"
+	printf "Usage: %s <install|save|bootlogo> <theme>\n" "$COMMAND"
 	FRONTEND start picker
 	exit 1
 }
@@ -21,12 +21,13 @@ THEME_DIR="$MUOS_STORE_DIR/theme"
 THEME_ACTIVE_DIR="$THEME_DIR/active"
 
 ALL_DONE() {
+	frontend_cmd="${2:-picker}"
 	printf "\nSync Filesystem\n"
 	sync
 
 	printf "All Done!\n"
 	TBOX sleep 2
-	FRONTEND start picker
+	FRONTEND start "$frontend_cmd"
 
 	exit "${1:-0}"
 }
@@ -71,7 +72,9 @@ INSTALL() {
 	THEME_NAME=$(basename "$THEME_ZIP" .muxthm)
 	[ ! -f "$THEME_ACTIVE_DIR/name.txt" ] && echo "${THEME_NAME%-[0-9]*_[0-9]*}" >"$THEME_ACTIVE_DIR/name.txt"
 
-	UPDATE_BOOTLOGO
+	if ! UPDATE_BOOTLOGO_PNG; then
+		UPDATE_BOOTLOGO
+	fi
 	LED_CONTROL_CHANGE
 
 	ASSETS_ZIP="$THEME_ACTIVE_DIR/assets.muxzip"
@@ -105,8 +108,18 @@ SAVE() {
 	ALL_DONE 0
 }
 
+BOOTLOGO() {
+	if ! UPDATE_BOOTLOGO_PNG; then
+		UPDATE_BOOTLOGO
+	fi
+
+	printf "Bootlogo Updated\n"
+	ALL_DONE 0 "custom"
+}
+
 case "$MODE" in
 	install) INSTALL ;;
 	save) SAVE ;;
+	bootlogo) BOOTLOGO ;;
 	*) USAGE ;;
 esac

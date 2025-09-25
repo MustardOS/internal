@@ -77,7 +77,9 @@ case "$ARCHIVE_NAME" in
 			ALL_DONE 1
 		fi
 
-		UPDATE_BOOTLOGO
+		if ! UPDATE_BOOTLOGO_PNG; then
+			UPDATE_BOOTLOGO
+		fi
 		;;
 	*.muxapp)
 		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1

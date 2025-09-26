@@ -187,6 +187,10 @@ case "$1" in
 	connect)
 		case "$(GET_VAR "device" "board/name")" in
 			tui*) /opt/muos/script/device/module.sh load-network ;;
+			rg*)
+				if ! [ -d "/sys/bus/mmc/devices/mmc2:0001" ]; then
+					/opt/muos/script/device/module.sh reload-network
+				fi ;;
 			*) ;;
 		esac
 

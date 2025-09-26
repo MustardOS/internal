@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-RMP_LOG="/mnt/mmc/MUOS/log/psx.remap.log"
+RMP_LOG="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/psx.remap.log"
 LOG_DATE="$(date +'[%Y-%m-%d]')"
 
 REMAP_DIR="$MUOS_SHARE_DIR/info/config/remaps"

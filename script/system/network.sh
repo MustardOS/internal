@@ -8,8 +8,10 @@ SSID=$(GET_VAR "config" "network/ssid")
 GATE=$(GET_VAR "config" "network/gateway")
 TYPE=$(GET_VAR "config" "network/type")
 DDNS=$(GET_VAR "config" "network/dns") # The extra D is for dodecahedron!
-IFCE=$(GET_VAR "device" "network/iface")
 DRIV=$(GET_VAR "device" "network/type")
+
+IFCE="$(GET_VAR "device" "network/iface_active")"
+[ -n "$IFCE" ] || IFCE="$(GET_VAR "device" "network/iface")"
 
 DEV_HOST="$(GET_VAR "device" "network/hostname")"
 SD1_HOST="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/hostname"
@@ -23,13 +25,14 @@ DHCP_CONF="/etc/dhcpcd.conf"
 
 CALCULATE_IAID() {
 	MAC=$(cat /sys/class/net/"$IFCE"/address)
-	OCT5=$(echo "$MAC" | cut -d: -f5)
-	OCT6=$(echo "$MAC" | cut -d: -f6)
-	IAID=$(printf "0x%02x%02x" 0x"$OCT5" 0x"$OCT6")
+	OCT5=${MAC#*:*:*:*:}
+	OCT5=${OCT5%%:*}
+	OCT6=${MAC##*:}
+	IAID=$(((0x$OCT5 << 8) | 0x$OCT6))
 
 	LOG_INFO "$0" 0 "NETWORK" "Using IAID: %s" "$IAID"
-	sed -i "/^iaid/d" "$DHCP_CONF"
-	echo "iaid $IAID" >>"$DHCP_CONF"
+	sed -i '/^iaid/d' "$DHCP_CONF"
+	printf 'iaid %s\n' "$IAID" >>"$DHCP_CONF"
 }
 
 TRY_CONNECT() {
@@ -142,7 +145,7 @@ TRY_CONNECT() {
 		ip addr add "$ADDR"/"$SUBN" dev "$IFCE"
 
 		LOG_INFO "$0" 0 "NETWORK" "Adding Default IP Route"
-		ip route | grep "default via $GATE" || ip route add default via "$GATE"
+		ip route | grep -q "default via $GATE dev $IFCE" || ip route add default via "$GATE" dev "$IFCE"
 
 		IP=$(ip -4 a show dev "$IFCE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p')
 	fi
@@ -187,10 +190,7 @@ case "$1" in
 	connect)
 		case "$(GET_VAR "device" "board/name")" in
 			tui*) /opt/muos/script/device/module.sh load-network ;;
-			rg*)
-				if ! [ -d "/sys/bus/mmc/devices/mmc2:0001" ]; then
-					/opt/muos/script/device/module.sh reload-network
-				fi ;;
+			rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && /opt/muos/script/device/module.sh load-network ;;
 			*) ;;
 		esac
 

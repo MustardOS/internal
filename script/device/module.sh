@@ -11,8 +11,8 @@ SCN_PATH="/sys/class/net"
 RESOLV_CONF="/etc/resolv.conf"
 
 HAS_NETWORK=$(GET_VAR "device" "board/network")
-NET_MODULE=$(GET_VAR "device" "network/module")
 NET_IFACE=$(GET_VAR "device" "network/iface")
+NET_NAME=$(GET_VAR "device" "network/name")
 DNS_ADDR=$(GET_VAR "config" "network/dns")
 
 NET_COMPAT=$(GET_VAR "config" "network/compat")
@@ -124,7 +124,7 @@ WAIT_FOR_IFACE() {
 LOAD_NETWORK() {
 	[ "$HAS_NETWORK" -eq 0 ] && return 0
 
-	if echo "$NET_MODULE" | grep -q "8821cs"; then
+	if echo "$NET_NAME" | grep -q "8821cs"; then
 		modprobe -q -r 8821cs
 		udevadm settle --timeout=5
 
@@ -135,7 +135,7 @@ LOAD_NETWORK() {
 	# run this just before probing the network module we are going to add it
 	# here "just in case" but also somewhat uniformity...
 	udevadm settle --timeout=5
-	! modprobe -q "$NET_MODULE" && return 1
+	! modprobe -q "$NET_NAME" && return 1
 
 	# On certain devices we have to actually wait for the SDIO controller
 	# to finish initialising because, that's right, the Wi-Fi chip is
@@ -188,7 +188,7 @@ UNLOAD_NETWORK() {
 	[ -n "$NET_IFACE" ] && [ -d "$SCN_PATH/$NET_IFACE" ] && ip link set "$NET_IFACE" down 2>/dev/null
 
 	rfkill block all 2>/dev/null
-	modprobe -q -r "$NET_MODULE" 2>/dev/null || rmmod "$NET_MODULE" 2>/dev/null
+	modprobe -q -r "$NET_NAME" 2>/dev/null || rmmod "$NET_NAME" 2>/dev/null
 	udevadm settle --timeout=5
 
 	[ -f "$RESOLV_CONF.bak" ] && mv "$RESOLV_CONF.bak" "$RESOLV_CONF"

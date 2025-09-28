@@ -34,6 +34,7 @@ CONNECT_ON_BOOT=$(GET_VAR "config" "network/boot")
 USER_INIT=$(GET_VAR "config" "settings/advanced/user_init")
 FIRST_INIT=$(GET_VAR "config" "boot/first_init")
 USB_FUNCTION=$(GET_VAR "config" "settings/advanced/usb_function")
+NET_COMPAT=$(GET_VAR "config" "network/compat")
 
 # Enable rumble support - primarily used for TrimUI/RK3326 devices at the moment...
 case "$BOARD_NAME" in
@@ -52,6 +53,7 @@ esac
 
 LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
 /opt/muos/script/device/module.sh load
+/opt/muos/script/device/module.sh load-network
 
 if [ "$FIRST_INIT" -eq 0 ]; then
 	if [ "$FACTORY_RESET" -eq 1 ]; then
@@ -169,7 +171,11 @@ fi
 (
 	LOG_INFO "$0" 0 "BOOTING" "Checking for Network Capability"
 	if [ "$HAS_NETWORK" -eq 1 ]; then
-		/opt/muos/script/device/module.sh load-network
+		# we unload to help some RG* devices if Network Compatibility is enabled... and then reload to get our wifi
+		case "$BOARD_NAME" in
+			rg*) [ "$NET_COMPAT" -eq 1 ] && /opt/muos/script/device/module.sh reload-network ;;
+			*) ;;
+		esac
 		if [ "$CONNECT_ON_BOOT" -eq 1 ]; then
 			/opt/muos/script/system/network.sh connect &
 		fi

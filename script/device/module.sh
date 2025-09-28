@@ -77,7 +77,7 @@ LOAD_NETWORK() {
 
 	# We'll do this again because fuck it why not...
 	udevadm settle --timeout=5
-	NET_IFACE=$(WAIT_FOR_IFACE "$NET_IFACE") || return 1
+	NET_IFACE_READY=$(WAIT_FOR_IFACE "$NET_IFACE") || return 1
 
 	rfkill unblock all 2>/dev/null
 	ip link set "$NET_IFACE" up 2>/dev/null
@@ -88,6 +88,16 @@ LOAD_NETWORK() {
 
 	[ -f "$RESOLV_CONF" ] && cp "$RESOLV_CONF" "$RESOLV_CONF.bak"
 	printf "nameserver %s\n" "$DNS_ADDR" >"$RESOLV_CONF"
+}
+
+RELOAD_NETWORK() {
+	if echo "$NET_MODULE" | grep -q "8821cs"; then
+		modprobe -q -r 8821cs
+		udevadm settle --timeout=5
+		# just to be absolutely certain
+		TBOX sleep 1
+		LOAD_NETWORK
+	fi
 }
 
 UNLOAD_NETWORK() {
@@ -130,7 +140,8 @@ UNLOAD_MODULES() {
 case "$ACTION" in
 	load) LOAD_MODULES ;;
 	unload) UNLOAD_MODULES ;;
+	reload-network) [ "$FACTORY_RESET" -eq 0 ] && [ "$HAS_NETWORK" -eq 1 ] && RELOAD_NETWORK ;;
 	load-network) [ "$FACTORY_RESET" -eq 0 ] && [ "$HAS_NETWORK" -eq 1 ] && LOAD_NETWORK ;;
 	unload-network) [ "$FACTORY_RESET" -eq 0 ] && [ "$HAS_NETWORK" -eq 1 ] && UNLOAD_NETWORK ;;
-	*) echo "Usage: $0 {load|unload|load-network|unload-network}" >&2 && exit 1 ;;
+	*) echo "Usage: $0 {load|unload|load-network|unload-network|reload-network}" >&2 && exit 1 ;;
 esac

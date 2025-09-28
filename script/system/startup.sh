@@ -168,9 +168,11 @@ fi
 
 (
 	LOG_INFO "$0" 0 "BOOTING" "Checking for Network Capability"
-	if [ "$CONNECT_ON_BOOT" -eq 1 ] && [ "$HAS_NETWORK" -eq 1 ]; then
+	if [ "$HAS_NETWORK" -eq 1 ]; then
 		/opt/muos/script/device/module.sh load-network
-		/opt/muos/script/system/network.sh connect &
+		if [ "$CONNECT_ON_BOOT" -eq 1 ]; then
+			/opt/muos/script/system/network.sh connect &
+		fi
 	fi
 ) &
 

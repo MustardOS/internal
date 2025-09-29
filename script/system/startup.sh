@@ -1,23 +1,39 @@
 #!/bin/sh
+#:] ## Startup Sequence
+#:] This is the main script that is called by the `S03muos` script within `/etc/init.d`.
+#:] Everything from here on in will run via these internal scripts. The `LOG_*` runners are
+#:] kept to a minimum and are invoked by the `func.sh` global script. Most of them are kept
+#:] under wraps unless a debug flag is set as it cause increase boot time by a few seconds.
+#:] ~
 
 . /opt/muos/script/var/func.sh
 
+#:] ### Session Housekeeping
+#:] Create a temp workspace and clear any stale logs and update data from previous boots.
 mkdir -p "/tmp/muos"
 rm -rf /opt/muos/log/*.log /opt/muxtmp
 
+#:] ### Initialise Core State
+#:] Cache uptime and baseline flags used by other components during boot.
 read -r MU_UPTIME _ </proc/uptime
 SET_VAR "system" "resume_uptime" "$MU_UPTIME"
 SET_VAR "system" "idle_inhibit" "0"
 SET_VAR "config" "boot/device_mode" "0"
 SET_VAR "device" "audio/ready" "0"
 
+#:] ### Set OS Release Metadata
+#:] Generate `/etc/os-release` and similar so services can report the right version.
 LOG_INFO "$0" 0 "BOOTING" "Setting OS Release"
 /opt/muos/script/system/os_release.sh &
 
+#:] ### Reset Display variables
+#:] Just in case somebody, or something, has rotated the display.
 LOG_INFO "$0" 0 "BOOTING" "Reset temporary screen rotation and zoom"
 SCREEN_DIR="/opt/muos/device/config/screen"
 rm -f "$SCREEN_DIR/s_rotate" "$SCREEN_DIR/s_zoom" &
 
+#:] ### Frequently Used Variables
+#:] These are best to call once and use repeatedly instead of calling them individually.
 LOG_INFO "$0" 0 "BOOTING" "Caching System Variables"
 BOARD_NAME=$(GET_VAR "device" "board/name")
 GOVERNOR=$(GET_VAR "device" "cpu/governor")
@@ -36,7 +52,8 @@ FIRST_INIT=$(GET_VAR "config" "boot/first_init")
 USB_FUNCTION=$(GET_VAR "config" "settings/advanced/usb_function")
 NET_COMPAT=$(GET_VAR "config" "network/compat")
 
-# Enable rumble support - primarily used for TrimUI/RK3326 devices at the moment...
+#:] ### Enable Rumble Support
+#:] Primarily used for TrimUI/RK3326 devices at the moment.
 case "$BOARD_NAME" in
 	tui*)
 		[ -e /sys/class/gpio/gpio227 ] || echo 227 >/sys/class/gpio/export
@@ -51,10 +68,15 @@ case "$BOARD_NAME" in
 		;;
 esac
 
+#:] ### Device Module Loading
+#:] Load device specific kernel modules (GPU, input, storage, networking, etc.).
 LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
 /opt/muos/script/device/module.sh load
 /opt/muos/script/device/module.sh load-network
 
+#:] ### First Init Messages
+#:] On the very first boot, show a disclaimer.
+#:] Once that is done and we've rebooted display a "Getting Ready" message for slower device combinations.
 if [ "$FIRST_INIT" -eq 0 ]; then
 	if [ "$FACTORY_RESET" -eq 1 ]; then
 		LOG_INFO "$0" 0 "BOOTING" "Loading First Init Disclaimer"
@@ -64,27 +86,42 @@ if [ "$FIRST_INIT" -eq 0 ]; then
 	fi
 fi
 
+#:] ### Set Default CPU Governor
+#:] Run the CPU at full performance during boot to shorten startup time.
+#:] Default is `performance` so that startup runs just that little bit quicker.
 LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"
 echo "performance" >"$GOVERNOR"
 
+#:] ### Rumble Self Test
+#:] Briefly vibrate on capable devices to confirm GPIO/PWM configuration.
 LOG_INFO "$0" 0 "BOOTING" "Device Rumble Check"
 case "$RUMBLE_SETTING" in 1 | 4 | 5) RUMBLE "$RUMBLE_PIN" 0.3 ;; esac
 
+#:] ### Restore Internal Display Geometry
+#:] Ensure both the internal screen and the mux frontend have the proper resolution.
 LOG_INFO "$0" 0 "BOOTING" "Restoring Screen Mode"
 for MODE in screen mux; do
 	SET_VAR "device" "$MODE/width" "$WIDTH"
 	SET_VAR "device" "$MODE/height" "$HEIGHT"
 done &
 
+#:] ### Loopback Network
+#:] Bring up `lo` so local services can bind immediately.
 LOG_INFO "$0" 0 "BOOTING" "Bringing Up 'localhost' Network"
 ifconfig lo up
 
+#:] ### Device Management
+#:] Start udevd, trigger discovery, and wait briefly for devices to settle.
+#:] Any timeout here is logged but non-fatal; late devices may still come online.
 LOG_INFO "$0" 0 "BOOTING" "Starting Device Management System"
 /sbin/udevd -d || CRITICAL_FAILURE udev
 udevadm trigger --type=subsystems --action=add
 udevadm trigger --type=devices --action=add
 udevadm settle --timeout=5 || LOG_WARN "$0" 0 "BOOTING" "Device Management Settle Failure"
 
+#:] ### Regular Boot Startup
+#:] Configure RTC, kick off mount handling, and determine console mode (internal vs HDMI).
+#:] Also check whether swap is required based on device constraints.
 if [ "$FACTORY_RESET" -eq 0 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Setting RTC Maximum Frequency"
 	echo 2048 >/sys/class/rtc/rtc0/max_user_freq
@@ -117,19 +154,28 @@ if [ "$FACTORY_RESET" -eq 0 ]; then
 	/opt/muos/script/system/swap.sh &
 fi
 
+#:] ### Restore ALSA Config
+#:] Put the default mixer/device mapping in place before restoring state.
+#:] Most devices require a specific `alsa.conf`.
 LOG_INFO "$0" 0 "BOOTING" "Restoring Default Sound System"
 cp -f "$MUOS_SHARE_DIR/conf/asound.conf" "/etc/asound.conf"
 
 LOG_WARN "$0" 0 "BOOTING" "ALSA Config Restoring"
 cp -f "$MUOS_SHARE_DIR/conf/alsa.conf" "$ALSA_CONFIG"
 
+#:] ### Restore Audio State
+#:] Load the last known mixer volumes and switches, then apply with `alsactl`.
 LOG_INFO "$0" 0 "BOOTING" "Restoring Audio State"
 cp -f "/opt/muos/device/control/asound.state" "/var/lib/alsa/asound.state"
 alsactl -U restore
 
+#:] ### Start PipeWire Audio
+#:] Launch PipeWire services (and wireplumber, if enabled) in one go.
 LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
 /opt/muos/script/system/pipewire.sh start
 
+#:] ### Factory Reset Detection
+#:] If we are in factory reset mode, run the reset routine and reboot immediately.
 if [ "$FACTORY_RESET" -eq 1 ]; then
 	LED_CONTROL_CHANGE
 
@@ -137,41 +183,61 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 	/opt/muos/script/system/halt.sh reboot
 fi
 
+#:] ### Permissions sanity pass (background)
+#:] Ensure ownership and perms are sane on key trees.
+#:] Typically for SSH.  This is needed specifically for the H700
+#:] kernel because the kernel reverts back to 1000:1000 as the UID:GID
+#:] for whatever reason.
 LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"
 (
 	chown -R root:root /root /opt
 	chmod -R 755 /root /opt
 ) &
 
+#:] ### Device Specific Startup
+#:] Board/variant hooks to finalise hardware setup.
 LOG_INFO "$0" 0 "BOOTING" "Device Specific Startup"
 /opt/muos/script/device/start.sh &
 
+#:] ### Storage Mount Wait
+#:] Block until union mounts are ready so later steps can rely on them.
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
 while [ ! -f "$MUOS_STORE_DIR/mounted" ]; do TBOX sleep 0.1; done
 
+#:] ### Safety Script (_optional_)
+#:] If a supplied `oops.sh` exists on ROM storage, run it now!
 LOG_INFO "$0" 0 "BOOTING" "Checking for Safety Script"
 OOPS="$ROM_MOUNT/oops.sh"
 [ -x "$OOPS" ] && "$OOPS"
 
+#:] ### Unionise Content Directories
+#:] Build the content view (_overlay/union_) across storage devices.
 LOG_INFO "$0" 0 "BOOTING" "Unionising ROMS on Storage Mounts"
 /opt/muos/script/mount/union.sh start &
 
-if [ $CONSOLE_MODE -eq 0 ]; then
+#:] ### Detect Charging Mode (_handheld mode only_)
+#:] On internal display mode, detect charger state and adjust LEDs accordingly.
+if [ "$CONSOLE_MODE" -eq 0 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
 	/opt/muos/script/device/charge.sh
 	LED_CONTROL_CHANGE
 fi
 
+#:] ### System sounds (_background_)
+#:] Preload short UI sounds so they're instant when invoked.
 (
 	LOG_INFO "$0" 0 "BOOTING" "Preparing System Sounds"
 	PREP_SOUND reboot
 	PREP_SOUND shutdown
 ) &
 
+#:] ### Network Runner (_background_)
+#:] Load network modules (_if present_) and auto-connect when configured.
+#:] On certain devices we unload the network module if Module Compatibility is enabled and reload
+#:] it again as we found that SDIO sometimes inhibits the network module on cold boots.
 (
 	LOG_INFO "$0" 0 "BOOTING" "Checking for Network Capability"
 	if [ "$HAS_NETWORK" -eq 1 ]; then
-		# we unload to help some RG* devices if Network Compatibility is enabled... and then reload to get our wifi
 		case "$BOARD_NAME" in
 			rg*) [ "$NET_COMPAT" -eq 1 ] && /opt/muos/script/device/module.sh reload-network ;;
 			*) ;;
@@ -182,9 +248,13 @@ fi
 	fi
 ) &
 
+#:] ### Hotkey Daemon
+#:] Start the input listener that powers global hotkeys.
 LOG_INFO "$0" 0 "BOOTING" "Starting Hotkey Daemon"
 /opt/muos/script/mux/hotkey.sh &
 
+#:] ### Passcode Lock (_optional_)
+#:] If enabled, loop until the user unlocks via `muxpass`.
 LOG_INFO "$0" 0 "BOOTING" "Checking for Passcode Lock"
 HAS_UNLOCK=0
 if [ "$PASSCODE_LOCK" -eq 1 ]; then
@@ -194,36 +264,62 @@ if [ "$PASSCODE_LOCK" -eq 1 ]; then
 	done
 fi
 
+#:] ### User Init Scripts (_optional_)
+#:] Allow users to run custom boot hooks.
+#:] This can be enabled within the **Advanced Settings** menu.
 if [ "$USER_INIT" -eq 1 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Starting User Initialisation Scripts"
 	/opt/muos/script/system/user_init.sh &
 fi
 
+#:] ### Low Power Indicator
+#:] Start battery monitoring/alerts.
 LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"
 /opt/muos/script/system/lowpower.sh &
 
+#:] ### USB Gadget
+#:] Bring up the configured USB function (adb _or_ mtp) unless disabled.
 LOG_INFO "$0" 0 "BOOTING" "Starting USB Function"
 [ "$USB_FUNCTION" != "none" ] && /opt/muos/script/system/usb_gadget.sh start
 
+#:] ### Device Controls
+#:] Apply device-specific control defaults for RetroArch, emulators, ports etc.
 LOG_INFO "$0" 0 "BOOTING" "Setting Device Controls"
 /opt/muos/script/device/control.sh &
 
+#:] ### SDL Controller Maps
+#:] Set default `/usr/lib/gamecontrollerdb.txt` symlink to user defined controller.
+#:] Which can be either `modern` or `retro`.
 LOG_INFO "$0" 0 "BOOTING" "Setting up SDL Controller Map"
 /opt/muos/script/mux/sdl_map.sh &
 
+#:] ### Catalogue Generator
+#:] Generate, and refresh, catalogue directories in the background.
+#:] This is based on `catalogue` entries within the `global.ini` assign files.
 LOG_INFO "$0" 0 "BOOTING" "Running Catalogue Generator"
 /opt/muos/script/system/catalogue.sh &
 
+#:] ### Pre-cache RetroArch assets
+#:] Touch common files into the page cache to speed up first launches.
 LOG_INFO "$0" 0 "BOOTING" "Precaching RetroArch System"
 ionice -c idle /opt/muos/bin/vmtouch -tfb "$MUOS_SHARE_DIR/conf/preload.txt" &
 
+#:] ### Save kernel boot log
+#:] Persist `dmesg` for later diagnostics.
 LOG_INFO "$0" 0 "BOOTING" "Saving Kernel Boot Log"
 dmesg >"$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
 
+#:] ### Wait for audio stack
+#:] Don't proceed to the frontend until PipeWire reports that it is ready.
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
 while [ "$(GET_VAR "device" "audio/ready")" -eq 0 ]; do TBOX sleep 0.1; done
 
+#:] ### Mark first-boot complete (_if applicable_)
+#:] This is a first initialisation flag, once everything is a-ok we'll mark it as done.
+#:] Upon next startup we don't run any specific first initialisation routines.
 [ "$FIRST_INIT" -eq 0 ] && SET_VAR "config" "boot/first_init" "1"
 
+#:] ### Start muX frontend
+#:] Launch the UI after all core services are prepared.
 LOG_INFO "$0" 0 "BOOTING" "Starting muX Frontend"
 /opt/muos/script/mux/frontend.sh &

@@ -46,11 +46,11 @@ ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 PASSCODE_LOCK=$(GET_VAR "config" "settings/advanced/lock")
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
-CONNECT_ON_BOOT=$(GET_VAR "config" "network/boot")
+CONNECT_ON_BOOT=$(GET_VAR "config" "settings/network/boot")
 USER_INIT=$(GET_VAR "config" "settings/advanced/user_init")
 FIRST_INIT=$(GET_VAR "config" "boot/first_init")
 USB_FUNCTION=$(GET_VAR "config" "settings/advanced/usb_function")
-NET_COMPAT=$(GET_VAR "config" "network/compat")
+NET_COMPAT=$(GET_VAR "config" "settings/network/compat")
 
 #:] ### Enable Rumble Support
 #:] Primarily used for TrimUI/RK3326 devices at the moment.

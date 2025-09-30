@@ -15,7 +15,8 @@ NET_IFACE=$(GET_VAR "device" "network/iface")
 NET_NAME=$(GET_VAR "device" "network/name")
 DNS_ADDR=$(GET_VAR "config" "network/dns")
 
-MAX_WAIT=30
+MAX_WAIT=$(GET_VAR "config" "settings/network/wait_timer")
+MAX_RETRY=$(GET_VAR "config" "settings/network/compat_retry")
 
 FORCE_SDIO_AWAKE() {
 	# Keep SDIO from dozing while we bring Wi-Fi up
@@ -119,6 +120,8 @@ LOAD_NETWORK() {
 		[ -f "$RESOLV_CONF" ] && cp "$RESOLV_CONF" "$RESOLV_CONF.bak"
 		printf "nameserver %s\n" "$DNS_ADDR" >"$RESOLV_CONF"
 	fi
+
+	return 0
 }
 
 UNLOAD_NETWORK() {
@@ -135,8 +138,15 @@ UNLOAD_NETWORK() {
 
 RELOAD_NETWORK() {
 	[ "$HAS_NETWORK" -eq 0 ] && return 0
-	UNLOAD_NETWORK
-	LOAD_NETWORK
+	# we reload the driver a couple of times because sometimes the RTL really wants to sleep
+	# it's okay to bully hardware... i think?
+	for _ in $(seq 1 $MAX_RETRY); do
+		UNLOAD_NETWORK
+		! LOAD_NETWORK && return 0
+		TBOX sleep 1
+	done
+	TBOX sleep 1
+	return 1
 }
 
 LOAD_MODULES() {

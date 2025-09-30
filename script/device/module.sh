@@ -15,8 +15,8 @@ NET_IFACE=$(GET_VAR "device" "network/iface")
 NET_NAME=$(GET_VAR "device" "network/name")
 DNS_ADDR=$(GET_VAR "config" "network/dns")
 
-MAX_WAIT=5
-MAX_RETRY=$MAX_WAIT
+MAX_WAIT=$(GET_VAR "config" "settings/network/wait_timer")
+MAX_RETRY=$(GET_VAR "config" "settings/network/compat_retry")
 
 FORCE_SDIO_AWAKE() {
 	# Keep SDIO from dozing while we bring Wi-Fi up

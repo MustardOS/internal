@@ -13,6 +13,7 @@ NET_IFACE=$(GET_VAR "device" "network/iface")
 NET_NAME=$(GET_VAR "device" "network/name")
 DNS_ADDR=$(GET_VAR "config" "network/dns")
 
+NET_COMPAT=$(GET_VAR "config" "settings/network/compat")
 MAX_WAIT=$(GET_VAR "config" "settings/network/wait_timer")
 MAX_RETRY=$(GET_VAR "config" "settings/network/compat_retry")
 

@@ -168,7 +168,7 @@ TRY_CONNECT() {
 case "$1" in
 	disconnect)
 		case "$(GET_VAR "device" "board/name")" in
-			tui*) /opt/muos/script/device/module.sh unload-network ;;
+			tui*) /opt/muos/script/device/network.sh unload ;;
 			*) ;;
 		esac
 
@@ -189,8 +189,8 @@ case "$1" in
 
 	connect)
 		case "$(GET_VAR "device" "board/name")" in
-			tui*) /opt/muos/script/device/module.sh load-network ;;
-			rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && /opt/muos/script/device/module.sh load-network ;;
+			rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && /opt/muos/script/device/network.sh load ;;
+			tui*) /opt/muos/script/device/network.sh load ;;
 			*) ;;
 		esac
 

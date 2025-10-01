@@ -64,7 +64,7 @@ SLEEP() {
 
 	if [ "$HAS_NETWORK" -eq 1 ]; then
 		/opt/muos/script/system/network.sh disconnect
-		/opt/muos/script/device/module.sh unload-network
+		/opt/muos/script/device/network.sh unload
 	fi
 
 	/opt/muos/script/device/module.sh unload
@@ -132,7 +132,7 @@ RESUME() {
 	) &
 
 	if [ "$HAS_NETWORK" -eq 1 ]; then
-		/opt/muos/script/device/module.sh load-network
+		/opt/muos/script/device/network.sh load
 		nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
 	fi
 }

@@ -46,11 +46,9 @@ ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 PASSCODE_LOCK=$(GET_VAR "config" "settings/advanced/lock")
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
-CONNECT_ON_BOOT=$(GET_VAR "config" "settings/network/boot")
 USER_INIT=$(GET_VAR "config" "settings/advanced/user_init")
 FIRST_INIT=$(GET_VAR "config" "boot/first_init")
 USB_FUNCTION=$(GET_VAR "config" "settings/advanced/usb_function")
-NET_COMPAT=$(GET_VAR "config" "settings/network/compat")
 
 #:] ### Enable Rumble Support
 #:] Primarily used for TrimUI/RK3326 devices at the moment.
@@ -68,11 +66,16 @@ case "$BOARD_NAME" in
 		;;
 esac
 
-#:] ### Device Module Loading
-#:] Load device specific kernel modules (GPU, input, storage, networking, etc.).
+#:] ### Set Default CPU Governor
+#:] Run the CPU at full performance during boot to shorten startup time.
+#:] Default is `performance` so that startup runs just that little bit quicker.
+LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"
+echo "performance" >"$GOVERNOR" &
+
+#:] ### Device Specific Module Loading
+#:] Load device specific kernel modules (except network).
 LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
 /opt/muos/script/device/module.sh load
-/opt/muos/script/device/module.sh load-network
 
 #:] ### First Init Messages
 #:] On the very first boot, show a disclaimer.
@@ -85,12 +88,6 @@ if [ "$FIRST_INIT" -eq 0 ]; then
 		/opt/muos/frontend/muxmessage 0 "$(printf 'FIRST INIT\n\nMustardOS is Getting Ready!\nPlease wait a moment...')" &
 	fi
 fi
-
-#:] ### Set Default CPU Governor
-#:] Run the CPU at full performance during boot to shorten startup time.
-#:] Default is `performance` so that startup runs just that little bit quicker.
-LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"
-echo "performance" >"$GOVERNOR"
 
 #:] ### Rumble Self Test
 #:] Briefly vibrate on capable devices to confirm GPIO/PWM configuration.
@@ -118,6 +115,35 @@ LOG_INFO "$0" 0 "BOOTING" "Starting Device Management System"
 udevadm trigger --type=subsystems --action=add
 udevadm trigger --type=devices --action=add
 udevadm settle --timeout=5 || LOG_WARN "$0" 0 "BOOTING" "Device Management Settle Failure"
+
+#:] ### Network Compatibility Routine
+#:] On certain devices we unload the network module if Module Compatibility is enabled and reload
+#:] it again as we found that SDIO sometimes inhibits the network module on cold boots.
+#:] This happens asynchronously (_in background_) by default, but may be blocking to user's choice.
+if [ "$FACTORY_RESET" -eq 0 ]; then
+	NET_COMPAT=$(GET_VAR "config" "settings/network/compat")
+	if [ "$NET_COMPAT" -eq 0 ]; then
+		LOG_INFO "$0" 0 "BOOTING" "Loading Network Module (background)"
+		/opt/muos/script/device/network.sh load &
+	else
+		LOG_INFO "$0" 0 "BOOTING" "Loading Network Module (foreground)"
+		/opt/muos/script/device/network.sh load
+		LOG_INFO "$0" 0 "BOOTING" "Executing Module Compatibility Handling"
+		NET_ASYNC=$(GET_VAR "config" "settings/network/async_load")
+		case "$BOARD_NAME" in
+			rg*)
+				if [ "$NET_ASYNC" -eq 1 ]; then
+					LOG_INFO "$0" 0 "BOOTING" "Module Compatibility Routine (background)"
+					/opt/muos/script/device/network.sh reload &
+				else
+					LOG_INFO "$0" 0 "BOOTING" "Module Compatibility Routine (foreground)"
+					/opt/muos/script/device/network.sh reload
+				fi
+				;;
+			*) ;;
+		esac
+	fi
+fi
 
 #:] ### Regular Boot Startup
 #:] Configure RTC, kick off mount handling, and determine console mode (internal vs HDMI).
@@ -232,21 +258,12 @@ fi
 ) &
 
 #:] ### Network Runner (_background_)
-#:] Load network modules (_if present_) and auto-connect when configured.
-#:] On certain devices we unload the network module if Module Compatibility is enabled and reload
-#:] it again as we found that SDIO sometimes inhibits the network module on cold boots.
-(
-	LOG_INFO "$0" 0 "BOOTING" "Checking for Network Capability"
-	if [ "$HAS_NETWORK" -eq 1 ]; then
-		case "$BOARD_NAME" in
-			rg*) [ "$NET_COMPAT" -eq 1 ] && /opt/muos/script/device/module.sh reload-network ;;
-			*) ;;
-		esac
-		if [ "$CONNECT_ON_BOOT" -eq 1 ]; then
-			/opt/muos/script/system/network.sh connect &
-		fi
-	fi
-) &
+#:] Auto-connect to network when configured (_if capability present_).
+LOG_INFO "$0" 0 "BOOTING" "Connecting Network on Boot if requested and possible"
+if [ "$HAS_NETWORK" -eq 1 ]; then
+	CONNECT_ON_BOOT=$(GET_VAR "config" "settings/network/boot")
+	[ "$CONNECT_ON_BOOT" -eq 1 ] && /opt/muos/script/system/network.sh connect &
+fi
 
 #:] ### Hotkey Daemon
 #:] Start the input listener that powers global hotkeys.

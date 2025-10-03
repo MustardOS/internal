@@ -2,6 +2,9 @@
 
 . /opt/muos/script/var/func.sh
 
+AUDIO_CONTROL="$(GET_VAR "device" "audio/control")"
+MAX_VOL="$(GET_VAR "device" "audio/max")"
+
 ACT_GO=/tmp/act_go
 APP_GO=/tmp/app_go
 GOV_GO=/tmp/gov_go
@@ -29,6 +32,11 @@ LAST_PLAY=$(cat "/opt/muos/config/boot/last_play")
 
 LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
 SET_DEFAULT_GOVERNOR
+
+#:] ### Wait for audio stack
+#:] Don't proceed to the frontend until PipeWire reports that it is ready.
+LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
+until [ "$(GET_VAR "device" "audio/ready")" -eq 1 ]; do TBOX sleep 0.01; done
 
 if [ $SKIP -eq 0 ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"
@@ -124,6 +132,9 @@ if [ $SKIP -eq 0 ]; then
 				[ ! -e "/tmp/chime_done" ] && printf 1 >"/tmp/chime_done"
 				SET_VAR "config" "system/used_reset" 0
 
+				# Reset audio control status
+				amixer -c 0 sset "$AUDIO_CONTROL" "${MAX_VOL}%" unmute >/dev/null 2>&1
+
 				# Okay we're all set, time to launch whatever we were playing last
 				/opt/muos/script/mux/launch.sh
 			fi
@@ -152,6 +163,9 @@ while :; do
 			;;
 		*) ;;
 	esac
+
+	# Reset audio control status
+	amixer -c 0 sset "$AUDIO_CONTROL" "${MAX_VOL}%" unmute >/dev/null 2>&1
 
 	# Content Loader
 	[ -s "$ROM_GO" ] && /opt/muos/script/mux/launch.sh

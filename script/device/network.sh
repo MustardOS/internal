@@ -26,8 +26,11 @@ FORCE_SDIO_AWAKE() {
 }
 
 WAIT_FOR_SDIO() {
-	for _ in $(seq 1 "$MAX_WAIT"); do
+	I=0
+	while [ "$I" -lt "${MAX_WAIT:-5}" ]; do
 		[ -d "/sys/bus/mmc/devices/mmc2:0001" ] && return 0
+
+		I=$((I + 1))
 		TBOX sleep 1
 	done
 
@@ -36,7 +39,9 @@ WAIT_FOR_SDIO() {
 
 WAIT_FOR_IFACE() {
 	W_IFACE=$1
-	for _ in $(seq 1 "$MAX_WAIT"); do
+
+	I=0
+	while [ "$I" -lt "${MAX_WAIT:-5}" ]; do
 		# Honour explicit iface if it exists
 		if [ -n "$W_IFACE" ] && [ -d "$SCN_PATH/$W_IFACE" ]; then
 			printf "%s" "$W_IFACE"
@@ -52,10 +57,12 @@ WAIT_FOR_IFACE() {
 		# Otherwise take the first wlan*, then eth*... is there others?
 		for N in "$SCN_PATH"/wlan* "$SCN_PATH"/eth*; do
 			[ -d "$N" ] || continue
-			printf "%s" "$(basename "$N")"
+			printf "%s" "${N##*/}"
+
 			return 0
 		done
 
+		I=$((I + 1))
 		TBOX sleep 1
 	done
 
@@ -66,14 +73,15 @@ LOAD_NETWORK() {
 	[ "$HAS_NETWORK" -eq 0 ] && return 0
 
 	# We need this because the 8821cs driver likes to be persistent when it has failed
-	case "$BOARD_NAME" in
-		rg*)
-			modprobe -q -r "$NET_NAME"
-			udevadm settle --timeout=5
-			TBOX sleep 1
-			;;
-		*) ;;
-	esac
+	if grep -qw "^$NET_NAME" /proc/modules 2>/dev/null; then
+		case "$BOARD_NAME" in
+			rg*)
+				modprobe -q -r "$NET_NAME"
+				TBOX sleep 1
+				;;
+			*) modprobe -q -r "$NET_NAME" ;;
+		esac
+	fi
 
 	# Should probably poke it again and make sure it's really awake before proceeding with final load
 	FORCE_SDIO_AWAKE
@@ -81,8 +89,7 @@ LOAD_NETWORK() {
 	# Not really necessary for the TrimUI devices but because the H700 devices
 	# run this just before probing the network module we are going to add it
 	# here "just in case" but also somewhat uniformity...
-	udevadm settle --timeout=5
-	! modprobe -q "$NET_NAME" && return 1
+	modprobe -q "$NET_NAME" || return 1
 
 	# On certain devices we have to actually wait for the SDIO controller
 	# to finish initialising because, that's right, the Wi-Fi chip is
@@ -90,12 +97,11 @@ LOAD_NETWORK() {
 	# we modprobe the network module!
 	if [ "$NET_COMPAT" -eq 1 ]; then
 		case "$BOARD_NAME" in
-			rg*) ! WAIT_FOR_SDIO && return 1 ;;
-			*) ;;
+			rg*) WAIT_FOR_SDIO || return 1 ;;
 		esac
 	fi
 
-	NET_IFACE=$(WAIT_FOR_IFACE "$NET_IFACE")
+	NET_IFACE=$(WAIT_FOR_IFACE "$NET_IFACE") || NET_IFACE=
 	[ -n "$NET_IFACE" ] || return 1
 	SET_VAR "device" "network/iface_active" "$NET_IFACE"
 
@@ -108,8 +114,10 @@ LOAD_NETWORK() {
 	# Idle any secondary wlan interfaces (wlan1 etc.)
 	for N in "$SCN_PATH"/wlan*; do
 		[ -d "$N" ] || continue
-		B="$(basename "$N")"
+
+		B=${N##*/}
 		[ "$B" = "$NET_IFACE" ] && continue
+
 		ip link set "$B" down 2>/dev/null
 	done &
 
@@ -128,21 +136,29 @@ UNLOAD_NETWORK() {
 	[ -n "$NET_IFACE" ] && [ -d "$SCN_PATH/$NET_IFACE" ] && ip link set "$NET_IFACE" down 2>/dev/null
 
 	rfkill block all 2>/dev/null
-	modprobe -q -r "$NET_NAME" 2>/dev/null || rmmod "$NET_NAME" 2>/dev/null
-	udevadm settle --timeout=5
 
-	[ -f "$RESOLV_CONF.bak" ] && mv "$RESOLV_CONF.bak" "$RESOLV_CONF"
+	if grep -qw "^$NET_NAME" /proc/modules 2>/dev/null; then
+		modprobe -q -r "$NET_NAME" 2>/dev/null || rmmod "$NET_NAME" 2>/dev/null
+	fi
+
+	[ -f "$RESOLV_CONF.bak" ] && mv -f "$RESOLV_CONF.bak" "$RESOLV_CONF"
 }
 
 RELOAD_NETWORK() {
 	[ "$HAS_NETWORK" -eq 0 ] && return 0
+
 	# we reload the driver a couple of times because sometimes the RTL really wants to sleep
 	# it's okay to bully hardware... i think?
-	for _ in $(seq 1 "$MAX_RETRY"); do
+	I=0
+	while [ "$I" -lt "$MAX_RETRY" ]; do
 		UNLOAD_NETWORK
 		TBOX sleep 1
-		! LOAD_NETWORK && return 0
+
+		LOAD_NETWORK && return 0
+
+		I=$((I + 1))
 	done
+
 	TBOX sleep 1
 	return 1
 }

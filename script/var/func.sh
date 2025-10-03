@@ -55,7 +55,7 @@ SET_VAR() {
 }
 
 GET_VAR() {
-	BASE="$(GET_CONF_PATH "$1")" || return 0
+	BASE=$(GET_CONF_PATH "$1") || return 0
 
 	FILE="$BASE/$2"
 	[ -r "$FILE" ] || return 0
@@ -64,7 +64,7 @@ GET_VAR() {
 	IFS= read -r VAL <"$FILE"
 
 	CR=$(printf "\r")
-	[ "${VAL%$CR}" != "$VAL" ] && VAL=${VAL%$CR}
+	[ "${VAL%"$CR"}" != "$VAL" ] && VAL=${VAL%"$CR"}
 
 	printf "%s" "$VAL"
 }
@@ -194,7 +194,7 @@ HOTKEY() {
 
 EXEC_MUX() {
 	if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-		while [ ! -f "/tmp/hdmi_in_use" ]; do TBOX sleep 0.1; done
+		while [ ! -f "/tmp/hdmi_in_use" ]; do TBOX sleep 0.01; done
 	fi
 
 	[ -f "$SAFE_QUIT" ] && rm "$SAFE_QUIT"
@@ -208,7 +208,7 @@ EXEC_MUX() {
 	SET_VAR "system" "foreground_process" "$MODULE"
 	nice --20 "/opt/muos/frontend/$MODULE" "$@"
 
-	while [ ! -f "$SAFE_QUIT" ]; do TBOX sleep 0.1; done
+	while [ ! -f "$SAFE_QUIT" ]; do TBOX sleep 0.01; done
 }
 
 # Prints current system uptime in hundredths of a second. Unlike date or
@@ -675,7 +675,7 @@ UPDATE_BOOTLOGO_PNG() {
 			printf "\nBootlogo found at: %s\n" "$NORM_BL"
 			CREATE_BOOTLOGO_FROM_PNG "$BOOT_MOUNT/bootlogo.png"
 		else
-			return 1;
+			return 1
 		fi
 	fi
 
@@ -685,7 +685,7 @@ UPDATE_BOOTLOGO_PNG() {
 			printf "\nRotated Bootlogo Image\n"
 			;;
 	esac
-	return 0;
+	return 0
 }
 
 CREATE_BOOTLOGO_FROM_PNG() {
@@ -700,7 +700,7 @@ CREATE_BOOTLOGO_FROM_PNG() {
 	JSONPATH="$THEME_ACTIVE_DIR/bootlogo.json"
 
 	if [ -e "$THEME_ACTIVE_DIR/active.txt" ]; then
-		read -r THEME_ALTERNATE < "$THEME_ACTIVE_DIR/active.txt"
+		read -r THEME_ALTERNATE <"$THEME_ACTIVE_DIR/active.txt"
 		printf "Theme Alternate: %s\n" "$THEME_ALTERNATE"
 		if [ -e "$THEME_ACTIVE_DIR/alternate/${THEME_ALTERNATE}_bootlogo.json" ]; then
 			JSONPATH="$THEME_ACTIVE_DIR/alternate/${THEME_ALTERNATE}_bootlogo.json"
@@ -712,7 +712,7 @@ CREATE_BOOTLOGO_FROM_PNG() {
 		BACKGROUND_COLOUR=$(jq -r '.background_colour' "$JSONPATH")
 		PNG_RECOLOUR=$(jq -r '.png_recolour' "$JSONPATH")
 		RAW_ALPHA=$(jq -r '.png_recolour_alpha' "$JSONPATH")
-		PNG_RECOLOUR_ALPHA=$(( RAW_ALPHA * 100 / 255 ))
+		PNG_RECOLOUR_ALPHA=$((RAW_ALPHA * 100 / 255))
 	fi
 
 	printf "Creating Bootlogo with settings:\n"

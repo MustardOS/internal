@@ -18,6 +18,8 @@ RUNTIME_DIR_INIT() {
 	chmod 700 "$RUNTIME_DIR"
 
 	export XDG_RUNTIME_DIR="$RUNTIME_DIR"
+
+	ln -s "$MUOS_SHARE_DIR/conf/wireplumber.lua" "/usr/share/wireplumber/main.lua.d/60-muos-wireplumber.lua"
 }
 
 SLEEP_MS() {

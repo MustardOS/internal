@@ -233,17 +233,6 @@ if [ "$CONSOLE_MODE" -eq 0 ]; then
 	LED_CONTROL_CHANGE
 fi
 
-#:] ### Passcode Lock (_optional_)
-#:] If enabled, loop until the user unlocks via `muxpass`.
-LOG_INFO "$0" 0 "BOOTING" "Checking for Passcode Lock"
-HAS_UNLOCK=0
-if [ "$PASSCODE_LOCK" -eq 1 ]; then
-	while [ "$HAS_UNLOCK" != 1 ]; do
-		EXEC_MUX "" "muxpass" -t boot
-		HAS_UNLOCK="$EXIT_STATUS"
-	done
-fi
-
 #:] ### Network Runner (_background_)
 #:] Auto-connect to network when configured (_if capability present_).
 LOG_INFO "$0" 0 "BOOTING" "Connecting Network on Boot if requested and possible"

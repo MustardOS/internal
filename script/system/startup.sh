@@ -248,7 +248,7 @@ HOTKEY start
 #:] ### Start muX frontend
 #:] Launch the UI after all core services are prepared.
 LOG_INFO "$0" 0 "BOOTING" "Starting muX Frontend"
-nohup /opt/muos/script/mux/frontend.sh >/dev/null 2>&1 &
+FRONTEND start
 
 #:] ### System sounds (_background_)
 #:] Preload short UI sounds so they're instant when invoked.

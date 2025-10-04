@@ -119,15 +119,6 @@ done &
 LOG_INFO "$0" 0 "BOOTING" "Bringing Up 'localhost' Network"
 ifconfig lo up
 
-#:] ### Device Management
-#:] Start udevd, trigger discovery, and wait briefly for devices to settle.
-#:] Any timeout here is logged but non-fatal; late devices may still come online.
-LOG_INFO "$0" 0 "BOOTING" "Starting Device Management System"
-/sbin/udevd -d || CRITICAL_FAILURE udev
-udevadm trigger --type=subsystems --action=add
-udevadm trigger --type=devices --action=add
-udevadm settle --timeout=5 || LOG_WARN "$0" 0 "BOOTING" "Device Management Settle Failure"
-
 #:] ### Network Compatibility Routine
 #:] On certain devices we unload the network module if Module Compatibility is enabled and reload
 #:] it again as we found that SDIO sometimes inhibits the network module on cold boots.

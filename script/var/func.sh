@@ -69,6 +69,22 @@ GET_VAR() {
 	printf "%s" "$VAL"
 }
 
+#:] ### ALSA Mixer Reset
+#:] Ensures the primary audio source is at max volume and unmuted.
+#:] PipeWire will handle the volume independently. Of course the TrimUI
+#:] devices works completely backwards, so that is why it is set to '0'.
+RESET_AMIXER() {
+	AUDIO_CONTROL="$(GET_VAR "device" "audio/control")"
+	MAX_VOL="$(GET_VAR "device" "audio/max")"
+
+	case "$(GET_VAR "device" "board/name")" in
+		tui*) DEV_VOL="0" ;;
+		*) DEV_VOL="$MAX_VOL" ;;
+	esac
+
+	amixer -c 0 sset "$AUDIO_CONTROL" "${DEV_VOL}%" unmute >/dev/null 2>&1
+}
+
 SET_DEFAULT_GOVERNOR() {
 	DEF_GOV=$(GET_VAR "device" "cpu/default")
 	printf '%s' "$DEF_GOV" >"$(GET_VAR "device" "cpu/governor")"

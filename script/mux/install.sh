@@ -2,9 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-AUDIO_CONTROL="$(GET_VAR "device" "audio/control")"
-MAX_VOL="$(GET_VAR "device" "audio/max")"
-
 ACT_GO=/tmp/act_go
 
 #:] ### Wait for audio stack
@@ -18,7 +15,7 @@ read -r START_TIME _ </proc/uptime
 SET_VAR "system" "start_time" "$START_TIME"
 
 # Reset audio control status
-amixer -c 0 sset "$AUDIO_CONTROL" "${MAX_VOL}%" unmute >/dev/null 2>&1
+RESET_AMIXER
 
 while :; do
 	[ -s "$ACT_GO" ] && {

@@ -168,7 +168,6 @@ DO_PRESTART() {
 
 CACHE_VARS() {
 	BOOT_CONSOLE_MODE="$(GET_VAR "config" "boot/device_mode")"
-	AUDIO_CONTROL="$(GET_VAR "device" "audio/control")"
 	PF_INTERNAL="$(GET_VAR "device" "audio/pf_internal")"
 	PF_EXTERNAL="$(GET_VAR "device" "audio/pf_external")"
 	GEN_VOL="$(GET_VAR "config" "settings/general/volume")"
@@ -277,7 +276,7 @@ DO_START() {
 		exit 1
 	fi
 
-	amixer -c 0 sset "$AUDIO_CONTROL" "${MAX_VOL}%" unmute >/dev/null 2>&1
+	RESET_AMIXER
 	SET_VAR "device" "audio/ready" "1"
 
 	(DO_PRESTART) &

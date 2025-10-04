@@ -10,9 +10,6 @@ ROM_GO=/tmp/rom_go
 
 EX_CARD=/tmp/explore_card
 
-MUX_AUTH=/tmp/mux_auth
-MUX_LAUNCHER_AUTH=/tmp/mux_launcher_auth
-
 SKIP=0
 
 if [ -n "$1" ]; then
@@ -182,9 +179,6 @@ while :; do
 				SET_DEFAULT_GOVERNOR
 
 				touch /tmp/pdi_go
-
-				[ -s "$MUX_AUTH" ] && ENSURE_REMOVED "$MUX_AUTH"
-				[ -s "$MUX_LAUNCHER_AUTH" ] && ENSURE_REMOVED "$MUX_LAUNCHER_AUTH"
 
 				EXEC_MUX "launcher" "muxfrontend"
 				;;

@@ -2,21 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
-ACT_GO="/tmp/act_go"
 ROM_GO="/tmp/rom_go"
 CON_GO="/tmp/con_go"
-
-MUX_LAUNCHER_AUTH="/tmp/mux_launcher_auth"
-
-if [ "$(GET_VAR "config" "settings/advanced/lock")" -eq 1 ] && [ ! -e "$MUX_LAUNCHER_AUTH" ]; then
-	EXEC_MUX "" "muxpass" -t launch
-	[ "$EXIT_STATUS" -eq 1 ] && touch "$MUX_LAUNCHER_AUTH"
-	if [ "$EXIT_STATUS" = 2 ]; then
-		rm "$ROM_GO"
-		echo explore >"$ACT_GO"
-		exit
-	fi
-fi
 
 NAME=$(sed -n '1p' "$ROM_GO")
 CORE=$(sed -n '2p' "$ROM_GO")

@@ -70,6 +70,11 @@ case "$BOARD_NAME" in
 		;;
 esac
 
+#:] ### Start PipeWire Audio
+#:] Launch PipeWire services (and wireplumber, if enabled) in one go.
+LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
+/opt/muos/script/system/pipewire.sh start &
+
 #:] ### Set Default CPU Governor
 #:] Run the CPU at full performance during boot to shorten startup time.
 #:] Default is `performance` so that startup runs just that little bit quicker.
@@ -106,6 +111,22 @@ fi
 LOG_INFO "$0" 0 "BOOTING" "Device Rumble Check"
 case "$RUMBLE_SETTING" in 1 | 4 | 5) RUMBLE "$RUMBLE_PIN" 0.3 ;; esac
 
+#:] ### Loopback Network
+#:] Bring up `lo` so local services can bind immediately.
+LOG_INFO "$0" 0 "BOOTING" "Bringing Up 'localhost' Network"
+ifconfig lo up
+
+#:] ### Factory Reset Detection
+#:] If we are in factory reset mode, run the reset routine and reboot immediately once done.
+if [ "$FACTORY_RESET" -eq 1 ]; then
+	LED_CONTROL_CHANGE
+
+	/opt/muos/script/system/factory.sh
+	/opt/muos/script/system/halt.sh reboot
+
+	exit 0
+fi
+
 #:] ### Restore Internal Display Geometry
 #:] Ensure both the internal screen and the mux frontend have the proper resolution.
 LOG_INFO "$0" 0 "BOOTING" "Restoring Screen Mode"
@@ -114,83 +135,60 @@ for MODE in screen mux; do
 	SET_VAR "device" "$MODE/height" "$HEIGHT"
 done &
 
-#:] ### Loopback Network
-#:] Bring up `lo` so local services can bind immediately.
-LOG_INFO "$0" 0 "BOOTING" "Bringing Up 'localhost' Network"
-ifconfig lo up
-
 #:] ### Network Compatibility Routine
 #:] On certain devices we unload the network module if Module Compatibility is enabled and reload
 #:] it again as we found that SDIO sometimes inhibits the network module on cold boots.
 #:] This happens asynchronously (_in background_) by default, but may be blocking to user's choice.
-if [ "$FACTORY_RESET" -eq 0 ]; then
-	if [ "$NET_COMPAT" -eq 0 ]; then
-		LOG_INFO "$0" 0 "BOOTING" "Loading Network Module (background)"
-		/opt/muos/script/device/network.sh load &
-	else
-		LOG_INFO "$0" 0 "BOOTING" "Loading Network Module (foreground)"
-		/opt/muos/script/device/network.sh load
-		LOG_INFO "$0" 0 "BOOTING" "Executing Module Compatibility Handling"
-		case "$BOARD_NAME" in
-			rg*)
-				if [ "$NET_ASYNC" -eq 1 ]; then
-					LOG_INFO "$0" 0 "BOOTING" "Module Compatibility Routine (background)"
-					/opt/muos/script/device/network.sh reload &
-				else
-					LOG_INFO "$0" 0 "BOOTING" "Module Compatibility Routine (foreground)"
-					/opt/muos/script/device/network.sh reload
-				fi
-				;;
-			*) ;;
-		esac
-	fi
+if [ "$NET_COMPAT" -eq 0 ]; then
+	LOG_INFO "$0" 0 "BOOTING" "Loading Network Module (background)"
+	/opt/muos/script/device/network.sh load &
+else
+	LOG_INFO "$0" 0 "BOOTING" "Loading Network Module (foreground)"
+	/opt/muos/script/device/network.sh load
+	LOG_INFO "$0" 0 "BOOTING" "Executing Module Compatibility Handling"
+	case "$BOARD_NAME" in
+		rg*)
+			if [ "$NET_ASYNC" -eq 1 ]; then
+				LOG_INFO "$0" 0 "BOOTING" "Module Compatibility Routine (background)"
+				/opt/muos/script/device/network.sh reload &
+			else
+				LOG_INFO "$0" 0 "BOOTING" "Module Compatibility Routine (foreground)"
+				/opt/muos/script/device/network.sh reload
+			fi
+			;;
+		*) ;;
+	esac
 fi
 
 #:] ### Regular Boot Startup
 #:] Kick off mount handling and update script removal.
 #:] Then determine console mode (internal vs HDMI).
 #:] Also check whether swap is required based on user preferences.
-if [ "$FACTORY_RESET" -eq 0 ]; then
-	LOG_INFO "$0" 0 "BOOTING" "Loading Storage Mounts"
-	/opt/muos/script/mount/start.sh &
+LOG_INFO "$0" 0 "BOOTING" "Loading Storage Mounts"
+/opt/muos/script/mount/start.sh &
 
-	LOG_INFO "$0" 0 "BOOTING" "Removing Existing Update Scripts"
-	rm -rf /opt/update.sh
+LOG_INFO "$0" 0 "BOOTING" "Removing Existing Update Scripts"
+rm -rf /opt/update.sh
 
-	echo 1 >/tmp/work_led_state
-	: >/tmp/net_start
+echo 1 >/tmp/work_led_state
+: >/tmp/net_start
 
-	LOG_INFO "$0" 0 "BOOTING" "Detecting Console Mode"
-	CONSOLE_MODE=0
-	if [ "$BOARD_HDMI" -eq 1 ]; then
-		HDMI_VALUE=0
+LOG_INFO "$0" 0 "BOOTING" "Detecting Console Mode"
+CONSOLE_MODE=0
+if [ "$BOARD_HDMI" -eq 1 ]; then
+	HDMI_VALUE=0
 
-		[ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ] && HDMI_VALUE=$(cat "$HDMI_PATH")
+	[ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ] && HDMI_VALUE=$(cat "$HDMI_PATH")
 
-		case "$HDMI_VALUE" in
-			1) CONSOLE_MODE=1 ;;                # HDMI is active = external
-			*[!0-9]* | 0 | *) CONSOLE_MODE=0 ;; # Non-numeric, 0, or fallback = internal
-		esac
-	fi
-	SET_VAR "config" "boot/device_mode" "$CONSOLE_MODE"
-
-	LOG_INFO "$0" 0 "BOOTING" "Checking Swap Requirements"
-	/opt/muos/script/system/swap.sh &
+	case "$HDMI_VALUE" in
+		1) CONSOLE_MODE=1 ;;                # HDMI is active = external
+		*[!0-9]* | 0 | *) CONSOLE_MODE=0 ;; # Non-numeric, 0, or fallback = internal
+	esac
 fi
+SET_VAR "config" "boot/device_mode" "$CONSOLE_MODE"
 
-#:] ### Start PipeWire Audio
-#:] Launch PipeWire services (and wireplumber, if enabled) in one go.
-LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
-/opt/muos/script/system/pipewire.sh start &
-
-#:] ### Factory Reset Detection
-#:] If we are in factory reset mode, run the reset routine and reboot immediately.
-if [ "$FACTORY_RESET" -eq 1 ]; then
-	LED_CONTROL_CHANGE
-
-	/opt/muos/script/system/factory.sh
-	/opt/muos/script/system/halt.sh reboot
-fi
+LOG_INFO "$0" 0 "BOOTING" "Checking Swap Requirements"
+/opt/muos/script/system/swap.sh &
 
 #:] ### Permissions sanity pass (background)
 #:] Ensure ownership and perms are sane on key trees.

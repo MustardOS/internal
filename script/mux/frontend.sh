@@ -98,12 +98,12 @@ if [ $SKIP -eq 0 ]; then
 				for TYPE in "governor" "control scheme"; do
 					case "$TYPE" in
 						"governor")
-							CONTENT_FILE="${BASE}.gov"
+							CONTENT_FILE="${DIR}/${BASE}.gov"
 							FALLBACK_FILE="${DIR}/core.gov"
 							OUTPUT_FILE="$GOV_GO"
 							;;
 						"control scheme")
-							CONTENT_FILE="${BASE}.con"
+							CONTENT_FILE="${DIR}/${BASE}.con"
 							FALLBACK_FILE="${DIR}/core.con"
 							OUTPUT_FILE="$CON_GO"
 							;;

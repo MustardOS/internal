@@ -10,7 +10,7 @@ CORE="$2"
 FILE="$3"
 ACTION="$4"
 
-TRACK_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/track/playtime_data.json"
+TRACK_JSON="$MUOS_STORE_DIR/info/track/playtime_data.json"
 TRACK_LOG="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/playtime_error.log"
 
 if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then

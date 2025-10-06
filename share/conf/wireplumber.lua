@@ -1,12 +1,20 @@
-rule = {
+rules = {
+  {
     matches = {
-        {
-            { "node.name", "matches", "alsa_output.*" },
-        },
+      {
+        { "media.class", "matches", "Audio/Sink" },
+      },
     },
     apply_properties = {
-        ["session.suspend-timeout-seconds"] = 86400
+      ["node.pause-on-idle"] = false,
+      ["session.suspend-timeout-seconds"] = 0,
+      ["api.alsa.period-size"] = 192,
+      ["api.alsa.periods"] = 3,
+      ["api.alsa.headroom"] = 0,
     },
+  },
 }
 
-table.insert(alsa_monitor.rules, rule)
+for _, rule in ipairs(rules) do
+  table.insert(alsa_monitor.rules, rule)
+end

@@ -112,7 +112,7 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Decompressing PortMaster Application"
 unzip -oq "$MUOS_SHARE_DIR/archive/muos.portmaster.zip" -d /
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Automatic Core Assign"
-/opt/muos/script/system/assign.sh -p -v
+/opt/muos/script/system/assign.sh -p
 
 if [ "$NETWORK_ENABLED" -eq 1 ]; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Changing Network MAC Address"

@@ -33,8 +33,6 @@ ARCHIVE_NAME="${ARCHIVE##*/}"
 FRONTEND_START_PROGRAM="${2:-archive}"
 printf "Inspecting Archive...\n"
 
-ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
-
 case "$ARCHIVE_NAME" in
 	pico-8_*)
 		if unzip -l "$ARCHIVE" | awk '
@@ -84,7 +82,7 @@ case "$ARCHIVE_NAME" in
 	*.muxapp)
 		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
 
-		if ! EXTRACT_ARCHIVE "Application" "$ARCHIVE" "$ROM_MOUNT/MUOS/application"; then
+		if ! EXTRACT_ARCHIVE "Application" "$ARCHIVE" "$MUOS_STORE_DIR/application"; then
 			printf "\nExtraction Failed...\n"
 			ALL_DONE 1
 		fi

@@ -29,7 +29,7 @@ if grep -qFx "$GRID_SECTION" "$INI_FILE"; then
             found && NF==0 {print col "\n" row; found=0}
             {print}
             END {if (found) print col "\n" row}
-        ' "$INI_FILE" > temp.ini && mv temp.ini "$INI_FILE"
+        ' "$INI_FILE" > /tmp/temp.ini && mv /tmp/temp.ini "$INI_FILE"
     fi
 else
 	echo "Disabling Grid Mode for Main Menu"

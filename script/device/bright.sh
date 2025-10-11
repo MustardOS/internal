@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# This is something fun and exciting...
 # See, https://www.man7.org/linux/man-pages/man1/flock.1.html
 exec 9>/tmp/bright.lock
 flock -n 9 || exit 0
@@ -8,7 +7,7 @@ flock -n 9 || exit 0
 . /opt/muos/script/var/func.sh
 
 DEVICE_MODE=$(GET_VAR "config" "boot/device_mode")
-[ -z "$1" ] || [ "$DEVICE_MODE" -ne 0 ] && exit 0
+{ [ -z "$1" ] || [ "$DEVICE_MODE" -ne 0 ]; } && exit 0
 
 INC_BRIGHT=$(GET_VAR "config" "settings/advanced/incbright")
 CURR_BRIGHT=$(GET_VAR "config" "settings/general/brightness")

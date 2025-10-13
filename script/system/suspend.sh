@@ -163,6 +163,7 @@ case "$SHUTDOWN_TIME_SETTING" in
 
 		CURRENT_TIME=$(cat "$S_EPOCH")
 		if [ "$CURRENT_TIME" -ge "$WAKE_EPOCH" ]; then
+			CHECK_RA_AND_SAVE "CLOSE_CONTENT"
 			/opt/muos/script/mux/quit.sh poweroff sleep
 		else
 			RESUME

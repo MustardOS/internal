@@ -2,8 +2,40 @@
 
 . /opt/muos/script/var/func.sh
 
-# hotkey.sh will restart it
-killall muhotkey
+HK_COMBO() {
+	case "$1" in
+		-1) return 0 ;;
+		0) printf '%s\n' '["A","R2","L2"]' ;;
+		1) printf '%s\n' '["X","R2","L2"]' ;;
+		2) printf '%s\n' '["A","L1","MENU"]' ;;
+		3) printf '%s\n' '["X","L1","MENU"]' ;;
+		4) printf '%s\n' '["START","MENU"]' ;;
+		5) printf '%s\n' '["SELECT","MENU"]' ;;
+	esac
+}
+
+HK_JSON="/opt/muos/device/control/hotkey.json"
+
+if [ -f "$HK_JSON" ]; then
+	J_SHOT=$(HK_COMBO "$(GET_VAR "config" "settings/hotkey/screenshot")")
+	J_DPAD=$(HK_COMBO "$(GET_VAR "config" "settings/hotkey/dpad_toggle")")
+
+	J_TEMP="$HK_JSON.tmp"
+
+	if [ -n "$J_SHOT" ]; then
+		jq -c --argjson s "$J_SHOT" \
+			'.SCREENSHOT.inputs = $s' \
+			"$HK_JSON" >"$J_TEMP" && mv "$J_TEMP" "$HK_JSON"
+	fi
+
+	if [ -n "$J_DPAD" ]; then
+		jq -c --argjson d "$J_DPAD" \
+			'.DPAD_TOGGLE.inputs = $d' \
+			"$HK_JSON" >"$J_TEMP" && mv "$J_TEMP" "$HK_JSON"
+	fi
+
+	HOTKEY restart
+fi
 
 C_BRIGHT="$(GET_VAR "config" "settings/general/brightness")"
 if [ "$C_BRIGHT" -lt 1 ]; then

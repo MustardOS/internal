@@ -711,6 +711,7 @@ CREATE_BOOTLOGO_FROM_PNG() {
 	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
 	THEME_ACTIVE_DIR="$MUOS_STORE_DIR/theme/active"
 	BACKGROUND_COLOUR="#000000"
+	BACKGROUND_GRADIENT_COLOUR="#000000"
 	PNG_RECOLOUR="#FFFFFF"
 	PNG_RECOLOUR_ALPHA=0
 	JSONPATH="$THEME_ACTIVE_DIR/bootlogo.json"
@@ -726,6 +727,7 @@ CREATE_BOOTLOGO_FROM_PNG() {
 	if [ -e "$JSONPATH" ]; then
 		printf "Found Bootlogo Json: %s\n" "$JSONPATH"
 		BACKGROUND_COLOUR=$(jq -r '.background_colour' "$JSONPATH")
+		BACKGROUND_GRADIENT_COLOUR=$(jq -r '.background_gradient_colour // .background_colour' "$JSONPATH")
 		PNG_RECOLOUR=$(jq -r '.png_recolour' "$JSONPATH")
 		RAW_ALPHA=$(jq -r '.png_recolour_alpha' "$JSONPATH")
 		PNG_RECOLOUR_ALPHA=$((RAW_ALPHA * 100 / 255))
@@ -733,10 +735,11 @@ CREATE_BOOTLOGO_FROM_PNG() {
 
 	printf "Creating Bootlogo with settings:\n"
 	printf "BACKGROUND_COLOUR: %s\n" "$BACKGROUND_COLOUR"
+	printf "BACKGROUND_GRADIENT_COLOUR: %s\n" "$BACKGROUND_GRADIENT_COLOUR"
 	printf "PNG_RECOLOUR: %s\n" "$PNG_RECOLOUR"
 	printf "PNG_RECOLOUR_ALPHA: %s\n" "$PNG_RECOLOUR_ALPHA"
 
-	magick -size "${DEVICE_W}x${DEVICE_H}" xc:"#${BACKGROUND_COLOUR}" -depth 24 "$BOOT_MOUNT/bootlogo.bmp"
+	magick -size "${DEVICE_W}x${DEVICE_H}" gradient:"#${BACKGROUND_COLOUR}-#${BACKGROUND_GRADIENT_COLOUR}" -depth 24 "$BOOT_MOUNT/bootlogo.bmp"
 	magick "$BOOTLOGO_PNG_PATH" -fill "#${PNG_RECOLOUR}" -colorize "$PNG_RECOLOUR_ALPHA" /tmp/bootlogo-recolor.png
 	magick "$BOOT_MOUNT/bootlogo.bmp" /tmp/bootlogo-recolor.png -gravity center -composite "$BOOT_MOUNT/bootlogo.bmp"
 }

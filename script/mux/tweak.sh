@@ -3,15 +3,19 @@
 . /opt/muos/script/var/func.sh
 
 HK_COMBO() {
-	case "$1" in
-		-1) return 0 ;;
-		0) printf '%s\n' '["A","R2","L2"]' ;;
-		1) printf '%s\n' '["X","R2","L2"]' ;;
-		2) printf '%s\n' '["A","L1","MENU"]' ;;
-		3) printf '%s\n' '["X","L1","MENU"]' ;;
-		4) printf '%s\n' '["START","MENU"]' ;;
-		5) printf '%s\n' '["SELECT","MENU"]' ;;
+	[ -z "$1" ] && return 0
+
+	case "$(GET_VAR "device" "board/name")" in
+		rg*) COMBO_FILE="$MUOS_SHARE_DIR/hotkey/rg.ini" ;;
+		tui*) COMBO_FILE="$MUOS_SHARE_DIR/hotkey/tui.ini" ;;
 	esac
+
+	[ ! -r "$COMBO_FILE" ] && return 0
+
+	awk -F= -v id="$1" '
+        $1 == id { print $2; found=1; exit }
+        END { if (!found) exit 1 }
+    ' "$COMBO_FILE"
 }
 
 HK_JSON="/opt/muos/device/control/hotkey.json"
@@ -23,14 +27,12 @@ if [ -f "$HK_JSON" ]; then
 	J_TEMP="$HK_JSON.tmp"
 
 	if [ -n "$J_SHOT" ]; then
-		jq -c --argjson s "$J_SHOT" \
-			'.SCREENSHOT.inputs = $s' \
+		jq --argjson s "$J_SHOT" '.SCREENSHOT.inputs = $s' \
 			"$HK_JSON" >"$J_TEMP" && mv "$J_TEMP" "$HK_JSON"
 	fi
 
 	if [ -n "$J_DPAD" ]; then
-		jq -c --argjson d "$J_DPAD" \
-			'.DPAD_TOGGLE.inputs = $d' \
+		jq --argjson d "$J_DPAD" '.DPAD_TOGGLE.inputs = $d' \
 			"$HK_JSON" >"$J_TEMP" && mv "$J_TEMP" "$HK_JSON"
 	fi
 

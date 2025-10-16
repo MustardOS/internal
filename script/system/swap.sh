@@ -11,7 +11,7 @@ SWAP_SIZE=$(GET_VAR "config" "settings/advanced/swapfile")
 CREATE_ZRAM() {
 	if [ "$2" -eq 1 ]; then
 		LOG_INFO "$1" 0 "ZRAMFILE" "Creating Zramfile"
-		modprobe /lib/modules/4.9.170/kernel/drivers/block/zram.ko
+		modprobe -f zram
 		zramctl --size "${ZRAM_SIZE}M" --algorithm lz4 "$ZRAM_FILE"
 	fi
 	LOG_INFO "$1" 0 "ZRAMFILE" "Mounting Zramfile"

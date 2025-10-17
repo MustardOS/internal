@@ -3,12 +3,16 @@
 . /opt/muos/script/var/func.sh
 
 BOARD_NAME=$(GET_VAR "device" "board/name")
+NET_NAME=$(GET_VAR "device" "network/name")
+
+depmod -a 2>/dev/null
 
 LOAD_MODULES() {
 	case "$BOARD_NAME" in
 		rg*)
-			insmod /lib/modules/4.9.170/kernel/drivers/fs/squashfs.ko &
-			insmod /lib/modules/4.9.170/kernel/drivers/video/gpu/mali_kbase.ko
+		  	modprobe -qf "$NET_NAME"
+			modprobe -qf squashfs
+			modprobe -qf mali_kbase
 
 			GPU_PATH="/sys/devices/platform/gpu"
 
@@ -23,8 +27,9 @@ LOAD_MODULES() {
 UNLOAD_MODULES() {
 	case "$BOARD_NAME" in
 		rg*)
-			rmmod mali_kbase 2>/dev/null
-			rmmod squashfs 2>/dev/null
+		  	modprobe -qr "$NET_NAME"
+			modprobe -qr mali_kbase
+			modprobe -qr squashfs
 			;;
 		*) ;;
 	esac

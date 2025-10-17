@@ -17,6 +17,10 @@ NET_COMPAT=$(GET_VAR "config" "settings/network/compat")
 MAX_WAIT=$(GET_VAR "config" "settings/network/wait_timer")
 MAX_RETRY=$(GET_VAR "config" "settings/network/compat_retry")
 
+# Ensure network interface is never blank at the start...
+[ -n "$NET_IFACE" ] || NET_IFACE=$(GET_VAR "device" "network/iface_active")
+[ -n "$NET_IFACE" ] || NET_IFACE="wlan0"
+
 FORCE_SDIO_AWAKE() {
 	# Keep SDIO from dozing while we bring Wi-Fi up
 	for P in /sys/bus/sdio/devices/*/power/control; do
@@ -76,10 +80,10 @@ LOAD_NETWORK() {
 	if grep -qw "^$NET_NAME" /proc/modules 2>/dev/null; then
 		case "$BOARD_NAME" in
 			rg*)
-				modprobe -q -r "$NET_NAME"
+				modprobe -qr "$NET_NAME"
 				TBOX sleep 1
 				;;
-			*) modprobe -q -r "$NET_NAME" ;;
+			*) modprobe -qr "$NET_NAME" ;;
 		esac
 	fi
 
@@ -89,7 +93,7 @@ LOAD_NETWORK() {
 	# Not really necessary for the TrimUI devices but because the H700 devices
 	# run this just before probing the network module we are going to add it
 	# here "just in case" but also somewhat uniformity...
-	modprobe -q "$NET_NAME" || return 1
+	modprobe -qf "$NET_NAME" || return 1
 
 	# On certain devices we have to actually wait for the SDIO controller
 	# to finish initialising because, that's right, the Wi-Fi chip is
@@ -101,8 +105,14 @@ LOAD_NETWORK() {
 		esac
 	fi
 
-	NET_IFACE=$(WAIT_FOR_IFACE "$NET_IFACE") || NET_IFACE=
-	[ -n "$NET_IFACE" ] || return 1
+	NET_IFACE_TMP=$(WAIT_FOR_IFACE "$NET_IFACE")
+	if [ -n "$NET_IFACE_TMP" ]; then
+		NET_IFACE="$NET_IFACE_TMP"
+	elif [ -z "$NET_IFACE" ]; then
+		NET_IFACE=$(GET_VAR "device" "network/iface_active")
+		[ -n "$NET_IFACE" ] || NET_IFACE="wlan0"
+	fi
+
 	SET_VAR "device" "network/iface_active" "$NET_IFACE"
 
 	rfkill unblock all 2>/dev/null
@@ -138,7 +148,7 @@ UNLOAD_NETWORK() {
 	rfkill block all 2>/dev/null
 
 	if grep -qw "^$NET_NAME" /proc/modules 2>/dev/null; then
-		modprobe -q -r "$NET_NAME" 2>/dev/null || rmmod "$NET_NAME" 2>/dev/null
+		modprobe -qr "$NET_NAME" 2>/dev/null
 	fi
 
 	[ -f "$RESOLV_CONF.bak" ] && mv -f "$RESOLV_CONF.bak" "$RESOLV_CONF"

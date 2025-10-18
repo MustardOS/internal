@@ -83,7 +83,6 @@ LOAD_NETWORK() {
 				modprobe -qr "$NET_NAME"
 				TBOX sleep 1
 				;;
-			*) modprobe -qr "$NET_NAME" ;;
 		esac
 	fi
 

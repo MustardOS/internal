@@ -43,7 +43,6 @@ RUMBLE_SETTING=$(GET_VAR "config" "settings/advanced/rumble")
 RUMBLE_PIN=$(GET_VAR "device" "board/rumble")
 BOARD_HDMI=$(GET_VAR "device" "board/hdmi")
 ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
-PASSCODE_LOCK=$(GET_VAR "config" "settings/advanced/lock")
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
 USER_INIT=$(GET_VAR "config" "settings/advanced/user_init")
@@ -56,19 +55,8 @@ NET_COMPAT=$(GET_VAR "config" "settings/network/compat")
 
 #:] ### Enable Rumble Support
 #:] Primarily used for TrimUI/RK3326 devices at the moment.
-case "$BOARD_NAME" in
-	tui*)
-		[ -e /sys/class/gpio/gpio227 ] || echo 227 >/sys/class/gpio/export
-		echo out >/sys/class/gpio/gpio227/direction
-		echo 0 >/sys/class/gpio/gpio227/value
-		;;
-	rk*)
-		[ -e /sys/class/pwm/pwmchip0/pwm0 ] || echo 0 >/sys/class/pwm/pwmchip0/export
-		echo 1000000 >/sys/class/pwm/pwmchip0/pwm0/period
-		echo 1000000 >/sys/class/pwm/pwmchip0/pwm0/duty_cycle
-		echo 1 >/sys/class/pwm/pwmchip0/pwm0/enable
-		;;
-esac
+LOG_INFO "$0" 0 "BOOTING" "Enabling Device Rumble"
+/opt/muos/script/device/rumble.sh &
 
 #:] ### Start PipeWire Audio
 #:] Launch PipeWire services (and wireplumber, if enabled) in one go.

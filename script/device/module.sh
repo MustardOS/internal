@@ -10,7 +10,7 @@ depmod -a 2>/dev/null
 LOAD_MODULES() {
 	case "$BOARD_NAME" in
 		rg*)
-		  	modprobe -qf "$NET_NAME"
+			modprobe -qf "$NET_NAME"
 			modprobe -qf squashfs
 			modprobe -qf mali_kbase
 
@@ -20,6 +20,9 @@ LOAD_MODULES() {
 			echo 648000000 >"$GPU_PATH/devfreq/gpu/min_freq"
 			echo 648000000 >"$GPU_PATH/devfreq/gpu/max_freq"
 			;;
+		tui*)
+			modprobe -q dc_sunxi
+			;;
 		*) ;;
 	esac
 }
@@ -27,9 +30,12 @@ LOAD_MODULES() {
 UNLOAD_MODULES() {
 	case "$BOARD_NAME" in
 		rg*)
-		  	modprobe -qr "$NET_NAME"
+			modprobe -qr "$NET_NAME"
 			modprobe -qr mali_kbase
 			modprobe -qr squashfs
+			;;
+		tui*)
+			modprobe -qr dc_sunxi
 			;;
 		*) ;;
 	esac

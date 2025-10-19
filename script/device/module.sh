@@ -24,10 +24,15 @@ case "$1" in
 			tui*)
 				modprobe -q "$NET_NAME"
 				modprobe -q dc_sunxi
-				case "$BOARD_NAME" in
-					*brick) /usr/bin/trimui_inputd_brick & ;;
-					*spoon) /usr/bin/trimui_inputd_smart_pro & ;;
-				esac
+
+				# Check if any trimui_inputd process is already running
+				# because this script is typically run with suspend too
+				if ! pgrep -f 'trimui_inputd_' >/dev/null 2>&1; then
+					case "$BOARD_NAME" in
+						*brick) /usr/bin/trimui_inputd_brick & ;;
+						*spoon) /usr/bin/trimui_inputd_smart_pro & ;;
+					esac
+				fi
 				;;
 			*zero28)
 				modprobe -q "$NET_NAME"
@@ -47,11 +52,15 @@ case "$1" in
 				;;
 			tui*)
 				modprobe -qr "$NET_NAME"
-				modprobe -qr dc_sunxi
-				case "$BOARD_NAME" in
-					*brick) pkill -x trimui_inputd_brick ;;
-					*spoon) pkill -x trimui_inputd_smart_pro ;;
-				esac
+				# Don't unload the following.  We are leaving it here for reference!
+				# modprobe -qr dc_sunxi
+				#
+				# We also don't want to kill the input just in case some running
+				# processes don't like the input being restarted for whatever reason
+				# case "$BOARD_NAME" in
+				#	*brick) killall -9 trimui_inputd_brick ;;
+				#	*spoon) killall -9 trimui_inputd_smart_pro ;;
+				# esac
 				;;
 			*zero28)
 				modprobe -qr "$NET_NAME"

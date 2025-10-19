@@ -45,7 +45,7 @@ Backends:
   AUTO   : default (prefers SYSFS if present, else SERIAL)
 
 SYSFS:
-  Modes      : 1=static, 2=sniff, 3=breath, 4=blink1, 5=blink2, 6=blink3, 7=linear
+  Modes      : 1=static, 2=breath fast, 3=breath med, 4=breath slow, 5=blink1, 6=blink2, 7=blink3, 8=linear, 9=sniff
   Brightness : 0–60 (clamped)
   Args:
     <L_r> <L_g> <L_b> [<R_r> <R_g> <R_b>] [M_r M_g M_b] [F1_r F1_g F1_b] [F2_r F2_g F2_b]
@@ -85,13 +85,24 @@ TO_HEX3() {
 EFFECT_MAP_SYSFS() {
 	case "$1" in
 		1) printf "%d" 4 ;; # static
-		2) printf "%d" 3 ;; # sniff
-		3) printf "%d" 2 ;; # breath
-		4) printf "%d" 5 ;; # blink1
-		5) printf "%d" 6 ;; # blink2
-		6) printf "%d" 7 ;; # blink3
-		7) printf "%d" 1 ;; # linear
+		2) printf "%d" 2 ;; # breath fast duration 3000
+		3) printf "%d" 2 ;; # breath med  duration 5000
+		4) printf "%d" 2 ;; # breath slow duration 10000
+		5) printf "%d" 5 ;; # blink1
+		6) printf "%d" 6 ;; # blink2
+		7) printf "%d" 7 ;; # blink3
+		8) printf "%d" 1 ;; # linear
+		9) printf "%d" 3 ;; # sniff
 		*) return 1 ;;
+	esac
+}
+
+DURATION_MAP_SYSFS() {
+	case "$1" in
+		2) printf "%d" 3000 ;; # breath fast duration 3000
+		3) printf "%d" 5000 ;; # breath med  duration 5000
+		4) printf "%d" 10000 ;; # breath slow duration 10000
+		*) printf "%d" "$2" ;;  # fallback to second arg
 	esac
 }
 
@@ -338,6 +349,7 @@ APPLY_SYSFS() {
 	SYSFS_WRITE "effect_rgb_hex_f2" "$HEX_F2_SP"
 
 	DUR_ALL=${FLAG_DUR_ALL:-${LED_DUR:-1000}}
+	DUR_ALL=$(DURATION_MAP_SYSFS "$MODE" "$DUR_ALL")
 
 	DUR_LV=${FLAG_DUR_L:-${LED_DUR_L:-$DUR_ALL}}
 	DUR_RV=${FLAG_DUR_R:-${LED_DUR_R:-$DUR_ALL}}

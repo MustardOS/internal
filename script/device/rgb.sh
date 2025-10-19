@@ -45,10 +45,10 @@ Backends:
   AUTO   : default (prefers SYSFS if present, else SERIAL)
 
 SYSFS:
-  Modes      : 1=breath, 2=sniff, 3=static, 4=blink1, 5=blink2, 6=blink3, 7=linear
+  Modes      : 1=static, 2=sniff, 3=breath, 4=blink1, 5=blink2, 6=blink3, 7=linear
   Brightness : 0–60 (clamped)
   Args:
-    <L_r> <L_g> <L_b> <R_r> <R_g> <R_b> [M_r M_g M_b] [F1_r F1_g F1_b] [F2_r F2_g F2_b]
+    <L_r> <L_g> <L_b> [<R_r> <R_g> <R_b>] [M_r M_g M_b] [F1_r F1_g F1_b] [F2_r F2_g F2_b]
   Options:
     --dur, --dur-l, --dur-r, --dur-m, --dur-f1, --dur-f2         (default 1000 ms)
     --cycles, --cycles-l, --cycles-r, --cycles-m, --cycles-f1, --cycles-f2   (default -1)
@@ -84,9 +84,9 @@ TO_HEX3() {
 
 EFFECT_MAP_SYSFS() {
 	case "$1" in
-		1) printf "%d" 2 ;; # breath
+		1) printf "%d" 4 ;; # static
 		2) printf "%d" 3 ;; # sniff
-		3) printf "%d" 4 ;; # static
+		3) printf "%d" 2 ;; # breath
 		4) printf "%d" 5 ;; # blink1
 		5) printf "%d" 6 ;; # blink2
 		6) printf "%d" 7 ;; # blink3
@@ -261,13 +261,13 @@ APPLY_SYSFS() {
 	LG=$2
 	LB=$3
 
-	RR=$4
-	RG=$5
-	RB=$6
+	RR=${4:-$LR}
+	RG=${5:-$LG}
+	RB=${6:-$LB}
 
-	MR=${7:-0}
-	MG=${8:-0}
-	MB=${9:-0}
+	MR=${7:-$LR}
+	MG=${8:-$LG}
+	MB=${9:-$LB}
 
 	F1R=${10:-$LR}
 	F1G=${11:-$LG}

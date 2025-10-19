@@ -4,6 +4,8 @@
 
 # Lonely, oh so lonely...
 RECENT_WAKE="/tmp/recent_wake"
+ORIG_CPU_GOV="/tmp/orig_cpu_gov"
+SYS_CPU_PATH="/sys/devices/system/cpu"
 
 DEV_BOARD=$(GET_VAR "device" "board/name")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
@@ -42,12 +44,12 @@ SLEEP() {
 	# energy module within the kernel and device tree... unlike TrimUI
 	case "$DEV_BOARD" in
 		rg*)
-			cat "$CPU_GOV_PATH" >"/tmp/orig_cpu_gov"
+			cat "$CPU_GOV_PATH" >"$ORIG_CPU_GOV"
 			echo "powersave" >"$CPU_GOV_PATH"
 
 			C=1
 			while [ "$C" -lt "$CPU_CORES" ]; do
-				echo 0 >"/sys/devices/system/cpu/cpu${C}/online"
+				echo 0 >"$SYS_CPU_PATH/cpu${C}/online"
 				C=$((C + 1))
 			done
 			;;
@@ -62,31 +64,29 @@ SLEEP() {
 		3 | 5 | 6) RUMBLE "$RUMBLE_DEVICE" 0.3 ;;
 	esac
 
-	if [ "$HAS_NETWORK" -eq 1 ]; then
-		/opt/muos/script/system/network.sh disconnect
-		/opt/muos/script/device/network.sh unload
-	fi
+	[ "$HAS_NETWORK" -eq 1 ] && /opt/muos/script/system/network.sh disconnect
 
 	/opt/muos/script/device/module.sh unload
 
-	echo "$SUSPEND_STATE" >/sys/power/state
+	echo "$SUSPEND_STATE" >"/sys/power/state"
 }
 
 RESUME() {
 	case "$DEV_BOARD" in
 		rg*)
-			cat "/tmp/orig_cpu_gov" >"$CPU_GOV_PATH"
+			cat "$ORIG_CPU_GOV" >"$CPU_GOV_PATH"
+			rm -f "$ORIG_CPU_GOV"
 
 			C=1
 			while [ "$C" -lt "$CPU_CORES" ]; do
-				echo 1 >"/sys/devices/system/cpu/cpu${C}/online"
+				echo 1 >"$SYS_CPU_PATH/cpu${C}/online"
 				C=$((C + 1))
 			done
 			;;
 		*) ;;
 	esac
 
-	/opt/muos/script/device/module.sh load &
+	/opt/muos/script/device/module.sh load
 
 	LED_CONTROL_CHANGE
 
@@ -131,10 +131,7 @@ RESUME() {
 		rm "$RECENT_WAKE"
 	) &
 
-	if [ "$HAS_NETWORK" -eq 1 ]; then
-		/opt/muos/script/device/network.sh load
-		nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
-	fi
+	[ "$HAS_NETWORK" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
 }
 
 [ -f "$RECENT_WAKE" ] && exit 0

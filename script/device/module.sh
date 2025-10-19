@@ -3,15 +3,17 @@
 . /opt/muos/script/var/func.sh
 
 BOARD_NAME=$(GET_VAR "device" "board/name")
+HAS_NETWORK=$(GET_VAR "device" "board/network")
 NET_NAME=$(GET_VAR "device" "network/name")
 
 depmod -a 2>/dev/null
 
 case "$1" in
 	load)
+		[ "$HAS_NETWORK" -eq 1 ] && modprobe -q "$NET_NAME"
+
 		case "$BOARD_NAME" in
 			rg*)
-				modprobe -q "$NET_NAME"
 				modprobe -q mali_kbase
 				modprobe -q squashfs
 
@@ -22,7 +24,6 @@ case "$1" in
 				echo 648000000 >"$GPU_PATH/devfreq/gpu/max_freq"
 				;;
 			tui*)
-				modprobe -q "$NET_NAME"
 				modprobe -q dc_sunxi
 
 				# Check if any trimui_inputd process is already running
@@ -35,7 +36,6 @@ case "$1" in
 				fi
 				;;
 			*zero28)
-				modprobe -q "$NET_NAME"
 				modprobe -q fuse
 				modprobe -q simplepad
 				;;
@@ -44,14 +44,14 @@ case "$1" in
 		;;
 
 	unload)
+		[ "$HAS_NETWORK" -eq 1 ] && modprobe -qr "$NET_NAME"
+
 		case "$BOARD_NAME" in
 			rg*)
-				modprobe -qr "$NET_NAME"
 				modprobe -qr mali_kbase
 				modprobe -qr squashfs
 				;;
 			tui*)
-				modprobe -qr "$NET_NAME"
 				# Don't unload the following.  We are leaving it here for reference!
 				# modprobe -qr dc_sunxi
 				#
@@ -63,7 +63,6 @@ case "$1" in
 				# esac
 				;;
 			*zero28)
-				modprobe -qr "$NET_NAME"
 				modprobe -qr fuse
 				modprobe -qr simplepad
 				;;

@@ -257,7 +257,7 @@ SYSFS_WRITE() {
 
 APPLY_SYSFS() {
 	MODE=$1
-	BRI=$2
+	BRI=$(( $2 * 60 / 255 ))
 	shift 2
 
 	case "$MODE" in 1 | 2 | 3 | 4 | 5 | 6 | 7) : ;; *)

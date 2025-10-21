@@ -162,6 +162,10 @@ case "$ARCHIVE_NAME" in
 
 			ARC_UNSET
 		done
+
+		# Special case for core downloads - we run the control script
+		# to initialise any control based changes for emulators
+		[ "$FRONTEND_START_PROGRAM" = "coredown" ] && /opt/muos/script/device/control.sh
 		;;
 	*) printf "\nNo Extraction Method '%s'\n" "$ARCHIVE_NAME" ;;
 esac

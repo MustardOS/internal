@@ -1,0 +1,38 @@
+{
+  "devices": [
+    "gcs-h36s",
+    "mgx-zero28",
+    "rg28xx-h",
+    "rg34xx-h",
+    "rg34xx-sp",
+    "rg35xx-2024",
+    "rg35xx-h",
+    "rg35xx-plus",
+    "rg35xx-pro",
+    "rg35xx-sp",
+    "rg40xx-h",
+    "rg40xx-v",
+    "rgcubexx-h",
+    "rk-g350-v"
+  ],
+  "BRIGHT_DOWN": {
+    "handle_hold": true,
+    "inputs": [
+      "MENU_LONG",
+      "VOL_DOWN"
+    ],
+    "is_handheld_mode": true,
+    "is_normal_mode": true,
+    "run_command": "/opt/muos/script/device/bright.sh D"
+  },
+  "BRIGHT_UP": {
+    "handle_hold": true,
+    "inputs": [
+      "MENU_LONG",
+      "VOL_UP"
+    ],
+    "is_handheld_mode": true,
+    "is_normal_mode": true,
+    "run_command": "/opt/muos/script/device/bright.sh U"
+  }
+}

@@ -382,6 +382,16 @@ HDMI_SWITCH() {
 	FB_SWITCH "$WIDTH" "$HEIGHT" "$DEPTH"
 }
 
+# Normal mode is stating that the factory reset routine is complete
+# and the device can act as it's supposed to, seems like some users
+# are "sleeping" their devices during the factory reset process.
+IS_NORMAL_MODE() {
+	[ "$(GET_VAR "config" "boot/factory_reset")" -eq 0 ]
+}
+
+# Handheld mode states stating whether or not the Console Mode (HDMI)
+# is preset and active.  We don't want specific hotkeys to run if we
+# are in currently in Console Mode.
 IS_HANDHELD_MODE() {
 	[ "$(GET_VAR "config" "boot/device_mode")" -eq 0 ]
 }

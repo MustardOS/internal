@@ -1,0 +1,12 @@
+{
+  "SCREENSHOT": {
+    "handle_hold": false,
+    "inputs": [
+      "X",
+      "R2",
+      "L2"
+    ],
+    "is_normal_mode": true,
+    "run_command": "/opt/muos/script/mux/screenshot.sh"
+  }
+}

@@ -112,7 +112,7 @@ MANAGE_WEBSERV() {
 							--port 8080 \
 							--url-arg \
 							--writable \
-							/bin/sh >/dev/null 2>&1 &
+							/bin/sh -l >/dev/null 2>&1 &
 						;;
 					syncthing)
 						[ ! -s /opt/muos/bin/syncthing ] && cp "/opt/muos/bin/syncthing.backup" "/opt/muos/bin/syncthing"

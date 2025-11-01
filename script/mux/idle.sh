@@ -45,7 +45,11 @@ while :; do
 	CHARGER_PATH="$(GET_VAR "device" "battery/charger")"
 	if [ -r "$CHARGER_PATH" ]; then
 		IFS= read -r CHARGING <"$CHARGER_PATH" || CHARGING=0
-		[ "$CHARGING" -eq 1 ] && INHIBIT="$INHIBIT_SLEEP"
+		if [ "$CHARGING" -eq 1 ]; then
+			INHIBIT="$INHIBIT_SLEEP"
+		else
+			INHIBIT="$INHIBIT_NONE"
+		fi
 	fi
 
 	# Have a peek at all of the running processes and break

@@ -8,16 +8,10 @@ INHIBIT_NONE=0
 INHIBIT_BOTH=1
 INHIBIT_SLEEP=2
 
-DO_BRIGHT=10
-KEEP_BRIGHT=
-
 DISPLAY_IDLE() {
 	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
 
-	BL="$(GET_VAR "config" "settings/general/brightness")"
-	KEEP_BRIGHT=$BL
-
-	[ "$BL" -gt "$DO_BRIGHT" ] && /opt/muos/script/device/bright.sh "$DO_BRIGHT"
+	DISPLAY_WRITE lcd0 setbl 10
 
 	[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 
@@ -27,9 +21,7 @@ DISPLAY_IDLE() {
 DISPLAY_ACTIVE() {
 	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
-	BL="$(GET_VAR "config" "settings/general/brightness")"
-
-	[ "$BL" -ne "$KEEP_BRIGHT" ] && /opt/muos/script/device/bright.sh "$KEEP_BRIGHT"
+	DISPLAY_WRITE lcd0 setbl "$(GET_VAR "config" "settings/general/brightness")"
 
 	LED_CONTROL_CHANGE
 

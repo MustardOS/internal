@@ -44,10 +44,10 @@ UPDATE_HOTKEY() {
 	fi
 }
 
-CHANGED=0
-UPDATE_HOTKEY "screenshot" && CHANGED=1
-UPDATE_HOTKEY "dpad_toggle" && CHANGED=1
-[ "$CHANGED" -eq 1 ] && HOTKEY restart
+UPDATE_HOTKEY "screenshot"
+UPDATE_HOTKEY "dpad_toggle"
+
+HOTKEY restart
 
 C_BRIGHT="$(GET_VAR "config" "settings/general/brightness")"
 if [ "$C_BRIGHT" -lt 1 ]; then

@@ -9,7 +9,6 @@
       "SWITCH",
       "VOL_DOWN"
     ],
-    "is_handheld_mode": true,
     "is_normal_mode": true,
     "run_command": "/opt/muos/script/device/bright.sh D"
   },
@@ -19,7 +18,6 @@
       "SWITCH",
       "VOL_UP"
     ],
-    "is_handheld_mode": true,
     "is_normal_mode": true,
     "run_command": "/opt/muos/script/device/bright.sh U"
   }

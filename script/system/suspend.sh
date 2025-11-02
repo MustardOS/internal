@@ -19,6 +19,7 @@ SUSPEND_STATE="$(GET_VAR "config" "danger/state")"
 DEFAULT_BRIGHTNESS="$(GET_VAR "config" "settings/general/brightness")"
 RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
 SHUTDOWN_TIME_SETTING="$(GET_VAR "config" "settings/power/shutdown")"
+CONNECT_ON_WAKE=$(GET_VAR "config" "settings/network/wake")
 
 CHECK_RA_AND_SAVE() {
 	# This is the safest bet to get RetroArch to save state automatically
@@ -62,7 +63,9 @@ SLEEP() {
 		3 | 5 | 6) RUMBLE "$RUMBLE_DEVICE" 0.3 ;;
 	esac
 
-	[ "$HAS_NETWORK" -eq 1 ] && /opt/muos/script/system/network.sh disconnect
+	if [ "$HAS_NETWORK" -eq 1 ]; then
+    	nohup /opt/muos/script/system/network.sh disconnect >/dev/null 2>&1 &
+    fi
 
 	/opt/muos/script/device/module.sh unload
 
@@ -126,7 +129,9 @@ RESUME() {
 	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
 	(TBOX sleep 5 && rm "$RECENT_WAKE") &
 
-	[ "$HAS_NETWORK" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
+	if [ "$HAS_NETWORK" -eq 1 ]; then
+    	[ "$CONNECT_ON_WAKE" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
+    fi
 }
 
 [ -f "$RECENT_WAKE" ] && exit 0

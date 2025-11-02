@@ -224,8 +224,8 @@ fi
 #:] ### Network Runner (_background_)
 #:] Auto-connect to network when configured (_if capability present_).
 LOG_INFO "$0" 0 "BOOTING" "Connecting Network on Boot if requested and possible"
-if [ "$HAS_NETWORK" -eq 1 ]; then
-	[ "$CONNECT_ON_BOOT" -eq 1 ] && /opt/muos/script/system/network.sh connect &
+if  [ "$HAS_NETWORK" -eq 1 ]; then
+	[   "$CONNECT_ON_BOOT" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
 fi
 
 #:] ### Hotkey Daemon

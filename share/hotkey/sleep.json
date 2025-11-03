@@ -1,0 +1,9 @@
+{
+  "SLEEP": {
+    "handle_hold": false,
+    "inputs": [
+      "POWER_SHORT"
+    ],
+    "is_normal_mode": true
+  }
+}

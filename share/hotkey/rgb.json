@@ -1,0 +1,52 @@
+{
+  "devices": [
+    "gcs-h36s",
+    "rg40xx-h",
+    "rgcubexx-h"
+  ],
+  "RGB_BRIGHT_DOWN": {
+    "handle_hold": false,
+    "inputs": [
+      "RS_DOWN",
+      "MENU_LONG"
+    ],
+    "is_handheld_mode": true,
+    "is_normal_mode": true
+  },
+  "RGB_BRIGHT_UP": {
+    "handle_hold": false,
+    "inputs": [
+      "RS_UP",
+      "MENU_LONG"
+    ],
+    "is_handheld_mode": true,
+    "is_normal_mode": true
+  },
+  "RGB_COLOR_NEXT": {
+    "handle_hold": false,
+    "inputs": [
+      "RS_RIGHT",
+      "MENU_LONG"
+    ],
+    "is_handheld_mode": true,
+    "is_normal_mode": true
+  },
+  "RGB_COLOR_PREV": {
+    "handle_hold": false,
+    "inputs": [
+      "RS_LEFT",
+      "MENU_LONG"
+    ],
+    "is_handheld_mode": true,
+    "is_normal_mode": true
+  },
+  "RGB_MODE": {
+    "handle_hold": false,
+    "inputs": [
+      "R3",
+      "MENU_LONG"
+    ],
+    "is_handheld_mode": true,
+    "is_normal_mode": true
+  }
+}

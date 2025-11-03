@@ -8,36 +8,46 @@ HK_COMBO() {
 	case "$(GET_VAR "device" "board/name")" in
 		rg*) COMBO_FILE="$MUOS_SHARE_DIR/hotkey/rg.ini" ;;
 		tui*) COMBO_FILE="$MUOS_SHARE_DIR/hotkey/tui.ini" ;;
+		*) return 0 ;;
 	esac
 
 	[ ! -r "$COMBO_FILE" ] && return 0
 
 	awk -F= -v id="$1" '
-        $1 == id { print $2; found=1; exit }
-        END { if (!found) exit 1 }
-    ' "$COMBO_FILE"
+		$1 == id { print $2; found=1; exit }
+		END { if (!found) exit 1 }
+	' "$COMBO_FILE"
 }
 
-HK_JSON="/opt/muos/device/control/hotkey.json"
+UPDATE_HOTKEY() {
+	JSON_FILE="$MUOS_SHARE_DIR/hotkey/$1.json"
+	[ ! -f "$JSON_FILE" ] && return 1
 
-if [ -f "$HK_JSON" ]; then
-	J_SHOT=$(HK_COMBO "$(GET_VAR "config" "settings/hotkey/screenshot")")
-	J_DPAD=$(HK_COMBO "$(GET_VAR "config" "settings/hotkey/dpad_toggle")")
+	NEW_COMBO=$(HK_COMBO "$(GET_VAR "config" "settings/hotkey/$1")")
+	[ -z "$NEW_COMBO" ] && return 1
 
-	J_TEMP="$HK_JSON.tmp"
+	JSON_TYPE=$(echo "$1" | tr '[:lower:]' '[:upper:]')
+	TEMP_FILE="/tmp/new_$1.tmp"
 
-	if [ -n "$J_SHOT" ]; then
-		jq --argjson s "$J_SHOT" '.SCREENSHOT.inputs = $s' \
-			"$HK_JSON" >"$J_TEMP" && mv "$J_TEMP" "$HK_JSON"
+	if ! jq --arg key "$JSON_TYPE" --argjson combo "$NEW_COMBO" '.[$key].inputs = $combo' \
+		"$JSON_FILE" >"$TEMP_FILE" 2>/dev/null; then
+		rm -f "$TEMP_FILE"
+		return 1
 	fi
 
-	if [ -n "$J_DPAD" ]; then
-		jq --argjson d "$J_DPAD" '.DPAD_TOGGLE.inputs = $d' \
-			"$HK_JSON" >"$J_TEMP" && mv "$J_TEMP" "$HK_JSON"
+	if ! cmp -s "$JSON_FILE" "$TEMP_FILE"; then
+		mv "$TEMP_FILE" "$JSON_FILE"
+		return 0
+	else
+		rm -f "$TEMP_FILE"
+		return 1
 	fi
+}
 
-	HOTKEY restart
-fi
+UPDATE_HOTKEY "screenshot"
+UPDATE_HOTKEY "dpad_toggle"
+
+HOTKEY restart
 
 C_BRIGHT="$(GET_VAR "config" "settings/general/brightness")"
 if [ "$C_BRIGHT" -lt 1 ]; then

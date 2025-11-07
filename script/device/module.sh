@@ -17,11 +17,12 @@ case "$1" in
 				modprobe -q mali_kbase
 				modprobe -q squashfs
 
-				GPU_PATH="/sys/devices/platform/gpu"
-
-				echo always_on >"$GPU_PATH/power_policy"
-				echo 648000000 >"$GPU_PATH/devfreq/gpu/min_freq"
-				echo 648000000 >"$GPU_PATH/devfreq/gpu/max_freq"
+				if [ "$(GET_VAR "config" "settings/advanced/maxgpu")" -eq 1 ]; then
+					GPU_PATH="/sys/devices/platform/gpu"
+					echo always_on >"$GPU_PATH/power_policy"
+					echo 648000000 >"$GPU_PATH/devfreq/gpu/min_freq"
+					echo 648000000 >"$GPU_PATH/devfreq/gpu/max_freq"
+				fi
 				;;
 			tui*)
 				modprobe -q dc_sunxi

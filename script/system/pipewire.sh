@@ -44,40 +44,40 @@ PROC_GONE() {
 }
 
 GET_NODE_ID() {
-	pw-cli ls Node 2>/dev/null | awk -v pat="$1" '
-	BEGIN { id=""; name=""; mc="" }
+	PATTERN=$1
+	ID=
+	MEDIA=
+	NAME=
 
-	# Start of node block: lines like "id 38, type PipeWire:Interface:Node/3"
-	/^[[:space:]]*id [0-9]+,/ {
-		if (id != "" && mc == "Audio/Sink" && (pat == "" || index(name, pat) > 0)) {
-			print id; exit
-		}
-		id = $2; sub(/,$/, "", id)
-		name = ""; mc = ""
-		next
-	}
+	# What an absolute fucking pain in the arse, this is up there with network
+	# with what I believe is the worst possible method to get a stupid Node ID
+	pw-cli list-objects Node 2>/dev/null | {
+		while IFS= read -r LINE; do
+			case $LINE in
+				[[:space:]]id\ [0-9]*,*)
+					ID=$(printf '%s\n' "$LINE" | awk '{print $2}' | tr -d ',')
+					MEDIA=
+					NAME=
+					;;
+				*"media.class ="*)
+					MEDIA=$(printf '%s\n' "$LINE" | sed 's/.*= "//; s/".*//')
+					;;
+				*"node.name ="*)
+					NAME=$(printf '%s\n' "$LINE" | sed 's/.*= "//; s/".*//')
+					;;
+			esac
 
-	# media.class = "Audio/Sink"
-	/^[[:space:]]*media\.class = "/ {
-		mc = $0
-		sub(/^.*= "/, "", mc); sub(/".*$/, "", mc)
-		next
+			if [ -n "$ID" ] && [ -n "$MEDIA" ] && [ -n "$NAME" ]; then
+				if [ "$MEDIA" = "Audio/Sink" ] &&
+					printf '%s\n' "$NAME" | grep -iq "$PATTERN"; then
+					printf '%s\n' "$ID"
+					break
+				fi
+				MEDIA=
+				NAME=
+			fi
+		done
 	}
-
-	# node.name = "alsa_output..."
-	/^[[:space:]]*node\.name = "/ {
-		name = $0
-		sub(/^.*= "/, "", name); sub(/".*$/, "", name)
-		next
-	}
-
-	# Last block if file ended without another "id ..." line)
-	END {
-		if (id != "" && mc == "Audio/Sink" && (pat == "" || index(name, pat) > 0)) {
-			print id
-		}
-	}
-	' | head -n1
 }
 
 GET_DEFAULT_SINK() {
@@ -205,6 +205,7 @@ FINALISE_AUDIO() {
 	fi
 
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1
+	SET_VAR "device" "audio/ready" "1"
 
 	LOG_SUCCESS "$0" 0 "PIPEWIRE" "Audio Finalised (node=%s, vol=%s%%)" "$DEF_ID" "$V"
 	return 0
@@ -235,7 +236,6 @@ DO_START() {
 	fi
 
 	RESET_AMIXER
-	SET_VAR "device" "audio/ready" "1"
 
 	(DO_PRESTART) &
 	REQUIRE_DBUS &

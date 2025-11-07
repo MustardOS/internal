@@ -207,7 +207,7 @@ FINALISE_AUDIO() {
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1
 	SET_VAR "device" "audio/ready" "1"
 
-	LOG_SUCCESS "$0" 0 "PIPEWIRE" "Audio Finalised (node=%s, vol=%s%%)" "$DEF_ID" "$V"
+	LOG_SUCCESS "$0" 0 "PIPEWIRE" "$(printf "Audio Finalised (node=%s, vol=%s%%)" "$DEF_ID" "$V")"
 	return 0
 }
 
@@ -215,7 +215,7 @@ START_PIPEWIRE() {
 	RUNTIME_INIT
 
 	if ! pgrep -x "pipewire" >/dev/null 2>&1; then
-		LOG_INFO "$0" 0 "PIPEWIRE" "Starting PipeWire (runtime: %s)" "$RUNTIME_DIR"
+		LOG_INFO "$0" 0 "PIPEWIRE" "$(printf "Starting PipeWire (runtime: %s)" "$RUNTIME_DIR")"
 		chrt -f 88 pipewire -c "$MUOS_SHARE_DIR/conf/pipewire.conf" &
 	else
 		LOG_WARN "$0" 0 "PIPEWIRE" "PipeWire already running"

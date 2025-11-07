@@ -59,7 +59,7 @@ HALT_SYSTEM() {
 
 	[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 
-	LOG_INFO "$0" 0 "QUIT" "Quitting system (cmd: %s) (src: %s)" "$HALT_CMD" "$HALT_SRC"
+	LOG_INFO "$0" 0 "QUIT" "$(printf "Quitting system (cmd: %s) (src: %s)" "$HALT_CMD" "$HALT_SRC")"
 
 	# Turn on power LED for visual feedback on halt success.
 	LOG_INFO "$0" 0 "QUIT" "Switching on normal LED"

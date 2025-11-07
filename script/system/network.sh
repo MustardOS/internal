@@ -30,7 +30,8 @@ CALCULATE_IAID() {
 	OCT6=${MAC##*:}
 	IAID=$(((0x$OCT5 << 8) | 0x$OCT6))
 
-	LOG_INFO "$0" 0 "NETWORK" "Using IAID: %s" "$IAID"
+	LOG_INFO "$0" 0 "NETWORK" "$(printf "Using IAID: %s" "$IAID")"
+
 	sed -i '/^iaid/d' "$DHCP_CONF"
 	printf 'iaid %s\n' "$IAID" >>"$DHCP_CONF"
 }
@@ -61,7 +62,7 @@ TRY_CONNECT() {
 	while [ "$WAIT_IFACE" -gt 0 ]; do
 		[ -d "/sys/class/net/$IFCE" ] && break
 
-		LOG_WARN "$0" 0 "NETWORK" "Waiting for interface '%s' to appear... (%ds)" "$IFCE" "$WAIT_IFACE"
+		LOG_WARN "$0" 0 "NETWORK" "$(printf "Waiting for interface '%s' to appear... (%ds)" "$IFCE" "$WAIT_IFACE")"
 
 		TBOX sleep 1
 		WAIT_IFACE=$((WAIT_IFACE - 1))
@@ -71,7 +72,7 @@ TRY_CONNECT() {
 
 	mkdir -p /var/db/dhcpcd || true
 
-	LOG_INFO "$0" 0 "NETWORK" "Setting '%s' device up" "$IFCE"
+	LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting '%s' device up" "$IFCE")"
 	if ! ip link set dev "$IFCE" up; then
 		LOG_ERROR "$0" 0 "NETWORK" "Failed to bring up interface '$IFCE'"
 		return 1
@@ -120,7 +121,7 @@ TRY_CONNECT() {
 			IP=$(ip -4 a show dev "$IFCE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p')
 
 			if [ -n "$IP" ]; then
-				LOG_SUCCESS "$0" 0 "NETWORK" "DHCP Lease Acquired: %s" "$IP"
+				LOG_SUCCESS "$0" 0 "NETWORK" "$(printf "DHCP Lease Acquired: %s" "$IP")"
 				LOG_INFO "$0" 0 "NETWORK" "Resolving Nameserver"
 				DDNS=$(sed -n 's/^nameserver //p' /etc/resolv.conf | head -n1)
 				break
@@ -177,7 +178,7 @@ case "$1" in
 		LOG_INFO "$0" 0 "NETWORK" "Clearing Previous DHCP Addresses"
 		rm -rf /var/db/dhcpcd/*
 
-		LOG_INFO "$0" 0 "NETWORK" "Setting '%s' device down" "$IFCE"
+		LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting '%s' device down" "$IFCE")"
 		ip link set dev "$IFCE" down
 
 		LOG_INFO "$0" 0 "NETWORK" "Stopping Network Services"
@@ -210,7 +211,7 @@ case "$1" in
 			fi
 
 			RETRY_CURR=$((RETRY_CURR + 1))
-			LOG_WARN "$0" 0 "NETWORK" "Retrying Network Connection (%s/%s)" "$RETRY_CURR" "$RETRIES"
+			LOG_WARN "$0" 0 "NETWORK" "$(printf "Retrying Network Connection (%s/%s)" "$RETRY_CURR" "$RETRIES")"
 			TBOX sleep "$RETRY_DELAY"
 		done
 

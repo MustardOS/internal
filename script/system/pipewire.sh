@@ -174,7 +174,7 @@ FINALISE_AUDIO() {
 	fi
 
 	if [ -z "$DEF_ID" ]; then
-		SET_VAR "device" "audio/ready" "1"
+		[ "$(GET_VAR "config" "settings/advanced/audio_ready")" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
 		return 1
 	fi
 
@@ -205,7 +205,7 @@ FINALISE_AUDIO() {
 	fi
 
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1
-	SET_VAR "device" "audio/ready" "1"
+	[ "$(GET_VAR "config" "settings/advanced/audio_ready")" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
 
 	LOG_SUCCESS "$0" 0 "PIPEWIRE" "$(printf "Audio Finalised (node=%s, vol=%s%%)" "$DEF_ID" "$V")"
 	return 0
@@ -232,6 +232,7 @@ START_PIPEWIRE() {
 DO_START() {
 	if ! START_PIPEWIRE; then
 		LOG_ERROR "$0" 0 "PIPEWIRE" "Failed to start"
+		[ "$(GET_VAR "config" "settings/advanced/audio_ready")" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
 		exit 1
 	fi
 
@@ -253,7 +254,7 @@ DO_STOP() {
 
 	STOP_AUDIO_STACK
 
-	SET_VAR "device" "audio/ready" "0"
+	[ "$(GET_VAR "config" "settings/advanced/audio_ready")" -eq 1 ] && SET_VAR "device" "audio/ready" "0"
 	LOG_SUCCESS "$0" 0 "PIPEWIRE" "Audio shutdown complete"
 }
 

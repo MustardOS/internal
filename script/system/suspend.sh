@@ -40,8 +40,7 @@ SLEEP() {
 	DISPLAY_WRITE lcd0 setbl 0
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
 
-	# We'll pop the device into a lower governor and CPU frame
-	echo "powersave" >"$CPU_GOV_PATH"
+	cat "$CPU_GOV_PATH" >"$WAKE_CPU_GOV"
 
 	# Shutdown all of the CPU cores for boards that have actual proper
 	# energy module within the kernel and device tree... unlike TrimUI
@@ -64,8 +63,8 @@ SLEEP() {
 	esac
 
 	if [ "$HAS_NETWORK" -eq 1 ]; then
-    	nohup /opt/muos/script/system/network.sh disconnect >/dev/null 2>&1 &
-    fi
+		nohup /opt/muos/script/system/network.sh disconnect >/dev/null 2>&1 &
+	fi
 
 	/opt/muos/script/device/module.sh unload
 
@@ -125,13 +124,14 @@ RESUME() {
 	esac
 
 	cat "$WAKE_CPU_GOV" >"$CPU_GOV_PATH"
+	rm -rf "/tmp/wake_cpu_gov"
 
 	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
 	(TBOX sleep 5 && rm "$RECENT_WAKE") &
 
 	if [ "$HAS_NETWORK" -eq 1 ]; then
-    	[ "$CONNECT_ON_WAKE" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
-    fi
+		[ "$CONNECT_ON_WAKE" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
+	fi
 }
 
 [ -f "$RECENT_WAKE" ] && exit 0

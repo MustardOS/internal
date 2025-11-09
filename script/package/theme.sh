@@ -166,7 +166,7 @@ BOOTLOGO() {
 	fi
 
 	printf "Bootlogo Updated\n"
-	ALL_DONE 0 "custom"
+	ALL_DONE 0 "${THEME_ARG:-custom}"
 }
 
 case "$MODE" in

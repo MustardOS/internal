@@ -16,17 +16,26 @@ FRIENDLY_JSON="$MUOS_STORE_DIR/info/name/general.json"
 SKIP_FILE="$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/skip.ini"
 [ ! -s "$SKIP_FILE" ] && SKIP_FILE="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/skip.ini"
 
+TMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TMP_DIR"' EXIT INT TERM
+
+TMP_FRIENDLY="/tmp/f_result.json"
+TMP_FRIENDLY_FILES="$TMP_DIR/f_files.txt"
+
 S_TERM="$1"
 
 # Shift one argument over so we are left with only directories to search
 shift
 
-TMP_DIR=$(mktemp -d)
-trap 'rm -rf "$TMP_DIR"' EXIT INT TERM
-TMP_MATCHES="$TMP_DIR/matches.txt"
-
-# TODO: https://github.com/MustardOS/internal/pull/573#pullrequestreview-3035531164
-# Ensure friendly file naming scheme system is being used at /run/muos/storage/info/name/global.json.
+# Generate friendly name JSON so we can use that for the search results for quicker parsing
+if [ -f "$FRIENDLY_JSON" ]; then
+	/opt/muos/bin/rg -i "$S_TERM" "$FRIENDLY_JSON" |
+		sed -e '1s/^/{\n/' -e '$s/,$//' -e '$a}' >"$TMP_FRIENDLY"
+	jq -r 'keys[]' "$TMP_FRIENDLY" >"$TMP_FRIENDLY_FILES"
+else
+	printf "{}" >"$TMP_FRIENDLY"
+	: >"$TMP_FRIENDLY_FILES"
+fi
 
 # Convert directories array to JSON
 directories=$(printf '%s\n' "$@" | jq -R . | jq -s .)
@@ -36,27 +45,22 @@ directories=$(printf '%s\n' "$@" | jq -R . | jq -s .)
 	# Process each directory and output all matching files
 	for S_DIR in "$@"; do
 		/opt/muos/bin/rg --color=never --files "$S_DIR" --ignore-file "$SKIP_FILE" 2>/dev/null |
-		/opt/muos/bin/rg --color=never --pcre2 -i "/(?!.*\/).*$S_TERM" |
-		# sed: Remove the leading directory path from each file (only affects local search)
-        # || true: Prevent script exit when no matches found (rg exits with status 1)
-        sed "s|^$S_DIR/||" >> "$TMP_MATCHES" || true
+		/opt/muos/bin/rg --color=never --pcre2 -i "/(?!.*\/).*$S_TERM" | sed "s|^$S_DIR/||" || true
 	done
-}
-
-# Second stage: Process the collected matches into JSON
-# This avoids keeping the entire pipeline active for the full duration
-cat "$TMP_MATCHES" |
+} |
 # Input to jq: File paths (one per line)
 # Example:
 #   /mnt/sdcard/ROMS/Pico-8/awesome_platform_adventure.p8
 #   /mnt/sdcard/ROMS/Ports/open_source_adventure.zip
+# jq -R: Read each line as string instead of JSON
+# jq -s: read all inputs into an array and use it as
+# the single input value
 jq -R . | jq -s --arg lookup "$S_TERM" --argjson directories "$directories" '
-	# map(...): Transform each file path string into {dir:..., file:...} object
+	# Transform each file path string into {dir:..., file:...} object
 	map(split("/") | {dir: (.[:-1] | join("/")), file: .[-1]}) |
 
-	# group_by(.dir): Group all objects by their "dir" field (sorted)
+	# Group all objects by their "dir" field (sorted)
 	group_by(.dir) |
-
 	map({
 		# If directory is empty (e.g. local search, with path removed by sed above),
 		# use "." instead
@@ -64,11 +68,11 @@ jq -R . | jq -s --arg lookup "$S_TERM" --argjson directories "$directories" '
 		value: {content: map(.file) | sort}
 	}) |
 
-	# from_entries: Convert array of {key:..., value:...} objects into single object
+	# Convert array of {key:..., value:...} objects into single object
 	from_entries |
 
 	# Final JSON structure: Create object with lookup term, directories, and folders
-	# e.g.
+	# Example:
 	#   {
 	#     "lookup": "adventure",
 	#     "directories": ["/mnt/sdcard/ROMS"],

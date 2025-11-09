@@ -45,8 +45,8 @@ unzip -oq "$MUOS_SHARE_DIR/archive/muos.init.zip" "init/*" -d "$ROM_MOUNT"
 # Because of how we prepare the archive we need to do some extra juggling
 INIT_DIR="$ROM_MOUNT/init"
 if [ -d "$INIT_DIR" ]; then
-    find "$INIT_DIR" -mindepth 1 -maxdepth 1 -exec mv -f {} "$ROM_MOUNT"/ \;
-    rm -rf "$INIT_DIR"
+	find "$INIT_DIR" -mindepth 1 -maxdepth 1 -exec mv -f {} "$ROM_MOUNT"/ \;
+	rm -rf "$INIT_DIR"
 fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Filesystem Paths"
@@ -108,8 +108,18 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Generating Blank Syncthing API File"
 LOG_INFO "$0" 0 "FACTORY RESET" "Calculating FNV-1a Hash of Default Theme"
 /opt/muos/bin/fnv1a "$MUOS_DIR/theme/MustardOS.muxthm" >"/opt/muos/config/theme/default"
 
-LOG_INFO "$0" 0 "FACTORY RESET" "Decompressing PortMaster Application"
-unzip -oq "$MUOS_SHARE_DIR/archive/muos.portmaster.zip" -d /
+PM_ZIP="$MUOS_SHARE_DIR/archive/muos.portmaster.zip"
+if [ -e "$PM_ZIP" ]; then
+	LOG_INFO "$0" 0 "FACTORY RESET" "Decompressing PortMaster Application"
+	unzip -oq "$PM_ZIP" -d /
+fi
+
+RT_DIR="/mnt/mmc/MUOS/PortMaster/runtimes"
+RT_ZIP="$MUOS_SHARE_DIR/archive/runtimes.popular.aarch64.zip"
+if [ -e "$RT_ZIP" ]; then
+	LOG_INFO "$0" 0 "FACTORY RESET" "Decompressing PortMaster Runtimes"
+	unzip -oq "$RT_ZIP" -d "$RT_DIR"
+fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Automatic Core Assign"
 /opt/muos/script/system/assign.sh -p

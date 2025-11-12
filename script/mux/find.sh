@@ -21,8 +21,6 @@ trap 'rm -rf "$TMP_DIR"' EXIT INT TERM
 
 TMP_FRIENDLY="/tmp/f_result.json"
 TMP_FRIENDLY_FILES="$TMP_DIR/f_files.txt"
-TMP_FILES="$TMP_DIR/files.txt"
-TMP_RESULTS="$TMP_DIR/results.json"
 
 S_TERM="$1"
 
@@ -39,26 +37,53 @@ else
 	: >"$TMP_FRIENDLY_FILES"
 fi
 
-# Create and populate JSON structure for parsing in muxsearch
-jq -n --arg lookup "$S_TERM" '{lookup: $lookup, directories: [], folders: {}}' >"$TMP_RESULTS"
+# Convert directories array to JSON
+directories=$(printf '%s\n' "$@" | jq -R . | jq -s .)
 
-# Okay now we'll go through each of the requested directories and find content based on the search term
-for S_DIR in "$@"; do
-	/opt/muos/bin/rg --files "$S_DIR" --ignore-file "$SKIP_FILE" 2>/dev/null |
-		/opt/muos/bin/rg --pcre2 -i "/(?!.*\/).*$S_TERM" |
-		sed "s|^$S_DIR/||" | sort -fu >>"$TMP_FILES" # yeah sort fuck you too
+# Process all directories and create JSON structure in a single pipeline
+{
+	# Process each directory and output all matching files
+	for S_DIR in "$@"; do
+		/opt/muos/bin/rg --color=never --files "$S_DIR" --ignore-file "$SKIP_FILE" 2>/dev/null |
+		/opt/muos/bin/rg --color=never --pcre2 -i "/(?!.*\/).*$S_TERM" | sed "s|^$S_DIR/||" || true
+	done
+} |
+# Input to jq: File paths (one per line)
+# Example:
+#   /mnt/sdcard/ROMS/Pico-8/awesome_platform_adventure.p8
+#   /mnt/sdcard/ROMS/Ports/open_source_adventure.zip
+# jq -R: Read each line as string instead of JSON
+# jq -s: read all inputs into an array and use it as
+# the single input value
+jq -R . | jq -s --arg lookup "$S_TERM" --argjson directories "$directories" '
+	# Transform each file path string into {dir:..., file:...} object
+	map(split("/") | {dir: (.[:-1] | join("/")), file: .[-1]}) |
 
-	jq --arg dir "$S_DIR" '.directories += [$dir]' "$TMP_RESULTS" >"$TMP_RESULTS.dirlist"
-	mv "$TMP_RESULTS.dirlist" "$TMP_RESULTS"
-done
+	# Group all objects by their "dir" field (sorted)
+	group_by(.dir) |
+	map({
+		# If directory is empty (e.g. local search, with path removed by sed above),
+		# use "." instead
+		key: (.[0].dir | if . == "" then "." else . end),
+		value: {content: map(.file) | sort}
+	}) |
 
-# Time to make the JSON results file with everything above!
-while IFS= read -r RESULT; do
-	jq --arg dir "$(dirname "$RESULT")" --arg file "$(basename "$RESULT")" \
-		'(.folders[$dir].content += [$file]) //(.folders[$dir] = { content: [$file] })' \
-		"$TMP_RESULTS" >"$TMP_RESULTS.result"
-	mv "$TMP_RESULTS.result" "$TMP_RESULTS"
-done <"$TMP_FILES"
+	# Convert array of {key:..., value:...} objects into single object
+	from_entries |
 
-# And now we'll sort out the entries within each key
-jq '.folders |= (to_entries | sort_by(.key) | from_entries)' "$TMP_RESULTS" >"$RESULTS_JSON"
+	# Final JSON structure: Create object with lookup term, directories, and folders
+	# Example:
+	#   {
+	#     "lookup": "adventure",
+	#     "directories": ["/mnt/sdcard/ROMS"],
+	#     "folders": {
+	#       "/mnt/sdcard/ROMS/Pico-8": {
+	#         "content": ["awesome_platform_adventure.p8"]
+	#       },
+	#       "/mnt/sdcard/ROMS/Ports": {
+	#         "content": ["open_source_adventure.zip"]
+	#       }
+	#     }
+	#   }
+	{lookup: $lookup, directories: $directories, folders: .}
+' > "$RESULTS_JSON"

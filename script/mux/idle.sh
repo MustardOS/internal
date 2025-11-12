@@ -18,7 +18,7 @@ DISPLAY_IDLE() {
 
 	[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 
-    touch "$IS_IDLE"
+	touch "$IS_IDLE"
 }
 
 DISPLAY_ACTIVE() {

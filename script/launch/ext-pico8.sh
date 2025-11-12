@@ -44,10 +44,12 @@ cd "$EMUDIR" || exit
 
 GPTOKEYB "$P8_BIN" "$CORE"
 
-P8_MODE="-run $FILE"
-[ "$NAME" = "Splore" ] && P8_MODE="-splore"
-
-PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS -root_path "$(dirname "$FILE")" $P8_MODE
+set -- -root_path "$(dirname "$FILE")"
+case $NAME in
+    [Ss]plore*) set -- "$@" -splore ;;
+    *) set -- "$@" -run "$FILE" ;;
+esac
+PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS "$@"
 
 FAVOURITE="$MUOS_STORE_DIR/save/pico8/favourites.txt"
 if [ -e "$FAVOURITE" ]; then

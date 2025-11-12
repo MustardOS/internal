@@ -25,6 +25,8 @@ SCVM=$(tr -d '[:space:]' <"$F_PATH/$NAME.scummvm" | head -n 1)
 
 if [ -d "$F_PATH/.$NAME" ]; then
 	SUBFOLDER=".$NAME"
+elif [ -d "$F_PATH/_$NAME" ]; then
+	SUBFOLDER="_$NAME"
 else
 	SUBFOLDER="$NAME"
 fi

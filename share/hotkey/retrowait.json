@@ -1,0 +1,16 @@
+{
+  "RETROWAIT_IGNORE": {
+    "handle_hold": false,
+    "inputs": [
+      "START"
+    ],
+    "is_normal_mode": true
+  },
+  "RETROWAIT_MENU": {
+    "handle_hold": false,
+    "inputs": [
+      "SELECT"
+    ],
+    "is_normal_mode": true
+  }
+}

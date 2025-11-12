@@ -8,13 +8,11 @@ INHIBIT_NONE=0
 INHIBIT_BOTH=1
 INHIBIT_SLEEP=2
 
-DO_BRIGHT=10
-KEEP_BRIGHT=
-
 DISPLAY_IDLE() {
 	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
 
 	[ "$(DISPLAY_READ lcd0 getbl)" -gt 10 ] && DISPLAY_WRITE lcd0 setbl 10
+	DISPLAY_WRITE lcd0 setbl 10
 
 	[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 
@@ -24,9 +22,7 @@ DISPLAY_IDLE() {
 DISPLAY_ACTIVE() {
 	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
-	BL="$(GET_VAR "config" "settings/general/brightness")"
-
-	[ "$BL" -ne "$KEEP_BRIGHT" ] && /opt/muos/script/device/bright.sh "$KEEP_BRIGHT"
+	DISPLAY_WRITE lcd0 setbl "$(GET_VAR "config" "settings/general/brightness")"
 
 	LED_CONTROL_CHANGE
 
@@ -42,7 +38,11 @@ while :; do
 	CHARGER_PATH="$(GET_VAR "device" "battery/charger")"
 	if [ -r "$CHARGER_PATH" ]; then
 		IFS= read -r CHARGING <"$CHARGER_PATH" || CHARGING=0
-		[ "$CHARGING" -eq 1 ] && INHIBIT="$INHIBIT_SLEEP"
+		if [ "$CHARGING" -eq 1 ]; then
+			INHIBIT="$INHIBIT_SLEEP"
+		else
+			INHIBIT="$INHIBIT_NONE"
+		fi
 	fi
 
 	# Have a peek at all of the running processes and break

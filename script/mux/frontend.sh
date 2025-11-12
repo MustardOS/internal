@@ -10,9 +10,6 @@ ROM_GO=/tmp/rom_go
 
 EX_CARD=/tmp/explore_card
 
-MUX_AUTH=/tmp/mux_auth
-MUX_LAUNCHER_AUTH=/tmp/mux_launcher_auth
-
 SKIP=0
 
 if [ -n "$1" ]; then
@@ -29,6 +26,13 @@ LAST_PLAY=$(cat "/opt/muos/config/boot/last_play")
 
 LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
 SET_DEFAULT_GOVERNOR
+
+#:] ### Wait for audio stack
+#:] Don't proceed to the frontend until PipeWire reports that it is ready.
+LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
+if [ "$(GET_VAR "config" "settings/advanced/audio_ready")" -eq 1 ]; then
+	until [ "$(GET_VAR "device" "audio/ready")" -eq 1 ]; do TBOX sleep 0.1; done
+fi
 
 if [ $SKIP -eq 0 ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"
@@ -96,12 +100,12 @@ if [ $SKIP -eq 0 ]; then
 				for TYPE in "governor" "control scheme"; do
 					case "$TYPE" in
 						"governor")
-							CONTENT_FILE="${BASE}.gov"
+							CONTENT_FILE="${DIR}/${BASE}.gov"
 							FALLBACK_FILE="${DIR}/core.gov"
 							OUTPUT_FILE="$GOV_GO"
 							;;
 						"control scheme")
-							CONTENT_FILE="${BASE}.con"
+							CONTENT_FILE="${DIR}/${BASE}.con"
 							FALLBACK_FILE="${DIR}/core.con"
 							OUTPUT_FILE="$CON_GO"
 							;;
@@ -123,6 +127,9 @@ if [ $SKIP -eq 0 ]; then
 				[ ! -e "/tmp/done_reset" ] && printf 1 >"/tmp/done_reset"
 				[ ! -e "/tmp/chime_done" ] && printf 1 >"/tmp/chime_done"
 				SET_VAR "config" "system/used_reset" 0
+
+				# Reset audio control status
+				RESET_AMIXER
 
 				# Okay we're all set, time to launch whatever we were playing last
 				/opt/muos/script/mux/launch.sh
@@ -153,6 +160,9 @@ while :; do
 		*) ;;
 	esac
 
+	# Reset audio control status
+	RESET_AMIXER
+
 	# Content Loader
 	[ -s "$ROM_GO" ] && /opt/muos/script/mux/launch.sh
 
@@ -171,9 +181,6 @@ while :; do
 				SET_DEFAULT_GOVERNOR
 
 				touch /tmp/pdi_go
-
-				[ -s "$MUX_AUTH" ] && ENSURE_REMOVED "$MUX_AUTH"
-				[ -s "$MUX_LAUNCHER_AUTH" ] && ENSURE_REMOVED "$MUX_LAUNCHER_AUTH"
 
 				EXEC_MUX "launcher" "muxfrontend"
 				;;

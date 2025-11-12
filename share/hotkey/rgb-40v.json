@@ -1,0 +1,50 @@
+{
+  "devices": [
+    "rg40xx-v"
+  ],
+  "RGB_BRIGHT_DOWN": {
+    "handle_hold": false,
+    "inputs": [
+      "LS_DOWN",
+      "MENU_LONG"
+    ],
+    "is_handheld_mode": true,
+    "is_normal_mode": true
+  },
+  "RGB_BRIGHT_UP": {
+    "handle_hold": false,
+    "inputs": [
+      "LS_UP",
+      "MENU_LONG"
+    ],
+    "is_handheld_mode": true,
+    "is_normal_mode": true
+  },
+  "RGB_COLOR_NEXT": {
+    "handle_hold": false,
+    "inputs": [
+      "LS_RIGHT",
+      "MENU_LONG"
+    ],
+    "is_handheld_mode": true,
+    "is_normal_mode": true
+  },
+  "RGB_COLOR_PREV": {
+    "handle_hold": false,
+    "inputs": [
+      "LS_LEFT",
+      "MENU_LONG"
+    ],
+    "is_handheld_mode": true,
+    "is_normal_mode": true
+  },
+  "RGB_MODE": {
+    "handle_hold": false,
+    "inputs": [
+      "L3",
+      "MENU_LONG"
+    ],
+    "is_handheld_mode": true,
+    "is_normal_mode": true
+  }
+}

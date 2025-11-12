@@ -19,6 +19,8 @@ SD1="$(GET_VAR "device" "storage/rom/mount")"
 SD2="$(GET_VAR "device" "storage/sdcard/mount")"
 USB="$(GET_VAR "device" "storage/usb/mount")"
 
+MERGE_ALL=$1
+
 # Check if manifest file exists
 if [ ! -f "$MANIFEST_FILE" ]; then
 	printf "\nManifest file not found: %s\n" "$MANIFEST_FILE"
@@ -113,17 +115,24 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 		fi
 
 		if [ "$ERROR_FLAG" -eq 0 ]; then
-			CAP_SRC_SN=$(CAPITALISE "$SRC_SHORTNAME")
-			ZIP_FILE="MustardOS.${CAP_SRC_SN}.$(date +%Y%m%d).muxzip"
+			if [ "$MERGE_ALL" -eq 1 ]; then
+				ZIP_FILE="MustardOS.FullBackup.$(date +%Y%m%d).muxzip"
+
+				printf "(%s/%s) Adding %s to Archive: %s\n" "$INDEX" "$TOTAL" "$LABEL" "$ZIP_FILE"
+			else
+				CAP_SRC_SN=$(CAPITALISE "$SRC_SHORTNAME")
+				ZIP_FILE="MustardOS.${CAP_SRC_SN}.$(date +%Y%m%d).muxzip"
+
+				printf "(%s/%s) Creating %s Archive: %s\n" "$INDEX" "$TOTAL" "$LABEL" "$ZIP_FILE"
+			fi
+
 			DEST_FILE="${DEST_PATH}/${ZIP_FILE}"
-
-			printf "(%s/%s) Creating %s Archive: %s\n" "$INDEX" "$TOTAL" "$LABEL" "$ZIP_FILE"
-
 			if CREATE_ARCHIVE "$SRC_SHORTNAME" "$DEST_FILE" "$SRC_MNT" "$SRC_SHORTNAME" "$SRC_SUFFIX" "$COMP"; then
-				printf "Created '%s' successfully\n" "$LABEL"
+				[ "$MERGE_ALL" -eq 1 ] && WHAT_DO="Added" || WHAT_DO="Created"
+				printf "%s '%s' successfully\n\n" "$WHAT_DO" "$LABEL"
 				ARC_STATUS=0
 			else
-				printf "\nFailed to add %s for %s\n" "$SRC_SUFFIX" "$SRC_SHORTNAME"
+				printf "Failed to add %s for %s\n\n" "$SRC_SUFFIX" "$SRC_SHORTNAME"
 				ERROR_FLAG=1
 				ARC_STATUS=1
 				continue
@@ -142,10 +151,10 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 fi
 
 if [ "$ERROR_FLAG" -ne 0 ]; then
-	printf "\nErrors occurred during the backup process\n\n"
+	printf "Errors occurred during the backup process\n\n"
 	sleep 3
 else
-	printf "\nBackup completed successfully\n\n"
+	printf "Backup completed successfully\n\n"
 fi
 
 # Remove the manifest file

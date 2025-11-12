@@ -2,8 +2,53 @@
 
 . /opt/muos/script/var/func.sh
 
-# hotkey.sh will restart it
-killall muhotkey
+HK_COMBO() {
+	[ -z "$1" ] && return 0
+
+	case "$(GET_VAR "device" "board/name")" in
+		rg*) COMBO_FILE="$MUOS_SHARE_DIR/hotkey/rg.ini" ;;
+		tui*) COMBO_FILE="$MUOS_SHARE_DIR/hotkey/tui.ini" ;;
+		*) return 0 ;;
+	esac
+
+	[ ! -r "$COMBO_FILE" ] && return 0
+
+	awk -F= -v id="$1" '
+		$1 == id { print $2; found=1; exit }
+		END { if (!found) exit 1 }
+	' "$COMBO_FILE"
+}
+
+UPDATE_HOTKEY() {
+	JSON_FILE="$MUOS_SHARE_DIR/hotkey/$1.json"
+	[ ! -f "$JSON_FILE" ] && return 1
+
+	NEW_COMBO=$(HK_COMBO "$(GET_VAR "config" "settings/hotkey/$1")")
+	[ -z "$NEW_COMBO" ] && return 1
+
+	JSON_TYPE=$(echo "$1" | tr '[:lower:]' '[:upper:]')
+	TEMP_FILE="/tmp/new_$1.tmp"
+
+	if ! jq --arg key "$JSON_TYPE" --argjson combo "$NEW_COMBO" '.[$key].inputs = $combo' \
+		"$JSON_FILE" >"$TEMP_FILE" 2>/dev/null; then
+		rm -f "$TEMP_FILE"
+		return 1
+	fi
+
+	if ! cmp -s "$JSON_FILE" "$TEMP_FILE"; then
+		mv "$TEMP_FILE" "$JSON_FILE"
+		return 0
+	else
+		rm -f "$TEMP_FILE"
+		return 1
+	fi
+}
+
+UPDATE_HOTKEY "screenshot"
+UPDATE_HOTKEY "dpad_toggle"
+
+rm -rf "/tmp/wake_cpu_gov"
+HOTKEY restart
 
 C_BRIGHT="$(GET_VAR "config" "settings/general/brightness")"
 if [ "$C_BRIGHT" -lt 1 ]; then
@@ -68,3 +113,5 @@ CARD_MODE_SWITCH() {
 
 CARD_MODE_SWITCH "$(GET_VAR "device" "storage/rom/dev")"
 [ "$(GET_VAR "device" "storage/sdcard/active")" -eq 1 ] && CARD_MODE_SWITCH "$(GET_VAR "device" "storage/sdcard/dev")"
+
+SET_DEFAULT_GOVERNOR

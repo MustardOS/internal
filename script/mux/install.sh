@@ -4,10 +4,19 @@
 
 ACT_GO=/tmp/act_go
 
+#:] ### Wait for audio stack
+#:] Don't proceed to the frontend until PipeWire reports that it is ready.
+LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
+if [ "$(GET_VAR "config" "settings/advanced/audio_ready")" -eq 1 ]; then
+	until [ "$(GET_VAR "device" "audio/ready")" -eq 1 ]; do TBOX sleep 0.1; done
+fi
+
 LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Installer"
 
 read -r START_TIME _ </proc/uptime
 SET_VAR "system" "start_time" "$START_TIME"
+
+RESET_AMIXER
 
 while :; do
 	[ -s "$ACT_GO" ] && {
@@ -21,8 +30,6 @@ while :; do
 				EXEC_MUX "installer" "muxfrontend"
 				;;
 
-			# We could have just done a straight exit but I'm going to leave
-			# this in just in case we have to expand in the future...
 			"install") break ;;
 
 			"shutdown")

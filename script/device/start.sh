@@ -73,7 +73,7 @@ case "$DEV_BOARD" in
 		;;
 	rk*)
 		EMU_VER="rk"
-		;;
+	;;
 esac
 
 # Add device specific Retroarch Binary
@@ -120,6 +120,37 @@ if [ -e "$PPSSPP_ARCHIVE" ]; then
 			chmod +x "$PPSSPP_BIN"
 		else
 			echo "Error: no PPSSPP-* binary found in archive $PPSSPP_ARCHIVE" >&2
+		fi
+
+		rm -rf "$TMPDIR"
+	fi
+fi
+
+# Add device specific ScummVM binary
+SCUMMVM_DIR="$MUOS_SHARE_DIR/emulator/scummvm"
+SCUMMVM_BIN="$SCUMMVM_DIR/scummvm"
+SCUMMVM_ARCHIVE="${SCUMMVM_BIN}-${EMU_VER}.tar.gz"
+SCUMMVM_MD5="$SCUMMVM_BIN-${EMU_VER}.md5"
+
+if [ -e "$SCUMMVM_ARCHIVE" ]; then
+	EXPECTED_MD5=$(cat "$SCUMMVM_MD5")
+
+	CURRENT_MD5=""
+	[ -f "$SCUMMVM_BIN" ] && CURRENT_MD5=$(md5sum "$SCUMMVM_BIN" | awk '{ print $1 }')
+
+	if [ "$CURRENT_MD5" != "$EXPECTED_MD5" ]; then
+		TMPDIR=$(mktemp -d "$SCUMMVM_DIR/scummvm-tmp.XXXXXX") || exit 1
+		# Use gzip stdin to extract, no '-z' available in busybox tar.
+		gzip -dc -- "$SCUMMVM_ARCHIVE" | tar -xf - -C "$TMPDIR"
+
+		# Find the extracted binary (scummvm-rg or scummvm-tui)
+		SRC_BIN=$(find "$TMPDIR" -maxdepth 1 -type f -name 'scummvm-*' | head -n 1)
+
+		if [ -n "$SRC_BIN" ]; then
+			cp -f "$SRC_BIN" "$SCUMMVM_BIN"
+			chmod +x "$SCUMMVM_BIN"
+		else
+			echo "Error: no scummvm-* binary found in archive $SCUMMVM_ARCHIVE" >&2
 		fi
 
 		rm -rf "$TMPDIR"

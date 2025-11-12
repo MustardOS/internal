@@ -10,6 +10,9 @@ FRONTEND stop
 PM_DIR="/mnt/mmc/MUOS/PortMaster"
 PM_ZIP="$MUOS_SHARE_DIR/archive/muos.portmaster.zip"
 
+RT_DIR="$PM_DIR/runtimes"
+RT_ZIP="$MUOS_SHARE_DIR/archive/runtimes.popular.aarch64.zip"
+
 if [ ! -e "$PM_ZIP" ]; then
 	printf "\nError: PortMaster archive not found!\n"
 	TBOX sleep 2
@@ -27,6 +30,16 @@ SPACE_REQ="$(GET_ARCHIVE_BYTES "$PM_ZIP" "")"
 if ! EXTRACT_ARCHIVE "PortMaster" "$PM_ZIP" "/"; then
 	printf "\nExtraction Failed...\n"
 	ALL_DONE 1
+fi
+
+if [ -e "$RT_ZIP" ]; then
+	SPACE_REQ="$(GET_ARCHIVE_BYTES "$RT_ZIP" "")"
+	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$RT_DIR" && ALL_DONE 1
+
+	if ! EXTRACT_ARCHIVE "PortMaster Runtimes" "$RT_ZIP" "$RT_DIR"; then
+		printf "\nExtraction Failed...\n"
+		ALL_DONE 1
+	fi
 fi
 
 printf "\nSync Filesystem"

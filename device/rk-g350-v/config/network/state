@@ -1,1 +1,1 @@
-/sys/class/net/eth0/operstate
+/sys/class/net/wlan0/operstate

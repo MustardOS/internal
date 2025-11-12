@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# This is something fun and exciting...
 # See, https://www.man7.org/linux/man-pages/man1/flock.1.html
 exec 9>/tmp/bright.lock
 flock -n 9 || exit 0
@@ -8,8 +7,9 @@ flock -n 9 || exit 0
 . /opt/muos/script/var/func.sh
 
 DEVICE_MODE=$(GET_VAR "config" "boot/device_mode")
-[ -z "$1" ] || [ "$DEVICE_MODE" -ne 0 ] && exit 0
+{ [ -z "$1" ] || [ "$DEVICE_MODE" -ne 0 ]; } && exit 0
 
+INC_BRIGHT=$(GET_VAR "config" "settings/advanced/incbright")
 CURR_BRIGHT=$(GET_VAR "config" "settings/general/brightness")
 MAX_BRIGHT=$(GET_VAR "device" "screen/bright")
 
@@ -85,12 +85,12 @@ SET_CURRENT() {
 
 case "$1" in
 	R)
-		[ "$CURR_BRIGHT" -le $SAFE_BRIGHT ] && CURR_BRIGHT=35
+		[ "$CURR_BRIGHT" -le "$SAFE_BRIGHT" ] && CURR_BRIGHT=$((CURR_BRIGHT + SAFE_BRIGHT + (INC_BRIGHT * 2)))
 		SET_CURRENT "$CURR_BRIGHT" 1
 		;;
 	U)
 		if [ "$CURR_BRIGHT" -gt 0 ]; then
-			[ "$CURR_BRIGHT" -le 14 ] && NEW_BL=$((CURR_BRIGHT + 1)) || NEW_BL=$((CURR_BRIGHT + 15))
+			[ "$CURR_BRIGHT" -le $((INC_BRIGHT - 1)) ] && NEW_BL=$((CURR_BRIGHT + 1)) || NEW_BL=$((CURR_BRIGHT + INC_BRIGHT))
 			[ "$NEW_BL" -gt "$MAX_BRIGHT" ] && NEW_BL=$MAX_BRIGHT
 			SET_CURRENT "$NEW_BL"
 		else
@@ -99,7 +99,7 @@ case "$1" in
 		;;
 	D)
 		if [ "$CURR_BRIGHT" -gt 0 ]; then
-			[ "$CURR_BRIGHT" -le 15 ] && NEW_BL=$((CURR_BRIGHT - 1)) || NEW_BL=$((CURR_BRIGHT - 15))
+			[ "$CURR_BRIGHT" -le "$INC_BRIGHT" ] && NEW_BL=$((CURR_BRIGHT - 1)) || NEW_BL=$((CURR_BRIGHT - INC_BRIGHT))
 			[ "$NEW_BL" -lt 0 ] && NEW_BL=0
 			SET_CURRENT "$NEW_BL"
 		fi

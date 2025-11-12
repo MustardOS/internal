@@ -33,8 +33,6 @@ ARCHIVE_NAME="${ARCHIVE##*/}"
 FRONTEND_START_PROGRAM="${2:-archive}"
 printf "Inspecting Archive...\n"
 
-ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
-
 case "$ARCHIVE_NAME" in
 	pico-8_*)
 		if unzip -l "$ARCHIVE" | awk '
@@ -77,12 +75,14 @@ case "$ARCHIVE_NAME" in
 			ALL_DONE 1
 		fi
 
-		UPDATE_BOOTLOGO
+		if ! UPDATE_BOOTLOGO_PNG; then
+			UPDATE_BOOTLOGO
+		fi
 		;;
 	*.muxapp)
 		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
 
-		if ! EXTRACT_ARCHIVE "Application" "$ARCHIVE" "$ROM_MOUNT/MUOS/application"; then
+		if ! EXTRACT_ARCHIVE "Application" "$ARCHIVE" "$MUOS_STORE_DIR/application"; then
 			printf "\nExtraction Failed...\n"
 			ALL_DONE 1
 		fi
@@ -162,6 +162,10 @@ case "$ARCHIVE_NAME" in
 
 			ARC_UNSET
 		done
+
+		# Special case for core downloads - we run the control script
+		# to initialise any control based changes for emulators
+		[ "$FRONTEND_START_PROGRAM" = "coredown" ] && /opt/muos/script/device/control.sh
 		;;
 	*) printf "\nNo Extraction Method '%s'\n" "$ARCHIVE_NAME" ;;
 esac

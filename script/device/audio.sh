@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# See, https://www.man7.org/linux/man-pages/man1/flock.1.html
+exec 9>/tmp/audio.lock
+flock -n 9 || exit 0
+
 . /opt/muos/script/var/func.sh
 
 DEVICE_MODE=$(GET_VAR "config" "boot/device_mode")
@@ -7,6 +11,7 @@ DEVICE_MODE=$(GET_VAR "config" "boot/device_mode")
 
 MIN=$(GET_VAR "device" "audio/min")
 MAX=$(GET_VAR "device" "audio/max")
+INC=$(GET_VAR "config" "settings/advanced/incvolume")
 
 GET_CURRENT() {
 	wpctl get-volume @DEFAULT_AUDIO_SINK@ |
@@ -33,12 +38,12 @@ SET_CURRENT() {
 
 case "$1" in
 	U)
-		NEW_VL=$(($(GET_CURRENT) + 8))
+		NEW_VL=$(($(GET_CURRENT) + INC))
 		[ "$NEW_VL" -gt "$MAX" ] && NEW_VL=$MAX
 		SET_CURRENT "$NEW_VL"
 		;;
 	D)
-		NEW_VL=$(($(GET_CURRENT) - 8))
+		NEW_VL=$(($(GET_CURRENT) - INC))
 		[ "$NEW_VL" -lt "$MIN" ] && NEW_VL=$MIN
 		SET_CURRENT "$NEW_VL"
 		;;

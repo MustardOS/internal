@@ -8,8 +8,10 @@ SSID=$(GET_VAR "config" "network/ssid")
 GATE=$(GET_VAR "config" "network/gateway")
 TYPE=$(GET_VAR "config" "network/type")
 DDNS=$(GET_VAR "config" "network/dns") # The extra D is for dodecahedron!
-IFCE=$(GET_VAR "device" "network/iface")
 DRIV=$(GET_VAR "device" "network/type")
+
+IFCE="$(GET_VAR "device" "network/iface_active")"
+[ -n "$IFCE" ] || IFCE="$(GET_VAR "device" "network/iface")"
 
 DEV_HOST="$(GET_VAR "device" "network/hostname")"
 SD1_HOST="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/hostname"
@@ -23,13 +25,15 @@ DHCP_CONF="/etc/dhcpcd.conf"
 
 CALCULATE_IAID() {
 	MAC=$(cat /sys/class/net/"$IFCE"/address)
-	OCT5=$(echo "$MAC" | cut -d: -f5)
-	OCT6=$(echo "$MAC" | cut -d: -f6)
-	IAID=$(printf "0x%02x%02x" 0x"$OCT5" 0x"$OCT6")
+	OCT5=${MAC#*:*:*:*:}
+	OCT5=${OCT5%%:*}
+	OCT6=${MAC##*:}
+	IAID=$(((0x$OCT5 << 8) | 0x$OCT6))
 
-	LOG_INFO "$0" 0 "NETWORK" "Using IAID: %s" "$IAID"
-	sed -i "/^iaid/d" "$DHCP_CONF"
-	echo "iaid $IAID" >>"$DHCP_CONF"
+	LOG_INFO "$0" 0 "NETWORK" "$(printf "Using IAID: %s" "$IAID")"
+
+	sed -i '/^iaid/d' "$DHCP_CONF"
+	printf 'iaid %s\n' "$IAID" >>"$DHCP_CONF"
 }
 
 TRY_CONNECT() {
@@ -58,7 +62,7 @@ TRY_CONNECT() {
 	while [ "$WAIT_IFACE" -gt 0 ]; do
 		[ -d "/sys/class/net/$IFCE" ] && break
 
-		LOG_WARN "$0" 0 "NETWORK" "Waiting for interface '%s' to appear... (%ds)" "$IFCE" "$WAIT_IFACE"
+		LOG_WARN "$0" 0 "NETWORK" "$(printf "Waiting for interface '%s' to appear... (%ds)" "$IFCE" "$WAIT_IFACE")"
 
 		TBOX sleep 1
 		WAIT_IFACE=$((WAIT_IFACE - 1))
@@ -68,7 +72,7 @@ TRY_CONNECT() {
 
 	mkdir -p /var/db/dhcpcd || true
 
-	LOG_INFO "$0" 0 "NETWORK" "Setting '%s' device up" "$IFCE"
+	LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting '%s' device up" "$IFCE")"
 	if ! ip link set dev "$IFCE" up; then
 		LOG_ERROR "$0" 0 "NETWORK" "Failed to bring up interface '$IFCE'"
 		return 1
@@ -117,7 +121,7 @@ TRY_CONNECT() {
 			IP=$(ip -4 a show dev "$IFCE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p')
 
 			if [ -n "$IP" ]; then
-				LOG_SUCCESS "$0" 0 "NETWORK" "DHCP Lease Acquired: %s" "$IP"
+				LOG_SUCCESS "$0" 0 "NETWORK" "$(printf "DHCP Lease Acquired: %s" "$IP")"
 				LOG_INFO "$0" 0 "NETWORK" "Resolving Nameserver"
 				DDNS=$(sed -n 's/^nameserver //p' /etc/resolv.conf | head -n1)
 				break
@@ -142,7 +146,7 @@ TRY_CONNECT() {
 		ip addr add "$ADDR"/"$SUBN" dev "$IFCE"
 
 		LOG_INFO "$0" 0 "NETWORK" "Adding Default IP Route"
-		ip route | grep "default via $GATE" || ip route add default via "$GATE"
+		ip route | grep -q "default via $GATE dev $IFCE" || ip route add default via "$GATE" dev "$IFCE"
 
 		IP=$(ip -4 a show dev "$IFCE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p')
 	fi
@@ -165,7 +169,7 @@ TRY_CONNECT() {
 case "$1" in
 	disconnect)
 		case "$(GET_VAR "device" "board/name")" in
-			tui*) /opt/muos/script/device/module.sh unload-network ;;
+			tui*) /opt/muos/script/device/network.sh unload ;;
 			*) ;;
 		esac
 
@@ -174,7 +178,7 @@ case "$1" in
 		LOG_INFO "$0" 0 "NETWORK" "Clearing Previous DHCP Addresses"
 		rm -rf /var/db/dhcpcd/*
 
-		LOG_INFO "$0" 0 "NETWORK" "Setting '%s' device down" "$IFCE"
+		LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting '%s' device down" "$IFCE")"
 		ip link set dev "$IFCE" down
 
 		LOG_INFO "$0" 0 "NETWORK" "Stopping Network Services"
@@ -186,7 +190,8 @@ case "$1" in
 
 	connect)
 		case "$(GET_VAR "device" "board/name")" in
-			tui*) /opt/muos/script/device/module.sh load-network ;;
+			rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && /opt/muos/script/device/network.sh load ;;
+			tui*) /opt/muos/script/device/network.sh load ;;
 			*) ;;
 		esac
 
@@ -206,7 +211,7 @@ case "$1" in
 			fi
 
 			RETRY_CURR=$((RETRY_CURR + 1))
-			LOG_WARN "$0" 0 "NETWORK" "Retrying Network Connection (%s/%s)" "$RETRY_CURR" "$RETRIES"
+			LOG_WARN "$0" 0 "NETWORK" "$(printf "Retrying Network Connection (%s/%s)" "$RETRY_CURR" "$RETRIES")"
 			TBOX sleep "$RETRY_DELAY"
 		done
 

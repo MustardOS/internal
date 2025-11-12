@@ -55,7 +55,7 @@ SET_VAR() {
 }
 
 GET_VAR() {
-	BASE="$(GET_CONF_PATH "$1")" || return 0
+	BASE=$(GET_CONF_PATH "$1") || return 0
 
 	FILE="$BASE/$2"
 	[ -r "$FILE" ] || return 0
@@ -64,9 +64,25 @@ GET_VAR() {
 	IFS= read -r VAL <"$FILE"
 
 	CR=$(printf "\r")
-	[ "${VAL%$CR}" != "$VAL" ] && VAL=${VAL%$CR}
+	[ "${VAL%"$CR"}" != "$VAL" ] && VAL=${VAL%"$CR"}
 
 	printf "%s" "$VAL"
+}
+
+#:] ### ALSA Mixer Reset
+#:] Ensures the primary audio source is at max volume and unmuted.
+#:] PipeWire will handle the volume independently. Of course the TrimUI
+#:] devices works completely backwards, so that is why it is set to '0'.
+RESET_AMIXER() {
+	AUDIO_CONTROL="$(GET_VAR "device" "audio/control")"
+	MAX_VOL="$(GET_VAR "device" "audio/max")"
+
+	case "$(GET_VAR "device" "board/name")" in
+		tui*) DEV_VOL="0" ;;
+		*) DEV_VOL="$MAX_VOL" ;;
+	esac
+
+	amixer -c 0 sset "$AUDIO_CONTROL" "${DEV_VOL}%" unmute >/dev/null 2>&1
 }
 
 SET_DEFAULT_GOVERNOR() {
@@ -194,7 +210,7 @@ HOTKEY() {
 
 EXEC_MUX() {
 	if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-		while [ ! -f "/tmp/hdmi_in_use" ]; do TBOX sleep 0.1; done
+		while [ ! -f "/tmp/hdmi_in_use" ]; do TBOX sleep 0.01; done
 	fi
 
 	[ -f "$SAFE_QUIT" ] && rm "$SAFE_QUIT"
@@ -208,7 +224,7 @@ EXEC_MUX() {
 	SET_VAR "system" "foreground_process" "$MODULE"
 	nice --20 "/opt/muos/frontend/$MODULE" "$@"
 
-	while [ ! -f "$SAFE_QUIT" ]; do TBOX sleep 0.1; done
+	while [ ! -f "$SAFE_QUIT" ]; do TBOX sleep 0.01; done
 }
 
 # Prints current system uptime in hundredths of a second. Unlike date or
@@ -366,6 +382,16 @@ HDMI_SWITCH() {
 	FB_SWITCH "$WIDTH" "$HEIGHT" "$DEPTH"
 }
 
+# Normal mode is stating that the factory reset routine is complete
+# and the device can act as it's supposed to, seems like some users
+# are "sleeping" their devices during the factory reset process.
+IS_NORMAL_MODE() {
+	[ "$(GET_VAR "config" "boot/factory_reset")" -eq 0 ]
+}
+
+# Handheld mode states stating whether or not the Console Mode (HDMI)
+# is preset and active.  We don't want specific hotkeys to run if we
+# are in currently in Console Mode.
 IS_HANDHELD_MODE() {
 	[ "$(GET_VAR "config" "boot/device_mode")" -eq 0 ]
 }
@@ -656,6 +682,76 @@ LED_CONTROL_CHANGE() {
 			fi
 		fi
 	) &
+}
+
+UPDATE_BOOTLOGO_PNG() {
+	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
+
+	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
+	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
+
+	SPEC_BL="$MUOS_STORE_DIR/theme/active/${DEVICE_W}x${DEVICE_H}/image/bootlogo.png"
+	NORM_BL="$MUOS_STORE_DIR/theme/active/image/bootlogo.png"
+
+	if [ -e "$SPEC_BL" ]; then
+		printf "\nBootlogo found at: %s\n" "$SPEC_BL"
+		CREATE_BOOTLOGO_FROM_PNG "$SPEC_BL"
+	else
+		if [ -e "$NORM_BL" ]; then
+			printf "\nBootlogo found at: %s\n" "$NORM_BL"
+			CREATE_BOOTLOGO_FROM_PNG "$BOOT_MOUNT/bootlogo.png"
+		else
+			return 1
+		fi
+	fi
+
+	case "$(GET_VAR "device" "board/name")" in
+		rg28xx-h)
+			convert "$BOOT_MOUNT/bootlogo.bmp" -rotate 270 "$BOOT_MOUNT/bootlogo.bmp"
+			printf "\nRotated Bootlogo Image\n"
+			;;
+	esac
+	return 0
+}
+
+CREATE_BOOTLOGO_FROM_PNG() {
+	BOOTLOGO_PNG_PATH=$1
+	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
+	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
+	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
+	THEME_ACTIVE_DIR="$MUOS_STORE_DIR/theme/active"
+	BACKGROUND_COLOUR="#000000"
+	BACKGROUND_GRADIENT_COLOUR="#000000"
+	PNG_RECOLOUR="#FFFFFF"
+	PNG_RECOLOUR_ALPHA=0
+	JSONPATH="$THEME_ACTIVE_DIR/bootlogo.json"
+
+	if [ -e "$THEME_ACTIVE_DIR/active.txt" ]; then
+		read -r THEME_ALTERNATE <"$THEME_ACTIVE_DIR/active.txt"
+		printf "Theme Alternate: %s\n" "$THEME_ALTERNATE"
+		if [ -e "$THEME_ACTIVE_DIR/alternate/${THEME_ALTERNATE}_bootlogo.json" ]; then
+			JSONPATH="$THEME_ACTIVE_DIR/alternate/${THEME_ALTERNATE}_bootlogo.json"
+		fi
+	fi
+
+	if [ -e "$JSONPATH" ]; then
+		printf "Found Bootlogo Json: %s\n" "$JSONPATH"
+		BACKGROUND_COLOUR=$(jq -r '.background_colour' "$JSONPATH")
+		BACKGROUND_GRADIENT_COLOUR=$(jq -r '.background_gradient_colour // .background_colour' "$JSONPATH")
+		PNG_RECOLOUR=$(jq -r '.png_recolour' "$JSONPATH")
+		RAW_ALPHA=$(jq -r '.png_recolour_alpha' "$JSONPATH")
+		PNG_RECOLOUR_ALPHA=$((RAW_ALPHA * 100 / 255))
+	fi
+
+	printf "Creating Bootlogo with settings:\n"
+	printf "BACKGROUND_COLOUR: %s\n" "$BACKGROUND_COLOUR"
+	printf "BACKGROUND_GRADIENT_COLOUR: %s\n" "$BACKGROUND_GRADIENT_COLOUR"
+	printf "PNG_RECOLOUR: %s\n" "$PNG_RECOLOUR"
+	printf "PNG_RECOLOUR_ALPHA: %s\n" "$PNG_RECOLOUR_ALPHA"
+
+	magick -size "${DEVICE_W}x${DEVICE_H}" gradient:"#${BACKGROUND_COLOUR}-#${BACKGROUND_GRADIENT_COLOUR}" -depth 24 "$BOOT_MOUNT/bootlogo.bmp"
+	magick "$BOOTLOGO_PNG_PATH" -fill "#${PNG_RECOLOUR}" -colorize "$PNG_RECOLOUR_ALPHA" /tmp/bootlogo-recolor.png
+	magick "$BOOT_MOUNT/bootlogo.bmp" /tmp/bootlogo-recolor.png -gravity center -composite "$BOOT_MOUNT/bootlogo.bmp"
 }
 
 UPDATE_BOOTLOGO() {

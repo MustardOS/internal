@@ -12,16 +12,13 @@ DO_BRIGHT=10
 KEEP_BRIGHT=
 
 DISPLAY_IDLE() {
-	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
+    [ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
 
-	BL="$(GET_VAR "config" "settings/general/brightness")"
-	KEEP_BRIGHT=$BL
+    [ "$(DISPLAY_READ lcd0 getbl)" -gt 10 ] && DISPLAY_WRITE lcd0 setbl 10
 
-	[ "$BL" -gt "$DO_BRIGHT" ] && /opt/muos/script/device/bright.sh "$DO_BRIGHT"
+    [ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 
-	[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
-
-	touch "$IS_IDLE"
+    touch "$IS_IDLE"
 }
 
 DISPLAY_ACTIVE() {

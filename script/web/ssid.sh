@@ -23,4 +23,5 @@ timeout 15 iw dev "$IFCE" scan |
 	sort -u |
 	HEX_ESCAPE >"$NET_SCAN"
 
+/opt/muos/script/system/network.sh disconnect
 [ ! -s "$NET_SCAN" ] && printf "[!]" >"$NET_SCAN"

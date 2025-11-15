@@ -36,6 +36,6 @@ filter0 = eq
 # f = fopen('/path/to/eq_impulse.txt');
 # l = textscan(f, '%f');
 # res = l{1};
-# freqz(res, 1, 4096, 48000);
+# freqz(res, 1, 4096, 44100);
 #
-# It will give the response in Hz; 48000 is the default Output Rate of RetroArch
+# It will give the response in Hz; 44100 is the default Output Rate of RetroArch

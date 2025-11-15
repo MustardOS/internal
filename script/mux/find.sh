@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -eu
-
 USAGE() {
 	printf "Usage: %s <search term> <directory1> [directory2 ...]\n" "$0"
 	exit 1
@@ -12,21 +10,47 @@ USAGE() {
 . /opt/muos/script/var/func.sh
 
 RESULTS_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/search.json"
-FRIENDLY_JSON="$MUOS_STORE_DIR/info/name/global.json"
 
-SKIP_FILE="$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/skip.ini"
-[ ! -s "$SKIP_FILE" ] && SKIP_FILE="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/skip.ini"
+# Ensure lookup tables exist
+LOOKUP_DIR="/opt/muos/share/lookup"
+[ ! -s "$LOOKUP_DIR/internal.txt" ] && /opt/muos/frontend/mulookup --gen-all
 
 TMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TMP_DIR"' EXIT INT TERM
+
+IRP() {
+	printf "/mnt/%s/ROMS" "$1"
+}
+
+TMD() {
+	printf "%s/%s\n" "$TMP_DIR" "$1"
+}
+
+TMP_ALL_BASE_IDS=$(TMD "all_base_ids")
+TMP_ALL_BASE_IDS_SORTED=$(TMD "all_base_ids_sorted")
+TMP_ALL_FILES=$(TMD "all_files")
+TMP_ALL_LOOKUP_IDS=$(TMD "all_lookup_ids")
+TMP_ALL_LOOKUP_IDS_SORTED=$(TMD "all_lookup_ids_sorted")
+TMP_GOOD_RESULTS=$(TMD "good_results")
+TMP_GOT_FILES=$(TMD "g_files")
+TMP_JOINED_PRETTY=$(TMD "joined_pretty")
+TMP_LISTS_FILTERED=$(TMD "lists_filtered")
+TMP_MATCHED_IDS=$(TMD "matched_ids")
+TMP_MATCHES=$(TMD "matches")
+TMP_MATCHES_CLEAN=$(TMD "matches_clean")
+TMP_MATCHES_MAP=$(TMD "matches_map")
+TMP_MOUNT_MAP=$(TMD "mountmap")
+TMP_PREFIXES=$(TMD "prefixes")
+TMP_PREFIXES_RAW=$(TMD "prefixes_raw")
+TMP_RESULTS=$(TMD "results")
+TMP_RESULTS_NO_DUPE=$(TMD "results_nodupe")
+
+JSON_OUT=$(TMD "final.json")
 
 S_TERM="$1"
 
 # Shift one argument over so we are left with only directories to search
 shift
-
-TMP_MOUNT_MAP="$TMP_DIR/mountmap.txt"
-: >"$TMP_MOUNT_MAP"
 
 # Spit out the mount path, well just the single like 'mmc' or 'sdcard'
 for ROOT in "$@"; do
@@ -35,21 +59,8 @@ for ROOT in "$@"; do
 	printf "%s|%s\n" "$ROOT" "$TAG" >>"$TMP_MOUNT_MAP"
 done
 
-TMP_FRIENDLY="$TMP_DIR/f_result.json"
-TMP_FRIENDLY_FILES="$TMP_DIR/f_files.txt"
-
-# Generate friendly name JSON so we can use that for the search results for quicker parsing
-if [ -f "$FRIENDLY_JSON" ]; then
-	/opt/muos/bin/rg -i "$S_TERM" "$FRIENDLY_JSON" |
-		sed -e '1s/^/{\n/' -e '$s/,$//' -e '$a}' >"$TMP_FRIENDLY"
-	jq -r 'keys[]' "$TMP_FRIENDLY" >"$TMP_FRIENDLY_FILES"
-else
-	printf "{}" >"$TMP_FRIENDLY"
-	: >"$TMP_FRIENDLY_FILES"
-fi
-
-TMP_ALL_FILES="$TMP_DIR/all_files.txt"
-: >"$TMP_ALL_FILES"
+SKIP_FILE="$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/skip.ini"
+[ ! -s "$SKIP_FILE" ] && SKIP_FILE="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/skip.ini"
 
 # Walk the directory and list all files via ripgrep.  Then for each path
 # we'll go into chuck in full absolute path, relative directory, filename,
@@ -66,24 +77,53 @@ for S_DIR in "$@"; do
             n = split(rel, parts, "/")
 
             dir = ""
-            for (i = 1; i < n; i++)
-                dir = (i == 1 ? parts[i] : dir "/" parts[i])
+            for (i = 1; i < n; i++) dir = (i == 1 ? parts[i] : dir "/" parts[i])
 
             base = parts[n]
             base_id = base
             sub(/\.[^.]*$/, "", base_id)
 
             print fullpath "|" dir "|" base "|" base_id
-        }
-    ' >>"$TMP_ALL_FILES"
+        }' >>"$TMP_ALL_FILES"
 done
 
-TMP_GOT_FILES="$TMP_DIR/g_files.txt"
-: >"$TMP_GOT_FILES"
+# Extract all base_ids from ROM list
+cut -d'|' -f4 "$TMP_ALL_FILES" >"$TMP_ALL_BASE_IDS"
+
+# Extract friendly-name entries matching the search term
+/opt/muos/bin/rg -i "$S_TERM" "$LOOKUP_DIR"/*.txt | sed 's|^[^:]*:||' >"$TMP_LISTS_FILTERED"
+[ ! -s "$TMP_LISTS_FILTERED" ] && touch "$TMP_PREFIXES"
+
+# Extract lookup base_ids from friendly lists
+awk -F'|' '
+    {
+        base_id = $1
+        pretty = $2
+        if (tolower(pretty) ~ term) print base_id
+        else if (tolower(base_id) ~ term) print base_id
+    }
+' term="$S_TERM" "$TMP_LISTS_FILTERED" >"$TMP_ALL_LOOKUP_IDS"
+
+# Intersect ROM base_ids with lookup base_ids
+sort -u "$TMP_ALL_BASE_IDS" >"$TMP_ALL_BASE_IDS_SORTED"
+sort -u "$TMP_ALL_LOOKUP_IDS" >"$TMP_ALL_LOOKUP_IDS_SORTED"
+comm -12 "$TMP_ALL_BASE_IDS_SORTED" "$TMP_ALL_LOOKUP_IDS_SORTED" >"$TMP_PREFIXES_RAW"
+
+# Build final literal prefix patterns for ripgrep
+awk '{print $0 "|"}' "$TMP_PREFIXES_RAW" >"$TMP_PREFIXES"
+
+# Perform folder/global/internal friendly name lookups...
+for FOLDER_FILE in "$LOOKUP_DIR"/*.txt; do
+	BASENAME=$(basename "$FOLDER_FILE" .txt)
+	/opt/muos/bin/rg -i -F -f "$TMP_PREFIXES" "$FOLDER_FILE" | sed "s/^/[FOLDER:$BASENAME] /" >>"$TMP_MATCHES"
+done
+
+/opt/muos/bin/rg -i -F -f "$TMP_PREFIXES" "$LOOKUP_DIR/global.txt" | sed 's/^/[GLOBAL] /' >>"$TMP_MATCHES"
+/opt/muos/bin/rg -i -F -f "$TMP_PREFIXES" "$LOOKUP_DIR/internal.txt" | sed 's/^/[INTERNAL] /' >>"$TMP_MATCHES"
 
 for S_DIR in "$@"; do
 	/opt/muos/bin/rg --files "$S_DIR" --ignore-file "$SKIP_FILE" 2>/dev/null |
-		/opt/muos/bin/rg --pcre2 -i "/(?!.*\/).*$S_TERM" |
+		/opt/muos/bin/rg --pcre2 -i "/[^/]*${S_TERM}.*" |
 		while IFS= read -r FPATH; do
 			rel="${FPATH#"$S_DIR/"}"
 			DIR=$(dirname "$rel")
@@ -92,113 +132,67 @@ for S_DIR in "$@"; do
 		done
 done
 
-TMP_RESULTS="$TMP_DIR/results.txt"
-SEEN="$TMP_DIR/seen.txt"
-: >"$TMP_RESULTS"
-: >"$SEEN"
+# Strip our matches so they are clean to process then extract the matched ids
+sed 's/^.*] //' "$TMP_MATCHES" >"$TMP_MATCHES_CLEAN"
+cut -d'|' -f1 "$TMP_MATCHES_CLEAN" | sort -u >"$TMP_MATCHED_IDS"
 
-# Time to structure our flat file with good ol' pipes because that way
-# it will be easier to debug later on.  Is it performant? Look probably
-# not, we could probably just go straight to JSON but again, I'm tired.
-while IFS='|' read -r FPATH DIR BASE; do
-	BASE_ID="${BASE%.*}"
-	PRETTY="$BASE_ID"
-
-	SYS=$(basename "$DIR")
-	LOOKUP=$(/opt/muos/frontend/mulookup -f "$SYS" "$S_TERM" 2>/dev/null)
-
-	MATCH=""
-	if [ -n "$LOOKUP" ]; then
-		TMP_LOOK="$TMP_DIR/lookup.txt"
-		printf "%s\n" "$LOOKUP" >"$TMP_LOOK"
-
-		while IFS='|' read -r ID NAME; do
-			ID_LC=$(printf "%s" "$ID" | tr '[:upper:]' '[:lower:]')
-			BASE_ID_LC=$(printf "%s" "$BASE_ID" | tr '[:upper:]' '[:lower:]')
-			[ "$ID_LC" = "$BASE_ID_LC" ] && MATCH="$ID|$NAME" && break
-		done <"$TMP_LOOK"
-	fi
-
-	[ -n "$MATCH" ] && PRETTY="${MATCH#*\|}"
-
-	TAG="$(
-		awk -F'|' -v p="$FPATH" '
-            p ~ ("^" $1) { print $2; exit }
-        ' "$TMP_MOUNT_MAP"
-	)"
-
-	[ "$BASE" = "." ] && continue
-	[ -z "$BASE" ] && continue
-
-	printf "%s|%s|%s|%s\n" "$TAG" "$DIR" "$BASE" "$PRETTY" >>"$TMP_RESULTS"
-	printf "%s|%s\n" "$DIR" "$BASE" >>"$SEEN"
-done <"$TMP_GOT_FILES"
-
-TMP_MAPPER="$TMP_DIR/mapper.txt"
-: >"$TMP_MAPPER"
-
-# Look we are back to being slow because of the following reverse lookups but
-# that's the price you pay for MAME still having to use 8.3 filename systems!
-awk -F'|' '{print $2}' "$TMP_ALL_FILES" | cut -d/ -f1 | sort -u |
-	while IFS= read -r SYS; do
-		[ -z "$SYS" ] && continue
-		LOOKUP=$(/opt/muos/frontend/mulookup -f "$SYS" "$S_TERM" 2>/dev/null)
-		[ -z "$LOOKUP" ] && continue
-
-		printf "%s\n" "$LOOKUP" |
-			while IFS='|' read -r ID NAME; do
-				[ -z "$ID" ] && continue
-				printf "%s|%s\n" "$(printf "%s" "$ID" | tr '[:upper:]' '[:lower:]')" "$NAME" >>"$TMP_MAPPER"
-			done
-	done
-
-TMP_REV_MATCHES="$TMP_DIR/rev_matches.txt"
-: >"$TMP_REV_MATCHES"
-
-# Now that we have the reverse lookups time for some matchmaking!
-# Love is in the air, doo doo doo...
+# Select 'good' ROM files whose base_id appears in matched_ids
 awk -F'|' '
-    NR==FNR { map[$1]=$2; next }
+    NR==FNR { id[$1]=1; next }
     {
-        base_id_l = tolower($4)
-        if (base_id_l == "" || !(base_id_l in map)) next
-        print $1 "|" $2 "|" $3 "|" map[base_id_l]
+        base_id=$4
+        if (base_id in id) print $1 "|" $2 "|" $3
     }
-' "$TMP_MAPPER" "$TMP_ALL_FILES" >"$TMP_REV_MATCHES"
+' "$TMP_MATCHED_IDS" "$TMP_ALL_FILES" >"$TMP_GOOD_RESULTS"
 
-while IFS='|' read -r FPATH DIR BASE PRETTY; do
-	[ -z "$BASE" ] && continue
+# Chuck those back into our "found" files
+cat "$TMP_GOOD_RESULTS" >>"$TMP_GOT_FILES"
 
-	if grep -qx "$DIR|$BASE" "$SEEN" 2>/dev/null; then
-		continue
-	fi
+# Clean our lookup matches to keep only "base_id|pretty"
+sed 's/^.*] //' "$TMP_MATCHES" >"$TMP_MATCHES_CLEAN"
 
-	# The following is complete bullshit because the lookup relies on
-	# a prefix match in $TMP_MOUNT_MAP and then assumes the first
-	# matching line is the correct one and silently falls apart if
-	# multiple paths share a prefix... for fucks sake!
-	TAG="$(
-		awk -F'|' -v p="$FPATH" '
-            p ~ ("^" $1) { print $2; exit }
-        ' "$TMP_MOUNT_MAP"
-	)"
+# Convert to map based on "base_id|pretty"
+awk -F'|' '{ pretty[$1]=$2 } END { for (k in pretty) print k "|" pretty[k] }' \
+	"$TMP_MATCHES_CLEAN" >"$TMP_MATCHES_MAP"
 
-	[ "$BASE" = "." ] && continue
-	[ -z "$BASE" ] && continue
+# Now to join g_files and the "pretty" map to fullpath|dir|base|pretty
+if [ -s "$TMP_MATCHES_MAP" ]; then
+	# We have at least one friendly name match so use use the map
+	awk -F'|' '
+        NR==FNR { pretty[$1]=$2; next }
+        {
+            full=$1; dir=$2; base=$3
+            base_no_ext = base
+            sub(/\.[^.]*$/, "", base_no_ext)
+            if (base_no_ext in pretty) print full "|" dir "|" base "|" pretty[base_no_ext]
+            else print full "|" dir "|" base "|" base_no_ext
+        }
+    ' "$TMP_MATCHES_MAP" "$TMP_GOT_FILES" >"$TMP_JOINED_PRETTY"
+else
+	# No matches at all so just use base_no_ext as the "pretty" name
+	awk -F'|' '
+        {
+            full=$1; dir=$2; base=$3
+            base_no_ext = base
+            sub(/\.[^.]*$/, "", base_no_ext)
+            print full "|" dir "|" base "|" base_no_ext
+        }
+    ' "$TMP_GOT_FILES" >"$TMP_JOINED_PRETTY"
+fi
 
-	printf "%s|%s|%s|%s\n" "$TAG" "$DIR" "$BASE" "$PRETTY" >>"$TMP_RESULTS"
-	printf "%s|%s\n" "$DIR" "$BASE" >>"$SEEN"
-done <"$TMP_REV_MATCHES"
+# Add the mount 'tag' of mmc/sdcard/etc using the mount map file
+awk -F'|' -v OFS='|' '
+    NR==FNR { tag[$1]=$2; next }
+    {
+        full=$1; dir=$2; base=$3; pretty=$4
+        found=""
+        for (p in tag) if (full ~ ("^" p)) { found = tag[p]; break }
+        if (found != "") print found, dir, base, pretty
+    }
+' "$TMP_MOUNT_MAP" "$TMP_JOINED_PRETTY" >"$TMP_RESULTS"
 
-# Uncomment the below to get a flat file debug output so you can see how we structure
-# the results file for parsing below with the JSON builder...
-# cat "$TMP_RESULTS"
-
-INFER_ROM_PATH() {
-	printf "/mnt/%s/ROMS" "$1"
-}
-
-JSON_OUT="$TMP_DIR/final.json"
+# Purge duplicated entries
+sort -u "$TMP_RESULTS" >"$TMP_RESULTS_NO_DUPE"
 
 # It's 11pm and I'm tired after a long week, I'm sure there is a better way than building
 # the fucking JSON structure manually... we probably don't need all the spaces but trying
@@ -209,10 +203,10 @@ JSON_OUT="$TMP_DIR/final.json"
 	printf "  \"lookup\": \"%s\",\n" "$(printf '%s' "$S_TERM" | jq -R . | sed 's/^"//;s/"$//')"
 
 	printf "  \"directories\": [\n"
-	awk -F'|' '{print $1}' "$TMP_RESULTS" |
+	awk -F'|' '{print $1}' "$TMP_RESULTS_NO_DUPE" |
 		sort -u |
 		while IFS= read -r TAG; do
-			printf "    \"%s\",\n" "$(INFER_ROM_PATH "$TAG")"
+			printf "    \"%s\",\n" "$(IRP "$TAG")"
 		done |
 		sed '$ s/,$//'
 	printf "  ],\n"
@@ -222,12 +216,12 @@ JSON_OUT="$TMP_DIR/final.json"
 	LAST_DIR=""
 	HAVE_ITEMS=0
 
-	sort "$TMP_RESULTS" |
+	sort "$TMP_RESULTS_NO_DUPE" |
 		while IFS='|' read -r TAG DIR BASE PRETTY; do
 			[ -z "$BASE" ] && continue
 			[ -z "$PRETTY" ] && continue
 
-			FULL_DIR="$(INFER_ROM_PATH "$TAG")/$DIR"
+			FULL_DIR="$(IRP "$TAG")/$DIR"
 			if [ "$FULL_DIR" != "$LAST_DIR" ]; then
 				if [ "$LAST_DIR" != "" ] && [ "$HAVE_ITEMS" -eq 1 ]; then
 					printf "\n      ]\n    },\n"

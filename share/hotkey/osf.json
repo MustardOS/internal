@@ -19,6 +19,16 @@
     "is_normal_mode": true,
     "run_command": "/opt/muos/script/mux/quit.sh poweroff osf"
   },
+  "OSF_P": {
+    "handle_hold": false,
+    "inputs": [
+      "R2",
+      "SELECT",
+      "B"
+    ],
+    "is_normal_mode": true,
+    "run_command": "/opt/muos/script/mux/proc_die.sh"
+  },
   "OSF_M": {
     "is_sequence": true,
     "inputs": [

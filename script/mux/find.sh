@@ -39,11 +39,11 @@ TMP_MATCHED_IDS=$(TMD "matched_ids")
 TMP_MATCHES=$(TMD "matches")
 TMP_MATCHES_CLEAN=$(TMD "matches_clean")
 TMP_MATCHES_MAP=$(TMD "matches_map")
-TMP_MOUNT_MAP=$(TMD "mountmap")
+TMP_MOUNT_MAP=$(TMD "mount_map")
 TMP_PREFIXES=$(TMD "prefixes")
 TMP_PREFIXES_RAW=$(TMD "prefixes_raw")
 TMP_RESULTS=$(TMD "results")
-TMP_RESULTS_NO_DUPE=$(TMD "results_nodupe")
+TMP_RESULTS_NO_DUPE=$(TMD "results_no_dupe")
 
 JSON_OUT=$(TMD "final.json")
 

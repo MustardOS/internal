@@ -62,7 +62,7 @@ TRY_CONNECT() {
 	while [ "$WAIT_IFACE" -gt 0 ]; do
 		[ -d "/sys/class/net/$IFCE" ] && break
 
-		LOG_WARN "$0" 0 "NETWORK" "$(printf "Waiting for interface '%s' to appear... (%ds)" "$IFCE" "$WAIT_IFACE")"
+		LOG_WARN "$0" 0 "NETWORK" "$(printf "Waiting for interface '%s' to appear... (%d)" "$IFCE" "$WAIT_IFACE")"
 
 		TBOX sleep 1
 		WAIT_IFACE=$((WAIT_IFACE - 1))
@@ -70,7 +70,7 @@ TRY_CONNECT() {
 
 	CALCULATE_IAID
 
-	mkdir -p /var/db/dhcpcd || true
+	mkdir -p /var/db/dhcpcd
 
 	LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting '%s' device up" "$IFCE")"
 	if ! ip link set dev "$IFCE" up; then
@@ -94,7 +94,7 @@ TRY_CONNECT() {
 			if iw dev "$IFCE" link | grep "SSID:"; then
 				break
 			fi
-			LOG_WARN "$0" 0 "NETWORK" "Waiting for Wi-Fi Association... (%ds)" "$WAIT_CARRIER"
+			LOG_WARN "$0" 0 "NETWORK" "$(printf "Waiting for Wi-Fi Association... (%d)" "$WAIT_CARRIER")"
 			WAIT_CARRIER=$((WAIT_CARRIER - 1))
 			TBOX sleep 1
 		done
@@ -117,7 +117,7 @@ TRY_CONNECT() {
 
 		WAIT_IP=20
 		while [ "$WAIT_IP" -gt 0 ]; do
-			LOG_WARN "$0" 0 "NETWORK" "Waiting for DHCP Lease... (%ds)" "$WAIT_IP"
+			LOG_WARN "$0" 0 "NETWORK" "Waiting for DHCP Lease... (%d)" "$WAIT_IP"
 			IP=$(ip -4 a show dev "$IFCE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p')
 
 			if [ -n "$IP" ]; then

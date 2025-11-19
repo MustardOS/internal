@@ -11,7 +11,7 @@
 #:] ### Session Housekeeping
 #:] Create a temp workspace and clear any stale logs and update data from previous boots.
 mkdir -p "/tmp/muos"
-rm -rf /opt/muos/log/*.log /opt/muxtmp
+rm -rf "$MUOS_LOG_DIR"/*.log /opt/muxtmp
 
 #:] ### Initialise Core State
 #:] Cache uptime and baseline flags used by other components during boot.

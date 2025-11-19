@@ -8,8 +8,8 @@ esac
 
 HOME="/root"
 DBUS_SESSION_BUS_ADDRESS="unix:path=/run/dbus/system_bus_socket"
-PIPEWIRE_RUNTIME_DIR="/var/run"
-XDG_RUNTIME_DIR="$PIPEWIRE_RUNTIME_DIR"
+XDG_RUNTIME_DIR="/var/run"
+PIPEWIRE_RUNTIME_DIR="$XDG_RUNTIME_DIR"
 ALSA_CONFIG="/usr/share/alsa/alsa.conf"
 WPA_CONFIG="/etc/wpa_supplicant.conf"
 DEVICE_CONTROL_DIR="/opt/muos/device/control"
@@ -540,7 +540,7 @@ UPDATE_RA_VALUE() {
 }
 
 DETECT_CONTROL_SWAP() {
-	RA_DEV_CONF="/opt/muos/device/control/retroarch.device.cfg"
+	RA_DEV_CONF="$DEVICE_CONTROL_DIR/retroarch.device.cfg"
 	CON_GO="/tmp/con_go"
 	IS_SWAP=0
 
@@ -563,7 +563,7 @@ DETECT_CONTROL_SWAP() {
 CONFIGURE_RETROARCH() {
 	RA_CONF="$MUOS_SHARE_DIR/info/config/retroarch.cfg"
 	RA_DEF="$MUOS_SHARE_DIR/emulator/retroarch/retroarch.default.cfg"
-	RA_CONTROL="/opt/muos/device/control/retroarch"
+	RA_CONTROL="$DEVICE_CONTROL_DIR/retroarch"
 
 	# Stop the user from doing anything harmful to the main RetroArch configuration.
 	[ "$(GET_VAR "config" "settings/advanced/retrofree")" -eq 0 ] && rm -f "$RA_CONF"

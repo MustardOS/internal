@@ -152,7 +152,7 @@ DO_PRESTART() {
 	cp -f "$MUOS_SHARE_DIR/conf/alsa.conf" "/usr/share/alsa/alsa.conf"
 
 	LOG_INFO "$0" 0 "PIPEWIRE" "Restoring Audio State"
-	alsactl -U -f "/opt/muos/device/control/asound.state" restore
+	alsactl -U -f "$DEVICE_CONTROL_DIR/asound.state" restore
 }
 
 FINALISE_AUDIO() {
@@ -238,10 +238,9 @@ DO_START() {
 
 	RESET_AMIXER
 
-	(DO_PRESTART) &
+	DO_PRESTART &
 	REQUIRE_DBUS &
-
-	(FINALISE_AUDIO) &
+	FINALISE_AUDIO &
 
 	LOG_INFO "$0" 0 "PIPEWIRE" "Fast-start complete; finalising in background"
 	exit 0

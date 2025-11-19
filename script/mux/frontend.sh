@@ -140,7 +140,7 @@ if [ $SKIP -eq 0 ]; then
 	fi
 fi
 
-cp /opt/muos/log/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
+cp "$MUOS_LOG_DIR"/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
 
 LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Launcher"
 

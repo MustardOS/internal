@@ -7,9 +7,9 @@ case ":$LD_LIBRARY_PATH:" in
 esac
 
 HOME="/root"
+XDG_RUNTIME_DIR="/run"
 DBUS_SESSION_BUS_ADDRESS="unix:path=/run/dbus/system_bus_socket"
-XDG_RUNTIME_DIR="/var/run"
-PIPEWIRE_RUNTIME_DIR="$XDG_RUNTIME_DIR"
+PIPEWIRE_RUNTIME_DIR="/run"
 ALSA_CONFIG="/usr/share/alsa/alsa.conf"
 WPA_CONFIG="/etc/wpa_supplicant.conf"
 DEVICE_CONTROL_DIR="/opt/muos/device/control"
@@ -18,7 +18,7 @@ LED_CONTROL_SCRIPT="/opt/muos/script/device/rgb.sh"
 MUOS_SHARE_DIR="/opt/muos/share"
 MUOS_STORE_DIR="/run/muos/storage"
 
-export HOME DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR XDG_RUNTIME_DIR \
+export HOME XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
 	ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR LED_CONTROL_SCRIPT \
 	MUOS_SHARE_DIR MUOS_STORE_DIR
 
@@ -471,7 +471,7 @@ SETUP_SDL_ENVIRONMENT() {
 	for A in "$@"; do
 		case "$A" in
 			retro | modern) REQ_STYLE="$A" ;; # Optional priority override: $1 = retro | modern
-			skip_blitter) SKIP_BLITTER=1 ;;   # Used primarily for external ScummVM at the moment
+			skip_blitter) SKIP_BLITTER=1 ;; # Used primarily for external ScummVM at the moment
 		esac
 	done
 

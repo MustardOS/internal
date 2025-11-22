@@ -302,7 +302,7 @@ fi
 
 CRITICAL_FAILURE() {
 	case "$1" in
-		mount) MESSAGE=$(printf "Critical Failure\n\nFailed to mount directory!") ;;
+		mount) MESSAGE=$(printf "Mount Failure\n\n%s%s" "$1" "$2") ;;
 		udev) MESSAGE=$(printf "Critical Failure\n\nFailed to initialise udev!") ;;
 		*) MESSAGE=$(printf "Critical Failure\n\nAn unknown error occurred!") ;;
 	esac

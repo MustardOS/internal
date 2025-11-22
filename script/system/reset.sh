@@ -33,7 +33,7 @@ if mount -t "$ROM_TYPE" -o rw,utf8,noatime,nofail "$ROM_PART" "$ROM_MOUNT"; then
 	SET_VAR "device" "storage/rom/active" "1"
 else
 	killall -q "mpv"
-	CRITICAL_FAILURE device "$ROM_MOUNT" "$ROM_PART"
+	CRITICAL_FAILURE mount "$ROM_MOUNT" "$ROM_PART"
 fi
 
 MUOS_DIR="$ROM_MOUNT/MUOS"

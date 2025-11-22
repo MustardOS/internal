@@ -2,13 +2,13 @@
 
 . /opt/muos/script/var/func.sh
 
-ACT_GO=/tmp/act_go
-APP_GO=/tmp/app_go
-GOV_GO=/tmp/gov_go
-CON_GO=/tmp/con_go
-ROM_GO=/tmp/rom_go
+ACT_GO="/tmp/act_go"
+APP_GO="/tmp/app_go"
+GOV_GO="/tmp/gov_go"
+CON_GO="/tmp/con_go"
+ROM_GO="/tmp/rom_go"
 
-EX_CARD=/tmp/explore_card
+EX_CARD="/tmp/explore_card"
 
 SKIP=0
 

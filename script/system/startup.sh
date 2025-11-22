@@ -1,6 +1,6 @@
 #!/bin/sh
 #:] ## Startup Sequence
-#:] This is the main script that is called by the `S01muos` script within `/etc/init.d`.
+#:] This is the main script that is called by the `S99muos` script within `/etc/init.d`.
 #:] Everything from here on in will run via these internal scripts. The `LOG_*` runners are
 #:] kept to a minimum and are invoked by the `func.sh` global script. Most of them are kept
 #:] under wraps unless a debug flag is set as it cause increase boot time by a few seconds.
@@ -56,24 +56,24 @@ NET_COMPAT=$(GET_VAR "config" "settings/network/compat")
 #:] ### Enable Rumble Support
 #:] Primarily used for TrimUI/RK3326 devices at the moment.
 LOG_INFO "$0" 0 "BOOTING" "Enabling Device Rumble"
-/opt/muos/script/device/rumble.sh &
+/opt/muos/script/device/rumble.sh
 
 #:] ### Start PipeWire Audio
-#:] Launch PipeWire services (and wireplumber, if enabled) in one go.
+#:] Launch PipeWire and WirePlumber in one go.
 LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
-/opt/muos/script/system/pipewire.sh start &
+/opt/muos/script/system/pipewire.sh start
 
 #:] ### Set Default CPU Governor
 #:] Run the CPU at full performance during boot to shorten startup time.
 #:] Default is `performance` so that startup runs just that little bit quicker.
 LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"
-echo "performance" >"$GOVERNOR" &
+echo "performance" >"$GOVERNOR"
 
 #:] ### Device Specific Module Loading
 #:] Load device specific kernel modules (except network).
 LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
 if [ "$FIRST_INIT" -eq 1 ] && [ "$FACTORY_RESET" -eq 0 ]; then
-	/opt/muos/script/device/module.sh load &
+	/opt/muos/script/device/module.sh load
 fi
 
 #:] ### First Init Messages
@@ -169,7 +169,7 @@ if [ "$BOARD_HDMI" -eq 1 ]; then
 	[ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ] && HDMI_VALUE=$(cat "$HDMI_PATH")
 
 	case "$HDMI_VALUE" in
-		1) CONSOLE_MODE=1 ;;                # HDMI is active = external
+		1) CONSOLE_MODE=1 ;; # HDMI is active = external
 		*[!0-9]* | 0 | *) CONSOLE_MODE=0 ;; # Non-numeric, 0, or fallback = internal
 	esac
 fi
@@ -225,7 +225,7 @@ fi
 #:] Auto-connect to network when configured (_if capability present_).
 LOG_INFO "$0" 0 "BOOTING" "Connecting Network on Boot if requested and possible"
 if  [ "$HAS_NETWORK" -eq 1 ]; then
-	[   "$CONNECT_ON_BOOT" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
+	[ "$CONNECT_ON_BOOT" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
 fi
 
 #:] ### Hotkey Daemon

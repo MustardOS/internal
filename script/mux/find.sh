@@ -18,8 +18,19 @@ LOOKUP_DIR="/opt/muos/share/lookup"
 TMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TMP_DIR"' EXIT INT TERM
 
+LOCAL_MODE=0
+
+if [ "$1" = "--local" ]; then
+	LOCAL_MODE=1
+	shift
+fi
+
 IRP() {
-	printf "/mnt/%s/ROMS" "$1"
+	if [ $LOCAL_MODE -eq 1 ]; then
+		printf "%s" "$1"
+	else
+		printf "/mnt/%s/ROMS" "$1"
+	fi
 }
 
 TMD() {
@@ -56,7 +67,11 @@ shift
 for ROOT in "$@"; do
 	MP="$(dirname "$ROOT")"
 	TAG="$(basename "$MP")"
-	printf "%s|%s\n" "$ROOT" "$TAG" >>"$TMP_MOUNT_MAP"
+	if [ $LOCAL_MODE -eq 1 ]; then
+		printf "%s|%s\n" "$ROOT" "$ROOT" >>"$TMP_MOUNT_MAP"
+	else
+		printf "%s|%s\n" "$ROOT" "$TAG" >>"$TMP_MOUNT_MAP"
+	fi
 done
 
 SKIP_FILE="$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/skip.ini"
@@ -123,7 +138,7 @@ done
 
 for S_DIR in "$@"; do
 	/opt/muos/bin/rg --files "$S_DIR" --ignore-file "$SKIP_FILE" 2>/dev/null |
-		/opt/muos/bin/rg --pcre2 -i "/[^/]*${S_TERM}.*" |
+		/opt/muos/bin/rg -F -i "$S_TERM" |
 		while IFS= read -r FPATH; do
 			rel="${FPATH#"$S_DIR/"}"
 			DIR=$(dirname "$rel")
@@ -186,7 +201,12 @@ awk -F'|' -v OFS='|' '
     {
         full=$1; dir=$2; base=$3; pretty=$4
         found=""
-        for (p in tag) if (full ~ ("^" p)) { found = tag[p]; break }
+        for (p in tag) {
+            if (index(full, p) == 1) {
+                found = tag[p]
+                break
+            }
+        }
         if (found != "") print found, dir, base, pretty
     }
 ' "$TMP_MOUNT_MAP" "$TMP_JOINED_PRETTY" >"$TMP_RESULTS"
@@ -221,7 +241,11 @@ sort -u "$TMP_RESULTS" >"$TMP_RESULTS_NO_DUPE"
 			[ -z "$BASE" ] && continue
 			[ -z "$PRETTY" ] && continue
 
-			FULL_DIR="$(IRP "$TAG")/$DIR"
+			case "$DIR" in
+				.) FULL_DIR="$(IRP "$TAG")" ;;
+				*) FULL_DIR="$(IRP "$TAG")/$DIR" ;;
+			esac
+
 			if [ "$FULL_DIR" != "$LAST_DIR" ]; then
 				if [ "$LAST_DIR" != "" ] && [ "$HAVE_ITEMS" -eq 1 ]; then
 					printf "\n      ]\n    },\n"

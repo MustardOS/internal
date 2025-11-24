@@ -89,6 +89,12 @@ LOAD_NETWORK() {
 	# Should probably poke it again and make sure it's really awake before proceeding with final load
 	FORCE_SDIO_AWAKE
 
+	# For USB WiFi adapters using 'wext' extensions, ensure cfg80211
+	# is loaded first if it exists (might be built-in or not needed)
+	case "$BOARD_NAME" in
+		rk*) modprobe -q cfg80211 2>/dev/null ;;
+	esac
+
 	# Not really necessary for the TrimUI devices but because the H700 devices
 	# run this just before probing the network module we are going to add it
 	# here "just in case" but also somewhat uniformity...

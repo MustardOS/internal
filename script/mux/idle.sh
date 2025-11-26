@@ -9,7 +9,7 @@ INHIBIT_BOTH=1
 INHIBIT_SLEEP=2
 
 DISPLAY_IDLE() {
-	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
+	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && amixer set "Master" mute
 
 	[ "$(DISPLAY_READ lcd0 getbl)" -gt 10 ] && DISPLAY_WRITE lcd0 setbl 10
 
@@ -19,7 +19,7 @@ DISPLAY_IDLE() {
 }
 
 DISPLAY_ACTIVE() {
-	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
+	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && amixer set "Master" unmute
 
 	DISPLAY_WRITE lcd0 setbl "$(GET_VAR "config" "settings/general/brightness")"
 

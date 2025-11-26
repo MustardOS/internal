@@ -38,21 +38,9 @@ SLEEP() {
 	touch "$RECENT_WAKE"
 
 	DISPLAY_WRITE lcd0 setbl 0
-	wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
+	amixer set "Master" mute
 
 	cat "$CPU_GOV_PATH" >"$WAKE_CPU_GOV"
-
-	# Shutdown all of the CPU cores for boards that have actual proper
-	# energy module within the kernel and device tree... unlike TrimUI
-	case "$DEV_BOARD" in
-		rg*)
-			C=1
-			while [ "$C" -lt "$CPU_CORES" ]; do
-				echo 0 >"$SYS_CPU_PATH/cpu${C}/online"
-				C=$((C + 1))
-			done
-			;;
-	esac
 
 	if [ "$RGB_ENABLE" -eq 1 ] && [ "$LED_RGB" -eq 1 ]; then
 		[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
@@ -74,21 +62,9 @@ SLEEP() {
 }
 
 RESUME() {
-	case "$DEV_BOARD" in
-		rg*)
-			C=1
-			while [ "$C" -lt "$CPU_CORES" ]; do
-				echo 1 >"$SYS_CPU_PATH/cpu${C}/online"
-				C=$((C + 1))
-			done
-			;;
-	esac
-
 	/opt/muos/script/device/module.sh load
 
 	LED_CONTROL_CHANGE
-
-	wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
 	E_BRIGHT="$DEFAULT_BRIGHTNESS"
 
@@ -116,6 +92,7 @@ RESUME() {
 
 	[ "$USB_FUNCTION" != "none" ] && /opt/muos/script/system/usb_gadget.sh resume
 
+	amixer set "Master" unmute
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
 	# Some stupid TrimUI GPU shenanigans

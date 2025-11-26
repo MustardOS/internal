@@ -22,7 +22,7 @@ INTERVAL=100
 
 SOCKET_READY() {
 	[ -S "$PW_SOCKET" ] || return 1
-	pw-cli info >/dev/null 2>&1 || return 1
+	pw-cli info || return 1
 	return 0
 }
 
@@ -30,7 +30,7 @@ PROC_GONE() {
 	NAME=$1
 
 	ELAPSED=0
-	while pgrep -x "$NAME" >/dev/null 2>&1; do
+	while pgrep -x "$NAME"; do
 		TBOX sleep 0.1
 		ELAPSED=$((ELAPSED + INTERVAL))
 		[ "$ELAPSED" -ge "$TIMEOUT" ] && return 1
@@ -71,21 +71,11 @@ GET_TARGET_NODE() {
 	printf '%s' "$TARGET_ID"
 }
 
-GET_VOLUME() {
-	VOL=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null) || return 1
-
-	VOL=${VOL##* }
-	VOL=${VOL#0.}
-
-	printf '%d' "$VOL"
-}
-
 FINALISE_AUDIO() {
-
 	TARGET_ID=$(GET_TARGET_NODE)
 	DEF_ID="$(GET_NODE_ID "$TARGET_ID")"
 
-	wpctl set-default "$DEF_ID" >/dev/null 2>&1
+	wpctl set-default "$DEF_ID"
 
 	if [ -z "$DEF_ID" ]; then
 		[ "$ADV_AR" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
@@ -103,12 +93,11 @@ FINALISE_AUDIO() {
 		if [ "${ADV_OD:-0}" -eq 1 ]; then V=200; else V=100; fi
 	fi
 
-	CURR_VOL=$(GET_VOLUME)
-	if [ -z "$CURR_VOL" ] || [ "$CURR_VOL" -ne "$V" ]; then
-		wpctl set-volume @DEFAULT_AUDIO_SINK@ "$V"% >/dev/null 2>&1
-	fi
+	wpctl set-volume @DEFAULT_AUDIO_SINK@ "$V"%
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
 
-	wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1
+	RESET_AMIXER
+
 	[ "$ADV_AR" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
 
 	LOG_SUCCESS "$0" 0 "PIPEWIRE" "$(printf "Audio Finalised (node=%s, vol=%s%%)" "$DEF_ID" "$V")"
@@ -118,14 +107,14 @@ FINALISE_AUDIO() {
 START_PIPEWIRE() {
 	RESTORE_CONF "$MUOS_SHARE_DIR/conf/wireplumber.lua" "/usr/share/wireplumber/main.lua.d/60-muos-wireplumber.lua"
 
-	if ! pgrep -x "pipewire" >/dev/null 2>&1; then
+	if ! pgrep -x "pipewire"; then
 		LOG_INFO "$0" 0 "PIPEWIRE" "$(printf "Starting PipeWire (runtime: %s)" "$PIPEWIRE_RUNTIME_DIR")"
 		chrt -f 88 pipewire -c "$MUOS_SHARE_DIR/conf/pipewire.conf" &
 	else
 		LOG_WARN "$0" 0 "PIPEWIRE" "PipeWire already running"
 	fi
 
-	if ! pgrep -x "wireplumber" >/dev/null 2>&1; then
+	if ! pgrep -x "wireplumber"; then
 		LOG_INFO "$0" 0 "PIPEWIRE" "Starting WirePlumber..."
 		wireplumber &
 	fi
@@ -139,8 +128,6 @@ DO_START() {
 		[ "$ADV_AR" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
 		exit 1
 	fi
-
-	RESET_AMIXER
 
 	LOG_INFO "$0" 0 "PIPEWIRE" "Restoring Default Sound System"
 	RESTORE_CONF "$MUOS_SHARE_DIR/conf/asound.conf" "/etc/asound.conf"

@@ -3,14 +3,12 @@
 . /opt/muos/script/var/func.sh
 
 HAS_NETWORK=$(GET_VAR "device" "board/network")
+[ "$HAS_NETWORK" -eq 0 ] && exit 0
+
 IFCE=$(GET_VAR "device" "network/iface")
 
-[ "$HAS_NETWORK" -eq 1 ] && /opt/muos/script/system/network.sh disconnect
-
-case "$(GET_VAR "device" "board/name")" in
-	tui*) /opt/muos/script/device/network.sh load ;;
-	*) ;;
-esac
+/opt/muos/script/system/network.sh disconnect
+/opt/muos/script/device/network.sh load
 
 WAIT_IFACE=20
 while [ "$WAIT_IFACE" -gt 0 ]; do
@@ -24,8 +22,4 @@ ip link set dev "$IFCE" down
 /usr/bin/macchanger -r "$IFCE"
 
 SET_VAR "config" "network/mac" "$NEW_MAC"
-
-case "$(GET_VAR "device" "board/name")" in
-	tui*) /opt/muos/script/device/network.sh unload ;;
-	*) ;;
-esac
+/opt/muos/script/device/network.sh unload

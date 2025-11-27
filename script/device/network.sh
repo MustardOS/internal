@@ -120,21 +120,9 @@ LOAD_NETWORK() {
 
 	SET_VAR "device" "network/iface_active" "$NET_IFACE"
 
-	rfkill unblock all 2>/dev/null
-
 	# Bring the interface up and disable Wi-Fi powersave if phy80211 present
 	ip link set "$NET_IFACE" up 2>/dev/null
 	[ -L "$SCN_PATH/$NET_IFACE/phy80211" ] && iw dev "$NET_IFACE" set power_save off 2>/dev/null
-
-	# Idle any secondary wlan interfaces (wlan1 etc.)
-	for N in "$SCN_PATH"/wlan*; do
-		[ -d "$N" ] || continue
-
-		B=${N##*/}
-		[ "$B" = "$NET_IFACE" ] && continue
-
-		ip link set "$B" down 2>/dev/null
-	done &
 
 	# Only touch resolv.conf if we actually have a DNS to set
 	if [ -n "$DNS_ADDR" ]; then
@@ -147,15 +135,6 @@ LOAD_NETWORK() {
 
 UNLOAD_NETWORK() {
 	[ "$HAS_NETWORK" -eq 0 ] && return 0
-
-	[ -n "$NET_IFACE" ] && [ -d "$SCN_PATH/$NET_IFACE" ] && ip link set "$NET_IFACE" down 2>/dev/null
-
-	rfkill block all 2>/dev/null
-
-	if grep -qw "^$NET_NAME" /proc/modules 2>/dev/null; then
-		modprobe -qr "$NET_NAME" 2>/dev/null
-	fi
-
 	[ -f "$RESOLV_CONF.bak" ] && mv -f "$RESOLV_CONF.bak" "$RESOLV_CONF"
 }
 

@@ -44,6 +44,8 @@ if [ "$(GET_VAR "config" "settings/advanced/thermal")" -eq 0 ]; then
 	done
 fi
 
+rfkill unblock all 2>/dev/null
+
 DEV_BOARD=$(GET_VAR "device" "board/name")
 EMU_VER=
 
@@ -73,7 +75,7 @@ case "$DEV_BOARD" in
 		;;
 	rk*)
 		EMU_VER="rk"
-	;;
+		;;
 esac
 
 # Add device specific Retroarch Binary

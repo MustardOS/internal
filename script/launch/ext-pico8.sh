@@ -46,7 +46,7 @@ GPTOKEYB "$P8_BIN" "$CORE"
 
 set -- -root_path "$(dirname "$FILE")"
 case $NAME in
-    [Ss]plore*) set -- "$@" -splore ;;
+    [Ss]plore*|-[Ss]plore-*) set -- "$@" -splore ;;
     *) set -- "$@" -run "$FILE" ;;
 esac
 PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS "$@"

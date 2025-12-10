@@ -24,7 +24,9 @@ RA_ARGS=$(CONFIGURE_RETROARCH)
 IS_SWAP=$(DETECT_CONTROL_SWAP)
 
 F_PATH=$(echo "$FILE" | awk -F'/' '{NF--; print}' OFS='/')
+
 DOOM_RUNNER="$F_PATH/$NAME.doom"
+WAD_DIR="$F_PATH/.WAD"
 
 # Compensate for Windows wild cuntery
 dos2unix -n "$DOOM_RUNNER" "$DOOM_RUNNER"
@@ -32,8 +34,14 @@ dos2unix -n "$DOOM_RUNNER" "$DOOM_RUNNER"
 TARGET_DIR="$F_PATH/.$NAME"
 mkdir -p "$TARGET_DIR"
 
+COPY_DONE=0
+
 RUN_FAILURE() {
-	printf "%s" "$1" >"/tmp/run_error"
+	SHOW_MESSAGE 100 "Error Loading DOOM Content\n\n$1"
+
+	MESSAGE stop
+	TBOX sleep 3
+
 	exit 1
 }
 
@@ -41,45 +49,52 @@ CHECK_AND_COPY() {
 	SRC="$1"
 	DEST="$2"
 	FILE="$3"
+	PROG="$4"
 
 	[ -z "$FILE" ] && return 0
 	[ -f "$DEST/$FILE" ] && return 0
+	[ ! -f "$SRC/$FILE" ] && return 1
 
-	[ ! -f "$SRC/$FILE" ] && RUN_FAILURE "Required file '$FILE' not found."
-
+	SHOW_MESSAGE "$PROG" "Loading DOOM Content\n\nCopying '$FILE'"
 	cp -f "$SRC/$FILE" "$DEST/$FILE"
+
+	COPY_DONE=1
+	return 0
 }
 
-PROCESS_EXTRA_FILES() {
-	LIST="$1"
-	FOLDER="$2"
-	MSG="$3"
+PWADS=""
+DEHS=""
+IWAD=""
 
-	for FILE in $LIST; do
-		[ -z "$FILE" ] && continue
-		[ -f "$TARGET_DIR/$FILE" ] && continue
+while IFS='"' read -r key value _; do
+	case "$key" in
+		*parentwad*) IWAD="$value" ;;
+		*wadfile_*) PWADS="$PWADS $value" ;;
+		*dehfile_*) DEHS="$DEHS $value" ;;
+	esac
+done <"$DOOM_RUNNER"
 
-		if [ -f "$F_PATH/$FOLDER/$FILE" ]; then
-			CHECK_AND_COPY "$F_PATH/$FOLDER" "$TARGET_DIR" "$FILE"
-		else
-			RUN_FAILURE "$MSG '$FILE' not found."
-		fi
-	done
-}
+[ -z "$IWAD" ] && RUN_FAILURE "Parent WAD not defined"
 
-IWAD=$(awk -F'"' '/parentwad/ {print $2}' "$DOOM_RUNNER")
+if ! CHECK_AND_COPY "$WAD_DIR" "$TARGET_DIR" "$IWAD" 25; then
+	RUN_FAILURE "Required IWAD '$IWAD' not found"
+fi
 
-[ -z "$IWAD" ] && RUN_FAILURE "Parent WAD not defined."
+for FILE in $PWADS; do
+	if ! CHECK_AND_COPY "$WAD_DIR" "$TARGET_DIR" "$FILE" 50; then
+		RUN_FAILURE "Patch WAD '$FILE' not found"
+	fi
+done
 
-CHECK_AND_COPY "$F_PATH/.IWAD" "$TARGET_DIR" "$IWAD"
+for FILE in $DEHS; do
+	if ! CHECK_AND_COPY "$WAD_DIR" "$TARGET_DIR" "$FILE" 75; then
+		RUN_FAILURE "DeHackEd file '$FILE' not found"
+	fi
+done
 
-# For future reference PWADS and DEHS can coexist in the same directory!
+[ $COPY_DONE -eq 1 ] && SHOW_MESSAGE 100 "Loading DOOM Content\n\nSuccess!" && TBOX sleep 0.5
 
-PWADS=$(awk -F'"' '/wadfile_/ {print $2}' "$DOOM_RUNNER" | sed '/^$/d')
-PROCESS_EXTRA_FILES "$PWADS" ".PWAD" "Patch WAD"
-
-DEHS=$(awk -F'"' '/dehfile_/ {print $2}' "$DOOM_RUNNER" | sed '/^$/d')
-PROCESS_EXTRA_FILES "$DEHS" ".DEHS" "DeHackEd file"
+MESSAGE stop
 
 PRBC="$TARGET_DIR/prboom.cfg"
 PRBW="$TARGET_DIR/${NAME}_prboom.wad"

@@ -21,7 +21,7 @@ RA_CONF="$MUOS_SHARE_DIR/info/config/retroarch.cfg"
 RA_ARGS=$(CONFIGURE_RETROARCH)
 IS_SWAP=$(DETECT_CONTROL_SWAP)
 
-nice --20 retroarch -v -f $RA_ARGS
+retroarch -v -f $RA_ARGS
 
 [ "$IS_SWAP" -eq 1 ] && DETECT_CONTROL_SWAP
 

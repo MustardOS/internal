@@ -102,13 +102,13 @@ MANAGE_WEBSERV() {
 				case "$SRV" in
 					sshd)
 						chmod -R 700 /opt/openssh/var /opt/openssh/etc
-						nice -2 /opt/openssh/sbin/sshd >/dev/null 2>&1 &
+						/opt/openssh/sbin/sshd >/dev/null 2>&1 &
 						;;
 					sftpgo)
-						nice -2 /opt/sftpgo/sftpgo serve -c /opt/sftpgo >/dev/null 2>&1 &
+						/opt/sftpgo/sftpgo serve -c /opt/sftpgo >/dev/null 2>&1 &
 						;;
 					ttyd)
-						nice -2 /opt/muos/bin/ttyd \
+						/opt/muos/bin/ttyd \
 							--port 8080 \
 							--url-arg \
 							--writable \
@@ -116,7 +116,7 @@ MANAGE_WEBSERV() {
 						;;
 					syncthing)
 						[ ! -s /opt/muos/bin/syncthing ] && cp "/opt/muos/bin/syncthing.backup" "/opt/muos/bin/syncthing"
-						nice -2 /opt/muos/bin/syncthing serve \
+						/opt/muos/bin/syncthing serve \
 							--home="$MUOS_STORE_DIR/syncthing" \
 							--no-port-probing \
 							--gui-address="0.0.0.0:7070" \
@@ -124,10 +124,10 @@ MANAGE_WEBSERV() {
 							--no-upgrade >/dev/null 2>&1 &
 						;;
 					ntp)
-						nice -2 /opt/muos/script/web/ntp.sh >/dev/null 2>&1 &
+						/opt/muos/script/web/ntp.sh >/dev/null 2>&1 &
 						;;
 					tailscaled)
-						nice -2 /opt/muos/bin/tailscaled >/dev/null 2>&1 &
+						/opt/muos/bin/tailscaled >/dev/null 2>&1 &
 						;;
 					*)
 						printf "Unknown Web Service: %s\n" "$SRV" >&2

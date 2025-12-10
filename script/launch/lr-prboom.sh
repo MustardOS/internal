@@ -100,6 +100,6 @@ PRBW="$TARGET_DIR/${NAME}_prboom.wad"
 cp -f "$DOOM_RUNNER" "$PRBC"
 cp -f "$MUOS_STORE_DIR/bios/prboom.wad" "$PRBW"
 
-nice --20 retroarch -v -f $RA_ARGS -L "$MUOS_SHARE_DIR/core/prboom_libretro.so" "$PRBW"
+retroarch -v -f $RA_ARGS -L "$MUOS_SHARE_DIR/core/prboom_libretro.so" "$PRBW"
 
 [ "$IS_SWAP" -eq 1 ] && DETECT_CONTROL_SWAP

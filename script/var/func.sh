@@ -262,7 +262,7 @@ EXEC_MUX() {
 	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
 
 	SET_VAR "system" "foreground_process" "$MODULE"
-	nice --20 "/opt/muos/frontend/$MODULE" "$@"
+	"/opt/muos/frontend/$MODULE" "$@"
 
 	while [ ! -f "$SAFE_QUIT" ]; do TBOX sleep 0.01; done
 }

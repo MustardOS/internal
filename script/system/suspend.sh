@@ -5,19 +5,19 @@
 # Lonely, oh so lonely...
 RECENT_WAKE="/tmp/recent_wake"
 WAKE_CPU_GOV="/tmp/wake_cpu_gov"
-SYS_CPU_PATH="/sys/devices/system/cpu"
 
 DEV_BOARD=$(GET_VAR "device" "board/name")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
 CPU_GOV_PATH="$(GET_VAR "device" "cpu/governor")"
-CPU_CORES="$(GET_VAR "device" "cpu/cores")"
-RGB_ENABLE=$(GET_VAR "config" "settings/general/rgb")
 LED_RGB="$(GET_VAR "device" "led/rgb")"
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
+RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
+MAX_BRIGHT=$(GET_VAR "device" "screen/bright")
+
+RGB_ENABLE=$(GET_VAR "config" "settings/general/rgb")
 RUMBLE_SETTING="$(GET_VAR "config" "settings/advanced/rumble")"
 SUSPEND_STATE="$(GET_VAR "config" "danger/state")"
 DEFAULT_BRIGHTNESS="$(GET_VAR "config" "settings/general/brightness")"
-RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
 SHUTDOWN_TIME_SETTING="$(GET_VAR "config" "settings/power/shutdown")"
 CONNECT_ON_WAKE=$(GET_VAR "config" "settings/network/wake")
 

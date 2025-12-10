@@ -22,6 +22,10 @@ export HOME XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
 	ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR LED_CONTROL_SCRIPT \
 	MUOS_SHARE_DIR MUOS_STORE_DIR
 
+MESSAGE_EXEC="/opt/muos/frontend/muxmessage"
+MESSAGE_TEXT="/tmp/msg_livetext"
+MESSAGE_PROG="/tmp/msg_progress"
+
 mkdir -p "$MUOS_LOG_DIR"
 
 ESC=$(printf '\x1b')
@@ -209,6 +213,39 @@ HOTKEY() {
 			return 1
 			;;
 	esac
+}
+
+MESSAGE() {
+    case "$1" in
+        stop)
+            if pgrep -x "$MESSAGE_EXEC" >/dev/null; then
+                [ -f "$MESSAGE_TEXT" ] && rm -f "$MESSAGE_TEXT" "$MESSAGE_PROG"
+                pkill -9 -f "$MESSAGE_EXEC"
+            fi
+            ;;
+        start)
+            pgrep -x "$MESSAGE_EXEC" >/dev/null && return 0
+            [ ! -f "$MESSAGE_TEXT" ] && touch "$MESSAGE_TEXT"
+            setsid -f "$MESSAGE_EXEC" 0 "" -l "$MESSAGE_TEXT" </dev/null >/dev/null 2>&1
+            ;;
+        restart)
+            MESSAGE stop
+            MESSAGE start
+            ;;
+        *)
+            printf "Usage: MESSAGE start | stop | restart\n"
+            return 1
+            ;;
+    esac
+}
+
+SHOW_MESSAGE() {
+	[ ! -f "$MESSAGE_TEXT" ] && MESSAGE start
+
+	if pgrep -x "$MESSAGE_EXEC" >/dev/null; then
+		echo "$1" >"$MESSAGE_PROG"
+		echo "$2" >"$MESSAGE_TEXT"
+	fi
 }
 
 EXEC_MUX() {

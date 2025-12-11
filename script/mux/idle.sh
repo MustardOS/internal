@@ -28,11 +28,8 @@ DISPLAY_ACTIVE() {
 	[ -e "$IS_IDLE" ] && rm -f "$IS_IDLE"
 }
 
-# Processes we need to look out for... just make sure to keep the space before and after!
-WATCHLIST=" syncthing ffplay mpv muterm muxcharge muxbackup muxarchive muxcredits muxmessage "
-
 while :; do
-	INHIBIT="$INHIBIT_NONE"
+	INHIBIT=$INHIBIT_NONE
 
 	CHARGER_PATH="$(GET_VAR "device" "battery/charger")"
 	if [ -r "$CHARGER_PATH" ]; then
@@ -49,9 +46,10 @@ while :; do
 	for PROC in /proc/[0-9]*/comm; do
 		[ -r "$PROC" ] || continue
 		IFS= read -r P <"$PROC" || continue
-		case "$WATCHLIST" in
-			*" $P "*)
-				INHIBIT="$INHIBIT_BOTH"
+
+		case "$P" in
+			syncthing | muterm | muxcharge | muxcredits | muxmessage)
+				INHIBIT=$INHIBIT_BOTH
 				break
 				;;
 		esac

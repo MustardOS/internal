@@ -73,14 +73,26 @@ GET_TARGET_NODE() {
 
 FINALISE_AUDIO() {
 	TARGET_ID=$(GET_TARGET_NODE)
-	DEF_ID="$(GET_NODE_ID "$TARGET_ID")"
+	DEF_ID=""
 
-	wpctl set-default "$DEF_ID"
+	ELAPSED=0
+	while [ -z "$DEF_ID" ]; do
+		TBOX sleep 0.1
+		ELAPSED=$((ELAPSED + INTERVAL))
+
+		DEF_ID="$(GET_NODE_ID "$TARGET_ID")"
+		[ -n "$DEF_ID" ] && break
+
+		[ "$ELAPSED" -ge "$TIMEOUT" ] && break
+	done
 
 	if [ -z "$DEF_ID" ]; then
+		LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "No matching PipeWire node for target '%s' after timeout" "$TARGET_ID")"
 		[ "$ADV_AR" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
 		return 1
 	fi
+
+	wpctl set-default "$DEF_ID"
 
 	case "$ADV_VOL" in
 		loud) V="$MAX_VOL" ;;

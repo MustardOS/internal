@@ -49,6 +49,9 @@ case "$ARCHIVE_NAME" in
 
 			if unzip -o -j "$ARCHIVE" "pico-8/*" -d "${BIOS_DIR}/pico-8/"; then
 				printf "Extracted 'pico-8' Folder to '%s'\n" "$BIOS_DIR"
+				mkdir "/opt/muos/share/application/Splore"
+				cp /opt/muos/share/emulator/pico8/splore.txt /opt/muos/share/application/Splore/mux_launch.sh
+				chmod +x /opt/muos/share/application/Splore/mux_launch.sh
 			else
 				printf "Failed to Extract 'pico-8' Folder\n"
 				ALL_DONE 1

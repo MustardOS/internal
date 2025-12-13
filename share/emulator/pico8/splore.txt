@@ -1,0 +1,11 @@
+#!/bin/sh
+# HELP: Launch Splore for pico-8, this will need the proper emulator files in the bios dir
+# ICON: retroarch
+
+. /opt/muos/script/var/func.sh
+
+NAME=Splore
+CORE=ext-pico8-scale
+FILE=/mnt/union/ROMS/pico-8/Splore.p8
+
+/opt/muos/script/launch/ext-pico8.sh Splore ext-pico8-scale /mnt/union/ROMS/pico-8/Splore.p8

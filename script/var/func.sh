@@ -799,6 +799,9 @@ CREATE_BOOTLOGO_FROM_PNG() {
 }
 
 UPDATE_BOOTLOGO() {
+	rm -f /tmp/btl_go
+	UPDATE_BOOTLOGO_PNG && return 0
+
 	ACTIVE="$(GET_VAR "config" "theme/active")"
 	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
 

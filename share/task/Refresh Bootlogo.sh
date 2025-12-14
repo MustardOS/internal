@@ -4,9 +4,7 @@
 
 . /opt/muos/script/var/func.sh
 
-if ! UPDATE_BOOTLOGO_PNG; then
-    UPDATE_BOOTLOGO
-fi
+UPDATE_BOOTLOGO
 
 echo "Sync Filesystem"
 sync

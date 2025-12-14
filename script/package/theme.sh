@@ -122,9 +122,7 @@ INSTALL() {
 		) &
 	fi
 
-	if ! UPDATE_BOOTLOGO_PNG; then
-		UPDATE_BOOTLOGO
-	fi
+	UPDATE_BOOTLOGO
 
 	LED_CONTROL_CHANGE
 
@@ -161,9 +159,7 @@ SAVE() {
 }
 
 BOOTLOGO() {
-	if ! UPDATE_BOOTLOGO_PNG; then
-		UPDATE_BOOTLOGO
-	fi
+	UPDATE_BOOTLOGO
 
 	printf "Bootlogo Updated\n"
 	ALL_DONE 0 "${THEME_ARG:-custom}"

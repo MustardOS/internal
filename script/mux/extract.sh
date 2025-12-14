@@ -73,7 +73,8 @@ case "$ARCHIVE_NAME" in
 	*.muxalt)
 		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
 
-		if ! EXTRACT_ARCHIVE "Theme Alternative" "$ARCHIVE" "$MUOS_STORE_DIR/theme/active"; then
+		ACTIVE="$(GET_VAR "config" "theme/active")"
+		if ! EXTRACT_ARCHIVE "Theme Alternative" "$ARCHIVE" "$MUOS_STORE_DIR/theme/$ACTIVE"; then
 			printf "\nExtraction Failed...\n"
 			ALL_DONE 1
 		fi

@@ -38,6 +38,8 @@ ALL_DONE() {
 	printf "All Done!\n"
 	TBOX sleep 2
 	FRONTEND start "$FE_CMD"
+	
+	rm -f "$LOCK_DIR"
 
 	exit "${1:-0}"
 }
@@ -135,8 +137,6 @@ INSTALL() {
 		/opt/muos/script/mux/extract.sh "$ASSETS_ZIP" picker
 		unset THEME_INSTALLING
 	fi
-
-	rm -f "$LOCK_DIR"
 
 	printf "Install Complete\n"
 	ALL_DONE 0

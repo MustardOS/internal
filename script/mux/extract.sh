@@ -30,6 +30,7 @@ ARCHIVE="$1"
 }
 
 ARCHIVE_NAME="${ARCHIVE##*/}"
+BASENAME="${ARCHIVE_NAME%.*}"
 FRONTEND_START_PROGRAM="${2:-archive}"
 printf "Inspecting Archive...\n"
 
@@ -56,8 +57,10 @@ case "$ARCHIVE_NAME" in
 		fi
 		;;
 	*.muxthm)
-		printf "Detected Theme Package\nMoving archive to 'MUOS/theme'\n"
-		mv "$ARCHIVE" "$MUOS_STORE_DIR/theme/"
+		if ! EXTRACT_ARCHIVE "Theme" "$ARCHIVE" "$MUOS_STORE_DIR/theme/$BASENAME"; then
+			printf "\nExtraction Failed...\n"
+			ALL_DONE 1
+		fi
 		;;
 	*.muxcat)
 		printf "Detected Catalogue Package\nMoving archive to 'MUOS/package/catalogue'\n"

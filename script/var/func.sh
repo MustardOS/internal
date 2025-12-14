@@ -755,11 +755,12 @@ UPDATE_BOOTLOGO_PNG() {
 }
 
 CREATE_BOOTLOGO_FROM_PNG() {
+	ACTIVE="$(GET_VAR "config" "theme/active")"
 	BOOTLOGO_PNG_PATH=$1
 	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
 	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
 	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
-	THEME_ACTIVE_DIR="$MUOS_STORE_DIR/theme/active"
+	THEME_ACTIVE_DIR="$MUOS_STORE_DIR/theme/$ACTIVE"
 	BACKGROUND_COLOUR="#000000"
 	BACKGROUND_GRADIENT_COLOUR="#000000"
 	PNG_RECOLOUR="#FFFFFF"
@@ -795,13 +796,14 @@ CREATE_BOOTLOGO_FROM_PNG() {
 }
 
 UPDATE_BOOTLOGO() {
+	ACTIVE="$(GET_VAR "config" "theme/active")"
 	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
 
 	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
 	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
 
-	SPEC_BL="$MUOS_STORE_DIR/theme/active/${DEVICE_W}x${DEVICE_H}/image/bootlogo.bmp"
-	NORM_BL="$MUOS_STORE_DIR/theme/active/image/bootlogo.bmp"
+	SPEC_BL="$MUOS_STORE_DIR/theme/$ACTIVE/${DEVICE_W}x${DEVICE_H}/image/bootlogo.bmp"
+	NORM_BL="$MUOS_STORE_DIR/theme/$ACTIVE/image/bootlogo.bmp"
 
 	if [ -e "$SPEC_BL" ]; then
 		printf "\nBootlogo found at: %s\n" "$SPEC_BL"

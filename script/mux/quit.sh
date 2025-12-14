@@ -106,6 +106,12 @@ case "$1" in
 		CLOSE_CONTENT
 		;;
 	poweroff | reboot)
+		if [ -f "/tmp/btl_go" ]; then
+			rm -f "/tmp/btl_go"
+			if ! UPDATE_BOOTLOGO_PNG; then
+				UPDATE_BOOTLOGO
+			fi
+		fi	
 		HALT_SYSTEM "$1" "$2"
 		sync && /opt/muos/script/system/halt.sh "$HALT_CMD"
 		;;

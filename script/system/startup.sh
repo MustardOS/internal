@@ -54,7 +54,7 @@ NET_ASYNC=$(GET_VAR "config" "settings/network/async_load")
 #:] ### Enable Rumble Support
 #:] Primarily used for TrimUI/RK3326 devices at the moment.
 LOG_INFO "$0" 0 "BOOTING" "Enabling Device Rumble"
-/opt/muos/script/device/rumble.sh
+/opt/muos/script/device/rumble.sh &
 
 #:] ### Start PipeWire Audio
 #:] Launch PipeWire and WirePlumber in one go.

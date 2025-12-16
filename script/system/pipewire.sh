@@ -31,7 +31,7 @@ PROC_GONE() {
 
 	ELAPSED=0
 	while pgrep -x "$NAME"; do
-		TBOX sleep 0.1
+		sleep 0.1
 		ELAPSED=$((ELAPSED + INTERVAL))
 		[ "$ELAPSED" -ge "$TIMEOUT" ] && return 1
 	done
@@ -64,7 +64,7 @@ GET_TARGET_NODE() {
 
 	ELAPSED=0
 	until pw-dump | grep -q "$TARGET_ID" || [ "$ELAPSED" -ge "$TIMEOUT" ]; do
-		TBOX sleep 0.1
+		sleep 0.1
 		ELAPSED=$((ELAPSED + INTERVAL))
 	done
 
@@ -77,7 +77,7 @@ FINALISE_AUDIO() {
 
 	ELAPSED=0
 	while [ -z "$DEF_ID" ]; do
-		TBOX sleep 0.1
+		sleep 0.1
 		ELAPSED=$((ELAPSED + INTERVAL))
 
 		DEF_ID="$(GET_NODE_ID "$TARGET_ID")"
@@ -152,7 +152,7 @@ DO_START() {
 
 	ELAPSED=0
 	while [ ! -S "$DBUS_SOCKET" ]; do
-		TBOX sleep 0.1
+		sleep 0.1
 		ELAPSED=$((ELAPSED + INTERVAL))
 		[ "$ELAPSED" -ge "$TIMEOUT" ] && break
 	done

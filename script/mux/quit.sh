@@ -17,7 +17,7 @@ CLOSE_CONTENT() {
 		LOG_INFO "$0" 0 "QUIT" "$(printf "Closing content (%s)..." "$FG_PROC_VAL")"
 
 		kill -CONT "$FG_PROC_PID" 2>/dev/null
-		TBOX sleep 0.1
+		sleep 0.1
 		kill -TERM "$FG_PROC_PID" 2>/dev/null
 
 		for _ in $(seq 1 40); do
@@ -26,7 +26,7 @@ CLOSE_CONTENT() {
 				return
 			fi
 
-			TBOX sleep 0.1
+			sleep 0.1
 		done
 	fi
 }

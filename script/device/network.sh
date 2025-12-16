@@ -35,7 +35,7 @@ WAIT_FOR_SDIO() {
 		[ -d "/sys/bus/mmc/devices/mmc2:0001" ] && return 0
 
 		I=$((I + 1))
-		TBOX sleep 1
+		sleep 1
 	done
 
 	return 1
@@ -67,7 +67,7 @@ WAIT_FOR_IFACE() {
 		done
 
 		I=$((I + 1))
-		TBOX sleep 1
+		sleep 1
 	done
 
 	return 1
@@ -81,7 +81,7 @@ LOAD_NETWORK() {
 		case "$BOARD_NAME" in
 			rg*)
 				modprobe -qr "$NET_NAME"
-				TBOX sleep 1
+				sleep 1
 				;;
 		esac
 	fi
@@ -146,14 +146,14 @@ RELOAD_NETWORK() {
 	I=0
 	while [ "$I" -lt "$MAX_RETRY" ]; do
 		UNLOAD_NETWORK
-		TBOX sleep 1
+		sleep 1
 
 		LOAD_NETWORK && return 0
 
 		I=$((I + 1))
 	done
 
-	TBOX sleep 1
+	sleep 1
 	return 1
 }
 

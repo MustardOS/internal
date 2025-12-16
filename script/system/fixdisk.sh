@@ -38,4 +38,4 @@ done
 
 sync
 printf "\nAll done! Resuming Boot\n"
-TBOX sleep 3
+sleep 3

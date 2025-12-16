@@ -5,7 +5,7 @@
 FRONTEND stop
 
 SLEEP_AND_GO() {
-	TBOX sleep 5
+	sleep 5
 	FRONTEND start storage
 	exit "$1"
 }

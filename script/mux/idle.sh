@@ -56,5 +56,5 @@ while :; do
 	done
 
 	SET_VAR "system" "idle_inhibit" "$INHIBIT"
-	TBOX sleep 5
+	sleep 5
 done &

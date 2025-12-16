@@ -144,7 +144,7 @@ MANAGE_WEBSERV() {
 				else
 					HARD_KILL
 				fi
-				TBOX sleep 0.1
+				sleep 0.1
 			done
 			;;
 	esac

@@ -58,7 +58,7 @@ SLEEP() {
 
 	echo "$SUSPEND_STATE" >"/sys/power/state"
 
-	TBOX sleep 0.5
+	sleep 0.5
 }
 
 RESUME() {
@@ -104,7 +104,7 @@ RESUME() {
 	rm -rf "/tmp/wake_cpu_gov"
 
 	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
-	(TBOX sleep 5 && rm "$RECENT_WAKE") &
+	(sleep 5 && rm "$RECENT_WAKE") &
 
 	if [ "$HAS_NETWORK" -eq 1 ]; then
 		[ "$CONNECT_ON_WAKE" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &

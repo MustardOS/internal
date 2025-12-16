@@ -38,7 +38,7 @@ RUN_FAILURE() {
 	SHOW_MESSAGE 100 "Error Loading DOOM Content\n\n$1"
 
 	MESSAGE stop
-	TBOX sleep 3
+	sleep 3
 
 	exit 1
 }
@@ -90,7 +90,7 @@ for FILE in $DEHS; do
 	fi
 done
 
-[ $COPY_DONE -eq 1 ] && SHOW_MESSAGE 100 "Loading DOOM Content\n\nSuccess!" && TBOX sleep 0.5
+[ $COPY_DONE -eq 1 ] && SHOW_MESSAGE 100 "Loading DOOM Content\n\nSuccess!" && sleep 0.5
 
 MESSAGE stop
 

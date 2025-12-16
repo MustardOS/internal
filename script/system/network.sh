@@ -79,7 +79,7 @@ WAIT_NETWORK_ASSOC() {
 
 		LOG_WARN "$0" 0 "NETWORK" "$(printf "Waiting for WiFi Association... (%ds)" "$WAIT")"
 		WAIT=$((WAIT - 1))
-		TBOX sleep 1
+		sleep 1
 	done
 
 	LOG_ERROR "$0" 0 "NETWORK" "Association timeout"
@@ -147,7 +147,7 @@ IP_DHCP() {
 		}
 
 		LOG_WARN "$0" 0 "NETWORK" "Waiting for DHCP Lease..."
-		TBOX sleep 1
+		sleep 1
 		RETRY_CURR=$((RETRY_CURR + 1))
 	done
 
@@ -214,7 +214,7 @@ TRY_CONNECT() {
 	RETRY_CURR=0
 	while [ "$RETRY_CURR" -lt 5 ]; do
 		if iw dev "$IFCE" info >/dev/null 2>&1; then break; fi
-		TBOX sleep 1
+		sleep 1
 		RETRY_CURR=$((RETRY_CURR + 1))
 	done
 
@@ -277,7 +277,7 @@ case "$1" in
 
 			RETRY_CURR=$((RETRY_CURR + 1))
 			LOG_WARN "$0" 0 "NETWORK" "$(printf "Retrying Network Connection (%s/%s)" "$RETRY_CURR" "$RETRIES")"
-			TBOX sleep "$RETRY_DELAY"
+			sleep "$RETRY_DELAY"
 		done
 
 		LOG_ERROR "$0" 0 "NETWORK" "All Connection Attempts Failed"

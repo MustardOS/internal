@@ -26,10 +26,10 @@ LOW_BATTERY_WARNING() {
 		fi
 
 		echo 1 >"$LED_LOW"
-		TBOX sleep 0.5
+		sleep 0.5
 
 		echo 0 >"$LED_LOW"
-		TBOX sleep 0.5
+		sleep 0.5
 
 		[ "$USING_RGB" -eq 1 ] && [ ! -e "$IS_IDLE" ] && LED_CONTROL_CHANGE
 	fi
@@ -41,5 +41,5 @@ while :; do
 
 	LOW_BATTERY_WARNING
 
-	TBOX sleep 60
+	sleep 60
 done &

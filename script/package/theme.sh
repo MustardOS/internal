@@ -24,7 +24,7 @@ THEME_ACTIVE_DIR="$THEME_DIR/active"
 LOCK_DIR="$THEME_DIR/.theme.lock"
 if ! touch "$LOCK_DIR" 2>/dev/null; then
 	printf "Another Theme Operation is in progress. Please try again shortly...\n"
-	TBOX sleep 2
+	sleep 2
 
 	FRONTEND start picker
 	exit 1
@@ -36,7 +36,7 @@ ALL_DONE() {
 	sync
 
 	printf "All Done!\n"
-	TBOX sleep 2
+	sleep 2
 	FRONTEND start "$FE_CMD"
 
 	exit "${1:-0}"
@@ -61,10 +61,10 @@ INSTALL() {
 		PIDS=$(printf "%s\n" $PIDS | awk -v self="$SELF" '$1 != self')
 		if [ -n "$PIDS" ]; then
 			for PID in $PIDS; do kill "$PID" 2>/dev/null; done
-			TBOX sleep 0.5
+			sleep 0.5
 
 			for PID in $PIDS; do kill -0 "$PID" 2>/dev/null && kill -9 "$PID" 2>/dev/null; done
-			TBOX sleep 0.25
+			sleep 0.25
 		fi
 	fi
 

@@ -15,7 +15,7 @@ RT_ZIP="$MUOS_SHARE_DIR/archive/runtimes.popular.aarch64.zip"
 
 if [ ! -e "$PM_ZIP" ]; then
 	printf "\nError: PortMaster archive not found!\n"
-	TBOX sleep 2
+	sleep 2
 
 	FRONTEND start task
 	exit 1
@@ -46,7 +46,7 @@ printf "\nSync Filesystem"
 sync
 
 printf "\nAll Done!"
-TBOX sleep 2
+sleep 2
 
 FRONTEND start task
 exit 0

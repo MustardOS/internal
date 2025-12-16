@@ -19,7 +19,7 @@ if  [ ! -f "/tmp/recent_wake" ] && [ "$(GET_VAR "config" "settings/advanced/dpad
 						2)
 							echo 0 >"$DPAD_FILE"
 							RUMBLE "$RUMBLE_DEVICE" .1
-							TBOX sleep 0.1
+							sleep 0.1
 							RUMBLE "$RUMBLE_DEVICE" .1
 							;;
 					esac
@@ -32,7 +32,7 @@ if  [ ! -f "/tmp/recent_wake" ] && [ "$(GET_VAR "config" "settings/advanced/dpad
 					else
 						touch "$DPAD_FILE"
 						RUMBLE "$RUMBLE_DEVICE" .1
-						TBOX sleep 0.1
+						sleep 0.1
 						RUMBLE "$RUMBLE_DEVICE" .1
 					fi
 					;;

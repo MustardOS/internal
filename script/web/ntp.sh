@@ -9,5 +9,5 @@ while :; do
 		wait $NTP_PID
 		hwclock -w
 	fi
-	TBOX sleep 10
+	sleep 10
 done &

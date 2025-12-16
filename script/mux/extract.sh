@@ -11,7 +11,7 @@ ALL_DONE() {
 	sync
 
 	printf "All Done!\n"
-	TBOX sleep 2
+	sleep 2
 
 	[ -z "${THEME_INSTALLING:-}" ] && FRONTEND start "${FRONTEND_START_PROGRAM:-archive}"
 

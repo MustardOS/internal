@@ -125,7 +125,7 @@ ENSURE_DIR() {
 
 SLEEP_MS() {
 	MS=$1
-	TBOX sleep "$(printf "%d.%03d" "$((MS / 1000))" "$((MS % 1000))")"
+	sleep "$(printf "%d.%03d" "$((MS / 1000))" "$((MS % 1000))")"
 }
 
 IS_PID_ALIVE() {
@@ -174,7 +174,7 @@ SERIAL_PREPARE() {
 	stty -F "$SERIAL_DEVICE" 115200 cs8 -parenb -cstopb -opost -isig -icanon -echo 2>/dev/null
 
 	# Small warm-up so first frame is not lost
-	TBOX sleep 0.1
+	sleep 0.1
 }
 
 SERIAL_SEND_MODE1_COLORS() {

@@ -145,7 +145,7 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 			ARC_UNSET
 
 			INDEX=$((INDEX + 1))
-			TBOX sleep 1
+			sleep 1
 		fi
 	done <"$MANIFEST_FILE"
 fi
@@ -163,7 +163,7 @@ fi
 echo "Sync Filesystem"
 sync
 
-TBOX sleep 3
+sleep 3
 FRONTEND start backup
 
 SET_VAR "system" "foreground_process" "muxfrontend"

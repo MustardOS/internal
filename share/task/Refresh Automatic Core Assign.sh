@@ -12,7 +12,7 @@ echo "Sync Filesystem"
 sync
 
 echo "All Done!"
-TBOX sleep 5
+sleep 5
 
 FRONTEND start task
 exit 0

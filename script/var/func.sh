@@ -115,7 +115,7 @@ ENSURE_REMOVED() {
 		[ -e "$P" ] || break
 
 		C=$((C + 1))
-		TBOX sleep 0.1
+		sleep 0.1
 	done
 }
 
@@ -152,7 +152,7 @@ FRONTEND() {
 
 			I=5
 			while FRONTEND_RUNNING && [ "$I" -gt 0 ]; do
-				TBOX sleep 1
+				sleep 1
 				I=$((I - 1))
 			done
 
@@ -161,7 +161,7 @@ FRONTEND() {
 
 				J=3
 				while FRONTEND_RUNNING && [ "$J" -gt 0 ]; do
-					TBOX sleep 1
+					sleep 1
 					J=$((J - 1))
 				done
 			fi
@@ -197,7 +197,7 @@ HOTKEY() {
 		stop)
 			while pgrep -x muhotkey >/dev/null || pgrep -x hotkey.sh >/dev/null; do
 				killall -9 muhotkey hotkey.sh
-				TBOX sleep 1
+				sleep 1
 			done
 			;;
 		start)
@@ -250,7 +250,7 @@ SHOW_MESSAGE() {
 
 EXEC_MUX() {
 	if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-		while [ ! -f "/tmp/hdmi_in_use" ]; do TBOX sleep 0.01; done
+		while [ ! -f "/tmp/hdmi_in_use" ]; do sleep 0.01; done
 	fi
 
 	[ -f "$SAFE_QUIT" ] && rm "$SAFE_QUIT"
@@ -264,7 +264,7 @@ EXEC_MUX() {
 	SET_VAR "system" "foreground_process" "$MODULE"
 	"/opt/muos/frontend/$MODULE" "$@"
 
-	while [ ! -f "$SAFE_QUIT" ]; do TBOX sleep 0.01; done
+	while [ ! -f "$SAFE_QUIT" ]; do sleep 0.01; done
 }
 
 # Prints current system uptime in hundredths of a second. Unlike date or
@@ -348,7 +348,7 @@ CRITICAL_FAILURE() {
 	esac
 
 	/opt/muos/frontend/muxmessage 0 "$MESSAGE"
-	TBOX sleep 10
+	sleep 10
 	/opt/muos/script/system/halt.sh poweroff
 }
 
@@ -357,12 +357,12 @@ RUMBLE() {
 		case "$(GET_VAR "device" "board/name")" in
 			rk*)
 				echo 1 >"$1"
-				TBOX sleep "$2"
+				sleep "$2"
 				echo 1000000 >"$1"
 				;;
 			*)
 				echo 1 >"$1"
-				TBOX sleep "$2"
+				sleep "$2"
 				echo 0 >"$1"
 				;;
 		esac
@@ -466,17 +466,17 @@ DISPLAY_READ() {
 
 LCD_DISABLE() {
 	if [ "$(GET_VAR "config" "settings/advanced/disp_suspend")" -eq 1 ]; then
-		TBOX sleep 0.5
+		sleep 0.5
 		DISPLAY_WRITE lcd0 disable 0
-		TBOX sleep 0.5
+		sleep 0.5
 	fi
 }
 
 LCD_ENABLE() {
 	if [ "$(GET_VAR "config" "settings/advanced/disp_suspend")" -eq 1 ]; then
-		TBOX sleep 0.5
+		sleep 0.5
 		DISPLAY_WRITE lcd0 enable 0
-		TBOX sleep 0.5
+		sleep 0.5
 	fi
 }
 
@@ -708,7 +708,7 @@ LED_CONTROL_CHANGE() {
 				WAIT=0
 
 				while [ ! -f "$RGBCONF_SCRIPT" ] && [ "$WAIT" -lt "$TIMEOUT" ]; do
-					TBOX sleep 1
+					sleep 1
 					WAIT=$((WAIT + 1))
 				done
 

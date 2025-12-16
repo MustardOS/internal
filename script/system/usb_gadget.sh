@@ -68,7 +68,7 @@ UNBIND_UDC() {
 
 	if [ -n "$(cat "$GADGET/UDC" 2>/dev/null)" ]; then
 		printf '' >"$GADGET/UDC" 2>/dev/null
-		TBOX sleep 0.1
+		sleep 0.1
 	fi
 }
 
@@ -127,7 +127,7 @@ STOP_DAEMONS() {
 	if IS_RUNNING adbd; then killall -q adbd; fi
 	if IS_RUNNING umtprd; then killall -q umtprd; fi
 
-	TBOX sleep 0.25
+	sleep 0.25
 
 	IS_RUNNING adbd && killall -q -KILL adbd
 	IS_RUNNING umtprd && killall -q -KILL umtprd
@@ -169,7 +169,7 @@ SWITCH_TO() {
 	MOUNT_FFS "$TGT"
 	START_DAEMON_PROC "$TGT"
 
-	TBOX sleep 0.25
+	sleep 0.25
 	BIND_UDC
 }
 
@@ -198,7 +198,7 @@ START_GADGET() {
 		adb | mtp)
 			MOUNT_FFS "$USB_FUNCTION"
 			START_DAEMON_PROC "$USB_FUNCTION"
-			TBOX sleep 0.2
+			sleep 0.2
 			BIND_UDC
 			;;
 	esac
@@ -241,7 +241,7 @@ READ_UDC_STATE() {
 
 REBIND_UDC() {
 	UNBIND_UDC
-	TBOX sleep 0.15
+	sleep 0.15
 	BIND_UDC
 }
 
@@ -299,7 +299,7 @@ WATCHDOG_LOOP() {
 
 	while :; do
 		[ -n "$UDC" ] || {
-			TBOX sleep "$INTERVAL"
+			sleep "$INTERVAL"
 			continue
 		}
 
@@ -325,7 +325,7 @@ WATCHDOG_LOOP() {
 				;;
 		esac
 
-		TBOX sleep "$INTERVAL"
+		sleep "$INTERVAL"
 	done
 }
 
@@ -339,7 +339,7 @@ CMD_START() {
 	fi
 
 	nohup "$0" __watchdog >/dev/null 2>&1 &
-	TBOX sleep 0.25
+	sleep 0.25
 
 	if [ -r "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE" 2>/dev/null)" 2>/dev/null; then
 		printf "usb_gadgetd: started (pid %s)\n" "$(cat "$PID_FILE")"
@@ -355,7 +355,7 @@ CMD_STOP() {
 		P="$(cat "$PID_FILE" 2>/dev/null)"
 		if [ -n "$P" ] && kill -0 "$P" 2>/dev/null; then
 			kill "$P" 2>/dev/null
-			TBOX sleep 0.2
+			sleep 0.2
 			kill -9 "$P" 2>/dev/null
 		else
 			printf "usb_gadgetd: stale lock (pid %s)\n" "$P"

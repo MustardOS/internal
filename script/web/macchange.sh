@@ -14,7 +14,7 @@ WAIT_IFACE=20
 while [ "$WAIT_IFACE" -gt 0 ]; do
 	[ -d "/sys/class/net/$IFCE" ] && break
 
-	TBOX sleep 1
+	sleep 1
 	WAIT_IFACE=$((WAIT_IFACE - 1))
 done
 

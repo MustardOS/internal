@@ -24,5 +24,5 @@ while :; do
 	fi
 
 	LAST_STATE="$STATE"
-	TBOX sleep 1
+	sleep 1
 done

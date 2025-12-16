@@ -12,6 +12,6 @@ echo "Sync Filesystem"
 sync
 
 echo "All Done!"
-TBOX sleep 5
+sleep 5
 
 exit 0

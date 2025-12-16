@@ -25,7 +25,7 @@ ALL_DONE() {
 	sync
 
 	printf "All Done!\n"
-	TBOX sleep 2
+	sleep 2
 	FRONTEND start picker
 
 	exit "${1:-0}"

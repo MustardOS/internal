@@ -11,7 +11,7 @@
 #:] ### Session Housekeeping
 #:] Create a temp workspace and clear any stale logs and update data from previous boots.
 mkdir -p "/tmp/muos"
-rm -rf "$MUOS_LOG_DIR"/*.log /opt/muxtmp
+rm -rf "$MUOS_LOG_DIR"/*.log "/opt/muxtmp"
 
 #:] ### Initialise Core State
 #:] Cache uptime and baseline flags used by other components during boot.
@@ -35,7 +35,6 @@ rm -f "$SCREEN_DIR/s_rotate" "$SCREEN_DIR/s_zoom" &
 #:] ### Frequently Used Variables
 #:] These are best to call once and use repeatedly instead of calling them individually.
 LOG_INFO "$0" 0 "BOOTING" "Caching System Variables"
-BOARD_NAME=$(GET_VAR "device" "board/name")
 GOVERNOR=$(GET_VAR "device" "cpu/governor")
 WIDTH=$(GET_VAR "device" "screen/internal/width")
 HEIGHT=$(GET_VAR "device" "screen/internal/height")
@@ -51,7 +50,6 @@ USB_FUNCTION=$(GET_VAR "config" "settings/advanced/usb_function")
 CONNECT_ON_BOOT=$(GET_VAR "config" "settings/network/boot")
 HDMI_PATH=$(GET_VAR "device" "screen/hdmi")
 NET_ASYNC=$(GET_VAR "config" "settings/network/async_load")
-NET_COMPAT=$(GET_VAR "config" "settings/network/compat")
 
 #:] ### Enable Rumble Support
 #:] Primarily used for TrimUI/RK3326 devices at the moment.
@@ -73,7 +71,7 @@ echo "performance" >"$GOVERNOR"
 #:] Load device specific kernel modules (except network).
 LOG_INFO "$0" 0 "BOOTING" "Loading Device Specific Modules"
 if [ "$FIRST_INIT" -eq 1 ] && [ "$FACTORY_RESET" -eq 0 ]; then
-	/opt/muos/script/device/module.sh load
+	/opt/muos/script/device/module.sh load &
 fi
 
 #:] ### First Init Messages
@@ -99,11 +97,6 @@ fi
 LOG_INFO "$0" 0 "BOOTING" "Device Rumble Check"
 case "$RUMBLE_SETTING" in 1 | 4 | 5) RUMBLE "$RUMBLE_PIN" 0.3 ;; esac
 
-#:] ### Loopback Network
-#:] Bring up `lo` so local services can bind immediately.
-LOG_INFO "$0" 0 "BOOTING" "Bringing Up 'localhost' Network"
-ifconfig lo up
-
 #:] ### Factory Reset Detection
 #:] If we are in factory reset mode, run the reset routine and reboot immediately once done.
 if [ "$FACTORY_RESET" -eq 1 ]; then
@@ -115,6 +108,32 @@ if [ "$FACTORY_RESET" -eq 1 ]; then
 	exit 0
 fi
 
+#:] ### Permissions sanity pass (background)
+#:] Ensure ownership and perms are sane on key trees.
+#:] Typically for SSH. This is needed specifically for the H700
+#:] kernel because the kernel reverts back to 1000:1000 as the UID:GID
+#:] for whatever reason.
+LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"
+(
+	chown -R root:root "/root" "/opt/openssh" "/opt/sftpgo"
+	chmod -R 755 "/root" "/opt/openssh" "/opt/sftpgo"
+) &
+
+#:] ### Loopback Network
+#:] Bring up `lo` so local services can bind immediately.
+LOG_INFO "$0" 0 "BOOTING" "Bringing Up 'localhost' Network"
+ifconfig lo up
+
+#:] ### Device Specific Startup
+#:] Board/variant hooks to finalise hardware setup.
+LOG_INFO "$0" 0 "BOOTING" "Device Specific Startup"
+/opt/muos/script/device/start.sh &
+
+#:] ### Storage Mounting
+#:] Ensure all mounts are set and that UnionFS is running.
+LOG_INFO "$0" 0 "BOOTING" "Loading Storage Mounts"
+/opt/muos/script/mount/start.sh &
+
 #:] ### Restore Internal Display Geometry
 #:] Ensure both the internal screen and the mux frontend have the proper resolution.
 LOG_INFO "$0" 0 "BOOTING" "Restoring Screen Mode"
@@ -123,47 +142,19 @@ for MODE in screen mux; do
 	SET_VAR "device" "$MODE/height" "$HEIGHT"
 done &
 
-#:] ### Network Compatibility Routine
-#:] On certain devices we unload the network module if Module Compatibility is enabled and reload
-#:] it again as we found that SDIO sometimes inhibits the network module on cold boots.
-#:] This happens asynchronously (_in background_) by default, but may be blocking to user's choice.
-if [ "$NET_COMPAT" -eq 0 ]; then
-	LOG_INFO "$0" 0 "BOOTING" "Loading Network Module (background)"
-	/opt/muos/script/device/network.sh load &
-else
-	LOG_INFO "$0" 0 "BOOTING" "Loading Network Module (foreground)"
-	/opt/muos/script/device/network.sh load
-	LOG_INFO "$0" 0 "BOOTING" "Executing Module Compatibility Handling"
-	case "$BOARD_NAME" in
-		rg*)
-			if [ "$NET_ASYNC" -eq 1 ]; then
-				LOG_INFO "$0" 0 "BOOTING" "Module Compatibility Routine (background)"
-				/opt/muos/script/device/network.sh reload &
-			else
-				LOG_INFO "$0" 0 "BOOTING" "Module Compatibility Routine (foreground)"
-				/opt/muos/script/device/network.sh reload
-			fi
-			;;
-		*) ;;
-	esac
-fi
-
 #:] ### Regular Boot Startup
-#:] Kick off mount handling and update script removal.
+#:] Update script removal.
 #:] Then determine console mode (internal vs HDMI).
 #:] Also check whether swap is required based on user preferences.
-LOG_INFO "$0" 0 "BOOTING" "Loading Storage Mounts"
-/opt/muos/script/mount/start.sh &
-
 LOG_INFO "$0" 0 "BOOTING" "Removing Existing Update Scripts"
-rm -rf /opt/update.sh
+rm -rf "/opt/update.sh"
 
-echo 1 >/tmp/work_led_state
-: >/tmp/net_start
+echo 1 >"/tmp/work_led_state"
+: >"/tmp/net_start"
 
 LOG_INFO "$0" 0 "BOOTING" "Detecting Console Mode"
 CONSOLE_MODE=0
-if [ "$BOARD_HDMI" -eq 1 ]; then
+if [ "${BOARD_HDMI:-0}" -eq 1 ]; then
 	HDMI_VALUE=0
 
 	[ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ] && HDMI_VALUE=$(cat "$HDMI_PATH")
@@ -178,22 +169,6 @@ SET_VAR "config" "boot/device_mode" "$CONSOLE_MODE"
 LOG_INFO "$0" 0 "BOOTING" "Checking Swap Requirements"
 /opt/muos/script/system/swap.sh &
 
-#:] ### Permissions sanity pass (background)
-#:] Ensure ownership and perms are sane on key trees.
-#:] Typically for SSH. This is needed specifically for the H700
-#:] kernel because the kernel reverts back to 1000:1000 as the UID:GID
-#:] for whatever reason.
-LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"
-(
-	chown -R root:root /root /opt/openssh /opt/sftpgo
-	chmod -R 755 /root /opt/openssh /opt/sftpgo
-) &
-
-#:] ### Device Specific Startup
-#:] Board/variant hooks to finalise hardware setup.
-LOG_INFO "$0" 0 "BOOTING" "Device Specific Startup"
-/opt/muos/script/device/start.sh &
-
 #:] ### Storage Mount Wait
 #:] Block until union mounts are ready so later steps can rely on them.
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
@@ -203,19 +178,11 @@ until [ -f "$MUOS_STORE_DIR/mounted" ]; do TBOX sleep 0.01; done
 #:] If a supplied `oops.sh` exists on ROM storage, run it now!
 LOG_INFO "$0" 0 "BOOTING" "Checking for Safety Script"
 OOPS="$ROM_MOUNT/oops.sh"
-if [ -x "$OOPS" ]; then
-	"$OOPS"
-	rm -f "$OOPS"
-fi
-
-#:] ### Unionise Content Directories
-#:] Build the content view (_overlay/union_) across storage devices.
-LOG_INFO "$0" 0 "BOOTING" "Unionising ROMS on Storage Mounts"
-/opt/muos/script/mount/union.sh start &
+[ -x "$OOPS" ] && "$OOPS" && rm -f "$OOPS"
 
 #:] ### Detect Charging Mode (_handheld mode only_)
 #:] On internal display mode, detect charger state and adjust LEDs accordingly.
-if [ "$CONSOLE_MODE" -eq 0 ]; then
+if [ "${CONSOLE_MODE:-0}" -eq 0 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
 	/opt/muos/script/device/charge.sh
 	LED_CONTROL_CHANGE
@@ -224,8 +191,12 @@ fi
 #:] ### Network Runner (_background_)
 #:] Auto-connect to network when configured (_if capability present_).
 LOG_INFO "$0" 0 "BOOTING" "Connecting Network on Boot if requested and possible"
-if  [ "$HAS_NETWORK" -eq 1 ]; then
-	[ "$CONNECT_ON_BOOT" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
+if [ "${HAS_NETWORK:-0}" -eq 1 ] && [ "${CONNECT_ON_BOOT:-0}" -eq 1 ]; then
+	if [ "${NET_ASYNC:-0}" -eq 1 ]; then
+		/opt/muos/script/system/network.sh connect &
+	else
+		/opt/muos/script/system/network.sh connect
+	fi
 fi
 
 #:] ### Hotkey Daemon
@@ -249,7 +220,7 @@ FRONTEND start
 #:] ### User Init Scripts (_optional_)
 #:] Allow users to run custom boot hooks.
 #:] This can be enabled within the **Advanced Settings** menu.
-if [ "$USER_INIT" -eq 1 ]; then
+if [ "${USER_INIT:-0}" -eq 1 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Starting User Initialisation Scripts"
 	/opt/muos/script/system/user_init.sh &
 fi

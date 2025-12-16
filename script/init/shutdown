@@ -1,0 +1,20 @@
+#!/bin/sh
+# shellcheck source=/dev/null
+
+for S in $(printf '%s\n' "/opt/muos/script/init"/S??* | sort -r); do
+	[ -e "$S" ] || continue
+	[ -f "$S" ] || continue
+
+	case "$S" in
+		*.sh)
+			(
+				trap - INT QUIT TSTP
+				set stop
+				. "$S"
+			)
+			;;
+		*)
+			"$S" stop
+			;;
+	esac
+done

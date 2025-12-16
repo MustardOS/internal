@@ -1,0 +1,31 @@
+#!/bin/sh
+# shellcheck source=/dev/null
+
+UDEV_CONFIG="/etc/udev/udev.conf"
+test -r $UDEV_CONFIG || exit 6
+. $UDEV_CONFIG
+
+case "$1" in
+	start)
+		printf "Populating %s using udev: " "${udev_root:-/dev}"
+		[ -e "/proc/sys/kernel/hotplug" ] && printf '\000\000\000\000' >"/proc/sys/kernel/hotplug"
+		/sbin/udevd -d || {
+			echo "FAIL"
+			exit 1
+		}
+		udevadm trigger --type=subsystems --action=add
+		udevadm trigger --type=devices --action=add
+		udevadm settle --timeout=30 || echo "udevadm settle failed"
+		echo "done"
+		;;
+	stop)
+		udevadm control --stop-exec-queue
+		killall udevd
+		;;
+	*)
+		echo "Usage: $0 {start|stop}"
+		exit 1
+		;;
+esac
+
+exit 0

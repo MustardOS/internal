@@ -59,7 +59,7 @@ LOG_INFO "$0" 0 "BOOTING" "Enabling Device Rumble"
 #:] ### Start PipeWire Audio
 #:] Launch PipeWire and WirePlumber in one go.
 LOG_INFO "$0" 0 "BOOTING" "Starting Pipewire"
-/opt/muos/script/system/pipewire.sh start
+/opt/muos/script/system/pipewire.sh start &
 
 #:] ### Set Default CPU Governor
 #:] Run the CPU at full performance during boot to shorten startup time.
@@ -100,7 +100,7 @@ case "$RUMBLE_SETTING" in 1 | 4 | 5) RUMBLE "$RUMBLE_PIN" 0.3 ;; esac
 #:] ### Factory Reset Detection
 #:] If we are in factory reset mode, run the reset routine and reboot immediately once done.
 if [ "$FACTORY_RESET" -eq 1 ]; then
-	LED_CONTROL_CHANGE
+	LED_CONTROL_CHANGE &
 
 	/opt/muos/script/system/factory.sh
 	/opt/muos/script/system/halt.sh reboot
@@ -114,15 +114,13 @@ fi
 #:] kernel because the kernel reverts back to 1000:1000 as the UID:GID
 #:] for whatever reason.
 LOG_INFO "$0" 0 "BOOTING" "Correcting Permissions"
-(
-	chown -R root:root "/root" "/opt/openssh" "/opt/sftpgo"
-	chmod -R 755 "/root" "/opt/openssh" "/opt/sftpgo"
-) &
+chown -R root:root "/root" "/opt/openssh" "/opt/sftpgo" &
+chmod -R 755 "/root" "/opt/openssh" "/opt/sftpgo" &
 
 #:] ### Loopback Network
 #:] Bring up `lo` so local services can bind immediately.
 LOG_INFO "$0" 0 "BOOTING" "Bringing Up 'localhost' Network"
-ifconfig lo up
+ifconfig lo up &
 
 #:] ### Device Specific Startup
 #:] Board/variant hooks to finalise hardware setup.
@@ -137,10 +135,10 @@ LOG_INFO "$0" 0 "BOOTING" "Loading Storage Mounts"
 #:] ### Restore Internal Display Geometry
 #:] Ensure both the internal screen and the mux frontend have the proper resolution.
 LOG_INFO "$0" 0 "BOOTING" "Restoring Screen Mode"
-for MODE in screen mux; do
-	SET_VAR "device" "$MODE/width" "$WIDTH"
-	SET_VAR "device" "$MODE/height" "$HEIGHT"
-done &
+SET_VAR "device" "screen/width" "$WIDTH" &
+SET_VAR "device" "screen/height" "$HEIGHT" &
+SET_VAR "device" "mux/width" "$WIDTH" &
+SET_VAR "device" "mux/height" "$HEIGHT" &
 
 #:] ### Regular Boot Startup
 #:] Update script removal.
@@ -211,11 +209,9 @@ FRONTEND start
 
 #:] ### System sounds (_background_)
 #:] Preload short UI sounds so they're instant when invoked.
-(
-	LOG_INFO "$0" 0 "BOOTING" "Preparing System Sounds"
-	PREP_SOUND reboot
-	PREP_SOUND shutdown
-) &
+LOG_INFO  "$0" 0 "BOOTING" "Preparing System Sounds"
+PREP_SOUND reboot &
+PREP_SOUND shutdown &
 
 #:] ### User Init Scripts (_optional_)
 #:] Allow users to run custom boot hooks.

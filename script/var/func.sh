@@ -7,9 +7,9 @@ case ":$LD_LIBRARY_PATH:" in
 esac
 
 HOME="/root"
+XDG_RUNTIME_DIR="/run"
 DBUS_SESSION_BUS_ADDRESS="unix:path=/run/dbus/system_bus_socket"
-PIPEWIRE_RUNTIME_DIR="/var/run"
-XDG_RUNTIME_DIR="$PIPEWIRE_RUNTIME_DIR"
+PIPEWIRE_RUNTIME_DIR="/run"
 ALSA_CONFIG="/usr/share/alsa/alsa.conf"
 WPA_CONFIG="/etc/wpa_supplicant.conf"
 DEVICE_CONTROL_DIR="/opt/muos/device/control"
@@ -18,9 +18,13 @@ LED_CONTROL_SCRIPT="/opt/muos/script/device/rgb.sh"
 MUOS_SHARE_DIR="/opt/muos/share"
 MUOS_STORE_DIR="/run/muos/storage"
 
-export HOME DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR XDG_RUNTIME_DIR \
+export HOME XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
 	ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR LED_CONTROL_SCRIPT \
 	MUOS_SHARE_DIR MUOS_STORE_DIR
+
+MESSAGE_EXEC="/opt/muos/frontend/muxmessage"
+MESSAGE_TEXT="/tmp/msg_livetext"
+MESSAGE_PROG="/tmp/msg_progress"
 
 mkdir -p "$MUOS_LOG_DIR"
 
@@ -82,7 +86,10 @@ RESET_AMIXER() {
 		*) DEV_VOL="$MAX_VOL" ;;
 	esac
 
-	amixer -c 0 sset "$AUDIO_CONTROL" "${DEV_VOL}%" unmute >/dev/null 2>&1
+	amixer -c 0 sset "$AUDIO_CONTROL" "${DEV_VOL}%" unmute
+	amixer set "Master" unmute
+
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
 }
 
 SET_DEFAULT_GOVERNOR() {
@@ -108,7 +115,7 @@ ENSURE_REMOVED() {
 		[ -e "$P" ] || break
 
 		C=$((C + 1))
-		TBOX sleep 0.1
+		sleep 0.1
 	done
 }
 
@@ -145,7 +152,7 @@ FRONTEND() {
 
 			I=5
 			while FRONTEND_RUNNING && [ "$I" -gt 0 ]; do
-				TBOX sleep 1
+				sleep 1
 				I=$((I - 1))
 			done
 
@@ -154,7 +161,7 @@ FRONTEND() {
 
 				J=3
 				while FRONTEND_RUNNING && [ "$J" -gt 0 ]; do
-					TBOX sleep 1
+					sleep 1
 					J=$((J - 1))
 				done
 			fi
@@ -190,7 +197,7 @@ HOTKEY() {
 		stop)
 			while pgrep -x muhotkey >/dev/null || pgrep -x hotkey.sh >/dev/null; do
 				killall -9 muhotkey hotkey.sh
-				TBOX sleep 1
+				sleep 1
 			done
 			;;
 		start)
@@ -208,9 +215,42 @@ HOTKEY() {
 	esac
 }
 
+MESSAGE() {
+    case "$1" in
+        stop)
+            if pgrep -x "$MESSAGE_EXEC" >/dev/null; then
+                [ -f "$MESSAGE_TEXT" ] && rm -f "$MESSAGE_TEXT" "$MESSAGE_PROG"
+                pkill -9 -f "$MESSAGE_EXEC"
+            fi
+            ;;
+        start)
+            pgrep -x "$MESSAGE_EXEC" >/dev/null && return 0
+            [ ! -f "$MESSAGE_TEXT" ] && touch "$MESSAGE_TEXT"
+            setsid -f "$MESSAGE_EXEC" 0 "" -l "$MESSAGE_TEXT" </dev/null >/dev/null 2>&1
+            ;;
+        restart)
+            MESSAGE stop
+            MESSAGE start
+            ;;
+        *)
+            printf "Usage: MESSAGE start | stop | restart\n"
+            return 1
+            ;;
+    esac
+}
+
+SHOW_MESSAGE() {
+	[ ! -f "$MESSAGE_TEXT" ] && MESSAGE start
+
+	if pgrep -x "$MESSAGE_EXEC" >/dev/null; then
+		echo "$1" >"$MESSAGE_PROG"
+		echo "$2" >"$MESSAGE_TEXT"
+	fi
+}
+
 EXEC_MUX() {
 	if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-		while [ ! -f "/tmp/hdmi_in_use" ]; do TBOX sleep 0.01; done
+		while [ ! -f "/tmp/hdmi_in_use" ]; do sleep 0.01; done
 	fi
 
 	[ -f "$SAFE_QUIT" ] && rm "$SAFE_QUIT"
@@ -222,9 +262,9 @@ EXEC_MUX() {
 	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
 
 	SET_VAR "system" "foreground_process" "$MODULE"
-	nice --20 "/opt/muos/frontend/$MODULE" "$@"
+	"/opt/muos/frontend/$MODULE" "$@"
 
-	while [ ! -f "$SAFE_QUIT" ]; do TBOX sleep 0.01; done
+	while [ ! -f "$SAFE_QUIT" ]; do sleep 0.01; done
 }
 
 # Prints current system uptime in hundredths of a second. Unlike date or
@@ -302,13 +342,13 @@ fi
 
 CRITICAL_FAILURE() {
 	case "$1" in
-		mount) MESSAGE=$(printf "Critical Failure\n\nFailed to mount directory!") ;;
+		mount) MESSAGE=$(printf "Mount Failure\n\n%s%s" "$1" "$2") ;;
 		udev) MESSAGE=$(printf "Critical Failure\n\nFailed to initialise udev!") ;;
 		*) MESSAGE=$(printf "Critical Failure\n\nAn unknown error occurred!") ;;
 	esac
 
 	/opt/muos/frontend/muxmessage 0 "$MESSAGE"
-	TBOX sleep 10
+	sleep 10
 	/opt/muos/script/system/halt.sh poweroff
 }
 
@@ -317,12 +357,12 @@ RUMBLE() {
 		case "$(GET_VAR "device" "board/name")" in
 			rk*)
 				echo 1 >"$1"
-				TBOX sleep "$2"
+				sleep "$2"
 				echo 1000000 >"$1"
 				;;
 			*)
 				echo 1 >"$1"
-				TBOX sleep "$2"
+				sleep "$2"
 				echo 0 >"$1"
 				;;
 		esac
@@ -382,6 +422,16 @@ HDMI_SWITCH() {
 	FB_SWITCH "$WIDTH" "$HEIGHT" "$DEPTH"
 }
 
+# Normal mode is stating that the factory reset routine is complete
+# and the device can act as it's supposed to, seems like some users
+# are "sleeping" their devices during the factory reset process.
+IS_NORMAL_MODE() {
+	[ "$(GET_VAR "config" "boot/factory_reset")" -eq 0 ]
+}
+
+# Handheld mode states stating whether or not the Console Mode (HDMI)
+# is preset and active.  We don't want specific hotkeys to run if we
+# are in currently in Console Mode.
 IS_HANDHELD_MODE() {
 	[ "$(GET_VAR "config" "boot/device_mode")" -eq 0 ]
 }
@@ -416,17 +466,17 @@ DISPLAY_READ() {
 
 LCD_DISABLE() {
 	if [ "$(GET_VAR "config" "settings/advanced/disp_suspend")" -eq 1 ]; then
-		TBOX sleep 0.5
+		sleep 0.5
 		DISPLAY_WRITE lcd0 disable 0
-		TBOX sleep 0.5
+		sleep 0.5
 	fi
 }
 
 LCD_ENABLE() {
 	if [ "$(GET_VAR "config" "settings/advanced/disp_suspend")" -eq 1 ]; then
-		TBOX sleep 0.5
+		sleep 0.5
 		DISPLAY_WRITE lcd0 enable 0
-		TBOX sleep 0.5
+		sleep 0.5
 	fi
 }
 
@@ -441,7 +491,8 @@ PREP_SOUND() {
 				[ -e "$WAV" ] && cp "$WAV" "$SND"
 				;;
 			2)
-				WAV="$MUOS_STORE_DIR/theme/active/sound/$1.wav"
+				ACTIVE="$(GET_VAR "config" "theme/active")"
+				WAV="$MUOS_STORE_DIR/theme/$ACTIVE/sound/$1.wav"
 				[ -e "$WAV" ] && cp "$WAV" "$SND"
 				;;
 			*) ;;
@@ -461,7 +512,7 @@ SETUP_SDL_ENVIRONMENT() {
 	for A in "$@"; do
 		case "$A" in
 			retro | modern) REQ_STYLE="$A" ;; # Optional priority override: $1 = retro | modern
-			skip_blitter) SKIP_BLITTER=1 ;;   # Used primarily for external ScummVM at the moment
+			skip_blitter) SKIP_BLITTER=1 ;; # Used primarily for external ScummVM at the moment
 		esac
 	done
 
@@ -530,7 +581,7 @@ UPDATE_RA_VALUE() {
 }
 
 DETECT_CONTROL_SWAP() {
-	RA_DEV_CONF="/opt/muos/device/control/retroarch.device.cfg"
+	RA_DEV_CONF="$DEVICE_CONTROL_DIR/retroarch.device.cfg"
 	CON_GO="/tmp/con_go"
 	IS_SWAP=0
 
@@ -553,7 +604,7 @@ DETECT_CONTROL_SWAP() {
 CONFIGURE_RETROARCH() {
 	RA_CONF="$MUOS_SHARE_DIR/info/config/retroarch.cfg"
 	RA_DEF="$MUOS_SHARE_DIR/emulator/retroarch/retroarch.default.cfg"
-	RA_CONTROL="/opt/muos/device/control/retroarch"
+	RA_CONTROL="$DEVICE_CONTROL_DIR/retroarch"
 
 	# Stop the user from doing anything harmful to the main RetroArch configuration.
 	[ "$(GET_VAR "config" "settings/advanced/retrofree")" -eq 0 ] && rm -f "$RA_CONF"
@@ -653,12 +704,13 @@ LED_CONTROL_CHANGE() {
 	(
 		if [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
 			if [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ]; then
-				RGBCONF_SCRIPT="$MUOS_STORE_DIR/theme/active/rgb/rgbconf.sh"
+				ACTIVE="$(GET_VAR "config" "theme/active")"
+				RGBCONF_SCRIPT="$MUOS_STORE_DIR/theme/$ACTIVE/rgb/rgbconf.sh"
 				TIMEOUT=10
 				WAIT=0
 
 				while [ ! -f "$RGBCONF_SCRIPT" ] && [ "$WAIT" -lt "$TIMEOUT" ]; do
-					TBOX sleep 1
+					sleep 1
 					WAIT=$((WAIT + 1))
 				done
 
@@ -675,13 +727,14 @@ LED_CONTROL_CHANGE() {
 }
 
 UPDATE_BOOTLOGO_PNG() {
+	ACTIVE="$(GET_VAR "config" "theme/active")"
 	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
 
 	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
 	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
 
-	SPEC_BL="$MUOS_STORE_DIR/theme/active/${DEVICE_W}x${DEVICE_H}/image/bootlogo.png"
-	NORM_BL="$MUOS_STORE_DIR/theme/active/image/bootlogo.png"
+	SPEC_BL="$MUOS_STORE_DIR/theme/$ACTIVE/${DEVICE_W}x${DEVICE_H}/image/bootlogo.png"
+	NORM_BL="$MUOS_STORE_DIR/theme/$ACTIVE/image/bootlogo.png"
 
 	if [ -e "$SPEC_BL" ]; then
 		printf "\nBootlogo found at: %s\n" "$SPEC_BL"
@@ -705,11 +758,12 @@ UPDATE_BOOTLOGO_PNG() {
 }
 
 CREATE_BOOTLOGO_FROM_PNG() {
+	ACTIVE="$(GET_VAR "config" "theme/active")"
 	BOOTLOGO_PNG_PATH=$1
 	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
 	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
 	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
-	THEME_ACTIVE_DIR="$MUOS_STORE_DIR/theme/active"
+	THEME_ACTIVE_DIR="$MUOS_STORE_DIR/theme/$ACTIVE"
 	BACKGROUND_COLOUR="#000000"
 	BACKGROUND_GRADIENT_COLOUR="#000000"
 	PNG_RECOLOUR="#FFFFFF"
@@ -745,13 +799,17 @@ CREATE_BOOTLOGO_FROM_PNG() {
 }
 
 UPDATE_BOOTLOGO() {
+	rm -f /tmp/btl_go
+	UPDATE_BOOTLOGO_PNG && return 0
+
+	ACTIVE="$(GET_VAR "config" "theme/active")"
 	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
 
 	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
 	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
 
-	SPEC_BL="$MUOS_STORE_DIR/theme/active/${DEVICE_W}x${DEVICE_H}/image/bootlogo.bmp"
-	NORM_BL="$MUOS_STORE_DIR/theme/active/image/bootlogo.bmp"
+	SPEC_BL="$MUOS_STORE_DIR/theme/$ACTIVE/${DEVICE_W}x${DEVICE_H}/image/bootlogo.bmp"
+	NORM_BL="$MUOS_STORE_DIR/theme/$ACTIVE/image/bootlogo.bmp"
 
 	if [ -e "$SPEC_BL" ]; then
 		printf "\nBootlogo found at: %s\n" "$SPEC_BL"

@@ -17,6 +17,10 @@ SET_VAR "system" "foreground_process" "dingux"
 DINGUX_DIR="$1"
 cd "$DINGUX_DIR" || exit
 
-./dingux --config "$DINGUX_DIR/dingux.cfg"
+if [ "$(GET_VAR "device" "mux/width")" -gt 1000 ]; then
+    ./dingux --config "$DINGUX_DIR/dingux-hi-res.cfg" --res-dir "res-hi"
+else
+    ./dingux --config "$DINGUX_DIR/dingux.cfg"
+fi
 
 unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

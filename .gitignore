@@ -3,6 +3,6 @@
 ._*
 *Zone.Identifier
 
-
 # Ignore Portmaster libraries
 init/MUOS/PortMaster/libs/
+share/archive/

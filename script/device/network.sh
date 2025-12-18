@@ -35,7 +35,7 @@ WAIT_FOR_SDIO() {
 		[ -d "/sys/bus/mmc/devices/mmc2:0001" ] && return 0
 
 		I=$((I + 1))
-		TBOX sleep 1
+		sleep 1
 	done
 
 	return 1
@@ -67,7 +67,7 @@ WAIT_FOR_IFACE() {
 		done
 
 		I=$((I + 1))
-		TBOX sleep 1
+		sleep 1
 	done
 
 	return 1
@@ -81,13 +81,19 @@ LOAD_NETWORK() {
 		case "$BOARD_NAME" in
 			rg*)
 				modprobe -qr "$NET_NAME"
-				TBOX sleep 1
+				sleep 1
 				;;
 		esac
 	fi
 
 	# Should probably poke it again and make sure it's really awake before proceeding with final load
 	FORCE_SDIO_AWAKE
+
+	# For USB WiFi adapters using 'wext' extensions, ensure cfg80211
+	# is loaded first if it exists (might be built-in or not needed)
+	case "$BOARD_NAME" in
+		rk*) modprobe -q cfg80211 2>/dev/null ;;
+	esac
 
 	# Not really necessary for the TrimUI devices but because the H700 devices
 	# run this just before probing the network module we are going to add it
@@ -114,21 +120,9 @@ LOAD_NETWORK() {
 
 	SET_VAR "device" "network/iface_active" "$NET_IFACE"
 
-	rfkill unblock all 2>/dev/null
-
 	# Bring the interface up and disable Wi-Fi powersave if phy80211 present
 	ip link set "$NET_IFACE" up 2>/dev/null
 	[ -L "$SCN_PATH/$NET_IFACE/phy80211" ] && iw dev "$NET_IFACE" set power_save off 2>/dev/null
-
-	# Idle any secondary wlan interfaces (wlan1 etc.)
-	for N in "$SCN_PATH"/wlan*; do
-		[ -d "$N" ] || continue
-
-		B=${N##*/}
-		[ "$B" = "$NET_IFACE" ] && continue
-
-		ip link set "$B" down 2>/dev/null
-	done &
 
 	# Only touch resolv.conf if we actually have a DNS to set
 	if [ -n "$DNS_ADDR" ]; then
@@ -141,15 +135,6 @@ LOAD_NETWORK() {
 
 UNLOAD_NETWORK() {
 	[ "$HAS_NETWORK" -eq 0 ] && return 0
-
-	[ -n "$NET_IFACE" ] && [ -d "$SCN_PATH/$NET_IFACE" ] && ip link set "$NET_IFACE" down 2>/dev/null
-
-	rfkill block all 2>/dev/null
-
-	if grep -qw "^$NET_NAME" /proc/modules 2>/dev/null; then
-		modprobe -qr "$NET_NAME" 2>/dev/null
-	fi
-
 	[ -f "$RESOLV_CONF.bak" ] && mv -f "$RESOLV_CONF.bak" "$RESOLV_CONF"
 }
 
@@ -161,14 +146,14 @@ RELOAD_NETWORK() {
 	I=0
 	while [ "$I" -lt "$MAX_RETRY" ]; do
 		UNLOAD_NETWORK
-		TBOX sleep 1
+		sleep 1
 
 		LOAD_NETWORK && return 0
 
 		I=$((I + 1))
 	done
 
-	TBOX sleep 1
+	sleep 1
 	return 1
 }
 

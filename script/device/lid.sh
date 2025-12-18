@@ -12,5 +12,5 @@ while :; do
 		[ "$(cat "$HALL_KEY")" = "0" ] && /opt/muos/script/system/suspend.sh
 	fi
 
-	TBOX sleep 0.25
+	sleep 0.25
 done &

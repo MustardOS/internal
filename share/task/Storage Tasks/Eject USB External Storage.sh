@@ -7,13 +7,13 @@
 FRONTEND stop
 
 echo "Trying to eject USB External Storage"
-/opt/muos/script/mount/usb.sh eject
+/opt/muos/script/mount/storage.sh "usb" "eject"
 
 echo "Sync Filesystem"
 sync
 
 echo "All Done!"
-TBOX sleep 2
+sleep 2
 
 FRONTEND start task
 exit 0

@@ -17,7 +17,7 @@ CLOSE_CONTENT() {
 		LOG_INFO "$0" 0 "QUIT" "$(printf "Closing content (%s)..." "$FG_PROC_VAL")"
 
 		kill -CONT "$FG_PROC_PID" 2>/dev/null
-		TBOX sleep 0.1
+		sleep 0.1
 		kill -TERM "$FG_PROC_PID" 2>/dev/null
 
 		for _ in $(seq 1 40); do
@@ -26,7 +26,7 @@ CLOSE_CONTENT() {
 				return
 			fi
 
-			TBOX sleep 0.1
+			sleep 0.1
 		done
 	fi
 }
@@ -59,7 +59,7 @@ HALT_SYSTEM() {
 
 	[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 
-	LOG_INFO "$0" 0 "QUIT" "Quitting system (cmd: %s) (src: %s)" "$HALT_CMD" "$HALT_SRC"
+	LOG_INFO "$0" 0 "QUIT" "$(printf "Quitting system (cmd: %s) (src: %s)" "$HALT_CMD" "$HALT_SRC")"
 
 	# Turn on power LED for visual feedback on halt success.
 	LOG_INFO "$0" 0 "QUIT" "Switching on normal LED"
@@ -106,6 +106,9 @@ case "$1" in
 		CLOSE_CONTENT
 		;;
 	poweroff | reboot)
+		if [ -f "/tmp/btl_go" ]; then
+			UPDATE_BOOTLOGO
+		fi	
 		HALT_SYSTEM "$1" "$2"
 		sync && /opt/muos/script/system/halt.sh "$HALT_CMD"
 		;;

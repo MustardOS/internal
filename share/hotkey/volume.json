@@ -1,0 +1,16 @@
+{
+  "VOL_DOWN": {
+    "handle_hold": true,
+    "inputs": [
+      "VOL_DOWN"
+    ],
+    "run_command": "/opt/muos/script/device/audio.sh D"
+  },
+  "VOL_UP": {
+    "handle_hold": true,
+    "inputs": [
+      "VOL_UP"
+    ],
+    "run_command": "/opt/muos/script/device/audio.sh U"
+  }
+}

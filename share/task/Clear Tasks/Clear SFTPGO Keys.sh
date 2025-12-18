@@ -17,7 +17,7 @@ sync
 
 echo "All Done!"
 echo "Please reboot your device."
-TBOX sleep 5
+sleep 5
 
 FRONTEND start task
 exit 0

@@ -1,0 +1,20 @@
+{
+  "devices": [
+    "rg28xx-h",
+    "rg34xx-h",
+    "rg35xx-2024",
+    "rg35xx-plus",
+    "rg35xx-sp",
+    "tui-brick"
+  ],
+  "DPAD_TOGGLE": {
+    "handle_hold": false,
+    "inputs": [
+      "A",
+      "R2",
+      "L2"
+    ],
+    "is_normal_mode": true,
+    "run_command": "/opt/muos/script/mux/swap_dpad.sh"
+  }
+}

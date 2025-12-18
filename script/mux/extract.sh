@@ -11,7 +11,7 @@ ALL_DONE() {
 	sync
 
 	printf "All Done!\n"
-	TBOX sleep 2
+	sleep 2
 
 	[ -z "${THEME_INSTALLING:-}" ] && FRONTEND start "${FRONTEND_START_PROGRAM:-archive}"
 
@@ -30,6 +30,7 @@ ARCHIVE="$1"
 }
 
 ARCHIVE_NAME="${ARCHIVE##*/}"
+BASENAME="${ARCHIVE_NAME%.*}"
 FRONTEND_START_PROGRAM="${2:-archive}"
 printf "Inspecting Archive...\n"
 
@@ -56,8 +57,10 @@ case "$ARCHIVE_NAME" in
 		fi
 		;;
 	*.muxthm)
-		printf "Detected Theme Package\nMoving archive to 'MUOS/theme'\n"
-		mv "$ARCHIVE" "$MUOS_STORE_DIR/theme/"
+		if ! EXTRACT_ARCHIVE "Theme" "$ARCHIVE" "$MUOS_STORE_DIR/theme/$BASENAME"; then
+			printf "\nExtraction Failed...\n"
+			ALL_DONE 1
+		fi
 		;;
 	*.muxcat)
 		printf "Detected Catalogue Package\nMoving archive to 'MUOS/package/catalogue'\n"
@@ -70,14 +73,13 @@ case "$ARCHIVE_NAME" in
 	*.muxalt)
 		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
 
-		if ! EXTRACT_ARCHIVE "Theme Alternative" "$ARCHIVE" "$MUOS_STORE_DIR/theme/active"; then
+		ACTIVE="$(GET_VAR "config" "theme/active")"
+		if ! EXTRACT_ARCHIVE "Theme Alternative" "$ARCHIVE" "$MUOS_STORE_DIR/theme/$ACTIVE"; then
 			printf "\nExtraction Failed...\n"
 			ALL_DONE 1
 		fi
 
-		if ! UPDATE_BOOTLOGO_PNG; then
-			UPDATE_BOOTLOGO
-		fi
+		UPDATE_BOOTLOGO
 		;;
 	*.muxapp)
 		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
@@ -162,6 +164,10 @@ case "$ARCHIVE_NAME" in
 
 			ARC_UNSET
 		done
+
+		# Special case for core downloads - we run the control script
+		# to initialise any control based changes for emulators
+		[ "$FRONTEND_START_PROGRAM" = "coredown" ] && /opt/muos/script/device/control.sh
 		;;
 	*) printf "\nNo Extraction Method '%s'\n" "$ARCHIVE_NAME" ;;
 esac

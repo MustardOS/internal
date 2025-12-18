@@ -6,12 +6,10 @@ NAME=$1
 CORE=$2
 FILE=${3%/}
 
-(
-	LOG_INFO "$0" 0 "Content Launch" "DETAIL"
-	LOG_INFO "$0" 0 "NAME" "$NAME"
-	LOG_INFO "$0" 0 "CORE" "$CORE"
-	LOG_INFO "$0" 0 "FILE" "$FILE"
-) &
+LOG_INFO "$0" 0 "Content Launch" "DETAIL"
+LOG_INFO "$0" 0 "NAME" "$NAME"
+LOG_INFO "$0" 0 "CORE" "$CORE"
+LOG_INFO "$0" 0 "FILE" "$FILE"
 
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
@@ -79,14 +77,14 @@ case "$SCVM" in
 	*:* | "")
 		# Legacy ScummVM entry found or game .scummvm file is blank.
 		# Auto Detect gameid based on game files and add to scummvm.ini
-		HOME="$EMUDIR" nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" --add
+		HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" --add
 		extract_gameid
 		;;
 	*)
 		# Game .scummvm file contains gameid entry.
 		if ! grep -q "^\[$SCVM\]" "$CONFIG"; then
 			# gameid missing from scummvm.ini, adding.
-			HOME="$EMUDIR" nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" --add
+			HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" --add
 		fi
 		;;
 esac
@@ -103,7 +101,7 @@ esac
 SCVM=$(tr -d '[:space:]' <"$F_PATH/$NAME.scummvm" | head -n 1)
 
 # Launch game.
-HOME="$EMUDIR" nice --20 ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" "$SCVM"
+HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" "$SCVM"
 
 # Switch analogue<>dpad back so we can navigate muX
 [ "$(GET_VAR "device" "board/stick")" -eq 0 ]

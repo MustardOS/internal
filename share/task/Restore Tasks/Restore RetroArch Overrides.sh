@@ -16,7 +16,7 @@ ALL_DONE() {
 	echo "Sync Filesystem"
 	sync
 
-	TBOX sleep 2
+	sleep 2
 
 	FRONTEND start task
 	exit "$1"

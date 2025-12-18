@@ -6,12 +6,10 @@ NAME=$1
 CORE=$2
 FILE=${3%/}
 
-(
-	LOG_INFO "$0" 0 "Content Launch" "DETAIL"
-	LOG_INFO "$0" 0 "NAME" "$NAME"
-	LOG_INFO "$0" 0 "CORE" "$CORE"
-	LOG_INFO "$0" 0 "FILE" "$FILE"
-) &
+LOG_INFO "$0" 0 "Content Launch" "DETAIL"
+LOG_INFO "$0" 0 "NAME" "$NAME"
+LOG_INFO "$0" 0 "CORE" "$CORE"
+LOG_INFO "$0" 0 "FILE" "$FILE"
 
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
@@ -46,7 +44,7 @@ GPTOKEYB "$P8_BIN" "$CORE"
 
 set -- -root_path "$(dirname "$FILE")"
 case $NAME in
-    [Ss]plore*) set -- "$@" -splore ;;
+    [Ss]plore*|-[Ss]plore-*) set -- "$@" -splore ;;
     *) set -- "$@" -run "$FILE" ;;
 esac
 PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS "$@"

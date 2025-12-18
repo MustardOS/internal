@@ -31,7 +31,7 @@ sync
 
 echo "All Done!"
 echo "Please restart your device!"
-TBOX sleep 3
+sleep 3
 
 FRONTEND start task
 exit 0

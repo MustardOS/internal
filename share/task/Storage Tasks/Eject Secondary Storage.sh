@@ -7,13 +7,13 @@
 FRONTEND stop
 
 echo "Trying to eject Secondary Storage"
-/opt/muos/script/mount/sdcard.sh eject
+/opt/muos/script/mount/storage.sh "sdcard" "eject"
 
 echo "Sync Filesystem"
 sync
 
 echo "All Done!"
-TBOX sleep 2
+sleep 2
 
 FRONTEND start task
 exit 0

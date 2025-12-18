@@ -1,5 +1,5 @@
 dosbox_pure_aspect_correction = "false"
-dosbox_pure_audiorate = "48000"
+dosbox_pure_audiorate = "44100"
 dosbox_pure_auto_mapping = "true"
 dosbox_pure_auto_target = "0.9"
 dosbox_pure_bootos_dfreespace = "1024"

@@ -4,22 +4,22 @@
 
 # Lonely, oh so lonely...
 RECENT_WAKE="/tmp/recent_wake"
-ORIG_CPU_GOV="/tmp/orig_cpu_gov"
-SYS_CPU_PATH="/sys/devices/system/cpu"
+WAKE_CPU_GOV="/tmp/wake_cpu_gov"
 
 DEV_BOARD=$(GET_VAR "device" "board/name")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
 CPU_GOV_PATH="$(GET_VAR "device" "cpu/governor")"
-CPU_CORES="$(GET_VAR "device" "cpu/cores")"
-RGB_ENABLE=$(GET_VAR "config" "settings/general/rgb")
 LED_RGB="$(GET_VAR "device" "led/rgb")"
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
+RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
+MAX_BRIGHT=$(GET_VAR "device" "screen/bright")
+
+RGB_ENABLE=$(GET_VAR "config" "settings/general/rgb")
 RUMBLE_SETTING="$(GET_VAR "config" "settings/advanced/rumble")"
 SUSPEND_STATE="$(GET_VAR "config" "danger/state")"
 DEFAULT_BRIGHTNESS="$(GET_VAR "config" "settings/general/brightness")"
-RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
 SHUTDOWN_TIME_SETTING="$(GET_VAR "config" "settings/power/shutdown")"
-MAX_BRIGHT=$(GET_VAR "device" "screen/bright")
+CONNECT_ON_WAKE=$(GET_VAR "config" "settings/network/wake")
 
 CHECK_RA_AND_SAVE() {
 	# This is the safest bet to get RetroArch to save state automatically
@@ -37,24 +37,10 @@ SLEEP() {
 
 	touch "$RECENT_WAKE"
 
-	/opt/muos/script/device/bright.sh 0
-	wpctl set-mute @DEFAULT_AUDIO_SINK@ "1"
+	DISPLAY_WRITE lcd0 setbl 0
+	amixer set "Master" mute
 
-	# Shutdown all of the CPU cores for boards that have actual proper
-	# energy module within the kernel and device tree... unlike TrimUI
-	case "$DEV_BOARD" in
-		rg*)
-			cat "$CPU_GOV_PATH" >"$ORIG_CPU_GOV"
-			echo "powersave" >"$CPU_GOV_PATH"
-
-			C=1
-			while [ "$C" -lt "$CPU_CORES" ]; do
-				echo 0 >"$SYS_CPU_PATH/cpu${C}/online"
-				C=$((C + 1))
-			done
-			;;
-		*) ;;
-	esac
+	cat "$CPU_GOV_PATH" >"$WAKE_CPU_GOV"
 
 	if [ "$RGB_ENABLE" -eq 1 ] && [ "$LED_RGB" -eq 1 ]; then
 		[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
@@ -64,40 +50,28 @@ SLEEP() {
 		3 | 5 | 6) RUMBLE "$RUMBLE_DEVICE" 0.3 ;;
 	esac
 
-	[ "$HAS_NETWORK" -eq 1 ] && /opt/muos/script/system/network.sh disconnect
+	if [ "$HAS_NETWORK" -eq 1 ]; then
+		nohup /opt/muos/script/system/network.sh disconnect >/dev/null 2>&1 &
+	fi
 
 	/opt/muos/script/device/module.sh unload
 
 	echo "$SUSPEND_STATE" >"/sys/power/state"
+
+	sleep 0.5
 }
 
 RESUME() {
-	case "$DEV_BOARD" in
-		rg*)
-			cat "$ORIG_CPU_GOV" >"$CPU_GOV_PATH"
-			rm -f "$ORIG_CPU_GOV"
-
-			C=1
-			while [ "$C" -lt "$CPU_CORES" ]; do
-				echo 1 >"$SYS_CPU_PATH/cpu${C}/online"
-				C=$((C + 1))
-			done
-			;;
-		*) ;;
-	esac
-
 	/opt/muos/script/device/module.sh load
 
 	LED_CONTROL_CHANGE
-
-	wpctl set-mute @DEFAULT_AUDIO_SINK@ "0"
 
 	E_BRIGHT="$DEFAULT_BRIGHTNESS"
 
 	# Some display panels don't like to resume on lower backlights due
 	# to potential voltage lines or some shit... so let's resume on
 	# a bit more brightness unfortunately!
-	[ "$E_BRIGHT" -lt 11 ] && E_BRIGHT=35
+	[ "$E_BRIGHT" -le 8 ] && E_BRIGHT=16
 
 	# We're going to do this twice because of how our brightness script
 	# works with existing integer values.  It's a precise system!
@@ -110,7 +84,7 @@ RESUME() {
 			E_BRIGHT=$((E_BRIGHT - 1))
 		fi
 
-		[ "$E_BRIGHT" -gt "$MAX_BRIGHT" ] && E_BRIGHT="$((MAX_BRIGHT - 35))"
+		[ "$E_BRIGHT" -gt "$MAX_BRIGHT" ] && E_BRIGHT="$((MAX_BRIGHT - 16))"
 
 		/opt/muos/script/device/bright.sh "$E_BRIGHT"
 		B=$((B + 1))
@@ -118,6 +92,7 @@ RESUME() {
 
 	[ "$USB_FUNCTION" != "none" ] && /opt/muos/script/system/usb_gadget.sh resume
 
+	amixer set "Master" unmute
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
 	# Some stupid TrimUI GPU shenanigans
@@ -125,24 +100,22 @@ RESUME() {
 		tui*) setalpha 0 ;;
 	esac
 
-	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
-	(
-		TBOX sleep 5
-		rm "$RECENT_WAKE"
-	) &
+	cat "$WAKE_CPU_GOV" >"$CPU_GOV_PATH"
+	rm -rf "/tmp/wake_cpu_gov"
 
-	[ "$HAS_NETWORK" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
+	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
+	(sleep 5 && rm "$RECENT_WAKE") &
+
+	if [ "$HAS_NETWORK" -eq 1 ]; then
+		[ "$CONNECT_ON_WAKE" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
+	fi
 }
 
 [ -f "$RECENT_WAKE" ] && exit 0
 
 case "$SHUTDOWN_TIME_SETTING" in
 	-2) ;;
-	-1)
-		SLEEP
-		TBOX sleep 0.5
-		RESUME
-		;;
+	-1) SLEEP && RESUME ;;
 	2)
 		CHECK_RA_AND_SAVE "CLOSE_CONTENT"
 		/opt/muos/script/mux/quit.sh poweroff sleep
@@ -156,7 +129,6 @@ case "$SHUTDOWN_TIME_SETTING" in
 		echo "$WAKE_EPOCH" >"$W_ALARM"
 
 		SLEEP
-		TBOX sleep 0.5
 
 		CURRENT_TIME=$(cat "$S_EPOCH")
 		if [ "$CURRENT_TIME" -ge "$WAKE_EPOCH" ]; then

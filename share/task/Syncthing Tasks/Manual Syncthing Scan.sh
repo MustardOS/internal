@@ -49,7 +49,7 @@ echo "Sync Filesystem"
 sync
 
 echo "Manual Syncthing Scan completed at $(date +"%Y-%m-%d %H:%M:%S")"
-TBOX sleep 2
+sleep 2
 
 FRONTEND start task
 exit 0

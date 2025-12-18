@@ -102,21 +102,21 @@ MANAGE_WEBSERV() {
 				case "$SRV" in
 					sshd)
 						chmod -R 700 /opt/openssh/var /opt/openssh/etc
-						nice -2 /opt/openssh/sbin/sshd >/dev/null 2>&1 &
+						/opt/openssh/sbin/sshd >/dev/null 2>&1 &
 						;;
 					sftpgo)
-						nice -2 /opt/sftpgo/sftpgo serve -c /opt/sftpgo >/dev/null 2>&1 &
+						/opt/sftpgo/sftpgo serve -c /opt/sftpgo >/dev/null 2>&1 &
 						;;
 					ttyd)
-						nice -2 /opt/muos/bin/ttyd \
+						/opt/muos/bin/ttyd \
 							--port 8080 \
 							--url-arg \
 							--writable \
-							/bin/sh >/dev/null 2>&1 &
+							/bin/sh -l >/dev/null 2>&1 &
 						;;
 					syncthing)
 						[ ! -s /opt/muos/bin/syncthing ] && cp "/opt/muos/bin/syncthing.backup" "/opt/muos/bin/syncthing"
-						nice -2 /opt/muos/bin/syncthing serve \
+						/opt/muos/bin/syncthing serve \
 							--home="$MUOS_STORE_DIR/syncthing" \
 							--no-port-probing \
 							--gui-address="0.0.0.0:7070" \
@@ -124,10 +124,10 @@ MANAGE_WEBSERV() {
 							--no-upgrade >/dev/null 2>&1 &
 						;;
 					ntp)
-						nice -2 /opt/muos/script/web/ntp.sh >/dev/null 2>&1 &
+						/opt/muos/script/web/ntp.sh >/dev/null 2>&1 &
 						;;
 					tailscaled)
-						nice -2 /opt/muos/bin/tailscaled >/dev/null 2>&1 &
+						/opt/muos/bin/tailscaled >/dev/null 2>&1 &
 						;;
 					*)
 						printf "Unknown Web Service: %s\n" "$SRV" >&2
@@ -144,7 +144,7 @@ MANAGE_WEBSERV() {
 				else
 					HARD_KILL
 				fi
-				TBOX sleep 0.1
+				sleep 0.1
 			done
 			;;
 	esac
@@ -153,20 +153,6 @@ MANAGE_WEBSERV() {
 SERVICE_LIST="sshd sftpgo ttyd syncthing ntp tailscaled"
 for WEBSRV in $SERVICE_LIST; do
 	if [ ! "$1" = "stopall" ] && [ "$(GET_VAR "config" "web/$WEBSRV")" -eq 1 ]; then
-		TIMEOUT=30
-		WAIT=0
-
-		while ! ping -c 1 -W 1 1.1.1.1 >/dev/null 2>&1; do
-			if [ "$WAIT" -ge "$TIMEOUT" ]; then
-				LOG_ERROR "$0" 0 "WEB SERVICES" "$(printf "Network connection timed out after %d seconds" "$TIMEOUT")"
-				break
-			fi
-
-			WAIT=$((WAIT + 1))
-			LOG_INFO "$0" 0 "WEB SERVICES" "$(printf "Waiting for network connection... (%d)" "$WAIT")"
-			TBOX sleep 1
-		done
-
 		MANAGE_WEBSERV start "$WEBSRV" &
 	else
 		MANAGE_WEBSERV stop "$WEBSRV" &

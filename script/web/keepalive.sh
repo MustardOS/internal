@@ -29,5 +29,5 @@ while :; do
 			fi
 		fi
 	fi
-	TBOX sleep 60
+	sleep 60
 done &

@@ -2,13 +2,23 @@
 
 . /opt/muos/script/var/func.sh
 
-ACT_GO=/tmp/act_go
-APP_GO=/tmp/app_go
-GOV_GO=/tmp/gov_go
-CON_GO=/tmp/con_go
-ROM_GO=/tmp/rom_go
+PW_READY=$(GET_VAR "device" "audio/ready")
+NET_STATE=$(GET_VAR "device" "network/state")
+ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
+BOARD_NAME=$(GET_VAR "device" "board/name")
 
-EX_CARD=/tmp/explore_card
+STARTUP=$(GET_VAR "config" "settings/general/startup")
+AUDIO_READY=$(GET_VAR "config" "settings/advanced/audio_ready")
+RETROWAIT=$(GET_VAR "config" "settings/advanced/retrowait")
+
+ACT_GO="/tmp/act_go"
+APP_GO="/tmp/app_go"
+GOV_GO="/tmp/gov_go"
+CON_GO="/tmp/con_go"
+ROM_GO="/tmp/rom_go"
+
+EX_CARD="/tmp/explore_card"
+NET_START="/tmp/net_start"
 
 SKIP=0
 
@@ -16,11 +26,11 @@ if [ -n "$1" ]; then
 	ACT="$1"
 	SKIP=1
 else
-	ACT=$(GET_VAR "config" "settings/general/startup")
+	ACT="$STARTUP"
 fi
 printf '%s\n' "$ACT" >"$ACT_GO"
 
-echo "root" >$EX_CARD
+echo "root" >"$EX_CARD"
 
 LAST_PLAY=$(cat "/opt/muos/config/boot/last_play")
 
@@ -30,18 +40,20 @@ SET_DEFAULT_GOVERNOR
 #:] ### Wait for audio stack
 #:] Don't proceed to the frontend until PipeWire reports that it is ready.
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
-until [ "$(GET_VAR "device" "audio/ready")" -eq 1 ]; do TBOX sleep 0.01; done
+if [ "$(GET_VAR "config" "settings/advanced/audio_ready")" -eq 1 ]; then
+	until [ "$(GET_VAR "device" "audio/ready")" -eq 1 ]; do sleep 0.1; done
+fi
 
-if [ $SKIP -eq 0 ]; then
+if [ "$SKIP" -eq 0 ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"
-	if [ "$(GET_VAR "config" "settings/general/startup")" = "last" ] || [ "$(GET_VAR "config" "settings/general/startup")" = "resume" ]; then
+
+	if [ "$STARTUP" = "last" ] || [ "$STARTUP" = "resume" ]; then
 		GO_LAST_BOOT=1
 
 		if [ -n "$LAST_PLAY" ]; then
 			LOG_INFO "$0" 0 "FRONTEND" "Checking for network and retrowait"
 
-			if [ "$(GET_VAR "config" "settings/advanced/retrowait")" -eq 1 ]; then
-				NET_START="/tmp/net_start"
+			if [ "$RETROWAIT" -eq 1 ]; then
 				OIP=0
 
 				while :; do
@@ -49,7 +61,7 @@ if [ $SKIP -eq 0 ]; then
 					/opt/muos/frontend/muxmessage 0 "$NW_MSG"
 					OIP=$((OIP + 1))
 
-					if [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
+					if [ "$(cat "$NET_STATE")" = "up" ]; then
 						LOG_SUCCESS "$0" 0 "FRONTEND" "Network connected"
 						/opt/muos/frontend/muxmessage 0 "Network connected"
 
@@ -58,7 +70,7 @@ if [ $SKIP -eq 0 ]; then
 							PIP=$((PIP + 1))
 							LOG_INFO "$0" 0 "FRONTEND" "Verifying connectivity..."
 							/opt/muos/frontend/muxmessage 0 "Verifying connectivity... (%s)" "$PIP"
-							TBOX sleep 1
+							sleep 1
 						done
 
 						LOG_SUCCESS "$0" 0 "FRONTEND" "Connectivity verified! Booting content!"
@@ -68,7 +80,7 @@ if [ $SKIP -eq 0 ]; then
 						break
 					fi
 
-					if [ "$(cat "$NET_START")" = "ignore" ]; then
+					if [ -f "$NET_START" ] && [ "$(cat "$NET_START")" = "ignore" ]; then
 						LOG_SUCCESS "$0" 0 "FRONTEND" "Ignoring network connection"
 						/opt/muos/frontend/muxmessage 0 "Ignoring network connection... Booting content!"
 
@@ -76,7 +88,7 @@ if [ $SKIP -eq 0 ]; then
 						break
 					fi
 
-					if [ "$(cat "$NET_START")" = "menu" ]; then
+					if [ -f "$NET_START" ] && [ "$(cat "$NET_START")" = "menu" ]; then
 						LOG_SUCCESS "$0" 0 "FRONTEND" "Booting to main menu"
 						/opt/muos/frontend/muxmessage 0 "Booting to main menu!"
 
@@ -84,11 +96,11 @@ if [ $SKIP -eq 0 ]; then
 						break
 					fi
 
-					TBOX sleep 1
+					sleep 1
 				done
 			fi
 
-			if [ $GO_LAST_BOOT -eq 1 ]; then
+			if [ "$GO_LAST_BOOT" -eq 1 ]; then
 				LOG_INFO "$0" 0 "FRONTEND" "Booting to last launched content"
 				cat "$LAST_PLAY" >"$ROM_GO"
 
@@ -134,28 +146,26 @@ if [ $SKIP -eq 0 ]; then
 			fi
 		fi
 
-		echo launcher >$ACT_GO
+		echo launcher >"$ACT_GO"
 	fi
 fi
 
-cp /opt/muos/log/*.log "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/boot/." &
+BL_PATH="$ROM_MOUNT/MUOS/log/boot"
+mkdir -p "$BL_PATH"
+cp "$MUOS_LOG_DIR"/*.log "$BL_PATH"/. &
 
 LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Launcher"
-
-read -r START_TIME _ </proc/uptime
-SET_VAR "system" "start_time" "$START_TIME"
 
 while :; do
 	killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1
 
 	# Reset ANALOGUE<>DIGITAL switch for the DPAD
-	case "$(GET_VAR "device" "board/name")" in
+	case "$BOARD_NAME" in
 		rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
 		tui*)
 			DPAD_FILE="/tmp/trimui_inputd/input_dpad_to_joystick"
 			[ -e "$DPAD_FILE" ] && ENSURE_REMOVED "$DPAD_FILE"
 			;;
-		*) ;;
 	esac
 
 	# Reset audio control status
@@ -164,7 +174,7 @@ while :; do
 	# Content Loader
 	[ -s "$ROM_GO" ] && /opt/muos/script/mux/launch.sh
 
-	[ -s "$ACT_GO" ] && {
+	if [ -s "$ACT_GO" ]; then
 		IFS= read -r ACTION <"$ACT_GO"
 
 		LOG_INFO "$0" 0 "FRONTEND" "$(printf "Loading '%s' Action" "$ACTION")"
@@ -240,6 +250,5 @@ while :; do
 				EXEC_MUX "$ACTION" "muxfrontend"
 				;;
 		esac
-	}
-
+	fi
 done

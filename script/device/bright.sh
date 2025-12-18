@@ -105,7 +105,7 @@ case "$1" in
 		fi
 		;;
 	F)
-		LCD_DISABLE && TBOX sleep 1 && LCD_ENABLE
+		LCD_DISABLE && sleep 1 && LCD_ENABLE
 		;;
 	[0-9]*)
 		[ "$1" -eq "$1" ] 2>/dev/null && [ "$1" -ge 0 ] && [ "$1" -le "$MAX_BRIGHT" ] && SET_CURRENT "$1"

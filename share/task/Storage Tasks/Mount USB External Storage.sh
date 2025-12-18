@@ -7,13 +7,13 @@
 FRONTEND stop
 
 echo "Trying to mount USB External Storage"
-/opt/muos/script/mount/usb.sh mount
+/opt/muos/script/mount/storage.sh "usb" "mount"
 
 echo "Sync Filesystem"
 sync
 
 echo "All Done!"
-TBOX sleep 2
+sleep 2
 
 FRONTEND start task
 exit 0

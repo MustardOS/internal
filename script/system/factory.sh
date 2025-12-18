@@ -15,7 +15,7 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Setting date time to default"
 date 010100002025
 hwclock -w
 
-while pgrep "muxwarn" >/dev/null 2>&1; do TBOX sleep 0.25; done
+while pgrep "muxwarn" >/dev/null 2>&1; do sleep 0.25; done
 
 printf "installer" >"/tmp/act_go"
 /opt/muos/script/mux/install.sh
@@ -44,7 +44,7 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Initialising Factory Reset Script"
 /opt/muos/script/system/reset.sh
 
 touch "/tmp/msg_finish"
-TBOX sleep 1
+sleep 1
 killall -q "mpv"
 
 /opt/muos/bin/nosefart "$MUOS_SHARE_DIR/media/support.nsf" &

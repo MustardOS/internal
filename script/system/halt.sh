@@ -62,12 +62,12 @@ RUN_WITH_TIMEOUT() {
 		"$@" &
 		CMD_PID=$!
 		(
-			TBOX sleep "$TERM_SEC"
+			sleep "$TERM_SEC"
 			kill -TERM "$CMD_PID" 2>/dev/null
 		) &
 		TERM_PID=$!
 		(
-			TBOX sleep $((TERM_SEC + KILL_SEC))
+			sleep $((TERM_SEC + KILL_SEC))
 			kill -KILL "$CMD_PID" 2>/dev/null
 		) &
 		KILL_PID=$!
@@ -109,7 +109,7 @@ KILL_AND_WAIT() {
 			printf 'done\n'
 			return 0
 		}
-		TBOX sleep 0.25
+		sleep 0.25
 		i=$((i + 1))
 	done
 
@@ -187,7 +187,7 @@ if pgrep '^mux' >/dev/null 2>&1; then
 			kill -9 "$PID" 2>/dev/null
 		done
 
-		TBOX sleep 0.1
+		sleep 0.1
 	done
 fi
 
@@ -206,8 +206,8 @@ LOG_INFO "$0" 0 "HALT" "Stopping union mounts"
 
 # Unmount SD2 and USB - we do USB first as it is the higher priority!
 LOG_INFO "$0" 0 "HALT" "Stopping external storage mounts"
-/opt/muos/script/mount/usb.sh down
-/opt/muos/script/mount/sdcard.sh down
+/opt/muos/script/mount/storage.sh "usb" "down"
+/opt/muos/script/mount/storage.sh "sdcard" "down"
 
 # Check if random theme is enabled and run the random theme script if necessary
 #if [ "$(sed -n '/^\[settings\.advanced\]/,/^\[/{ /^random_theme[ ]*=[ ]*/{ s/^[^=]*=[ ]*//p }}' /opt/muos/config/config.ini)" -eq 1 ] 2>/dev/null; then

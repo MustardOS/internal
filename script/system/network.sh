@@ -5,11 +5,12 @@
 ADDR=$(GET_VAR "config" "network/address")
 SUBN=$(GET_VAR "config" "network/subnet")
 SSID=$(GET_VAR "config" "network/ssid")
+PASS=$(GET_VAR "config" "network/pass")
 GATE=$(GET_VAR "config" "network/gateway")
 TYPE=$(GET_VAR "config" "network/type")
 DDNS=$(GET_VAR "config" "network/dns") # The extra D is for dodecahedron!
-DRIV=$(GET_VAR "device" "network/type")
 
+DRIV=$(GET_VAR "device" "network/type")
 IFCE="$(GET_VAR "device" "network/iface_active")"
 [ -n "$IFCE" ] || IFCE="$(GET_VAR "device" "network/iface")"
 
@@ -17,185 +18,250 @@ DEV_HOST="$(GET_VAR "device" "network/hostname")"
 SD1_HOST="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/hostname"
 SD2_HOST="$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/hostname"
 
+DHCP_CONF="/etc/dhcpcd.conf"
+RESOLV_CONF="/etc/resolv.conf"
+
 RETRIES="${RETRIES:-5}"
 RETRY_DELAY="${RETRY_DELAY:-2}"
-RETRY_CURR=0
 
-DHCP_CONF="/etc/dhcpcd.conf"
-
-CALCULATE_IAID() {
-	MAC=$(cat /sys/class/net/"$IFCE"/address)
-	OCT5=${MAC#*:*:*:*:}
-	OCT5=${OCT5%%:*}
-	OCT6=${MAC##*:}
-	IAID=$(((0x$OCT5 << 8) | 0x$OCT6))
-
-	LOG_INFO "$0" 0 "NETWORK" "Using IAID: %s" "$IAID"
-	sed -i '/^iaid/d' "$DHCP_CONF"
-	printf 'iaid %s\n' "$IAID" >>"$DHCP_CONF"
-}
-
-TRY_CONNECT() {
-	IP="0.0.0.0"
-
-	[ -z "$SSID" ] && exit 0
-
-	LOG_INFO "$0" 0 "NETWORK" "Detecting Hostname Restore"
+RESTORE_HOSTNAME() {
 	HOSTFILE=""
 	[ -e "$DEV_HOST" ] && HOSTFILE="$DEV_HOST"
 	[ -z "$HOSTFILE" ] && [ -e "$SD2_HOST" ] && HOSTFILE="$SD2_HOST"
 	[ -z "$HOSTFILE" ] && [ -e "$SD1_HOST" ] && HOSTFILE="$SD1_HOST"
 
-	if [ -n "$HOSTFILE" ]; then
-		HOSTNAME=$(cat "$HOSTFILE")
-		hostname "$HOSTNAME"
-		printf "%s" "$HOSTNAME" >/etc/hostname
+	[ -z "$HOSTFILE" ] && return 0
+
+	HOSTNAME=$(cat "$HOSTFILE")
+	hostname "$HOSTNAME"
+	printf "%s" "$HOSTNAME" >"/etc/hostname"
+
+	LOG_INFO "$0" 0 "NETWORK" "$(printf "Hostname restored to %s" "$HOSTNAME")"
+}
+
+CALCULATE_IAID() {
+	MAC=$(cat /sys/class/net/"$IFCE"/address)
+	O5=${MAC#*:*:*:*:}
+	O5=${O5%%:*}
+	O6=${MAC##*:}
+	IAID=$(((0x$O5 << 8) | 0x$O6))
+
+	sed -i '/^iaid/d' "$DHCP_CONF"
+	printf 'iaid %s\n' "$IAID" >>"$DHCP_CONF"
+
+	LOG_INFO "$0" 0 "NETWORK" "$(printf "Using IAID: %s" "$IAID")"
+}
+
+WAIT_NETWORK_ASSOC() {
+	[ "$DRIV" = "wext" ] && iwconfig "$IFCE" retry off 2>/dev/null
+
+	WAIT=20
+	while [ "$WAIT" -gt 0 ]; do
+		case "$DRIV" in
+			wext)
+				OUT=$(iwconfig "$IFCE" 2>/dev/null)
+				case "$OUT" in
+					*'ESSID:""'*) ;;
+					*unassociated*) ;;
+					*'ESSID:"'*)
+						LOG_INFO "$0" 0 "NETWORK" "WiFi Associated!"
+						return 0
+						;;
+				esac
+				;;
+			nl80211)
+				if iw dev "$IFCE" link 2>/dev/null | grep -q "SSID:"; then
+					LOG_INFO "$0" 0 "NETWORK" "WiFi Associated!"
+					return 0
+				fi
+				;;
+		esac
+
+		LOG_WARN "$0" 0 "NETWORK" "$(printf "Waiting for WiFi Association... (%ds)" "$WAIT")"
+		WAIT=$((WAIT - 1))
+		sleep 1
+	done
+
+	LOG_ERROR "$0" 0 "NETWORK" "Association timeout"
+	return 1
+}
+
+WIFI_CONFIG() {
+	LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting ESSID: %s" "$SSID")"
+	iwconfig "$IFCE" essid -- "$SSID"
+
+	if [ -n "$PASS" ]; then
+		/opt/muos/script/web/password.sh
+
+		# You're the best... around
+		BEST_BSSID=$(iw dev "$IFCE" scan 2>/dev/null |
+			awk -v ssid="$SSID" '
+        		/BSS/ { b=$2 }
+        		/SSID:/ && $2 == ssid { sub(/[\(\)]/,"",b); print b; exit }
+        	')
+
+		[ -n "$BEST_BSSID" ] && {
+			LOG_INFO "$0" 0 "NETWORK" "$(printf "Pinning BSSID: %s" "$BEST_BSSID")"
+			sed -i "/^ssid=/i bssid=$BEST_BSSID" "$WPA_CONFIG"
+		}
+
+		case "$DRIV" in
+			wext)
+				LOG_INFO "$0" 0 "NETWORK" "Starting wpa_supplicant (wext)"
+				if ! wpa_supplicant -B -i "$IFCE" -c "$WPA_CONFIG" -D wext 2>/dev/null; then
+					LOG_WARN "$0" 0 "NETWORK" "Failed to start wpa_supplicant, falling back to 'Managed' mode"
+					iwconfig "$IFCE" mode Managed
+					iwconfig "$IFCE" key off
+				fi
+				;;
+			nl80211)
+				LOG_INFO "$0" 0 "NETWORK" "Starting wpa_supplicant (nl80211)"
+				if ! wpa_supplicant -B -i "$IFCE" -c "$WPA_CONFIG" -D nl80211; then
+					LOG_ERROR "$0" 0 "NETWORK" "Failed to start wpa_supplicant"
+					return 1
+				fi
+				;;
+		esac
+	else
+		LOG_INFO "$0" 0 "NETWORK" "Connecting to open network"
+		iwconfig "$IFCE" mode Managed
+		iwconfig "$IFCE" key off
 	fi
 
-	LOG_INFO "$0" 0 "NETWORK" "Starting Network Connection..."
+	WAIT_NETWORK_ASSOC
+}
 
-	pgrep dhcpcd >/dev/null && killall -q dhcpcd
-	pgrep wpa_supplicant >/dev/null && killall -q wpa_supplicant
+IP_DHCP() {
+	LOG_INFO "$0" 0 "NETWORK" "Starting DHCP Client"
+	rm -rf /var/db/dhcpcd/*
+	dhcpcd "$IFCE" &
 
-	WAIT_IFACE=20
-	while [ "$WAIT_IFACE" -gt 0 ]; do
-		[ -d "/sys/class/net/$IFCE" ] && break
+	RETRY_CURR=0
+	while [ "$RETRY_CURR" -lt 20 ]; do
+		IP=$(ip -4 -o addr show dev "$IFCE" | awk '{print $4}' | cut -d/ -f1)
 
-		LOG_WARN "$0" 0 "NETWORK" "Waiting for interface '%s' to appear... (%ds)" "$IFCE" "$WAIT_IFACE"
+		[ -n "$IP" ] && {
+			LOG_SUCCESS "$0" 0 "NETWORK" "$(printf "DHCP Lease Acquired: %s" "$IP")"
+			DDNS=$(sed -n 's/^nameserver //p' "$RESOLV_CONF" | head -n1)
+			return 0
+		}
 
-		TBOX sleep 1
-		WAIT_IFACE=$((WAIT_IFACE - 1))
+		LOG_WARN "$0" 0 "NETWORK" "Waiting for DHCP Lease..."
+		sleep 1
+		RETRY_CURR=$((RETRY_CURR + 1))
 	done
+
+	LOG_ERROR "$0" 0 "NETWORK" "DHCP failed"
+	return 1
+}
+
+IP_STATIC() {
+	ip addr flush dev "$IFCE"
+	ip route del default dev "$IFCE" 2>/dev/null
+
+	ip addr add "$ADDR"/"$SUBN" dev "$IFCE"
+	ip route add default via "$GATE" dev "$IFCE" 2>/dev/null
+
+	IP=$(ip -4 -o addr show dev "$IFCE" | awk '{print $4}' | cut -d/ -f1)
+}
+
+VALIDATE_NETWORK() {
+	if [ ! -s "$RESOLV_CONF" ]; then
+		echo "nameserver $DDNS" >"$RESOLV_CONF"
+	fi
+
+	for TGT in "$DDNS" 1.1.1.1 8.8.8.8; do
+		if ping -q -c1 -w2 "$TGT" >/dev/null 2>&1; then
+			if arping -c1 -w1 "$GATE" >/dev/null 2>&1; then
+				LOG_INFO "$0" 0 "NETWORK" "Gateway reachable via ARP"
+			else
+				LOG_WARN "$0" 0 "NETWORK" "Gateway did not respond to ARP"
+			fi
+
+			SET_VAR "config" "network/address" "$IP"
+			LOG_SUCCESS "$0" 0 "NETWORK" "$(printf "Network is now active (%s)" "$IP")"
+
+			return 0
+		fi
+	done
+
+	LOG_ERROR "$0" 0 "NETWORK" "No active network connection"
+	return 1
+}
+
+TRY_CONNECT() {
+	[ -z "$SSID" ] && exit 0
+
+	rfkill unblock all 2>/dev/null
+	iw dev "$IFCE" set power_save off 2>/dev/null
+
+	RESTORE_HOSTNAME
+
+	killall -q dhcpcd wpa_supplicant 2>/dev/null
 
 	CALCULATE_IAID
 
-	mkdir -p /var/db/dhcpcd || true
+	mkdir -p /var/db/dhcpcd
 
-	LOG_INFO "$0" 0 "NETWORK" "Setting '%s' device up" "$IFCE"
-	if ! ip link set dev "$IFCE" up; then
-		LOG_ERROR "$0" 0 "NETWORK" "Failed to bring up interface '$IFCE'"
+	ip link set dev "$IFCE" up || {
+		LOG_ERROR "$0" 0 "NETWORK" "Failed to bring up interface"
 		return 1
-	fi
+	}
 
-	if [ "$IFCE" = "wlan0" ]; then
-		LOG_INFO "$0" 0 "NETWORK" "Configuring WPA Supplicant"
-		/opt/muos/script/web/password.sh
+	iwconfig "$IFCE" essid off 2>/dev/null
+	iwconfig "$IFCE" key off 2>/dev/null
 
-		if [ ! -s "$WPA_CONFIG" ]; then
-			LOG_ERROR "$0" 0 "NETWORK" "Missing WPA Supplicant Configuration"
-			return 1
-		fi
+	RETRY_CURR=0
+	while [ "$RETRY_CURR" -lt 5 ]; do
+		if iw dev "$IFCE" info >/dev/null 2>&1; then break; fi
+		sleep 1
+		RETRY_CURR=$((RETRY_CURR + 1))
+	done
 
-		wpa_supplicant -B -i "$IFCE" -c "$WPA_CONFIG" -D "$DRIV"
+	WIFI_CONFIG || return 1
 
-		WAIT_CARRIER=20
-		while [ "$WAIT_CARRIER" -gt 0 ]; do
-			if iw dev "$IFCE" link | grep "SSID:"; then
-				break
-			fi
-			LOG_WARN "$0" 0 "NETWORK" "Waiting for Wi-Fi Association... (%ds)" "$WAIT_CARRIER"
-			WAIT_CARRIER=$((WAIT_CARRIER - 1))
-			TBOX sleep 1
-		done
-
-		if [ "$WAIT_CARRIER" -eq 0 ]; then
-			LOG_ERROR "$0" 0 "NETWORK" "Wi-Fi Association Timed Out"
-			return 1
-		fi
-	fi
-
-	LOG_INFO "$0" 0 "NETWORK" "Detecting Network Connection Type"
 	if [ "$TYPE" -eq 0 ]; then
-		LOG_INFO "$0" 0 "NETWORK" "Detected 'DHCP' Mode"
-
-		LOG_INFO "$0" 0 "NETWORK" "Clearing Previous DHCP Addresses"
-		rm -rf /var/db/dhcpcd/*
-
-		LOG_INFO "$0" 0 "NETWORK" "Starting DHCP Client..."
-		dhcpcd "$IFCE" &
-
-		WAIT_IP=20
-		while [ "$WAIT_IP" -gt 0 ]; do
-			LOG_WARN "$0" 0 "NETWORK" "Waiting for DHCP Lease... (%ds)" "$WAIT_IP"
-			IP=$(ip -4 a show dev "$IFCE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p')
-
-			if [ -n "$IP" ]; then
-				LOG_SUCCESS "$0" 0 "NETWORK" "DHCP Lease Acquired: %s" "$IP"
-				LOG_INFO "$0" 0 "NETWORK" "Resolving Nameserver"
-				DDNS=$(sed -n 's/^nameserver //p' /etc/resolv.conf | head -n1)
-				break
-			fi
-
-			TBOX sleep 1
-			WAIT_IP=$((WAIT_IP - 1))
-		done
-
-		if [ -z "$IP" ]; then
-			LOG_ERROR "$0" 0 "NETWORK" "Failed to Acquire IP via DHCP"
-			return 1
-		fi
+		IP_DHCP || return 1
+		ip route | grep -q "^default " || {
+			LOG_WARN "$0" 0 "NETWORK" "DHCP lease missing default route, adding manually..."
+			[ -n "$GATE" ] && ip route add default via "$GATE" dev "$IFCE"
+		}
 	else
-		LOG_INFO "$0" 0 "NETWORK" "Detected 'STATIC' Mode"
-
-		LOG_INFO "$0" 0 "NETWORK" "Flushing Previous Static Interface"
-		ip addr flush dev "$IFCE"
-		ip route del default dev "$IFCE" 2>/dev/null
-
-		LOG_INFO "$0" 0 "NETWORK" "Adding Static Address"
-		ip addr add "$ADDR"/"$SUBN" dev "$IFCE"
-
-		LOG_INFO "$0" 0 "NETWORK" "Adding Default IP Route"
-		ip route | grep -q "default via $GATE dev $IFCE" || ip route add default via "$GATE" dev "$IFCE"
-
-		IP=$(ip -4 a show dev "$IFCE" | sed -nE 's/.*inet ([0-9.]+)\/.*/\1/p')
+		IP_STATIC
 	fi
 
-	LOG_INFO "$0" 0 "NETWORK" "Validating Network Connection"
-	if ping -q -c1 -w2 "$DDNS" ||
-		ping -q -c1 -w2 1.1.1.1 ||
-		ping -q -c1 -w2 8.8.8.8; then
-		LOG_SUCCESS "$0" 0 "NETWORK" "Active Network Connection Found"
-	else
-		LOG_ERROR "$0" 0 "NETWORK" "No Active Network Connection Found"
-		return 1
-	fi
-
-	SET_VAR "config" "network/address" "$IP"
-
-	return 0
+	VALIDATE_NETWORK
 }
 
 case "$1" in
 	disconnect)
-		case "$(GET_VAR "device" "board/name")" in
-			tui*) /opt/muos/script/device/network.sh unload ;;
-			*) ;;
-		esac
+		killall -q dhcpcd wpa_supplicant
 
 		: >"$WPA_CONFIG"
 
 		LOG_INFO "$0" 0 "NETWORK" "Clearing Previous DHCP Addresses"
 		rm -rf /var/db/dhcpcd/*
 
-		LOG_INFO "$0" 0 "NETWORK" "Setting '%s' device down" "$IFCE"
+		LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting '%s' device down" "$IFCE")"
 		ip link set dev "$IFCE" down
 
 		LOG_INFO "$0" 0 "NETWORK" "Stopping Network Services"
 		/opt/muos/script/web/service.sh stopall &
 
 		LOG_INFO "$0" 0 "NETWORK" "Stopping Keepalive Script"
-		killall -9 "keepalive.sh" &
+		killall -9 keepalive.sh 2>/dev/null &
+
+		/opt/muos/script/device/network.sh unload
 		;;
 
 	connect)
 		case "$(GET_VAR "device" "board/name")" in
 			rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && /opt/muos/script/device/network.sh load ;;
-			tui*) /opt/muos/script/device/network.sh load ;;
+			rk* | tui*) /opt/muos/script/device/network.sh load ;;
 			*) ;;
 		esac
 
 		RETRY_CURR=0
-
 		while [ "$RETRY_CURR" -lt "$RETRIES" ]; do
 			if TRY_CONNECT; then
 				LOG_SUCCESS "$0" 0 "NETWORK" "Network Connected Successfully"
@@ -210,8 +276,8 @@ case "$1" in
 			fi
 
 			RETRY_CURR=$((RETRY_CURR + 1))
-			LOG_WARN "$0" 0 "NETWORK" "Retrying Network Connection (%s/%s)" "$RETRY_CURR" "$RETRIES"
-			TBOX sleep "$RETRY_DELAY"
+			LOG_WARN "$0" 0 "NETWORK" "$(printf "Retrying Network Connection (%s/%s)" "$RETRY_CURR" "$RETRIES")"
+			sleep "$RETRY_DELAY"
 		done
 
 		LOG_ERROR "$0" 0 "NETWORK" "All Connection Attempts Failed"

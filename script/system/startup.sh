@@ -48,6 +48,7 @@ USER_INIT=$(GET_VAR "config" "settings/advanced/user_init")
 FIRST_INIT=$(GET_VAR "config" "boot/first_init")
 USB_FUNCTION=$(GET_VAR "config" "settings/advanced/usb_function")
 CONNECT_ON_BOOT=$(GET_VAR "config" "settings/network/boot")
+RA_CACHE=$(GET_VAR "config" "settings/advanced/retrocache")
 HDMI_PATH=$(GET_VAR "device" "screen/hdmi")
 NET_ASYNC=$(GET_VAR "config" "settings/network/async_load")
 
@@ -250,8 +251,9 @@ LOG_INFO "$0" 0 "BOOTING" "Running Catalogue Generator"
 
 #:] ### Pre-cache RetroArch assets
 #:] Touch common files into the page cache to speed up first launches.
+#:] This is disabled by default as it increases boot speed by ~3s.
 LOG_INFO "$0" 0 "BOOTING" "Precaching RetroArch System"
-ionice -c idle /opt/muos/bin/vmtouch -tfb "$MUOS_SHARE_DIR/conf/preload.txt" &
+[ "${RA_CACHE:-0}" -eq 1 ] && ionice -c idle /opt/muos/bin/vmtouch -tfb "$MUOS_SHARE_DIR/conf/preload.txt" &
 
 #:] ### Save kernel boot log
 #:] Persist `dmesg` for later diagnostics.

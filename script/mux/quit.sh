@@ -106,6 +106,9 @@ case "$1" in
 		CLOSE_CONTENT
 		;;
 	poweroff | reboot)
+		if [ -f "/tmp/btl_go" ]; then
+			UPDATE_BOOTLOGO
+		fi	
 		HALT_SYSTEM "$1" "$2"
 		sync && /opt/muos/script/system/halt.sh "$HALT_CMD"
 		;;

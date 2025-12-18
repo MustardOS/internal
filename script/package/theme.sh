@@ -38,6 +38,8 @@ ALL_DONE() {
 	printf "All Done!\n"
 	sleep 2
 	FRONTEND start "$FE_CMD"
+	
+	rm -f "$LOCK_DIR"
 
 	exit "${1:-0}"
 }
@@ -120,9 +122,7 @@ INSTALL() {
 		) &
 	fi
 
-	if ! UPDATE_BOOTLOGO_PNG; then
-		UPDATE_BOOTLOGO
-	fi
+	UPDATE_BOOTLOGO
 
 	LED_CONTROL_CHANGE
 
@@ -135,8 +135,6 @@ INSTALL() {
 		/opt/muos/script/mux/extract.sh "$ASSETS_ZIP" picker
 		unset THEME_INSTALLING
 	fi
-
-	rm -f "$LOCK_DIR"
 
 	printf "Install Complete\n"
 	ALL_DONE 0
@@ -161,9 +159,7 @@ SAVE() {
 }
 
 BOOTLOGO() {
-	if ! UPDATE_BOOTLOGO_PNG; then
-		UPDATE_BOOTLOGO
-	fi
+	UPDATE_BOOTLOGO
 
 	printf "Bootlogo Updated\n"
 	ALL_DONE 0 "${THEME_ARG:-custom}"

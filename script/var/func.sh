@@ -491,7 +491,8 @@ PREP_SOUND() {
 				[ -e "$WAV" ] && cp "$WAV" "$SND"
 				;;
 			2)
-				WAV="$MUOS_STORE_DIR/theme/active/sound/$1.wav"
+				ACTIVE="$(GET_VAR "config" "theme/active")"
+				WAV="$MUOS_STORE_DIR/theme/$ACTIVE/sound/$1.wav"
 				[ -e "$WAV" ] && cp "$WAV" "$SND"
 				;;
 			*) ;;
@@ -703,7 +704,8 @@ LED_CONTROL_CHANGE() {
 	(
 		if [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
 			if [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ]; then
-				RGBCONF_SCRIPT="$MUOS_STORE_DIR/theme/active/rgb/rgbconf.sh"
+				ACTIVE="$(GET_VAR "config" "theme/active")"
+				RGBCONF_SCRIPT="$MUOS_STORE_DIR/theme/$ACTIVE/rgb/rgbconf.sh"
 				TIMEOUT=10
 				WAIT=0
 
@@ -725,13 +727,14 @@ LED_CONTROL_CHANGE() {
 }
 
 UPDATE_BOOTLOGO_PNG() {
+	ACTIVE="$(GET_VAR "config" "theme/active")"
 	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
 
 	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
 	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
 
-	SPEC_BL="$MUOS_STORE_DIR/theme/active/${DEVICE_W}x${DEVICE_H}/image/bootlogo.png"
-	NORM_BL="$MUOS_STORE_DIR/theme/active/image/bootlogo.png"
+	SPEC_BL="$MUOS_STORE_DIR/theme/$ACTIVE/${DEVICE_W}x${DEVICE_H}/image/bootlogo.png"
+	NORM_BL="$MUOS_STORE_DIR/theme/$ACTIVE/image/bootlogo.png"
 
 	if [ -e "$SPEC_BL" ]; then
 		printf "\nBootlogo found at: %s\n" "$SPEC_BL"
@@ -755,11 +758,12 @@ UPDATE_BOOTLOGO_PNG() {
 }
 
 CREATE_BOOTLOGO_FROM_PNG() {
+	ACTIVE="$(GET_VAR "config" "theme/active")"
 	BOOTLOGO_PNG_PATH=$1
 	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
 	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
 	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
-	THEME_ACTIVE_DIR="$MUOS_STORE_DIR/theme/active"
+	THEME_ACTIVE_DIR="$MUOS_STORE_DIR/theme/$ACTIVE"
 	BACKGROUND_COLOUR="#000000"
 	BACKGROUND_GRADIENT_COLOUR="#000000"
 	PNG_RECOLOUR="#FFFFFF"
@@ -795,13 +799,17 @@ CREATE_BOOTLOGO_FROM_PNG() {
 }
 
 UPDATE_BOOTLOGO() {
+	rm -f /tmp/btl_go
+	UPDATE_BOOTLOGO_PNG && return 0
+
+	ACTIVE="$(GET_VAR "config" "theme/active")"
 	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
 
 	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
 	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
 
-	SPEC_BL="$MUOS_STORE_DIR/theme/active/${DEVICE_W}x${DEVICE_H}/image/bootlogo.bmp"
-	NORM_BL="$MUOS_STORE_DIR/theme/active/image/bootlogo.bmp"
+	SPEC_BL="$MUOS_STORE_DIR/theme/$ACTIVE/${DEVICE_W}x${DEVICE_H}/image/bootlogo.bmp"
+	NORM_BL="$MUOS_STORE_DIR/theme/$ACTIVE/image/bootlogo.bmp"
 
 	if [ -e "$SPEC_BL" ]; then
 		printf "\nBootlogo found at: %s\n" "$SPEC_BL"

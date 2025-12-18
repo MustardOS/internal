@@ -8,7 +8,8 @@ FRONTEND stop
 
 COLLECTION_DIR="$MUOS_STORE_DIR/info/collection"
 COLLECTION_OUTPUT="$(GET_VAR "device" "storage/rom/mount")/collection.html"
-THEME_TEMPLATE="$MUOS_STORE_DIR/theme/active/collect.html"
+ACTIVE="$(GET_VAR "config" "theme/active")"
+THEME_TEMPLATE="$MUOS_STORE_DIR/theme/$ACTIVE/collect.html"
 FALLBACK_TEMPLATE="$MUOS_SHARE_DIR/media/collect.html"
 TEMP_SECTIONS="/tmp/sections.html"
 TEMP_TEMPLATE="/tmp/template_collect.tmp"

@@ -44,12 +44,43 @@ ALL_DONE() {
 	exit "${1:-0}"
 }
 
+RANDOM() {
+	printf "Selecting Random Theme\n"
+
+    selected=$(find "$THEME_DIR" \
+      -type d \( \
+          -name 640x480 -o -name 720x480 -o -name 720x576 -o -name 720x720 -o \
+          -name 1024x768 -o -name 1280x720 -o -name alternate -o -name catalogue -o \
+          -name font -o -name glyph -o -name image -o -name rgb -o \
+          -name scheme -o -name sound \
+      \) -prune -o \
+      -type f -name version.txt -print |
+      awk '
+        { files[NR] = $0 }
+        END {
+            if (NR == 0) exit 1        # No files found
+            srand()
+            print files[int(rand() * NR) + 1]
+        }'
+    ) || { echo "No files found"; ALL_DONE 1; }
+
+    relative=${selected#"$THEME_DIR"/}
+    relative=${relative%/version.txt}
+
+	printf "$relative\n"
+
+	echo "$relative" >/opt/muos/config/theme/active
+	UPDATE_BOOTLOGO
+	ALL_DONE 0
+}
+
 INSTALL() {
-	#if [ "$THEME_ARG" = "?R" ] && [ "$(GET_VAR "config" "settings/advanced/random_theme")" -eq 1 ]; then
-	#	THEME_ZIP=$(find "$THEME_DIR" -name '*.${THEME_EXT}' | shuf -n 1)
-	#else
+	if [ "$THEME_ARG" = "?R" ]; then
+		RANDOM
+		return 0
+	else
 		THEME_ZIP="$THEME_DIR/$THEME_ARG.${THEME_EXT}"
-	#fi
+	fi
 
 	if [ ! -f "$THEME_ZIP" ]; then
 		printf "Theme Archive Not Found: %s\n" "$THEME_ZIP"

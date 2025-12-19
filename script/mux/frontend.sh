@@ -2,7 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-PW_READY=$(GET_VAR "device" "audio/ready")
 NET_STATE=$(GET_VAR "device" "network/state")
 ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 BOARD_NAME=$(GET_VAR "device" "board/name")
@@ -40,7 +39,7 @@ SET_DEFAULT_GOVERNOR
 #:] ### Wait for audio stack
 #:] Don't proceed to the frontend until PipeWire reports that it is ready.
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
-if [ "$(GET_VAR "config" "settings/advanced/audio_ready")" -eq 1 ]; then
+if [ "$AUDIO_READY" -eq 1 ]; then
 	until [ "$(GET_VAR "device" "audio/ready")" -eq 1 ]; do sleep 0.1; done
 fi
 

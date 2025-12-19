@@ -2,37 +2,63 @@
 
 . /opt/muos/script/var/func.sh
 
+ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
+BOARD_NAME="$(GET_VAR "device" "board/name")"
+LED_NORMAL="$(GET_VAR "device" "led/normal")"
+GOVERNOR="$(GET_VAR "device" "cpu/governor")"
+SCREEN="$(GET_VAR "device" "screen/device")"
+RUMBLE="$(GET_VAR "device" "board/rumble")"
+NET_STATE="$(GET_VAR "device" "network/state")"
+
+USE_ACTIVITY="$(GET_VAR "config" "settings/advanced/activity")"
+USE_LEDS="$(GET_VAR "config" "settings/advanced/led")"
+DEV_MODE="$(GET_VAR "config" "boot/device_mode")"
+USE_SYNCTHING="$(GET_VAR "config" "web/syncthing")"
+SYNCTHING_AUTOSCAN="$(GET_VAR "config" "syncthing/auto_scan")"
+
+SCREEN_INT_W="$(GET_VAR "device" "screen/internal/width")"
+SCREEN_INT_H="$(GET_VAR "device" "screen/internal/height")"
+SCREEN_EXT_W="$(GET_VAR "device" "screen/external/width")"
+SCREEN_EXT_H="$(GET_VAR "device" "screen/external/height")"
+
 ROM_GO="/tmp/rom_go"
 CON_GO="/tmp/con_go"
+GOV_GO="/tmp/gov_go"
 
-NAME=$(sed -n '1p' "$ROM_GO")
-CORE=$(sed -n '2p' "$ROM_GO")
-ASSIGN=$(sed -n '3p' "$ROM_GO")
-LAUNCH=$(sed -n '6p' "$ROM_GO")
-R_DIR=$(sed -n '7p' "$ROM_GO")$(sed -n '8p' "$ROM_GO")
-ROM="$R_DIR"/$(sed -n '9p' "$ROM_GO")
+{
+	read -r NAME
+	read -r CORE
+	read -r ASSIGN
+	read -r _
+	read -r _
+	read -r LAUNCH
+	read -r R_DIR1
+	read -r R_DIR2
+	read -r ROM_NAME
+} <"$ROM_GO"
 
-PC_IP="$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/pc_ip.txt"
-if [ -s "$PC_IP" ]; then
-	python "$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/discord_presence_handheld.py" \
-		"$(cat "$PC_IP")" "On my $(GET_VAR "device" "board/name") with MustardOS!" "Playing $NAME"
-fi
+R_DIR="$R_DIR1$R_DIR2"
+ROM="$R_DIR/$ROM_NAME"
+
+DISCORD_DIR="$ROM_MOUNT/MUOS/discord"
+PC_IP="$DISCORD_DIR/pc_ip.txt"
+
+[ -s "$PC_IP" ] && python "$DISCORD_DIR/discord_presence_handheld.py" "$(cat "$PC_IP")" "On my $BOARD_NAME with MustardOS!" "Playing $NAME"
 
 rm "$ROM_GO"
 
-case "$(GET_VAR "device" "board/name")" in
+case "$BOARD_NAME" in
 	rg*)
-		GET_VAR "config" "settings/advanced/led" >"$(GET_VAR "device" "led/normal")"
-		GET_VAR "config" "settings/advanced/led" >/tmp/work_led_state
+		echo "$USE_LEDS" >"$LED_NORMAL"
+		echo "$USE_LEDS" >/tmp/work_led_state
 		;;
 	*) ;;
 esac
 
-GOV_GO="/tmp/gov_go"
-cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
+cat "$GOV_GO" >"$GOVERNOR"
 rm -f "$GOV_GO"
 
-cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
+cat /dev/zero >"$SCREEN" 2>/dev/null
 
 # Construct the path to the assigned launcher INI file based on device storage,
 # assignment name ($ASSIGN), and launcher name ($LAUNCH).  This is created within
@@ -64,13 +90,13 @@ LAUNCH_DONE=$(PARSE_INI "$ASSIGN_INI" "launch" "done") # Optional cleanup script
 if [ -z "$LAUNCH_EXEC" ]; then
 	echo "Missing launcher exec in $ASSIGN_INI" >&2
 else
-	if [ -n "$LAUNCH_PREP" ]; then "$LAUNCH_PREP" "$NAME" "$CORE" "$ROM"; fi
+	[ -n "$LAUNCH_PREP" ] && "$LAUNCH_PREP" "$NAME" "$CORE" "$ROM"
 
 	[ "${USE_ACTIVITY:-0}" -eq 1 ] && /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" start
 	"$LAUNCH_EXEC" "$NAME" "$CORE" "$ROM"
 	[ "${USE_ACTIVITY:-0}" -eq 1 ] && /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" stop
 
-	if [ -n "$LAUNCH_DONE" ]; then "$LAUNCH_DONE" "$NAME" "$CORE" "$ROM"; fi
+	[ -n "$LAUNCH_DONE" ] && "$LAUNCH_DONE" "$NAME" "$CORE" "$ROM"
 fi
 
 for RF in ra_no_load ra_autoload_once.cfg; do
@@ -80,7 +106,7 @@ done
 unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 
 # Disable any rumble just in case some core gets stuck!
-echo 0 >"$(GET_VAR "device" "board/rumble")"
+echo 0 >"$RUMBLE"
 
 # Filesystem sync
 sync &
@@ -90,10 +116,10 @@ SET_DEFAULT_GOVERNOR
 
 killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1
 
-case "$(GET_VAR "device" "board/name")" in
+case "$BOARD_NAME" in
 	rg*)
 		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
-		echo 1 >"$(GET_VAR "device" "led/normal")"
+		echo 1 >"$LED_NORMAL"
 		echo 1 >/tmp/work_led_state
 		;;
 	tui*)
@@ -103,17 +129,22 @@ case "$(GET_VAR "device" "board/name")" in
 	*) ;;
 esac
 
-cat /dev/zero >"$(GET_VAR "device" "screen/device")" 2>/dev/null
+cat /dev/zero >"$SCREEN" 2>/dev/null
 
 SCREEN_TYPE="internal"
-[ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ] && SCREEN_TYPE="external"
-FB_SWITCH "$(GET_VAR "device" "screen/$SCREEN_TYPE/width")" "$(GET_VAR "device" "screen/$SCREEN_TYPE/height")" 32
+[ "$DEV_MODE" -eq 1 ] && SCREEN_TYPE="external"
 
-if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ] && [ "$(GET_VAR "config" "syncthing/auto_scan")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
+if [ "$SCREEN_TYPE" = "internal" ]; then
+	FB_SWITCH "$SCREEN_INT_W" "$SCREEN_INT_H" 32
+else
+	FB_SWITCH "$SCREEN_EXT_W" "$SCREEN_EXT_H" 32
+fi
+
+if [ "$USE_SYNCTHING" -eq 1 ] &&
+	[ "$SYNCTHING_AUTOSCAN" -eq 1 ] &&
+	[ "$(cat "$NET_STATE")" = "up" ]; then
 	SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' "$MUOS_STORE_DIR/syncthing/config.xml")
 	curl -X POST -H "X-API-Key: $SYNCTHING_API" "localhost:7070/rest/db/scan"
 fi
 
-if [ -s "$PC_IP" ]; then
-	python "$(GET_VAR "device" "storage/rom/mount")/MUOS/discord/discord_presence_handheld.py" "$(cat "$PC_IP")" --clear
-fi
+[ -s "$PC_IP" ] && python "$DISCORD_DIR/discord_presence_handheld.py" "$(cat "$PC_IP")" --clear

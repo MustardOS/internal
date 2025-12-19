@@ -25,7 +25,7 @@ FORCE_SDIO_AWAKE() {
 	# Keep SDIO from dozing while we bring Wi-Fi up
 	for P in /sys/bus/sdio/devices/*/power/control; do
 		[ -f "$P" ] || continue
-		echo on >"$P" 2>/dev/null
+		echo on >"$P"
 	done
 }
 
@@ -77,7 +77,7 @@ LOAD_NETWORK() {
 	[ "$HAS_NETWORK" -eq 0 ] && return 0
 
 	# We need this because the 8821cs driver likes to be persistent when it has failed
-	if grep -qw "^$NET_NAME" /proc/modules 2>/dev/null; then
+	if grep -qw "^$NET_NAME" /proc/modules; then
 		case "$BOARD_NAME" in
 			rg*)
 				modprobe -qr "$NET_NAME"
@@ -89,16 +89,19 @@ LOAD_NETWORK() {
 	# Should probably poke it again and make sure it's really awake before proceeding with final load
 	FORCE_SDIO_AWAKE
 
-	# For USB WiFi adapters using 'wext' extensions, ensure cfg80211
-	# is loaded first if it exists (might be built-in or not needed)
 	case "$BOARD_NAME" in
-		rk*) modprobe -q cfg80211 2>/dev/null ;;
+		rg*)
+			# Not really necessary for the TrimUI devices but because the H700 devices
+			# run this just before probing the network module we are going to add it
+			# here "just in case" but also somewhat uniformity...
+			modprobe -qf "$NET_NAME"
+			;;
+		rk*)
+			# For USB WiFi adapters using 'wext' extensions, ensure cfg80211
+			# is loaded first if it exists (might be built-in or not needed)
+			modprobe -q cfg80211
+			;;
 	esac
-
-	# Not really necessary for the TrimUI devices but because the H700 devices
-	# run this just before probing the network module we are going to add it
-	# here "just in case" but also somewhat uniformity...
-	modprobe -qf "$NET_NAME" || return 1
 
 	# On certain devices we have to actually wait for the SDIO controller
 	# to finish initialising because, that's right, the Wi-Fi chip is
@@ -121,8 +124,8 @@ LOAD_NETWORK() {
 	SET_VAR "device" "network/iface_active" "$NET_IFACE"
 
 	# Bring the interface up and disable Wi-Fi powersave if phy80211 present
-	ip link set "$NET_IFACE" up 2>/dev/null
-	[ -L "$SCN_PATH/$NET_IFACE/phy80211" ] && iw dev "$NET_IFACE" set power_save off 2>/dev/null
+	ip link set "$NET_IFACE" up
+	[ -L "$SCN_PATH/$NET_IFACE/phy80211" ] && iw dev "$NET_IFACE" set power_save off
 
 	# Only touch resolv.conf if we actually have a DNS to set
 	if [ -n "$DNS_ADDR" ]; then

@@ -66,9 +66,9 @@ if [ -z "$LAUNCH_EXEC" ]; then
 else
 	if [ -n "$LAUNCH_PREP" ]; then "$LAUNCH_PREP" "$NAME" "$CORE" "$ROM"; fi
 
-	/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" start
+	[ "${USE_ACTIVITY:-0}" -eq 1 ] && /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" start
 	"$LAUNCH_EXEC" "$NAME" "$CORE" "$ROM"
-	/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" stop
+	[ "${USE_ACTIVITY:-0}" -eq 1 ] && /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" stop
 
 	if [ -n "$LAUNCH_DONE" ]; then "$LAUNCH_DONE" "$NAME" "$CORE" "$ROM"; fi
 fi

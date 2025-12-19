@@ -21,10 +21,14 @@ SET_VAR "system" "foreground_process" "$MPV_BIN"
 
 GPTOKEYB "$MPV_BIN" "$CORE"
 
+MPV_VIDEO_OPTS="--no-config --fullscreen --keepaspect=yes --video-zoom=0 --video-align-x=0 --video-align-y=0"
+
 if [ "$CORE" = "ext-mpv-general" ]; then
-	$MPV_BIN "$FILE"
+	$MPV_BIN $MPV_VIDEO_OPTS "$FILE"
+
 elif [ "$CORE" = "ext-mpv-livetv" ]; then
-	$MPV_BIN "$(cat "$FILE")"
+	$MPV_BIN $MPV_VIDEO_OPTS "$(cat "$FILE")"
+
 elif [ "$CORE" = "ext-mpv-radio" ]; then
 	$MPV_BIN --no-video "$(cat "$FILE")"
 fi

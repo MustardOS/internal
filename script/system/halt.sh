@@ -210,10 +210,10 @@ LOG_INFO "$0" 0 "HALT" "Stopping external storage mounts"
 /opt/muos/script/mount/storage.sh "sdcard" "down"
 
 # Check if random theme is enabled and run the random theme script if necessary
-#if [ "$(sed -n '/^\[settings\.advanced\]/,/^\[/{ /^random_theme[ ]*=[ ]*/{ s/^[^=]*=[ ]*//p }}' /opt/muos/config/config.ini)" -eq 1 ] 2>/dev/null; then
-#	printf 'Random theme is enabled. Changing to a random theme...\n'
-#	/opt/muos/script/package/theme.sh install "?R"
-#fi
+if [ "$(GET_VAR "config" "settings/advanced/random_theme")" -eq 1 ] 2>/dev/null; then
+	printf 'Random theme is enabled. Changing to a random theme...\n'
+	/opt/muos/script/package/theme.sh install "?R"
+fi
 
 LOG_INFO "$0" 0 "HALT" "Stopping USB Function"
 /opt/muos/script/system/usb_gadget.sh stop

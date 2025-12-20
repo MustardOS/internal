@@ -24,6 +24,8 @@ SCREEN_EXT_H="$(GET_VAR "device" "screen/external/height")"
 ROM_GO="/tmp/rom_go"
 CON_GO="/tmp/con_go"
 GOV_GO="/tmp/gov_go"
+SAA_GO="/tmp/saa_go"
+SAG_GO="/tmp/sag_go"
 
 {
 	read -r NAME
@@ -45,7 +47,7 @@ PC_IP="$DISCORD_DIR/pc_ip.txt"
 
 [ -s "$PC_IP" ] && python "$DISCORD_DIR/discord_presence_handheld.py" "$(cat "$PC_IP")" "On my $BOARD_NAME with MustardOS!" "Playing $NAME"
 
-rm "$ROM_GO"
+ENSURE_REMOVED "$ROM_GO"
 
 case "$BOARD_NAME" in
 	rg*)
@@ -56,7 +58,10 @@ case "$BOARD_NAME" in
 esac
 
 cat "$GOV_GO" >"$GOVERNOR"
-rm -f "$GOV_GO"
+ENSURE_REMOVED "$GOV_GO"
+
+ENSURE_REMOVED "$SAA_GO"
+ENSURE_REMOVED "$SAG_GO"
 
 cat /dev/zero >"$SCREEN" 2>/dev/null
 
@@ -100,7 +105,7 @@ else
 fi
 
 for RF in ra_no_load ra_autoload_once.cfg; do
-	[ -e "/tmp/$RF" ] && ENSURE_REMOVED "/tmp/$RF"
+	ENSURE_REMOVED "/tmp/$RF"
 done
 
 unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

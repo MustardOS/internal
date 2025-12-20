@@ -216,27 +216,27 @@ HOTKEY() {
 }
 
 MESSAGE() {
-    case "$1" in
-        stop)
-            if pgrep -x "$MESSAGE_EXEC" >/dev/null; then
-                [ -f "$MESSAGE_TEXT" ] && rm -f "$MESSAGE_TEXT" "$MESSAGE_PROG"
-                pkill -9 -f "$MESSAGE_EXEC"
-            fi
-            ;;
-        start)
-            pgrep -x "$MESSAGE_EXEC" >/dev/null && return 0
-            [ ! -f "$MESSAGE_TEXT" ] && touch "$MESSAGE_TEXT"
-            setsid -f "$MESSAGE_EXEC" 0 "" -l "$MESSAGE_TEXT" </dev/null >/dev/null 2>&1
-            ;;
-        restart)
-            MESSAGE stop
-            MESSAGE start
-            ;;
-        *)
-            printf "Usage: MESSAGE start | stop | restart\n"
-            return 1
-            ;;
-    esac
+	case "$1" in
+		stop)
+			if pgrep -x "$MESSAGE_EXEC" >/dev/null; then
+				[ -f "$MESSAGE_TEXT" ] && rm -f "$MESSAGE_TEXT" "$MESSAGE_PROG"
+				pkill -9 -f "$MESSAGE_EXEC"
+			fi
+			;;
+		start)
+			pgrep -x "$MESSAGE_EXEC" >/dev/null && return 0
+			[ ! -f "$MESSAGE_TEXT" ] && touch "$MESSAGE_TEXT"
+			setsid -f "$MESSAGE_EXEC" 0 "" -l "$MESSAGE_TEXT" </dev/null >/dev/null 2>&1
+			;;
+		restart)
+			MESSAGE stop
+			MESSAGE start
+			;;
+		*)
+			printf "Usage: MESSAGE start | stop | restart\n"
+			return 1
+			;;
+	esac
 }
 
 SHOW_MESSAGE() {
@@ -483,7 +483,7 @@ LCD_ENABLE() {
 PREP_SOUND() {
 	(
 		SND="$MUOS_SHARE_DIR/media/$1.wav"
-		[ -e "$SND" ] && ENSURE_REMOVED "$SND"
+		ENSURE_REMOVED "$SND"
 
 		case "$(GET_VAR "config" "settings/general/sound")" in
 			1)

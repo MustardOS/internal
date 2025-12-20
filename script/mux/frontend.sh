@@ -15,6 +15,8 @@ APP_GO="/tmp/app_go"
 GOV_GO="/tmp/gov_go"
 CON_GO="/tmp/con_go"
 ROM_GO="/tmp/rom_go"
+SAA_GO="/tmp/saa_go"
+SAG_GO="/tmp/sag_go"
 
 EX_CARD="/tmp/explore_card"
 NET_START="/tmp/net_start"
@@ -132,7 +134,7 @@ if [ "$SKIP" -eq 0 ]; then
 				# We'll set a few extra things here so that the user doesn't get
 				# a stupid "yOu UsEd tHe ReSeT bUtToN" message because ultimately
 				# we don't really care in this particular instance...
-				[ -e "/tmp/safe_quit" ] && ENSURE_REMOVED "/tmp/safe_quit"
+				ENSURE_REMOVED "/tmp/safe_quit"
 				[ ! -e "/tmp/done_reset" ] && printf 1 >"/tmp/done_reset"
 				[ ! -e "/tmp/chime_done" ] && printf 1 >"/tmp/chime_done"
 				SET_VAR "config" "system/used_reset" 0
@@ -163,7 +165,7 @@ while :; do
 		rg*) echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey" ;;
 		tui*)
 			DPAD_FILE="/tmp/trimui_inputd/input_dpad_to_joystick"
-			[ -e "$DPAD_FILE" ] && ENSURE_REMOVED "$DPAD_FILE"
+			ENSURE_REMOVED "$DPAD_FILE"
 			;;
 	esac
 
@@ -181,8 +183,12 @@ while :; do
 		case "$ACTION" in
 			"launcher")
 				LOG_INFO "$0" 0 "FRONTEND" "Clearing Governor and Control Scheme files"
-				[ -e "$GOV_GO" ] && ENSURE_REMOVED "$GOV_GO"
-				[ -e "$CON_GO" ] && ENSURE_REMOVED "$CON_GO"
+				ENSURE_REMOVED "$GOV_GO"
+				ENSURE_REMOVED "$CON_GO"
+
+				LOG_INFO "$0" 0 "FRONTEND" "Clearing Auto Assign Core and Governor flags"
+				ENSURE_REMOVED "$SAA_GO"
+				ENSURE_REMOVED "$SAG_GO"
 
 				LOG_INFO "$0" 0 "FRONTEND" "Setting Governor back to default"
 				SET_DEFAULT_GOVERNOR
@@ -203,8 +209,8 @@ while :; do
 					echo appmenu >$ACT_GO
 
 					LOG_INFO "$0" 0 "FRONTEND" "Clearing Governor and Control Scheme files"
-					[ -e "$GOV_GO" ] && ENSURE_REMOVED "$GOV_GO"
-					[ -e "$CON_GO" ] && ENSURE_REMOVED "$CON_GO"
+					ENSURE_REMOVED "$GOV_GO"
+					ENSURE_REMOVED "$CON_GO"
 
 					LOG_INFO "$0" 0 "FRONTEND" "Setting Governor back to default"
 					SET_DEFAULT_GOVERNOR
@@ -213,8 +219,8 @@ while :; do
 
 			"appmenu")
 				LOG_INFO "$0" 0 "FRONTEND" "Clearing Governor and Control Scheme files"
-				[ -e "$GOV_GO" ] && ENSURE_REMOVED "$GOV_GO"
-				[ -e "$CON_GO" ] && ENSURE_REMOVED "$CON_GO"
+				ENSURE_REMOVED "$GOV_GO"
+				ENSURE_REMOVED "$CON_GO"
 
 				LOG_INFO "$0" 0 "FRONTEND" "Setting Governor back to default"
 				SET_DEFAULT_GOVERNOR

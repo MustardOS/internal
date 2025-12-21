@@ -21,6 +21,31 @@ DEFAULT_BRIGHTNESS="$(GET_VAR "config" "settings/general/brightness")"
 SHUTDOWN_TIME_SETTING="$(GET_VAR "config" "settings/power/shutdown")"
 CONNECT_ON_WAKE=$(GET_VAR "config" "settings/network/wake")
 
+ACTIVITY_TRACKER() {
+	ROM_GO="/tmp/rom_go"
+	if [ -e "$ROM_GO" ]; then
+		{
+			read -r NAME
+			read -r CORE
+			read -r _
+			read -r _
+			read -r _
+			read -r _
+			read -r R_DIR1
+			read -r R_DIR2
+			read -r ROM_NAME
+		} <"$ROM_GO"
+
+		R_DIR="$R_DIR1$R_DIR2"
+		ROM="$R_DIR/$ROM_NAME"
+
+		case "$1" in
+			start) [ "${USE_ACTIVITY:-0}" -eq 1 ] && /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" start ;;
+			stop) [ "${USE_ACTIVITY:-0}" -eq 1 ] && /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" stop ;;
+		esac
+	fi
+}
+
 CHECK_RA_AND_SAVE() {
 	# This is the safest bet to get RetroArch to save state automatically
 	# if the user has configured their settings to do so...
@@ -32,6 +57,8 @@ CHECK_RA_AND_SAVE() {
 }
 
 SLEEP() {
+	ACTIVITY_TRACKER stop
+
 	CHECK_RA_AND_SAVE "SAVE_STATE"
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
@@ -109,6 +136,8 @@ RESUME() {
 	if [ "$HAS_NETWORK" -eq 1 ]; then
 		[ "$CONNECT_ON_WAKE" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
 	fi
+
+	ACTIVITY_TRACKER start
 }
 
 [ -f "$RECENT_WAKE" ] && exit 0

@@ -47,8 +47,6 @@ PC_IP="$DISCORD_DIR/pc_ip.txt"
 
 [ -s "$PC_IP" ] && python "$DISCORD_DIR/discord_presence_handheld.py" "$(cat "$PC_IP")" "On my $BOARD_NAME with MustardOS!" "Playing $NAME"
 
-ENSURE_REMOVED "$ROM_GO"
-
 case "$BOARD_NAME" in
 	rg*)
 		echo "$USE_LEDS" >"$LED_NORMAL"
@@ -87,6 +85,8 @@ elif [ -f "$OVERRIDE_ROOT/${R_DIR##*/}.sh" ]; then
 else
 	LAUNCH_EXEC=$(PARSE_INI "$ASSIGN_INI" "launch" "exec") # REQUIRED main launcher to run the content
 fi
+
+ENSURE_REMOVED "$ROM_GO"
 
 LAUNCH_DONE=$(PARSE_INI "$ASSIGN_INI" "launch" "done") # Optional cleanup script after successful run
 

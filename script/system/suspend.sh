@@ -20,6 +20,7 @@ SUSPEND_STATE="$(GET_VAR "config" "danger/state")"
 DEFAULT_BRIGHTNESS="$(GET_VAR "config" "settings/general/brightness")"
 SHUTDOWN_TIME_SETTING="$(GET_VAR "config" "settings/power/shutdown")"
 CONNECT_ON_WAKE=$(GET_VAR "config" "settings/network/wake")
+USE_ACTIVITY="$(GET_VAR "config" "settings/advanced/activity")"
 
 ACTIVITY_TRACKER() {
 	ROM_GO="/tmp/rom_go"

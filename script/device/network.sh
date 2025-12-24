@@ -138,14 +138,25 @@ LOAD_NETWORK() {
 
 UNLOAD_NETWORK() {
 	[ "$HAS_NETWORK" -eq 0 ] && return 0
+
+	[ -n "$NET_IFACE" ] && {
+		iw dev "$NET_IFACE" disconnect
+		ip link set "$NET_IFACE" down
+	}
+
+	if grep -qw "^$NET_NAME" /proc/modules; then
+		modprobe -qr "$NET_NAME"
+		sleep 1
+	fi
+
 	[ -f "$RESOLV_CONF.bak" ] && mv -f "$RESOLV_CONF.bak" "$RESOLV_CONF"
 }
 
 RELOAD_NETWORK() {
 	[ "$HAS_NETWORK" -eq 0 ] && return 0
 
-	# we reload the driver a couple of times because sometimes the RTL really wants to sleep
-	# it's okay to bully hardware... i think?
+	# We reload the driver a couple of times because sometimes the
+	# RTL really wants to sleep.  It's okay to bully the hardware!
 	I=0
 	while [ "$I" -lt "$MAX_RETRY" ]; do
 		UNLOAD_NETWORK

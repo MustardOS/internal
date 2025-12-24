@@ -61,8 +61,6 @@ WAIT_NETWORK_ASSOC() {
 			wext)
 				OUT=$(iwconfig "$IFCE" 2>/dev/null)
 				case "$OUT" in
-					*'ESSID:""'*) ;;
-					*unassociated*) ;;
 					*'ESSID:"'*)
 						LOG_INFO "$0" 0 "NETWORK" "WiFi Associated!"
 						return 0
@@ -86,9 +84,23 @@ WAIT_NETWORK_ASSOC() {
 	return 1
 }
 
+WAIT_CARRIER() {
+	I=0
+	while [ "$I" -lt 5 ]; do
+		[ "$(cat /sys/class/net/"$IFCE"/carrier)" = "1" ] && return 0
+		I=$((I + 1))
+		sleep 1
+	done
+
+	LOG_ERROR "$0" 0 "NETWORK" "Link carrier timeout"
+	return 1
+}
+
 WIFI_CONFIG() {
 	LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting ESSID: %s" "$SSID")"
-	iwconfig "$IFCE" essid -- "$SSID"
+	if iw dev "$IFCE" info >/dev/null 2>&1; then
+		iwconfig "$IFCE" essid -- "$SSID"
+	fi
 
 	if [ -n "$PASS" ]; then
 		/opt/muos/script/web/password.sh
@@ -96,10 +108,11 @@ WIFI_CONFIG() {
 		# You're the best... around
 		BEST_BSSID=$(iw dev "$IFCE" scan 2>/dev/null |
 			awk -v ssid="$SSID" '
-        		/BSS/ { b=$2 }
-        		/SSID:/ && $2 == ssid { sub(/[\(\)]/,"",b); print b; exit }
-        	')
+				/BSS/ { b=$2 }
+				/SSID:/ && $2 == ssid { sub(/[\(\)]/,"",b); print b; exit }
+			')
 
+		sed -i '/^bssid=/d' "$WPA_CONFIG"
 		[ -n "$BEST_BSSID" ] && {
 			LOG_INFO "$0" 0 "NETWORK" "$(printf "Pinning BSSID: %s" "$BEST_BSSID")"
 			sed -i "/^ssid=/i bssid=$BEST_BSSID" "$WPA_CONFIG"
@@ -123,32 +136,29 @@ WIFI_CONFIG() {
 				;;
 		esac
 	else
-		LOG_INFO "$0" 0 "NETWORK" "Connecting to open network"
-		iwconfig "$IFCE" mode Managed
-		iwconfig "$IFCE" key off
+		if iw dev "$IFCE" info >/dev/null 2>&1; then
+			LOG_INFO "$0" 0 "NETWORK" "Connecting to open network"
+			iwconfig "$IFCE" mode Managed
+			iwconfig "$IFCE" key off
+		fi
 	fi
 
-	WAIT_NETWORK_ASSOC
+	WAIT_NETWORK_ASSOC || return 1
+
+	WAIT_CARRIER || return 1
+
+	return 0
 }
 
 IP_DHCP() {
-	LOG_INFO "$0" 0 "NETWORK" "Starting DHCP Client"
-	rm -rf /var/db/dhcpcd/*
 	dhcpcd "$IFCE" &
 
-	RETRY_CURR=0
-	while [ "$RETRY_CURR" -lt 20 ]; do
+	I=0
+	while [ "$I" -lt 20 ]; do
 		IP=$(ip -4 -o addr show dev "$IFCE" | awk '{print $4}' | cut -d/ -f1)
-
-		[ -n "$IP" ] && {
-			LOG_SUCCESS "$0" 0 "NETWORK" "$(printf "DHCP Lease Acquired: %s" "$IP")"
-			DDNS=$(sed -n 's/^nameserver //p' "$RESOLV_CONF" | head -n1)
-			return 0
-		}
-
-		LOG_WARN "$0" 0 "NETWORK" "Waiting for DHCP Lease..."
+		[ -n "$IP" ] && return 0
+		I=$((I + 1))
 		sleep 1
-		RETRY_CURR=$((RETRY_CURR + 1))
 	done
 
 	LOG_ERROR "$0" 0 "NETWORK" "DHCP failed"
@@ -156,19 +166,16 @@ IP_DHCP() {
 }
 
 IP_STATIC() {
-	ip addr flush dev "$IFCE"
-	ip route del default dev "$IFCE" 2>/dev/null
-
-	ip addr add "$ADDR"/"$SUBN" dev "$IFCE"
-	ip route add default via "$GATE" dev "$IFCE" 2>/dev/null
+	ip addr flush dev "$IFCE" 2>/dev/null || true
+	ip route del default dev "$IFCE" 2>/dev/null || true
+	ip addr add "$ADDR"/"$SUBN" dev "$IFCE" 2>/dev/null || true
+	ip route add default via "$GATE" dev "$IFCE" 2>/dev/null || true
 
 	IP=$(ip -4 -o addr show dev "$IFCE" | awk '{print $4}' | cut -d/ -f1)
 }
 
 VALIDATE_NETWORK() {
-	if [ ! -s "$RESOLV_CONF" ]; then
-		echo "nameserver $DDNS" >"$RESOLV_CONF"
-	fi
+	[ ! -s "$RESOLV_CONF" ] && printf "nameserver %s\n" "$DDNS" >"$RESOLV_CONF"
 
 	for TGT in "$DDNS" 1.1.1.1 8.8.8.8; do
 		if ping -q -c1 -w2 "$TGT" >/dev/null 2>&1; then
@@ -189,68 +196,67 @@ VALIDATE_NETWORK() {
 	return 1
 }
 
-TRY_CONNECT() {
-	[ -z "$SSID" ] && exit 0
+DESTROY_DHCPCD() {
+	killall -q dhcpcd wpa_supplicant
+	sleep 1
+	killall -9 dhcpcd wpa_supplicant
 
-	rfkill unblock all 2>/dev/null
-	iw dev "$IFCE" set power_save off 2>/dev/null
+	LOG_INFO "$0" 0 "NETWORK" "Clearing Previous DHCP Addresses"
+	rm -rf /var/db/dhcpcd/*
+	mkdir -p /var/db/dhcpcd
+}
+
+TRY_CONNECT() {
+	[ -z "$SSID" ] && return 0
+
+	rfkill unblock all
+	iw dev "$IFCE" set power_save off
 
 	RESTORE_HOSTNAME
+	DESTROY_DHCPCD
 
-	killall -q dhcpcd wpa_supplicant 2>/dev/null
+	iw dev "$IFCE" disconnect 2>/dev/null || true
+	ip addr flush dev "$IFCE" 2>/dev/null || true
+	ip route del default dev "$IFCE" 2>/dev/null || true
 
 	CALCULATE_IAID
 
-	mkdir -p /var/db/dhcpcd
+	ip link set dev "$IFCE" down
+	sleep 1
 
-	ip link set dev "$IFCE" up || {
-		LOG_ERROR "$0" 0 "NETWORK" "Failed to bring up interface"
-		return 1
-	}
-
-	iwconfig "$IFCE" essid off 2>/dev/null
-	iwconfig "$IFCE" key off 2>/dev/null
-
-	RETRY_CURR=0
-	while [ "$RETRY_CURR" -lt 5 ]; do
-		if iw dev "$IFCE" info >/dev/null 2>&1; then break; fi
-		sleep 1
-		RETRY_CURR=$((RETRY_CURR + 1))
-	done
+	ip link set dev "$IFCE" up || return 1
+	sleep 1
 
 	WIFI_CONFIG || return 1
 
 	if [ "$TYPE" -eq 0 ]; then
 		IP_DHCP || return 1
-		ip route | grep -q "^default " || {
-			LOG_WARN "$0" 0 "NETWORK" "DHCP lease missing default route, adding manually..."
-			[ -n "$GATE" ] && ip route add default via "$GATE" dev "$IFCE"
-		}
 	else
 		IP_STATIC
 	fi
+
+	sleep 1
 
 	VALIDATE_NETWORK
 }
 
 case "$1" in
 	disconnect)
-		killall -q dhcpcd wpa_supplicant
+		DESTROY_DHCPCD
 
+		iw dev "$IFCE" disconnect
 		: >"$WPA_CONFIG"
 
-		LOG_INFO "$0" 0 "NETWORK" "Clearing Previous DHCP Addresses"
-		rm -rf /var/db/dhcpcd/*
-
 		LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting '%s' device down" "$IFCE")"
-		ip link set dev "$IFCE" down
+		ip addr flush dev "$IFCE" 2>/dev/null || true
+		ip route del default dev "$IFCE" 2>/dev/null || true
+		ip link set dev "$IFCE" down 2>/dev/null || true
 
 		LOG_INFO "$0" 0 "NETWORK" "Stopping Network Services"
 		/opt/muos/script/web/service.sh stopall &
 
 		LOG_INFO "$0" 0 "NETWORK" "Stopping Keepalive Script"
-		killall -9 keepalive.sh 2>/dev/null &
-
+		killall -9 keepalive.sh &
 		/opt/muos/script/device/network.sh unload
 		;;
 
@@ -281,6 +287,7 @@ case "$1" in
 		done
 
 		LOG_ERROR "$0" 0 "NETWORK" "All Connection Attempts Failed"
+
 		exit 1
 		;;
 esac

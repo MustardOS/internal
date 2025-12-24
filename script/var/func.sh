@@ -754,6 +754,10 @@ UPDATE_BOOTLOGO_PNG() {
 			printf "\nRotated Bootlogo Image\n"
 			;;
 	esac
+
+	mkdir -p "$BOOT_MOUNT/bat"
+	cp "$BOOT_MOUNT/bootlogo.bmp" "$BOOT_MOUNT/bat/battery_charge.bmp"
+
 	return 0
 }
 
@@ -830,6 +834,9 @@ UPDATE_BOOTLOGO() {
 			printf "\nRotated Bootlogo Image\n"
 			;;
 	esac
+
+	mkdir -p "$BOOT_MOUNT/bat"
+	cp "$BOOT_MOUNT/bootlogo.bmp" "$BOOT_MOUNT/bat/battery_charge.bmp"
 }
 
 GPTOKEYB() {

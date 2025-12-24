@@ -726,60 +726,35 @@ LED_CONTROL_CHANGE() {
 	) &
 }
 
-UPDATE_BOOTLOGO_PNG() {
-	ACTIVE="$(GET_VAR "config" "theme/active")"
-	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
-
-	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
-	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
-
-	SPEC_BL="$MUOS_STORE_DIR/theme/$ACTIVE/${DEVICE_W}x${DEVICE_H}/image/bootlogo.png"
-	NORM_BL="$MUOS_STORE_DIR/theme/$ACTIVE/image/bootlogo.png"
-
-	if [ -e "$SPEC_BL" ]; then
-		printf "\nBootlogo found at: %s\n" "$SPEC_BL"
-		CREATE_BOOTLOGO_FROM_PNG "$SPEC_BL"
-	else
-		if [ -e "$NORM_BL" ]; then
-			printf "\nBootlogo found at: %s\n" "$NORM_BL"
-			CREATE_BOOTLOGO_FROM_PNG "$BOOT_MOUNT/bootlogo.png"
-		else
-			return 1
-		fi
-	fi
+DEVICE_THEME_FIX() {
+	ROLE="$1"
+	IMAGE="$1"
 
 	case "$(GET_VAR "device" "board/name")" in
 		rg28xx-h)
-			convert "$BOOT_MOUNT/bootlogo.bmp" -rotate 270 "$BOOT_MOUNT/bootlogo.bmp"
-			printf "\nRotated Bootlogo Image\n"
+			convert "$IMAGE" -rotate 270 "$IMAGE"
+			printf "Rotated '%s' image: %s\n" "$ROLE" "$IMAGE"
 			;;
 	esac
-
-	mkdir -p "$BOOT_MOUNT/bat"
-	cp "$BOOT_MOUNT/bootlogo.bmp" "$BOOT_MOUNT/bat/battery_charge.bmp"
-
-	return 0
 }
 
-CREATE_BOOTLOGO_FROM_PNG() {
-	ACTIVE="$(GET_VAR "config" "theme/active")"
-	BOOTLOGO_PNG_PATH=$1
-	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
-	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
-	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
-	THEME_ACTIVE_DIR="$MUOS_STORE_DIR/theme/$ACTIVE"
+THEME_PNG_IMAGE() {
+	ROLE="$1"
+	SRC="$2"
+	OUT="$3"
+
 	BACKGROUND_COLOUR="#000000"
 	BACKGROUND_GRADIENT_COLOUR="#000000"
 	PNG_RECOLOUR="#FFFFFF"
 	PNG_RECOLOUR_ALPHA=0
-	JSONPATH="$THEME_ACTIVE_DIR/bootlogo.json"
 
-	if [ -e "$THEME_ACTIVE_DIR/active.txt" ]; then
-		read -r THEME_ALTERNATE <"$THEME_ACTIVE_DIR/active.txt"
+	JSONPATH="$THEME_DIR/${ROLE}.json"
+
+	if [ -e "$THEME_DIR/active.txt" ]; then
+		read -r THEME_ALTERNATE <"$THEME_DIR/active.txt"
 		printf "Theme Alternate: %s\n" "$THEME_ALTERNATE"
-		if [ -e "$THEME_ACTIVE_DIR/alternate/${THEME_ALTERNATE}_bootlogo.json" ]; then
-			JSONPATH="$THEME_ACTIVE_DIR/alternate/${THEME_ALTERNATE}_bootlogo.json"
-		fi
+		ALT_JSON="$THEME_DIR/alternate/${THEME_ALTERNATE}_${ROLE}.json"
+		[ -e "$ALT_JSON" ] && JSONPATH="$ALT_JSON"
 	fi
 
 	if [ -e "$JSONPATH" ]; then
@@ -797,46 +772,75 @@ CREATE_BOOTLOGO_FROM_PNG() {
 	printf "PNG_RECOLOUR: %s\n" "$PNG_RECOLOUR"
 	printf "PNG_RECOLOUR_ALPHA: %s\n" "$PNG_RECOLOUR_ALPHA"
 
-	magick -size "${DEVICE_W}x${DEVICE_H}" gradient:"#${BACKGROUND_COLOUR}-#${BACKGROUND_GRADIENT_COLOUR}" -depth 24 "$BOOT_MOUNT/bootlogo.bmp"
-	magick "$BOOTLOGO_PNG_PATH" -fill "#${PNG_RECOLOUR}" -colorize "$PNG_RECOLOUR_ALPHA" /tmp/bootlogo-recolor.png
-	magick "$BOOT_MOUNT/bootlogo.bmp" /tmp/bootlogo-recolor.png -gravity center -composite "$BOOT_MOUNT/bootlogo.bmp"
+	magick -size "${DEVICE_W}x${DEVICE_H}" gradient:"#${BACKGROUND_COLOUR}-#${BACKGROUND_GRADIENT_COLOUR}" -depth 24 "$OUT"
+	magick "$SRC" -fill "#${PNG_RECOLOUR}" -colorize "$PNG_RECOLOUR_ALPHA" "/tmp/${ROLE}_fg.png"
+	magick "$OUT" "/tmp/${ROLE}_fg.png" -gravity center -composite "$OUT"
+
+	rm -f "/tmp/${ROLE}_fg.png"
+}
+
+RESOLVE_ROLE_IMAGE() {
+	ROLE="$1"
+	OUT="$2"
+
+	for BASE in "$THEME_DIR/$RES_DIR/image/$ROLE" "$THEME_DIR/image/$ROLE"; do
+		if [ -f "$BASE.png" ]; then
+			printf "Found %s PNG: %s\n" "$ROLE" "$BASE.png"
+			THEME_PNG_IMAGE "$ROLE" "$BASE.png" "$OUT"
+			return 0
+		fi
+
+		if [ -f "$BASE.bmp" ]; then
+			printf "Found %s BMP: %s\n" "$ROLE" "$BASE.bmp"
+			cp -f "$BASE.bmp" "$OUT"
+			return 0
+		fi
+	done
+
+	return 1
+}
+
+UPDATE_IMAGE_ROLE() {
+	ROLE="$1" # bootlogo, charge, etc
+	DEST="$2" # relative to boot mount
+
+	OUT="$BOOT_MOUNT/$DEST"
+	DIR=$(dirname "$OUT")
+
+	mkdir -p "$DIR"
+
+	if ! RESOLVE_ROLE_IMAGE "$ROLE" "$OUT"; then
+		printf "No theme '%s' image found\n" "$ROLE"
+		return 1
+	fi
+
+	DEVICE_THEME_FIX "$ROLE" "$OUT"
+	return 0
 }
 
 UPDATE_BOOTLOGO() {
-	rm -f /tmp/btl_go
-	UPDATE_BOOTLOGO_PNG && return 0
+	rm -f "/tmp/btl_go"
 
-	ACTIVE="$(GET_VAR "config" "theme/active")"
-	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
-
+	ACTIVE=$(GET_VAR "config" "theme/active")
+	BOOT_MOUNT=$(GET_VAR "device" "storage/boot/mount")
 	DEVICE_W=$(GET_VAR "device" "screen/internal/width")
 	DEVICE_H=$(GET_VAR "device" "screen/internal/height")
 
-	SPEC_BL="$MUOS_STORE_DIR/theme/$ACTIVE/${DEVICE_W}x${DEVICE_H}/image/bootlogo.bmp"
-	NORM_BL="$MUOS_STORE_DIR/theme/$ACTIVE/image/bootlogo.bmp"
+	THEME_DIR="$MUOS_STORE_DIR/theme/$ACTIVE"
+	RES_DIR="${DEVICE_W}x${DEVICE_H}"
 
-	if [ -e "$SPEC_BL" ]; then
-		printf "\nBootlogo found at: %s\n" "$SPEC_BL"
-		cp -f "$SPEC_BL" "$BOOT_MOUNT/bootlogo.bmp"
-	else
-		if [ -e "$NORM_BL" ]; then
-			printf "\nBootlogo found at: %s\n" "$NORM_BL"
-			cp -f "$NORM_BL" "$BOOT_MOUNT/bootlogo.bmp"
-		else
-			printf "\nReverting to system bootlogo: %s\n" "$NORM_BL"
-			cp -f "${MUOS_SHARE_DIR}/bootlogo/${DEVICE_W}x${DEVICE_H}/bootlogo.bmp" "$BOOT_MOUNT/bootlogo.bmp"
-		fi
+	if ! UPDATE_IMAGE_ROLE "bootlogo" "bootlogo.bmp"; then
+		cp -f "$MUOS_SHARE_DIR/bootlogo/${DEVICE_W}x${DEVICE_H}/bootlogo.bmp" "$BOOT_MOUNT/bootlogo.bmp"
+		DEVICE_THEME_FIX "bootlogo" "$BOOT_MOUNT/bootlogo.bmp"
 	fi
 
-	case "$(GET_VAR "device" "board/name")" in
-		rg28xx-h)
-			convert "$BOOT_MOUNT/bootlogo.bmp" -rotate 270 "$BOOT_MOUNT/bootlogo.bmp"
-			printf "\nRotated Bootlogo Image\n"
-			;;
-	esac
+	if ! UPDATE_IMAGE_ROLE "charge" "bat/battery_charge.bmp"; then
+		mkdir -p "$BOOT_MOUNT/bat"
+		cp -f "$MUOS_SHARE_DIR/bootlogo/${DEVICE_W}x${DEVICE_H}/bootlogo.bmp" "$BOOT_MOUNT/bat/battery_charge.bmp"
+		DEVICE_THEME_FIX "charge" "$BOOT_MOUNT/bat/battery_charge.bmp"
+	fi
 
-	mkdir -p "$BOOT_MOUNT/bat"
-	cp "$BOOT_MOUNT/bootlogo.bmp" "$BOOT_MOUNT/bat/battery_charge.bmp"
+	return 0
 }
 
 GPTOKEYB() {

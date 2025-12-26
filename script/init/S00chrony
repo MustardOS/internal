@@ -1,0 +1,46 @@
+#!/bin/sh
+
+DAEMON="/opt/muos/bin/chronyd"
+CONF="/opt/muos/share/conf/chrony.conf"
+
+case "$1" in
+	start)
+		if pidof chronyd >/dev/null; then
+			echo "chronyd already running"
+			exit 0
+		fi
+
+		echo "Starting chronyd"
+		$DAEMON -f "$CONF"
+		;;
+
+	stop)
+		if pidof chronyd >/dev/null; then
+			echo "Stopping chronyd"
+			killall chronyd
+		else
+			echo "chronyd not running"
+		fi
+		;;
+
+	restart | reload)
+		$0 stop
+		sleep 1
+		$0 start
+		;;
+
+	status)
+		if pidof chronyd >/dev/null; then
+			echo "chronyd is running"
+		else
+			echo "chronyd is stopped"
+		fi
+		;;
+
+	*)
+		echo "Usage: $0 {start|stop|restart|status}"
+		exit 1
+		;;
+esac
+
+exit 0

@@ -221,6 +221,9 @@ LOG_INFO "$0" 0 "HALT" "Stopping USB Function"
 LOG_INFO "$0" 0 "HALT" "Disabling any swapfile mounts"
 swapoff -a
 
+LOG_INFO "$0" 0 "HALT" "Syncing RTC to hardware"
+hwclock --systohc --utc
+
 LOG_INFO "$0" 0 "HALT" "Unloading kernel modules"
 /opt/muos/script/device/module.sh unload
 

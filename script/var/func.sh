@@ -836,8 +836,7 @@ UPDATE_BOOTLOGO() {
 
 	if ! UPDATE_IMAGE_ROLE "charge" "bat/battery_charge.bmp"; then
 		mkdir -p "$BOOT_MOUNT/bat"
-		cp -f "$MUOS_SHARE_DIR/bootlogo/${DEVICE_W}x${DEVICE_H}/bootlogo.bmp" "$BOOT_MOUNT/bat/battery_charge.bmp"
-		DEVICE_THEME_FIX "charge" "$BOOT_MOUNT/bat/battery_charge.bmp"
+		cp -f "$BOOT_MOUNT/bootlogo.bmp" "$BOOT_MOUNT/bat/battery_charge.bmp"
 	fi
 
 	return 0

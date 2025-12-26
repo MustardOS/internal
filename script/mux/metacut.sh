@@ -22,21 +22,7 @@ SCHEME="$DIR/scheme/muxplore.txt"
 METACUT=$(PARSE_INI "$SCHEME" "meta" "META_CUT")
 [ -z "$METACUT" ] && METACUT=40
 
-awk -v meta_cut="$METACUT" '
-BEGIN { RS = " "; ORS = ""; }
-{
-	if (length(line $0) > meta_cut) {
-		print line "\n";
-		line = $0 " ";
-	} else {
-		line = line $0 " ";
-	}
-}
-
-END {
-	if (length(line) > meta_cut) {
-		print substr(line, 1, meta_cut) "\n" substr(line, meta_cut + 1) "\n";
-	} else {
-		print line "\n";
-	}
-}' "$1"
+# The discovery of fold really helps here!
+# Except for UTF-8 and CJK which I'm not really sure
+# how to really get around... super annoying!
+tr '\n\t' '  ' <"$1"  | tr -s ' ' | fold -s -w "$METACUT"

@@ -95,6 +95,9 @@ case "$(GET_VAR "config" "settings/advanced/usb_function")" in
 	*) ;;
 esac
 
+# Swap the speaker audio if set
+/opt/muos/script/device/speaker.sh &
+
 # Set the device specific SDL Controller Map
 /opt/muos/script/mux/sdl_map.sh &
 

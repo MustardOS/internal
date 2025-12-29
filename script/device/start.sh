@@ -46,6 +46,9 @@ fi
 
 rfkill unblock all 2>/dev/null
 
+# Swap the speaker audio if set
+/opt/muos/script/device/speaker.sh &
+
 DEV_BOARD=$(GET_VAR "device" "board/name")
 EMU_VER=
 
@@ -55,9 +58,6 @@ case "$DEV_BOARD" in
 		case "$DEV_BOARD" in
 			rg34xx-sp | rg35xx-sp)
 				/opt/muos/script/device/lid.sh &
-				;;
-			rg40xx-h | rgcubexx-h)
-				/opt/muos/script/device/speaker.sh &
 				;;
 		esac
 		;;

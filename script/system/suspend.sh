@@ -65,7 +65,7 @@ SLEEP() {
 
 	touch "$RECENT_WAKE"
 
-	DISPLAY_WRITE lcd0 setbl 0
+	DISPLAY_WRITE disp0 setbl 0
 	amixer set "Master" mute
 
 	cat "$CPU_GOV_PATH" >"$WAKE_CPU_GOV"

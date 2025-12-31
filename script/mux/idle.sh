@@ -11,7 +11,7 @@ INHIBIT_SLEEP=2
 DISPLAY_IDLE() {
 	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && amixer set "Master" mute
 
-	[ "$(DISPLAY_READ lcd0 getbl)" -gt 10 ] && DISPLAY_WRITE lcd0 setbl 10
+	[ "$(DISPLAY_READ disp0 getbl)" -gt 10 ] && DISPLAY_WRITE disp0 setbl 10
 
 	[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 
@@ -21,7 +21,7 @@ DISPLAY_IDLE() {
 DISPLAY_ACTIVE() {
 	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && amixer set "Master" unmute
 
-	DISPLAY_WRITE lcd0 setbl "$(GET_VAR "config" "settings/general/brightness")"
+	DISPLAY_WRITE disp0 setbl "$(GET_VAR "config" "settings/general/brightness")"
 
 	LED_CONTROL_CHANGE
 

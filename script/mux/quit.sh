@@ -35,7 +35,7 @@ CLOSE_CONTENT() {
 DISPLAY_BLANK() {
 	LOG_INFO "$0" 0 "QUIT" "Blanking internal display"
 	touch "/tmp/mux_blank"
-	DISPLAY_WRITE lcd0 setbl "0"
+	DISPLAY_WRITE disp0 setbl "0"
 	echo 4 >/sys/class/graphics/fb0/blank
 }
 

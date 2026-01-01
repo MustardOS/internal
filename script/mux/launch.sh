@@ -117,7 +117,7 @@ echo 0 >"$RUMBLE"
 sync &
 
 SET_DEFAULT_GOVERNOR
-[ -e "$CON_GO" ] && rm -f "$CON_GO"
+[ -e "$CON_GO" ] && ENSURE_REMOVED "$CON_GO"
 
 killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1
 
@@ -129,7 +129,7 @@ case "$BOARD_NAME" in
 		;;
 	tui*)
 		DPAD_FILE="/tmp/trimui_inputd/input_dpad_to_joystick"
-		[ -e "$DPAD_FILE" ] && rm -f "$DPAD_FILE"
+		ENSURE_REMOVED "$DPAD_FILE"
 		;;
 	*) ;;
 esac

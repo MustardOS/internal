@@ -2,13 +2,11 @@
 
 . /opt/muos/script/var/func.sh
 
-NET_STATE=$(GET_VAR "device" "network/state")
 ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 BOARD_NAME=$(GET_VAR "device" "board/name")
 
 STARTUP=$(GET_VAR "config" "settings/general/startup")
 AUDIO_READY=$(GET_VAR "config" "settings/advanced/audio_ready")
-RETROWAIT=$(GET_VAR "config" "settings/advanced/retrowait")
 
 ACT_GO="/tmp/act_go"
 APP_GO="/tmp/app_go"
@@ -19,7 +17,6 @@ SAA_GO="/tmp/saa_go"
 SAG_GO="/tmp/sag_go"
 
 EX_CARD="/tmp/explore_card"
-NET_START="/tmp/net_start"
 
 SKIP=0
 
@@ -32,8 +29,6 @@ fi
 printf '%s\n' "$ACT" >"$ACT_GO"
 
 echo "root" >"$EX_CARD"
-
-LAST_PLAY=$(cat "/opt/muos/config/boot/last_play")
 
 LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
 SET_DEFAULT_GOVERNOR
@@ -49,105 +44,7 @@ if [ "$SKIP" -eq 0 ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Checking for last or resume startup"
 
 	if [ "$STARTUP" = "last" ] || [ "$STARTUP" = "resume" ]; then
-		GO_LAST_BOOT=1
-
-		if [ -n "$LAST_PLAY" ]; then
-			LOG_INFO "$0" 0 "FRONTEND" "Checking for network and retrowait"
-
-			if [ "$RETROWAIT" -eq 1 ]; then
-				OIP=0
-
-				while :; do
-					NW_MSG=$(printf "Waiting for network to connect... (%s)\n\nPress START to continue loading\nPress SELECT to go to main menu" "$OIP")
-					/opt/muos/frontend/muxmessage 0 "$NW_MSG"
-					OIP=$((OIP + 1))
-
-					if [ "$(cat "$NET_STATE")" = "up" ]; then
-						LOG_SUCCESS "$0" 0 "FRONTEND" "Network connected"
-						/opt/muos/frontend/muxmessage 0 "Network connected"
-
-						PIP=0
-						while ! ping -c 1 -W 5 8.8.8.8 >/dev/null 2>&1; do
-							PIP=$((PIP + 1))
-							LOG_INFO "$0" 0 "FRONTEND" "Verifying connectivity..."
-							/opt/muos/frontend/muxmessage 0 "Verifying connectivity... (%s)" "$PIP"
-							sleep 1
-						done
-
-						LOG_SUCCESS "$0" 0 "FRONTEND" "Connectivity verified! Booting content!"
-						/opt/muos/frontend/muxmessage 0 "Connectivity verified! Booting content!"
-
-						GO_LAST_BOOT=1
-						break
-					fi
-
-					if [ -f "$NET_START" ] && [ "$(cat "$NET_START")" = "ignore" ]; then
-						LOG_SUCCESS "$0" 0 "FRONTEND" "Ignoring network connection"
-						/opt/muos/frontend/muxmessage 0 "Ignoring network connection... Booting content!"
-
-						GO_LAST_BOOT=1
-						break
-					fi
-
-					if [ -f "$NET_START" ] && [ "$(cat "$NET_START")" = "menu" ]; then
-						LOG_SUCCESS "$0" 0 "FRONTEND" "Booting to main menu"
-						/opt/muos/frontend/muxmessage 0 "Booting to main menu!"
-
-						GO_LAST_BOOT=0
-						break
-					fi
-
-					sleep 1
-				done
-			fi
-
-			if [ "$GO_LAST_BOOT" -eq 1 ]; then
-				LOG_INFO "$0" 0 "FRONTEND" "Booting to last launched content"
-				cat "$LAST_PLAY" >"$ROM_GO"
-
-				BASE="$(basename "$LAST_PLAY" .cfg)"
-				DIR="$(dirname "$LAST_PLAY")"
-
-				for TYPE in "governor" "control scheme"; do
-					case "$TYPE" in
-						"governor")
-							CONTENT_FILE="${DIR}/${BASE}.gov"
-							FALLBACK_FILE="${DIR}/core.gov"
-							OUTPUT_FILE="$GOV_GO"
-							;;
-						"control scheme")
-							CONTENT_FILE="${DIR}/${BASE}.con"
-							FALLBACK_FILE="${DIR}/core.con"
-							OUTPUT_FILE="$CON_GO"
-							;;
-					esac
-
-					if [ -e "$CONTENT_FILE" ]; then
-						cat "$CONTENT_FILE" >"$OUTPUT_FILE"
-					elif [ -e "$FALLBACK_FILE" ]; then
-						cat "$FALLBACK_FILE" >"$OUTPUT_FILE"
-					else
-						LOG_INFO "$0" 0 "FRONTEND" "No ${TYPE} file found for launched content"
-					fi
-				done
-
-				# We'll set a few extra things here so that the user doesn't get
-				# a stupid "yOu UsEd tHe ReSeT bUtToN" message because ultimately
-				# we don't really care in this particular instance...
-				ENSURE_REMOVED "/tmp/safe_quit"
-				[ ! -e "/tmp/done_reset" ] && printf 1 >"/tmp/done_reset"
-				[ ! -e "/tmp/chime_done" ] && printf 1 >"/tmp/chime_done"
-				SET_VAR "config" "system/used_reset" 0
-
-				# Reset audio control status
-				RESET_AMIXER
-
-				# Okay we're all set, time to launch whatever we were playing last
-				/opt/muos/script/mux/launch.sh
-			fi
-		fi
-
-		echo launcher >"$ACT_GO"
+		/opt/muos/script/mux/resume.sh
 	fi
 fi
 
@@ -193,7 +90,7 @@ while :; do
 				LOG_INFO "$0" 0 "FRONTEND" "Setting Governor back to default"
 				SET_DEFAULT_GOVERNOR
 
-				touch /tmp/pdi_go
+				touch "/tmp/pdi_go"
 
 				EXEC_MUX "launcher" "muxfrontend"
 				;;
@@ -206,7 +103,7 @@ while :; do
 					ENSURE_REMOVED "$APP_GO"
 
 					"$RUN_APP"/mux_launch.sh "$RUN_APP"
-					echo appmenu >$ACT_GO
+					echo appmenu >"$ACT_GO"
 
 					LOG_INFO "$0" 0 "FRONTEND" "Clearing Governor and Control Scheme files"
 					ENSURE_REMOVED "$GOV_GO"
@@ -235,7 +132,7 @@ while :; do
 			"info") EXEC_MUX "info" "muxfrontend" ;;
 
 			"credits")
-				/opt/muos/bin/nosefart "$MUOS_SHARE_DIR/media/support.nsf" &
+				/opt/muos/bin/nosefart "$MUOS_SHARE_DIR/media/support.nsf" >/dev/null 2>&1 &
 				EXEC_MUX "info" "muxcredits"
 				pkill -9 -f "nosefart" &
 				;;

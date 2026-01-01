@@ -49,6 +49,9 @@ rfkill unblock all 2>/dev/null
 # Swap the speaker audio if set
 /opt/muos/script/device/speaker.sh &
 
+# Calibrate user setting joystick values if set
+/opt/muos/script/device/joycal.sh &
+
 DEV_BOARD=$(GET_VAR "device" "board/name")
 EMU_VER=
 

@@ -12,6 +12,8 @@ READ_HOTKEYS() {
 }
 
 HANDLE_HOTKEY() {
+	RETROWAIT="$(GET_VAR "config" "settings/advanced/retrowait")"
+
 	# This blocks the event loop, so commands here should finish quickly.
 	case "$1" in
 		# Input activity/idle:
@@ -30,8 +32,8 @@ HANDLE_HOTKEY() {
 		RGB_COLOR_NEXT) RGBCLI -c up ;;
 
 		# "RetroArch Network Wait" combos:
-		RETROWAIT_IGNORE) [ "$(GET_VAR "config" "settings/advanced/retrowait")" -eq 1 ] && echo ignore >/tmp/net_start ;;
-		RETROWAIT_MENU) [ "$(GET_VAR "config" "settings/advanced/retrowait")" -eq 1 ] && echo menu >/tmp/net_start ;;
+		RETROWAIT_IGNORE) [ "$RETROWAIT" -eq 1 ] && echo ignore >"/tmp/net_start" ;;
+		RETROWAIT_MENU) [ "$RETROWAIT" -eq 1 ] && echo menu >"/tmp/net_start" ;;
 	esac
 }
 
@@ -47,8 +49,10 @@ LID_CLOSED() {
 
 SLEEP() {
 	if IS_NORMAL_MODE; then
-		CURR_UPTIME=$(UPTIME)
-		if [ "$(echo "$CURR_UPTIME - $(GET_VAR "system" "resume_uptime") >= 1" | bc)" -eq 1 ]; then
+		CURR_UPTIME="$(UPTIME)"
+		LAST_UPTIME="$(GET_VAR "system" "resume_uptime")"
+
+		if [ $((CURR_UPTIME - ${LAST_UPTIME:-0})) -ge 1 ]; then
 			/opt/muos/script/system/suspend.sh &
 			SET_VAR "system" "resume_uptime" "$CURR_UPTIME"
 		fi

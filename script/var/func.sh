@@ -86,10 +86,10 @@ RESET_AMIXER() {
 		*) DEV_VOL="$MAX_VOL" ;;
 	esac
 
-	amixer -c 0 sset "$AUDIO_CONTROL" "${DEV_VOL}%" unmute
-	amixer set "Master" unmute
+	amixer -c 0 sset "$AUDIO_CONTROL" "${DEV_VOL}%" unmute >/dev/null 2>&1
+	amixer set "Master" unmute >/dev/null 2>&1
 
-	wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1
 }
 
 SET_DEFAULT_GOVERNOR() {

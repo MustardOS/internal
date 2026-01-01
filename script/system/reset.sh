@@ -105,9 +105,6 @@ cp -a "$SRC_DIR"/. "$DST_DIR/"
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Blank Syncthing API File"
 : >"$MUOS_DIR/syncthing/api.txt"
 
-LOG_INFO "$0" 0 "FACTORY RESET" "Calculating FNV-1a Hash of Default Theme"
-/opt/muos/bin/fnv1a "$MUOS_DIR/theme/MustardOS.muxthm" >"/opt/muos/config/theme/default"
-
 PM_ZIP="$MUOS_SHARE_DIR/archive/muos.portmaster.zip"
 if [ -e "$PM_ZIP" ]; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Decompressing PortMaster Application"

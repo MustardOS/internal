@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-if  [ ! -f "/tmp/recent_wake" ] && [ "$(GET_VAR "config" "settings/advanced/dpad_swap")" -eq 1 ]; then
+if [ "$(GET_VAR "config" "settings/advanced/dpad_swap")" -eq 1 ]; then
 	RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
 
 	case "$(GET_VAR "system" "foreground_process")" in

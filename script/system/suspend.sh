@@ -58,15 +58,15 @@ CHECK_RA_AND_SAVE() {
 }
 
 SLEEP() {
+	touch "$RECENT_WAKE"
+
 	ACTIVITY_TRACKER stop
 
 	CHECK_RA_AND_SAVE "SAVE_STATE"
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
-	touch "$RECENT_WAKE"
-
 	DISPLAY_WRITE disp0 setbl 0
-	amixer set "Master" mute
+	amixer set "Master" mute >/dev/null 2>&1
 
 	cat "$CPU_GOV_PATH" >"$WAKE_CPU_GOV"
 
@@ -120,7 +120,7 @@ RESUME() {
 
 	[ "$USB_FUNCTION" != "none" ] && /opt/muos/script/system/usb_gadget.sh resume
 
-	amixer set "Master" unmute
+	amixer set "Master" unmute >/dev/null 2>&1
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
 	# Some stupid TrimUI GPU shenanigans
@@ -131,14 +131,14 @@ RESUME() {
 	cat "$WAKE_CPU_GOV" >"$CPU_GOV_PATH"
 	rm -rf "/tmp/wake_cpu_gov"
 
-	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
-	(sleep 5 && rm "$RECENT_WAKE") &
-
 	if [ "$HAS_NETWORK" -eq 1 ]; then
 		[ "$CONNECT_ON_WAKE" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
 	fi
 
 	ACTIVITY_TRACKER start
+
+	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
+	(sleep 5 && rm "$RECENT_WAKE") &
 }
 
 [ -f "$RECENT_WAKE" ] && exit 0

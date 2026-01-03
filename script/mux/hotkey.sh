@@ -49,12 +49,16 @@ LID_CLOSED() {
 
 SLEEP() {
 	if IS_NORMAL_MODE; then
-		CURR_UPTIME="$(UPTIME)"
-		LAST_UPTIME="$(GET_VAR "system" "resume_uptime")"
+		CURR_UPTIME="$(UPTIME 2>/dev/null | cut -d. -f1)"
+		[ -n "$CURR_UPTIME" ] || CURR_UPTIME=0
 
-		if [ $((CURR_UPTIME - ${LAST_UPTIME:-0})) -ge 1 ]; then
-			/opt/muos/script/system/suspend.sh &
+		LAST_RESUME="$(GET_VAR "system" "resume_uptime" 2>/dev/null | cut -d. -f1)"
+		[ -n "$LAST_RESUME" ] || LAST_RESUME=0
+
+		# Time to go the fuck to sleep
+		if [ $((CURR_UPTIME - LAST_RESUME)) -gt 5 ]; then
 			SET_VAR "system" "resume_uptime" "$CURR_UPTIME"
+			/opt/muos/script/system/suspend.sh
 		fi
 	fi
 }

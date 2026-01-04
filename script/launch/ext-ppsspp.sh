@@ -57,4 +57,4 @@ cd "$PPSSPP_DIR" || exit
 
 SET_VAR "system" "foreground_process" "PPSSPP"
 
-./PPSSPP --pause-menu-exit "$FILE"
+LD_PRELOAD="/opt/muos/frontend/lib/libmustage.so" ./PPSSPP --pause-menu-exit "$FILE"

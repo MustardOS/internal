@@ -23,4 +23,4 @@ EMUDIR="$MUOS_SHARE_DIR/emulator/amiberry"
 chmod +x "$EMUDIR"/amiberry
 cd "$EMUDIR" || exit
 
-HOME="$EMUDIR" ./amiberry "$FILE"
+LD_PRELOAD="/opt/muos/frontend/lib/libmustage.so" HOME="$EMUDIR" ./amiberry "$FILE"

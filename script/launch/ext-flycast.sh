@@ -23,4 +23,4 @@ EMUDIR="$MUOS_SHARE_DIR/emulator/flycast"
 chmod +x "$EMUDIR"/flycast
 cd "$EMUDIR" || exit
 
-HOME="$EMUDIR" FLYCAST_BIOS_PATH="$MUOS_STORE_DIR/bios/dc/" ./flycast "$FILE"
+LD_PRELOAD="/opt/muos/frontend/lib/libmustage.so" HOME="$EMUDIR" FLYCAST_BIOS_PATH="$MUOS_STORE_DIR/bios/dc/" ./flycast "$FILE"

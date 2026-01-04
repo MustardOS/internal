@@ -23,4 +23,4 @@ EMUDIR="$MUOS_SHARE_DIR/emulator/drastic-trngaje"
 chmod +x "$EMUDIR"/launch.sh
 cd "$EMUDIR" || exit
 
-HOME="$EMUDIR" ./launch.sh "$FILE"
+LD_PRELOAD="/opt/muos/frontend/lib/libmustage.so" HOME="$EMUDIR" ./launch.sh "$FILE"

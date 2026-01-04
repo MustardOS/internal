@@ -135,6 +135,7 @@ EXTRA_ARGS=""
 if [ "$CORE" = "ext-mupen64plus-gliden64-full" ] && [ "$XRES" -eq 720 ] && [ "$YRES" -eq 720 ]; then
   # Original method: enter FB_SWITCH → specify GLideN64 Full params → run
   FB_SWITCH 320 240 32
+  LD_PRELOAD="/opt/muos/frontend/lib/libmustage.so" \
   HOME="$EMUDIR" ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . \
     --plugindir "$PLUGINDIR" --datadir "$DATADIR" \
     --gfx "$GL64_SO" --set "Video-GLideN64[AspectRatio]=0" --resolution "320x240" "$FILE"
@@ -196,7 +197,7 @@ case "$(GET_VAR "device" "board/name")" in
     ;;
 esac
 
-HOME="$EMUDIR" ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . $EXTRA_ARGS "$FILE"
+LD_PRELOAD="/opt/muos/frontend/lib/libmustage.so" HOME="$EMUDIR" ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . $EXTRA_ARGS "$FILE"
 
 # Clean up temp files if we unzipped the file
 [ -n "$TMPDIR" ] && rm -r "$TMPDIR"

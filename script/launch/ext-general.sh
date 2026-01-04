@@ -24,6 +24,6 @@ if [ $IS_32BIT -eq 1 ]; then
 	export SPA_PLUGIN_DIR="/usr/lib32/spa-0.2"
 fi
 
-"$FILE"
+LD_PRELOAD="/opt/muos/frontend/lib/libmustage.so" "$FILE"
 
 unset PIPEWIRE_MODULE_DIR SPA_PLUGIN_DIR

@@ -4,7 +4,7 @@
 
 ASSIGN_DIR="$MUOS_SHARE_DIR/info/assign"
 BASE_PATH="$MUOS_STORE_DIR/info/catalogue"
-TARGET_DIRS="box grid preview text splash"
+TARGET_DIRS="box grid preview text splash overlay"
 EXTRA_DIRS="Application Archive Collection Folder Root Task Theme"
 
 # Create core catalogue directories from assign directories only

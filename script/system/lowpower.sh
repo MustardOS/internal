@@ -3,6 +3,7 @@
 . /opt/muos/script/var/func.sh
 
 IS_IDLE="/tmp/is_idle"
+BATT_OVERLAY="/run/muos/overlay.battery"
 
 BOARD_DEV=$(GET_VAR "device" "board/name")
 CHARGER_DEV=$(GET_VAR "device" "battery/charger")
@@ -13,6 +14,8 @@ LED_RGB=$(GET_VAR "device" "led/rgb")
 
 LOW_BATTERY_WARNING() {
 	if [ "$CHARGING" -eq 0 ] && [ -n "$CAPACITY" ] && [ "$CAPACITY" -le "$BATT_LOW" ]; then
+		touch "$BATT_OVERLAY"
+
 		RGB_ENABLED=$(GET_VAR "config" "settings/general/rgb")
 		USING_RGB=0
 
@@ -32,6 +35,8 @@ LOW_BATTERY_WARNING() {
 		sleep 0.5
 
 		[ "$USING_RGB" -eq 1 ] && [ ! -e "$IS_IDLE" ] && LED_CONTROL_CHANGE
+	else
+		rm "$BATT_OVERLAY"
 	fi
 }
 
@@ -41,5 +46,5 @@ while :; do
 
 	LOW_BATTERY_WARNING
 
-	sleep 60
+	sleep 30
 done &

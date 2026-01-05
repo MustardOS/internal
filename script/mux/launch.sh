@@ -42,7 +42,7 @@ SAG_GO="/tmp/sag_go"
 R_DIR="$R_DIR1$R_DIR2"
 ROM="$R_DIR/$ROM_NAME"
 
-printf "%s\n%s" "$NAME" "$ASSIGN" >"/tmp/ovl_go"
+printf "%s\n%s\n%s" "$NAME" "$ASSIGN" "$CORE" >"/tmp/ovl_go"
 
 DISCORD_DIR="$ROM_MOUNT/MUOS/discord"
 PC_IP="$DISCORD_DIR/pc_ip.txt"

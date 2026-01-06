@@ -20,4 +20,4 @@ FFPLAY_BIN="ffplay"
 SET_VAR "system" "foreground_process" "$FFPLAY_BIN"
 
 GPTOKEYB "$FFPLAY_BIN" "$CORE"
-LD_PRELOAD="/opt/muos/frontend/lib/libmustage.so" $FFPLAY_BIN "$FILE" -fs
+$FFPLAY_BIN "$FILE" -fs

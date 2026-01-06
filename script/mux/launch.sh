@@ -21,6 +21,7 @@ SCREEN_INT_H="$(GET_VAR "device" "screen/internal/height")"
 SCREEN_EXT_W="$(GET_VAR "device" "screen/external/width")"
 SCREEN_EXT_H="$(GET_VAR "device" "screen/external/height")"
 
+OVL_GO="/tmp/ovl_go"
 ROM_GO="/tmp/rom_go"
 CON_GO="/tmp/con_go"
 GOV_GO="/tmp/gov_go"
@@ -42,7 +43,7 @@ SAG_GO="/tmp/sag_go"
 R_DIR="$R_DIR1$R_DIR2"
 ROM="$R_DIR/$ROM_NAME"
 
-printf "%s\n%s\n%s" "$NAME" "$ASSIGN" "$CORE" >"/tmp/ovl_go"
+printf "%s\n%s\n%s" "$NAME" "$ASSIGN" "$CORE" >$OVL_GO
 
 DISCORD_DIR="$ROM_MOUNT/MUOS/discord"
 PC_IP="$DISCORD_DIR/pc_ip.txt"
@@ -62,8 +63,6 @@ ENSURE_REMOVED "$GOV_GO"
 
 ENSURE_REMOVED "$SAA_GO"
 ENSURE_REMOVED "$SAG_GO"
-
-cat /dev/zero >"$SCREEN" 2>/dev/null
 
 # Construct the path to the assigned launcher INI file based on device storage,
 # assignment name ($ASSIGN), and launcher name ($LAUNCH).  This is created within
@@ -121,6 +120,8 @@ sync &
 SET_DEFAULT_GOVERNOR
 [ -e "$CON_GO" ] && ENSURE_REMOVED "$CON_GO"
 
+ENSURE_REMOVED "$OVL_GO"
+
 killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1
 
 case "$BOARD_NAME" in
@@ -135,8 +136,6 @@ case "$BOARD_NAME" in
 		;;
 	*) ;;
 esac
-
-cat /dev/zero >"$SCREEN" 2>/dev/null
 
 SCREEN_TYPE="internal"
 [ "$DEV_MODE" -eq 1 ] && SCREEN_TYPE="external"

@@ -76,7 +76,7 @@ if [ "$GREENLIGHT" -eq 1 ]; then
 
 	echo "Launching Cave Story" >>"$LOGPATH"
 
-	LD_PRELOAD="/opt/muos/frontend/lib/libmustage.so" retroarch -v -f $RA_ARGS -L "$MUOS_SHARE_DIR/core/nxengine_libretro.so" "$DOUK"
+	retroarch -v -f $RA_ARGS -L "$MUOS_SHARE_DIR/core/nxengine_libretro.so" "$DOUK"
 
 	[ "$IS_SWAP" -eq 1 ] && DETECT_CONTROL_SWAP
 fi

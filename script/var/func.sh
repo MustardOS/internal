@@ -1,9 +1,16 @@
 #!/bin/sh
 # shellcheck disable=SC2086
 
+MUX_LIB="/opt/muos/frontend/lib"
+
 case ":$LD_LIBRARY_PATH:" in
-	*":/opt/muos/frontend/lib:"*) ;;
-	*) export LD_LIBRARY_PATH="/opt/muos/frontend/lib:$LD_LIBRARY_PATH" ;;
+	*":$MUX_LIB:"*) ;;
+	*) export LD_LIBRARY_PATH="$MUX_LIB:$LD_LIBRARY_PATH" ;;
+esac
+
+case ":$LD_PRELOAD:" in
+	*":$MUX_LIB/libmustage.so:"*) ;;
+	*) export LD_PRELOAD="$MUX_LIB/libmustage.so:$LD_PRELOAD" ;;
 esac
 
 HOME="/root"

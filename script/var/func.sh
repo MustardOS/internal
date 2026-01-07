@@ -269,7 +269,7 @@ EXEC_MUX() {
 	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
 
 	SET_VAR "system" "foreground_process" "$MODULE"
-	"/opt/muos/frontend/$MODULE" "$@"
+	DISABLE_HW_OVERLAY=1 "/opt/muos/frontend/$MODULE" "$@"
 
 	while [ ! -f "$SAFE_QUIT" ]; do sleep 0.01; done
 }

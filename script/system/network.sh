@@ -53,6 +53,7 @@ CALCULATE_IAID() {
 }
 
 WAIT_NETWORK_ASSOC() {
+    [ "$IFCE" = "eth0" ] && return 0
 	[ "$DRIV" = "wext" ] && iwconfig "$IFCE" retry off 2>/dev/null
 
 	WAIT=20
@@ -85,6 +86,7 @@ WAIT_NETWORK_ASSOC() {
 }
 
 WAIT_CARRIER() {
+    [ "$IFCE" = "eth0" ] && return 0
 	I=0
 	while [ "$I" -lt 5 ]; do
 		[ "$(cat /sys/class/net/"$IFCE"/carrier)" = "1" ] && return 0
@@ -97,6 +99,7 @@ WAIT_CARRIER() {
 }
 
 WIFI_CONFIG() {
+    [ "$IFCE" = "eth0" ] && return 0
 	LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting ESSID: %s" "$SSID")"
 	if iw dev "$IFCE" info >/dev/null 2>&1; then
 		iwconfig "$IFCE" essid -- "$SSID"

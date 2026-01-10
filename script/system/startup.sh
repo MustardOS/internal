@@ -88,11 +88,6 @@ if [ "$FIRST_INIT" -eq 0 ]; then
 	fi
 fi
 
-#:] ### Mark first-boot complete (_if applicable_)
-#:] This is a first initialisation flag, once everything is a-ok we'll mark it as done.
-#:] Upon next startup we don't run any specific first initialisation routines.
-[ "$FIRST_INIT" -eq 0 ] && SET_VAR "config" "boot/first_init" "1"
-
 #:] ### Rumble Self Test
 #:] Briefly vibrate on capable devices to confirm GPIO/PWM configuration.
 LOG_INFO "$0" 0 "BOOTING" "Device Rumble Check"
@@ -235,7 +230,11 @@ LOG_INFO "$0" 0 "BOOTING" "Starting USB Function"
 #:] ### Device Controls
 #:] Apply device-specific control defaults for RetroArch, emulators, ports etc.
 LOG_INFO "$0" 0 "BOOTING" "Setting Device Controls"
-/opt/muos/script/device/control.sh &
+if [ "$FIRST_INIT" -eq 0 ]; then
+	/opt/muos/script/device/control.sh FORCE_COPY &
+else
+	/opt/muos/script/device/control.sh &
+fi
 
 #:] ### SDL Controller Maps
 #:] Set default `/usr/lib/gamecontrollerdb.txt` symlink to user defined controller.
@@ -259,3 +258,8 @@ LOG_INFO "$0" 0 "BOOTING" "Precaching RetroArch System"
 #:] Persist `dmesg` for later diagnostics.
 LOG_INFO "$0" 0 "BOOTING" "Saving Kernel Boot Log"
 dmesg >"$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
+
+#:] ### Mark first-boot complete (_if applicable_)
+#:] This is a first initialisation flag, once everything is a-ok we'll mark it as done.
+#:] Upon next startup we don't run any specific first initialisation routines.
+[ "$FIRST_INIT" -eq 0 ] && SET_VAR "config" "boot/first_init" "1"

@@ -12,6 +12,14 @@ ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 rm -f "$MUOS_STORE_DIR/mounted" "$MOUNT_FAILURE"
 mkdir -p "$MUOS_STORE_DIR"
 
+SDCARD_MOUNTED=0
+if [ -n "$SDCARD_MOUNT" ] && mount | grep -q " on $SDCARD_MOUNT "; then
+	SDCARD_MOUNTED=1
+	LOG_INFO "$0" 0 "BIND MOUNT" "SD2 mounted at $SDCARD_MOUNT"
+else
+	LOG_INFO "$0" 0 "BIND MOUNT" "SD2 not mounted, skipping SD2 paths"
+fi
+
 SAFE_BIND() {
 	SRC="$1"
 	TGT="$2"
@@ -28,8 +36,9 @@ MOUNT_STORAGE() {
 
 	for S_LOC in $LIST; do
 		TGT="$MUOS_STORE_DIR/$S_LOC"
+		SRC=""
 
-		if [ -d "$SDCARD_MOUNT/MUOS/$S_LOC" ]; then
+		if [ "$SDCARD_MOUNTED" -eq 1 ] && [ -d "$SDCARD_MOUNT/MUOS/$S_LOC" ]; then
 			SRC="$SDCARD_MOUNT/MUOS/$S_LOC"
 			LOG_INFO "$0" 0 "BIND MOUNT" "$GROUP: $S_LOC from SDCARD"
 		elif [ -d "$ROM_MOUNT/MUOS/$S_LOC" ]; then
@@ -54,18 +63,20 @@ LOG_INFO "$0" 0 "BIND MOUNT" "Mounting PRIORITY paths"
 MOUNT_STORAGE "$PRIORITY_LOCS" "PRIORITY"
 
 [ -s "$MOUNT_FAILURE" ] && CRITICAL_FAILURE mount "$(cat "$MOUNT_FAILURE")"
-touch "$MUOS_STORE_DIR/mounted"
+: >"$MUOS_STORE_DIR/mounted"
 
 LOG_INFO "$0" 0 "BIND MOUNT" "Mounting STANDARD paths"
 MOUNT_STORAGE "$STANDARD_LOCS" "STANDARD"
 
 [ -s "$MOUNT_FAILURE" ] && CRITICAL_FAILURE mount "$(cat "$MOUNT_FAILURE")"
 
-# Bind hardcoded paths on SD1's ROM partition (where we can't use symlinks) to subdirs
-# of the appropriate locations under /run/muos/storage ($MUOS_STORE_DIR) bound above.
+# Bind hardcoded paths of the appropriate locations under /run/muos/storage ($MUOS_STORE_DIR) bound above.
 BIND_EMULATOR() {
-	TARGET="$MUOS_STORE_DIR/$1"
-	MOUNT="$MUOS_SHARE_DIR/emulator/$2"
+	STORE_PATH="$1"
+	EMU_PATH="$2"
+
+	TARGET="$MUOS_STORE_DIR/$STORE_PATH"
+	MOUNT="$MUOS_SHARE_DIR/emulator/$EMU_PATH"
 
 	mkdir -p "$TARGET" "$MOUNT"
 	umount "$MOUNT" 2>/dev/null

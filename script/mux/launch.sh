@@ -6,7 +6,6 @@ ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 BOARD_NAME="$(GET_VAR "device" "board/name")"
 LED_NORMAL="$(GET_VAR "device" "led/normal")"
 GOVERNOR="$(GET_VAR "device" "cpu/governor")"
-SCREEN="$(GET_VAR "device" "screen/device")"
 RUMBLE="$(GET_VAR "device" "board/rumble")"
 NET_STATE="$(GET_VAR "device" "network/state")"
 
@@ -44,6 +43,7 @@ R_DIR="$R_DIR1$R_DIR2"
 ROM="$R_DIR/$ROM_NAME"
 
 printf "%s\n%s\n%s" "$NAME" "$ASSIGN" "$CORE" >$OVL_GO
+[ -e "$OVERLAY_NOP" ] && rm -f "$OVERLAY_NOP"
 
 DISCORD_DIR="$ROM_MOUNT/MUOS/discord"
 PC_IP="$DISCORD_DIR/pc_ip.txt"

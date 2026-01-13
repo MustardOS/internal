@@ -44,6 +44,8 @@ while :; do
 	read -r CHARGING <"$CHARGER_DEV"
 	read -r CAPACITY <"$BATT_CAP"
 
+	BATT_LOW=$(GET_VAR "config" "settings/power/low_battery")
+
 	LOW_BATTERY_WARNING
 
 	sleep 30

@@ -75,8 +75,8 @@ RUN_WITH_TIMEOUT() {
 		wait "$CMD_PID"
 		STATUS=$?
 
-		kill -0 "$TERM_PID" 2>/dev/null && kill "$TERM_PID"
-		kill -0 "$KILL_PID" 2>/dev/null && kill "$KILL_PID"
+		kill -0 "$TERM_PID" 2>/dev/null && kill "$TERM_PID" >/dev/null 2>&1
+		kill -0 "$KILL_PID" 2>/dev/null && kill "$KILL_PID" >/dev/null 2>&1
 
 		if [ "$STATUS" -gt 128 ]; then
 			printf 'Killed %s after timeout\n' "$DESCRIPTION"
@@ -158,13 +158,11 @@ FIND_PROCS() {
 	return 1
 }
 
+LOG_INFO "$0" 0 "HALT" "Stopping web services"
+/opt/muos/script/web/service.sh stopall >/dev/null 2>&1
+
 # Avoid hangups from syncthing if it's running.
-if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ]; then
-	LOG_INFO "$0" 0 "HALT" "Shutdown Syncthing gracefully"
-	SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' "$MUOS_STORE_DIR/syncthing/config.xml")
-	CURL_OUTPUT=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "X-API-Key: $SYNCTHING_API" "http://localhost:7070/rest/system/shutdown")
-	[ "$CURL_OUTPUT" -eq 200 ] && LOG_INFO "$0" 0 "HALT" "Syncthing shutdown request sent successfully"
-fi
+TERMINATE_SYNCTHING
 
 # Kill the lid switch process if it exists.
 if pgrep lid.sh >/dev/null 2>&1; then

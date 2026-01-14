@@ -860,3 +860,16 @@ GPTOKEYB() {
 		"$PM_DIR"/gptokeyb2 "$1" -c "$GPTOKEYB_DIR/$2.gptk" >/dev/null 2>&1 &
 	fi
 }
+
+TERMINATE_SYNCTHING() {
+	if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ]; then
+		LOG_INFO "$0" 0 "HALT" "Shutdown Syncthing gracefully"
+		SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' "$MUOS_STORE_DIR/syncthing/config.xml")
+		CURL_OUTPUT=$(
+			curl -s --connect-timeout 1 --max-time 2 -o /dev/null -w "%{http_code}" \
+				-X POST -H "X-API-Key: $SYNCTHING_API" \
+				"http://localhost:7070/rest/system/shutdown"
+		)
+		[ "$CURL_OUTPUT" -eq 200 ] && LOG_INFO "$0" 0 "HALT" "Syncthing shutdown request sent successfully"
+	fi
+}

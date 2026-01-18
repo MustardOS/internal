@@ -278,6 +278,9 @@ case "$1" in
 				LOG_INFO "$0" 0 "NETWORK" "Starting Enabled Network Services"
 				/opt/muos/script/web/service.sh &
 
+				LOG_INFO "$0" 0 "NETWORK" "Chrony Update Burst"
+				/opt/muos/bin/chronyc burst 4/4 &
+
 				exit 0
 			fi
 

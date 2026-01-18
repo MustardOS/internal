@@ -24,26 +24,6 @@ RESOLV_CONF="/etc/resolv.conf"
 RETRIES="${RETRIES:-5}"
 RETRY_DELAY="${RETRY_DELAY:-2}"
 
-WAIT_TIME_SYNC() {
-  	TV_FILE="/run/muos/time.valid"
-
-	I=0
-	while [ "$I" -lt 10 ]; do
-		if /opt/muos/bin/chronyc tracking 2>/dev/null | grep -q "Leap status.*Normal"; then
-			: >"$TV_FILE"
-			LOG_SUCCESS "$0" 0 "NETWORK" "System time synchronised"
-			return 0
-		fi
-
-		I=$((I + 1))
-		sleep 1
-	done
-
-	LOG_WARN "$0" 0 "NETWORK" "Time not synchronised yet"
-	rm -f "$TV_FILE"
-	return 1
-}
-
 RESTORE_HOSTNAME() {
 	HOSTFILE=""
 	[ -e "$DEV_HOST" ] && HOSTFILE="$DEV_HOST"
@@ -298,9 +278,8 @@ case "$1" in
 				LOG_INFO "$0" 0 "NETWORK" "Starting Enabled Network Services"
 				/opt/muos/script/web/service.sh &
 
-				LOG_INFO "$0" 0 "NETWORK" "Chrony Update Burst"
-				/opt/muos/bin/chronyc burst 4/4 &
-				WAIT_TIME_SYNC
+				LOG_INFO "$0" 0 "NETWORK" "Running Time Sync Validation"
+				/opt/muos/script/system/time.sh &
 
 				exit 0
 			fi

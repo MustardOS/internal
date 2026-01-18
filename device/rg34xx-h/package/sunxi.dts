@@ -2765,7 +2765,7 @@
 					status = "okay";
 					pmu_chg_ic_temp = <0x00>;
 					pmu_battery_rdc = <0xaa>;
-					pmu_battery_cap = <0xbb8>;
+					pmu_battery_cap = <0xdac>;
 					pmu_runtime_chgcur = <0x5dc>;
 					pmu_suspend_chgcur = <0x5dc>;
 					pmu_shutdown_chgcur = <0x5dc>;
@@ -3671,16 +3671,15 @@
 			pinctrl-0 = <0x93>;
 			pinctrl-1 = <0x94>;
 			pinctrl-2 = <0x95>;
-			max-frequency = <0xbebc200>;
+			max-frequency = <0x2faf080>;
 			bus-width = <0x04>;
-			cd-gpios = <0x4b 0x05 0x06 0x06 0x01 0x03 0xffffffff>;
 			cap-sd-highspeed;
 			cap-wait-while-busy;
 			no-sdio;
 			no-mmc;
 			sunxi-power-save-mode;
-			status = "disabled";
-			cd-used-24M;
+			status = "okay";
+			non-removable;
 			sunxi-dis-signal-vol-sw;
 			ctl-spec-caps = <0x608>;
 			max-busy-timeout = <0x1388>;
@@ -3703,7 +3702,7 @@
 			cap-cmd23;
 			mmc-cache-ctrl;
 			cd-gpios = <0x4b 0x04 0x16 0x06 0x01 0x03 0xffffffff>;
-			max-frequency = <0xbebc200>;
+			max-frequency = <0x2faf080>;
 			cap-erase;
 			mmc-high-capacity-erase-size;
 			no-sdio;
@@ -3742,7 +3741,7 @@
 			pinctrl-names = "default\0sleep";
 			pinctrl-0 = <0x9f>;
 			pinctrl-1 = <0xa0>;
-			max-frequency = <0xbebc200>;
+			max-frequency = <0x8f0d180>;
 			bus-width = <0x04>;
 			keep-power-in-suspend;
 			sunxi-dly-52M-ddr4 = <0x01 0x00 0x00 0x00 0x02>;
@@ -3837,8 +3836,8 @@
 			pinctrl-names = "active\0sleep";
 			status = "okay";
 			lcd_used = <0x01>;
-			lcd_driver_name = "fog_fj035fhd05_v1";
-			lcd_backlight = <120>;
+			lcd_driver_name = "rg34xx_v1";
+			lcd_backlight = <0x32>;
 			lcd_if = <0x00>;
 			lcd_hv_if = <0x00>;
 			lcd_x = <0x2d0>;
@@ -4970,12 +4969,12 @@
 
 		dram_select_para {
 			device_type = "dram_select_para";
-			select_mode = <0x00>;
+			select_mode = <0x01>;
 			gpadc_channel = <0x01>;
-			select_gpio0;
-			select_gpio1;
-			select_gpio2 = <0x4b 0x07 0x09 0x00 0x01 0xffffffff 0xffffffff>;
-			select_gpio3;
+			select_gpio0 = <0x4b 0x07 0x06 0x00 0x01 0xffffffff 0xffffffff>;
+			select_gpio1 = <0x4b 0x07 0x07 0x00 0x01 0xffffffff 0xffffffff>;
+			select_gpio2 = <0x4b 0x07 0x08 0x00 0x01 0xffffffff 0xffffffff>;
+			select_gpio3 = <0x4b 0x07 0x0a 0x00 0x01 0xffffffff 0xffffffff>;
 		};
 
 		dram_para1 {
@@ -5435,18 +5434,18 @@
 
 		dram_para14 {
 			device_type = "dram_para14";
-			dram_clk = <0x318>;
-			dram_type = <0x03>;
-			dram_dx_odt = <0x8080808>;
-			dram_dx_dri = <0xe0e0e0e>;
-			dram_ca_dri = <0xe0e>;
-			dram_odt_en = <0x01>;
+			dram_clk = <0x2a0>;
+			dram_type = <0x07>;
+			dram_dx_odt = <0x6060606>;
+			dram_dx_dri = <0xd0d0d0d>;
+			dram_ca_dri = <0x1919>;
+			dram_odt_en = <0x9988eeee>;
 			dram_para1 = <0x30fa>;
 			dram_para2 = <0x1000>;
-			dram_mr0 = <0x840>;
-			dram_mr1 = <0x04>;
-			dram_mr2 = <0x08>;
-			dram_mr3 = <0x00>;
+			dram_mr0 = <0x00>;
+			dram_mr1 = <0xc3>;
+			dram_mr2 = <0x06>;
+			dram_mr3 = <0x01>;
 			dram_mr4 = <0x00>;
 			dram_mr5 = <0x00>;
 			dram_mr6 = <0x00>;
@@ -5459,48 +5458,48 @@
 			dram_mr22 = <0x00>;
 			dram_tpr0 = <0x00>;
 			dram_tpr1 = <0x00>;
-			dram_tpr2 = <0x00>;
+			dram_tpr2 = <0x01>;
 			dram_tpr3 = <0x00>;
-			dram_tpr6 = <0x33808080>;
-			dram_tpr10 = <0xf83438>;
-			dram_tpr11 = <0x00>;
-			dram_tpr12 = <0x00>;
-			dram_tpr13 = <0x40>;
+			dram_tpr6 = <0x2fb08080>;
+			dram_tpr10 = <0x402f4489>;
+			dram_tpr11 = <0xe0e0f0e>;
+			dram_tpr12 = <0xf10110f>;
+			dram_tpr13 = <0x8c60>;
 		};
 
 		dram_para15 {
 			device_type = "dram_para15";
-			dram_clk = <0x318>;
-			dram_type = <0x03>;
+			dram_clk = <0x2a0>;
+			dram_type = <0x08>;
 			dram_dx_odt = <0x8080808>;
 			dram_dx_dri = <0xe0e0e0e>;
 			dram_ca_dri = <0xe0e>;
-			dram_odt_en = <0x01>;
-			dram_para1 = <0x30fa>;
-			dram_para2 = <0x1000>;
-			dram_mr0 = <0x840>;
-			dram_mr1 = <0x04>;
-			dram_mr2 = <0x08>;
-			dram_mr3 = <0x00>;
-			dram_mr4 = <0x00>;
+			dram_odt_en = <0x7887bbbb>;
+			dram_para1 = <0x310a>;
+			dram_para2 = <0x00>;
+			dram_mr0 = <0x00>;
+			dram_mr1 = <0x34>;
+			dram_mr2 = <0x1b>;
+			dram_mr3 = <0x33>;
+			dram_mr4 = <0x03>;
 			dram_mr5 = <0x00>;
 			dram_mr6 = <0x00>;
-			dram_mr11 = <0x00>;
-			dram_mr12 = <0x00>;
+			dram_mr11 = <0x04>;
+			dram_mr12 = <0x72>;
 			dram_mr13 = <0x00>;
-			dram_mr14 = <0x00>;
+			dram_mr14 = <0x09>;
 			dram_mr16 = <0x00>;
 			dram_mr17 = <0x00>;
-			dram_mr22 = <0x00>;
+			dram_mr22 = <0x24>;
 			dram_tpr0 = <0x00>;
 			dram_tpr1 = <0x00>;
-			dram_tpr2 = <0x00>;
+			dram_tpr2 = <0x01>;
 			dram_tpr3 = <0x00>;
-			dram_tpr6 = <0x33808080>;
-			dram_tpr10 = <0xf83438>;
+			dram_tpr6 = <0x40808080>;
+			dram_tpr10 = <0x402f6633>;
 			dram_tpr11 = <0x00>;
 			dram_tpr12 = <0x00>;
-			dram_tpr13 = <0x40>;
+			dram_tpr13 = <0x2008c60>;
 		};
 
 		secure {
@@ -5550,7 +5549,7 @@
 	};
 
 	chosen {
-		bootargs = "earlyprintk=sunxi-uart,0x05000000 loglevel=0 initcall_debug=1 console=ttyS0 init=/init";
+		bootargs = "earlyprintk=sunxi-uart,0x05000000 loglevel=8 initcall_debug=1 console=ttyS0 init=/init";
 		linux,initrd-start = <0x00 0x00>;
 		linux,initrd-end = <0x00 0x00>;
 	};
@@ -5872,7 +5871,6 @@
 		opp@1032000000-ab {
 			opp-hz = <0x00 0x3d831200>;
 			opp-microvolt-a1 = <0xdbba0>;
-			opp-microvolt-b1 = <0xdbba0>;
 			clock-latency-ns = <0x3b9b0>;
 		};
 
@@ -5887,8 +5885,8 @@
 		opp@1200000000-ab {
 			opp-hz = <0x00 0x47868c00>;
 			opp-microvolt-a1 = <0xf4240>;
-			opp-microvolt-b1 = <0x100590>;
 			opp-microvolt-b0 = <0xef420>;
+			opp-microvolt-b1 = <0x100590>;
 			opp-microvolt-c0 = <0x10c8e0>;
 			opp-microvolt-c1 = <0x10c8e0>;
 			opp-microvolt-c2 = <0x10c8e0>;
@@ -5898,7 +5896,6 @@
 		opp@1296000000-ab {
 			opp-hz = <0x00 0x4d3f6400>;
 			opp-microvolt-a1 = <0x100590>;
-			opp-microvolt-b1 = <0x100590>;
 			clock-latency-ns = <0x3b9b0>;
 		};
 
@@ -6031,7 +6028,7 @@
 		dram_tpr10 = <0x402f6633>;
 		dram_tpr11 = <0x00>;
 		dram_tpr12 = <0x00>;
-		dram_tpr13 = <0x2000c60>;
+		dram_tpr13 = <0x2008c60>;
 		linux,phandle = <0x194>;
 		phandle = <0x194>;
 		device_type = "dram";

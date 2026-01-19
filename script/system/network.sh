@@ -278,8 +278,10 @@ case "$1" in
 				LOG_INFO "$0" 0 "NETWORK" "Starting Enabled Network Services"
 				/opt/muos/script/web/service.sh &
 
-				LOG_INFO "$0" 0 "NETWORK" "Running Time Sync Validation"
-				/opt/muos/script/system/time.sh &
+				LOG_INFO "$0" 0 "NETWORK" "Running Chrony Time Sync"
+				chronyc burst 4/4
+				sleep 2 # Give the burst some time to settle...
+				chronyc -a makestep
 
 				exit 0
 			fi

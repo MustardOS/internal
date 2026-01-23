@@ -12,7 +12,7 @@ if [ "$(GET_VAR "device" "led/rgb")" -eq 1 ]; then
 fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Setting date time to default"
-date 010100002025
+date 010100002026
 hwclock -w
 
 while pgrep "muxwarn" >/dev/null 2>&1; do sleep 0.25; done

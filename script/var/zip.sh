@@ -40,14 +40,31 @@ GET_ARCHIVE_BYTES() {
 	unzip -l "$1" | awk '/ files$/ { print $1+0; exit }'
 }
 
+RESOLVE_ARCHIVE_BIND_PATH() {
+	BINDMAP="$MUOS_STORE_DIR/bindmap"
+	ARCHIVE_ROOT="$1"
+
+	if [ -r "$BINDMAP" ]; then
+		awk -F'|' -v k="$ARCHIVE_ROOT" '$1 == k { print $3; exit }' "$BINDMAP"
+	fi
+}
+
 CHECK_SPACE_FOR_DEST() {
 	REQ="$1"
-	DEST="$2"
+	ROOT="$2"
+
 	NEED="$(REQUIRED_WITH_BUFFER "$REQ")"
-	HAVE="$(BYTES_FREE "$DEST")"
+	BIND="$(RESOLVE_ARCHIVE_BIND_PATH "$ROOT")"
+	HAVE="$(BYTES_FREE "$BIND")"
+
+	[ -n "$BIND" ] || {
+		printf "\nError: No bind map entry for '%s'\n" "$ROOT"
+		return 1
+	}
 
 	if [ "$HAVE" -lt "$NEED" ]; then
-		printf "\nError: Not enough free space on '%s'\nNeed %s bytes, have %s bytes!\n" "$DEST" "$NEED" "$HAVE"
+		printf "\nError: Not enough free space on '%s'\nNeed %s bytes, have %s bytes!\n" "$ROOT" "$NEED" "$HAVE"
+		printf "Target: %s\n" "$BIND"
 		return 1
 	fi
 
@@ -111,8 +128,6 @@ EXTRACT_ARCHIVE() {
 	fi
 
 	[ "${FILE_COUNT:-0}" -gt 0 ] || FILE_COUNT=1
-
-	printf "Extracting %s...\n" "$LABEL"
 
 	if [ -n "$PATTERN" ]; then
 		unzip -o "$ARCHIVE_PATH" "$PATTERN" -d "$DEST_DIR" 2>/dev/null |

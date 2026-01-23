@@ -46,7 +46,7 @@ case "$ARCHIVE_NAME" in
 			BIOS_DIR="$MUOS_STORE_DIR/bios"
 
 			P8_REQ="$(GET_ARCHIVE_BYTES "$ARCHIVE" "pico-8/")"
-			! CHECK_SPACE_FOR_DEST "$P8_REQ" "$BIOS_DIR" && ALL_DONE 1
+			! CHECK_SPACE_FOR_DEST "$P8_REQ" "bios" && ALL_DONE 1
 
 			if unzip -o -j "$ARCHIVE" "pico-8/*" -d "${BIOS_DIR}/pico-8/"; then
 				printf "Extracted 'pico-8' Folder to '%s'\n" "$BIOS_DIR"
@@ -150,7 +150,7 @@ case "$ARCHIVE_NAME" in
 			fi
 
 			REQ="$(GET_ARCHIVE_BYTES "$ARCHIVE" "$TOP/")"
-			! CHECK_SPACE_FOR_DEST "$REQ" "$DEST" && ALL_DONE 1
+			! CHECK_SPACE_FOR_DEST "$REQ" "$TOP" && ALL_DONE 1
 
 			printf "\nExtracting '%s' to '%s'\n" "$LABEL" "$DEST"
 			if EXTRACT_ARCHIVE "$LABEL" "$ARCHIVE" "$DEST" "$PATTERN"; then

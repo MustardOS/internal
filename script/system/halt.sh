@@ -2,6 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
+BOARD_NAME=$(GET_VAR "device" "board/name")
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
 RUMBLE_SETTING="$(GET_VAR "config" "settings/advanced/rumble")"
 
@@ -255,5 +256,10 @@ LOG_INFO "$0" 0 "HALT" "Syncing writes to disk..."
 sync
 
 LOG_INFO "$0" 0 "HALT" "Unmounting storage devices..."
-sync && umount -ar
-exec "$1" -f
+umount -ar
+
+"$1" -f
+
+case "$BOARD_NAME" in
+	rg*) echo 0x1801 >"/sys/class/axp/axp_reg" ;;
+esac

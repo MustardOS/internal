@@ -30,6 +30,22 @@ SAFE_BIND() {
 	mount -n --bind "$SRC" "$TGT"
 }
 
+ENSURE_ROM_PATH() {
+	S_LOC="$1"
+	ROM_SRC="$ROM_MOUNT/MUOS/$S_LOC"
+
+	if [ ! -d "$ROM_SRC" ]; then
+		LOG_INFO "$0" 0 "BIND MOUNT" "Creating missing SD1 path: MUOS/$S_LOC"
+		if ! mkdir -p "$ROM_SRC"; then
+			LOG_INFO "$0" 0 "BIND MOUNT" "FAILED to create SD1 path: MUOS/$S_LOC"
+			echo "$S_LOC" >>"$MOUNT_FAILURE"
+			return 1
+		fi
+	fi
+
+	return 0
+}
+
 MOUNT_STORAGE() {
 	LIST="$1"
 	GROUP="$2"
@@ -45,9 +61,13 @@ MOUNT_STORAGE() {
 			SRC="$ROM_MOUNT/MUOS/$S_LOC"
 			LOG_INFO "$0" 0 "BIND MOUNT" "$GROUP: $S_LOC from ROM"
 		else
-			LOG_INFO "$0" 0 "BIND MOUNT" "$GROUP: $S_LOC not found"
-			echo "$S_LOC" >>"$MOUNT_FAILURE"
-			continue
+			LOG_INFO "$0" 0 "BIND MOUNT" "$GROUP: $S_LOC missing, recreating on ROM"
+
+			if ! ENSURE_ROM_PATH "$S_LOC"; then
+				continue
+			fi
+
+			SRC="$ROM_MOUNT/MUOS/$S_LOC"
 		fi
 
 		if SAFE_BIND "$SRC" "$TGT"; then

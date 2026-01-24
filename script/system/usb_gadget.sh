@@ -19,7 +19,11 @@ LOCK_PATH="$LOCK_DIR/usb_gadgetd.lock"
 PID_FILE="$LOCK_PATH/pid"
 
 GET_USB_FUNCTION() {
-	GET_VAR "config" "settings/advanced/usb_function"
+	case "$(GET_VAR "config" "settings/advanced/usb_function")" in
+		2) echo mtp ;;
+		1) echo adb ;;
+		*) echo none ;;
+	esac
 }
 
 USB_PID() {

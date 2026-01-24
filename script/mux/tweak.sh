@@ -75,18 +75,18 @@ GADGET_WD() {
 }
 
 case "$(GET_VAR "config" "settings/advanced/usb_function")" in
-	none)
+	0)
 		# Disable and remove all usb functions and then stop...
 		"$USB_GADGET_RUN" disable
 		"$USB_GADGET_RUN" stop
 		;;
-	adb)
+	1)
 		# Start only if ADB daemon is missing OR watchdog isn't running
 		if ! pidof adbd >/dev/null 2>&1 || ! GADGET_WD; then
 			"$USB_GADGET_RUN" start
 		fi
 		;;
-	mtp)
+	2)
 		# Same idea as above but for MTP
 		if ! pidof umtprd >/dev/null 2>&1 || ! GADGET_WD; then
 			"$USB_GADGET_RUN" start

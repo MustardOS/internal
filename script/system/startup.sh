@@ -225,7 +225,7 @@ LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"
 #:] ### USB Gadget
 #:] Bring up the configured USB function (adb _or_ mtp) unless disabled.
 LOG_INFO "$0" 0 "BOOTING" "Starting USB Function"
-[ "$USB_FUNCTION" != "none" ] && /opt/muos/script/system/usb_gadget.sh start &
+[ "$USB_FUNCTION" -ne 0 ] && /opt/muos/script/system/usb_gadget.sh start &
 
 #:] ### Device Controls
 #:] Apply device-specific control defaults for RetroArch, emulators, ports etc.

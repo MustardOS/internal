@@ -8,10 +8,15 @@ case ":$LD_LIBRARY_PATH:" in
 	*) export LD_LIBRARY_PATH="$MUX_LIB:$LD_LIBRARY_PATH" ;;
 esac
 
-case ":$LD_PRELOAD:" in
-	*":$MUX_LIB/libmustage.so:"*) ;;
-	*) export LD_PRELOAD="$MUX_LIB/libmustage.so:$LD_PRELOAD" ;;
-esac
+: "${STAGE_OVERLAY:=1}"
+if [ "$STAGE_OVERLAY" -eq 1 ]; then
+	case ":$LD_PRELOAD:" in
+		*":$MUX_LIB/libmustage.so:"*) ;;
+		*) export LD_PRELOAD="$MUX_LIB/libmustage.so${LD_PRELOAD:+:$LD_PRELOAD}" ;;
+	esac
+else
+	unset LD_PRELOAD
+fi
 
 HOME="/root"
 XDG_RUNTIME_DIR="/run"

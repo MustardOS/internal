@@ -118,7 +118,7 @@ RESUME() {
 		B=$((B + 1))
 	done
 
-	[ "$USB_FUNCTION" != "none" ] && /opt/muos/script/system/usb_gadget.sh resume
+	[ "$USB_FUNCTION" -ne 0 ] && /opt/muos/script/system/usb_gadget.sh resume
 
 	amixer set "Master" unmute >/dev/null 2>&1
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"

@@ -95,9 +95,9 @@ FINALISE_AUDIO() {
 	wpctl set-default "$DEF_ID"
 
 	case "$ADV_VOL" in
-		loud) V="$MAX_VOL" ;;
-		soft) V=35 ;;
-		silent) V=0 ;;
+		3) V="$MAX_VOL" ;;
+		2) V=35 ;;
+		1) V=0 ;;
 		*) V="$GEN_VOL" ;;
 	esac
 

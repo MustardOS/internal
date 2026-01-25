@@ -84,18 +84,6 @@ MOUNT_DEVICE() {
 
 		if [ "$FIRST_INIT" -eq 0 ]; then
 			DELETE_CRUFT "$MOUNT_POINT"
-
-			SRC="$MOUNT_POINT/MUOS"
-			if [ -d "$SRC" ]; then
-				BASE="$MOUNT_POINT/MUOS_old"
-				DEST="$BASE"
-				N=0
-				while [ -d "$DEST" ]; do
-					N=$((N + 1))
-					DEST="${BASE}_$N"
-				done
-				mv "$SRC" "$DEST"
-			fi
 		fi
 
 		return 0

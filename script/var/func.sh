@@ -1,10 +1,22 @@
 #!/bin/sh
 # shellcheck disable=SC2086
 
+MUX_LIB="/opt/muos/frontend/lib"
+
 case ":$LD_LIBRARY_PATH:" in
-	*":/opt/muos/frontend/lib:"*) ;;
-	*) export LD_LIBRARY_PATH="/opt/muos/frontend/lib:$LD_LIBRARY_PATH" ;;
+	*":$MUX_LIB:"*) ;;
+	*) export LD_LIBRARY_PATH="$MUX_LIB:$LD_LIBRARY_PATH" ;;
 esac
+
+: "${STAGE_OVERLAY:=1}"
+if [ "$STAGE_OVERLAY" -eq 1 ]; then
+	case ":$LD_PRELOAD:" in
+		*":$MUX_LIB/libmustage.so:"*) ;;
+		*) export LD_PRELOAD="$MUX_LIB/libmustage.so${LD_PRELOAD:+:$LD_PRELOAD}" ;;
+	esac
+else
+	unset LD_PRELOAD
+fi
 
 HOME="/root"
 XDG_RUNTIME_DIR="/run"
@@ -17,10 +29,11 @@ MUOS_LOG_DIR="/opt/muos/log"
 LED_CONTROL_SCRIPT="/opt/muos/script/device/rgb.sh"
 MUOS_SHARE_DIR="/opt/muos/share"
 MUOS_STORE_DIR="/run/muos/storage"
+OVERLAY_NOP="/run/muos/overlay.disable"
 
 export HOME XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
 	ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR LED_CONTROL_SCRIPT \
-	MUOS_SHARE_DIR MUOS_STORE_DIR
+	MUOS_SHARE_DIR MUOS_STORE_DIR OVERLAY_NOP
 
 MESSAGE_EXEC="/opt/muos/frontend/muxmessage"
 MESSAGE_TEXT="/tmp/msg_livetext"
@@ -262,7 +275,7 @@ EXEC_MUX() {
 	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
 
 	SET_VAR "system" "foreground_process" "$MODULE"
-	"/opt/muos/frontend/$MODULE" "$@"
+	DISABLE_HW_OVERLAY=1 "/opt/muos/frontend/$MODULE" "$@"
 
 	while [ ! -f "$SAFE_QUIT" ]; do sleep 0.01; done
 }
@@ -850,5 +863,18 @@ GPTOKEYB() {
 		LIB_IPOSE="libinterpose.aarch64.so"
 		ln -sf "$PM_DIR/$LIB_IPOSE" "/usr/lib/$LIB_IPOSE" >/dev/null 2>&1
 		"$PM_DIR"/gptokeyb2 "$1" -c "$GPTOKEYB_DIR/$2.gptk" >/dev/null 2>&1 &
+	fi
+}
+
+TERMINATE_SYNCTHING() {
+	if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ]; then
+		LOG_INFO "$0" 0 "HALT" "Shutdown Syncthing gracefully"
+		SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' "$MUOS_STORE_DIR/syncthing/config.xml")
+		CURL_OUTPUT=$(
+			curl -s --connect-timeout 1 --max-time 2 -o /dev/null -w "%{http_code}" \
+				-X POST -H "X-API-Key: $SYNCTHING_API" \
+				"http://localhost:7070/rest/system/shutdown"
+		)
+		[ "$CURL_OUTPUT" -eq 200 ] && LOG_INFO "$0" 0 "HALT" "Syncthing shutdown request sent successfully"
 	fi
 }

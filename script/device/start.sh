@@ -14,18 +14,10 @@ else
 	/opt/muos/script/device/bright.sh R
 
 	case "$(GET_VAR "config" "settings/advanced/brightness")" in
-		"high")
-			/opt/muos/script/device/bright.sh "$(GET_VAR "device" "screen/bright")"
-			;;
-		"medium")
-			/opt/muos/script/device/bright.sh 90
-			;;
-		"low")
-			/opt/muos/script/device/bright.sh 35
-			;;
-		*)
-			/opt/muos/script/device/bright.sh "$(GET_VAR "config" "settings/general/brightness")"
-			;;
+		3) /opt/muos/script/device/bright.sh "$(GET_VAR "device" "screen/bright")" ;;
+		2) /opt/muos/script/device/bright.sh 90 ;;
+		1) /opt/muos/script/device/bright.sh 35 ;;
+		*) /opt/muos/script/device/bright.sh "$(GET_VAR "config" "settings/general/brightness")" ;;
 	esac
 
 	GET_VAR "config" "settings/general/colour" >/sys/class/disp/disp/attr/color_temperature

@@ -91,10 +91,11 @@ LOAD_NETWORK() {
 
 	case "$BOARD_NAME" in
 		rg*)
-			# Not really necessary for the TrimUI devices but because the H700 devices
-			# run this just before probing the network module we are going to add it
-			# here "just in case" but also somewhat uniformity...
 			modprobe -qf "$NET_NAME"
+			;;
+		tui*)
+		    # Can't "force" the module to load on TrimUI devices because otherwise it gets cranky
+			modprobe -q "$NET_NAME"
 			;;
 		rk*)
 			# For USB WiFi adapters using 'wext' extensions, ensure cfg80211
@@ -148,6 +149,13 @@ UNLOAD_NETWORK() {
 		modprobe -qr "$NET_NAME"
 		sleep 1
 	fi
+
+	case "$BOARD_NAME" in
+		tui*)
+			# Remove the stupid leftover xradio modules
+			modprobe -qr "xradio_mac"
+			;;
+	esac
 
 	[ -f "$RESOLV_CONF.bak" ] && mv -f "$RESOLV_CONF.bak" "$RESOLV_CONF"
 }

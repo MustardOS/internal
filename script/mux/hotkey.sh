@@ -22,7 +22,8 @@ HANDLE_HOTKEY() {
 		IDLE_SLEEP) IS_NORMAL_MODE && IS_HANDHELD_MODE && SLEEP ;;
 
 		# Power combos:
-		SLEEP) SLEEP ;;
+		SLEEP_SHORT) SLEEP ;;
+		SLEEP_LONG) SLEEP ;;
 
 		# RGB combos:
 		RGB_MODE) RGBCLI -m up ;;
@@ -40,8 +41,8 @@ HANDLE_HOTKEY() {
 LID_CLOSED() {
 	case "$(GET_VAR "device" "board/name")" in
 		rg34xx-sp | rg35xx-sp)
-			HALL_KEY_FILE="/sys/class/power_supply/axp2202-battery/hallkey"
-			[ "$(cat "$HALL_KEY_FILE")" -eq 0 ]
+			HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
+			[ "$(cat "$HALL_KEY")" -eq 0 ]
 			;;
 		*) false ;;
 	esac

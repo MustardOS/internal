@@ -1,0 +1,12 @@
+{
+  "OVERLAY": {
+    "handle_hold": false,
+    "inputs": [
+      "Y",
+      "R2",
+      "L2"
+    ],
+    "is_normal_mode": true,
+    "run_command": "/opt/muos/script/mux/overlay.sh"
+  }
+}

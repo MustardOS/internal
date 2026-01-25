@@ -47,7 +47,7 @@ case $NAME in
     [Ss]plore*|-[Ss]plore-*) set -- "$@" -splore ;;
     *) set -- "$@" -run "$FILE" ;;
 esac
-LD_PRELOAD="/opt/muos/frontend/lib/libmustage.so" PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS "$@"
+PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS "$@"
 
 FAVOURITE="$MUOS_STORE_DIR/save/pico8/favourites.txt"
 if [ -e "$FAVOURITE" ]; then

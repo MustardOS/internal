@@ -1,4 +1,5 @@
-Theme: Bitter Bizarro
+Theme: Bitter Bizarro (ko-fi.com/bitterbizarro)
 Boot Logo: LMarcoMiranda (patreon.com/LMarcoMirandaThemes)
 Icon Glyphs: Line Icons 5 (lineicons.com)
+Overlay Indicators: AntiKk (buymeacoffee.com/antikk)
 Navigation Sounds: Aedilic Inc. (reactsounds.com)

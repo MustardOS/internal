@@ -90,12 +90,8 @@ HALT_SYSTEM() {
 			;;
 	esac
 
-	# Run syncthing scanner if enabled
-	LOG_INFO "$0" 0 "QUIT" "Running syncthing scanner if enabled"
-	if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ] && [ "$(GET_VAR "config" "syncthing/auto_scan")" -eq 1 ] && [ "$(cat "$(GET_VAR "device" "network/state")")" = "up" ]; then
-		SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' "$MUOS_STORE_DIR/syncthing/config.xml")
-		curl -X POST -H "X-API-Key: $SYNCTHING_API" "localhost:7070/rest/db/scan"
-	fi
+	# Avoid hangups from syncthing if it's running.
+	TERMINATE_SYNCTHING
 }
 
 [ "$#" -eq 2 ] || USAGE
@@ -106,11 +102,9 @@ case "$1" in
 		CLOSE_CONTENT
 		;;
 	poweroff | reboot)
-		if [ -f "/tmp/btl_go" ]; then
-			UPDATE_BOOTLOGO
-		fi	
+		[ -f "/tmp/btl_go" ] && UPDATE_BOOTLOGO
 		HALT_SYSTEM "$1" "$2"
-		sync && /opt/muos/script/system/halt.sh "$HALT_CMD"
+		sync && /opt/muos/script/system/halt.sh "$1"
 		;;
 	*) USAGE ;;
 esac

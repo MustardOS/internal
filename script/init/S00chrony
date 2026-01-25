@@ -1,7 +1,15 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
 DAEMON="/opt/muos/bin/chronyd"
 CONF="/opt/muos/share/conf/chrony.conf"
+
+# For the H700 make sure we use "sunxi-rtc" which is on "rtc1"
+# You can confirm correct RTC connection with: chronyc rtcdata
+case "$(GET_VAR "device" "board/name")" in
+	rg*) ln -sf "rtc1" "/dev/rtc" ;;
+esac
 
 case "$1" in
 	start)

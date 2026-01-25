@@ -1,8 +1,15 @@
 {
-  "SLEEP": {
+  "SLEEP_SHORT": {
     "handle_hold": false,
     "inputs": [
       "POWER_SHORT"
+    ],
+    "is_normal_mode": true
+  },
+  "SLEEP_LONG": {
+    "handle_hold": false,
+    "inputs": [
+      "POWER_LONG"
     ],
     "is_normal_mode": true
   }

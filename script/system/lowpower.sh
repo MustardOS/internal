@@ -14,7 +14,7 @@ LED_RGB=$(GET_VAR "device" "led/rgb")
 
 LOW_BATTERY_WARNING() {
 	if [ "$CHARGING" -eq 0 ] && [ -n "$CAPACITY" ] && [ "$CAPACITY" -le "$BATT_LOW" ]; then
-		touch "$BATT_OVERLAY"
+		[ -e "$BATT_OVERLAY" ] || touch "$BATT_OVERLAY"
 
 		RGB_ENABLED=$(GET_VAR "config" "settings/general/rgb")
 		USING_RGB=0
@@ -43,6 +43,8 @@ LOW_BATTERY_WARNING() {
 while :; do
 	read -r CHARGING <"$CHARGER_DEV"
 	read -r CAPACITY <"$BATT_CAP"
+
+	BATT_LOW=$(GET_VAR "config" "settings/power/low_battery")
 
 	LOW_BATTERY_WARNING
 

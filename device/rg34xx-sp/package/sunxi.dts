@@ -5,7 +5,7 @@
 	interrupt-parent = <0x01>;
 	#address-cells = <0x02>;
 	#size-cells = <0x02>;
-	model = "Anbernic RG34XX-SP";
+	model = "sun50iw9";
 	compatible = "allwinner,h616\0arm,sun50iw9p1";
 
 	clocks {
@@ -2763,7 +2763,7 @@
 					status = "okay";
 					pmu_chg_ic_temp = <0x00>;
 					pmu_battery_rdc = <0xaa>;
-					pmu_battery_cap = <0xbb8>;
+					pmu_battery_cap = <0xce4>;
 					pmu_runtime_chgcur = <0x5dc>;
 					pmu_suspend_chgcur = <0x5dc>;
 					pmu_shutdown_chgcur = <0x5dc>;
@@ -2840,11 +2840,11 @@
 				powerkey@0 {
 					status = "okay";
 					compatible = "x-powers,axp2101-pek";
-					pmu_powkey_off_time = <0x1770>;
+					pmu_powkey_off_time = <0x6000>;
 					pmu_powkey_off_func = <0x00>;
-					pmu_powkey_off_en = <0x01>;
+					pmu_powkey_off_en = <0x0>;
 					pmu_powkey_long_time = <0x5dc>;
-					pmu_powkey_on_time = <0x200>;
+					pmu_powkey_on_time = <0x80>;
 					wakeup_rising;
 					wakeup_falling;
 					hall_key = <0x4b 0x04 0x07 0x00 0x01 0xffffffff 0x00>;
@@ -3669,14 +3669,13 @@
 			pinctrl-2 = <0x95>;
 			max-frequency = <0x2faf080>;
 			bus-width = <0x04>;
-			cd-gpios = <0x4b 0x05 0x06 0x06 0x01 0x03 0xffffffff>;
 			cap-sd-highspeed;
 			cap-wait-while-busy;
 			no-sdio;
 			no-mmc;
 			sunxi-power-save-mode;
-			status = "disabled";
-			cd-used-24M;
+			status = "okay";
+			non-removable;
 			sunxi-dis-signal-vol-sw;
 			ctl-spec-caps = <0x608>;
 			max-busy-timeout = <0x1388>;
@@ -3833,7 +3832,7 @@
 			pinctrl-names = "active\0sleep";
 			status = "okay";
 			lcd_used = <0x01>;
-			lcd_driver_name = "fog_fj035fhd05_v1";
+			lcd_driver_name = "rg34xx_v1";
 			lcd_backlight = <0x32>;
 			lcd_if = <0x00>;
 			lcd_hv_if = <0x00>;
@@ -3841,17 +3840,17 @@
 			lcd_y = <0x1e0>;
 			lcd_width = <0x96>;
 			lcd_height = <0x5e>;
-			lcd_dclk_freq = <0x1a>;
+			lcd_dclk_freq = <54>;
 			lcd_pwm_used = <0x01>;
 			lcd_pwm_ch = <0x00>;
 			lcd_pwm_freq = <0xc350>;
 			lcd_pwm_pol = <0x01>;
 			lcd_pwm_max_limit = <0xff>;
 			lcd_hbp = <0x2e>;
-			lcd_ht = <0x334>;
+			lcd_ht = <1679>;
 			lcd_hspw = <0x02>;
 			lcd_vbp = <0x14>;
-			lcd_vt = <0x218>;
+			lcd_vt = <536>;
 			lcd_vspw = <0x05>;
 			lcd_lvds_if = <0x00>;
 			lcd_lvds_colordepth = <0x00>;
@@ -4608,14 +4607,14 @@
 			#address-cells = <0x01>;
 			#size-cells = <0x00>;
 			poll-interval = <0x14>;
-			label = "Anbernic RG34XX-SP Controller";
+			label = "muOS-Keys";
 			amux-en-gpios = <0x4b 0x08 0x00 0x01 0x02 0x01 0x01>;
 			A0_gpio = <0x4b 0x08 0x01 0x01 0x02 0x01 0x00>;
 			A1_gpio = <0x4b 0x08 0x02 0x01 0x02 0x01 0x00>;
 			adc-en-gpios = <0x4b 0x04 0x0b 0x00 0x02 0x01 0x00>;
 
 			keyUP {
-				label = "GPIO Key Up";
+				label = "Key Up";
 				gpios = <0x4b 0x00 0x06 0x00 0x01 0x02 0x01>;
 				linux,code = <0x11>;
 				linux,input-type = <0x03>;
@@ -4623,7 +4622,7 @@
 			};
 
 			keyDOWN {
-				label = "GPIO Key Down";
+				label = "Key Down";
 				gpios = <0x4b 0x04 0x00 0x00 0x01 0x02 0x01>;
 				linux,code = <0x11>;
 				linux,input-type = <0x03>;
@@ -4631,7 +4630,7 @@
 			};
 
 			keyLeft {
-				label = "GPIO Key left";
+				label = "Key Left";
 				gpios = <0x4b 0x00 0x08 0x00 0x01 0x02 0x01>;
 				linux,code = <0x10>;
 				linux,input-type = <0x03>;
@@ -4639,7 +4638,7 @@
 			};
 
 			keyRight {
-				label = "GPIO Key right";
+				label = "Key Right";
 				gpios = <0x4b 0x00 0x09 0x00 0x01 0x02 0x01>;
 				linux,code = <0x10>;
 				linux,input-type = <0x03>;
@@ -4647,91 +4646,91 @@
 			};
 
 			keyA {
-				label = "GPIO Key a";
+				label = "Key A";
 				gpios = <0x4b 0x00 0x00 0x00 0x01 0x02 0x01>;
 				linux,code = <0x130>;
 			};
 
 			keyB {
-				label = "GPIO Key b";
+				label = "Key B";
 				gpios = <0x4b 0x00 0x01 0x00 0x01 0x02 0x01>;
 				linux,code = <0x131>;
 			};
 
 			keyX {
-				label = "GPIO Key x";
+				label = "Key X";
 				gpios = <0x4b 0x00 0x03 0x00 0x01 0x02 0x01>;
 				linux,code = <0x132>;
 			};
 
 			keyY {
-				label = "GPIO Key y";
+				label = "Key Y";
 				gpios = <0x4b 0x00 0x02 0x00 0x01 0x02 0x01>;
 				linux,code = <0x133>;
 			};
 
 			keyStart {
-				label = "GPIO Key start";
+				label = "Key Start";
 				gpios = <0x4b 0x00 0x04 0x00 0x01 0x02 0x01>;
 				linux,code = <0x137>;
 			};
 
 			keySEl {
-				label = "GPIO Key select";
+				label = "Key Select";
 				gpios = <0x4b 0x00 0x05 0x00 0x01 0x02 0x01>;
 				linux,code = <0x136>;
 			};
 
 			keyL1 {
-				label = "GPIO Key L1";
+				label = "Key L1";
 				gpios = <0x4b 0x00 0x0a 0x00 0x01 0x02 0x01>;
 				linux,code = <0x134>;
 			};
 
 			keyL2 {
-				label = "GPIO Key L2";
+				label = "Key L2";
 				gpios = <0x4b 0x00 0x0b 0x00 0x01 0x02 0x01>;
 				linux,code = <0x13a>;
 			};
 
 			keyR1 {
-				label = "GPIO Key R1";
+				label = "Key R1";
 				gpios = <0x4b 0x00 0x0c 0x00 0x01 0x02 0x01>;
 				linux,code = <0x135>;
 			};
 
 			keyR2 {
-				label = "GPIO Key R2";
+				label = "Key R2";
 				gpios = <0x4b 0x00 0x07 0x00 0x01 0x02 0x01>;
 				linux,code = <0x13b>;
 			};
 
 			keyL3 {
-				label = "GPIO Key L3";
+				label = "Key L3";
 				gpios = <0x4b 0x04 0x08 0x00 0x01 0x02 0x01>;
 				linux,code = <0x139>;
 			};
 
 			keyR3 {
-				label = "GPIO Key R3";
+				label = "Key R3";
 				gpios = <0x4b 0x04 0x09 0x00 0x01 0x02 0x01>;
 				linux,code = <0x13c>;
 			};
 
 			keyMenu {
-				label = "GPIO Key Menu";
+				label = "Key Menu";
 				gpios = <0x4b 0x04 0x03 0x00 0x01 0x02 0x01>;
 				linux,code = <0x138>;
 			};
 
 			keyVol+ {
-				label = "GPIO Key Vol up";
+				label = "Key Volume Up";
 				gpios = <0x4b 0x04 0x01 0x00 0x01 0x02 0x01>;
 				linux,code = <0x73>;
 			};
 
 			keyvol- {
-				label = "GPIO Key vol down";
+				label = "Key Volume Down";
 				gpios = <0x4b 0x04 0x02 0x00 0x01 0x02 0x01>;
 				linux,code = <0x72>;
 			};
@@ -4791,6 +4790,8 @@
 			wlan_busnum = <0x01>;
 			wlan_power = "axp2202-cldo4";
 			wlan_io_regulator;
+			wlan_regon = <0x4b 0x06 0x12 0x01 0xffffffff 0xffffffff 0x00>;
+			wlan_hostwake = <0x4b 0x06 0x0f 0x06 0xffffffff 0xffffffff 0x00>;
 			chip_en;
 			power_en;
 			status = "okay";
@@ -4970,12 +4971,12 @@
 
 		dram_select_para {
 			device_type = "dram_select_para";
-			select_mode = <0x00>;
+			select_mode = <0x01>;
 			gpadc_channel = <0x01>;
-			select_gpio0;
-			select_gpio1;
-			select_gpio2 = <0x4b 0x07 0x09 0x00 0x01 0xffffffff 0xffffffff>;
-			select_gpio3;
+			select_gpio0 = <0x4b 0x07 0x06 0x00 0x01 0xffffffff 0xffffffff>;
+			select_gpio1 = <0x4b 0x07 0x07 0x00 0x01 0xffffffff 0xffffffff>;
+			select_gpio2 = <0x4b 0x07 0x08 0x00 0x01 0xffffffff 0xffffffff>;
+			select_gpio3 = <0x4b 0x07 0x0a 0x00 0x01 0xffffffff 0xffffffff>;
 		};
 
 		dram_para1 {
@@ -5435,18 +5436,18 @@
 
 		dram_para14 {
 			device_type = "dram_para14";
-			dram_clk = <0x318>;
-			dram_type = <0x03>;
-			dram_dx_odt = <0x8080808>;
-			dram_dx_dri = <0xe0e0e0e>;
-			dram_ca_dri = <0xe0e>;
-			dram_odt_en = <0x01>;
+			dram_clk = <0x2a0>;
+			dram_type = <0x07>;
+			dram_dx_odt = <0x6060606>;
+			dram_dx_dri = <0xd0d0d0d>;
+			dram_ca_dri = <0x1919>;
+			dram_odt_en = <0x9988eeee>;
 			dram_para1 = <0x30fa>;
 			dram_para2 = <0x1000>;
-			dram_mr0 = <0x840>;
-			dram_mr1 = <0x04>;
-			dram_mr2 = <0x08>;
-			dram_mr3 = <0x00>;
+			dram_mr0 = <0x00>;
+			dram_mr1 = <0xc3>;
+			dram_mr2 = <0x06>;
+			dram_mr3 = <0x01>;
 			dram_mr4 = <0x00>;
 			dram_mr5 = <0x00>;
 			dram_mr6 = <0x00>;
@@ -5459,48 +5460,48 @@
 			dram_mr22 = <0x00>;
 			dram_tpr0 = <0x00>;
 			dram_tpr1 = <0x00>;
-			dram_tpr2 = <0x00>;
+			dram_tpr2 = <0x01>;
 			dram_tpr3 = <0x00>;
-			dram_tpr6 = <0x33808080>;
-			dram_tpr10 = <0xf83438>;
-			dram_tpr11 = <0x00>;
-			dram_tpr12 = <0x00>;
-			dram_tpr13 = <0x40>;
+			dram_tpr6 = <0x2fb08080>;
+			dram_tpr10 = <0x402f4489>;
+			dram_tpr11 = <0xe0e0f0e>;
+			dram_tpr12 = <0xf10110f>;
+			dram_tpr13 = <0x8c60>;
 		};
 
 		dram_para15 {
 			device_type = "dram_para15";
-			dram_clk = <0x318>;
-			dram_type = <0x03>;
+			dram_clk = <0x2a0>;
+			dram_type = <0x08>;
 			dram_dx_odt = <0x8080808>;
 			dram_dx_dri = <0xe0e0e0e>;
 			dram_ca_dri = <0xe0e>;
-			dram_odt_en = <0x01>;
-			dram_para1 = <0x30fa>;
-			dram_para2 = <0x1000>;
-			dram_mr0 = <0x840>;
-			dram_mr1 = <0x04>;
-			dram_mr2 = <0x08>;
-			dram_mr3 = <0x00>;
-			dram_mr4 = <0x00>;
+			dram_odt_en = <0x7887bbbb>;
+			dram_para1 = <0x310a>;
+			dram_para2 = <0x00>;
+			dram_mr0 = <0x00>;
+			dram_mr1 = <0x34>;
+			dram_mr2 = <0x1b>;
+			dram_mr3 = <0x33>;
+			dram_mr4 = <0x03>;
 			dram_mr5 = <0x00>;
 			dram_mr6 = <0x00>;
-			dram_mr11 = <0x00>;
-			dram_mr12 = <0x00>;
+			dram_mr11 = <0x04>;
+			dram_mr12 = <0x72>;
 			dram_mr13 = <0x00>;
-			dram_mr14 = <0x00>;
+			dram_mr14 = <0x09>;
 			dram_mr16 = <0x00>;
 			dram_mr17 = <0x00>;
-			dram_mr22 = <0x00>;
+			dram_mr22 = <0x24>;
 			dram_tpr0 = <0x00>;
 			dram_tpr1 = <0x00>;
-			dram_tpr2 = <0x00>;
+			dram_tpr2 = <0x01>;
 			dram_tpr3 = <0x00>;
-			dram_tpr6 = <0x33808080>;
-			dram_tpr10 = <0xf83438>;
+			dram_tpr6 = <0x40808080>;
+			dram_tpr10 = <0x402f6633>;
 			dram_tpr11 = <0x00>;
 			dram_tpr12 = <0x00>;
-			dram_tpr13 = <0x40>;
+			dram_tpr13 = <0x2008c60>;
 		};
 
 		secure {

@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Run Diagnostics - A ZIP file will be generated on SD1 to send to the muOS crew!
+# HELP: Run Diagnostics - A ZIP file will be generated on SD1 to send to the MustardOS crew!
 # ICON: diagnostic
 
 . /opt/muos/script/var/func.sh
@@ -8,7 +8,7 @@ FRONTEND stop
 
 # Set the output directory for the diagnostics
 OUTPUT_DIR="/tmp/muos_diagnostics"
-ARCHIVE_FILE="$(GET_VAR "device" "storage/rom/mount")/muOS_Diag_$(date +"%Y-%m-%d_%H-%M").zip"
+ARCHIVE_FILE="$(GET_VAR "device" "storage/rom/mount")/MustardOS_Diag_$(date +"%Y-%m-%d_%H-%M").zip"
 
 # Create the output directory
 mkdir -p "$OUTPUT_DIR"
@@ -64,17 +64,17 @@ ps -ef >"$OUTPUT_DIR/ps.log" 2>/dev/null
 echo "Collecting Kernel Messages"
 dmesg >"$OUTPUT_DIR/dmesg.log" 2>/dev/null
 
-echo "Collecting muOS Log Files"
+echo "Collecting Storage Log Files"
 LOG_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/log"
 [ -d "$LOG_DIR" ] && cp -r "$LOG_DIR" "$OUTPUT_DIR/logs"
 
-echo "Collecting Internal muOS Log Files"
+echo "Collecting Internal Log Files"
 INT_DIR="/opt/muos"
 cp -r "$INT_DIR/log" "$OUTPUT_DIR/int"
 cp "$INT_DIR/halt.log" "$OUTPUT_DIR/int"
 cp "$INT_DIR/ldconfig.log" "$OUTPUT_DIR/int"
 
-echo "Collecting muOS Config Variables"
+echo "Collecting Config Variables"
 find /opt/muos/config -type f | while read -r file; do
 	relpath="${file#/opt/muos/config/}"
 	if echo "$relpath" | grep -qE 'network/pass|network/ssid'; then
@@ -83,13 +83,13 @@ find /opt/muos/config -type f | while read -r file; do
 	echo "$relpath: $(cat "$file" 2>/dev/null)" >>"$OUTPUT_DIR/config.log"
 done
 
-echo "Collecting muOS Device Variables"
+echo "Collecting Device Variables"
 find /opt/muos/device/config -type f | while read -r file; do
 	relpath="${file#/opt/muos/device/config/}"
 	echo "$relpath: $(cat "$file" 2>/dev/null)" >>"$OUTPUT_DIR/device.log"
 done
 
-echo "Collecting muOS Kiosk Variables"
+echo "Collecting Kiosk Variables"
 find /opt/muos/kiosk -type f | while read -r file; do
 	relpath="${file#/opt/muos/kiosk/}"
 	echo "$relpath: $(cat "$file" 2>/dev/null)" >>"$OUTPUT_DIR/kiosk.log"
@@ -103,7 +103,7 @@ zip -r "$ARCHIVE_FILE" ./* >/dev/null 2>&1
 rm -rf "$OUTPUT_DIR"
 
 # Notify the user of the archive location
-echo "muOS Diagnostics Collected: $ARCHIVE_FILE"
+echo "Diagnostics Collected: $ARCHIVE_FILE"
 echo "Sync Filesystem"
 sync
 

@@ -73,4 +73,4 @@
 3. **Confirm RPC Connection:**
    - You should see a message saying "RPC is good."
 
-Now, as long as your muOS device is connected to the internet, you'll be able to see what you’re playing, on what device, and what version of muOS you’re using.
+Now, as long as your device is connected to the internet, you'll be able to see what you’re playing, on what device, and what version of MustardOS you’re using.

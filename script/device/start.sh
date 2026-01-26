@@ -20,7 +20,7 @@ else
 		*) /opt/muos/script/device/bright.sh "$(GET_VAR "config" "settings/general/brightness")" ;;
 	esac
 
-	GET_VAR "config" "settings/general/colour" >/sys/class/disp/disp/attr/color_temperature
+	GET_VAR "config" "settings/general/colour" >"$(GET_VAR "device" "screen/colour")"
 	SET_VAR "config" "settings/hdmi/scan" "0"
 fi
 

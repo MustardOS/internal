@@ -646,10 +646,17 @@ CONFIGURE_RETROARCH() {
 		fi
 	) >"$RA_CONTROL.resolution.cfg"
 
+	# Modify the RetroArch threaded video option based on content settings
+	RAC_GO="/tmp/rac_go"
+	RAC_VAL="false"
+	[ -f "$RAC_GO" ] && RAC_VAL=$(cat "$RAC_GO")
+	sed -i '/^video_threaded = /d' "$RA_CONF"
+	printf 'video_threaded = "%s"\n' "$RAC_VAL" >"$RA_CONTROL.threaded.cfg"
+
 	# Include default button mappings from retroarch.device.cfg. Settings in the
 	# retroarch.cfg will take precedence. Modified settings will save to the main
 	# retroarch.cfg, not the included retroarch.device.cfg file.
-	RA_TYPES="device resolution"
+	RA_TYPES="device resolution threaded"
 
 	# Create a temporary config file with all matching lines from the original config,
 	# excluding any existing include lines for the given RetroArch types in the var.

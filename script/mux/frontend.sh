@@ -12,9 +12,11 @@ ACT_GO="/tmp/act_go"
 APP_GO="/tmp/app_go"
 GOV_GO="/tmp/gov_go"
 CON_GO="/tmp/con_go"
+RAC_GO="/tmp/rac_go"
 ROM_GO="/tmp/rom_go"
 SAA_GO="/tmp/saa_go"
 SAG_GO="/tmp/sag_go"
+SAR_GO="/tmp/sar_go"
 
 EX_CARD="/tmp/explore_card"
 
@@ -79,13 +81,15 @@ while :; do
 
 		case "$ACTION" in
 			"launcher")
-				LOG_INFO "$0" 0 "FRONTEND" "Clearing Governor and Control Scheme files"
+				LOG_INFO "$0" 0 "FRONTEND" "Clearing Content Setting files"
 				ENSURE_REMOVED "$GOV_GO"
 				ENSURE_REMOVED "$CON_GO"
+				ENSURE_REMOVED "$RAC_GO"
 
-				LOG_INFO "$0" 0 "FRONTEND" "Clearing Auto Assign Core and Governor flags"
+				LOG_INFO "$0" 0 "FRONTEND" "Clearing Auto Assign flags"
 				ENSURE_REMOVED "$SAA_GO"
 				ENSURE_REMOVED "$SAG_GO"
+				ENSURE_REMOVED "$SAR_GO"
 
 				LOG_INFO "$0" 0 "FRONTEND" "Setting Governor back to default"
 				SET_DEFAULT_GOVERNOR

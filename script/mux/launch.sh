@@ -23,9 +23,11 @@ SCREEN_EXT_H="$(GET_VAR "device" "screen/external/height")"
 OVL_GO="/tmp/ovl_go"
 ROM_GO="/tmp/rom_go"
 CON_GO="/tmp/con_go"
+RAC_GO="/tmp/rac_go"
 GOV_GO="/tmp/gov_go"
 SAA_GO="/tmp/saa_go"
 SAG_GO="/tmp/sag_go"
+SAR_GO="/tmp/sar_go"
 
 {
 	read -r NAME
@@ -63,6 +65,7 @@ ENSURE_REMOVED "$GOV_GO"
 
 ENSURE_REMOVED "$SAA_GO"
 ENSURE_REMOVED "$SAG_GO"
+ENSURE_REMOVED "$SAR_GO"
 
 # Construct the path to the assigned launcher INI file based on device storage,
 # assignment name ($ASSIGN), and launcher name ($LAUNCH).  This is created within
@@ -118,8 +121,9 @@ echo 0 >"$RUMBLE"
 sync &
 
 SET_DEFAULT_GOVERNOR
-[ -e "$CON_GO" ] && ENSURE_REMOVED "$CON_GO"
 
+ENSURE_REMOVED "$CON_GO"
+ENSURE_REMOVED "$RAC_GO"
 ENSURE_REMOVED "$OVL_GO"
 
 killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1

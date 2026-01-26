@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-CON_GO=/tmp/con_go
+CON_GO="/tmp/con_go"
 SELECTED_MAP=
 
 if [ -e "$CON_GO" ]; then

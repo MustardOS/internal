@@ -8,6 +8,7 @@ RETROWAIT=$(GET_VAR "config" "settings/advanced/retrowait")
 ACT_GO="/tmp/act_go"
 GOV_GO="/tmp/gov_go"
 CON_GO="/tmp/con_go"
+FLT_GO="/tmp/flt_go"
 RAC_GO="/tmp/rac_go"
 ROM_GO="/tmp/rom_go"
 
@@ -75,7 +76,7 @@ if [ -n "$LAST_PLAY" ]; then
 		BASE="$(basename "$LAST_PLAY" .cfg)"
 		DIR="$(dirname "$LAST_PLAY")"
 
-		for TYPE in "governor" "control" "retroarch"; do
+		for TYPE in "governor" "control" "retroarch" "filter"; do
 			case "$TYPE" in
 				"governor")
 					CONTENT_FILE="${DIR}/${BASE}.gov"
@@ -91,6 +92,11 @@ if [ -n "$LAST_PLAY" ]; then
 					CONTENT_FILE="${DIR}/${BASE}.rac"
 					FALLBACK_FILE="${DIR}/core.rac"
 					OUTPUT_FILE="$RAC_GO"
+					;;
+				"filter")
+					CONTENT_FILE="${DIR}/${BASE}.flt"
+					FALLBACK_FILE="${DIR}/core.flt"
+					OUTPUT_FILE="$FLT_GO"
 					;;
 			esac
 

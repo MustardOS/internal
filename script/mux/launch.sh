@@ -23,6 +23,7 @@ SCREEN_EXT_H="$(GET_VAR "device" "screen/external/height")"
 OVL_GO="/tmp/ovl_go"
 ROM_GO="/tmp/rom_go"
 CON_GO="/tmp/con_go"
+FLT_GO="/tmp/flt_go"
 RAC_GO="/tmp/rac_go"
 GOV_GO="/tmp/gov_go"
 SAA_GO="/tmp/saa_go"
@@ -66,6 +67,9 @@ ENSURE_REMOVED "$GOV_GO"
 ENSURE_REMOVED "$SAA_GO"
 ENSURE_REMOVED "$SAG_GO"
 ENSURE_REMOVED "$SAR_GO"
+
+# Set the chosen colour filter of content to our stage overlay path.
+cat "$FLT_GO" >"/run/muos/overlay.filter"
 
 # Construct the path to the assigned launcher INI file based on device storage,
 # assignment name ($ASSIGN), and launcher name ($LAUNCH).  This is created within
@@ -123,8 +127,9 @@ sync &
 SET_DEFAULT_GOVERNOR
 
 ENSURE_REMOVED "$CON_GO"
-ENSURE_REMOVED "$RAC_GO"
+ENSURE_REMOVED "$FLT_GO"
 ENSURE_REMOVED "$OVL_GO"
+ENSURE_REMOVED "$RAC_GO"
 
 killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1
 

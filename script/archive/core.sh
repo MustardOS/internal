@@ -5,11 +5,13 @@ ARC_DIR="$MUOS_SHARE_DIR"
 ARC_LABEL="RetroArch Cores"
 
 ARC_EXTRACT() {
-    DEST="$ARC_DIR"
-    LABEL="$ARC_LABEL"
+	DEST="$ARC_DIR"
+	LABEL="$ARC_LABEL"
 }
 
 ARC_EXTRACT_POST() {
-      printf "Updating Cores...\n"
-    chmod -R +x "$ARC_DIR/core" >/dev/null 2>&1
+	printf "Updating Cores...\n"
+	chmod -R +x "$ARC_DIR/core" >/dev/null 2>&1
+	printf "Updating Catalogue...\n"
+	/opt/muos/script/system/catalogue.sh >/dev/null 2>&1
 }

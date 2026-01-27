@@ -10,7 +10,7 @@ ARC_EXTRACT() {
 }
 
 ARC_EXTRACT_POST() {
-  	printf "Updating Catalogue...\n"
+	printf "Updating Catalogue...\n"
 	/opt/muos/script/system/catalogue.sh >/dev/null 2>&1
 }
 

@@ -2,7 +2,7 @@
 # shellcheck disable=SC2034
 
 ARC_DIR="$MUOS_SHARE_DIR"
-ARC_LABEL="Task Toolkit Scripts"
+ARC_LABEL="Content Filters"
 
 ARC_EXTRACT() {
 	DEST="$ARC_DIR"

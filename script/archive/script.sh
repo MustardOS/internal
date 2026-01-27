@@ -10,7 +10,7 @@ ARC_EXTRACT() {
 }
 
 ARC_EXTRACT_POST() {
-  	printf "Marking scripts as executable...\n"
+	printf "Marking scripts as executable...\n"
 	chmod -R 755 "$ARC_DIR" >/dev/null 2>&1
 }
 

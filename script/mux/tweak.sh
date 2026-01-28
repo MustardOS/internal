@@ -59,7 +59,7 @@ fi
 
 LED_CONTROL_CHANGE
 
-GET_VAR "config" "settings/general/colour" >"$(GET_VAR "device" "screen/colour")"
+GET_VAR "config" "settings/colour/temperature" >"$(GET_VAR "device" "screen/colour")"
 
 if [ "$(GET_VAR "config" "settings/advanced/overdrive")" -eq 1 ]; then
 	SET_VAR "device" "audio/max" "200"

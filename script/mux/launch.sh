@@ -131,6 +131,8 @@ ENSURE_REMOVED "$FLT_GO"
 ENSURE_REMOVED "$OVL_GO"
 ENSURE_REMOVED "$RAC_GO"
 
+rm -f "/run/muos/overlay.filter"
+
 killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1
 
 case "$BOARD_NAME" in

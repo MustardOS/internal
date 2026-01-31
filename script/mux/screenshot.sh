@@ -25,6 +25,7 @@ if [ ! -e "$SS_LOCK" ]; then
 
 	# Silly 28xx...
 	case "$(GET_VAR "device" "board/name")" in
+		mgx*) fbgrab -a -w "$SCREEN_HEIGHT" -h "$SCREEN_WIDTH" -l "$SCREEN_HEIGHT" "$SS_FILE" && convert "$SS_FILE" -rotate 270 "$SS_FILE" ;;
 		rg28xx-h) fbgrab -a -w "$SCREEN_HEIGHT" -h "$SCREEN_WIDTH" -l "$SCREEN_HEIGHT" "$SS_FILE" && convert "$SS_FILE" -rotate 90 "$SS_FILE" ;;
 		*) fbgrab -a -w "$SCREEN_WIDTH" -h "$SCREEN_HEIGHT" -l "$SCREEN_WIDTH" "$SS_FILE" ;;
 	esac

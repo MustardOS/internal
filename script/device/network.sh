@@ -93,8 +93,8 @@ LOAD_NETWORK() {
 		rg*)
 			modprobe -qf "$NET_NAME"
 			;;
-		tui*)
-		    # Can't "force" the module to load on TrimUI devices because otherwise it gets cranky
+		mgx* | tui*)
+			# Can't "force" the module to load on TrimUI devices because otherwise it gets cranky
 			modprobe -q "$NET_NAME"
 			;;
 		rk*)
@@ -151,7 +151,7 @@ UNLOAD_NETWORK() {
 	fi
 
 	case "$BOARD_NAME" in
-		tui*)
+		mgx* | tui*)
 			# Remove the stupid leftover xradio modules
 			modprobe -qr "xradio_mac"
 			;;

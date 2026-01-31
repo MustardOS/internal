@@ -95,7 +95,7 @@ RESET_AMIXER() {
 	MAX_VOL="$(GET_VAR "device" "audio/max")"
 
 	case "$(GET_VAR "device" "board/name")" in
-		tui*) DEV_VOL="0" ;;
+		mgx* | tui*) DEV_VOL="0" ;;
 		*) DEV_VOL="$MAX_VOL" ;;
 	esac
 
@@ -453,7 +453,7 @@ IS_HANDHELD_MODE() {
 # Usage: DISPLAY_WRITE NAME COMMAND PARAM
 DISPLAY_WRITE() {
 	case "$(GET_VAR "device" "board/name")" in
-		rg* | tui*)
+		rg* | mgx* | tui*)
 			printf "%s" "$1" >/sys/kernel/debug/dispdbg/name
 			printf "%s" "$2" >/sys/kernel/debug/dispdbg/command
 			printf "%s" "$3" >/sys/kernel/debug/dispdbg/param
@@ -467,7 +467,7 @@ DISPLAY_WRITE() {
 # Usage: DISPLAY_READ NAME COMMAND
 DISPLAY_READ() {
 	case "$(GET_VAR "device" "board/name")" in
-		rg* | tui*)
+		rg* | mgx* | tui*)
 			printf "%s" "$1" >/sys/kernel/debug/dispdbg/name
 			printf "%s" "$2" >/sys/kernel/debug/dispdbg/command
 			echo 1 >/sys/kernel/debug/dispdbg/start
@@ -701,23 +701,30 @@ CONFIGURE_RETROARCH() {
 	echo "$EXTRA_ARGS"
 }
 
+CHECK_EXIST() {
+	[ -w "$2" ] || return 0
+	GET_VAR "config" "$1" >"$2"
+}
+
 KERNEL_TUNING() {
-	GET_VAR "config" "danger/vmswap" >"/proc/sys/vm/swappiness"
-	GET_VAR "config" "danger/dirty_ratio" >"/proc/sys/vm/dirty_ratio"
-	GET_VAR "config" "danger/dirty_back_ratio" >"/proc/sys/vm/dirty_background_ratio"
-	GET_VAR "config" "danger/cache_pressure" >"/proc/sys/vm/vfs_cache_pressure"
+	CHECK_EXIST "danger/vmswap" "/proc/sys/vm/swappiness"
+	CHECK_EXIST "danger/dirty_ratio" "/proc/sys/vm/dirty_ratio"
+	CHECK_EXIST "danger/dirty_back_ratio" "/proc/sys/vm/dirty_background_ratio"
+	CHECK_EXIST "danger/cache_pressure" "/proc/sys/vm/vfs_cache_pressure"
 
-	GET_VAR "config" "danger/nomerges" >"/sys/block/$1/queue/nomerges"
-	GET_VAR "config" "danger/nr_requests" >"/sys/block/$1/queue/nr_requests"
-	GET_VAR "config" "danger/iostats" >"/sys/block/$1/queue/iostats"
+	CHECK_EXIST "danger/nomerges" "/sys/block/$1/queue/nomerges"
+	CHECK_EXIST "danger/nr_requests" "/sys/block/$1/queue/nr_requests"
+	CHECK_EXIST "danger/iostats" "/sys/block/$1/queue/iostats"
 
-	GET_VAR "config" "danger/idle_flush" >"/proc/sys/vm/laptop_mode"
-	GET_VAR "config" "danger/page_cluster" >"/proc/sys/vm/page-cluster"
-	GET_VAR "config" "danger/child_first" >"/proc/sys/kernel/sched_child_runs_first"
-	GET_VAR "config" "danger/time_slice" >"/proc/sys/kernel/sched_rr_timeslice_ms"
-	GET_VAR "config" "danger/tune_scale" >"/proc/sys/kernel/sched_tunable_scaling"
+	CHECK_EXIST "danger/idle_flush" "/proc/sys/vm/laptop_mode"
+	CHECK_EXIST "danger/page_cluster" "/proc/sys/vm/page-cluster"
+	CHECK_EXIST "danger/child_first" "/proc/sys/kernel/sched_child_runs_first"
+	CHECK_EXIST "danger/time_slice" "/proc/sys/kernel/sched_rr_timeslice_ms"
+	CHECK_EXIST "danger/tune_scale" "/proc/sys/kernel/sched_tunable_scaling"
 
-	blockdev --setra "$(GET_VAR "config" "danger/read_ahead")" "/dev/$1"
+	if [ -b "/dev/$1" ]; then
+		blockdev --setra "$(GET_VAR "config" "danger/read_ahead")" "/dev/$1"
+	fi
 }
 
 LED_CONTROL_CHANGE() {

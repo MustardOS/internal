@@ -19,7 +19,7 @@ CHANNEL_SWITCH() {
 			amixer -q -c "$CARD" set 'OutputR Mixer DACL' "$SV"
 			amixer -q -c "$CARD" set 'OutputR Mixer DACR' "$FV"
 			;;
-		tui*)
+		mgx* | tui*)
 			# $2 = 0 (off), 1 (on)
 			amixer -q -c "$CARD" cset name='DAC Swap' "$2"
 			;;

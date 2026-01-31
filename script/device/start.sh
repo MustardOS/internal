@@ -56,7 +56,7 @@ case "$DEV_BOARD" in
 				;;
 		esac
 		;;
-	tui*)
+	mgx* | tui*)
 		EMU_VER="tui"
 
 		# Create TrimUI Input folder

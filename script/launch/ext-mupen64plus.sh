@@ -187,7 +187,7 @@ case "$CORE" in
 esac
 
 case "$(GET_VAR "device" "board/name")" in
-  tui*)
+  mgx* | tui*)
     case "$CORE" in
       ext-mupen64plus-glidemk2|ext-mupen64plus-glidemk2-full)
         setalpha 0 || true

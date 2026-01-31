@@ -36,9 +36,10 @@ case "$1" in
 					esac
 				fi
 				;;
-			*zero28)
+			mgx*)
 				modprobe -q fuse
 				modprobe -q simplepad
+				modprobe -q dc_sunxi
 				;;
 			*) ;;
 		esac
@@ -63,8 +64,8 @@ case "$1" in
 				#	*spoon) killall -9 trimui_inputd_smart_pro ;;
 				# esac
 				;;
-			*zero28)
-				modprobe -qr fuse
+			mgx*)
+				# Don't unload the fuse module!
 				modprobe -qr simplepad
 				;;
 			*) ;;

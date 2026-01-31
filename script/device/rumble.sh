@@ -5,7 +5,7 @@
 BOARD_NAME=$(GET_VAR "device" "board/name")
 
 case "$BOARD_NAME" in
-	tui*)
+	mgx* | tui*)
 		[ -e /sys/class/gpio/gpio227 ] || echo 227 >/sys/class/gpio/export
 		echo out >/sys/class/gpio/gpio227/direction
 		echo 0 >/sys/class/gpio/gpio227/value

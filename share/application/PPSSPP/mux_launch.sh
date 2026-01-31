@@ -21,7 +21,7 @@ case "$(GET_VAR "device" "board/name")" in
 
 		rm -f "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/FailedGraphicsBackends.txt"
 		;;
-	tui*)
+	mgx* | tui*)
 		# Prevent blackscreen due to "an issue with the ordering of the RGBA 8888 or something like that" (acmeplus 2025)
 		setalpha 0
 

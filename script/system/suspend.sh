@@ -125,7 +125,7 @@ RESUME() {
 
 	# Some stupid TrimUI GPU shenanigans
 	case "$DEV_BOARD" in
-		tui*) setalpha 0 ;;
+		mgx* | tui*) setalpha 0 ;;
 	esac
 
 	cat "$WAKE_CPU_GOV" >"$CPU_GOV_PATH"

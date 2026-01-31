@@ -380,7 +380,7 @@ case "$1" in
 	connect)
 		case "$(GET_VAR "device" "board/name")" in
 			rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && /opt/muos/script/device/network.sh load ;;
-			rk* | tui*) /opt/muos/script/device/network.sh load ;;
+			mgx* | rk* | tui*) /opt/muos/script/device/network.sh load ;;
 			*) ;;
 		esac
 

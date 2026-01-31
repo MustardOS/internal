@@ -1,6 +1,21 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
 mount -t configfs none /sys/kernel/config &
+
+# A special case for the Zero28 device since it has to load the FUSE module
+# manually, we'll just sit tight and wait for at least 10 seconds...
+case "$BOARD_NAME" in
+	mgx*)
+		ELAPSED=0
+		while [ ! -d "/sys/module/fuse" ]; do
+			ELAPSED=$((ELAPSED + 1))
+			[ "$ELAPSED" -ge 100 ] && break
+			sleep 0.1
+		done
+		;;
+esac
 
 # These scripts return as soon as the necessary mounts are available, but also
 # leave background jobs running that respond to future media add/remove events.

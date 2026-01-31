@@ -11,6 +11,7 @@ TASK_SD2_EJECT="$MUOS_TASK_DIR/Storage Tasks/Eject Secondary Storage.sh"
 case "$(GET_VAR "device" "board/name")" in
 	rg28xx-h | rg35xx-2024) ;;
 	rg*) rm -f "$TASK_8188" ;;
+	mgx*) rm -f "$TASK_8188" ;;
 	tui*) rm -f "$TASK_8188" "$TASK_SD2_MOUNT" "$TASK_SD2_EJECT" ;;
 	*) ;;
 esac

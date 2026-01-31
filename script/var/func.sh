@@ -91,45 +91,51 @@ GET_VAR() {
 #:] PipeWire will handle the volume independently. Of course the TrimUI
 #:] devices works completely backwards, so that is why it is set to '0'.
 RESET_AMIXER() {
-	AUDIO_CONTROL="$(GET_VAR "device" "audio/control")"
-	MAX_VOL="$(GET_VAR "device" "audio/max")"
+	(
+		AUDIO_CONTROL="$(GET_VAR "device" "audio/control")"
+		MAX_VOL="$(GET_VAR "device" "audio/max")"
 
-	case "$(GET_VAR "device" "board/name")" in
-		mgx* | tui*) DEV_VOL="0" ;;
-		*) DEV_VOL="$MAX_VOL" ;;
-	esac
+		case "$(GET_VAR "device" "board/name")" in
+			mgx* | tui*) DEV_VOL="0" ;;
+			*) DEV_VOL="$MAX_VOL" ;;
+		esac
 
-	amixer -c 0 sset "$AUDIO_CONTROL" "${DEV_VOL}%" unmute >/dev/null 2>&1
-	amixer set "Master" unmute >/dev/null 2>&1
+		amixer -c 0 sset "$AUDIO_CONTROL" "${DEV_VOL}%" unmute >/dev/null 2>&1
+		amixer set "Master" unmute >/dev/null 2>&1
 
-	wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1
+		wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1
+	) &
 }
 
 SET_DEFAULT_GOVERNOR() {
-	DEF_GOV=$(GET_VAR "device" "cpu/default")
-	printf '%s' "$DEF_GOV" >"$(GET_VAR "device" "cpu/governor")"
-	if [ "$DEF_GOV" = ondemand ]; then
-		GET_VAR "device" "cpu/min_freq_default" >"$(GET_VAR "device" "cpu/min_freq")"
-		GET_VAR "device" "cpu/max_freq_default" >"$(GET_VAR "device" "cpu/max_freq")"
-		GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
-		GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"
-		GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
-		GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
-	fi
+	(
+		DEF_GOV=$(GET_VAR "device" "cpu/default")
+		printf '%s' "$DEF_GOV" >"$(GET_VAR "device" "cpu/governor")"
+		if [ "$DEF_GOV" = ondemand ]; then
+			GET_VAR "device" "cpu/min_freq_default" >"$(GET_VAR "device" "cpu/min_freq")"
+			GET_VAR "device" "cpu/max_freq_default" >"$(GET_VAR "device" "cpu/max_freq")"
+			GET_VAR "device" "cpu/sampling_rate_default" >"$(GET_VAR "device" "cpu/sampling_rate")"
+			GET_VAR "device" "cpu/up_threshold_default" >"$(GET_VAR "device" "cpu/up_threshold")"
+			GET_VAR "device" "cpu/sampling_down_factor_default" >"$(GET_VAR "device" "cpu/sampling_down_factor")"
+			GET_VAR "device" "cpu/io_is_busy_default" >"$(GET_VAR "device" "cpu/io_is_busy")"
+		fi
+	) &
 }
 
 ENSURE_REMOVED() {
-	P="$1"
-	C=0
+	(
+		P="$1"
+		C=0
 
-	while [ -e "$P" ] && [ "$C" -lt 10 ]; do
-		rm -f -- "$P" 2>/dev/null || :
+		while [ -e "$P" ] && [ "$C" -lt 10 ]; do
+			rm -f -- "$P" 2>/dev/null || :
 
-		[ -e "$P" ] || break
+			[ -e "$P" ] || break
 
-		C=$((C + 1))
-		sleep 0.1
-	done
+			C=$((C + 1))
+			sleep 0.1
+		done
+	) &
 }
 
 GET_FRONTEND_PIDS() {

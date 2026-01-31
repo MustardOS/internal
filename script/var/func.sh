@@ -352,6 +352,12 @@ LOG() {
 	# /opt/muos/frontend/muxmessage $PROGRESS "$(printf "%s\n\n%s %s" "$TITLE" "$MSG" "$*")"
 }
 
+LOG_INFO()    { :; }
+LOG_WARN()    { :; }
+LOG_ERROR()   { :; }
+LOG_SUCCESS() { :; }
+LOG_DEBUG()   { :; }
+
 DEBUG_MODE=$(GET_VAR "system" "debug_mode" 2>/dev/null || echo 0)
 if [ "$DEBUG_MODE" -eq 1 ]; then
 	LOG_INFO() { LOG "${CSI}33m*" "$@"; }

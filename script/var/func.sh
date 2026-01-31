@@ -58,32 +58,38 @@ TBOX() {
 }
 
 GET_CONF_PATH() {
-	case "$1" in
-		global | config) echo "/opt/muos/config" ;;
-		device) echo "/opt/muos/device/config" ;;
-		kiosk) echo "/opt/muos/kiosk" ;;
-		system) echo "/opt/muos/config/system" ;;
-	esac
+	(
+		case "$1" in
+			global | config) echo "/opt/muos/config" ;;
+			device) echo "/opt/muos/device/config" ;;
+			kiosk) echo "/opt/muos/kiosk" ;;
+			system) echo "/opt/muos/config/system" ;;
+		esac
+	) &
 }
 
 SET_VAR() {
-	BASE=$(GET_CONF_PATH "$1") || return 0
-	printf "%s" "$3" >"$BASE/$2"
+	(
+		BASE=$(GET_CONF_PATH "$1") || return 0
+		printf "%s" "$3" >"$BASE/$2"
+	) &
 }
 
 GET_VAR() {
-	BASE=$(GET_CONF_PATH "$1") || return 0
+	(
+		BASE=$(GET_CONF_PATH "$1") || return 0
 
-	FILE="$BASE/$2"
-	[ -r "$FILE" ] || return 0
+		FILE="$BASE/$2"
+		[ -r "$FILE" ] || return 0
 
-	VAL=
-	IFS= read -r VAL <"$FILE"
+		VAL=
+		IFS= read -r VAL <"$FILE"
 
-	CR=$(printf "\r")
-	[ "${VAL%"$CR"}" != "$VAL" ] && VAL=${VAL%"$CR"}
+		CR=$(printf "\r")
+		[ "${VAL%"$CR"}" != "$VAL" ] && VAL=${VAL%"$CR"}
 
-	printf "%s" "$VAL"
+		printf "%s" "$VAL"
+	) &
 }
 
 #:] ### ALSA Mixer Reset
@@ -294,23 +300,25 @@ UPTIME() {
 }
 
 DELETE_CRUFT() {
-	[ "$1" ] || return
+	(
+		[ "$1" ] || return
 
-	find "$1" -type d \( \
-		-name 'System Volume Information' -o \
-		-name '.Trashes' -o \
-		-name '.Spotlight' -o \
-		-name '.fseventsd' \
-		\) -exec rm -rf -- {} \;
+		find "$1" -type d \( \
+			-name 'System Volume Information' -o \
+			-name '.Trashes' -o \
+			-name '.Spotlight' -o \
+			-name '.fseventsd' \
+			\) -exec rm -rf -- {} \;
 
-	find "$1" -type f \( \
-		-name '._*' -o \
-		-name '.DS_Store' -o \
-		-name 'desktop.ini' -o \
-		-name 'Thumbs.db' -o \
-		-name '.DStore' -o \
-		-name '.gitkeep' \
-		\) -exec rm -f -- {} \;
+		find "$1" -type f \( \
+			-name '._*' -o \
+			-name '.DS_Store' -o \
+			-name 'desktop.ini' -o \
+			-name 'Thumbs.db' -o \
+			-name '.DStore' -o \
+			-name '.gitkeep' \
+			\) -exec rm -f -- {} \;
+	) &
 }
 
 PARSE_INI() {
@@ -345,13 +353,7 @@ LOG() {
 }
 
 DEBUG_MODE=$(GET_VAR "system" "debug_mode" 2>/dev/null || echo 0)
-if [ "$DEBUG_MODE" -eq 0 ]; then
-	LOG_INFO() { :; }
-	LOG_WARN() { LOG "${CSI}226m!" "$@"; }
-	LOG_ERROR() { LOG "${CSI}196m-" "$@"; }
-	LOG_SUCCESS() { :; }
-	LOG_DEBUG() { :; }
-else
+if [ "$DEBUG_MODE" -eq 1 ]; then
 	LOG_INFO() { LOG "${CSI}33m*" "$@"; }
 	LOG_WARN() { LOG "${CSI}226m!" "$@"; }
 	LOG_ERROR() { LOG "${CSI}196m-" "$@"; }

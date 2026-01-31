@@ -1,84 +1,19 @@
 #!/bin/sh
 
 ENTROPY_FILE="/proc/sys/kernel/random/entropy_avail"
-
-HWRNG="/dev/hwrng"
-HAVEGED="/opt/muos/bin/haveged"
-KCONFIG="/boot/config-$(uname -r)"
-
 ENTROPY_TARGET=256
-ENTROPY_MULTIPLIER=4
 
 ENTROPY_OK() {
 	CURRENT_ENTROPY=$(cat "$ENTROPY_FILE" 2>/dev/null)
 	[ -n "$CURRENT_ENTROPY" ] && [ "$CURRENT_ENTROPY" -ge "$ENTROPY_TARGET" ]
 }
 
-WAIT_FOR_ENTROPY() {
-	LEFT=10
-	while ! ENTROPY_OK; do
-		[ "$LEFT" -le 0 ] && return 1
-		sleep 1
-		LEFT=$((LEFT - 1))
-	done
-	return 0
-}
-
-FEED_HWRNG() {
-	ENTROPY_BYTES=$((ENTROPY_TARGET / 8))
-	FEED_BYTES=$((ENTROPY_BYTES * ENTROPY_MULTIPLIER))
-
-	DD_BS=32
-	DD_COUNT=$((FEED_BYTES / DD_BS))
-
-	[ "$DD_COUNT" -lt 1 ] && DD_COUNT=1
-	dd if="$HWRNG" of=/dev/random bs="$DD_BS" count="$DD_COUNT" 2>/dev/null
-}
-
 START() {
-	if [ -c "$HWRNG" ]; then
-		echo "Using hardware RNG ($HWRNG)..."
-
-		FEED_HWRNG
-
-		if WAIT_FOR_ENTROPY; then
-			echo "Entropy seeded via hardware RNG"
-			return 0
-		else
-			echo "WARNING: hardware RNG did not raise entropy sufficiently!"
-		fi
-	fi
-
-	if [ -r "$KCONFIG" ] && grep -q '^CONFIG_CRYPTO_JITTERENTROPY=y' "$KCONFIG"; then
-		echo "Kernel 'jitterentropy' enabled — relying on kernel RNG"
-		return 0
-	fi
-
-	if [ -x "$HAVEGED" ]; then
-		echo "Starting 'haveged' fallback"
-
-		"$HAVEGED" -w 1024 -t 4 &
-		HAVEGED_PID=$!
-
-		if WAIT_FOR_ENTROPY; then
-			echo "Entropy seeded via haveged"
-			kill "$HAVEGED_PID" 2>/dev/null
-			return 0
-		else
-			echo "Entropy still low... leaving haveged running"
-			return 0
-		fi
-	fi
-
-	echo "WARNING: No usable entropy source found"
-	return 1
+	/opt/muos/bin/haveged -w 1024 -T 4 &
 }
 
 STOP() {
-	# Intentionally do nothing :D
-	# * kernel RNG persists...
-	# * haveged (if running) is left alone!
-	return 0
+	killall -9 haveged
 }
 
 case "$1" in

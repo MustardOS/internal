@@ -38,8 +38,8 @@ SET_DEFAULT_GOVERNOR
 
 #:] ### Wait for audio stack
 #:] Don't proceed to the frontend until PipeWire reports that it is ready.
-LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
 if [ "$AUDIO_READY" -eq 1 ]; then
+	LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
 	until [ "$(GET_VAR "device" "audio/ready")" -eq 1 ]; do sleep 0.1; done
 fi
 
@@ -58,6 +58,10 @@ cp "$MUOS_LOG_DIR"/*.log "$BL_PATH"/. &
 LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Launcher"
 
 while :; do
+	# Reset audio control status
+	LOG_INFO "$0" 0 "FRONTEND" "Audio Mixer Reset"
+	RESET_AMIXER &
+
 	killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1
 
 	# Reset ANALOGUE<>DIGITAL switch for the DPAD
@@ -69,10 +73,8 @@ while :; do
 			;;
 	esac
 
-	# Reset audio control status
-	RESET_AMIXER
-
 	# Content Loader
+	LOG_INFO "$0" 0 "FRONTEND" "Checking for Content Loader"
 	[ -s "$ROM_GO" ] && /opt/muos/script/mux/launch.sh
 
 	if [ -s "$ACT_GO" ]; then

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+. /opt/muos/script/var/func.sh
+
+[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0

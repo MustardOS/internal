@@ -10,23 +10,42 @@ MOUNT_FAILURE="/tmp/muos/mount_failure"
 SDCARD_MOUNT="$(GET_VAR "device" "storage/sdcard/mount")"
 ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 
-rm -f "$MUOS_STORE_DIR/mounted" "$MOUNT_FAILURE"
+BINDMAP="$MUOS_STORE_DIR/bindmap"
+
+rm -f "$MUOS_STORE_DIR/mount_ready" "$MOUNT_FAILURE"
 mkdir -p "$MUOS_STORE_DIR"
+: >"$BINDMAP"
+
+IS_MOUNTED() {
+	grep -q " $1 " /proc/self/mountinfo 2>/dev/null
+}
 
 SDCARD_MOUNTED=0
-if [ -n "$SDCARD_MOUNT" ] && mount | grep -q " on $SDCARD_MOUNT "; then
+if [ -n "$SDCARD_MOUNT" ] && IS_MOUNTED "$SDCARD_MOUNT"; then
 	SDCARD_MOUNTED=1
 	LOG_INFO "$0" 0 "BIND MOUNT" "SD2 mounted at $SDCARD_MOUNT"
 else
 	LOG_INFO "$0" 0 "BIND MOUNT" "SD2 not mounted, skipping SD2 paths"
 fi
 
-BINDMAP="$MUOS_STORE_DIR/bindmap"
-: >"$BINDMAP"
+SD_ROOT="$SDCARD_MOUNT/MUOS"
+ROM_ROOT="$ROM_MOUNT/MUOS"
 
-FIX_PACKAGE_ROOT() {
-	awk -F'|' -v OFS='|' '$1 == "package" { sub(/\/package\/.*/, "/package", $3) } { print }' "$BINDMAP" >"$BINDMAP.tmp"
-	mv "$BINDMAP.tmp" "$BINDMAP"
+MAX_JOBS="${MAX_JOBS:-8}"
+JOBS_COUNT=0
+
+WAIT_JOBS() {
+	wait
+	JOBS_COUNT=0
+}
+
+SPAWN_JOB() {
+	"$@" &
+	JOBS_COUNT=$((JOBS_COUNT + 1))
+	if [ "$JOBS_COUNT" -ge "$MAX_JOBS" ]; then
+		wait
+		JOBS_COUNT=0
+	fi
 }
 
 LOCS_KEY() {
@@ -41,21 +60,27 @@ LOCS_KEY() {
 	esac
 }
 
-WRITE_BINDMAP() {
-	KEY="$1" # archive top-level folder name
-	BACKEND="$2" # SDCARD / ROM / INTERNAL (we do internal later down below)
-	SRC="$3" # the actual mounted path
+KEYS=""
 
-	# Skip if key already exists
-	if awk -F'|' -v k="$KEY" '$1 == k { found=1 } END { exit !found }' "$BINDMAP"; then
-		return 0
-	fi
-
-	printf '%s|%s|%s\n' "$KEY" "$BACKEND" "$SRC" >>"$BINDMAP"
+HAVE_KEY() {
+	case " $KEYS " in
+		*" $1 "*) return 0 ;;
+	esac
+	return 1
 }
 
-SORT_BINDMAP() {
-	LC_ALL=C sort -t '|' -k1,1 "$BINDMAP" -o "$BINDMAP"
+ADD_KEY() {
+	KEYS="$KEYS $1"
+}
+
+WRITE_BINDMAP() {
+	KEY="$1"
+	BACKEND="$2"
+	SRC="$3"
+
+	HAVE_KEY "$KEY" && return 0
+	ADD_KEY "$KEY"
+	printf '%s|%s|%s\n' "$KEY" "$BACKEND" "$SRC" >>"$BINDMAP"
 }
 
 SAFE_BIND() {
@@ -63,25 +88,68 @@ SAFE_BIND() {
 	TGT="$2"
 
 	mkdir -p "$TGT"
-	umount "$TGT" 2>/dev/null
+
+	if IS_MOUNTED "$TGT"; then
+		umount "$TGT" 2>/dev/null || return 1
+	fi
 
 	mount -n --bind "$SRC" "$TGT"
 }
 
 ENSURE_ROM_PATH() {
-	S_LOC="$1"
-	ROM_SRC="$ROM_MOUNT/MUOS/$S_LOC"
+	ROM_SRC="$ROM_ROOT/$1"
+	[ -d "$ROM_SRC" ] && return 0
 
-	if [ ! -d "$ROM_SRC" ]; then
-		LOG_INFO "$0" 0 "BIND MOUNT" "Creating missing SD1 path: MUOS/$S_LOC"
-		if ! mkdir -p "$ROM_SRC"; then
-			LOG_INFO "$0" 0 "BIND MOUNT" "FAILED to create SD1 path: MUOS/$S_LOC"
-			echo "$S_LOC" >>"$MOUNT_FAILURE"
-			return 1
-		fi
+	LOG_INFO "$0" 0 "BIND MOUNT" "Creating missing SD1 path: MUOS/$1"
+	if ! mkdir -p "$ROM_SRC"; then
+		LOG_INFO "$0" 0 "BIND MOUNT" "FAILED to create SD1 path: MUOS/$1"
+		echo "$1" >>"$MOUNT_FAILURE"
+		return 1
 	fi
 
 	return 0
+}
+
+SELECT_SOURCE() {
+	S_LOC="$1"
+
+	if [ "$SDCARD_MOUNTED" -eq 1 ] && [ -d "$SD_ROOT/$S_LOC" ]; then
+		echo "SDCARD|$SD_ROOT/$S_LOC"
+		return 0
+	fi
+
+	if [ -d "$ROM_ROOT/$S_LOC" ]; then
+		echo "ROM|$ROM_ROOT/$S_LOC"
+		return 0
+	fi
+
+	if ENSURE_ROM_PATH "$S_LOC"; then
+		echo "ROM|$ROM_ROOT/$S_LOC"
+		return 0
+	fi
+
+	return 1
+}
+
+MOUNT_ONE() {
+	S_LOC="$1"
+	GROUP="$2"
+
+	KEY="$(LOCS_KEY "$S_LOC")"
+	TGT="$MUOS_STORE_DIR/$S_LOC"
+
+	SEL="$(SELECT_SOURCE "$S_LOC")" || return 0
+	BACKEND="${SEL%%|*}"
+	SRC="${SEL#*|}"
+
+	LOG_INFO "$0" 0 "BIND MOUNT" "$GROUP: $S_LOC from $BACKEND"
+
+	if SAFE_BIND "$SRC" "$TGT"; then
+		WRITE_BINDMAP "$KEY" "$BACKEND" "$SRC"
+	else
+		LOG_INFO "$0" 0 "BIND MOUNT" "FAILED to mount $SRC -> $TGT"
+		echo "$S_LOC" >>"$MOUNT_FAILURE"
+	fi
 }
 
 MOUNT_STORAGE() {
@@ -89,51 +157,27 @@ MOUNT_STORAGE() {
 	GROUP="$2"
 
 	for S_LOC in $LIST; do
-		TGT="$MUOS_STORE_DIR/$S_LOC"
-		SRC=""
-		KEY="$(LOCS_KEY "$S_LOC")"
-
-		if [ "$SDCARD_MOUNTED" -eq 1 ] && [ -d "$SDCARD_MOUNT/MUOS/$S_LOC" ]; then
-			SRC="$SDCARD_MOUNT/MUOS/$S_LOC"
-			BACKEND="SDCARD"
-			LOG_INFO "$0" 0 "BIND MOUNT" "$GROUP: $S_LOC from SDCARD"
-		elif [ -d "$ROM_MOUNT/MUOS/$S_LOC" ]; then
-			SRC="$ROM_MOUNT/MUOS/$S_LOC"
-			BACKEND="ROM"
-			LOG_INFO "$0" 0 "BIND MOUNT" "$GROUP: $S_LOC from ROM"
-		else
-			LOG_INFO "$0" 0 "BIND MOUNT" "$GROUP: $S_LOC missing, recreating on ROM"
-
-			if ! ENSURE_ROM_PATH "$S_LOC"; then
-				continue
-			fi
-
-			SRC="$ROM_MOUNT/MUOS/$S_LOC"
-			BACKEND="ROM"
-		fi
-
-		if SAFE_BIND "$SRC" "$TGT"; then
-			LOG_INFO "$0" 0 "BIND MOUNT" "Mounted $SRC -> $TGT"
-			WRITE_BINDMAP "$KEY" "$BACKEND" "$SRC"
-		else
-			LOG_INFO "$0" 0 "BIND MOUNT" "FAILED to mount $SRC -> $TGT"
-			echo "$S_LOC" >>"$MOUNT_FAILURE"
-		fi
+		SPAWN_JOB MOUNT_ONE "$S_LOC" "$GROUP"
 	done
+
+	WAIT_JOBS
+}
+
+FAIL_IF_ANY() {
+	[ -s "$MOUNT_FAILURE" ] && CRITICAL_FAILURE mount "$(cat "$MOUNT_FAILURE")"
 }
 
 LOG_INFO "$0" 0 "BIND MOUNT" "Mounting PRIORITY paths"
 MOUNT_STORAGE "$PRIORITY_LOCS" "PRIORITY"
 
-[ -s "$MOUNT_FAILURE" ] && CRITICAL_FAILURE mount "$(cat "$MOUNT_FAILURE")"
-: >"$MUOS_STORE_DIR/mounted"
+FAIL_IF_ANY
+: >"$MUOS_STORE_DIR/mount_ready"
 
 LOG_INFO "$0" 0 "BIND MOUNT" "Mounting STANDARD paths"
 MOUNT_STORAGE "$STANDARD_LOCS" "STANDARD"
 
-[ -s "$MOUNT_FAILURE" ] && CRITICAL_FAILURE mount "$(cat "$MOUNT_FAILURE")"
+FAIL_IF_ANY
 
-# Bind hardcoded paths of the appropriate locations under /run/muos/storage ($MUOS_STORE_DIR) bound above.
 BIND_EMULATOR() {
 	STORE_PATH="$1"
 	EMU_PATH="$2"
@@ -142,64 +186,75 @@ BIND_EMULATOR() {
 	MOUNT="$MUOS_SHARE_DIR/emulator/$EMU_PATH"
 
 	mkdir -p "$TARGET" "$MOUNT"
-	umount "$MOUNT" 2>/dev/null
 
 	if SAFE_BIND "$TARGET" "$MOUNT"; then
 		LOG_INFO "$0" 0 "BIND MOUNT" "Bound emulator path $TARGET -> $MOUNT"
 	else
 		LOG_INFO "$0" 0 "BIND MOUNT" "FAILED to bind emulator path $TARGET -> $MOUNT"
-		CRITICAL_FAILURE mount "$MOUNT"
+		echo "$STORE_PATH" >>"$MOUNT_FAILURE"
 	fi
 }
 
+# Bind hardcoded paths of the appropriate locations under /run/muos/storage ($MUOS_STORE_DIR) bound above.
 LOG_INFO "$0" 0 "BIND MOUNT" "Binding emulator-specific paths"
-BIND_EMULATOR "save/pico8" "pico8/.lexaloffle/pico-8"
 
 DL_DIR="drastic-legacy"
-BIND_EMULATOR "save/$DL_DIR/backup" "$DL_DIR/backup"
-BIND_EMULATOR "save/$DL_DIR/savestates" "$DL_DIR/savestates"
-
 OB_DIR="openbor/userdata"
-BIND_EMULATOR "save/file/OpenBOR-Ext" "$OB_DIR/saves/openbor"
-BIND_EMULATOR "screenshot" "$OB_DIR/screenshots/openbor"
-
 PS_DIR="ppsspp/.config/ppsspp"
-BIND_EMULATOR "save/game/PPSSPP-Ext" "$PS_DIR/PSP/GAME"
-BIND_EMULATOR "save/file/PPSSPP-Ext" "$PS_DIR/PSP/SAVEDATA"
-BIND_EMULATOR "save/state/PPSSPP-Ext" "$PS_DIR/PSP/PPSSPP_STATE"
+
+EMU_BINDS="
+save/pico8|pico8/.lexaloffle/pico-8
+save/$DL_DIR/backup|$DL_DIR/backup
+save/$DL_DIR/savestates|$DL_DIR/savestates
+save/file/OpenBOR-Ext|$OB_DIR/saves/openbor
+screenshot|$OB_DIR/screenshots/openbor
+save/game/PPSSPP-Ext|$PS_DIR/PSP/GAME
+save/file/PPSSPP-Ext|$PS_DIR/PSP/SAVEDATA
+save/state/PPSSPP-Ext|$PS_DIR/PSP/PPSSPP_STATE
+"
+
+IFS='
+'
+for LINE in $EMU_BINDS; do
+	[ -n "$LINE" ] || continue
+
+	STORE_PATH="${LINE%%|*}"
+	EMU_PATH="${LINE#*|}"
+
+	[ -n "$STORE_PATH" ] || continue
+	SPAWN_JOB BIND_EMULATOR "$STORE_PATH" "$EMU_PATH"
+done
+unset IFS
+
+WAIT_JOBS
+FAIL_IF_ANY
 
 RA_DIR="$MUOS_SHARE_DIR/emulator/retroarch"
 
-INTERNAL_ENTRIES="
-archive|ROM|$ROM_MOUNT/ARCHIVE
-assign|INTERNAL|$MUOS_SHARE_DIR/info/assign
-cheats|INTERNAL|$RA_DIR/cheats
-config|INTERNAL|$MUOS_SHARE_DIR/info/config
-core|INTERNAL|$MUOS_SHARE_DIR/core
-emulator|INTERNAL|$MUOS_SHARE_DIR/emulator
-hotkey|INTERNAL|$MUOS_SHARE_DIR/hotkey
-info|INTERNAL|$MUOS_SHARE_DIR/info
-language|INTERNAL|$MUOS_SHARE_DIR/language
-overlays|INTERNAL|$RA_DIR/overlays
-override|INTERNAL|$MUOS_SHARE_DIR/info/override
-script|INTERNAL|/opt/muos/script
-shaders|INTERNAL|$RA_DIR/shaders
-task|INTERNAL|$MUOS_SHARE_DIR/task
-"
+ADD_INTERNAL() {
+	KEY="$1"
+	BACKEND="$2"
+	SRC="$3"
 
-ADD_INTERNAL_ENTRIES() {
-	printf '%s\n' "$INTERNAL_ENTRIES" | while IFS='|' read -r KEY BACKEND SRC; do
-		[ -n "$KEY" ] || continue
-
-		# Skip if key already exists
-		if awk -F'|' -v k="$KEY" '$1 == k { found=1 } END { exit !found }' "$BINDMAP"; then
-			continue
-		fi
-
-		printf '%s|%s|%s\n' "$KEY" "$BACKEND" "$SRC" >>"$BINDMAP"
-	done
+	HAVE_KEY "$KEY" && return 0
+	ADD_KEY "$KEY"
+	printf '%s|%s|%s\n' "$KEY" "$BACKEND" "$SRC" >>"$BINDMAP"
 }
 
-ADD_INTERNAL_ENTRIES
-FIX_PACKAGE_ROOT
-SORT_BINDMAP
+ADD_INTERNAL "archive"   "ROM"      "$ROM_MOUNT/ARCHIVE"
+ADD_INTERNAL "assign"    "INTERNAL" "$MUOS_SHARE_DIR/info/assign"
+ADD_INTERNAL "cheats"    "INTERNAL" "$RA_DIR/cheats"
+ADD_INTERNAL "config"    "INTERNAL" "$MUOS_SHARE_DIR/info/config"
+ADD_INTERNAL "core"      "INTERNAL" "$MUOS_SHARE_DIR/core"
+ADD_INTERNAL "emulator"  "INTERNAL" "$MUOS_SHARE_DIR/emulator"
+ADD_INTERNAL "hotkey"    "INTERNAL" "$MUOS_SHARE_DIR/hotkey"
+ADD_INTERNAL "info"      "INTERNAL" "$MUOS_SHARE_DIR/info"
+ADD_INTERNAL "language"  "INTERNAL" "$MUOS_SHARE_DIR/language"
+ADD_INTERNAL "overlays"  "INTERNAL" "$RA_DIR/overlays"
+ADD_INTERNAL "override"  "INTERNAL" "$MUOS_SHARE_DIR/info/override"
+ADD_INTERNAL "script"    "INTERNAL" "/opt/muos/script"
+ADD_INTERNAL "shaders"   "INTERNAL" "$RA_DIR/shaders"
+ADD_INTERNAL "task"      "INTERNAL" "$MUOS_SHARE_DIR/task"
+
+LC_ALL=C awk -F'|' -v OFS='|' '$1 == "package" { sub(/\/package\/.*/, "/package", $3) } { print }' \
+	"$BINDMAP" | LC_ALL=C sort -t'|' -k1,1 >"$BINDMAP.tmp" && mv "$BINDMAP.tmp" "$BINDMAP"

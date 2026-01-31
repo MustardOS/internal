@@ -166,7 +166,7 @@ LOG_INFO "$0" 0 "BOOTING" "Checking Swap Requirements"
 #:] ### Storage Mount Wait
 #:] Block until union mounts are ready so later steps can rely on them.
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Storage Mounts"
-until [ -f "$MUOS_STORE_DIR/mounted" ]; do sleep 0.01; done
+until [ -f "$MUOS_STORE_DIR/mount_ready" ]; do sleep 0.01; done
 
 #:] ### Safety Script (_optional_)
 #:] If a supplied `oops.sh` exists on ROM storage, run it now!

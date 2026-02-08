@@ -110,7 +110,10 @@ while :; do
 					IFS= read -r RUN_APP <"$APP_GO"
 					ENSURE_REMOVED "$APP_GO"
 
+					SETUP_APP
 					"$RUN_APP"/mux_launch.sh "$RUN_APP"
+
+					DEL_CON_EXPORT
 					echo appmenu >"$ACT_GO"
 
 					LOG_INFO "$0" 0 "FRONTEND" "Clearing Governor and Control Scheme files"

@@ -5,12 +5,10 @@
 
 . /opt/muos/script/var/func.sh
 
-echo app >/tmp/act_go
+APP_BIN="PPSSPP"
+SETUP_APP "$APP_BIN" ""
 
-GOV_GO="/tmp/gov_go"
-[ -e "$GOV_GO" ] && cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
-
-SETUP_SDL_ENVIRONMENT
+# -----------------------------------------------------------------------------
 
 PPSSPP_DIR="$MUOS_SHARE_DIR/emulator/ppsspp"
 
@@ -36,14 +34,7 @@ esac
 HOME="$PPSSPP_DIR"
 export HOME
 
-XDG_CONFIG_HOME="$HOME/.config"
-export XDG_CONFIG_HOME
-
 rm -rf "$PPSSPP_DIR/.config/ppsspp/PSP/SYSTEM/CACHE/"*
 cd "$PPSSPP_DIR" || exit
 
-SET_VAR "system" "foreground_process" "PPSSPP"
-
-./PPSSPP
-
-unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+./$APP_BIN

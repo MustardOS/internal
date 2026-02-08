@@ -5,28 +5,21 @@
 
 . /opt/muos/script/var/func.sh
 
-echo app >/tmp/act_go
+APP_BIN="scummvm"
+SETUP_APP "$APP_BIN" ""
 
-GOV_GO="/tmp/gov_go"
-[ -e "$GOV_GO" ] && cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
+# -----------------------------------------------------------------------------
 
-SETUP_SDL_ENVIRONMENT
-
-HOME="$(GET_VAR "device" "board/home")"
-export HOME
-
-SET_VAR "system" "foreground_process" "scummvm"
-
-EMUDIR="$MUOS_SHARE_DIR/emulator/scummvm"
-CONFIG="$EMUDIR/.config/scummvm/scummvm.ini"
-LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/scummvm.log"
+EMUDIR="$MUOS_SHARE_DIR/emulator/$APP_BIN"
+CONFIG="$EMUDIR/.config/$APP_BIN/$APP_BIN.ini"
+LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/$APP_BIN.log"
 SAVE="$MUOS_STORE_DIR/save/file/ScummVM-Ext"
 
 RG_DPAD="/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 TUI_DPAD="/tmp/trimui_inputd/input_dpad_to_joystick"
 
 mkdir -p "$SAVE"
-chmod +x "$EMUDIR"/scummvm
+chmod +x "$EMUDIR"/$APP_BIN
 
 cd "$EMUDIR" || exit
 
@@ -38,7 +31,7 @@ case "$(GET_VAR "device" "board/name")" in
 	*) ;;
 esac
 
-HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG"
+HOME="$EMUDIR" ./$APP_BIN --logfile="$LOGPATH" --joystick=0 --config="$CONFIG"
 
 # Switch analogue<>dpad back so we can navigate muX
 [ "$(GET_VAR "device" "board/stick")" -eq 0 ]
@@ -47,5 +40,3 @@ case "$(GET_VAR "device" "board/name")" in
 	tui*) [ -f $TUI_DPAD ] && rm $TUI_DPAD ;;
 	*) ;;
 esac
-
-unset SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED

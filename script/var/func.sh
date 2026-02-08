@@ -46,6 +46,10 @@ CSI="${ESC}[38;5;"
 
 SAFE_QUIT=/tmp/safe_quit
 
+DEL_CON_EXPORT() {
+	unset LD_PRELOAD STAGE_OVERLAY SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
+}
+
 CAPITALISE() {
 	printf '%s' "$1" | sed 's/\(^\|[[:space:]]\)\([[:alpha:]]\)/\1\u\2/g'
 }
@@ -594,6 +598,22 @@ SETUP_SDL_ENVIRONMENT() {
 	else
 		export SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION
 	fi
+}
+
+SETUP_APP() {
+	echo app >"/tmp/act_go"
+
+	GOV_GO="/tmp/gov_go"
+	[ -e "$GOV_GO" ] && cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
+
+	HOME="$(GET_VAR "device" "board/home")"
+	export HOME
+
+	XDG_CONFIG_HOME="$HOME/.config"
+	export XDG_CONFIG_HOME
+
+	SET_VAR "system" "foreground_process" "$1"
+	SETUP_SDL_ENVIRONMENT $2
 }
 
 UPDATE_RA_VALUE() {

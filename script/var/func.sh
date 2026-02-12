@@ -3,16 +3,17 @@
 
 MUX_LIB="/opt/muos/frontend/lib"
 
-case ":$LD_LIBRARY_PATH:" in
+case ":${LD_LIBRARY_PATH-}:" in
 	*":$MUX_LIB:"*) ;;
-	*) export LD_LIBRARY_PATH="$MUX_LIB:$LD_LIBRARY_PATH" ;;
+	*) export LD_LIBRARY_PATH="$MUX_LIB${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" ;;
 esac
 
 : "${STAGE_OVERLAY:=1}"
 if [ "$STAGE_OVERLAY" -eq 1 ]; then
-	case ":$LD_PRELOAD:" in
-		*":$MUX_LIB/libmustage.so:"*) ;;
-		*) export LD_PRELOAD="$MUX_LIB/libmustage.so${LD_PRELOAD:+:$LD_PRELOAD}" ;;
+	# LD_PRELOAD is space separated!
+	case " ${LD_PRELOAD-} " in
+		*" $MUX_LIB/libmustage.so "*) ;;
+		*) export LD_PRELOAD="$MUX_LIB/libmustage.so${LD_PRELOAD:+ $LD_PRELOAD}" ;;
 	esac
 else
 	unset LD_PRELOAD

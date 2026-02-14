@@ -16,7 +16,9 @@ FILE=${3%/}
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
+SETUP_STAGE_OVERLAY
 SETUP_SDL_ENVIRONMENT
+
 SET_VAR "system" "foreground_process" "mupen64plus"
 
 EMUDIR="$MUOS_SHARE_DIR/emulator/mupen64plus"

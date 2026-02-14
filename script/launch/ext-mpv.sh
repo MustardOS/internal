@@ -14,6 +14,7 @@ LOG_INFO "$0" 0 "FILE" "$FILE"
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
+SETUP_STAGE_OVERLAY
 SETUP_SDL_ENVIRONMENT
 
 MPV_BIN="mpv"

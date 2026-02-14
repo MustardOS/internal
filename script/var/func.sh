@@ -8,17 +8,6 @@ case ":${LD_LIBRARY_PATH-}:" in
 	*) export LD_LIBRARY_PATH="$MUX_LIB${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" ;;
 esac
 
-: "${STAGE_OVERLAY:=1}"
-if [ "$STAGE_OVERLAY" -eq 1 ]; then
-	# LD_PRELOAD is space separated!
-	case " ${LD_PRELOAD-} " in
-		*" $MUX_LIB/libmustage.so "*) ;;
-		*) export LD_PRELOAD="$MUX_LIB/libmustage.so${LD_PRELOAD:+ $LD_PRELOAD}" ;;
-	esac
-else
-	unset LD_PRELOAD
-fi
-
 HOME="/root"
 XDG_RUNTIME_DIR="/run"
 DBUS_SESSION_BUS_ADDRESS="unix:path=/run/dbus/system_bus_socket"
@@ -95,6 +84,24 @@ GET_VAR() {
 
 		printf "%s" "$VAL"
 	) &
+}
+
+SETUP_STAGE_OVERLAY() {
+	[ -z "${MUX_LIB-}" ] && return 0
+	STAGE_LIB="$MUX_LIB/libmustage.so"
+
+	# LD_PRELOAD is space separated!
+	case " ${LD_PRELOAD-} " in
+		*" $STAGE_LIB "*) return 0 ;;
+	esac
+
+	if [ -n "${LD_PRELOAD-}" ]; then
+		LD_PRELOAD="$STAGE_LIB $LD_PRELOAD"
+	else
+		LD_PRELOAD="$STAGE_LIB"
+	fi
+
+	export LD_PRELOAD
 }
 
 #:] ### ALSA Mixer Reset
@@ -292,7 +299,7 @@ EXEC_MUX() {
 	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
 
 	SET_VAR "system" "foreground_process" "$MODULE"
-	DISABLE_HW_OVERLAY=1 "/opt/muos/frontend/$MODULE" "$@"
+	"/opt/muos/frontend/$MODULE" "$@"
 
 	while [ ! -f "$SAFE_QUIT" ]; do sleep 0.01; done
 }

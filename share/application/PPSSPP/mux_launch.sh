@@ -8,6 +8,8 @@
 APP_BIN="PPSSPP"
 SETUP_APP "$APP_BIN" ""
 
+SETUP_STAGE_OVERLAY
+
 # -----------------------------------------------------------------------------
 
 PPSSPP_DIR="$MUOS_SHARE_DIR/emulator/ppsspp"

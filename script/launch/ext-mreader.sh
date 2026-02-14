@@ -16,6 +16,7 @@ READER_DIR="$MUOS_SHARE_DIR/emulator/mreader"
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
+SETUP_STAGE_OVERLAY
 SETUP_SDL_ENVIRONMENT
 
 READER_BIN="reader"

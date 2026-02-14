@@ -8,6 +8,8 @@
 APP_BIN="retroarch"
 SETUP_APP "$APP_BIN" ""
 
+SETUP_STAGE_OVERLAY
+
 # -----------------------------------------------------------------------------
 
 RA_CONF="$MUOS_SHARE_DIR/info/config/$APP_BIN.cfg"

@@ -13,6 +13,7 @@ LOG_INFO "$0" 0 "FILE" "$FILE"
 
 PPSSPP_DIR="$MUOS_SHARE_DIR/emulator/ppsspp"
 
+SETUP_STAGE_OVERLAY
 SETUP_SDL_ENVIRONMENT
 
 case "$(GET_VAR "device" "board/name")" in

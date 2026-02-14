@@ -3,7 +3,7 @@
 # ICON: portmaster
 # GRID: PortMaster
 
-STAGE_OVERLAY=0 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/func.sh
 
 APP_BIN="portmaster"
 SETUP_APP "$APP_BIN" ""

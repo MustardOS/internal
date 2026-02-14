@@ -8,6 +8,8 @@
 APP_BIN="scummvm"
 SETUP_APP "$APP_BIN" ""
 
+SETUP_STAGE_OVERLAY
+
 # -----------------------------------------------------------------------------
 
 EMUDIR="$MUOS_SHARE_DIR/emulator/$APP_BIN"

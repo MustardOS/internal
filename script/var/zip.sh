@@ -164,69 +164,52 @@ CREATE_ARCHIVE() {
 		return 1
 	fi
 
-	DEST_DIR="$(dirname "$DEST_FILE")"
+	DEST_DIR="${DEST_FILE%/*}"
+	[ "$DEST_DIR" = "$DEST_FILE" ] && DEST_DIR="."
+
 	[ -d "$DEST_DIR" ] || mkdir -p "$DEST_DIR" || {
 		printf "\nCannot create destination directory: %s\n" "$DEST_DIR"
 		return 1
 	}
 
 	case "$ABS_SRC_PATH" in
-		"$SRC_MNT_PATH"/*) REL_FROM_ROOT="${ABS_SRC_PATH#"$SRC_MNT_PATH"/}" ;;
-		/*) REL_FROM_ROOT="${ABS_SRC_PATH#/}" ;;
-		*) REL_FROM_ROOT="$ABS_SRC_PATH" ;;
+		"$SRC_MNT_PATH"/*)
+			BASE_DIR="$SRC_MNT_PATH"
+			REL_FULL="${ABS_SRC_PATH#"$SRC_MNT_PATH"/}"
+			;;
+		/*)
+			BASE_DIR="/"
+			REL_FULL="${ABS_SRC_PATH#/}"
+			;;
+		*)
+			BASE_DIR="."
+			REL_FULL="$ABS_SRC_PATH"
+			;;
 	esac
 
-	LAST="${REL_FROM_ROOT##*/}"
-
-	if command -v mktemp >/dev/null 2>&1; then
-		TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/zipstage.XXXXXX")" || return 1
-	else
-		TMP_ROOT="${TMPDIR:-/tmp}/zipstage.$$"
-		rm -rf "$TMP_ROOT" 2>/dev/null || :
-		mkdir -p "$TMP_ROOT" || return 1
-	fi
-
-	# Build a minimal tree so 'zip' sees the desired archive paths starting at SRC_SHORTNAME...
-	# 1) REL starts with "$SRC_SHORTNAME/..." will place symlink at that trailing path inside $SRC_SHORTNAME/
-	# 2) LAST == "$SRC_SHORTNAME"             will place symlink directly as $TMP_ROOT/$SRC_SHORTNAME
-	# 3) Otherwise                            will place symlink as $TMP_ROOT/$SRC_SHORTNAME/$LAST
-
-	DIR_TRAIL="${REL_FROM_ROOT#"$SRC_SHORTNAME"/}"
-
-	if [ "$REL_FROM_ROOT" = "$SRC_SHORTNAME" ] || [ "$LAST" = "$SRC_SHORTNAME" ]; then
-		ln -s "$ABS_SRC_PATH" "$TMP_ROOT/$SRC_SHORTNAME" || {
-			rm -rf "$TMP_ROOT"
-			return 1
-		}
-	elif [ "$DIR_TRAIL" != "$REL_FROM_ROOT" ]; then
-		mkdir -p "$TMP_ROOT/$SRC_SHORTNAME/$(dirname -- "$DIR_TRAIL")"
-		ln -s "$ABS_SRC_PATH" "$TMP_ROOT/$SRC_SHORTNAME/$DIR_TRAIL" || {
-			rm -rf "$TMP_ROOT"
-			return 1
-		}
-	else
-		mkdir -p "$TMP_ROOT/$SRC_SHORTNAME"
-		ln -s "$ABS_SRC_PATH" "$TMP_ROOT/$SRC_SHORTNAME/$LAST" || {
-			rm -rf "$TMP_ROOT"
-			return 1
-		}
-	fi
+	case "$REL_FULL" in
+		"$SRC_SHORTNAME") REL_FROM_ROOT="$SRC_SHORTNAME" ;;
+		"$SRC_SHORTNAME"/*) REL_FROM_ROOT="$REL_FULL" ;;
+		*)
+			LAST="${REL_FULL##*/}"
+			REL_FROM_ROOT="$LAST"
+			BASE_DIR="${ABS_SRC_PATH%/*}"
+			;;
+	esac
 
 	UPDATE_FLAG=""
 	[ -e "$DEST_FILE" ] && UPDATE_FLAG="u"
 
 	(
-		cd "$TMP_ROOT" || exit 2
+		cd "$BASE_DIR" || exit 2
 		# shellcheck disable=SC2086
-		zip -q -r${UPDATE_FLAG}${COMP} "$DEST_FILE" "$SRC_SHORTNAME"
+		exec zip -q -r${UPDATE_FLAG}${COMP} "$DEST_FILE" "$REL_FROM_ROOT"
 	) >/dev/null 2>&1 &
 	ZIP_PID=$!
 
 	THROBBER "$ZIP_PID"
 	wait "$ZIP_PID"
 	RC=$?
-
-	rm -rf "$TMP_ROOT"
 
 	if [ "$RC" -ne 0 ]; then
 		printf " Failure!\n"

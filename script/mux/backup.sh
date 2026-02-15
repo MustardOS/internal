@@ -135,7 +135,6 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 				printf "Failed to add %s for %s\n\n" "$SRC_SUFFIX" "$SRC_SHORTNAME"
 				ERROR_FLAG=1
 				ARC_STATUS=1
-				continue
 			fi
 
 			if command -v ARC_CREATE_POST >/dev/null 2>&1; then

@@ -6,10 +6,10 @@
 
 FRONTEND stop
 
-MUOS_CORE_DIR="$MUOS_SHARE_DIR/info/core"
+MUOS_CONTENT_DIR="$MUOS_SHARE_DIR/info/content"
 
-echo "Removing all core assignments"
-rm -rf "${MUOS_CORE_DIR:?}"/*
+echo "Removing all content assignments"
+rm -rf "${MUOS_CONTENT_DIR:?}"/*
 
 echo "Sync Filesystem"
 sync

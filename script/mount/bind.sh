@@ -3,7 +3,7 @@
 . /opt/muos/script/var/func.sh
 
 PRIORITY_LOCS="application bios init info/track music save theme"
-STANDARD_LOCS="info/catalogue info/name info/collection info/history network screenshot syncthing package/catalogue package/config"
+STANDARD_LOCS="info/catalogue info/name info/collection info/history info/override network screenshot syncthing package/catalogue package/config"
 
 MOUNT_FAILURE="/tmp/muos/mount_failure"
 

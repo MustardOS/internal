@@ -257,6 +257,37 @@ HOTKEY() {
 	esac
 }
 
+MUXCTL() {
+	case "$1" in
+		stop)
+			HOTKEY stop
+			FRONTEND stop
+			;;
+		start)
+			HOTKEY start
+
+			if [ -n "$2" ]; then
+				FRONTEND start "$2"
+			else
+				FRONTEND start
+			fi
+			;;
+		restart)
+			MUXCTL stop
+
+			if [ -n "$2" ]; then
+				MUXCTL start "$2"
+			else
+				MUXCTL start
+			fi
+			;;
+		*)
+			printf "Usage: MUXCTL start [module] | stop | restart [module]\n"
+			return 1
+			;;
+	esac
+}
+
 MESSAGE() {
 	case "$1" in
 		stop)

@@ -220,7 +220,12 @@ FRONTEND() {
 			;;
 		restart)
 			FRONTEND stop
-			FRONTEND "$@"
+
+			if [ -n "$2" ]; then
+				FRONTEND start "$2"
+			else
+				FRONTEND start
+			fi
 			;;
 		*)
 			printf "Usage: FRONTEND start [module] | stop | restart [module]\n"

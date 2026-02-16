@@ -1,9 +1,5 @@
 #!/bin/sh
 
-# See, https://www.man7.org/linux/man-pages/man1/flock.1.html
-exec 9>/tmp/bright.lock
-flock -n 9 || exit 0
-
 . /opt/muos/script/var/func.sh
 
 DEVICE_MODE=$(GET_VAR "config" "boot/device_mode")

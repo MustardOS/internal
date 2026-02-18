@@ -52,38 +52,32 @@ TBOX() {
 }
 
 GET_CONF_PATH() {
-	(
-		case "$1" in
-			global | config) echo "/opt/muos/config" ;;
-			device) echo "/opt/muos/device/config" ;;
-			kiosk) echo "/opt/muos/kiosk" ;;
-			system) echo "/opt/muos/config/system" ;;
-		esac
-	) &
+	case "$1" in
+		global | config) echo "/opt/muos/config" ;;
+		device) echo "/opt/muos/device/config" ;;
+		kiosk) echo "/opt/muos/kiosk" ;;
+		system) echo "/opt/muos/config/system" ;;
+	esac
 }
 
 SET_VAR() {
-	(
-		BASE=$(GET_CONF_PATH "$1") || return 0
-		printf "%s" "$3" >"$BASE/$2"
-	) &
+	BASE=$(GET_CONF_PATH "$1") || return 0
+	printf "%s" "$3" >"$BASE/$2"
 }
 
 GET_VAR() {
-	(
-		BASE=$(GET_CONF_PATH "$1") || return 0
+	BASE=$(GET_CONF_PATH "$1") || return 0
 
-		FILE="$BASE/$2"
-		[ -r "$FILE" ] || return 0
+	FILE="$BASE/$2"
+	[ -r "$FILE" ] || return 0
 
-		VAL=
-		IFS= read -r VAL <"$FILE"
+	VAL=
+	IFS= read -r VAL <"$FILE"
 
-		CR=$(printf "\r")
-		[ "${VAL%"$CR"}" != "$VAL" ] && VAL=${VAL%"$CR"}
+	CR=$(printf "\r")
+	[ "${VAL%"$CR"}" != "$VAL" ] && VAL=${VAL%"$CR"}
 
-		printf "%s" "$VAL"
-	) &
+	printf "%s" "$VAL"
 }
 
 SETUP_STAGE_OVERLAY() {

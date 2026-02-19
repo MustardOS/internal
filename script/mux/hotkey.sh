@@ -4,17 +4,16 @@
 
 IS_NORMAL_MODE && IS_HANDHELD_MODE && . /opt/muos/script/mux/idle.sh
 
-READ_HOTKEYS() {
-	# Restart muhotkey if it exits. (tweak.sh kills it on config changes.)
-	while :; do
-		/opt/muos/frontend/muhotkey
-		sleep 0.1
-	done
-}
+HOTKEY_FIFO="$MUOS_RUN_DIR/hotkey"
+[ -p "$HOTKEY_FIFO" ] || mkfifo "$HOTKEY_FIFO"
+
+RETROWAIT="$(GET_VAR "config" "settings/advanced/retrowait")"
+BOARD_NAME="$(GET_VAR "device" "board/name")"
+
+CHARGE_ACTIVE=0
+CHARGE_CHECK=0
 
 HANDLE_HOTKEY() {
-	RETROWAIT="$(GET_VAR "config" "settings/advanced/retrowait")"
-
 	# This blocks the event loop, so commands here should finish quickly.
 	case "$1" in
 		# Input activity/idle:
@@ -38,7 +37,7 @@ HANDLE_HOTKEY() {
 }
 
 LID_CLOSED() {
-	case "$(GET_VAR "device" "board/name")" in
+	case "$BOARD_NAME" in
 		rg34xx-sp | rg35xx-sp)
 			HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
 			read -r VAL <"$HALL_KEY" 2>/dev/null || return 1
@@ -73,11 +72,29 @@ RGBCLI() {
 		"$RGBCONTROLLER_DIR/love" "$RGBCONTROLLER_DIR/rgbcli" "$@"
 }
 
-READ_HOTKEYS | while read -r HOTKEY; do
-	# Don't respond to any hotkeys while in charge mode or with lid closed.
-	if pgrep "muxcharge" >/dev/null 2>&1 || LID_CLOSED; then
-		continue
-	fi
+while :; do
+	/opt/muos/frontend/muhotkey >"$HOTKEY_FIFO" &
+	MU_PID=$!
 
-	HANDLE_HOTKEY "$HOTKEY"
+	while IFS= read -r HOTKEY <"$HOTKEY_FIFO"; do
+		CHARGE_CHECK=$((CHARGE_CHECK + 1))
+		if [ "$CHARGE_CHECK" -ge 32 ]; then
+			if pgrep -x muxcharge >/dev/null 2>&1; then
+				CHARGE_ACTIVE=1
+			else
+				CHARGE_ACTIVE=0
+			fi
+			CHARGE_CHECK=0
+		fi
+
+		# Don't respond to any hotkeys while in charge mode or with lid closed.
+		if [ "$CHARGE_ACTIVE" -eq 1 ] || LID_CLOSED; then
+			continue
+		fi
+
+		HANDLE_HOTKEY "$HOTKEY"
+	done
+
+	wait "$MU_PID" 2>/dev/null
+	sleep 0.1
 done

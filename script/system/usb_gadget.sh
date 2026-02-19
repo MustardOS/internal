@@ -256,7 +256,7 @@ ENSURE_DESIRED_STATE() {
 		adb | mtp)
 			USB_FUNCTION="$CUR_FUNC"
 			if [ ! -d "$GADGET" ]; then
-				ENSURE_CONFIGFS
+				ENSURE_CONFIG_FS
 				CREATE_GADGET_SHELL
 				SWITCH_TO "$USB_FUNCTION"
 			else

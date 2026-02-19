@@ -14,9 +14,7 @@ GSTR="$GADGET/strings/0x409"
 FFS_ROOT="/dev/usb-ffs"
 UDC="$(GET_VAR "device" "board/udc")"
 
-LOCK_DIR="/run/muos/lock"
-LOCK_PATH="$LOCK_DIR/usb_gadgetd.lock"
-PID_FILE="$LOCK_PATH/pid"
+PID_FILE="$MUOS_RUN_DIR/usb_gadget.pid"
 
 GET_USB_FUNCTION() {
 	case "$(GET_VAR "config" "settings/advanced/usb_function")" in
@@ -64,7 +62,7 @@ IS_RUNNING() {
 }
 
 ENSURE_CONFIG_FS() {
-	[ -d /sys/kernel/config ] || mount -t configfs none /sys/kernel/config 2>/dev/null
+	[ -d "/sys/kernel/config" ] || mount -t configfs none "/sys/kernel/config" 2>/dev/null
 }
 
 UNBIND_UDC() {
@@ -267,13 +265,16 @@ ENSURE_DESIRED_STATE() {
 	esac
 }
 
-ACQUIRE_LOCK() {
-	mkdir -p "$LOCK_DIR"
-	if mkdir "$LOCK_PATH" 2>/dev/null; then
-		printf '%s\n' "$$" >"$PID_FILE"
-		trap 'rm -rf "$LOCK_PATH"; exit 0' INT HUP TERM EXIT
+ACQUIRE_PIDFILE() {
+	mkdir -p "$(dirname "$PID_FILE")" 2>/dev/null
+
+	set -C
+	if printf '%s\n' "$$" >"$PID_FILE" 2>/dev/null; then
+		set +C
+		trap 'rm -f "$PID_FILE"; exit 0' INT HUP TERM EXIT
 		return 0
 	fi
+	set +C
 
 	if [ -r "$PID_FILE" ]; then
 		OLD_PID="$(cat "$PID_FILE" 2>/dev/null)"
@@ -282,18 +283,21 @@ ACQUIRE_LOCK() {
 		fi
 	fi
 
-	rm -rf "$LOCK_PATH" 2>/dev/null
-	if mkdir "$LOCK_PATH" 2>/dev/null; then
-		printf '%s\n' "$$" >"$PID_FILE"
-		trap 'rm -rf "$LOCK_PATH"; exit 0' INT HUP TERM EXIT
+	rm -f "$PID_FILE" 2>/dev/null
+
+	set -C
+	if printf '%s\n' "$$" >"$PID_FILE" 2>/dev/null; then
+		set +C
+		trap 'rm -f "$PID_FILE"; exit 0' INT HUP TERM EXIT
 		return 0
 	fi
+	set +C
 
 	return 1
 }
 
 WATCHDOG_LOOP() {
-	ACQUIRE_LOCK || exit 0
+	ACQUIRE_PIDFILE || exit 0
 
 	INTERVAL="1"
 	STALL_REBIND_SECS="4"
@@ -362,11 +366,11 @@ CMD_STOP() {
 			sleep 0.2
 			kill -9 "$P" 2>/dev/null
 		else
-			printf "usb_gadgetd: stale lock (pid %s)\n" "$P"
+			printf "usb_gadgetd: stale pid (pid %s)\n" "$P"
 		fi
 	fi
 
-	rm -rf "$LOCK_PATH" 2>/dev/null
+	rm -f "$PID_FILE" 2>/dev/null
 	printf "usb_gadgetd: stopped\n"
 }
 

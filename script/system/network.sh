@@ -111,8 +111,8 @@ IS_OPEN_NETWORK() {
 }
 
 WAIT_NETWORK_ASSOC() {
-  [ "$IFCE" = "eth0" ] && return 0
-  
+	[ "$IFCE" = "eth0" ] && return 0
+
 	[ "$DRIV" = "wext" ] && iwconfig "$IFCE" retry off 2>/dev/null
 
 	WAIT=20
@@ -152,8 +152,8 @@ WAIT_NETWORK_ASSOC() {
 }
 
 WAIT_CARRIER() {
-  [ "$IFCE" = "eth0" ] && return 0
-  
+	[ "$IFCE" = "eth0" ] && return 0
+
 	I=0
 	while [ "$I" -lt 5 ]; do
 		[ "$(cat /sys/class/net/"$IFCE"/carrier 2>/dev/null)" = "1" ] && return 0
@@ -171,8 +171,8 @@ WPA_RUNNING() {
 }
 
 WIFI_CONFIG() {
-  [ "$IFCE" = "eth0" ] && return 0
-  
+	[ "$IFCE" = "eth0" ] && return 0
+
 	SSID_PRESENT
 
 	RC=$?
@@ -399,6 +399,9 @@ case "$1" in
 
 				LOG_INFO "$0" 0 "NETWORK" "Starting Enabled Network Services"
 				/opt/muos/script/web/service.sh &
+
+				LOG_INFO "$0" 0 "NETWORK" "Restarting Chrony Service"
+				/opt/muos/script/init/S00chrony restart
 
 				LOG_INFO "$0" 0 "NETWORK" "Running Chrony Time Sync"
 				chronyc burst 4/4

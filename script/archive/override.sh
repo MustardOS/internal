@@ -1,7 +1,7 @@
 #!/bin/sh
 # shellcheck disable=SC2034
 
-ARC_DIR="$MUOS_SHARE_DIR/info"
+ARC_DIR="$MUOS_STORE_DIR/info"
 ARC_LABEL="Launch Overrides"
 
 ARC_EXTRACT() {

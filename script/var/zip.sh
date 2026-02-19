@@ -13,8 +13,59 @@ THROBBER() {
 	done
 }
 
+ARCHIVE_LIST_CACHE_ARCHIVE=""
+ARCHIVE_LIST_CACHE_FILE=""
+
+ARCHIVE_CACHE_ARCHIVE=""
+ARCHIVE_CACHE_FILE=""
+
+CACHE_ARCHIVE_LIST() {
+	ARCH="$1"
+
+	[ "$ARCHIVE_LIST_CACHE_ARCHIVE" = "$ARCH" ] &&
+		[ -n "${ARCHIVE_LIST_CACHE_FILE:-}" ] &&
+		[ -s "$ARCHIVE_LIST_CACHE_FILE" ] && return 0
+
+	ARCHIVE_LIST_CACHE_FILE="/tmp/unzip_list.$$.txt"
+	ARCHIVE_LIST_CACHE_ARCHIVE="$ARCH"
+
+	unzip -l "$ARCH" >"$ARCHIVE_LIST_CACHE_FILE" 2>/dev/null || {
+		: >"$ARCHIVE_LIST_CACHE_FILE"
+		return 1
+	}
+}
+
+CACHE_ARCHIVE() {
+	ARCH="$1"
+
+	[ "$ARCHIVE_CACHE_ARCHIVE" = "$ARCH" ] &&
+		[ -n "${ARCHIVE_CACHE_FILE:-}" ] &&
+		[ -s "$ARCHIVE_CACHE_FILE" ] && return 0
+
+	ARCHIVE_CACHE_FILE="/tmp/unzip_cache.$$.txt"
+	ARCHIVE_CACHE_ARCHIVE="$ARCH"
+
+	unzip -Z1 "$ARCH" >"$ARCHIVE_CACHE_FILE" 2>/dev/null || {
+		: >"$ARCHIVE_CACHE_FILE"
+		return 1
+	}
+}
+
+GET_TOP_LEVEL_DIRS() {
+	ARCH="$1"
+	CACHE_ARCHIVE "$ARCH" || return 1
+
+	awk -F/ 'NF>1 {print $1}' "$ARCHIVE_CACHE_FILE" | sort -u
+}
+
 BYTES_FREE() {
-	AVAIL_KB="$(df -Pk "$1" 2>/dev/null | awk 'NR==2{print $4}')"
+	P="$1"
+
+	while [ ! -e "$P" ] && [ "$P" != "/" ]; do
+		P="${P%/*}"
+	done
+
+	AVAIL_KB="$(df -Pk "$P" 2>/dev/null | awk 'NR==2{print $4}')"
 	[ -n "${AVAIL_KB:-}" ] || AVAIL_KB=0
 
 	printf %s "$((AVAIL_KB * 1024))"
@@ -37,7 +88,19 @@ REQUIRED_WITH_BUFFER() {
 }
 
 GET_ARCHIVE_BYTES() {
-	unzip -l "$1" | awk '/ files$/ { print $1+0; exit }'
+	ARCH="$1"
+	PREFIX="${2:-}"
+
+	CACHE_ARCHIVE_LIST "$ARCH" >/dev/null 2>&1 || {
+		printf %s 0
+		return 0
+	}
+
+	if [ -n "$PREFIX" ]; then
+		awk -v p="$PREFIX" 'NR>3 && $1 ~ /^[0-9]+$/ { name=$NF; if (index(name,p)==1) sum+=$1 } END{print sum+0}' "$ARCHIVE_LIST_CACHE_FILE"
+	else
+		awk 'NR>3 && $1 ~ /^[0-9]+$/ {sum+=$1} END{print sum+0}' "$ARCHIVE_LIST_CACHE_FILE"
+	fi
 }
 
 RESOLVE_ARCHIVE_BIND_PATH() {
@@ -50,17 +113,18 @@ RESOLVE_ARCHIVE_BIND_PATH() {
 }
 
 CHECK_SPACE_FOR_DEST() {
-	REQ="$1"
+	REQ="${1:-0}"
 	ROOT="$2"
 
-	NEED="$(REQUIRED_WITH_BUFFER "$REQ")"
 	BIND="$(RESOLVE_ARCHIVE_BIND_PATH "$ROOT")"
-	HAVE="$(BYTES_FREE "$BIND")"
 
 	[ -n "$BIND" ] || {
 		printf "\nError: No bind map entry for '%s'\n" "$ROOT"
 		return 1
 	}
+
+	NEED="$(REQUIRED_WITH_BUFFER "$REQ")"
+	HAVE="$(BYTES_FREE "$BIND")"
 
 	if [ "$HAVE" -lt "$NEED" ]; then
 		printf "\nError: Not enough free space on '%s'\nNeed %s bytes, have %s bytes!\n" "$ROOT" "$NEED" "$HAVE"
@@ -72,12 +136,17 @@ CHECK_SPACE_FOR_DEST() {
 }
 
 CORRECT_PATH_ARCHIVE() {
-	unzip -l "$1" >/dev/null 2>&1 || return 1
-	unzip -Z1 "$1" | grep -q -E "^($2|$3)"
+	CACHE_ARCHIVE "$1" >/dev/null 2>&1 || return 1
+	grep -q -E "^($2|$3)" "$ARCHIVE_CACHE_FILE"
 }
 
 SAFE_ARCHIVE() {
-	if unzip -Z1 "$1" | grep -E -q '^/|(^|/)\.\.(/|$)'; then
+	CACHE_ARCHIVE "$1" >/dev/null 2>&1 || {
+		printf "\nError: Cannot read archive!\n"
+		return 1
+	}
+
+	if grep -E -q '^/|(^|/)\.\.(/|$)' "$ARCHIVE_CACHE_FILE"; then
 		printf "\nError: Archive contains unsafe paths (absolute or '..')\n" # Damn sith!
 		return 1
 	fi
@@ -121,10 +190,12 @@ EXTRACT_ARCHIVE() {
 	DEST_DIR="$3"
 	PATTERN="${4-}"
 
+	CACHE_ARCHIVE "$ARCHIVE_PATH" >/dev/null 2>&1 || return 1
+
 	if [ -n "$PATTERN" ]; then
-		FILE_COUNT="$(unzip -Z1 "$ARCHIVE_PATH" "$PATTERN" 2>/dev/null | grep -cv '/$' || true)"
+		FILE_COUNT="$(unzip -Z1 "$ARCHIVE_PATH" "$PATTERN" 2>/dev/null | grep -cv '/$')"
 	else
-		FILE_COUNT="$(unzip -Z1 "$ARCHIVE_PATH" 2>/dev/null | grep -cv '/$' || true)"
+		FILE_COUNT="$(grep -cv '/$' "$ARCHIVE_CACHE_FILE" 2>/dev/null)"
 	fi
 
 	[ "${FILE_COUNT:-0}" -gt 0 ] || FILE_COUNT=1

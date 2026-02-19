@@ -104,7 +104,7 @@ case "$ARCHIVE_NAME" in
 		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
 
 		printf "Scanning Archive Directories...\n"
-		TOP_LEVEL="$(unzip -Z1 "$ARCHIVE" 2>/dev/null | awk -F/ 'NF>1 {print $1}' | sort -u)"
+		TOP_LEVEL="$(GET_TOP_LEVEL_DIRS "$ARCHIVE")"
 
 		for TOP in $TOP_LEVEL; do
 			DEST=""
@@ -162,7 +162,7 @@ case "$ARCHIVE_NAME" in
 			fi
 
 			if command -v ARC_EXTRACT_POST >/dev/null 2>&1; then
-				ARC_EXTRACT_POST "$ARC_STATUS" || true
+				ARC_EXTRACT_POST "$ARC_STATUS"
 			fi
 
 			ARC_UNSET

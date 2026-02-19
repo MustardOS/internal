@@ -8,6 +8,7 @@ READ_HOTKEYS() {
 	# Restart muhotkey if it exits. (tweak.sh kills it on config changes.)
 	while :; do
 		/opt/muos/frontend/muhotkey
+		sleep 0.1
 	done
 }
 
@@ -21,9 +22,7 @@ HANDLE_HOTKEY() {
 		IDLE_DISPLAY) IS_NORMAL_MODE && IS_HANDHELD_MODE && DISPLAY_IDLE ;;
 		IDLE_SLEEP) IS_NORMAL_MODE && IS_HANDHELD_MODE && SLEEP ;;
 
-		# Power combos:
-		SLEEP_SHORT) SLEEP ;;
-		SLEEP_LONG) SLEEP ;;
+		SLEEP_SHORT | SLEEP_LONG) SLEEP ;;
 
 		# RGB combos:
 		RGB_MODE) RGBCLI -m up ;;
@@ -42,25 +41,28 @@ LID_CLOSED() {
 	case "$(GET_VAR "device" "board/name")" in
 		rg34xx-sp | rg35xx-sp)
 			HALL_KEY="/sys/class/power_supply/axp2202-battery/hallkey"
-			[ "$(cat "$HALL_KEY")" -eq 0 ]
+			read -r VAL <"$HALL_KEY" 2>/dev/null || return 1
+			[ "$VAL" -eq 0 ]
 			;;
-		*) false ;;
+		*) return 1 ;;
 	esac
 }
 
 SLEEP() {
-	if IS_NORMAL_MODE; then
-		CURR_UPTIME="$(UPTIME 2>/dev/null | cut -d. -f1)"
-		[ -n "$CURR_UPTIME" ] || CURR_UPTIME=0
+	IS_NORMAL_MODE || return 0
 
-		LAST_RESUME="$(GET_VAR "system" "resume_uptime" 2>/dev/null | cut -d. -f1)"
-		[ -n "$LAST_RESUME" ] || LAST_RESUME=0
+	CURR_UPTIME=$(UPTIME 2>/dev/null)
+	CURR_UPTIME=${CURR_UPTIME%%.*}
+	[ -n "$CURR_UPTIME" ] || CURR_UPTIME=0
 
-		# Time to go the fuck to sleep
-		if [ $((CURR_UPTIME - LAST_RESUME)) -gt 5 ]; then
-			SET_VAR "system" "resume_uptime" "$CURR_UPTIME"
-			/opt/muos/script/system/suspend.sh
-		fi
+	LAST_RESUME=$(GET_VAR "system" "resume_uptime" 2>/dev/null)
+	LAST_RESUME=${LAST_RESUME%%.*}
+	[ -n "$LAST_RESUME" ] || LAST_RESUME=0
+
+	# Time to go the fuck to sleep
+	if [ $((CURR_UPTIME - LAST_RESUME)) -gt 5 ]; then
+		SET_VAR "system" "resume_uptime" "$CURR_UPTIME"
+		/opt/muos/script/system/suspend.sh
 	fi
 }
 

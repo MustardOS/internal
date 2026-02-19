@@ -92,11 +92,11 @@ STOP_ONE() {
 	TARGET="$1"
 	UFS_MOUNTED "$TARGET" || return 0
 
-	umount "$TARGET" 2>/dev/null || umount -l "$TARGET" 2>/dev/null || true
+	umount "$TARGET" 2>/dev/null || umount -l "$TARGET" 2>/dev/null
 
 	# If anything stubborn is left, kill by target path!
 	if UFS_MOUNTED "$TARGET"; then
-		pkill -f "^$UFS_BIN .* $TARGET\$" 2>/dev/null || true
+		pkill -f "^$UFS_BIN .* $TARGET\$" 2>/dev/null
 	fi
 
 	if UFS_MOUNTED "$TARGET"; then

@@ -116,7 +116,7 @@ for RF in ra_no_load ra_autoload_once.cfg; do
 	ENSURE_REMOVED "/tmp/$RF"
 done
 
-DEL_CON_EXPORT
+CONTENT_UNSET
 
 # Disable any rumble just in case some core gets stuck!
 echo 0 >"$RUMBLE"

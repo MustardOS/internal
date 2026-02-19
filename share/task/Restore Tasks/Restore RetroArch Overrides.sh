@@ -63,7 +63,7 @@ else
 fi
 
 if command -v ARC_EXTRACT_POST >/dev/null 2>&1; then
-	ARC_EXTRACT_POST "$ARC_STATUS" || true
+	ARC_EXTRACT_POST "$ARC_STATUS"
 fi
 
 echo "All Done!"

@@ -138,7 +138,7 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 			fi
 
 			if command -v ARC_CREATE_POST >/dev/null 2>&1; then
-				ARC_CREATE_POST "$ARC_STATUS" || true
+				ARC_CREATE_POST "$ARC_STATUS"
 			fi
 
 			ARC_UNSET

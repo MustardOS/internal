@@ -13,9 +13,9 @@ FRONTEND stop
 SET_VAR "device" "board/network" "1"
 SET_VAR "device" "board/portmaster" "1"
 
-DEV_BOARD=$(GET_VAR "device" "board/name")
+BOARD_NAME=$(GET_VAR "device" "board/name")
 
-case "$DEV_BOARD" in
+case "$BOARD_NAME" in
 	rg*)
 		SET_VAR "device" "network/module" "/lib/modules/4.9.170/kernel/drivers/net/wireless/rtl8188eu/8188eu.ko"
 		SET_VAR "device" "network/name" "8188eu"

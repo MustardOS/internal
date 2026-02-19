@@ -3,9 +3,9 @@
 . /opt/muos/script/var/func.sh
 
 IS_IDLE="/tmp/is_idle"
-BATT_OVERLAY="/run/muos/overlay.battery"
+BATT_OVERLAY="$MUOS_RUN_DIR/overlay.battery"
 
-BOARD_DEV=$(GET_VAR "device" "board/name")
+BOARD_NAME=$(GET_VAR "device" "board/name")
 CHARGER_DEV=$(GET_VAR "device" "battery/charger")
 BATT_CAP=$(GET_VAR "device" "battery/capacity")
 BATT_LOW=$(GET_VAR "config" "settings/power/low_battery")
@@ -20,7 +20,7 @@ LOW_BATTERY_WARNING() {
 		USING_RGB=0
 
 		if [ "$RGB_ENABLED" -eq 1 ] && [ "$LED_RGB" -eq 1 ] && [ -x "$LED_CONTROL_SCRIPT" ]; then
-			case "$BOARD_DEV" in
+			case "$BOARD_NAME" in
 				rg*) "$LED_CONTROL_SCRIPT" 2 255 255 0 0 ;;
 				tui-brick) "$LED_CONTROL_SCRIPT" 1 10 255 0 0 255 0 0 255 0 0 255 0 0 255 0 0 ;;
 				tui-spoon) "$LED_CONTROL_SCRIPT" 1 10 255 0 0 255 0 0 255 0 0 ;;

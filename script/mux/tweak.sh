@@ -68,10 +68,10 @@ else
 fi
 
 USB_GADGET_RUN="/opt/muos/script/system/usb_gadget.sh"
-LOCK_PID="/run/muos/lock/usb_gadgetd.lock/pid"
+GADGET_PID="$MUOS_RUN_DIR/usb_gadget.pid"
 
 GADGET_WD() {
-	[ -r "$LOCK_PID" ] && kill -0 "$(cat "$LOCK_PID" 2>/dev/null)" 2>/dev/null
+	[ -r "$GADGET_PID" ] && kill -0 "$(cat "$GADGET_PID" 2>/dev/null)" 2>/dev/null
 }
 
 case "$(GET_VAR "config" "settings/advanced/usb_function")" in

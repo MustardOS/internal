@@ -44,13 +44,13 @@ rfkill unblock all 2>/dev/null
 # Calibrate user setting joystick values if set
 /opt/muos/script/device/joycal.sh &
 
-DEV_BOARD=$(GET_VAR "device" "board/name")
+BOARD_NAME=$(GET_VAR "device" "board/name")
 EMU_VER=
 
-case "$DEV_BOARD" in
+case "$BOARD_NAME" in
 	rg*)
 		EMU_VER="rg"
-		case "$DEV_BOARD" in
+		case "$BOARD_NAME" in
 			rg34xx-sp | rg35xx-sp)
 				/opt/muos/script/device/lid.sh &
 				;;

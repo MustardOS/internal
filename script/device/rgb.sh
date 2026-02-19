@@ -9,8 +9,7 @@ MCU_PWR="/sys/class/power_supply/axp2202-battery/mcu_pwr"
 
 BACKEND="AUTO" # AUTO | SYSFS | SERIAL
 
-PID_DIR="/run/muos"
-PID_FILE="$PID_DIR/rgb_random.pid"
+PID_FILE="$MUOS_RUN_DIR/rgb.pid"
 DEFAULT_INTERVAL_MS=50
 
 FLAG_DUR_ALL=""
@@ -119,10 +118,6 @@ DETECT_BACKEND() {
 	fi
 }
 
-ENSURE_DIR() {
-	[ -d "$1" ] || mkdir -p "$1"
-}
-
 SLEEP_MS() {
 	MS=$1
 	sleep "$(printf "%d.%03d" "$((MS / 1000))" "$((MS % 1000))")"
@@ -138,7 +133,6 @@ READ_PID() {
 }
 
 WRITE_PID() {
-	ENSURE_DIR "$PID_DIR"
 	printf "%s\n" "$1" >"$PID_FILE"
 }
 

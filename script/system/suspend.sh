@@ -6,7 +6,7 @@
 RECENT_WAKE="/tmp/recent_wake"
 WAKE_CPU_GOV="/tmp/wake_cpu_gov"
 
-DEV_BOARD=$(GET_VAR "device" "board/name")
+BOARD_NAME=$(GET_VAR "device" "board/name")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
 CPU_GOV_PATH="$(GET_VAR "device" "cpu/governor")"
 LED_RGB="$(GET_VAR "device" "led/rgb")"
@@ -124,7 +124,7 @@ RESUME() {
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
 	# Some stupid TrimUI GPU shenanigans
-	case "$DEV_BOARD" in
+	case "$BOARD_NAME" in
 		mgx* | tui*) setalpha 0 ;;
 	esac
 

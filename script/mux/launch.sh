@@ -69,7 +69,7 @@ ENSURE_REMOVED "$SAG_GO"
 ENSURE_REMOVED "$SAR_GO"
 
 # Set the chosen colour filter of content to our stage overlay path.
-cat "$FLT_GO" >"/run/muos/overlay.filter"
+cat "$FLT_GO" >"$MUOS_RUN_DIR/overlay.filter"
 
 # Construct the path to the assigned launcher INI file based on device storage,
 # assignment name ($ASSIGN), and launcher name ($LAUNCH).  This is created within
@@ -131,7 +131,7 @@ ENSURE_REMOVED "$FLT_GO"
 ENSURE_REMOVED "$OVL_GO"
 ENSURE_REMOVED "$RAC_GO"
 
-rm -f "/run/muos/overlay.filter"
+rm -f "$MUOS_RUN_DIR/overlay.filter"
 
 killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1
 

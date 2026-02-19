@@ -17,13 +17,14 @@ WPA_CONFIG="/etc/wpa_supplicant.conf"
 DEVICE_CONTROL_DIR="/opt/muos/device/control"
 MUOS_LOG_DIR="/opt/muos/log"
 LED_CONTROL_SCRIPT="/opt/muos/script/device/rgb.sh"
+MUOS_RUN_DIR="/run/muos"
 MUOS_SHARE_DIR="/opt/muos/share"
-MUOS_STORE_DIR="/run/muos/storage"
-OVERLAY_NOP="/run/muos/overlay.disable"
+MUOS_STORE_DIR="$MUOS_RUN_DIR/storage"
+OVERLAY_NOP="$MUOS_RUN_DIR/overlay.disable"
 
 export HOME XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
 	ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR LED_CONTROL_SCRIPT \
-	MUOS_SHARE_DIR MUOS_STORE_DIR OVERLAY_NOP
+	MUOS_RUN_DIR MUOS_SHARE_DIR MUOS_STORE_DIR OVERLAY_NOP
 
 MESSAGE_EXEC="/opt/muos/frontend/muxmessage"
 MESSAGE_TEXT="/tmp/msg_livetext"

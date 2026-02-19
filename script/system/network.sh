@@ -24,7 +24,7 @@ RESOLV_CONF="/etc/resolv.conf"
 RETRIES=$(GET_VAR "config" "settings/network/con_retry")
 RETRY_DELAY="${RETRY_DELAY:-2}"
 
-STATUS_FILE="/run/muos/network.status"
+STATUS_FILE="$MUOS_RUN_DIR/network.status"
 
 # Return codes for frontend UI updates
 RC_OK=0

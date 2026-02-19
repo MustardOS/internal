@@ -2,10 +2,10 @@
 
 . /opt/muos/script/var/func.sh
 
-PID_DIR="/run/muos"
+PID_DIR="$MUOS_RUN_DIR"
 mkdir -p "$PID_DIR"
 
-STARTUP_PID="$PID_DIR/startup.pid"
+STARTUP_PID="$PID_DIR/startup"
 
 start() {
 	if [ -f "$STARTUP_PID" ] && kill -0 "$(cat "$STARTUP_PID")" 2>/dev/null; then

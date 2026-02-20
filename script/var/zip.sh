@@ -201,13 +201,9 @@ EXTRACT_ARCHIVE() {
 	[ "${FILE_COUNT:-0}" -gt 0 ] || FILE_COUNT=1
 
 	if [ -n "$PATTERN" ]; then
-		unzip -o "$ARCHIVE_PATH" "$PATTERN" -d "$DEST_DIR" 2>/dev/null |
-			grep --line-buffered -E '^ *(extracting|inflating):' |
-			/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+		unzip -o "$ARCHIVE_PATH" "$PATTERN" -d "$DEST_DIR" 2>&1 | awk '/:/{print}' | /opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
 	else
-		unzip -o "$ARCHIVE_PATH" -d "$DEST_DIR" 2>/dev/null |
-			grep --line-buffered -E '^ *(extracting|inflating):' |
-			/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+		unzip -o "$ARCHIVE_PATH" -d "$DEST_DIR" 2>&1 | awk '/:/{print}' | /opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
 	fi
 }
 

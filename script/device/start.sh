@@ -52,7 +52,7 @@ case "$BOARD_NAME" in
 		EMU_VER="rg"
 		case "$BOARD_NAME" in
 			rg34xx-sp | rg35xx-sp)
-				/opt/muos/script/device/lid.sh &
+				/opt/muos/script/device/lid.sh start &
 				;;
 		esac
 		;;

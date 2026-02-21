@@ -3832,7 +3832,7 @@
 			pinctrl-names = "active\0sleep";
 			status = "okay";
 			lcd_used = <0x01>;
-			lcd_driver_name = "rg34xx_v1";
+			lcd_driver_name = "rg34xxsp_v1";
 			lcd_backlight = <0x32>;
 			lcd_if = <0x00>;
 			lcd_hv_if = <0x00>;

@@ -111,6 +111,7 @@ SLEEP() {
 	DISPLAY_WRITE disp0 setbl 0
 	amixer set "Master" mute >/dev/null 2>&1
 
+	STOP_SSHD_GRACEFUL
 	cat "$CPU_GOV_PATH" >"$WAKE_CPU_GOV"
 
 	if [ "$RGB_ENABLE" -eq 1 ] && [ "$LED_RGB" -eq 1 ]; then

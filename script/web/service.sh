@@ -84,13 +84,6 @@ HARD_KILL() {
 	[ -n "$PIDS" ] && kill -KILL $PIDS >/dev/null 2>&1
 }
 
-# Terminate any active ssh connections, hopefully also sftp connections too
-STOP_SSHD_GRACEFUL() {
-	pkill -TERM -f 'sshd:.*@' >/dev/null 2>&1
-	sleep 0.2
-	pkill -TERM -x sshd >/dev/null 2>&1
-}
-
 MANAGE_WEBSERV() {
 	ACT="$1"
 	SRV="$2"

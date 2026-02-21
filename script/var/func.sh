@@ -990,3 +990,10 @@ TERMINATE_SYNCTHING() {
 		[ "$CURL_OUTPUT" -eq 200 ] && LOG_INFO "$0" 0 "HALT" "Syncthing shutdown request sent successfully"
 	fi
 }
+
+# Terminate any active ssh connections, hopefully also sftp connections too
+STOP_SSHD_GRACEFUL() {
+	pkill -TERM -f 'sshd:.*@' >/dev/null 2>&1
+	sleep 0.2
+	pkill -TERM -x sshd >/dev/null 2>&1
+}

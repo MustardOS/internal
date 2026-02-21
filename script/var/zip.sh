@@ -105,7 +105,7 @@ GET_ARCHIVE_BYTES() {
 	if [ -n "$PREFIX" ]; then
 		awk -v p="$PREFIX" 'NR>3 && $1 ~ /^[0-9]+$/ { name=$NF; if (index(name,p)==1) sum+=$1 } END{print sum+0}' "$ARCHIVE_LIST_CACHE_FILE"
 	else
-		awk 'NR>3 && $1 ~ /^[0-9]+$/ {sum+=$1} END{print sum+0}' "$ARCHIVE_LIST_CACHE_FILE"
+		unzip -Zt "$1" | awk -F'[ ,]+' '{ print $3+0 }'
 	fi
 }
 

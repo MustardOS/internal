@@ -42,6 +42,9 @@ INSTALL() {
 	CAT_GRID_CLEAR "$CATALOGUE_ZIP"
 
 	SPACE_REQ="$(GET_ARCHIVE_BYTES "$CATALOGUE_ZIP" "")"
+	printf "Space Required: %s\n" "$SPACE_REQ"
+	CURRENT_SPACE=$(du -sb "$CATALOGUE_DIR" | cut -f1)
+	SPACE_REQ=$((SPACE_REQ - CURRENT_SPACE))
 	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$CATALOGUE_DIR" "catalogue" && {
 		printf "Not enough space to extract catalogue\n"
 		ALL_DONE 1

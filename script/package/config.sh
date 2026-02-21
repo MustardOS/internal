@@ -39,6 +39,9 @@ INSTALL() {
 	}
 
 	SPACE_REQ="$(GET_ARCHIVE_BYTES "$CONFIG_ZIP" "")"
+	printf "Space Required: %s\n" "$SPACE_REQ"
+	CURRENT_SPACE=$(du -sb "$CONFIG_DIR" | cut -f1)
+	SPACE_REQ=$((SPACE_REQ - CURRENT_SPACE))
 	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$CONFIG_DIR" "config" && {
 		printf "Not enough space to extract configuration\n"
 		ALL_DONE 1

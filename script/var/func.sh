@@ -21,10 +21,12 @@ MUOS_RUN_DIR="/run/muos"
 MUOS_SHARE_DIR="/opt/muos/share"
 MUOS_STORE_DIR="$MUOS_RUN_DIR/storage"
 OVERLAY_NOP="$MUOS_RUN_DIR/overlay.disable"
+IS_IDLE="$MUOS_RUN_DIR/is_idle"
+IDLE_STATE="$MUOS_RUN_DIR/idle_state"
 
 export HOME XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
 	ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR LED_CONTROL_SCRIPT \
-	MUOS_RUN_DIR MUOS_SHARE_DIR MUOS_STORE_DIR OVERLAY_NOP
+	MUOS_RUN_DIR MUOS_SHARE_DIR MUOS_STORE_DIR OVERLAY_NOP IS_IDLE IDLE_STATE
 
 MESSAGE_EXEC="/opt/muos/frontend/muxmessage"
 MESSAGE_TEXT="/tmp/msg_livetext"
@@ -232,6 +234,7 @@ FRONTEND() {
 HOTKEY() {
 	case "$1" in
 		stop)
+			rm -f "$IDLE_STATE" 2>/dev/null
 			while pgrep -x muhotkey >/dev/null || pgrep -x hotkey.sh >/dev/null; do
 				killall -9 muhotkey hotkey.sh
 				sleep 1
@@ -532,6 +535,28 @@ DISPLAY_READ() {
 			;;
 		*) ;;
 	esac
+}
+
+DISPLAY_IDLE() {
+	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && amixer set "Master" mute
+
+	[ "$(DISPLAY_READ disp0 getbl)" -gt 10 ] && DISPLAY_WRITE disp0 setbl 10
+
+	[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
+
+	: >"$IS_IDLE"
+}
+
+DISPLAY_ACTIVE() {
+	[ "$(GET_VAR "config" "settings/power/idle_mute")" -eq 1 ] && amixer set "Master" unmute
+
+	DISPLAY_WRITE disp0 setbl "$(GET_VAR "config" "settings/general/brightness")"
+
+	LED_CONTROL_CHANGE
+
+	printf 0 >"$IDLE_STATE"
+
+	[ -e "$IS_IDLE" ] && rm -f "$IS_IDLE"
 }
 
 LCD_DISABLE() {

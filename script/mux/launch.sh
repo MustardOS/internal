@@ -20,6 +20,8 @@ SCREEN_INT_H="$(GET_VAR "device" "screen/internal/height")"
 SCREEN_EXT_W="$(GET_VAR "device" "screen/external/width")"
 SCREEN_EXT_H="$(GET_VAR "device" "screen/external/height")"
 
+LED_STATE="$MUOS_RUN_DIR/work_led_state"
+
 OVL_GO="/tmp/ovl_go"
 ROM_GO="/tmp/rom_go"
 CON_GO="/tmp/con_go"
@@ -56,7 +58,7 @@ PC_IP="$DISCORD_DIR/pc_ip.txt"
 case "$BOARD_NAME" in
 	rg*)
 		echo "$USE_LEDS" >"$LED_NORMAL"
-		echo "$USE_LEDS" >/tmp/work_led_state
+		echo "$USE_LEDS" >"$LED_STATE"
 		;;
 	*) ;;
 esac
@@ -139,7 +141,7 @@ case "$BOARD_NAME" in
 	rg*)
 		echo 0 >"/sys/class/power_supply/axp2202-battery/nds_pwrkey"
 		echo 1 >"$LED_NORMAL"
-		echo 1 >/tmp/work_led_state
+		echo 1 >"$LED_STATE"
 		;;
 	tui*)
 		DPAD_FILE="/tmp/trimui_inputd/input_dpad_to_joystick"

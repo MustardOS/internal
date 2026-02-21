@@ -143,8 +143,8 @@ SET_VAR "device" "mux/height" "$HEIGHT" &
 LOG_INFO "$0" 0 "BOOTING" "Removing Existing Update Scripts"
 rm -rf "/opt/update.sh"
 
-echo 1 >"/tmp/work_led_state"
-: >"/tmp/net_start"
+echo 1 >"$MUOS_RUN_DIR/work_led_state"
+: >"$MUOS_RUN_DIR/net_start"
 
 LOG_INFO "$0" 0 "BOOTING" "Detecting Console Mode"
 CONSOLE_MODE=0

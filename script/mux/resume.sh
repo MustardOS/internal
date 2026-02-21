@@ -12,7 +12,7 @@ FLT_GO="/tmp/flt_go"
 RAC_GO="/tmp/rac_go"
 ROM_GO="/tmp/rom_go"
 
-NET_START="/tmp/net_start"
+NET_START="$MUOS_RUN_DIR/net_start"
 
 LAST_PLAY=$(cat "/opt/muos/config/boot/last_play")
 GO_LAST_BOOT=1

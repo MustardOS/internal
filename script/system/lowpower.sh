@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-IS_IDLE="/tmp/is_idle"
+IS_IDLE="$MUOS_RUN_DIR/is_idle"
 BATT_OVERLAY="$MUOS_RUN_DIR/overlay.battery"
 
 BOARD_NAME=$(GET_VAR "device" "board/name")

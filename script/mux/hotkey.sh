@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-IS_NORMAL_MODE && IS_HANDHELD_MODE && . /opt/muos/script/mux/idle.sh
+IS_NORMAL_MODE && IS_HANDHELD_MODE && /opt/muos/script/mux/idle.sh start
 
 HOTKEY_FIFO="$MUOS_RUN_DIR/hotkey"
 [ -p "$HOTKEY_FIFO" ] || mkfifo "$HOTKEY_FIFO"
@@ -31,8 +31,8 @@ HANDLE_HOTKEY() {
 		RGB_COLOR_NEXT) RGBCLI -c up ;;
 
 		# "RetroArch Network Wait" combos:
-		RETROWAIT_IGNORE) [ "$RETROWAIT" -eq 1 ] && echo ignore >"/tmp/net_start" ;;
-		RETROWAIT_MENU) [ "$RETROWAIT" -eq 1 ] && echo menu >"/tmp/net_start" ;;
+		RETROWAIT_IGNORE) [ "$RETROWAIT" -eq 1 ] && echo ignore >"$MUOS_RUN_DIR/net_start" ;;
+		RETROWAIT_MENU) [ "$RETROWAIT" -eq 1 ] && echo menu >"$MUOS_RUN_DIR/net_start" ;;
 	esac
 }
 
@@ -85,6 +85,10 @@ while :; do
 				CHARGE_ACTIVE=0
 			fi
 			CHARGE_CHECK=0
+		fi
+
+		if [ "$CHARGE_CHECK" -eq 0 ]; then
+			IS_NORMAL_MODE && IS_HANDHELD_MODE && /opt/muos/script/mux/idle.sh start
 		fi
 
 		# Don't respond to any hotkeys while in charge mode or with lid closed.

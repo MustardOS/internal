@@ -3,12 +3,18 @@
 . /opt/muos/script/var/func.sh
 
 # Lonely, oh so lonely...
-RECENT_WAKE="/tmp/recent_wake"
-WAKE_CPU_GOV="/tmp/wake_cpu_gov"
+RECENT_WAKE="$MUOS_RUN_DIR/recent_wake"
+WAKE_CPU_GOV="$MUOS_RUN_DIR/wake_cpu_gov"
+LED_STATE="$MUOS_RUN_DIR/work_led_state"
+
+RECENT_WAKE="$MUOS_RUN_DIR/recent_wake"
+RECENT_WAKE_GRACE="${RECENT_WAKE_GRACE:-6}"
+RECENT_WAKE_STALE="${RECENT_WAKE_STALE:-60}"
 
 BOARD_NAME=$(GET_VAR "device" "board/name")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
 CPU_GOV_PATH="$(GET_VAR "device" "cpu/governor")"
+LED_NORMAL="$(GET_VAR "device" "led/normal")"
 LED_RGB="$(GET_VAR "device" "led/rgb")"
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
 RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
@@ -21,6 +27,43 @@ DEFAULT_BRIGHTNESS="$(GET_VAR "config" "settings/general/brightness")"
 SHUTDOWN_TIME_SETTING="$(GET_VAR "config" "settings/power/shutdown")"
 CONNECT_ON_WAKE=$(GET_VAR "config" "settings/network/wake")
 USE_ACTIVITY="$(GET_VAR "config" "settings/advanced/activity")"
+USB_FUNCTION="$(GET_VAR "config" "settings/advanced/usb_function")"
+
+UPTIME_SEC() {
+	U=$(cut -d ' ' -f 1 /proc/uptime 2>/dev/null || echo 0)
+	U=${U%%.*}
+	[ -n "$U" ] || U=0
+	printf '%s\n' "$U"
+}
+
+RECENT_WAKE_SET() {
+	[ -f "$RECENT_WAKE" ] || return 1
+
+	T=0
+	read -r T <"$RECENT_WAKE" 2>/dev/null || T=0
+	T=${T%%.*}
+	[ -n "$T" ] || T=0
+
+	NOW="$(UPTIME_SEC)"
+	AGE=$((NOW - T))
+
+	# If clock went backwards(?!) or file is stale fuck it off
+	if [ "$AGE" -lt 0 ] || [ "$AGE" -ge "$RECENT_WAKE_STALE" ]; then
+		rm -f "$RECENT_WAKE" 2>/dev/null || :
+		return 1
+	fi
+
+	return 0
+}
+
+RECENT_WAKE_MARK() {
+	UPTIME_SEC >"$RECENT_WAKE"
+}
+
+RECENT_WAKE_CLEAR_LATER() {
+	# Use nohup so it survives parent exit reliably!
+	nohup sh -c "sleep \"$RECENT_WAKE_GRACE\"; rm -f \"$RECENT_WAKE\"" >/dev/null 2>&1 &
+}
 
 ACTIVITY_TRACKER() {
 	ROM_GO="/tmp/rom_go"
@@ -58,7 +101,7 @@ CHECK_RA_AND_SAVE() {
 }
 
 SLEEP() {
-	touch "$RECENT_WAKE"
+	RECENT_WAKE_MARK
 
 	ACTIVITY_TRACKER stop
 
@@ -73,6 +116,10 @@ SLEEP() {
 	if [ "$RGB_ENABLE" -eq 1 ] && [ "$LED_RGB" -eq 1 ]; then
 		[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
 	fi
+
+	case "$BOARD_NAME" in
+		rg*) echo "0" >"$LED_NORMAL" ;;
+	esac
 
 	case "$RUMBLE_SETTING" in
 		3 | 5 | 6) RUMBLE "$RUMBLE_DEVICE" 0.3 ;;
@@ -125,11 +172,12 @@ RESUME() {
 
 	# Some stupid TrimUI GPU shenanigans
 	case "$BOARD_NAME" in
+		rg*) cat "$LED_STATE" >"$LED_NORMAL" ;;
 		mgx* | tui*) setalpha 0 ;;
 	esac
 
 	cat "$WAKE_CPU_GOV" >"$CPU_GOV_PATH"
-	rm -rf "/tmp/wake_cpu_gov"
+	rm -rf "$WAKE_CPU_GOV"
 
 	if [ "$HAS_NETWORK" -eq 1 ]; then
 		[ "$CONNECT_ON_WAKE" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
@@ -137,11 +185,14 @@ RESUME() {
 
 	ACTIVITY_TRACKER start
 
-	# We're going to wait for 5 seconds to stop sleep suspend from triggering again
-	(sleep 5 && rm "$RECENT_WAKE") &
+	# Restart hotkey just in case something explodes
+	HOTKEY restart
+
+	# We're going to wait for the predefined grace period to stop sleep suspend from triggering again
+	RECENT_WAKE_CLEAR_LATER
 }
 
-[ -f "$RECENT_WAKE" ] && exit 0
+RECENT_WAKE_SET && exit 0
 
 case "$SHUTDOWN_TIME_SETTING" in
 	-2) ;;

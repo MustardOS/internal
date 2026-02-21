@@ -47,7 +47,7 @@ UPDATE_HOTKEY() {
 UPDATE_HOTKEY "screenshot"
 UPDATE_HOTKEY "dpad_toggle"
 
-rm -rf "/tmp/wake_cpu_gov"
+rm -rf "$MUOS_RUN_DIR/wake_cpu_gov"
 HOTKEY restart
 
 C_BRIGHT="$(GET_VAR "config" "settings/general/brightness")"

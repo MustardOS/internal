@@ -38,7 +38,7 @@ ALL_DONE() {
 	printf "All Done!\n"
 	sleep 2
 	FRONTEND start "$FE_CMD"
-	
+
 	rm -f "$LOCK_DIR"
 
 	exit "${1:-0}"
@@ -47,25 +47,29 @@ ALL_DONE() {
 RANDOM() {
 	printf "Selecting Random Theme\n"
 
-    selected=$(find "$THEME_DIR" \
-      -type d \( \
-          -name 640x480 -o -name 720x480 -o -name 720x576 -o -name 720x720 -o \
-          -name 1024x768 -o -name 1280x720 -o -name alternate -o -name catalogue -o \
-          -name font -o -name glyph -o -name image -o -name rgb -o \
-          -name scheme -o -name sound \
-      \) -prune -o \
-      -type f -name version.txt -print |
-      awk '
+	selected=$(
+		find "$THEME_DIR" \
+			-type d \( \
+			-name 640x480 -o -name 720x480 -o -name 720x576 -o -name 720x720 -o \
+			-name 1024x768 -o -name 1280x720 -o -name alternate -o -name catalogue -o \
+			-name font -o -name glyph -o -name image -o -name rgb -o \
+			-name scheme -o -name sound \
+			\) -prune -o \
+			-type f -name version.txt -print |
+			awk '
         { files[NR] = $0 }
         END {
             if (NR == 0) exit 1        # No files found
             srand()
             print files[int(rand() * NR) + 1]
         }'
-    ) || { echo "No files found"; ALL_DONE 1; }
+	) || {
+		echo "No files found"
+		ALL_DONE 1
+	}
 
-    relative=${selected#"$THEME_DIR"/}
-    relative=${relative%/version.txt}
+	relative=${selected#"$THEME_DIR"/}
+	relative=${relative%/version.txt}
 
 	printf "$relative\n"
 
@@ -109,7 +113,7 @@ INSTALL() {
 	CHECK_ARCHIVE "$THEME_ZIP"
 
 	SPACE_REQ="$(GET_ARCHIVE_BYTES "$THEME_ZIP" "")"
-	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$NEW_DIR" && {
+	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$NEW_DIR" "theme" && {
 		printf "Not enough space to extract theme\n"
 		ALL_DONE 1
 	}

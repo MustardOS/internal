@@ -32,12 +32,6 @@ ALL_DONE() {
 }
 
 INSTALL() {
-	[ -d "$CONFIG_DIR" ] && {
-		printf "Purging Configuration Directory: %s\n" "$CONFIG_DIR"
-		find "$CONFIG_DIR" -mindepth 1 -exec rm -rf {} + 2>/dev/null
-		sync
-	}
-
 	CONFIG_ZIP="$CONFIG_ZIP_DIR/$CONFIG_ARG.muxcfg"
 	[ ! -f "$CONFIG_ZIP" ] && {
 		printf "Configuration Package Not Found: %s\n" "$CONFIG_ZIP"
@@ -45,7 +39,18 @@ INSTALL() {
 	}
 
 	SPACE_REQ="$(GET_ARCHIVE_BYTES "$CONFIG_ZIP" "")"
-	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$CONFIG_DIR" && ALL_DONE 1
+	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$CONFIG_DIR" "config" && {
+		printf "Not enough space to extract configuration\n"
+		ALL_DONE 1
+	}
+
+	[ -d "$CONFIG_DIR" ] && {
+		printf "Purging Configuration Directory: %s\n\n" "$CONFIG_DIR"
+		find "$CONFIG_DIR" -mindepth 1 -exec rm -rf {} + 2>/dev/null
+		sync
+	}
+
+	printf "Extracting to Configuration Directory: %s\n" "$CONFIG_DIR"
 
 	if ! EXTRACT_ARCHIVE "Configuration" "$CONFIG_ZIP" "$CONFIG_DIR"; then
 		printf "\nExtraction Failed...\n"

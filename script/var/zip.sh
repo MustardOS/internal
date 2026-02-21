@@ -62,10 +62,16 @@ BYTES_FREE() {
 	P="$1"
 
 	while [ ! -e "$P" ] && [ "$P" != "/" ]; do
-		P="${P%/*}"
+		NP="${P%/*}"
+		# If no '/' was present, NP == P and stop and use "." - Pain!
+		[ "$NP" = "$P" ] && {
+			P="."
+			break
+		}
+		P="$NP"
 	done
 
-	AVAIL_KB="$(df -Pk "$P" 2>/dev/null | awk 'NR==2{print $4}')"
+	AVAIL_KB="$(df -Pk "$P" 2>/dev/null | awk 'NR==2{print $4+0}')"
 	[ -n "${AVAIL_KB:-}" ] || AVAIL_KB=0
 
 	printf %s "$((AVAIL_KB * 1024))"
@@ -115,16 +121,37 @@ RESOLVE_ARCHIVE_BIND_PATH() {
 CHECK_SPACE_FOR_DEST() {
 	REQ="${1:-0}"
 	ROOT="$2"
+	OVR="${3-}"
 
-	BIND="$(RESOLVE_ARCHIVE_BIND_PATH "$ROOT")"
+	# If override provided...
+	# "/some/path"  (Treat as direct path)
+	# "config"      (Treat as bindmap key and resolve to its path)
 
-	[ -n "$BIND" ] || {
-		printf "\nError: No bind map entry for '%s'\n" "$ROOT"
+	if [ -n "${OVR:-}" ]; then
+		case "$OVR" in
+			/*) BIND="$OVR" ;;
+			*) BIND="$(RESOLVE_ARCHIVE_BIND_PATH "$OVR")" ;;
+		esac
+	else
+		BIND="$(RESOLVE_ARCHIVE_BIND_PATH "$ROOT")"
+	fi
+
+	[ -n "${BIND:-}" ] || {
+		printf "\nError: No bind map entry for '%s'\n" "${OVR:-$ROOT}"
 		return 1
 	}
 
+	# Ensure REQ is an integer to avoid "bad number" if caller passes junk or empty stuff
+	case "${REQ:-}" in
+		'' | *[!0-9]*) REQ=0 ;;
+	esac
+
 	NEED="$(REQUIRED_WITH_BUFFER "$REQ")"
 	HAVE="$(BYTES_FREE "$BIND")"
+
+	# Ensure NEED/HAVE is actually a bloody integer too
+	case "$NEED" in '' | *[!0-9]*) NEED=0 ;; esac
+	case "$HAVE" in '' | *[!0-9]*) HAVE=0 ;; esac
 
 	if [ "$HAVE" -lt "$NEED" ]; then
 		printf "\nError: Not enough free space on '%s'\nNeed %s bytes, have %s bytes!\n" "$ROOT" "$NEED" "$HAVE"

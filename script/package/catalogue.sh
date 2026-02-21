@@ -32,12 +32,6 @@ ALL_DONE() {
 }
 
 INSTALL() {
-	[ -d "$CATALOGUE_DIR" ] && {
-		printf "Purging Catalogue Directory: %s\n" "$CATALOGUE_DIR"
-		find "$CATALOGUE_DIR" -mindepth 1 -exec rm -rf {} + 2>/dev/null
-		sync
-	}
-
 	CATALOGUE_ZIP="$CATALOGUE_ZIP_DIR/$CATALOGUE_ARG.muxcat"
 	[ ! -f "$CATALOGUE_ZIP" ] && {
 		printf "Catalogue Package Not Found: %s\n" "$CATALOGUE_ZIP"
@@ -48,7 +42,18 @@ INSTALL() {
 	CAT_GRID_CLEAR "$CATALOGUE_ZIP"
 
 	SPACE_REQ="$(GET_ARCHIVE_BYTES "$CATALOGUE_ZIP" "")"
-	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$CATALOGUE_DIR" && ALL_DONE 1
+	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$CATALOGUE_DIR" "catalogue" && {
+		printf "Not enough space to extract catalogue\n"
+		ALL_DONE 1
+	}
+
+	[ -d "$CATALOGUE_DIR" ] && {
+		printf "Purging Catalogue Directory: %s\n\n" "$CATALOGUE_DIR"
+		find "$CATALOGUE_DIR" -mindepth 1 -exec rm -rf {} + 2>/dev/null
+		sync
+	}
+
+	printf "Extracting to Catalogue Directory: %s\n" "$CATALOGUE_DIR"
 
 	if ! EXTRACT_ARCHIVE "Catalogue" "$CATALOGUE_ZIP" "$CATALOGUE_DIR"; then
 		printf "\nExtraction Failed...\n"

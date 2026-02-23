@@ -21,6 +21,8 @@ export HOME
 # SETUP_STAGE_OVERLAY
 SETUP_SDL_ENVIRONMENT
 
+SET_VAR "system" "foreground_process" "external"
+
 IS_32BIT=0
 grep -q '^[[:space:]]*[^#]*PORT_32BIT="Y"' "$FILE" && IS_32BIT=1
 

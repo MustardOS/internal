@@ -6,9 +6,27 @@ local colors = tables.colors
 local settings = tables.settings
 local menu = tables.menu
 
+function readValueFromFile(path)
+    local file = io.open(path, "r")
+
+    if file then
+        local content = file:read("*l")
+        file:close()
+        return content
+    else
+        print(string.format("File not found: %s", path))
+        return ""
+    end
+end
+
+function loadFolderPath()
+    local folderName = readValueFromFile("/opt/muos/config/theme/active")
+    settings["folderPath"] = string.format("/run/muos/storage/theme/%s/rgb/", folderName)
+end
+
 -- Load the settings from a file
 function loadSettings()
-    local filePath = "/run/muos/storage/theme/active/rgb/settings.txt"
+    local filePath = string.format("%s/settings.txt", folderPath)
     local file = io.open(filePath, "r")
     
     if file then
@@ -51,7 +69,7 @@ local function saveSettings()
         settings.speed
     )
     
-    local filePath = "/run/muos/storage/theme/active/rgb/settings.txt"
+    local filePath = string.format("%s/settings.txt", folderPath)
     local file = io.open(filePath, "w")
     
     if file then
@@ -89,6 +107,7 @@ end
 -- Function to handle command-line arguments
 local function handleCLIArgs(args)
     -- Load settings before processing any arguments
+    loadFolderPath()
     loadSettings()
 
     -- Map short flags to the actual commands

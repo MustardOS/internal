@@ -38,7 +38,7 @@ function command.run(settings, colors, double_colors)
     end
 
     -- Define the path to the folder and the command file
-    local folderPath = "/run/muos/storage/theme/active/rgb"
+    local folderPath = settings["folderPath"]
     local commandFile = folderPath .. "/rgbconf.sh"
 
     -- Ensure the directory exists
@@ -63,7 +63,7 @@ function command.run(settings, colors, double_colors)
     print("Running command: /opt/muos/script/device/rgb.sh " .. commandArgs)
 
     -- Execute the command in the system shell
-    os.execute("/run/muos/storage/theme/active/rgb/rgbconf.sh")
+    os.execute(commandFile)
 end
 
 return command

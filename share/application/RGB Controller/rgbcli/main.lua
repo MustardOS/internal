@@ -26,7 +26,8 @@ end
 
 -- Load the settings from a file
 function loadSettings()
-    local filePath = string.format("%s/settings.txt", folderPath)
+    local filePath = string.format("%ssettings.txt", settings["folderPath"])
+    print(string.format("Loading Settings from: %s", filePath))
     local file = io.open(filePath, "r")
     
     if file then
@@ -69,7 +70,8 @@ local function saveSettings()
         settings.speed
     )
     
-    local filePath = string.format("%s/settings.txt", folderPath)
+    local filePath = string.format("%ssettings.txt", settings["folderPath"])
+    print(string.format("Saving Settings to: %s", filePath))
     local file = io.open(filePath, "w")
     
     if file then

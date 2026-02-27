@@ -120,7 +120,8 @@ function saveSettings()
     )
     
     -- Specify the absolute file path
-    local filePath = string.format("%s/settings.txt", folderPath)
+    local filePath = string.format("%ssettings.txt", settings["folderPath"])
+    print(string.format("Saving Settings to: %s", filePath))
     
     -- Use Lua's standard I/O library to write the file
     local file = io.open(filePath, "w")
@@ -153,7 +154,8 @@ end
 
 function loadSettings()
     -- Specify the absolute file path
-    local filePath = string.format("%s/settings.txt", folderPath)
+    local filePath = string.format("%ssettings.txt", settings["folderPath"])
+    print(string.format("Loading Settings from: %s", filePath))
     
     -- Use Lua's standard I/O library to read the file
     local file = io.open(filePath, "r")

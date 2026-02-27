@@ -84,6 +84,9 @@ GET_VAR() {
 }
 
 SETUP_STAGE_OVERLAY() {
+  	# Disable any stage overlay system for Console Mode, sorry not sorry!
+  	[ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ] && return 0
+
 	[ -z "${MUX_LIB-}" ] && return 0
 	STAGE_LIB="$MUX_LIB/libmustage.so"
 

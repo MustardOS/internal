@@ -180,6 +180,7 @@
     "Applications": "Aplikacje",
     "Background Music": "Muzyka w tle",
     "Backup Target": "Cel kopii zapasowej",
+    "Content Assignment": "Content Assignment",
     "Content Collection": "Kolekcje zawartości",
     "Content Launch Overrides": "Nadpisanie uruchamiania zawartości",
     "Custom Packages": "Paczki użytkownika",
@@ -192,6 +193,7 @@
     "Location of RetroArch shaders": "Lokalizacja shaderów RetroArch",
     "Location of Syncthing configurations": "Lokalizacja konfiguracji Syncthing",
     "Location of User Initialisation scripts": "Lokalizacja skryptów inicjalizacji użytkownika",
+    "Location of assigned content information": "Location of assigned content information",
     "Location of background music": "Lokalizacja muzyki w tle",
     "Location of content collection": "Lokalizacja kolekcji zawartości",
     "Location of content images and text": "Lokalizacja obrazów i tekstów zawartości",
@@ -222,7 +224,7 @@
     "System BIOS": "BIOS systemów",
     "Themes": "Motywy",
     "Toggle the target storage device for the backup": "Wybierz docelowe urządzenie pamięci dla kopii zapasowej",
-    "User Init Scripts": "Skrypty inicjalizacji użytkownika"
+    "User Init Scripts": "Skrypty inicjalizacyjne użytkownika"
   },
   "muxcharge": {
     "Booting System - Please Wait…": "Uruchamianie systemu - Proszę czekać…",
@@ -983,7 +985,7 @@
     "Syncthing Configs": "Konfiguracje Syncthing",
     "System BIOS": "BIOS systemów",
     "Themes": "Motywy",
-    "User Init Scripts": "Skrypty inicjalizacji użytkownika"
+    "User Init Scripts": "Skrypty inicjalizacyjne użytkownika"
   },
   "muxsysinfo": {
     "Battery Capacity": "Pojemność baterii",
@@ -1011,7 +1013,7 @@
     "The current detected battery voltage": "Bieżące napięcie baterii",
     "The current detected temperature of the device": "Bieżąca temperatura urządzenia",
     "The current device type detected and configured": "Bieżący i skonfigurowany typ urządzenia",
-    "The current running governor of the device": "Aktywny regulator CPU urządzenia",
+    "The current running governor of the device": "Bieżący regulator urządzenia",
     "The current running time of the system": "Czas od włączenia urządzenia",
     "The current version of MustardOS running on the device": "Bieżąca wersja MustardOS na urządzeniu",
     "The current, and total, memory usage of the device": "Bieżące i całkowite zużycie pamięci urządzenia",
@@ -1147,7 +1149,7 @@
     "Toggle the swap of left and right channels of audio": "Włącz zamianę lewego i prawego kanału audio",
     "Toggle the system ability to automatically shut the device down due high temperature": "Włącz automatyczne zamknięcie urządzenia przez zbyt wysoką temperaturę",
     "Toggle vibration for device startup, sleep, and shutdown": "Włącz wibracje dla włączenia, uśpienia i zamknięcia urządzenia",
-    "User Init Scripts": "Skrypty inicjalizacji użytkownika",
+    "User Init Scripts": "Skrypty inicjalizacyjne użytkownika",
     "Verbose Messages": "Pełne wiadomości",
     "Volume Increment": "Przyrost głośności",
     "Volume On Boot": "Głośność przy uruchomieniu"
@@ -1211,7 +1213,7 @@
     "If enabled folders within content explorer will be mixed in with other content alphabetically": "Jeśli włączono, foldery wewnątrz przeglądania zawartości będą wymieszane z pozostałą zawartością w porządku alfabetycznym",
     "Menu Counter File": "Licznik plików w menu",
     "Menu Counter Folder": "Licznik katalogów w menu",
-    "Mixed Folder Content": "Wymieszana zawartość folderów",
+    "Mixed Folder Content": "Wmieszanie folderów zawartości",
     "Network": "Sieć",
     "Rearranges the label of content to move the 'The' label to the front - For example, 'Batman and Robin, The' to 'The Batman and Robin'": "Zmienia etykiety zawartości, przenosząc 'The' na początek - Na przykład: 'Batman and Robin, The' na 'The Batman and Robin'",
     "Remove ( )": "Usuń ( )",

@@ -57,6 +57,7 @@ tables.double_colors = {
 
 
 tables.settings = {
+    folderPath = "",
     mode = 1,         -- Off mode initially
     color = 5,        -- Default color
     combo = 1,

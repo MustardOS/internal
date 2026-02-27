@@ -38,11 +38,11 @@ function command.run(settings, colors, double_colors)
     end
 
     -- Define the path to the folder and the command file
-    local folderPath = "/run/muos/storage/theme/active/rgb"
-    local commandFile = folderPath .. "/rgbconf.sh"
+    local folderPath = settings["folderPath"]
+    local commandFile = string.format('%srgbconf.sh', folderPath)
 
     -- Ensure the directory exists
-    os.execute("mkdir -p " .. folderPath)
+    os.execute(string.format('mkdir -p "%s"', folderPath))
 
     -- Open the file for writing
     local file = io.open(commandFile, "w")
@@ -56,14 +56,14 @@ function command.run(settings, colors, double_colors)
         file:close()
         print("Command saved to: " .. commandFile)
     else
-        print("Error: Could not save the file.")
+        print(string.format('Error: Could not save the file: %s', commandFile))
     end
 
     -- Print the final command to the console for debugging
     print("Running command: /opt/muos/script/device/rgb.sh " .. commandArgs)
 
     -- Execute the command in the system shell
-    os.execute("/run/muos/storage/theme/active/rgb/rgbconf.sh")
+    os.execute(string.format('"%s"', commandFile))
 end
 
 return command

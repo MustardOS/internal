@@ -34,6 +34,7 @@ function love.load()
     splash = splashlib()
     splash.onDone = function() --Splash is done, continue loading the game
         splash = nil  -- Set splash to nil to stop drawing it
+        loadFolderPath()
         loadSettings()
         screenWidth, screenHeight = love.graphics.getDimensions()
         command.run(settings, colors, tables.double_colors)
@@ -119,7 +120,8 @@ function saveSettings()
     )
     
     -- Specify the absolute file path
-    local filePath = "/run/muos/storage/theme/active/rgb/settings.txt"
+    local filePath = string.format("%ssettings.txt", settings["folderPath"])
+    print(string.format("Saving Settings to: %s", filePath))
     
     -- Use Lua's standard I/O library to write the file
     local file = io.open(filePath, "w")
@@ -132,10 +134,28 @@ function saveSettings()
     end
 end
 
+function readValueFromFile(path)
+    local file = io.open(path, "r")
+
+    if file then
+        local content = file:read("*l")
+        file:close()
+        return content
+    else
+        print(string.format("File not found: %s", path))
+        return ""
+    end
+end
+
+function loadFolderPath()
+    local folderName = readValueFromFile("/opt/muos/config/theme/active")
+    settings["folderPath"] = string.format("/run/muos/storage/theme/%s/rgb/", folderName)
+end
 
 function loadSettings()
     -- Specify the absolute file path
-    local filePath = "/run/muos/storage/theme/active/rgb/settings.txt"
+    local filePath = string.format("%ssettings.txt", settings["folderPath"])
+    print(string.format("Loading Settings from: %s", filePath))
     
     -- Use Lua's standard I/O library to read the file
     local file = io.open(filePath, "r")

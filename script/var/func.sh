@@ -84,8 +84,8 @@ GET_VAR() {
 }
 
 SETUP_STAGE_OVERLAY() {
-  	# Disable any stage overlay system for Console Mode, sorry not sorry!
-  	[ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ] && return 0
+	# Disable any stage overlay system for Console Mode, sorry not sorry!
+	[ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ] && return 0
 
 	[ -z "${MUX_LIB-}" ] && return 0
 	STAGE_LIB="$MUX_LIB/libmustage.so"
@@ -603,6 +603,18 @@ PLAY_SOUND() {
 	[ -e "$SND" ] && /usr/bin/mpv --really-quiet "$SND"
 }
 
+SETUP_GL4ES() {
+	GL4ES_LIB="/usr/lib/gl4es"
+
+	if [ -d "$GL4ES_LIB" ]; then
+		case ":${LD_LIBRARY_PATH-}:" in
+			*":$GL4ES_LIB:"*) ;;
+			*) LD_LIBRARY_PATH="$GL4ES_LIB${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" ;;
+		esac
+		export LD_LIBRARY_PATH
+	fi
+}
+
 SETUP_SDL_ENVIRONMENT() {
 	REQ_STYLE=""
 	SKIP_BLITTER=0
@@ -665,6 +677,8 @@ SETUP_SDL_ENVIRONMENT() {
 	else
 		export SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION
 	fi
+
+	SETUP_GL4ES
 }
 
 SETUP_APP() {

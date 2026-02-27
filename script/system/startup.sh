@@ -217,6 +217,11 @@ if [ "${USER_INIT:-0}" -eq 1 ]; then
 	/opt/muos/script/system/user_init.sh &
 fi
 
+#:] ### Log Cleaner
+#:] By default removes all logs older than 7 days.
+LOG_INFO "$0" 0 "BOOTING" "Purging Old Logs"
+LOG_CLEANER &
+
 #:] ### Low Power Indicator
 #:] Start battery monitoring/alerts.
 LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"

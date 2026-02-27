@@ -1014,3 +1014,10 @@ STOP_SSHD_GRACEFUL() {
 	sleep 0.2
 	pkill -TERM -x sshd >/dev/null 2>&1
 }
+
+LOG_CLEANER() {
+	LOG_DIR="$(GET_VAR "device" "storage/rom/mount")"
+	DAYS=7
+
+	find "$LOG_DIR" -type f -name '*.log' -mtime +"$DAYS" -exec rm -f -- {} \;
+}

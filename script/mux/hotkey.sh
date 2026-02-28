@@ -18,8 +18,14 @@ HANDLE_HOTKEY() {
 	case "$1" in
 		# Input activity/idle:
 		IDLE_ACTIVE) IS_NORMAL_MODE && IS_HANDHELD_MODE && DISPLAY_ACTIVE ;;
-		IDLE_DISPLAY) IS_NORMAL_MODE && IS_HANDHELD_MODE && DISPLAY_IDLE ;;
-		IDLE_SLEEP) IS_NORMAL_MODE && IS_HANDHELD_MODE && SLEEP ;;
+		IDLE_DISPLAY)
+			IDLE_DISPLAY_CFG="$(GET_VAR "config" "settings/power/idle_display")"
+			[ "$IDLE_DISPLAY_CFG" -gt 0 ] && IS_NORMAL_MODE && IS_HANDHELD_MODE && DISPLAY_IDLE
+			;;
+		IDLE_SLEEP)
+			IDLE_SLEEP_CFG="$(GET_VAR "config" "settings/power/idle_sleep")"
+			[ "$IDLE_SLEEP_CFG" -gt 0 ] && IS_NORMAL_MODE && IS_HANDHELD_MODE && SLEEP
+			;;
 
 		SLEEP_SHORT | SLEEP_LONG) SLEEP ;;
 

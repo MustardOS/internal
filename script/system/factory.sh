@@ -52,4 +52,4 @@ killall -q "mpv"
 
 SET_VAR "config" "boot/factory_reset" "0"
 SET_VAR "config" "settings/advanced/rumble" "0"
-SET_VAR "config" "settings/power/screensaver" "1"
+SET_VAR "config" "settings/power/screensaver" "90"

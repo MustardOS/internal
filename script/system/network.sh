@@ -360,6 +360,7 @@ TRY_CONNECT() {
 case "$1" in
 	disconnect)
 		DESTROY_DHCPCD
+		NET_STATUS_CLEAR
 
 		iw dev "$IFCE" disconnect 2>/dev/null
 		: >"$WPA_CONFIG" 2>/dev/null
@@ -409,8 +410,6 @@ case "$1" in
 				chronyc -a makestep
 
 				NET_STATUS "CONNECTED"
-				sleep 1
-				NET_STATUS_CLEAR
 				exit 0
 			fi
 

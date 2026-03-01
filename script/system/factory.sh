@@ -47,14 +47,22 @@ touch "/tmp/msg_finish"
 sleep 1
 killall -q "mpv"
 
-case "$(GET_VAR "device" "board/name")" in
-	tui*)
-	  # This seems crazy but it works!
-	  LOG_INFO "$0" 0 "FACTORY RESET" "Removing exFAT Fuse Symlink"
-	  rm -f "/sbin/exfat.mount"
-	  ;;
-	*) ;;
-esac
+EXFAT_NATIVE=0
+if zcat /proc/config.gz 2>/dev/null | grep -q "^CONFIG_EXFAT_FS=y"; then
+	EXFAT_NATIVE=1
+	LOG_INFO "$0" 0 "FACTORY RESET" "Built-in exFAT detected via kernel config"
+elif grep -qw exfat /proc/filesystems 2>/dev/null; then
+	EXFAT_NATIVE=1
+	LOG_INFO "$0" 0 "FACTORY RESET" "Native exFAT detected via /proc/filesystems"
+fi
+
+if [ "$EXFAT_NATIVE" = "1" ]; then
+	LOG_INFO "$0" 0 "FACTORY RESET" "Kernel mount supports exFAT, removing FUSE helper"
+	# This seems crazy but it works!
+	rm -f /sbin/mount.exfat /sbin/mount.exfat-fuse
+else
+	LOG_INFO "$0" 0 "FACTORY RESET" "Relying on FUSE mount.exfat"
+fi
 
 /opt/muos/bin/nosefart "$MUOS_SHARE_DIR/media/support.nsf" &
 /opt/muos/frontend/muxcredits

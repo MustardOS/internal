@@ -47,6 +47,15 @@ touch "/tmp/msg_finish"
 sleep 1
 killall -q "mpv"
 
+case "$(GET_VAR "device" "board/name")" in
+	tui*)
+	  # This seems crazy but it works!
+	  LOG_INFO "$0" 0 "FACTORY RESET" "Removing exFAT Fuse Symlink"
+	  rm -f "/sbin/exfat.mount"
+	  ;;
+	*) ;;
+esac
+
 /opt/muos/bin/nosefart "$MUOS_SHARE_DIR/media/support.nsf" &
 /opt/muos/frontend/muxcredits
 

@@ -11,8 +11,18 @@ SWAP_SIZE=$(GET_VAR "config" "settings/advanced/swapfile")
 CREATE_ZRAM() {
 	if [ "$2" -eq 1 ]; then
 		LOG_INFO "$1" 0 "ZRAMFILE" "Creating Zramfile"
-		modprobe -f zram
-		zramctl --size "${ZRAM_SIZE}M" --algorithm lz4 "$ZRAM_FILE"
+		case "$(GET_VAR "device" "board/name")" in
+			tui*)
+				modprobe zsmalloc
+				modprobe zram
+				ALG=lzo
+				;;
+			rg*)
+				modprobe -f zram
+				ALG=lz4
+				;;
+		esac
+		zramctl --size "${ZRAM_SIZE}M" --algorithm "$ALG" "$ZRAM_FILE"
 	fi
 	LOG_INFO "$1" 0 "ZRAMFILE" "Mounting Zramfile"
 	mkswap "$ZRAM_FILE"

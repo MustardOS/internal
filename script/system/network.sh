@@ -324,7 +324,7 @@ VALIDATE_NETWORK() {
 }
 
 TRY_CONNECT() {
-	[ -z "$SSID" ] && return 0
+	[ -z "$SSID" ] && [ "$IFCE" != "eth0" ] && return 0
 
 	rfkill unblock all 2>/dev/null
 	iw dev "$IFCE" set power_save off 2>/dev/null

@@ -74,9 +74,9 @@ CALCULATE_IAID() {
 
 # Exterminate!
 DESTROY_DHCPCD() {
-	killall -q dhcpcd wpa_supplicant 2>/dev/null
+	killall -q dhcpcd udhcpc wpa_supplicant 2>/dev/null
 	sleep 1
-	killall -9 dhcpcd wpa_supplicant 2>/dev/null
+	killall -9 dhcpcd udhcpc wpa_supplicant 2>/dev/null
 
 	LOG_INFO "$0" 0 "NETWORK" "Clearing Previous DHCP Addresses"
 	rm -rf /var/db/dhcpcd/*
@@ -261,7 +261,18 @@ WIFI_CONFIG() {
 
 IP_DHCP() {
 	NET_STATUS "WAITING_IP"
-	dhcpcd "$IFCE" >/dev/null 2>&1 &
+
+	# Fall back to udhcpc if dhcpcd not found
+	if command -v dhcpcd >/dev/null 2>&1; then
+		LOG_INFO "$0" 0 "NETWORK" "$(printf "dhcpcd was found!")"
+		dhcpcd "$IFCE" >/dev/null 2>&1 &
+	elif command -v udhcpc >/dev/null 2>&1; then
+		LOG_INFO "$0" 0 "NETWORK" "$(printf "udhcpc was found!")"
+		udhcpc -i "$IFCE" -b -q >/dev/null 2>&1
+	else
+		LOG_ERROR "$0" 0 "NETWORK" "$(printf "No DHCP client found (tried dhcpcd, udhcpc)")"
+		FAIL_WITH "DHCP_FAILED" "$RC_DHCP_FAILED"
+	fi
 
 	I=0
 	while [ "$I" -lt 20 ]; do

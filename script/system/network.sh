@@ -265,7 +265,7 @@ IP_DHCP() {
 	# Fall back to udhcpc if dhcpcd not found
 	if command -v dhcpcd >/dev/null 2>&1; then
 		LOG_INFO "$0" 0 "NETWORK" "$(printf "dhcpcd was found!")"
-		dhcpcd "$IFCE" >/dev/null 2>&1 &
+		dhcpcd -I "$IFCE" >/dev/null 2>&1 &
 	elif command -v udhcpc >/dev/null 2>&1; then
 		LOG_INFO "$0" 0 "NETWORK" "$(printf "udhcpc was found!")"
 		udhcpc -i "$IFCE" -b -q >/dev/null 2>&1

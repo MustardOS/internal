@@ -142,6 +142,32 @@ RESUME() {
 
 	LED_CONTROL_CHANGE
 
+	[ "$USB_FUNCTION" -ne 0 ] && /opt/muos/script/system/usb_gadget.sh resume
+
+	# Some stupid TrimUI GPU shenanigans
+	case "$BOARD_NAME" in
+		rg*) cat "$LED_STATE" >"$LED_NORMAL" ;;
+		mgx* | tui*) setalpha 0 ;;
+	esac
+
+	cat "$WAKE_CPU_GOV" >"$CPU_GOV_PATH"
+	rm -rf "$WAKE_CPU_GOV"
+
+	if [ "$HAS_NETWORK" -eq 1 ]; then
+		[ "$CONNECT_ON_WAKE" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
+	fi
+
+	ACTIVITY_TRACKER start &
+
+	# We're going to wait for the predefined grace period to stop sleep suspend from triggering again
+	RECENT_WAKE_CLEAR_LATER
+
+	# Restart hotkey just in case something explodes
+	HOTKEY restart &
+
+	CHECK_RA_AND_SAVE "MENU_TOGGLE"
+	amixer set "Master" unmute >/dev/null 2>&1
+
 	E_BRIGHT="$DEFAULT_BRIGHTNESS"
 
 	# Some display panels don't like to resume on lower backlights due
@@ -165,32 +191,6 @@ RESUME() {
 		/opt/muos/script/device/bright.sh "$E_BRIGHT"
 		B=$((B + 1))
 	done
-
-	[ "$USB_FUNCTION" -ne 0 ] && /opt/muos/script/system/usb_gadget.sh resume
-
-	amixer set "Master" unmute >/dev/null 2>&1
-	CHECK_RA_AND_SAVE "MENU_TOGGLE"
-
-	# Some stupid TrimUI GPU shenanigans
-	case "$BOARD_NAME" in
-		rg*) cat "$LED_STATE" >"$LED_NORMAL" ;;
-		mgx* | tui*) setalpha 0 ;;
-	esac
-
-	cat "$WAKE_CPU_GOV" >"$CPU_GOV_PATH"
-	rm -rf "$WAKE_CPU_GOV"
-
-	if [ "$HAS_NETWORK" -eq 1 ]; then
-		[ "$CONNECT_ON_WAKE" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &
-	fi
-
-	ACTIVITY_TRACKER start
-
-	# Restart hotkey just in case something explodes
-	HOTKEY restart
-
-	# We're going to wait for the predefined grace period to stop sleep suspend from triggering again
-	RECENT_WAKE_CLEAR_LATER
 }
 
 RECENT_WAKE_SET && exit 0

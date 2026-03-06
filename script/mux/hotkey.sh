@@ -56,6 +56,9 @@ LID_CLOSED() {
 SLEEP() {
 	IS_NORMAL_MODE || return 0
 
+	# Prevent sleep immediately after resume
+	[ -f "$MUOS_RUN_DIR/recent_wake" ] && return 0
+
 	CURR_UPTIME=$(UPTIME 2>/dev/null)
 	CURR_UPTIME=${CURR_UPTIME%%.*}
 	[ -n "$CURR_UPTIME" ] || CURR_UPTIME=0
@@ -83,6 +86,8 @@ while :; do
 	MU_PID=$!
 
 	while IFS= read -r HOTKEY <"$HOTKEY_FIFO"; do
+		[ -f "$MUOS_RUN_DIR/recent_wake" ] && continue
+
 		CHARGE_CHECK=$((CHARGE_CHECK + 1))
 		if [ "$CHARGE_CHECK" -ge 32 ]; then
 			if pgrep -x muxcharge >/dev/null 2>&1; then

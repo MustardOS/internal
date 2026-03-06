@@ -33,6 +33,15 @@ SET_CURRENT() {
 	SET_VAR "config" "settings/general/volume" "$VALUE"
 }
 
+VOL_INFO() {
+	V=$(GET_CURRENT)
+
+	[ "$MAX" -le 0 ] && printf "%s (0%%)\n" "$V" && return
+
+	PCT=$(((V * 100) / MAX))
+	printf "%s (%s%%)\n" "$V" "$PCT"
+}
+
 case "$1" in
 	U)
 		NEW_VL=$(($(GET_CURRENT) + INC))
@@ -44,8 +53,7 @@ case "$1" in
 		[ "$NEW_VL" -lt "$MIN" ] && NEW_VL=$MIN
 		SET_CURRENT "$NEW_VL"
 		;;
-	[0-9]*)
-		[ "$1" -eq "$1" ] 2>/dev/null && [ "$1" -ge "$MIN" ] && [ "$1" -le "$MAX" ] && SET_CURRENT "$1"
-		;;
+	I) VOL_INFO ;;
+	[0-9]*) [ "$1" -eq "$1" ] 2>/dev/null && [ "$1" -ge "$MIN" ] && [ "$1" -le "$MAX" ] && SET_CURRENT "$1" ;;
 	*) ;;
 esac

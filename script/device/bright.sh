@@ -94,6 +94,13 @@ SET_CURRENT() {
 	fi
 }
 
+BRIGHT_INFO() {
+	V=$1
+	[ "$MAX_BRIGHT" -le 0 ] && printf "%s (0%%)\n" "$V" && return
+	PCT=$(((V * 100) / MAX_BRIGHT))
+	printf "%s (%s%%)\n" "$V" "$PCT"
+}
+
 case "$1" in
 	R)
 		[ "$CURR_BRIGHT" -le "$SAFE_BRIGHT" ] && CURR_BRIGHT=$((CURR_BRIGHT + SAFE_BRIGHT + (INC_BRIGHT * 2)))
@@ -115,11 +122,8 @@ case "$1" in
 			SET_CURRENT "$NEW_BL"
 		fi
 		;;
-	F)
-		LCD_DISABLE && sleep 1 && LCD_ENABLE
-		;;
-	[0-9]*)
-		[ "$1" -eq "$1" ] 2>/dev/null && [ "$1" -ge 0 ] && [ "$1" -le "$MAX_BRIGHT" ] && SET_CURRENT "$1"
-		;;
+	F) LCD_DISABLE && sleep 1 && LCD_ENABLE ;;
+	I) BRIGHT_INFO "$CURR_BRIGHT" ;;
+	[0-9]*) [ "$1" -eq "$1" ] 2>/dev/null && [ "$1" -ge 0 ] && [ "$1" -le "$MAX_BRIGHT" ] && SET_CURRENT "$1" ;;
 	*) ;;
 esac

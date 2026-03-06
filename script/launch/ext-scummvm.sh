@@ -23,11 +23,13 @@ F_PATH=$(echo "$FILE" | awk -F'/' '{NF--; print}' OFS='/')
 SCVM=$(tr -d '[:space:]' <"$F_PATH/$NAME.scummvm" | head -n 1)
 
 if [ -d "$F_PATH/.$NAME" ]; then
-	SUBFOLDER=".$NAME"
+	SUBFOLDER="/.$NAME"
 elif [ -d "$F_PATH/_$NAME" ]; then
-	SUBFOLDER="_$NAME"
+	SUBFOLDER="/_$NAME"
+elif [[ "$F_PATH" == */"$NAME" || "$F_PATH" == */"$NAME".scummvm ]]; then
+	SUBFOLDER=""
 else
-	SUBFOLDER="$NAME"
+	SUBFOLDER="/$NAME"
 fi
 
 EMUDIR="$MUOS_SHARE_DIR/emulator/scummvm"
@@ -48,7 +50,7 @@ cd "$EMUDIR" || exit
 
 extract_gameid() {
 	# Extract gameid from scummvm.ini
-	GAMEID=$(awk -v target_path="$F_PATH/$SUBFOLDER" '
+	GAMEID=$(awk -v target_path="$F_PATH$SUBFOLDER" '
         /^\[.*\]/ {
             section=$0
             gsub(/^\[/, "", section)
@@ -69,7 +71,7 @@ case "$SCVM" in
 		# Legacy Grim Fandango entry found.
 		# Copy grim specific config into scummvm.ini
 		GRIMINI="$(dirname "$CONFIG")/grimm.ini"
-		sed -i "s|^path=.*$|path=$F_PATH/$SUBFOLDER|" "$GRIMINI"
+		sed -i "s|^path=.*$|path=$F_PATH$SUBFOLDER|" "$GRIMINI"
 		if ! grep -q "\[grim-win\]" "$CONFIG"; then
 			cat "$GRIMINI" >>"$CONFIG"
 		fi
@@ -78,14 +80,14 @@ case "$SCVM" in
 	*:* | "")
 		# Legacy ScummVM entry found or game .scummvm file is blank.
 		# Auto Detect gameid based on game files and add to scummvm.ini
-		HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" --add
+		HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH$SUBFOLDER" --add
 		extract_gameid
 		;;
 	*)
 		# Game .scummvm file contains gameid entry.
 		if ! grep -q "^\[$SCVM\]" "$CONFIG"; then
 			# gameid missing from scummvm.ini, adding.
-			HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" --add
+			HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH$SUBFOLDER" --add
 		fi
 		;;
 esac
@@ -102,7 +104,7 @@ esac
 SCVM=$(tr -d '[:space:]' <"$F_PATH/$NAME.scummvm" | head -n 1)
 
 # Launch game.
-HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH/$SUBFOLDER" "$SCVM"
+HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH$SUBFOLDER" "$SCVM"
 
 # Switch analogue<>dpad back so we can navigate muX
 [ "$(GET_VAR "device" "board/stick")" -eq 0 ]

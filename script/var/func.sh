@@ -44,7 +44,7 @@ CONTENT_UNSET() {
 }
 
 CAPITALISE() {
-	printf '%s' "$1" | sed 's/\(^\|[[:space:]]\)\([[:alpha:]]\)/\1\u\2/g'
+	printf "%s" "$1" | sed 's/\(^\|[[:space:]]\)\([[:alpha:]]\)/\1\u\2/g'
 }
 
 TBOX() {
@@ -128,7 +128,7 @@ RESET_AMIXER() {
 SET_DEFAULT_GOVERNOR() {
 	(
 		DEF_GOV=$(GET_VAR "device" "cpu/default")
-		printf '%s' "$DEF_GOV" >"$(GET_VAR "device" "cpu/governor")"
+		printf "%s" "$DEF_GOV" >"$(GET_VAR "device" "cpu/governor")"
 		if [ "$DEF_GOV" = ondemand ]; then
 			GET_VAR "device" "cpu/min_freq_default" >"$(GET_VAR "device" "cpu/min_freq")"
 			GET_VAR "device" "cpu/max_freq_default" >"$(GET_VAR "device" "cpu/max_freq")"
@@ -1020,4 +1020,36 @@ LOG_CLEANER() {
 	DAYS=7
 
 	find "$LOG_DIR" -type f -name '*.log' -mtime +"$DAYS" -exec rm -f -- {} \;
+}
+
+SAVE_CPU_GOV() {
+	GOV_PATH="${1:-$(GET_VAR "device" "cpu/governor")}"
+	GOV_WAKE="${2:-"$MUOS_RUN_DIR/wake_cpu_gov"}"
+
+	read -r GOV <"$GOV_PATH" || return 1
+	GOV=${GOV%%[[:space:]]*}
+
+	[ -n "$GOV" ] || return 1
+
+	printf "%s" "$GOV" >"$GOV_WAKE"
+}
+
+RESTORE_CPU_GOV() {
+	GOV_PATH="${1:-$(GET_VAR "device" "cpu/governor")}"
+	GOV_WAKE="${2:-"$MUOS_RUN_DIR/wake_cpu_gov"}"
+
+	[ -f "$GOV_WAKE" ] || return 1
+
+	read -r GOV <"$GOV_WAKE"
+	GOV=${GOV%%[[:space:]]*}
+
+	i=0
+	while [ ! -w "$GOV_PATH" ] && [ $i -lt 30 ]; do
+		sleep 0.05
+		i=$((i + 1))
+	done
+
+	if [ -n "$GOV" ] && [ -w "$GOV_PATH" ]; then
+		printf "%s" "$GOV" >"$GOV_PATH"
+	fi
 }

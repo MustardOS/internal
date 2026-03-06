@@ -112,7 +112,7 @@ SLEEP() {
 	amixer set "Master" mute >/dev/null 2>&1
 
 	STOP_SSHD_GRACEFUL
-	cat "$CPU_GOV_PATH" >"$WAKE_CPU_GOV"
+	SAVE_CPU_GOV "$CPU_GOV_PATH"
 
 	if [ "$RGB_ENABLE" -eq 1 ] && [ "$LED_RGB" -eq 1 ]; then
 		[ -f "$LED_CONTROL_SCRIPT" ] && "$LED_CONTROL_SCRIPT" 1 0 0 0 0 0 0 0
@@ -150,8 +150,7 @@ RESUME() {
 		mgx* | tui*) setalpha 0 ;;
 	esac
 
-	cat "$WAKE_CPU_GOV" >"$CPU_GOV_PATH"
-	rm -rf "$WAKE_CPU_GOV"
+	RESTORE_CPU_GOV "$CPU_GOV_PATH"
 
 	if [ "$HAS_NETWORK" -eq 1 ]; then
 		[ "$CONNECT_ON_WAKE" -eq 1 ] && nohup /opt/muos/script/system/network.sh connect >/dev/null 2>&1 &

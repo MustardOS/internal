@@ -121,7 +121,7 @@ done
 CONTENT_UNSET
 
 # Disable any rumble just in case some core gets stuck!
-echo 0 >"$RUMBLE"
+RUMBLE "$RUMBLE" "0.0"
 
 # Filesystem sync
 sync &

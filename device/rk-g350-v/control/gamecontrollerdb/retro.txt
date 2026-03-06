@@ -1,6 +1,9 @@
 # Game Controller DB for SDL in 2.0.16 format
 # Source: https://github.com/gabomdq/SDL_GameControllerDB
 
+# Custom
+190000004b4800000300000011010000,g350_joypad,platform:Linux,x:b2,a:b1,b:b0,y:b3,back:b12,guide:b16,start:b13,dpleft:b10,dpdown:b9,dpright:b11,dpup:b8,leftshoulder:b4,lefttrigger:b6,rightshoulder:b5,righttrigger:b7,leftstick:b14,rightstick:b15,leftx:a0~,lefty:a2~,rightx:a3,righty:a1,
+
 # Windows
 03000000fa2d00000100000000000000,3dRudder Foot Motion Controller,leftx:a0,lefty:a1,rightx:a5,righty:a2,platform:Windows,
 03000000d0160000040d000000000000,4Play Adapter,a:b1,b:b3,back:b4,dpdown:b11,dpleft:b12,dpright:b13,dpup:b10,leftshoulder:b6,leftstick:b14,lefttrigger:b8,leftx:a0,lefty:a1,rightshoulder:b7,rightstick:b15,righttrigger:b9,rightx:a3,righty:a4,start:b5,x:b0,y:b2,platform:Windows,

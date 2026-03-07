@@ -1,23 +1,14 @@
 {
   "devices": [
-    "rg28xx-h",
-    "rg34xx-h",
-    "rg34xx-sp",
-    "rg35xx-2024",
-    "rg35xx-h",
-    "rg35xx-plus",
-    "rg35xx-pro",
-    "rg35xx-sp",
-    "rg40xx-h",
-    "rg40xx-v",
-    "rgcubexx-h",
-    "tui-brick",
-    "tui-spoon"
+    "rk-g350-v"
   ],
   "VOL_DOWN": {
     "handle_hold": true,
     "inputs": [
       "VOL_DOWN"
+    ],
+    "negate": [
+      "MENU_SHORT"
     ],
     "run_command": "/opt/muos/script/device/audio.sh D"
   },
@@ -25,6 +16,9 @@
     "handle_hold": true,
     "inputs": [
       "VOL_UP"
+    ],
+    "negate": [
+      "MENU_SHORT"
     ],
     "run_command": "/opt/muos/script/device/audio.sh U"
   }

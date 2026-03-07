@@ -29,11 +29,8 @@ case "$1" in
 
 				# Check if any trimui_inputd process is already running
 				# because this script is typically run with suspend too
-				if ! pgrep -f 'trimui_inputd_' >/dev/null 2>&1; then
-					case "$BOARD_NAME" in
-						*brick) /usr/bin/trimui_inputd_brick & ;;
-						*spoon) /usr/bin/trimui_inputd_smart_pro & ;;
-					esac
+				if ! pgrep -f 'trimui_inputd' >/dev/null 2>&1; then
+				    /opt/muos/bin/trimui_inputd
 				fi
 				;;
 			mgx*)
@@ -56,13 +53,6 @@ case "$1" in
 			tui*)
 				# Don't unload the following.  We are leaving it here for reference!
 				# modprobe -qr dc_sunxi
-				#
-				# We also don't want to kill the input just in case some running
-				# processes don't like the input being restarted for whatever reason
-				# case "$BOARD_NAME" in
-				#	*brick) killall -9 trimui_inputd_brick ;;
-				#	*spoon) killall -9 trimui_inputd_smart_pro ;;
-				# esac
 				;;
 			mgx*)
 				# Don't unload the fuse module!

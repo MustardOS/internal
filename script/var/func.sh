@@ -522,6 +522,7 @@ DISPLAY_WRITE() {
 			printf "%s" "$3" >/sys/kernel/debug/dispdbg/param
 			echo 1 >/sys/kernel/debug/dispdbg/start &
 			;;
+		rk-g350*) printf "%s" "$3" >/sys/class/backlight/backlight/brightness ;;
 		*) ;;
 	esac
 }
@@ -536,6 +537,7 @@ DISPLAY_READ() {
 			echo 1 >/sys/kernel/debug/dispdbg/start
 			cat /sys/kernel/debug/dispdbg/info &
 			;;
+		rk-g350*) cat /sys/class/backlight/backlight/brightness ;;
 		*) ;;
 	esac
 }

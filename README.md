@@ -9,6 +9,6 @@ This repository holds all of the key infrastructure of MustardOS:
 * `frontend`: The frontend which is compiled from https://github.com/MustardOS/frontend
 * `init`: Content partition filesystem which is moved on first install
 * `kiosk`: Frontend and system kiosk values
-* `script`: Various POSIX compliant script files which is the backbone of MustardOS
+* `script`: Various POSIX compliant script files which is the backbone of MustardOS (includes `system/maintenance.sh` for system cleanup and audits)
 * `share`: Various shared resources used for internal scripts and applications
 * `update`: Marker files for installed archives

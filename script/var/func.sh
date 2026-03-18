@@ -979,7 +979,7 @@ LED_CONTROL_CHANGE() {
 
 DEVICE_THEME_FIX() {
 	ROLE="$1"
-	IMAGE="$1"
+	IMAGE="$2"
 
 	case "$(GET_VAR "device" "board/name")" in
 		rg28xx-h)

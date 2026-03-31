@@ -515,6 +515,11 @@ RUMBLE() {
 				sleep "$2"
 				echo 1000000 >"$1"
 				;;
+			rg-vita*)
+				echo 0 >"$1"
+				sleep "$2"
+				echo 1 >"$1"
+				;;
 			*)
 				echo 1 >"$1"
 				sleep "$2"

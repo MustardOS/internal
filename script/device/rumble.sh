@@ -16,4 +16,10 @@ case "$BOARD_NAME" in
 		echo 1000000 >/sys/class/pwm/pwmchip0/pwm0/duty_cycle
 		echo 1 >/sys/class/pwm/pwmchip0/pwm0/enable
 		;;
+	rg-vita*)
+		[ -e /sys/class/pwm/pwmchip1/pwm0 ] || echo 0 >/sys/class/pwm/pwmchip1/export
+		echo 100000 >/sys/class/pwm/pwmchip1/pwm0/period
+		echo 100000 >/sys/class/pwm/pwmchip1/pwm0/duty_cycle
+		echo 1 >/sys/class/pwm/pwmchip1/pwm0/enable
+		;;
 esac

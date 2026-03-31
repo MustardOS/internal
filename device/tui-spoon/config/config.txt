@@ -1,0 +1,226 @@
+.
+├── audio
+│   ├── channel
+│   ├── control
+│   ├── max
+│   ├── min
+│   ├── ob_external
+│   ├── ob_internal
+│   ├── pf_external
+│   ├── pf_internal
+│   └── volume
+├── battery
+│   ├── boot_mode
+│   ├── capacity
+│   ├── charger
+│   ├── health
+│   └── voltage
+├── board
+│   ├── bluetooth
+│   ├── debugfs
+│   ├── event
+│   ├── hdmi
+│   ├── home
+│   ├── lid
+│   ├── name
+│   ├── network
+│   ├── portmaster
+│   ├── rtc_clock
+│   ├── rtc_wake
+│   ├── rumble
+│   ├── stick
+│   └── udc
+├── config.txt
+├── cpu
+│   ├── available
+│   ├── cores
+│   ├── default
+│   ├── governor
+│   ├── io_is_busy
+│   ├── io_is_busy_default
+│   ├── max_freq
+│   ├── max_freq_default
+│   ├── min_freq
+│   ├── min_freq_default
+│   ├── sampling_down_factor
+│   ├── sampling_down_factor_default
+│   ├── sampling_rate
+│   ├── sampling_rate_default
+│   ├── up_threshold
+│   └── up_threshold_default
+├── input
+│   ├── axis
+│   ├── code
+│   │   ├── analog
+│   │   │   ├── left
+│   │   │   │   ├── click
+│   │   │   │   ├── down
+│   │   │   │   ├── left
+│   │   │   │   ├── right
+│   │   │   │   └── up
+│   │   │   └── right
+│   │   │       ├── click
+│   │   │       ├── down
+│   │   │       ├── left
+│   │   │       ├── right
+│   │   │       └── up
+│   │   ├── button
+│   │   │   ├── a
+│   │   │   ├── b
+│   │   │   ├── c
+│   │   │   ├── l1
+│   │   │   ├── l2
+│   │   │   ├── l3
+│   │   │   ├── menu_long
+│   │   │   ├── menu_short
+│   │   │   ├── power_long
+│   │   │   ├── power_short
+│   │   │   ├── r1
+│   │   │   ├── r2
+│   │   │   ├── r3
+│   │   │   ├── select
+│   │   │   ├── start
+│   │   │   ├── switch
+│   │   │   ├── vol_down
+│   │   │   ├── vol_up
+│   │   │   ├── x
+│   │   │   ├── y
+│   │   │   └── z
+│   │   └── dpad
+│   │       ├── down
+│   │       ├── left
+│   │       ├── right
+│   │       └── up
+│   ├── extra
+│   ├── general
+│   ├── power
+│   ├── sdlmap
+│   │   ├── modern
+│   │   │   ├── a
+│   │   │   ├── b
+│   │   │   ├── x
+│   │   │   └── y
+│   │   └── retro
+│   │       ├── a
+│   │       ├── b
+│   │       ├── x
+│   │       └── y
+│   ├── type
+│   │   ├── analog
+│   │   │   ├── left
+│   │   │   │   ├── click
+│   │   │   │   ├── down
+│   │   │   │   ├── left
+│   │   │   │   ├── right
+│   │   │   │   └── up
+│   │   │   └── right
+│   │   │       ├── click
+│   │   │       ├── down
+│   │   │       ├── left
+│   │   │       ├── right
+│   │   │       └── up
+│   │   ├── button
+│   │   │   ├── a
+│   │   │   ├── b
+│   │   │   ├── c
+│   │   │   ├── l1
+│   │   │   ├── l2
+│   │   │   ├── l3
+│   │   │   ├── menu_long
+│   │   │   ├── menu_short
+│   │   │   ├── power_long
+│   │   │   ├── power_short
+│   │   │   ├── r1
+│   │   │   ├── r2
+│   │   │   ├── r3
+│   │   │   ├── select
+│   │   │   ├── start
+│   │   │   ├── switch
+│   │   │   ├── vol_down
+│   │   │   ├── vol_up
+│   │   │   ├── x
+│   │   │   ├── y
+│   │   │   └── z
+│   │   └── dpad
+│   │       ├── down
+│   │       ├── left
+│   │       ├── right
+│   │       └── up
+│   └── volume
+├── led
+│   ├── low
+│   ├── normal
+│   └── rgb
+├── mux
+│   ├── height
+│   └── width
+├── network
+│   ├── iface
+│   ├── module
+│   ├── name
+│   ├── state
+│   └── type
+├── screen
+│   ├── bright
+│   ├── colour
+│   ├── device
+│   ├── external
+│   │   ├── height
+│   │   └── width
+│   ├── hdmi
+│   ├── height
+│   ├── internal
+│   │   ├── height
+│   │   └── width
+│   ├── rotate
+│   ├── wait
+│   ├── width
+│   └── zoom
+├── sdl
+│   ├── blitter_disabled
+│   ├── name
+│   ├── rotation
+│   └── scaler
+└── storage
+    ├── boot
+    │   ├── active
+    │   ├── dev
+    │   ├── label
+    │   ├── mount
+    │   ├── num
+    │   ├── sep
+    │   └── type
+    ├── rom
+    │   ├── active
+    │   ├── dev
+    │   ├── label
+    │   ├── mount
+    │   ├── num
+    │   ├── sep
+    │   └── type
+    ├── root
+    │   ├── active
+    │   ├── dev
+    │   ├── label
+    │   ├── mount
+    │   ├── num
+    │   ├── sep
+    │   └── type
+    ├── sdcard
+    │   ├── active
+    │   ├── dev
+    │   ├── label
+    │   ├── mount
+    │   ├── num
+    │   ├── sep
+    │   └── type
+    └── usb
+        ├── active
+        ├── dev
+        ├── label
+        ├── mount
+        ├── num
+        ├── sep
+        └── type
+
+34 directories, 190 files

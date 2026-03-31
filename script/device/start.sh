@@ -71,6 +71,9 @@ case "$BOARD_NAME" in
 	rk*)
 		EMU_VER="rk"
 		;;
+	rg-vita*)
+		EMU_VER="vita"
+		;;
 esac
 
 # Install a flat binary if its MD5 differs from the installed copy.

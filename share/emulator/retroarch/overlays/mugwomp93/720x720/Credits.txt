@@ -1,0 +1,5 @@
+Thank you very much to 1playerinsertcoin (https://www.reddit.com/user/1playerinsertcoin/) for all of the fantastic integer and non-integer overlay grids they made specifically for me. I certainly wouldn't have been able to produce anything remotely as good on my own. It's particularly impressive that they were working blind and had to rely on my observations to make adjustments.
+
+Thank you very much also to KugelFanger, who approached me with their excellent NGPC overlays using 1palyerinsertcoin's grids. I had given up on making anything I liked with so little vertical space, and they really knocked it out of the park.
+
+Finally, credit to gonejack for their GBA overlay for the RGB30 (https://github.com/gonejack/rgb30). I was at a loss for what to do with so much empty space to fill until I came across their work. As you can see, my version is essentially their design with some extra effects.

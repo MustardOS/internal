@@ -122,11 +122,11 @@ INSTALL_WIREPLUMBER_CONF() {
 
 	if [ "${WP_MINOR:-0}" -ge 5 ]; then
 		# WirePlumber 5+
-		RESTORE_CONF "$MUOS_SHARE_DIR/conf/wireplumber.conf" \
+		RESTORE_CONF "$DEVICE_CONTROL_DIR/wireplumber.conf" \
 			"/usr/share/wireplumber/wireplumber.conf.d/60-muos-wireplumber.conf"
 	else
 		# WirePlumber 4
-		RESTORE_CONF "$MUOS_SHARE_DIR/conf/wireplumber.lua" \
+		RESTORE_CONF "$DEVICE_CONTROL_DIR/wireplumber.lua" \
 			"/usr/share/wireplumber/main.lua.d/60-muos-wireplumber.lua"
 	fi
 }

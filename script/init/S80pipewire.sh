@@ -195,7 +195,14 @@ FINALISE_AUDIO() {
 		LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "Unable to set default node '%s'" "$DEF_ID")"
 
 	APPLY_VOL=${RUNTIME_PERCENT:-$SAVED_VOL}
-	wpctl set-volume @DEFAULT_AUDIO_SINK@ "${APPLY_VOL}%" >/dev/null 2>&1
+	if [ "${WP_MINOR:-0}" -ge 5 ]; then
+		# WirePlumber 5+
+		WPCTL_VOL=$(awk "BEGIN { printf \"%.2f\", ${APPLY_VOL}/100 }")
+		wpctl set-volume @DEFAULT_AUDIO_SINK@ "$WPCTL_VOL" >/dev/null 2>&1
+	else
+		# WirePlumber 4
+		wpctl set-volume @DEFAULT_AUDIO_SINK@ "${APPLY_VOL}%" >/dev/null 2>&1
+	fi
 
 	sleep 0.1
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1

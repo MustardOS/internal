@@ -80,6 +80,9 @@ DO_START() {
 
 	rfkill unblock all 2>/dev/null
 
+	# Initialise amp for devices that need it
+	/opt/muos/script/device/amp.sh &
+
 	# Adjust headphone output for certain devices
 	/opt/muos/script/device/headphone.sh &
 

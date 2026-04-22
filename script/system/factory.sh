@@ -34,7 +34,11 @@ HOTKEY start
 /usr/bin/mpv --really-quiet "$MUOS_SHARE_DIR/media/factory.mp3" &
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating SSH Host Keys"
-/opt/openssh/bin/ssh-keygen -A &
+if [ -x /opt/openssh/sbin/sshd ]; then
+	/opt/openssh/bin/ssh-keygen -A &
+elif [ -x /usr/sbin/sshd ]; then
+	/usr/bin/ssh-keygen -A &
+fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Setting ARMHF Requirements"
 ARMHF="ld-linux-armhf.so.3"

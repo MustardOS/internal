@@ -27,9 +27,8 @@ HEX_ESCAPE() {
 }
 
 case "$(GET_VAR "device" "board/name")" in
-	mgx* | rg-vita*) /opt/muos/script/init/async/S02network.sh load ;;
+	mgx* | rg-vita* | rk* | tui*) /opt/muos/script/init/async/S02network.sh load ;;
 	rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && /opt/muos/script/init/async/S02network.sh load ;;
-	rk* | tui*) /opt/muos/script/init/async/S02network.sh load ;;
 	*) ;;
 esac
 

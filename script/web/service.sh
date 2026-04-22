@@ -7,12 +7,18 @@ SERVICE_MATCH() {
 	SRV="$1"
 	MATCH_MODE="x"
 	MATCH_PAT="$SRV"
+	SRV_BASE=""
 
 	case "$SRV" in
 		sshd)
 			if [ -x /opt/openssh/sbin/sshd ]; then
 				MATCH_MODE="f"
 				MATCH_PAT="/opt/openssh/sbin/sshd"
+				SRV_BASE="/opt/openssh"
+			elif [ -x /usr/sbin/sshd ]; then
+                MATCH_MODE="f"
+                MATCH_PAT="/usr/sbin/sshd"
+				SRV_BASE="/usr"
 			else
 				MATCH_MODE="x"
 				MATCH_PAT="sshd"
@@ -95,10 +101,22 @@ MANAGE_WEBSERV() {
 			if ! PROC_EXISTS; then
 				case "$SRV" in
 					sshd)
-						chown -R root:root "/root" "/opt/openssh" "/opt/sftpgo"
-						chmod -R 755 "/root" "/opt/openssh" "/opt/sftpgo"
-						chmod -R 700 /opt/openssh/var /opt/openssh/etc
-						/opt/openssh/sbin/sshd -D >/dev/null 2>&1 &
+						if [ "$SRV_BASE" = "/opt/openssh" ]; then
+							chown -R root:root "/root" "/opt/openssh" "/opt/sftpgo"
+							chmod -R 755 "/root" "/opt/openssh" "/opt/sftpgo"
+							chmod -R 700 /opt/openssh/var /opt/openssh/etc
+							
+							/opt/openssh/sbin/sshd -D >/dev/null 2>&1 &
+						elif [ "$SRV_BASE" = "/usr" ]; then
+							chown -R root:root "/root" "/etc/ssh" "/opt/sftpgo"
+							chmod 755 "/root" "/opt/sftpgo"
+							chmod 600 /etc/ssh/ssh_host_*_key
+							chmod 700 /etc/ssh
+
+							/usr/sbin/sshd -D >/dev/null 2>&1 &
+						else
+							sshd -D >/dev/null 2>&1 &
+						fi
 						;;
 					sftpgo)
 						/opt/sftpgo/sftpgo serve -c /opt/sftpgo >/dev/null 2>&1 &

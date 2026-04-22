@@ -113,6 +113,9 @@ LOAD_MODULE() {
 
 	if grep -qw "^$NET_NAME" /proc/modules; then
 		case "$BOARD_NAME" in
+			rg-vita*)
+            	# PCIe WiFi - autoloaded by kernel, no SDIO reload cycle needed
+            ;;
 			rg*)
 				modprobe -qr "$NET_NAME"
 				sleep 1
@@ -123,6 +126,12 @@ LOAD_MODULE() {
 	FORCE_SDIO_AWAKE
 
 	case "$BOARD_NAME" in
+		rg-vita*)
+			# PCIe WiFi - autoloaded by kernel, only load if somehow missing
+			if ! grep -qw "^$NET_NAME" /proc/modules; then
+				modprobe -qf "$NET_NAME"
+			fi
+			;;
 		rg*)
 			if ! grep -qw "^$NET_NAME" /proc/modules; then
 				modprobe -qf "$NET_NAME"
@@ -188,10 +197,17 @@ UNLOAD_MODULE() {
 	killall -q wpa_supplicant dhcpcd udhcpc
 	sleep 2
 
-	if grep -qw "^$NET_NAME" /proc/modules; then
-		modprobe -qr "$NET_NAME"
-		sleep 2
-	fi
+	# PCIe WiFi modules are autoloaded by the kernel - don't unload them
+	# as modprobe -qf silently fails to reload them after removal
+	case "$BOARD_NAME" in
+		rg-vita*) ;;
+		*)
+			if grep -qw "^$NET_NAME" /proc/modules; then
+				modprobe -qr "$NET_NAME"
+				sleep 2
+			fi
+			;;
+	esac
 
 	[ -f "$RESOLV_CONF.bak" ] && mv -f "$RESOLV_CONF.bak" "$RESOLV_CONF"
 
@@ -415,7 +431,7 @@ IP_DHCP() {
 
 	if command -v dhcpcd >/dev/null 2>&1; then
 		LOG_INFO "$0" 0 "NETWORK" "dhcpcd was found!"
-		dhcpcd -I "$IFCE" >/dev/null 2>&1 &
+		dhcpcd "$IFCE" >/dev/null 2>&1 &
 	elif command -v udhcpc >/dev/null 2>&1; then
 		LOG_INFO "$0" 0 "NETWORK" "udhcpc was found!"
 		udhcpc -i "$IFCE" -b -q >/dev/null 2>&1
@@ -573,8 +589,8 @@ DO_START() {
 	LOG_INFO "$0" 0 "NETWORK" "Starting Network Service"
 
 	case "$BOARD_NAME" in
+		mgx* | rg-vita* | rk* | tui*) LOAD_MODULE ;;
 		rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && LOAD_MODULE ;;
-		mgx* | rk* | tui*) LOAD_MODULE ;;
 	esac
 
 	NET_STATUS "ASSOCIATING"
@@ -716,9 +732,11 @@ case "$1" in
 		DO_STOP
 		DO_START
 		;;
+	load) LOAD_MODULE ;;
+	unload) UNLOAD_MODULE ;;
 	status) DO_STATUS ;;
 	*)
-		printf "Usage: %s {start|stop|restart|status}\n" "$0" >&2
+		printf "Usage: %s {start|stop|restart|load|unload|status}\n" "$0" >&2
 		exit 1
 		;;
 esac

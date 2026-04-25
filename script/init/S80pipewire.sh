@@ -170,12 +170,19 @@ START_PIPEWIRE() {
 	return 0
 }
 
-FINALISE_AUDIO() {
+FFINALISE_AUDIO() {
+	USE_SAVED=${1:-0}
 	TARGET_NAME=$(GET_TARGET_NODE)
 	RUNTIME_PERCENT=$(GET_BOOT_RUNTIME_PERCENT)
 	SAVED_VOL=$(GET_BOOT_SAVED_VOLUME)
 
 	SET_SAVED_AUDIO_VOLUME "$SAVED_VOL"
+
+	if [ "$USE_SAVED" -eq 1 ]; then
+		APPLY_VOL=$SAVED_VOL
+	else
+		APPLY_VOL=${RUNTIME_PERCENT:-$SAVED_VOL}
+	fi
 
 	# Wait for the target node to appear, then resolve its ID once and cache it.
 	if ! WAIT_UNTIL NODE_VISIBLE "$TARGET_NAME"; then
@@ -272,7 +279,7 @@ DO_RELOAD() {
 		exit 1
 	fi
 
-	if FINALISE_AUDIO; then
+	if FINALISE_AUDIO 1; then
 		LOG_SUCCESS "$0" 0 "PIPEWIRE" "Reload complete"
 		exit 0
 	fi

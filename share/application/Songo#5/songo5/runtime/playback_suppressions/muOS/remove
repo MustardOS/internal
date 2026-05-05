@@ -1,0 +1,8 @@
+#!/bin/bash
+
+. /opt/muos/script/var/func.sh
+
+CAFFEINE off
+SET_VAR "config" "settings/power/idle_sleep" "$USERS_ORIGINAL_IDLE_SLEEP"
+SET_VAR "config" "settings/power/idle_display" "$USERS_ORIGINAL_IDLE_DISPLAY"
+HOTKEY restart

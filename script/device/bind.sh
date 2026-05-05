@@ -259,3 +259,8 @@ ADD_INTERNAL "task"      "INTERNAL" "$MUOS_SHARE_DIR/task"
 
 LC_ALL=C awk -F'|' -v OFS='|' '$1 == "package" { sub(/\/package\/.*/, "/package", $3) } { print }' \
 	"$BINDMAP" | LC_ALL=C sort -t'|' -k1,1 >"$BINDMAP.tmp" && mv "$BINDMAP.tmp" "$BINDMAP"
+
+[  "${USER_INIT:-0}" -eq 1 ] && {
+	LOG_INFO "$0" 0 "BOOTING" "Starting User Initialisation Scripts"
+	/opt/muos/script/system/user_init.sh &
+}

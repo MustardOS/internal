@@ -33,7 +33,9 @@ SD2_HOST="$(GET_VAR "device" "storage/sdcard/mount")/$CUS_HOST"
 
 SCN_PATH="/sys/class/net"
 RESOLV_CONF="/etc/resolv.conf"
-DHCP_CONF="/etc/dhcpcd.conf"
+DHCP_CONF_SRC="/opt/muos/share/conf/dhcpcd.conf"
+DHCP_CONF_RUN="$MUOS_RUN_DIR/dhcpcd.conf"
+DHCPCD_LOG="$MUOS_RUN_DIR/dhcpcd.log"
 STATUS_FILE="$MUOS_RUN_DIR/network.status"
 
 [ -n "$NET_IFACE" ] || NET_IFACE=$(GET_VAR "device" "network/iface_active")
@@ -51,6 +53,13 @@ RC_DHCP_FAILED=5
 RC_LINK_TIMEOUT=6
 RC_WPA_START_FAILED=7
 
+# Just in case some weird shit happens and the DNS is being
+# cleared for whatever reason: https://dns.kitchen/jingle
+if [ -z "$DNSA" ]; then
+	DNSA="1.1.1.1"
+	SET_VAR "config" "network/dns" "$DNSA"
+fi
+
 NET_STATUS() {
 	printf "%s" "$1" >"$STATUS_FILE"
 }
@@ -62,6 +71,34 @@ NET_STATUS_CLEAR() {
 FAIL_WITH() {
 	NET_STATUS "$1"
 	return "${2:-$RC_FAIL}"
+}
+
+MODULE_LOADED() {
+	[ -n "$1" ] || return 1
+
+	awk -v MOD="$1" '
+		$1 == MOD {
+			FOUND = 1
+			exit
+		}
+
+		END {
+			exit FOUND ? 0 : 1
+		}
+	' /proc/modules
+}
+
+NETWORK_DAEMONS_RUNNING() {
+	ps | awk '
+		/[d]hcpcd/ || /[u]dhcpc/ || /[w]pa_supplicant/ {
+			FOUND = 1
+			exit
+		}
+
+		END {
+			exit FOUND ? 0 : 1
+		}
+	'
 }
 
 FORCE_SDIO_AWAKE() {
@@ -111,7 +148,7 @@ WAIT_FOR_IFACE_SCAN() {
 LOAD_MODULE() {
 	[ "${HAS_NETWORK:-0}" -eq 0 ] && return 0
 
-	if grep -qw "^$NET_NAME" /proc/modules; then
+	if MODULE_LOADED "$NET_NAME"; then
 		case "$BOARD_NAME" in
 			rg-vita*)
 				# PCIe WiFi - autoloaded by kernel, no SDIO reload cycle needed
@@ -128,23 +165,23 @@ LOAD_MODULE() {
 	case "$BOARD_NAME" in
 		rg-vita*)
 			# PCIe WiFi - autoloaded by kernel, only load if somehow missing
-			if ! grep -qw "^$NET_NAME" /proc/modules; then
+			if [ -n "$NET_NAME" ] && ! MODULE_LOADED "$NET_NAME"; then
 				modprobe -qf "$NET_NAME"
 			fi
 			;;
 		rg*)
-			if ! grep -qw "^$NET_NAME" /proc/modules; then
+			if [ -n "$NET_NAME" ] && ! MODULE_LOADED "$NET_NAME"; then
 				modprobe -qf "$NET_NAME"
 			fi
 			;;
 		mgx* | tui*)
-			if ! grep -qw "^$NET_NAME" /proc/modules; then
+			if [ -n "$NET_NAME" ] && ! MODULE_LOADED "$NET_NAME"; then
 				modprobe -q "$NET_MODULE"
 			fi
 			;;
 		rk*)
 			modprobe -q cfg80211
-			if [ -n "$NET_NAME" ] && ! grep -qw "^$NET_NAME" /proc/modules; then
+			if [ -n "$NET_NAME" ] && ! MODULE_LOADED "$NET_NAME"; then
 				modprobe -q "$NET_NAME"
 			fi
 			;;
@@ -202,7 +239,7 @@ UNLOAD_MODULE() {
 	case "$BOARD_NAME" in
 		rg-vita*) ;;
 		*)
-			if grep -qw "^$NET_NAME" /proc/modules; then
+			if MODULE_LOADED "$NET_NAME"; then
 				modprobe -qr "$NET_NAME"
 				sleep 2
 			fi
@@ -225,7 +262,7 @@ WAIT_FOR_MODULE() {
 	TIMEOUT="${2:-5}"
 	I=0
 	while [ "$I" -lt "$TIMEOUT" ]; do
-		grep -qw "^$MOD" /proc/modules && return 0
+		MODULE_LOADED "$MOD" && return 0
 		I=$((I + 1))
 		sleep 1
 	done
@@ -257,7 +294,7 @@ WAIT_FOR_IFACE_READY() {
 }
 
 DESTROY_DHCPCD() {
-	if pidof dhcpcd udhcpc wpa_supplicant >/dev/null 2>&1; then
+	if NETWORK_DAEMONS_RUNNING; then
 		killall -q dhcpcd udhcpc wpa_supplicant
 		sleep 1
 		killall -9 dhcpcd udhcpc wpa_supplicant
@@ -279,17 +316,68 @@ RESTORE_HOSTNAME() {
 	LOG_INFO "$0" 0 "NETWORK" "$(printf "Hostname restored to %s" "$HOSTNAME")"
 }
 
+PREPARE_DHCPCD_CONF() {
+	mkdir -p "$MUOS_RUN_DIR" || return 1
+
+	if [ ! -f "$DHCP_CONF_SRC" ]; then
+		LOG_ERROR "$0" 0 "NETWORK" "$(printf "Missing dhcpcd config: %s" "$DHCP_CONF_SRC")"
+		return 1
+	fi
+
+	cp "$DHCP_CONF_SRC" "$DHCP_CONF_RUN" || {
+		LOG_ERROR "$0" 0 "NETWORK" "$(printf "Failed to copy dhcpcd config: %s -> %s" "$DHCP_CONF_SRC" "$DHCP_CONF_RUN")"
+		return 1
+	}
+
+	return 0
+}
+
 CALCULATE_IAID() {
-	MAC=$(cat /sys/class/net/"$IFCE"/address)
+	MAC_FILE="/sys/class/net/$IFCE/address"
+	[ -r "$MAC_FILE" ] || return 1
+
+	MAC=$(cat "$MAC_FILE")
 	O5=${MAC#*:*:*:*:}
 	O5=${O5%%:*}
 	O6=${MAC##*:}
+
+	case "$O5$O6" in
+		"" | *[!0123456789abcdefABCDEF]*) return 1 ;;
+	esac
+
 	IAID=$(((0x$O5 << 8) | 0x$O6))
 
-	sed -i '/^iaid/d' "$DHCP_CONF"
-	printf 'iaid %s\n' "$IAID" >>"$DHCP_CONF"
+	PREPARE_DHCPCD_CONF || return 1
+
+	DHCP_CONF_TMP="$DHCP_CONF_RUN.$$"
+
+	{
+		awk '$1 != "iaid"' "$DHCP_CONF_RUN"
+		printf "iaid %s\n" "$IAID"
+	} >"$DHCP_CONF_TMP" || {
+		rm -f "$DHCP_CONF_TMP"
+		return 1
+	}
+
+	mv -f "$DHCP_CONF_TMP" "$DHCP_CONF_RUN" || {
+		rm -f "$DHCP_CONF_TMP"
+		return 1
+	}
 
 	LOG_INFO "$0" 0 "NETWORK" "$(printf "Using IAID: %s" "$IAID")"
+
+	return 0
+}
+
+LOG_DHCPCD_OUTPUT() {
+	[ -s "$DHCPCD_LOG" ] || return 0
+
+	while IFS= read -r LINE || [ -n "$LINE" ]; do
+		[ -n "$LINE" ] || continue
+		LOG_WARN "$0" 0 "NETWORK" "$(printf "dhcpcd: %s" "$LINE")"
+	done <"$DHCPCD_LOG"
+
+	return 0
 }
 
 MASK_TO_CIDR() {
@@ -317,8 +405,16 @@ MASK_TO_CIDR() {
 }
 
 WPA_RUNNING() {
-	pgrep -f "wpa_supplicant.*-i[[:space:]]*$IFCE" >/dev/null 2>&1 ||
-		pgrep -f "wpa_supplicant.*$IFCE" >/dev/null 2>&1
+	ps | awk -v IFACE="$IFCE" '
+		/[w]pa_supplicant/ && index($0, IFACE) {
+			FOUND = 1
+			exit
+		}
+
+		END {
+			exit FOUND ? 0 : 1
+		}
+	'
 }
 
 WAIT_CARRIER() {
@@ -431,7 +527,21 @@ IP_DHCP() {
 
 	if command -v dhcpcd >/dev/null 2>&1; then
 		LOG_INFO "$0" 0 "NETWORK" "dhcpcd was found!"
-		dhcpcd "$IFCE" >/dev/null 2>&1 &
+
+		CALCULATE_IAID || {
+			LOG_ERROR "$0" 0 "NETWORK" "Failed to prepare dhcpcd config"
+			FAIL_WITH "DHCP_FAILED" "$RC_DHCP_FAILED"
+			return $?
+		}
+
+		rm -f "$DHCPCD_LOG"
+
+		if ! dhcpcd -4 -q -f "$DHCP_CONF_RUN" "$IFCE" >"$DHCPCD_LOG" 2>&1; then
+			LOG_ERROR "$0" 0 "NETWORK" "$(printf "dhcpcd failed using %s" "$DHCP_CONF_RUN")"
+			LOG_DHCPCD_OUTPUT
+			FAIL_WITH "DHCP_FAILED" "$RC_DHCP_FAILED"
+			return $?
+		fi
 	elif command -v udhcpc >/dev/null 2>&1; then
 		LOG_INFO "$0" 0 "NETWORK" "udhcpc was found!"
 		udhcpc -i "$IFCE" -b -q >/dev/null 2>&1
@@ -461,6 +571,7 @@ IP_DHCP() {
 	done
 
 	LOG_ERROR "$0" 0 "NETWORK" "DHCP failed"
+	LOG_DHCPCD_OUTPUT
 	FAIL_WITH "DHCP_FAILED" "$RC_DHCP_FAILED"
 }
 
@@ -534,8 +645,6 @@ TRY_CONNECT() {
 	DESTROY_DHCPCD
 
 	if [ -d "/sys/class/net/$IFCE" ]; then
-		CALCULATE_IAID
-
 		iw dev "$IFCE" disconnect
 		ip addr flush dev "$IFCE"
 		ip route del default dev "$IFCE"
@@ -705,7 +814,7 @@ DO_STATUS() {
 	[ -d "/sys/class/net/$IFCE" ] && IFACE_UP=1
 
 	MOD_LOADED=0
-	[ -n "$NET_NAME" ] && grep -qw "^$NET_NAME" /proc/modules && MOD_LOADED=1
+	MODULE_LOADED "$NET_NAME" && MOD_LOADED=1
 
 	WPA_STATE=0
 	WPA_RUNNING && WPA_STATE=1

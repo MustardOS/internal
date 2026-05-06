@@ -64,4 +64,4 @@ fi
 
 SET_VAR "config" "boot/factory_reset" "0"
 SET_VAR "config" "settings/advanced/rumble" "0"
-SET_VAR "config" "settings/power/screensaver" "90"
+SET_VAR "config" "settings/power/saver_type" "1"

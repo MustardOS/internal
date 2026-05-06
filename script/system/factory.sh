@@ -60,8 +60,7 @@ else
 	LOG_INFO "$0" 0 "FACTORY RESET" "Relying on FUSE mount.exfat"
 fi
 
-/opt/muos/bin/nosefart "$MUOS_SHARE_DIR/media/support.nsf" &
-/opt/muos/frontend/muxcredits
+/opt/muos/frontend/mucredits
 
 SET_VAR "config" "boot/factory_reset" "0"
 SET_VAR "config" "settings/advanced/rumble" "0"

@@ -47,7 +47,7 @@ RUN() {
 			read -r P <"$PROC" 2>/dev/null || continue
 
 			case "$P" in
-				syncthing | muterm | muxcharge | muxcredits | muxmessage)
+				mucredits | muterm | muxcharge | muxmessage)
 					INHIBIT=$INHIBIT_BOTH
 					break
 					;;

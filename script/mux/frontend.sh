@@ -149,12 +149,7 @@ while :; do
 		history) EXEC_MUX "history" "muxfrontend" ;;
 		info) EXEC_MUX "info" "muxfrontend" ;;
 
-		credits)
-			/opt/muos/bin/nosefart "$MUOS_SHARE_DIR/media/support.nsf" >/dev/null 2>&1 &
-			EXEC_MUX "info" "muxcredits"
-			pkill -9 -f "nosefart" &
-			;;
-
+		credits) /opt/muos/frontend/mucredits ;;
 		reboot) /opt/muos/script/mux/quit.sh reboot frontend ;;
 		shutdown) /opt/muos/script/mux/quit.sh poweroff frontend ;;
 

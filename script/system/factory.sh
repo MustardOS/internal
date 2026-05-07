@@ -6,7 +6,7 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Setting date time to default"
 date 010100002026
 hwclock -w
 
-while pgrep "muxwarn" >/dev/null 2>&1; do sleep 0.25; done
+while pgrep "muwarn" >/dev/null 2>&1; do sleep 0.25; done
 
 printf "installer" >"/tmp/act_go"
 /opt/muos/script/mux/install.sh

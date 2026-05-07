@@ -23,7 +23,7 @@ DO_START() {
 
 	/opt/muos/script/device/module.sh load
 
-	[ "$FACTORY_RESET" -eq 1 ] && /opt/muos/frontend/muxwarn &
+	[ "$FACTORY_RESET" -eq 1 ] && /opt/muos/frontend/muwarn &
 
 	mkdir -p "/tmp/muos"
 	rm -rf "$MUOS_LOG_DIR"/*.log "/opt/muxtmp"

@@ -20,7 +20,10 @@ RESET_GRAPHICS_BACKEND() {
 }
 
 case "$(GET_VAR "device" "board/name")" in
-	rg*) RESET_GRAPHICS_BACKEND ;;
+	rg-vita*)
+		export SDL_KMSDRM_ORIENTATION=3
+		export PPSSPP_DISPLAY_ROTATION=270
+		;;
 	mgx* | tui*)
 		# Prevent blackscreen due to "an issue with the ordering of the RGBA 8888 or something like that" (acmeplus 2025)
 		setalpha 0
@@ -28,6 +31,7 @@ case "$(GET_VAR "device" "board/name")" in
 		# Keep this until we build with Vulkan
 		RESET_GRAPHICS_BACKEND
 		;;
+	rg*) RESET_GRAPHICS_BACKEND ;;
 esac
 
 HOME="$PPSSPP_DIR"

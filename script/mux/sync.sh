@@ -4,23 +4,58 @@
 
 FRONTEND stop
 
+THROBBER_WAIT="${THROBBER_WAIT:-1}"
+RSYNC_PID=""
+
 SLEEP_AND_GO() {
+	[ -n "$RSYNC_PID" ] && kill -0 "$RSYNC_PID" 2>/dev/null && kill "$RSYNC_PID" 2>/dev/null
 	sleep 5
 	FRONTEND start storage
 	exit "$1"
 }
 
+trap 'printf "\nInterrupted - Aborting\n"; SLEEP_AND_GO 130' INT TERM HUP
+
+THROBBER() {
+	while kill -0 "$1" 2>/dev/null; do
+		printf "."
+		sleep "$THROBBER_WAIT"
+	done
+}
+
+IS_UINT() {
+	case "$1" in
+		'' | *[!0-9]*) return 1 ;;
+		*) return 0 ;;
+	esac
+}
+
 M_PATH="$1"
 
-SD1="$(GET_VAR "device" "storage/rom/mount")/$M_PATH"
-SD2="$(GET_VAR "device" "storage/sdcard/mount")/$M_PATH"
+if [ -z "$M_PATH" ]; then
+	printf "Usage: %s <relative-path>\n" "$0"
+	SLEEP_AND_GO 1
+fi
 
-RSYNC_LOG="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/storage_sync.log"
+case "$M_PATH" in
+	/* | *..*)
+		printf "Invalid path '%s' - must be relative and contain no '..'\n" "$M_PATH"
+		SLEEP_AND_GO 1
+		;;
+esac
+
+SD1_ROOT="$(GET_VAR "device" "storage/rom/mount")"
+SD2_ROOT="$(GET_VAR "device" "storage/sdcard/mount")"
+
+SD1="$SD1_ROOT/$M_PATH"
+SD2="$SD2_ROOT/$M_PATH"
+
+RSYNC_LOG="$SD1_ROOT/MUOS/log/storage_sync.log"
 
 # Check if SD2 is mounted - ensuring the source is available
 SD_DEVICE="$(GET_VAR "device" "storage/sdcard/dev")$(GET_VAR "device" "storage/sdcard/sep")$(GET_VAR "device" "storage/sdcard/num")"
-if grep -m 1 "$SD_DEVICE" /proc/partitions >/dev/null; then
-	printf "SD2 has been detected\nSyncing '%s' from SD2\n" "$1"
+if grep -q -m 1 "$SD_DEVICE" /proc/partitions; then
+	printf "SD2 has been detected\nSyncing '%s' from SD2\n" "$M_PATH"
 else
 	printf "SD2 not detected - Aborting\n"
 	SLEEP_AND_GO 1
@@ -41,29 +76,63 @@ if [ ! -d "$SD1" ]; then
 	}
 fi
 
-# Calculate size of SD2 directory and available space on SD1
-SD2_SIZE=$(du -sk "$SD2" | awk '{print $1}')
-SD1_SPACE=$(df -k "$SD1" | tail -1 | awk '{print $4}')
+SD2_INFO="$(find "$SD2" -type f -exec ls -ln {} + 2>/dev/null |
+	awk 'BEGIN { c = 0; b = 0 }
+	     /^-/   { c++; b += $5 }
+	     END    { printf "%d %d", c, int((b + 1023) / 1024) }')"
 
-# Verify that SD1_SPACE is a valid number just in case awk fucks up
-if ! [ "$SD1_SPACE" -eq "$SD1_SPACE" ] 2>/dev/null; then
+FILE_COUNT="${SD2_INFO% *}"
+
+SD2_SIZE="${SD2_INFO#* }"
+SD1_SPACE="$(df -k "$SD1" | awk 'NR==2 { print $4; exit }')"
+
+if ! IS_UINT "$SD2_SIZE"; then
+	printf "Unable to determine size of '%s' - Aborting\n" "$SD2"
+	SLEEP_AND_GO 1
+fi
+
+if ! IS_UINT "$SD1_SPACE"; then
 	printf "Unable to determine available space on '%s' - Aborting\n" "$SD1"
 	SLEEP_AND_GO 1
 fi
 
-# Check if there is enough space
-if [ "$SD1_SPACE" -lt "$SD2_SIZE" ]; then
-	printf "Not enough space on SD1 to sync '%s'\n\tRequired: %s KB\n\tAvailable: %s KB\n" \
-		"$M_PATH" "$SD2_SIZE" "$SD1_SPACE"
+# Require a 5% safety margin. Doubly important here: SD1 is the boot card,
+# and filling it can prevent the frontend from starting again.
+SD2_NEED=$((SD2_SIZE + SD2_SIZE / 20))
+if [ "$SD1_SPACE" -lt "$SD2_NEED" ]; then
+	printf "Not enough space on SD1 to sync '%s'\n\tRequired: %s KB (incl. 5%% margin)\n\tAvailable: %s KB\n" \
+		"$M_PATH" "$SD2_NEED" "$SD1_SPACE"
 	SLEEP_AND_GO 1
 fi
 
-FILE_COUNT="$(find "$SD2" -type f | wc -l)"
-printf "Found %s files\n" "$FILE_COUNT"
+printf "Found %s files (%s KB)\n\n" "$FILE_COUNT" "$SD2_SIZE"
 
-rsync --archive --ignore-times --itemize-changes --checksum --outbuf=L --log-file="$RSYNC_LOG" "$SD2/" "$SD1/" |
-	grep --line-buffered '^>f' |
-	/opt/muos/bin/pv -pls "$FILE_COUNT" >/dev/null
+RSYNC_LOG_DIR="${RSYNC_LOG%/*}"
+mkdir -p "$RSYNC_LOG_DIR" || {
+	printf "Failed to create log directory '%s' - Aborting\n" "$RSYNC_LOG_DIR"
+	SLEEP_AND_GO 1
+}
+: >"$RSYNC_LOG" || {
+	printf "Failed to write log file '%s' - Aborting\n" "$RSYNC_LOG"
+	SLEEP_AND_GO 1
+}
+
+printf "Syncing Files"
+
+rsync --archive --itemize-changes --log-file="$RSYNC_LOG" "$SD2/" "$SD1/" >/dev/null 2>&1 &
+RSYNC_PID="$!"
+
+THROBBER "$RSYNC_PID"
+wait "$RSYNC_PID"
+RSYNC_STATUS="$?"
+RSYNC_PID=""
+
+printf "\n\n"
+
+if [ "$RSYNC_STATUS" -ne 0 ]; then
+	printf "Sync failed with status %s - See '%s'\n" "$RSYNC_STATUS" "$RSYNC_LOG"
+	SLEEP_AND_GO 1
+fi
 
 # Sync and sleep for a bit
 printf "Sync Filesystem\n"

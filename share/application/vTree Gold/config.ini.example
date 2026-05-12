@@ -1,0 +1,105 @@
+# vTree Gold — example configuration
+# Copy this file to config.ini (next to the vtree executable) to customise the app.
+# Lines beginning with # are comments and are ignored.
+# All keys are optional; omitting a key uses the built-in default shown here.
+
+[General]
+# Show dotfiles and hidden entries in the file browser (true / false)
+ShowHidden=false
+# Remember the last open directory in each pane across sessions (true / false)
+RememberDirs=true
+# Allow executing .sh scripts directly from the file browser — experimental (true / false)
+ExecScripts=false
+# Show only one full-width pane instead of the default split-pane view (true / false)
+SinglePane=false
+# Two-menu mode: file-ops key opens file menu; a second key opens the system menu (true / false)
+TwoMenuMode=false
+# Tint file-list icons to match the current theme row colour (true / false)
+TintIcons=true
+# Play subtle programmatic UI sounds (true / false)
+UISounds=true
+# Display language — must match the filename in the lang/ folder without the .ini extension
+Language=English
+
+[Display]
+# Physical screen width in pixels. Set to 0 (or omit) to auto-detect from the display.
+ScreenWidth=0
+# Physical screen height in pixels. Set to 0 (or omit) to auto-detect from the display.
+ScreenHeight=0
+# Display rotation: 0=none  1=90° CW  2=180°  3=270° CW
+Rotation=0
+# Font sizes in points for each UI layer
+FontSizeList=18
+FontSizeHeader=18
+FontSizeFooter=18
+FontSizeMenu=18
+FontSizeHex=16
+# Font filename (basename only, e.g. font.ttf) inside the fonts/ folder.
+# Leave blank to use the first font found in fonts/.
+FontFile=
+
+[Paths]
+# Starting directory for the left pane
+StartDirectoryLeft=/
+# Starting directory for the right pane
+StartDirectoryRight=/mnt/sdcard
+# Path to gamecontrollerdb.txt for controller mappings.
+# Leave blank to search for gamecontrollerdb.txt next to the executable.
+GameControllerDB=
+
+[Keys]
+# SDL GameController button names: a, b, x, y, back, start, guide,
+#   leftshoulder, rightshoulder, leftstick, rightstick,
+#   dpup, dpdown, dpleft, dpright
+KeyConfirm=a
+KeyBack=b
+KeyMenu=y
+# KeyMenu2 is the system-menu button when TwoMenuMode=true
+KeyMenu2=guide
+KeyMark=back
+KeyPgUp=leftshoulder
+KeyPgDn=rightshoulder
+
+[OskKeys]
+# On-screen keyboard keys — independent from explorer keys, fully rebindable.
+OskKeyType=a
+OskKeyBksp=x
+OskKeyShift=y
+OskKeyCancel=b
+OskKeyToggle=back
+OskKeyIns=start
+
+[KbdKeys]
+# Keyboard mode bindings — only used when vtree is launched with --keyb.
+# Key names follow SDL_GetKeyName: Return, Escape, Space, Tab, Backspace, Insert,
+#   Delete, PageUp, PageDown, F1–F12, Up, Down, Left, Right, or single letters.
+KbdConfirm=Return
+KbdBack=Escape
+KbdMenu=M
+KbdMark=Tab
+KbdPgUp=PageUp
+KbdPgDn=PageDown
+KbdMenu2=F1
+KbdX=Backspace
+KbdStart=Insert
+# Labels shown in on-screen hints when --keyb is active (cosmetic only).
+KbdLabelConfirm=A
+KbdLabelBack=B
+KbdLabelMenu=Y
+KbdLabelMark=Select
+KbdLabelPgUp=L1
+KbdLabelPgDn=R1
+KbdLabelMenu2=Guide
+KbdLabelX=X
+KbdLabelStart=Start
+
+[ActiveTheme]
+# Name of the theme to activate on startup. Must match a [Theme.Name] section
+# in this file, a file in the theme/ directory, or the built-in "Dark".
+ActiveTheme=Dark
+
+[FileTypes]
+# Extra file extensions appended to the built-in image and text viewer lists.
+# Space or comma separated; leading dot is optional. Example: .raw .exr
+ExtraImageExts=
+ExtraTextExts=

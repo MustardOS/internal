@@ -95,7 +95,13 @@ DO_START() {
 	EMU_VER=
 
 	case "$BOARD_NAME" in
-		rg-vita*) EMU_VER="vita" ;;
+		rg-vita*)
+            EMU_VER="vita"
+
+			# Initialise Touch Screen
+            modprobe synaptics_dsx_core
+            modprobe synaptics_dsx_i2c
+            ;;
 		rg*) EMU_VER="rg" ;;
 		mgx* | tui*)
 			EMU_VER="tui"

@@ -32,6 +32,9 @@ case "$(GET_VAR "device" "board/name")" in
 	*) ;;
 esac
 
+# This is needed for Bluetooth mouse to work for some unknown reason
+unset SDL_BLITTER_DISABLED
+
 HOME="$EMUDIR" ./$APP_BIN --logfile="$LOGPATH" --joystick=0 --config="$CONFIG"
 
 # Switch analogue<>dpad back so we can navigate muX

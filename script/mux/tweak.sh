@@ -2,6 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
+LOG_INFO "$0" 0 "TWEAK" "Applying device tweaks"
+
 HK_COMBO() {
 	[ -z "$1" ] && return 0
 
@@ -44,6 +46,7 @@ UPDATE_HOTKEY() {
 	fi
 }
 
+LOG_INFO "$0" 0 "TWEAK" "Refreshing hotkey configuration"
 UPDATE_HOTKEY "screenshot"
 UPDATE_HOTKEY "dpad_toggle"
 
@@ -52,18 +55,23 @@ HOTKEY restart
 
 C_BRIGHT="$(GET_VAR "config" "settings/general/brightness")"
 if [ "$C_BRIGHT" -lt 1 ]; then
+	LOG_DEBUG "$0" 0 "TWEAK" "Applying brightness ramp-up"
 	/opt/muos/script/device/bright.sh U
 else
+	LOG_DEBUG "$0" 0 "TWEAK" "$(printf "Applying brightness level %s" "$C_BRIGHT")"
 	/opt/muos/script/device/bright.sh "$C_BRIGHT"
 fi
 
 LED_CONTROL_CHANGE restore
 
+LOG_DEBUG "$0" 0 "TWEAK" "Applying screen colour temperature"
 GET_VAR "config" "settings/colour/temperature" >"$(GET_VAR "device" "screen/colour")"
 
 if [ "$(GET_VAR "config" "settings/advanced/overdrive")" -eq 1 ]; then
+	LOG_DEBUG "$0" 0 "TWEAK" "Audio overdrive enabled - max set to 200"
 	SET_VAR "device" "audio/max" "200"
 else
+	LOG_DEBUG "$0" 0 "TWEAK" "Audio overdrive disabled - max set to 100"
 	SET_VAR "device" "audio/max" "100"
 fi
 
@@ -74,21 +82,26 @@ GADGET_WD() {
 	[ -r "$GADGET_PID" ] && kill -0 "$(cat "$GADGET_PID" 2>/dev/null)" 2>/dev/null
 }
 
-case "$(GET_VAR "config" "settings/advanced/usb_function")" in
+USB_FUNC="$(GET_VAR "config" "settings/advanced/usb_function")"
+LOG_INFO "$0" 0 "TWEAK" "$(printf "USB function mode: %s" "$USB_FUNC")"
+case "$USB_FUNC" in
 	0)
 		# Disable and remove all usb functions and then stop...
+		LOG_DEBUG "$0" 0 "TWEAK" "Disabling all USB gadget functions"
 		"$USB_GADGET_RUN" disable
 		"$USB_GADGET_RUN" stop
 		;;
 	1)
 		# Start only if ADB daemon is missing OR watchdog isn't running
 		if ! pidof adbd >/dev/null 2>&1 || ! GADGET_WD; then
+			LOG_DEBUG "$0" 0 "TWEAK" "Starting USB gadget (ADB)"
 			"$USB_GADGET_RUN" start
 		fi
 		;;
 	2)
 		# Same idea as above but for MTP
 		if ! pidof umtprd >/dev/null 2>&1 || ! GADGET_WD; then
+			LOG_DEBUG "$0" 0 "TWEAK" "Starting USB gadget (MTP)"
 			"$USB_GADGET_RUN" start
 		fi
 		;;
@@ -105,6 +118,7 @@ esac
 /opt/muos/script/system/swap.sh &
 
 CARD_MODE_SWITCH() {
+	LOG_DEBUG "$0" 0 "TWEAK" "$(printf "Setting card mode for '%s'" "$1")"
 	if [ "$(GET_VAR "config" "danger/cardmode")" = "noop" ]; then
 		echo "noop" >"/sys/block/$1/queue/scheduler"
 		echo "write back" >"/sys/block/$1/queue/write_cache"
@@ -117,4 +131,7 @@ CARD_MODE_SWITCH() {
 CARD_MODE_SWITCH "$(GET_VAR "device" "storage/rom/dev")"
 [ "$(GET_VAR "device" "storage/sdcard/active")" -eq 1 ] && CARD_MODE_SWITCH "$(GET_VAR "device" "storage/sdcard/dev")"
 
+LOG_DEBUG "$0" 0 "TWEAK" "Setting default CPU governor"
 SET_DEFAULT_GOVERNOR
+
+LOG_INFO "$0" 0 "TWEAK" "Device tweaks applied"

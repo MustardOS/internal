@@ -19,6 +19,7 @@ START() {
 	# If already running, do nothing!
 	IS_RUNNING && exit 0
 
+	LOG_INFO "$0" 0 "IDLE" "Starting idle inhibitor watcher"
 	rm -f "$PID_FILE" 2>/dev/null
 	setsid -f "$0" run </dev/null >/dev/null 2>&1
 
@@ -28,6 +29,10 @@ START() {
 RUN() {
 	printf '%s\n' "$$" >"$PID_FILE"
 	CHARGER_PATH="$(GET_VAR "device" "battery/charger")"
+
+	LOG_INFO "$0" 0 "IDLE" "$(printf "Idle watcher running (PID: %s)" "$$")"
+
+	LAST_INHIBIT=-1
 
 	while :; do
 		INHIBIT=$INHIBIT_NONE
@@ -53,6 +58,11 @@ RUN() {
 					;;
 			esac
 		done
+
+		if [ "$INHIBIT" -ne "$LAST_INHIBIT" ]; then
+			LOG_DEBUG "$0" 0 "IDLE" "$(printf "Idle inhibit state changed: %s -> %s" "$LAST_INHIBIT" "$INHIBIT")"
+			LAST_INHIBIT="$INHIBIT"
+		fi
 
 		SET_VAR "system" "idle_inhibit" "$INHIBIT"
 		sleep 5

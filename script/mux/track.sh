@@ -9,6 +9,8 @@ CORE="$2"
 FILE="$3"
 ACTION="$4"
 
+LOG_INFO "$0" 0 "TRACK" "$(printf "Activity tracker '%s' for '%s' (core: %s)" "$ACTION" "$NAME" "$CORE")"
+
 TRACK_JSON="$MUOS_STORE_DIR/info/track/playtime_data.json"
 TRACK_LOG="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/playtime_error.log"
 
@@ -33,6 +35,7 @@ fi
 
 MIGRATE_JSON() {
 	if ! command -v jq >/dev/null 2>&1; then
+		LOG_WARN "$0" 0 "TRACK" "jq is missing - skipping migration"
 		return
 	fi
 
@@ -77,6 +80,7 @@ MIGRATE_JSON() {
 
 UPDATE_JSON() {
 	if ! command -v jq >/dev/null 2>&1; then
+		LOG_ERROR "$0" 0 "TRACK" "jq is required for JSON processing"
 		printf "Error: jq is required for JSON processing.\n" >&2
 		exit 1
 	fi
@@ -151,9 +155,11 @@ UPDATE_JSON() {
 			if [ -s "${TRACK_JSON}.tmp" ]; then
 				mv "${TRACK_JSON}.tmp" "$TRACK_JSON"
 			else
+				LOG_ERROR "$0" 0 "TRACK" "Failed to create tmp file on resume"
 				printf "Error: Failed to create tmp file on resume\n" >>"$TRACK_LOG"
 			fi
 		else
+			LOG_WARN "$0" 0 "TRACK" "$(printf "Game '%s' not found in data file on resume" "$ESCAPED_PATH")"
 			printf "Error: Game %s not found in data file on resume\n" "$ESCAPED_PATH" >>"$TRACK_LOG"
 		fi
 	elif [ "$ACTION" = "stop" ]; then
@@ -163,6 +169,7 @@ UPDATE_JSON() {
 			# Only calculate if start_time is valid
 			if [ "$START_TIME" != "null" ] && [ "$START_TIME" -gt 0 ]; then
 				SESSION_TIME=$((NOW - START_TIME))
+				LOG_DEBUG "$0" 0 "TRACK" "$(printf "Session time for '%s': %s seconds" "$NAME" "$SESSION_TIME")"
 
 				jq --arg path "$ESCAPED_PATH" \
 					--arg session "$SESSION_TIME" \
@@ -174,12 +181,15 @@ UPDATE_JSON() {
 				if [ -s "${TRACK_JSON}.tmp" ]; then
 					mv "${TRACK_JSON}.tmp" "$TRACK_JSON"
 				else
+					LOG_ERROR "$0" 0 "TRACK" "Failed to create tmp file on stop"
 					printf "Error: Failed to create tmp file on stop\n" >>"$TRACK_LOG"
 				fi
 			else
+				LOG_ERROR "$0" 0 "TRACK" "$(printf "Invalid start_time for '%s': %s" "$ESCAPED_PATH" "$START_TIME")"
 				printf "Error: Invalid start_time for %s: %s\n" "$ESCAPED_PATH" "$START_TIME" >>"$TRACK_LOG"
 			fi
 		else
+			LOG_WARN "$0" 0 "TRACK" "$(printf "Game '%s' not found in data file on stop" "$ESCAPED_PATH")"
 			printf "Error: Game %s not found in data file on stop\n" "$ESCAPED_PATH" >>"$TRACK_LOG"
 		fi
 	fi
@@ -191,6 +201,7 @@ case "$ACTION" in
 		UPDATE_JSON
 		;;
 	*)
+		LOG_ERROR "$0" 0 "TRACK" "$(printf "Unknown action: '%s'" "$ACTION")"
 		printf "Usage: %s <name> <core> <file> <start|stop>\n" "$0" >&2
 		exit 1
 		;;

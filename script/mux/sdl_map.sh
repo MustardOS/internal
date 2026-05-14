@@ -19,6 +19,8 @@ if [ -z "$SELECTED_MAP" ]; then
 	fi
 fi
 
+LOG_INFO "$0" 0 "SDL_MAP" "$(printf "Linking SDL controller map: '%s'" "$SELECTED_MAP")"
+
 SRC="$MUOS_SHARE_DIR/info/gamecontrollerdb/${SELECTED_MAP}.txt"
 
 for LIB_D in lib lib32; do
@@ -27,6 +29,7 @@ for LIB_D in lib lib32; do
 
 	SDL_MAP_PATH="$BASE/gamecontrollerdb.txt"
 
+	LOG_DEBUG "$0" 0 "SDL_MAP" "$(printf "Linking '%s' -> '%s'" "$SDL_MAP_PATH" "$SRC")"
 	rm -f "$SDL_MAP_PATH"
 	ln -s "$SRC" "$SDL_MAP_PATH"
 done

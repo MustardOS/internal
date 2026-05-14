@@ -6,6 +6,8 @@
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/var/zip.sh
 
+LOG_INFO "$0" 0 "BACKUP" "Backup script started"
+
 FRONTEND stop
 
 SET_VAR "system" "foreground_process" "muxbackup"
@@ -20,21 +22,27 @@ SD2="$(GET_VAR "device" "storage/sdcard/mount")"
 USB="$(GET_VAR "device" "storage/usb/mount")"
 
 MERGE_ALL=$1
+LOG_INFO "$0" 0 "BACKUP" "$(printf "Merge mode: %s" "$MERGE_ALL")"
 
 # Check if manifest file exists
 if [ ! -f "$MANIFEST_FILE" ]; then
+	LOG_ERROR "$0" 0 "BACKUP" "$(printf "Manifest file not found: '%s'" "$MANIFEST_FILE")"
 	printf "\nManifest file not found: %s\n" "$MANIFEST_FILE"
 	ERROR_FLAG=1
 elif ! read -r SRC_MODE DEST_MNT <"$MANIFEST_FILE"; then
+	LOG_ERROR "$0" 0 "BACKUP" "$(printf "Failed to read manifest header from: '%s'" "$MANIFEST_FILE")"
 	printf "\nFailed to read manifest header from: %s\n" "$MANIFEST_FILE"
 	ERROR_FLAG=1
 elif [ -z "$SRC_MODE" ] || [ -z "$DEST_MNT" ]; then
+	LOG_ERROR "$0" 0 "BACKUP" "Invalid manifest header format"
 	printf "\nInvalid manifest header format. Expected: SRC_MODE DEST_MNT\n"
 	ERROR_FLAG=1
 elif [ "$SRC_MODE" != "INDIVIDUAL" ] && [ "$SRC_MODE" != "BATCH" ]; then
+	LOG_ERROR "$0" 0 "BACKUP" "$(printf "Invalid SRC_MODE in manifest: '%s'" "$SRC_MODE")"
 	printf "\nInvalid SRC_MODE in manifest: %s\n" "$SRC_MODE"
 	ERROR_FLAG=1
 elif [ "$DEST_MNT" != "SD1" ] && [ "$DEST_MNT" != "SD2" ] && [ "$DEST_MNT" != "USB" ]; then
+	LOG_ERROR "$0" 0 "BACKUP" "$(printf "Invalid DEST_MNT in manifest: '%s'" "$DEST_MNT")"
 	printf "\nInvalid DEST_MNT in manifest: %s\n" "$DEST_MNT"
 	ERROR_FLAG=1
 fi
@@ -45,6 +53,7 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 		SD2) DEST_PATH="$SD2/$BACKUP_FOLDER" ;;
 		USB) DEST_PATH="$USB/$BACKUP_FOLDER" ;;
 	esac
+	LOG_INFO "$0" 0 "BACKUP" "$(printf "Destination path: '%s' (mode: %s)" "$DEST_PATH" "$SRC_MODE")"
 	[ ! -d "$DEST_PATH" ] && mkdir -p "$DEST_PATH"
 fi
 
@@ -127,11 +136,14 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 			fi
 
 			DEST_FILE="${DEST_PATH}/${ZIP_FILE}"
+			LOG_INFO "$0" 0 "BACKUP" "$(printf "Archiving '%s' -> '%s'" "$SRC_SUFFIX" "$DEST_FILE")"
 			if CREATE_ARCHIVE "$SRC_SHORTNAME" "$DEST_FILE" "$SRC_MNT" "$SRC_SHORTNAME" "$SRC_SUFFIX" "$COMP"; then
 				[ "$MERGE_ALL" -eq 1 ] && WHAT_DO="Added" || WHAT_DO="Created"
+				LOG_SUCCESS "$0" 0 "BACKUP" "$(printf "%s '%s'" "$WHAT_DO" "$LABEL")"
 				printf "%s '%s' successfully\n\n" "$WHAT_DO" "$LABEL"
 				ARC_STATUS=0
 			else
+				LOG_ERROR "$0" 0 "BACKUP" "$(printf "Failed to add '%s' for '%s'" "$SRC_SUFFIX" "$SRC_SHORTNAME")"
 				printf "Failed to add %s for %s\n\n" "$SRC_SUFFIX" "$SRC_SHORTNAME"
 				ERROR_FLAG=1
 				ARC_STATUS=1
@@ -150,9 +162,11 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 fi
 
 if [ "$ERROR_FLAG" -ne 0 ]; then
+	LOG_ERROR "$0" 0 "BACKUP" "Errors occurred during backup process"
 	printf "Errors occurred during the backup process\n\n"
 	sleep 3
 else
+	LOG_SUCCESS "$0" 0 "BACKUP" "Backup completed successfully"
 	printf "Backup completed successfully\n\n"
 fi
 

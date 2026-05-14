@@ -5,6 +5,7 @@
 SS_LOCK="/tmp/screenshot.lock"
 
 if [ ! -e "$SS_LOCK" ]; then
+	LOG_INFO "$0" 0 "SCREENSHOT" "Capturing screenshot"
 	touch "$SS_LOCK"
 	trap 'rm -f "$SS_LOCK"' EXIT INT TERM
 
@@ -20,10 +21,16 @@ if [ ! -e "$SS_LOCK" ]; then
 		INDEX=$((INDEX + 1))
 	done
 
+	LOG_DEBUG "$0" 0 "SCREENSHOT" "$(printf "Output file: '%s'" "$SS_FILE")"
+
 	# Silly 28xx...
 	case "$(GET_VAR "device" "board/name")" in
 		mgx*) /opt/muos/frontend/mufbset -g "$SS_FILE" && convert "$SS_FILE" -rotate 270 "$SS_FILE" ;;
 		rg-vita* | rg28xx-h) /opt/muos/frontend/mufbset -g "$SS_FILE" && convert "$SS_FILE" -rotate 90 "$SS_FILE" ;;
 		*) /opt/muos/frontend/mufbset -g "$SS_FILE" ;;
 	esac
+
+	LOG_SUCCESS "$0" 0 "SCREENSHOT" "$(printf "Screenshot saved: '%s'" "$SS_FILE")"
+else
+	LOG_DEBUG "$0" 0 "SCREENSHOT" "Screenshot already in progress - skipping"
 fi

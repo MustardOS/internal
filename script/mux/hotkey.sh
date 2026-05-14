@@ -2,13 +2,19 @@
 
 . /opt/muos/script/var/func.sh
 
+LOG_INFO "$0" 0 "HOTKEY" "Hotkey daemon starting"
+
 IS_NORMAL_MODE && IS_HANDHELD_MODE && /opt/muos/script/mux/idle.sh start
 
 HOTKEY_FIFO="$MUOS_RUN_DIR/hotkey"
 
 if [ ! -p "$HOTKEY_FIFO" ]; then
+	LOG_DEBUG "$0" 0 "HOTKEY" "$(printf "Creating hotkey FIFO: '%s'" "$HOTKEY_FIFO")"
 	rm -f "$HOTKEY_FIFO"
-	mkfifo "$HOTKEY_FIFO" || exit 1
+	mkfifo "$HOTKEY_FIFO" || {
+		LOG_ERROR "$0" 0 "HOTKEY" "$(printf "Failed to create hotkey FIFO: '%s'" "$HOTKEY_FIFO")"
+		exit 1
+	}
 fi
 
 exec 3<>"$HOTKEY_FIFO"
@@ -21,6 +27,7 @@ CHARGE_CHECK=0
 MU_PID=0
 
 HANDLE_HOTKEY() {
+	LOG_DEBUG "$0" 0 "HOTKEY" "$(printf "Hotkey received: '%s'" "$1")"
 	# This blocks the event loop, so commands here should finish quickly.
 	case "$1" in
 		# Input activity/idle:
@@ -36,12 +43,12 @@ HANDLE_HOTKEY() {
 
 		SLEEP_SHORT | SLEEP_LONG) SLEEP ;;
 
-		# RGB combos:
-#		RGB_MODE) RGBCLI -m up ;;
-#		RGB_BRIGHT_UP) RGBCLI -b up ;;
-#		RGB_BRIGHT_DOWN) RGBCLI -b down ;;
-#		RGB_COLOR_PREV) RGBCLI -c down ;;
-#		RGB_COLOR_NEXT) RGBCLI -c up ;;
+			# RGB combos:
+			#		RGB_MODE) RGBCLI -m up ;;
+			#		RGB_BRIGHT_UP) RGBCLI -b up ;;
+			#		RGB_BRIGHT_DOWN) RGBCLI -b down ;;
+			#		RGB_COLOR_PREV) RGBCLI -c down ;;
+			#		RGB_COLOR_NEXT) RGBCLI -c up ;;
 
 		# "RetroArch Network Wait" combos:
 		RETROWAIT_IGNORE) [ "$RETROWAIT" -eq 1 ] && printf "%s" ignore >"$MUOS_RUN_DIR/net_start" ;;
@@ -84,17 +91,20 @@ SLEEP() {
 
 	# Time to go the fuck to sleep
 	if [ $((CURR_UPTIME - LAST_RESUME)) -gt 5 ]; then
+		LOG_INFO "$0" 0 "HOTKEY" "Triggering system suspend"
 		SET_VAR "system" "resume_uptime" "$CURR_UPTIME"
 		/opt/muos/script/system/suspend.sh
 	fi
 }
 
 START_MUHOTKEY() {
+	LOG_DEBUG "$0" 0 "HOTKEY" "Starting muhotkey backend"
 	/opt/muos/frontend/muhotkey >&3 &
 	MU_PID=$!
 }
 
 STOP_MUHOTKEY() {
+	[ "$MU_PID" -gt 0 ] && LOG_DEBUG "$0" 0 "HOTKEY" "$(printf "Stopping muhotkey backend (PID: %s)" "$MU_PID")"
 	[ "$MU_PID" -gt 0 ] && kill "$MU_PID" 2>/dev/null
 	wait "$MU_PID" 2>/dev/null
 	MU_PID=0
@@ -108,6 +118,7 @@ START_MUHOTKEY
 while :; do
 	# Restart if muhotkey kicked the bucket
 	if ! kill -0 "$MU_PID" 2>/dev/null; then
+		LOG_WARN "$0" 0 "HOTKEY" "muhotkey backend died - restarting"
 		STOP_MUHOTKEY
 		START_MUHOTKEY
 	fi

@@ -7,6 +7,8 @@ fi
 
 . /opt/muos/script/var/func.sh
 
+LOG_DEBUG "$0" 0 "METACUT" "$(printf "Reformatting metadata: '%s'" "$1")"
+
 # Define base directory and resolution
 ACTIVE="$(GET_VAR "config" "theme/active")"
 ACTIVE_DIR="$MUOS_STORE_DIR/theme/$ACTIVE"
@@ -21,6 +23,8 @@ SCHEME="$DIR/scheme/muxplore.txt"
 
 METACUT=$(PARSE_INI "$SCHEME" "meta" "META_CUT")
 [ -z "$METACUT" ] && METACUT=40
+
+LOG_DEBUG "$0" 0 "METACUT" "$(printf "Fold width: %s" "$METACUT")"
 
 # The discovery of fold really helps here!
 # Except for UTF-8 and CJK which I'm not really sure

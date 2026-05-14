@@ -9,11 +9,16 @@ USAGE() {
 
 . /opt/muos/script/var/func.sh
 
+LOG_INFO "$0" 0 "FIND" "$(printf "Search initiated with %s argument(s)" "$#")"
+
 RESULTS_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/search.json"
 
 # Ensure lookup tables exist
 LOOKUP_DIR="/opt/muos/share/lookup"
-[ ! -s "$LOOKUP_DIR/internal.txt" ] && /opt/muos/frontend/mulookup --gen-all
+if [ ! -s "$LOOKUP_DIR/internal.txt" ]; then
+	LOG_INFO "$0" 0 "FIND" "Lookup tables missing - generating via mulookup"
+	/opt/muos/frontend/mulookup --gen-all
+fi
 
 TMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TMP_DIR"' EXIT INT TERM
@@ -60,6 +65,8 @@ JSON_OUT=$(TMD "final.json")
 
 S_TERM="$1"
 
+LOG_INFO "$0" 0 "FIND" "$(printf "Search term: '%s' (local: %s)" "$S_TERM" "$LOCAL_MODE")"
+
 # Shift one argument over so we are left with only directories to search
 shift
 
@@ -81,6 +88,7 @@ SKIP_FILE="$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/skip.ini"
 # we'll go into chuck in full absolute path, relative directory, filename,
 # and filename without extension.  The four fields (with a fancy pipe) to
 # $TMP_ALL_FILES for later indexing.  This is as fast as we can possibly go.
+LOG_DEBUG "$0" 0 "FIND" "Walking directories with ripgrep"
 for S_DIR in "$@"; do
 	/opt/muos/bin/rg --files "$S_DIR" --ignore-file "$SKIP_FILE" 2>/dev/null |
 		awk -v ROOT="$S_DIR/" -F/ '
@@ -284,3 +292,5 @@ fi
 
 # descent into madness
 mv "$JSON_OUT" "$RESULTS_JSON"
+
+LOG_SUCCESS "$0" 0 "FIND" "$(printf "Search results written to '%s'" "$RESULTS_JSON")"

@@ -1,10 +1,15 @@
 #!/bin/sh
 
+. /opt/muos/script/var/func.sh
+
 RA_CONF=$1
 if [ ! -f "$RA_CONF" ] || [ ! -w "$RA_CONF" ]; then
+	LOG_ERROR "$0" 0 "SWAP_ABXY" "$(printf "RA config not writable or missing: '%s'" "$RA_CONF")"
 	printf "Usage: %s <RA Config (.cfg)>\n" "$0" >&2
 	exit 1
 fi
+
+LOG_INFO "$0" 0 "SWAP_ABXY" "$(printf "Swapping A/B and X/Y bindings in '%s'" "$RA_CONF")"
 
 GET_RA_VAL() {
 	grep -E "^$1[[:space:]]*=" "$RA_CONF" | head -n 1 | sed -n 's/^[^=]*=[[:space:]]*"\(.*\)"/\1/p'
@@ -86,3 +91,5 @@ for SUF in "" _axis _btn _mbtn; do
 	# Y>X
 	SET_RA_VAL "input_player1_y${SUF}" "$(SWAP x "$SUF")"
 done
+
+LOG_SUCCESS "$0" 0 "SWAP_ABXY" "A/B and X/Y bindings swapped"

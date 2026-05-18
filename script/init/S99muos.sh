@@ -15,6 +15,11 @@ DO_START() {
 
 	ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 
+	LOG_INFO "$0" 0 "BOOTING" "Copying Root Home Files"
+	if [ ! -f /root/.profile ] || [ /opt/muos/share/root/.profile -nt /root/.profile ]; then
+		cp -rf /opt/muos/share/root/. /root/
+	fi
+
 	USB_FUNCTION=$(GET_VAR "config" "settings/advanced/usb_function")
 	FIRST_INIT=$(GET_VAR "config" "boot/first_init")
 	RA_CACHE=$(GET_VAR "config" "settings/advanced/retrocache")

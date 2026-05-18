@@ -41,28 +41,35 @@ MESSAGE_EXEC="/opt/muos/frontend/muxmessage"
 MESSAGE_TEXT="/tmp/msg_livetext"
 MESSAGE_PROG="/tmp/msg_progress"
 
-mkdir -p "$MUOS_LOG_DIR"
+[ -d "$MUOS_LOG_DIR" ] || mkdir -p "$MUOS_LOG_DIR"
 SAFE_QUIT=/tmp/safe_quit
+
+# Module-level CR literal used by GET_VAR to strip trailing carriage returns
+CR=$(printf '\r')
 
 CONTENT_UNSET() {
 	unset LD_PRELOAD STAGE_OVERLAY SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 }
 
 CAPITALISE() {
-	printf "%s" "$1" | awk '
-		{
-			out = ""
-			for (i = 1; i <= length($0); i++) {
-				c = substr($0, i, 1)
-				p = (i == 1) ? " " : substr($0, i - 1, 1)
-				if (p ~ /[[:space:]]/ && c ~ /[[:alpha:]]/) {
-					c = toupper(c)
-				}
-				out = out c
-			}
-			print out
-		}
-	'
+	CAP_OUT=
+	for CAP_WORD in $1; do
+		CAP_FIRST="${CAP_WORD%"${CAP_WORD#?}"}"
+		CAP_REST="${CAP_WORD#?}"
+		case "$CAP_FIRST" in
+			a) CAP_FIRST=A ;; b) CAP_FIRST=B ;; c) CAP_FIRST=C ;;
+			d) CAP_FIRST=D ;; e) CAP_FIRST=E ;; f) CAP_FIRST=F ;;
+			g) CAP_FIRST=G ;; h) CAP_FIRST=H ;; i) CAP_FIRST=I ;;
+			j) CAP_FIRST=J ;; k) CAP_FIRST=K ;; l) CAP_FIRST=L ;;
+			m) CAP_FIRST=M ;; n) CAP_FIRST=N ;; o) CAP_FIRST=O ;;
+			p) CAP_FIRST=P ;; q) CAP_FIRST=Q ;; r) CAP_FIRST=R ;;
+			s) CAP_FIRST=S ;; t) CAP_FIRST=T ;; u) CAP_FIRST=U ;;
+			v) CAP_FIRST=V ;; w) CAP_FIRST=W ;; x) CAP_FIRST=X ;;
+			y) CAP_FIRST=Y ;; z) CAP_FIRST=Z ;;
+		esac
+		CAP_OUT="${CAP_OUT}${CAP_OUT:+ }${CAP_FIRST}${CAP_REST}"
+	done
+	printf "%s" "$CAP_OUT"
 }
 
 TBOX() {
@@ -83,7 +90,8 @@ SET_VAR() {
 
 	[ -n "$BASE" ] || return 0
 
-	printf "%s" "$3" >"$BASE/$2"
+	TMP="${BASE}/${2}.tmp.$$"
+	printf "%s" "$3" >"$TMP" && mv -f "$TMP" "$BASE/$2" || { rm -f "$TMP"; return 1; }
 }
 
 GET_VAR() {
@@ -103,8 +111,7 @@ GET_VAR() {
 	VAL=
 	IFS= read -r VAL <"$FILE"
 
-	CR=$(printf "\r")
-	[ "${VAL%"$CR"}" != "$VAL" ] && VAL=${VAL%"$CR"}
+	VAL=${VAL%"$CR"}
 
 	printf "%s" "$VAL"
 }
@@ -130,20 +137,28 @@ SETUP_STAGE_OVERLAY() {
 	export LD_PRELOAD
 }
 
+MIXER_INIT=
+MIXER_CONTROL=
+MIXER_DVOL=
+
 RESET_MIXER() {
-	AUDIO_CONTROL=$(GET_VAR "device" "audio/control")
-	MAX_VOL=$(GET_VAR "device" "audio/max")
+	if [ -z "$MIXER_INIT" ]; then
+		MIXER_INIT=1
+		MIXER_CONTROL=$(GET_VAR "device" "audio/control")
+		MIXER_MAX=$(GET_VAR "device" "audio/max")
+		[ -n "$MIXER_MAX" ] || MIXER_MAX=100
 
-	[ -n "$AUDIO_CONTROL" ] || return 1
-	[ -n "$MAX_VOL" ] || MAX_VOL=100
+		case "$(GET_VAR "device" "board/name")" in
+			rg-vita*) MIXER_DVOL=skip ;;
+			mgx* | tui*) MIXER_DVOL=0 ;;
+			*) MIXER_DVOL=$MIXER_MAX ;;
+		esac
+	fi
 
-	case "$(GET_VAR "device" "board/name")" in
-		rg-vita*) return 0 ;;
-		mgx* | tui*) DEV_VOL=0 ;;
-		*) DEV_VOL=$MAX_VOL ;;
-	esac
+	[ -n "$MIXER_CONTROL" ] || return 1
+	[ "$MIXER_DVOL" = "skip" ] && return 0
 
-	amixer -c 0 sset "$AUDIO_CONTROL" "${DEV_VOL}%" unmute >/dev/null 2>&1
+	amixer -c 0 sset "$MIXER_CONTROL" "${MIXER_DVOL}%" unmute >/dev/null 2>&1
 	amixer set "Master" unmute >/dev/null 2>&1
 
 	return 0
@@ -219,10 +234,8 @@ VOLUME_RAMP() {
 		sleep 0.5
 	done
 
-	CUR_VOL=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | sed -n 's/.* \([0-9.]*\).*/\1/p')
-	[ -n "$CUR_VOL" ] || CUR_VOL=0
-
-	CUR_PCT=$(printf "%.0f" "$(echo "$CUR_VOL * 100" | awk '{printf "%f", $1}')")
+	CUR_PCT=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '/Volume:/{printf "%.0f", $2 * 100; exit}')
+	[ -n "$CUR_PCT" ] || CUR_PCT=0
 
 	case "$DIR" in
 		up)
@@ -302,11 +315,7 @@ ENSURE_REMOVED() {
 }
 
 GET_FRONTEND_PIDS() {
-	MUX="$(pgrep -f muxfrontend 2>/dev/null)"
-	FRO="$(pgrep -f frontend.sh 2>/dev/null)"
-
-	[ -n "$MUX" ] && printf '%s\n' "$MUX"
-	[ -n "$FRO" ] && printf '%s\n' "$FRO"
+	pgrep -f 'muxfrontend|frontend\.sh' 2>/dev/null
 }
 
 FRONTEND_RUNNING() {
@@ -332,18 +341,18 @@ FRONTEND() {
 
 			SIGNAL_FRONTEND USR1
 
-			I=5
+			I=25
 			while FRONTEND_RUNNING && [ "$I" -gt 0 ]; do
-				sleep 1
+				sleep 0.2
 				I=$((I - 1))
 			done
 
 			if FRONTEND_RUNNING; then
 				SIGNAL_FRONTEND TERM
 
-				J=3
+				J=15
 				while FRONTEND_RUNNING && [ "$J" -gt 0 ]; do
-					sleep 1
+					sleep 0.2
 					J=$((J - 1))
 				done
 			fi
@@ -383,7 +392,7 @@ HOTKEY() {
 	case "$1" in
 		stop)
 			rm -f "$IDLE_STATE" 2>/dev/null
-			while pgrep -f muhotkey >/dev/null || pgrep -f hotkey.sh >/dev/null; do
+			while pgrep -f 'muhotkey|hotkey\.sh' >/dev/null; do
 				killall -9 muhotkey hotkey.sh
 				sleep 1
 			done
@@ -522,7 +531,7 @@ SHOW_MESSAGE() {
 
 EXEC_MUX() {
 	if [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ]; then
-		while [ ! -f "$MUOS_RUN_DIR/hdmi_mode" ]; do sleep 0.01; done
+		while [ ! -f "$MUOS_RUN_DIR/hdmi_mode" ]; do sleep 0.05; done
 	fi
 
 	[ -f "$SAFE_QUIT" ] && rm -f "$SAFE_QUIT"
@@ -538,7 +547,7 @@ EXEC_MUX() {
 	SET_VAR "system" "foreground_process" "$MODULE"
 	"/opt/muos/frontend/$MODULE" "$@"
 
-	while [ ! -f "$SAFE_QUIT" ]; do sleep 0.01; done
+	while [ ! -f "$SAFE_QUIT" ]; do sleep 0.05; done
 }
 
 # Prints current system uptime in hundredths of a second. Unlike date or
@@ -578,7 +587,11 @@ PARSE_INI() {
 	sed -n "/^\[$SECTION\]/ { :l /^${KEY}[ ]*=[ ]*/ { s/^[^=]*=[ ]*//; p; q; }; n; b l; }" "${INI_FILE}"
 }
 
-DEBUG_MODE=$(GET_VAR "system" "debug_mode" 2>/dev/null || echo 0)
+# Read debug_mode directly to skip a GET_VAR fork on every script source
+DEBUG_MODE=0
+[ -r "$MUOS_CONF_SYSTEM/debug_mode" ] && IFS= read -r DEBUG_MODE <"$MUOS_CONF_SYSTEM/debug_mode" 2>/dev/null
+DEBUG_MODE=${DEBUG_MODE%"$CR"}
+[ "$DEBUG_MODE" = "1" ] || DEBUG_MODE=0
 
 if [ "$DEBUG_MODE" -eq 1 ]; then
 	LOG_INFO() {
@@ -727,8 +740,13 @@ IS_HANDHELD_MODE() {
 }
 
 DISPLAY_SYSFS_BACKLIGHT() {
+	[ -n "${BL_PATH_CACHE-}" ] && {
+		printf "%s\n" "$BL_PATH_CACHE"
+		return 0
+	}
 	for B in /sys/class/backlight/*; do
 		[ -f "$B/brightness" ] && {
+			BL_PATH_CACHE=$B
 			printf "%s\n" "$B"
 			return 0
 		}
@@ -771,7 +789,7 @@ DISPLAY_READ() {
 	DR_CMD="${2}"
 
 	if BL_PATH=$(DISPLAY_SYSFS_BACKLIGHT); then
-		cat "$BL_PATH/brightness"
+		IFS= read -r BL_VAL <"$BL_PATH/brightness" && printf "%s\n" "$BL_VAL"
 		return
 	fi
 
@@ -882,7 +900,13 @@ SETUP_SDL_ENVIRONMENT() {
 
 	# Set both the SDL controller file and configuration
 	SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_FILE"
-	SDL_GAMECONTROLLERCONFIG=$(grep "$(GET_VAR "device" "sdl/name")" "$GCDB_FILE")
+	SDL_CACHE="/tmp/sdl_gc_${GCDB_FILE##*/}"
+	if [ -f "$SDL_CACHE" ]; then
+		SDL_GAMECONTROLLERCONFIG=$(cat "$SDL_CACHE")
+	else
+		SDL_GAMECONTROLLERCONFIG=$(grep "$(GET_VAR "device" "sdl/name")" "$GCDB_FILE")
+		printf '%s\n' "$SDL_GAMECONTROLLERCONFIG" >"$SDL_CACHE"
+	fi
 
 	export SDL_GAMECONTROLLERCONFIG_FILE SDL_GAMECONTROLLERCONFIG
 
@@ -945,8 +969,8 @@ DETECT_CONTROL_SWAP() {
 	}
 
 	if [ -e "$CON_GO" ]; then
-		IFS= read -r _CON_VAL <"$CON_GO"
-		case "$_CON_VAL" in
+		IFS= read -r CON_VAL <"$CON_GO"
+		case "$CON_VAL" in
 			modern) DO_SWAP ;;
 			retro) ;;
 			*) [ "$(GET_VAR "config" "settings/advanced/swap")" -eq 1 ] && DO_SWAP ;;
@@ -1025,7 +1049,10 @@ CONFIGURE_RETROARCH() {
 	}
 
 	# Set kiosk mode value based on current configuration.
-	KIOSK_MODE=$([ "$(GET_VAR "kiosk" "content/retroarch")" -eq 1 ] && echo true || echo false)
+	case "$(GET_VAR "kiosk" "content/retroarch")" in
+		1) KIOSK_MODE=true ;;
+		*) KIOSK_MODE=false ;;
+	esac
 	sed -i "s/^kiosk_mode_enable = \".*\"$/kiosk_mode_enable = \"$KIOSK_MODE\"/" "$RA_CONF"
 
 	# Re-define the symlink to current configuration.
@@ -1145,26 +1172,28 @@ THEME_PNG_IMAGE() {
 	if [ -e "$JSONPATH" ]; then
 		printf "Found '%s' JSON: %s\n" "$ROLE" "$JSONPATH"
 
-		JQ_VAL=$(jq -r '.background_colour // empty' "$JSONPATH")
-		if [ -n "$JQ_VAL" ] && HEX=$(NORMALISE_HEX "$JQ_VAL"); then
+		# Single jq invocation pulling all four values, tab-separated
+		JQ_OUT=$(jq -r '[.background_colour, .background_gradient_colour, .png_recolour, .png_recolour_alpha] | map(. // "") | @tsv' "$JSONPATH")
+		IFS='	' read -r JQ_BG JQ_BGG JQ_PR JQ_PRA <<EOF
+$JQ_OUT
+EOF
+
+		if [ -n "$JQ_BG" ] && HEX=$(NORMALISE_HEX "$JQ_BG"); then
 			BACKGROUND_COLOUR="$HEX"
 		fi
 
-		JQ_VAL=$(jq -r '.background_gradient_colour // empty' "$JSONPATH")
-		if [ -n "$JQ_VAL" ] && HEX=$(NORMALISE_HEX "$JQ_VAL"); then
+		if [ -n "$JQ_BGG" ] && HEX=$(NORMALISE_HEX "$JQ_BGG"); then
 			BACKGROUND_GRADIENT_COLOUR="$HEX"
 		else
 			BACKGROUND_GRADIENT_COLOUR="$BACKGROUND_COLOUR"
 		fi
 
-		JQ_VAL=$(jq -r '.png_recolour // empty' "$JSONPATH")
-		if [ -n "$JQ_VAL" ] && HEX=$(NORMALISE_HEX "$JQ_VAL"); then
+		if [ -n "$JQ_PR" ] && HEX=$(NORMALISE_HEX "$JQ_PR"); then
 			PNG_RECOLOUR="$HEX"
 		fi
 
-		JQ_VAL=$(jq -r '.png_recolour_alpha // empty' "$JSONPATH")
-		if [ -n "$JQ_VAL" ]; then
-			RAW_ALPHA=$(CLAMP_ALPHA "$JQ_VAL")
+		if [ -n "$JQ_PRA" ]; then
+			RAW_ALPHA=$(CLAMP_ALPHA "$JQ_PRA")
 			PNG_RECOLOUR_ALPHA=$((RAW_ALPHA * 100 / 255))
 		fi
 	else
@@ -1359,26 +1388,28 @@ SHOW_SPLASH() {
 	fi
 
 	if [ -e "$JSONPATH" ]; then
-		JQ_VAL=$(jq -r '.background_colour // empty' "$JSONPATH")
-		if [ -n "$JQ_VAL" ] && HEX=$(NORMALISE_HEX "$JQ_VAL"); then
+		# Single jq invocation pulling all four values, tab-separated
+		JQ_OUT=$(jq -r '[.background_colour, .background_gradient_colour, .png_recolour, .png_recolour_alpha] | map(. // "") | @tsv' "$JSONPATH")
+		IFS='	' read -r JQ_BG JQ_BGG JQ_PR JQ_PRA <<EOF
+$JQ_OUT
+EOF
+
+		if [ -n "$JQ_BG" ] && HEX=$(NORMALISE_HEX "$JQ_BG"); then
 			BACKGROUND_COLOUR="$HEX"
 		fi
 
-		JQ_VAL=$(jq -r '.background_gradient_colour // empty' "$JSONPATH")
-		if [ -n "$JQ_VAL" ] && HEX=$(NORMALISE_HEX "$JQ_VAL"); then
+		if [ -n "$JQ_BGG" ] && HEX=$(NORMALISE_HEX "$JQ_BGG"); then
 			BACKGROUND_GRADIENT_COLOUR="$HEX"
 		else
 			BACKGROUND_GRADIENT_COLOUR="$BACKGROUND_COLOUR"
 		fi
 
-		JQ_VAL=$(jq -r '.png_recolour // empty' "$JSONPATH")
-		if [ -n "$JQ_VAL" ] && HEX=$(NORMALISE_HEX "$JQ_VAL"); then
+		if [ -n "$JQ_PR" ] && HEX=$(NORMALISE_HEX "$JQ_PR"); then
 			PNG_RECOLOUR="$HEX"
 		fi
 
-		JQ_VAL=$(jq -r '.png_recolour_alpha // empty' "$JSONPATH")
-		if [ -n "$JQ_VAL" ]; then
-			RAW_ALPHA=$(CLAMP_ALPHA "$JQ_VAL")
+		if [ -n "$JQ_PRA" ]; then
+			RAW_ALPHA=$(CLAMP_ALPHA "$JQ_PRA")
 			PNG_RECOLOUR_ALPHA=$((RAW_ALPHA * 100 / 255))
 		fi
 	fi
@@ -1484,7 +1515,9 @@ RESTORE_CPU_GOV() {
 }
 
 IS_MUTERM() {
-	[ "$(cat /proc/$PPID/comm 2>/dev/null)" = "muterm" ]
+	COMM=
+	read -r COMM </proc/$PPID/comm 2>/dev/null
+	[ "$COMM" = "muterm" ]
 }
 
 FBCON_DISABLE() {
@@ -1492,7 +1525,8 @@ FBCON_DISABLE() {
 	for VTCON in /sys/class/vtconsole/vtcon*; do
 		[ -e "$VTCON/name" ] || continue
 
-		VT_NAME="$(cat "$VTCON/name" 2>/dev/null)"
+		VT_NAME=
+		read -r VT_NAME <"$VTCON/name" 2>/dev/null
 		case "$VT_NAME" in
 			*frame*buffer* | *fbcon*) [ -w "$VTCON/bind" ] && printf "0\n" >"$VTCON/bind" ;;
 		esac

@@ -13,7 +13,7 @@ case "$(GET_VAR "device" "board/name")" in
 esac
 
 IS_RUNNING() {
-	[ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null && return 0
+	[ -f "$PID_FILE" ] && IFS= read -r CHRONY_PID <"$PID_FILE" 2>/dev/null && kill -0 "$CHRONY_PID" 2>/dev/null && return 0
 	pidof chronyd >/dev/null 2>&1
 }
 

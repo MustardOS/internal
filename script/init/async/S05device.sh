@@ -9,6 +9,7 @@ OVERDRIVE=$(GET_VAR "config" "settings/advanced/overdrive")
 THERMAL=$(GET_VAR "config" "settings/advanced/thermal")
 
 BOARD_NAME=$(GET_VAR "device" "board/name")
+HAS_TOUCH=$(GET_VAR "device" "board/touch")
 
 # Install a flat binary if its MD5 differs from the installed copy.
 INSTALL_BIN() {
@@ -21,7 +22,10 @@ INSTALL_BIN() {
 	EXPECTED_MD5=$(cat "$SRC_MD5" 2>/dev/null) || return 0
 
 	CURRENT_MD5=
-	[ -f "$TGT_BIN" ] && CURRENT_MD5=$(md5sum "$TGT_BIN" | awk '{ print $1 }')
+	[ -f "$TGT_BIN" ] && {
+		CURRENT_MD5=$(md5sum "$TGT_BIN" 2>/dev/null)
+		CURRENT_MD5=${CURRENT_MD5%% *}
+	}
 
 	if [ "$CURRENT_MD5" != "$EXPECTED_MD5" ]; then
 		cp -f "$SRC_BIN" "$TGT_BIN"
@@ -42,7 +46,10 @@ INSTALL_ARCHIVE() {
 	EXPECTED_MD5=$(cat "$MD5_FILE" 2>/dev/null) || return 0
 
 	CURRENT_MD5=
-	[ -f "$TGT_BIN" ] && CURRENT_MD5=$(md5sum "$TGT_BIN" | awk '{ print $1 }')
+	[ -f "$TGT_BIN" ] && {
+		CURRENT_MD5=$(md5sum "$TGT_BIN" 2>/dev/null)
+		CURRENT_MD5=${CURRENT_MD5%% *}
+	}
 
 	[ "$CURRENT_MD5" = "$EXPECTED_MD5" ] && return 0
 
@@ -96,12 +103,14 @@ DO_START() {
 
 	case "$BOARD_NAME" in
 		rg-vita*)
-            EMU_VER="vita"
+			EMU_VER="vita"
 
-			# Initialise Touch Screen
-            modprobe synaptics_dsx_core
-            modprobe synaptics_dsx_i2c
-            ;;
+			if [ "$HAS_TOUCH" -eq 1 ]; then
+				# Initialise Touch Screen
+				modprobe synaptics_dsx_core
+				modprobe synaptics_dsx_i2c
+			fi
+			;;
 		rg*) EMU_VER="rg" ;;
 		mgx* | tui*)
 			EMU_VER="tui"

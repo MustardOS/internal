@@ -8,6 +8,7 @@ DPAD_SWAP=$(GET_VAR "device" "board/swap")
 
 STARTUP=$(GET_VAR "config" "settings/general/startup")
 AUDIO_READY=$(GET_VAR "config" "settings/advanced/audio_ready")
+BOARD_STICK=$(GET_VAR "device" "board/stick")
 
 ACT_GO="/tmp/act_go"
 APP_GO="/tmp/app_go"
@@ -73,7 +74,7 @@ while :; do
 	killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1
 
 	# Reset ANALOGUE<>DIGITAL switch for the DPAD
-	if [ "$(GET_VAR "device" "board/stick")" -eq 0 ]; then
+	if [ "$BOARD_STICK" -eq 0 ]; then
 		case "$BOARD_NAME" in
 			rg*) printf "0" >"$DPAD_SWAP" ;;
 			tui*) ENSURE_REMOVED "$DPAD_SWAP" ;;

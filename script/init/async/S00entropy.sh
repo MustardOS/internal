@@ -4,7 +4,7 @@ ENTROPY_FILE="/proc/sys/kernel/random/entropy_avail"
 ENTROPY_TARGET=256
 
 ENTROPY_OK() {
-	CURRENT=$(cat "$ENTROPY_FILE" 2>/dev/null)
+	IFS= read -r CURRENT <"$ENTROPY_FILE" 2>/dev/null
 	[ -n "$CURRENT" ] && [ "$CURRENT" -ge "$ENTROPY_TARGET" ]
 }
 

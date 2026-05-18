@@ -76,13 +76,14 @@ GET_NODE_ID() {
 	TARGET_NAME=$1
 
 	pw-dump 2>/dev/null |
-		jq -r '
-			.[] |
-			select(.type == "PipeWire:Interface:Node") |
-			select(.info.props["node.name"] != null) |
-			"\(.id)\t\(.info.props["node.name"])"
-		' 2>/dev/null |
-		awk -F '\t' -v target="$TARGET_NAME" '$2 == target { print $1; exit }'
+		jq -r --arg name "$TARGET_NAME" '
+			first(
+				.[] |
+				select(.type == "PipeWire:Interface:Node") |
+				select(.info.props["node.name"] == $name) |
+				.id
+			) // empty
+		' 2>/dev/null
 }
 
 NODE_VISIBLE() {
@@ -118,7 +119,8 @@ GET_BOOT_SAVED_VOLUME() {
 
 INSTALL_WIREPLUMBER_CONF() {
 	# Determine the WirePlumber minor version to select the correct config format.
-	WP_MINOR=$(wireplumber --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 | cut -d. -f2)
+	WP_MINOR=$(wireplumber --version 2>/dev/null |
+		awk 'match($0, /[0-9]+\.[0-9]+\.[0-9]+/) { s=substr($0, RSTART, RLENGTH); split(s, a, "."); print a[2]; exit }')
 
 	if [ "${WP_MINOR:-0}" -ge 5 ]; then
 		# WirePlumber 5+
@@ -184,16 +186,18 @@ FINALISE_AUDIO() {
 		APPLY_VOL=${RUNTIME_PERCENT:-$SAVED_VOL}
 	fi
 
-	# Wait for the target node to appear, then resolve its ID once and cache it.
-	if ! WAIT_UNTIL NODE_VISIBLE "$TARGET_NAME"; then
-		LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "Target node '%s' not ready after timeout" "$TARGET_NAME")"
-		[ "${ADV_AR:-0}" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
-		return 1
-	fi
+	# Wait for the target node to appear, capturing its ID in the same poll to avoid a second pw-dump.
+	DEF_ID=
+	NODE_ELAPSED=0
+	while [ "$NODE_ELAPSED" -lt "$TIMEOUT" ]; do
+		DEF_ID=$(GET_NODE_ID "$TARGET_NAME")
+		[ -n "$DEF_ID" ] && break
+		sleep 0.1
+		NODE_ELAPSED=$((NODE_ELAPSED + INTERVAL))
+	done
 
-	DEF_ID=$(GET_NODE_ID "$TARGET_NAME")
 	if [ -z "$DEF_ID" ]; then
-		LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "Unable to resolve node ID for target '%s'" "$TARGET_NAME")"
+		LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "Target node '%s' not ready after timeout" "$TARGET_NAME")"
 		[ "${ADV_AR:-0}" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
 		return 1
 	fi

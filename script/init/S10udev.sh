@@ -15,7 +15,7 @@ case "$1" in
 		}
 		udevadm trigger --type=subsystems --action=add
 		udevadm trigger --type=devices --action=add
-		udevadm settle --timeout=10 || echo "udevadm settle failed"
+		udevadm settle --timeout=5 || echo "udevadm settle failed"
 		echo "done"
 		;;
 	stop)

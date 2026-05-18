@@ -75,17 +75,7 @@ FAIL_WITH() {
 
 MODULE_LOADED() {
 	[ -n "$1" ] || return 1
-
-	awk -v MOD="$1" '
-		$1 == MOD {
-			FOUND = 1
-			exit
-		}
-
-		END {
-			exit FOUND ? 0 : 1
-		}
-	' /proc/modules
+	grep -q "^$1 " /proc/modules
 }
 
 NETWORK_DAEMONS_RUNNING() {
@@ -309,7 +299,7 @@ RESTORE_HOSTNAME() {
 	[ -z "$HOSTFILE" ] && [ -e "$SD1_HOST" ] && HOSTFILE="$SD1_HOST"
 	[ -z "$HOSTFILE" ] && return 0
 
-	HOSTNAME=$(cat "$HOSTFILE")
+	IFS= read -r HOSTNAME <"$HOSTFILE"
 	hostname "$HOSTNAME"
 	printf "%s" "$HOSTNAME" >"/etc/hostname"
 
@@ -336,7 +326,7 @@ CALCULATE_IAID() {
 	MAC_FILE="/sys/class/net/$IFCE/address"
 	[ -r "$MAC_FILE" ] || return 1
 
-	MAC=$(cat "$MAC_FILE")
+	IFS= read -r MAC <"$MAC_FILE"
 	O5=${MAC#*:*:*:*:}
 	O5=${O5%%:*}
 	O6=${MAC##*:}
@@ -405,16 +395,7 @@ MASK_TO_CIDR() {
 }
 
 WPA_RUNNING() {
-	ps | awk -v IFACE="$IFCE" '
-		/[w]pa_supplicant/ && index($0, IFACE) {
-			FOUND = 1
-			exit
-		}
-
-		END {
-			exit FOUND ? 0 : 1
-		}
-	'
+	pgrep -f "wpa_supplicant.*$IFCE" >/dev/null 2>&1
 }
 
 WAIT_CARRIER() {
@@ -422,7 +403,8 @@ WAIT_CARRIER() {
 
 	I=0
 	while [ "$I" -lt 5 ]; do
-		[ "$(cat /sys/class/net/"$IFCE"/carrier)" = "1" ] && return 0
+		IFS= read -r CARRIER_VAL <"/sys/class/net/$IFCE/carrier" 2>/dev/null
+		[ "${CARRIER_VAL:-}" = "1" ] && return 0
 		I=$((I + 1))
 		sleep 1
 	done
@@ -553,7 +535,7 @@ IP_DHCP() {
 
 	I=0
 	while [ "$I" -lt 20 ]; do
-		IP=$(ip -4 -o addr show dev "$IFCE" | awk '{print $4}' | cut -d/ -f1)
+		IP=$(ip -4 -o addr show dev "$IFCE" | awk '{split($4, a, "/"); print a[1]; exit}')
 		[ -n "$IP" ] && return 0
 
 		if WPA_RUNNING; then
@@ -604,7 +586,7 @@ IP_STATIC() {
 		printf "nameserver %s\n" "$DNSA" >"$RESOLV_CONF"
 	fi
 
-	IP=$(ip -4 -o addr show dev "$IFCE" | awk '{print $4}' | cut -d/ -f1)
+	IP=$(ip -4 -o addr show dev "$IFCE" | awk '{split($4, a, "/"); print a[1]; exit}')
 	if [ -z "$IP" ]; then
 		LOG_ERROR "$0" 0 "NETWORK" "Static IP assignment produced no address"
 		FAIL_WITH "FAILED" "$RC_FAIL"
@@ -807,9 +789,9 @@ DO_STOP() {
 
 DO_STATUS() {
 	CURRENT_STATUS=""
-	[ -f "$STATUS_FILE" ] && CURRENT_STATUS=$(cat "$STATUS_FILE")
+	[ -f "$STATUS_FILE" ] && IFS= read -r CURRENT_STATUS <"$STATUS_FILE"
 
-	IP=$(ip -4 -o addr show dev "$IFCE" | awk '{print $4}' | cut -d/ -f1)
+	IP=$(ip -4 -o addr show dev "$IFCE" | awk '{split($4, a, "/"); print a[1]; exit}')
 	IFACE_UP=0
 	[ -d "/sys/class/net/$IFCE" ] && IFACE_UP=1
 

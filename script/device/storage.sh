@@ -40,8 +40,16 @@ MOUNTED() {
 
 MOUNT_DEVICE() {
 	FS_INFO="$(blkid -o export "/dev/$DEVICE" 2>/dev/null)"
-	FS_TYPE="$(printf '%s\n' "$FS_INFO" | awk -F= '/^TYPE=/{print $2}')"
-	FS_LABEL="$(printf '%s\n' "$FS_INFO" | awk -F= '/^LABEL=/{print $2}')"
+	FS_TYPE=
+	FS_LABEL=
+	while IFS='=' read -r FS_KEY FS_VAL; do
+		case "$FS_KEY" in
+			TYPE) FS_TYPE="$FS_VAL" ;;
+			LABEL) FS_LABEL="$FS_VAL" ;;
+		esac
+	done <<EOF
+$FS_INFO
+EOF
 
 	case "$FS_TYPE" in
 		exfat) FS_OPTS="rw,noatime,nofail" ;;

@@ -244,7 +244,10 @@ EXTRACT_ARCHIVE() {
 	done
 
 	wait "$PID"
+	RC=$?
+
 	printf "\n\n"
+	return "$RC"
 }
 
 CREATE_ARCHIVE() {
@@ -260,6 +263,7 @@ CREATE_ARCHIVE() {
 	SRC_MNT_PATH="$3"
 	SRC_SHORTNAME="$4"
 	SRC_SUFFIX="$5"
+	COMP="${6:-0}"
 
 	case "$SRC_SUFFIX" in
 		/*) ABS_SRC_PATH="$SRC_SUFFIX" ;;

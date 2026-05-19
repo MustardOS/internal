@@ -335,7 +335,7 @@ SIGNAL_FRONTEND() {
 }
 
 FRONTEND() {
-	case "$1" in
+	case "${1:-}" in
 		stop)
 			[ -n "$SAFE_QUIT" ] && { : >"$SAFE_QUIT" 2>/dev/null; }
 
@@ -366,7 +366,7 @@ FRONTEND() {
 				return 0
 			fi
 
-			if [ -n "$2" ]; then
+			if [ -n "${2:-}" ]; then
 				setsid -f /opt/muos/script/mux/frontend.sh "$2" </dev/null >/dev/null 2>&1
 			else
 				setsid -f /opt/muos/script/mux/frontend.sh </dev/null >/dev/null 2>&1
@@ -375,7 +375,7 @@ FRONTEND() {
 		restart)
 			FRONTEND stop
 
-			if [ -n "$2" ]; then
+			if [ -n "${2:-}" ]; then
 				FRONTEND start "$2"
 			else
 				FRONTEND start
@@ -463,7 +463,7 @@ CAFFEINE() {
 }
 
 MUXCTL() {
-	case "$1" in
+	case "${1:-}" in
 		stop)
 			HOTKEY stop
 			FRONTEND stop
@@ -472,7 +472,7 @@ MUXCTL() {
 		start)
 			HOTKEY start
 
-			if [ -n "$2" ]; then
+			if [ -n "${2:-}" ]; then
 				FRONTEND start "$2"
 			else
 				FRONTEND start
@@ -483,7 +483,7 @@ MUXCTL() {
 		restart)
 			MUXCTL stop
 
-			if [ -n "$2" ]; then
+			if [ -n "${2:-}" ]; then
 				MUXCTL start "$2"
 			else
 				MUXCTL start
@@ -944,7 +944,12 @@ SETUP_APP() {
 	export XDG_CONFIG_HOME
 
 	SET_VAR "system" "foreground_process" "$1"
-	SETUP_SDL_ENVIRONMENT $2
+
+	if [ -n "${2:-}" ]; then
+		SETUP_SDL_ENVIRONMENT "$2"
+	else
+		SETUP_SDL_ENVIRONMENT
+	fi
 }
 
 UPDATE_RA_VALUE() {

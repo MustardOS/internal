@@ -1,5 +1,4 @@
 #!/bin/sh
-set -eu
 
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/var/zip.sh
@@ -58,12 +57,12 @@ case "$ARCHIVE_NAME" in
 			P8_REQ="$(GET_ARCHIVE_BYTES "$ARCHIVE" "pico-8/")"
 			! CHECK_SPACE_FOR_DEST "$P8_REQ" "bios" && ALL_DONE 1
 
-			if unzip -o -j "$ARCHIVE" "pico-8/*" -d "${BIOS_DIR}/pico-8/"; then
+			if unzip -o -j "$ARCHIVE" "pico-8/*" -d "${BIOS_DIR}/pico-8/" &&
+				mkdir -p "$MUOS_SHARE_DIR/application/Splore" &&
+				cp "$MUOS_SHARE_DIR/emulator/pico8/splore.txt" "$MUOS_SHARE_DIR/application/Splore/mux_launch.sh" &&
+				chmod +x "$MUOS_SHARE_DIR/application/Splore/mux_launch.sh"; then
 				LOG_SUCCESS "$0" 0 "EXTRACT" "$(printf "Extracted PICO-8 to '%s'" "$BIOS_DIR")"
 				printf "Extracted 'pico-8' Folder to '%s'\n" "$BIOS_DIR"
-				mkdir "$MUOS_SHARE_DIR/application/Splore"
-				cp "$MUOS_SHARE_DIR/emulator/pico8/splore.txt" "$MUOS_SHARE_DIR/application/Splore/mux_launch.sh"
-				chmod +x "$MUOS_SHARE_DIR/application/Splore/mux_launch.sh"
 			else
 				LOG_ERROR "$0" 0 "EXTRACT" "Failed to extract PICO-8 folder"
 				printf "Failed to Extract 'pico-8' Folder\n"
@@ -82,12 +81,20 @@ case "$ARCHIVE_NAME" in
 	*.muxcat)
 		LOG_INFO "$0" 0 "EXTRACT" "Detected catalogue package - moving to staging"
 		printf "Detected Catalogue Package\nMoving archive to 'MUOS/package/catalogue'\n"
-		mv "$ARCHIVE" "$MUOS_STORE_DIR/package/catalogue/"
+		if ! mkdir -p "$MUOS_STORE_DIR/package/catalogue" || ! mv "$ARCHIVE" "$MUOS_STORE_DIR/package/catalogue/"; then
+			LOG_ERROR "$0" 0 "EXTRACT" "Failed to move catalogue package to staging"
+			printf "\nFailed to Move Catalogue Package\n"
+			ALL_DONE 1
+		fi
 		;;
 	*.muxcfg)
 		LOG_INFO "$0" 0 "EXTRACT" "Detected RetroArch config package - moving to staging"
 		printf "Detected RetroArch Configuration Package\nMoving archive to 'MUOS/package/config'\n"
-		mv "$ARCHIVE" "$MUOS_STORE_DIR/package/config/"
+		if ! mkdir -p "$MUOS_STORE_DIR/package/config" || ! mv "$ARCHIVE" "$MUOS_STORE_DIR/package/config/"; then
+			LOG_ERROR "$0" 0 "EXTRACT" "Failed to move RetroArch configuration package to staging"
+			printf "\nFailed to Move RetroArch Configuration Package\n"
+			ALL_DONE 1
+		fi
 		;;
 	*.muxalt)
 		LOG_INFO "$0" 0 "EXTRACT" "Detected theme alternative archive (.muxalt)"
@@ -100,7 +107,9 @@ case "$ARCHIVE_NAME" in
 			ALL_DONE 1
 		fi
 
-		UPDATE_BOOTLOGO
+		if ! UPDATE_BOOTLOGO; then
+			LOG_WARN "$0" 0 "EXTRACT" "Failed to update bootlogo after theme alternative extraction"
+		fi
 		;;
 	*.muxapp)
 		LOG_INFO "$0" 0 "EXTRACT" "Detected application archive (.muxapp)"
@@ -127,7 +136,11 @@ case "$ARCHIVE_NAME" in
 		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
 
 		printf "Scanning Archive Directories...\n"
-		TOP_LEVEL="$(GET_TOP_LEVEL_DIRS "$ARCHIVE")"
+		if ! TOP_LEVEL="$(GET_TOP_LEVEL_DIRS "$ARCHIVE")"; then
+			LOG_ERROR "$0" 0 "EXTRACT" "Failed to scan archive directories"
+			printf "\nFailed to Scan Archive Directories\n"
+			ALL_DONE 1
+		fi
 		LOG_DEBUG "$0" 0 "EXTRACT" "$(printf "Top-level entries: %s" "$TOP_LEVEL")"
 
 		for TOP in $TOP_LEVEL; do
@@ -170,7 +183,7 @@ case "$ARCHIVE_NAME" in
 				fi
 			fi
 
-			if [ -z "${DEST}" ] || [ -z "${LABEL}" ]; then
+			if [ -z "${DEST:-}" ] || [ -z "${LABEL:-}" ]; then
 				printf "\n\nInvalid extractor for: %s\nMissing 'DEST' or 'LABEL' variables\n\n" "$TOP"
 				ARC_UNSET
 				continue
@@ -191,7 +204,9 @@ case "$ARCHIVE_NAME" in
 			fi
 
 			if command -v ARC_EXTRACT_POST >/dev/null 2>&1; then
-				ARC_EXTRACT_POST "$ARC_STATUS"
+				if ! ARC_EXTRACT_POST "$ARC_STATUS"; then
+					LOG_WARN "$0" 0 "EXTRACT" "Post-extract hook failed"
+				fi
 			fi
 
 			ARC_UNSET
@@ -199,7 +214,13 @@ case "$ARCHIVE_NAME" in
 
 		# Special case for core downloads - we run the control script
 		# to initialise any control based changes for emulators
-		[ "$FRONTEND_START_PROGRAM" = "coredown" ] && /opt/muos/script/device/control.sh
+		if [ "$FRONTEND_START_PROGRAM" = "coredown" ]; then
+			/opt/muos/script/device/control.sh || {
+				LOG_ERROR "$0" 0 "EXTRACT" "Failed to initialise control script after core download"
+				printf "\nControl Initialisation Failed...\n"
+				ALL_DONE 1
+			}
+		fi
 		;;
 	*)
 		LOG_WARN "$0" 0 "EXTRACT" "$(printf "No extraction method for: '%s'" "$ARCHIVE_NAME")"
@@ -209,7 +230,10 @@ esac
 
 LOG_DEBUG "$0" 0 "EXTRACT" "Correcting permissions under /opt/muos"
 printf "Correcting Permissions...\n"
-chmod -R 755 /opt/muos
+if ! chmod -R 755 /opt/muos; then
+	LOG_WARN "$0" 0 "EXTRACT" "Failed to correct permissions under /opt/muos"
+	printf "Permission Correction Failed...\n"
+fi
 
 # Only allow update archives to run the update script!
 case "$ARCHIVE_NAME" in
@@ -219,14 +243,22 @@ case "$ARCHIVE_NAME" in
 			LOG_INFO "$0" 0 "EXTRACT" "$(printf "Running update script: '%s'" "$UPDATE_SCRIPT")"
 			printf "Running Update Script...\n"
 			chmod 755 "$UPDATE_SCRIPT"
-			"$UPDATE_SCRIPT"
+			if ! "$UPDATE_SCRIPT"; then
+				LOG_ERROR "$0" 0 "EXTRACT" "Update script failed"
+				printf "Update Script Failed...\n"
+				rm -f "$UPDATE_SCRIPT"
+				ALL_DONE 1
+			fi
 			rm -f "$UPDATE_SCRIPT"
 		fi
 		;;
 esac
 
-mkdir -p "/opt/muos/update/installed"
-: >"/opt/muos/update/installed/$ARCHIVE_NAME.done"
+if ! mkdir -p "/opt/muos/update/installed" || ! : >"/opt/muos/update/installed/$ARCHIVE_NAME.done"; then
+	LOG_ERROR "$0" 0 "EXTRACT" "Failed to mark archive as installed"
+	printf "Failed to Mark Archive as Installed...\n"
+	ALL_DONE 1
+fi
 
 LOG_SUCCESS "$0" 0 "EXTRACT" "$(printf "Marked '%s' as installed" "$ARCHIVE_NAME")"
 ALL_DONE 0

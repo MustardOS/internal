@@ -10,30 +10,97 @@ SCAN_TIMEOUT=10 # Is this enough?
 
 mkdir -p "$BT_DIR"
 
+# Oui oui monsieur
+# https://www.linuxnet.ca/ieee/oui.html
+OUI_LOOKUP() {
+	OUI=$(printf "%s" "$1" | tr '[:lower:]' '[:upper:]' | tr -d ':' | cut -c1-6)
+	OUI_FMT=$(printf "%s:%s:%s" \
+		"$(printf "%s" "$OUI" | cut -c1-2)" \
+		"$(printf "%s" "$OUI" | cut -c3-4)" \
+		"$(printf "%s" "$OUI" | cut -c5-6)")
+
+	DB="/opt/muos/share/conf/oui.txt"
+	[ -f "$DB" ] || return 1
+
+	VENDOR=$(grep -im1 "^$OUI_FMT" "$DB" | awk '/\(hex\)/{sub(/.*\(hex\)[[:space:]]*/,""); print}')
+	[ -n "$VENDOR" ] && printf "%s" "$VENDOR" && return 0
+
+	return 1
+}
+
 DO_LIST() {
 	LOG_INFO "$0" 0 "BTSCAN" "$(printf "Scanning for nearby Bluetooth devices (%ss)" "$SCAN_TIMEOUT")"
 
 	# Apparently it needs to be powered on even though it is... powered on?
 	bluetoothctl power on >/dev/null 2>&1
 
+	TMP_NAMES="$BT_DIR/scan_names.tmp.$$"
+	: >"$TMP_NAMES"
+
 	(
 		printf "scan on\n"
 		sleep "$SCAN_TIMEOUT"
 		printf "scan off\n"
-	) | bluetoothctl >/dev/null 2>&1
+	) | bluetoothctl 2>/dev/null | while IFS= read -r LINE; do
+		MAC=""
+		NAME=""
+		case "$LINE" in
+			*"[NEW] Device "*)
+				MAC=$(printf "%s" "$LINE" | awk '{print $3}')
+				NAME=$(printf "%s" "$LINE" | cut -d' ' -f4-)
+				;;
+			*"[CHG] Device "*"Name: "*)
+				MAC=$(printf "%s" "$LINE" | awk '{print $3}')
+				NAME=$(printf "%s" "$LINE" | awk -F'Name: ' '{print $2}')
+				;;
+		esac
+		[ -n "$MAC" ] && [ -n "$NAME" ] && [ "$NAME" != "$MAC" ] &&
+			printf "%s\t%s\n" "$MAC" "$NAME" >>"$TMP_NAMES"
+	done
 
-	TMP_BT_SCAN="$BT_DIR/scan.tmp.$$"
-	: >"$TMP_BT_SCAN"
+	TMP_SPECIAL="$BT_DIR/scan_special.tmp.$$"
+	TMP_NAMED="$BT_DIR/scan_named.tmp.$$"
+	TMP_UNKNOWN="$BT_DIR/scan_unknown.tmp.$$"
+
+	: >"$TMP_SPECIAL"
+	: >"$TMP_NAMED"
+	: >"$TMP_UNKNOWN"
 
 	bluetoothctl devices 2>/dev/null | while IFS= read -r LINE; do
 		# Format: "Device AA:BB:CC:DD:EE:FF Device Name"
 		MAC=$(printf "%s" "$LINE" | awk '{ print $2 }')
 		NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
 		[ -z "$MAC" ] && continue
-		[ -z "$NAME" ] && NAME="$MAC"
-		printf "%s %s\n" "$MAC" "$NAME" >>"$TMP_BT_SCAN"
+
+		RESOLVED=$(awk -F'\t' -v mac="$MAC" '$1==mac{name=$2} END{if(name) print name}' "$TMP_NAMES" 2>/dev/null)
+		[ -n "$RESOLVED" ] && NAME="$RESOLVED"
+
+		case "$NAME" in
+			"" | "$MAC" | \
+			[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F] | \
+			[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F])
+				VENDOR=$(OUI_LOOKUP "$MAC")
+				printf "%s %s\n" "$MAC" "${VENDOR:-$MAC}" >>"$TMP_UNKNOWN"
+				;;
+			[A-Za-z0-9]*)
+				printf "%s %s\n" "$MAC" "$NAME" >>"$TMP_NAMED"
+				;;
+			*)
+				printf "%s %s\n" "$MAC" "$NAME" >>"$TMP_SPECIAL"
+				;;
+		esac
 	done
 
+	rm -f "$TMP_NAMES"
+
+	TMP_BT_SCAN="$BT_DIR/scan.tmp.$$"
+	{
+		sort -k2 -f "$TMP_SPECIAL"
+		sort -k2 -f "$TMP_NAMED"
+		sort -k2 -f "$TMP_UNKNOWN"
+	} >"$TMP_BT_SCAN"
+
+	rm -f "$TMP_SPECIAL" "$TMP_NAMED" "$TMP_UNKNOWN"
 	mv -f "$TMP_BT_SCAN" "$BT_SCAN"
 
 	COUNT=$(wc -l <"$BT_SCAN" 2>/dev/null)
@@ -54,9 +121,17 @@ DO_CONNECT() {
 
 	if bluetoothctl connect "$MAC" >/dev/null 2>&1; then
 		LOG_SUCCESS "$0" 0 "BTSCAN" "$(printf "Connected to '%s'" "$MAC")"
+
+		BT_KEYS="$MUOS_CONF_GLOBAL/bluetooth/lib"
+		mkdir -p "$BT_KEYS"
+		cp -a /var/lib/bluetooth/. "$BT_KEYS/" 2>/dev/null
+
+		"$(dirname "$0")/audio_sink.sh" set-bt "$MAC" &
 	else
 		LOG_WARN "$0" 0 "BTSCAN" "$(printf "Connection to '%s' may have failed" "$MAC")"
 	fi
+
+	"$(dirname "$0")/bt_device.sh" list
 }
 
 DO_INFO() {

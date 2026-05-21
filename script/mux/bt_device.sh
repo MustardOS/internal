@@ -12,25 +12,56 @@ mkdir -p "$BT_DIR"
 DO_LIST() {
 	LOG_INFO "$0" 0 "BTDEVICE" "Listing paired Bluetooth devices"
 
+	if ! bluetoothctl show >/dev/null 2>&1; then
+		LOG_WARN "$0" 0 "BTDEVICE" "bluetoothd not ready - skipping list update"
+		return 0
+	fi
+
 	CONNECTED_MACS=$(bluetoothctl devices Connected 2>/dev/null | awk '{ print $2 }')
 
 	TMP_BT_PAIR="$BT_DIR/paired.tmp.$$"
-	: >"$TMP_BT_PAIR"
 
-	bluetoothctl devices Paired 2>/dev/null | while IFS= read -r LINE; do
-		# Format: "Device AA:BB:CC:DD:EE:FF Device Name"
-		MAC=$(printf "%s" "$LINE" | awk '{ print $2 }')
-		NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
-		[ -z "$MAC" ] && continue
-		[ -z "$NAME" ] && NAME="$MAC"
+	RETRIES=3
+	while [ "$RETRIES" -gt 0 ]; do
+		: >"$TMP_BT_PAIR"
 
-		CONNECTED=0
-		if printf "%s\n" "$CONNECTED_MACS" | grep -qxF "$MAC" 2>/dev/null; then
-			CONNECTED=1
-		fi
+		bluetoothctl devices Paired 2>/dev/null | while IFS= read -r LINE; do
+			# Format: "Device AA:BB:CC:DD:EE:FF Device Name"
+			MAC=$(printf "%s" "$LINE" | awk '{ print $2 }')
+			NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
 
-		printf "%s %d %s\n" "$MAC" "$CONNECTED" "$NAME" >>"$TMP_BT_PAIR"
+			[ -z "$MAC" ] && continue
+			[ -z "$NAME" ] && NAME="$MAC"
+
+			MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
+			ALIAS_FILE="$BT_DIR/alias_$MAC_CLEAN"
+
+			if [ -f "$ALIAS_FILE" ]; then
+				OUR_ALIAS=$(cat "$ALIAS_FILE" 2>/dev/null)
+				[ -n "$OUR_ALIAS" ] && NAME="$OUR_ALIAS"
+			fi
+
+			CONNECTED=0
+			if printf "%s\n" "$CONNECTED_MACS" | grep -qxF "$MAC" 2>/dev/null; then
+				CONNECTED=1
+			fi
+
+			printf "%s %d %s\n" "$MAC" "$CONNECTED" "$NAME" >>"$TMP_BT_PAIR"
+		done
+
+		# Accept the result if we have devices or if there was nothing before
+		[ -s "$TMP_BT_PAIR" ] || [ ! -s "$BT_PAIRED" ] && break
+
+		LOG_DEBUG "$0" 0 "BTDEVICE" "$(printf "Empty paired list with existing data; retrying (%s left)" "$RETRIES")"
+		sleep 1
+		RETRIES=$((RETRIES - 1))
 	done
+
+	if [ ! -s "$TMP_BT_PAIR" ] && [ -s "$BT_PAIRED" ]; then
+		LOG_WARN "$0" 0 "BTDEVICE" "bluetoothctl returned no paired devices after retries; retaining existing list"
+		rm -f "$TMP_BT_PAIR"
+		return 0
+	fi
 
 	mv -f "$TMP_BT_PAIR" "$BT_PAIRED"
 	LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Paired device list written to '%s'" "$BT_PAIRED")"
@@ -47,6 +78,7 @@ DO_CONNECT() {
 
 	if bluetoothctl connect "$MAC" >/dev/null 2>&1; then
 		LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Connected to '%s'" "$MAC")"
+		"$(dirname "$0")/audio_sink.sh" set-bt "$MAC" &
 	else
 		LOG_WARN "$0" 0 "BTDEVICE" "$(printf "Connection to '%s' may have failed" "$MAC")"
 	fi
@@ -63,6 +95,7 @@ DO_DISCONNECT() {
 
 	if bluetoothctl disconnect "$MAC" >/dev/null 2>&1; then
 		LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Disconnected from '%s'" "$MAC")"
+		"$(dirname "$0")/audio_sink.sh" set-builtin &
 	else
 		LOG_WARN "$0" 0 "BTDEVICE" "$(printf "Disconnect from '%s' may have failed" "$MAC")"
 	fi
@@ -77,6 +110,10 @@ DO_FORGET() {
 
 	LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Forgetting device '%s'" "$MAC")"
 	bluetoothctl remove "$MAC" >/dev/null 2>&1
+
+	MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
+	rm -f "$BT_DIR/alias_$MAC_CLEAN" "$BT_DIR/type_$MAC_CLEAN"
+
 	LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Device '%s' removed" "$MAC")"
 }
 
@@ -93,25 +130,69 @@ DO_INFO() {
 	BT_RAW=$(bluetoothctl info "$MAC" 2>/dev/null)
 
 	{
+		ALIAS=$(printf "%s" "$BT_RAW" | awk -F': ' '/^\tAlias:/ { print $2; exit }')
 		NAME=$(printf "%s" "$BT_RAW" | awk -F': ' '/^\tName:/ { print $2; exit }')
-		[ -z "$NAME" ] && NAME="$MAC"
-		printf "Name: %s\n" "$NAME"
+		MAC_CLEAN_INFO=$(printf "%s" "$MAC" | tr ':' '_')
+		OUR_ALIAS=$(cat "$BT_DIR/alias_$MAC_CLEAN_INFO" 2>/dev/null)
+
+		printf "Name: %s\n" "${OUR_ALIAS:-${ALIAS:-${NAME:-$MAC}}}"
 
 		ICON=$(printf "%s" "$BT_RAW" | awk -F': ' '/^\tIcon:/ { print $2; exit }')
-		[ -n "$ICON" ] && printf "Type: %s\n" "$ICON"
+		CLASS=$(printf "%s" "$BT_RAW" | awk -F': ' '/^\tClass:/ { print $2; exit }')
+		UUIDS=$(printf "%s" "$BT_RAW" | sed -n 's/^\tUUID:.*(\([0-9a-f-]*\)).*/\1/p' | cut -c1-8 | sort -u | tr '\n' ' ')
 
-		RSSI=$(printf "%s" "$BT_RAW" | awk -F': ' '/^\tRSSI:/ { print $2; exit }')
-		[ -n "$RSSI" ] && printf "Signal: %s dBm\n" "$RSSI"
+		[ -n "$ICON" ] && printf "Icon: %s\n" "$ICON"
+		[ -n "$CLASS" ] && printf "Class: %s\n" "$CLASS"
+		[ -n "$UUIDS" ] && printf "UUIDs: %s\n" "$UUIDS"
 
 		CONNECTED=$(printf "%s" "$BT_RAW" | awk -F': ' '/^\tConnected:/ { print $2; exit }')
 		[ -n "$CONNECTED" ] && printf "Connected: %s\n" "$CONNECTED"
 
-		# Somehow get battery? upower?
-		#BATTERY=""
-		#[ -n "$BATTERY" ] && printf "Battery: %s\n" "$BATTERY"
+		BATTERY=$(printf "%s" "$BT_RAW" | awk -F'[()]' '/^\tBattery Percentage:/ { print $2 "%"; exit }')
+
+		if [ -z "$BATTERY" ]; then
+			MAC_CLEAN=$(printf "%s" "$MAC" | tr -d ':')
+			for PS_DIR in /sys/class/power_supply/*; do
+				case "$PS_DIR" in
+					*"$MAC_CLEAN"* | *"$MAC"*)
+						CAP=$(cat "$PS_DIR/capacity" 2>/dev/null)
+						[ -n "$CAP" ] && BATTERY="${CAP}%" && break
+						;;
+				esac
+			done
+		fi
+
+		[ -n "$BATTERY" ] && printf "Battery: %s\n" "$BATTERY"
 	} >"$BT_INFO_FILE"
 
 	LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Device info written to '%s'" "$BT_INFO_FILE")"
+}
+
+DO_ALIAS() {
+	MAC="$1"
+	[ -z "$MAC" ] && {
+		LOG_ERROR "$0" 0 "BTDEVICE" "No MAC address provided for alias"
+		exit 1
+	}
+
+	ALIAS="$2"
+	[ -z "$ALIAS" ] && {
+		LOG_ERROR "$0" 0 "BTDEVICE" "No alias provided for alias"
+		exit 1
+	}
+
+	LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Setting alias for '%s' to '%s'" "$MAC" "$ALIAS")"
+
+	MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
+	printf "%s" "$ALIAS" >"$BT_DIR/alias_$MAC_CLEAN"
+
+	HCI_DEV=$(hciconfig 2>/dev/null | awk -F: '/^hci[0-9]/ { print $1; exit }')
+	HCI_DEV="${HCI_DEV:-hci0}"
+
+	timeout 2 busctl set-property org.bluez "/org/bluez/$HCI_DEV/dev_$MAC_CLEAN" \
+		org.bluez.Device1 Alias s "$ALIAS" 2>/dev/null
+
+	LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Alias saved for '%s'" "$MAC")"
 }
 
 DO_AUTOCONNECT() {
@@ -140,9 +221,10 @@ case "${1:-}" in
 	disconnect) DO_DISCONNECT "$2" ;;
 	forget) DO_FORGET "$2" ;;
 	info) DO_INFO "$2" ;;
+	alias) DO_ALIAS "$2" "$3" ;;
 	autoconnect) DO_AUTOCONNECT ;;
 	*)
-		printf "Usage: %s {list|connect <mac>|disconnect <mac>|forget <mac>|info <mac>|autoconnect}\n" "$0"
+		printf "Usage: %s {list|connect <mac>|disconnect <mac>|forget <mac>|info <mac>|alias <mac> <name>|autoconnect}\n" "$0"
 		exit 1
 		;;
 esac

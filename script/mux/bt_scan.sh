@@ -6,6 +6,7 @@ LOG_INFO "$0" 0 "BTSCAN" "Bluetooth scan manager starting"
 
 BT_DIR="$MUOS_CONF_GLOBAL/bluetooth"
 BT_SCAN="$BT_DIR/scan"
+BT_PAIRED="$BT_DIR/paired"
 SCAN_TIMEOUT=10 # Is this enough?
 
 mkdir -p "$BT_DIR"
@@ -66,11 +67,29 @@ DO_LIST() {
 	: >"$TMP_NAMED"
 	: >"$TMP_UNKNOWN"
 
+	CONNECTED_MACS=$(bluetoothctl devices Connected 2>/dev/null | awk '{print $2}')
+	TRUSTED_MACS=$(
+		for ADAPTER_DIR in /var/lib/bluetooth/??:??:??:??:??:??/; do
+			[ -d "$ADAPTER_DIR" ] || continue
+			for DEVICE_DIR in "$ADAPTER_DIR"??:??:??:??:??:??/; do
+				INFO="$DEVICE_DIR/info"
+				[ -f "$INFO" ] || continue
+				grep -q '^Trusted=true' "$INFO" 2>/dev/null || continue
+				printf "%s\n" "$(basename "$DEVICE_DIR")"
+			done
+		done
+	)
+
 	bluetoothctl devices 2>/dev/null | while IFS= read -r LINE; do
 		# Format: "Device AA:BB:CC:DD:EE:FF Device Name"
 		MAC=$(printf "%s" "$LINE" | awk '{ print $2 }')
 		NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
 		[ -z "$MAC" ] && continue
+
+		# Skip paired, trusted, and connected devices
+		grep -q "^$MAC " "$BT_PAIRED" 2>/dev/null && continue
+		printf "%s\n" "$TRUSTED_MACS" | grep -qxF "$MAC" 2>/dev/null && continue
+		printf "%s\n" "$CONNECTED_MACS" | grep -qxF "$MAC" 2>/dev/null && continue
 
 		RESOLVED=$(awk -F'\t' -v mac="$MAC" '$1==mac{name=$2} END{if(name) print name}' "$TMP_NAMES" 2>/dev/null)
 		[ -n "$RESOLVED" ] && NAME="$RESOLVED"

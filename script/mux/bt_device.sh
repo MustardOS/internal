@@ -20,51 +20,58 @@ DO_LIST() {
 	CONNECTED_MACS=$(bluetoothctl devices Connected 2>/dev/null | awk '{ print $2 }')
 
 	TMP_BT_PAIR="$BT_DIR/paired.tmp.$$"
+	: >"$TMP_BT_PAIR"
 
-	RETRIES=3
-	while [ "$RETRIES" -gt 0 ]; do
-		: >"$TMP_BT_PAIR"
+	{
+		bluetoothctl devices Paired 2>/dev/null
+		bluetoothctl devices Trusted 2>/dev/null
+		bluetoothctl devices Connected 2>/dev/null
+	} | awk '!seen[$2]++' | while IFS= read -r LINE; do
+		MAC=$(printf "%s" "$LINE" | awk '{ print $2 }')
+		NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
 
-		bluetoothctl devices Paired 2>/dev/null | while IFS= read -r LINE; do
-			# Format: "Device AA:BB:CC:DD:EE:FF Device Name"
-			MAC=$(printf "%s" "$LINE" | awk '{ print $2 }')
-			NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
+		[ -z "$MAC" ] && continue
+		[ -z "$NAME" ] && NAME="$MAC"
 
-			[ -z "$MAC" ] && continue
-			[ -z "$NAME" ] && NAME="$MAC"
+		MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
+		ALIAS_FILE="$BT_DIR/alias_$MAC_CLEAN"
+		if [ -f "$ALIAS_FILE" ]; then
+			OUR_ALIAS=$(cat "$ALIAS_FILE" 2>/dev/null)
+			[ -n "$OUR_ALIAS" ] && NAME="$OUR_ALIAS"
+		fi
 
-			MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
-			ALIAS_FILE="$BT_DIR/alias_$MAC_CLEAN"
+		CONNECTED=0
+		if printf "%s\n" "$CONNECTED_MACS" | grep -qxF "$MAC" 2>/dev/null; then
+			CONNECTED=1
+		fi
 
-			if [ -f "$ALIAS_FILE" ]; then
-				OUR_ALIAS=$(cat "$ALIAS_FILE" 2>/dev/null)
-				[ -n "$OUR_ALIAS" ] && NAME="$OUR_ALIAS"
-			fi
-
-			CONNECTED=0
-			if printf "%s\n" "$CONNECTED_MACS" | grep -qxF "$MAC" 2>/dev/null; then
-				CONNECTED=1
-			fi
-
-			printf "%s %d %s\n" "$MAC" "$CONNECTED" "$NAME" >>"$TMP_BT_PAIR"
-		done
-
-		# Accept the result if we have devices or if there was nothing before
-		[ -s "$TMP_BT_PAIR" ] || [ ! -s "$BT_PAIRED" ] && break
-
-		LOG_DEBUG "$0" 0 "BTDEVICE" "$(printf "Empty paired list with existing data; retrying (%s left)" "$RETRIES")"
-		sleep 1
-		RETRIES=$((RETRIES - 1))
+		printf "%s %d %s\n" "$MAC" "$CONNECTED" "$NAME" >>"$TMP_BT_PAIR"
 	done
 
-	if [ ! -s "$TMP_BT_PAIR" ] && [ -s "$BT_PAIRED" ]; then
-		LOG_WARN "$0" 0 "BTDEVICE" "bluetoothctl returned no paired devices after retries; retaining existing list"
+	if [ -s "$BT_PAIRED" ]; then
+		while IFS= read -r OLD_LINE; do
+			OLD_MAC=$(printf "%s" "$OLD_LINE" | awk '{ print $1 }')
+			[ -z "$OLD_MAC" ] && continue
+			grep -q "^$OLD_MAC " "$TMP_BT_PAIR" 2>/dev/null && continue
+
+			OLD_NAME=$(printf "%s" "$OLD_LINE" | cut -d' ' -f3-)
+			CONN=0
+			if printf "%s\n" "$CONNECTED_MACS" | grep -qxF "$OLD_MAC" 2>/dev/null; then
+				CONN=1
+			fi
+			printf "%s %d %s\n" "$OLD_MAC" "$CONN" "$OLD_NAME" >>"$TMP_BT_PAIR"
+		done <"$BT_PAIRED"
+	fi
+
+	if [ ! -s "$TMP_BT_PAIR" ]; then
 		rm -f "$TMP_BT_PAIR"
+		LOG_WARN "$0" 0 "BTDEVICE" "No managed devices found"
 		return 0
 	fi
 
+	COUNT=$(wc -l <"$TMP_BT_PAIR" 2>/dev/null || printf 0)
 	mv -f "$TMP_BT_PAIR" "$BT_PAIRED"
-	LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Paired device list written to '%s'" "$BT_PAIRED")"
+	LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Found %s managed device(s); list written to '%s'" "${COUNT:-0}" "$BT_PAIRED")"
 }
 
 DO_CONNECT() {

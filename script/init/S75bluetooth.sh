@@ -94,12 +94,7 @@ DO_START() {
 		return 0
 	fi
 
-	BT_KEYS="$MUOS_CONF_GLOBAL/bluetooth/lib"
-	mkdir -p "$BT_KEYS" /var/lib/bluetooth
-	if ! mount --bind "$BT_KEYS" /var/lib/bluetooth 2>/dev/null; then
-		LOG_WARN "$0" 0 "BLUETOOTH" "Bind mount failed; copying BT database"
-		cp -a "$BT_KEYS/." /var/lib/bluetooth/ 2>/dev/null
-	fi
+	mkdir -p /var/lib/bluetooth
 
 	LOG_INFO "$0" 0 "BLUETOOTH" "Starting bluetoothd"
 	"$BT_DAEMON" -n -d >/dev/null 2>&1 &
@@ -107,18 +102,13 @@ DO_START() {
 
 	LOG_SUCCESS "$0" 0 "BLUETOOTH" "Bluetooth stack started"
 
-	(WAIT_UNTIL BLUETOOTHD_READY && /opt/muos/script/mux/bt_device.sh list && /opt/muos/script/mux/bt_device.sh autoconnect) &
+	(WAIT_UNTIL BLUETOOTHD_READY && sleep 2 && /opt/muos/script/mux/bt_device.sh list && /opt/muos/script/mux/bt_device.sh autoconnect) &
 }
 
 DO_STOP() {
 	LOG_INFO "$0" 0 "BLUETOOTH" "Stopping Bluetooth stack"
 
-	BT_KEYS="$MUOS_CONF_GLOBAL/bluetooth/lib"
-	mkdir -p "$BT_KEYS"
-	cp -a /var/lib/bluetooth/. "$BT_KEYS/" 2>/dev/null
-
 	STOP_PROC "bluetoothd" "$BT_PID"
-	umount /var/lib/bluetooth 2>/dev/null
 	STOP_PROC "rtk_hciattach" "$HCI_PID"
 
 	LOG_SUCCESS "$0" 0 "BLUETOOTH" "Bluetooth stack stopped"

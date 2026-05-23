@@ -31,6 +31,9 @@ DO_LIST() {
 		NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
 
 		[ -z "$MAC" ] && continue
+
+		# Skip "Modalias" companion entries that sometimes get created
+		case "$NAME" in Modalias:*) continue ;; esac
 		[ -z "$NAME" ] && NAME="$MAC"
 
 		MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
@@ -48,19 +51,26 @@ DO_LIST() {
 		printf "%s %d %s\n" "$MAC" "$CONNECTED" "$NAME" >>"$TMP_BT_PAIR"
 	done
 
-	if [ -s "$BT_PAIRED" ]; then
-		while IFS= read -r OLD_LINE; do
-			OLD_MAC=$(printf "%s" "$OLD_LINE" | awk '{ print $1 }')
-			[ -z "$OLD_MAC" ] && continue
-			grep -q "^$OLD_MAC " "$TMP_BT_PAIR" 2>/dev/null && continue
-
-			OLD_NAME=$(printf "%s" "$OLD_LINE" | cut -d' ' -f3-)
-			CONN=0
-			if printf "%s\n" "$CONNECTED_MACS" | grep -qxF "$OLD_MAC" 2>/dev/null; then
-				CONN=1
+	# When the same device name appears both connected and disconnected, the
+	# disconnected entry is a stale pairing so we'll remove the crusty pair.
+	CONNECTED_NAMES=$(awk '$2 == 1' "$TMP_BT_PAIR" | cut -d' ' -f3-)
+	if [ -n "$CONNECTED_NAMES" ]; then
+		TMP_DEDUP="$BT_DIR/paired.dedup.tmp.$$"
+		: >"$TMP_DEDUP"
+		while IFS= read -r LINE; do
+			ENTRY_MAC=$(printf "%s" "$LINE" | awk '{print $1}')
+			ENTRY_CONN=$(printf "%s" "$LINE" | awk '{print $2}')
+			ENTRY_NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
+			if [ "$ENTRY_CONN" = "0" ] && printf "%s\n" "$CONNECTED_NAMES" | grep -qxF "$ENTRY_NAME" 2>/dev/null; then
+				LOG_DEBUG "$0" 0 "BTDEVICE" "$(printf "Removing stale pairing '%s' (%s)" "$ENTRY_NAME" "$ENTRY_MAC")"
+				bluetoothctl remove "$ENTRY_MAC" >/dev/null 2>&1
+				MAC_CLEAN=$(printf "%s" "$ENTRY_MAC" | tr ':' '_')
+				rm -f "$BT_DIR/alias_$MAC_CLEAN" "$BT_DIR/type_$MAC_CLEAN"
+			else
+				printf "%s\n" "$LINE" >>"$TMP_DEDUP"
 			fi
-			printf "%s %d %s\n" "$OLD_MAC" "$CONN" "$OLD_NAME" >>"$TMP_BT_PAIR"
-		done <"$BT_PAIRED"
+		done <"$TMP_BT_PAIR"
+		mv -f "$TMP_DEDUP" "$TMP_BT_PAIR"
 	fi
 
 	if [ ! -s "$TMP_BT_PAIR" ]; then
@@ -83,9 +93,25 @@ DO_CONNECT() {
 
 	LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Connecting to '%s'" "$MAC")"
 
+	bluetoothctl pair "$MAC" >/dev/null 2>&1
+	bluetoothctl trust "$MAC" >/dev/null 2>&1
+
 	if bluetoothctl connect "$MAC" >/dev/null 2>&1; then
 		LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Connected to '%s'" "$MAC")"
-		"$(dirname "$0")/audio_sink.sh" set-bt "$MAC" &
+
+		MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
+		STORED_TYPE=$(cat "$BT_DIR/type_$MAC_CLEAN" 2>/dev/null)
+		IS_AUDIO=0
+		if [ -n "$STORED_TYPE" ]; then
+			case "$STORED_TYPE" in audio-*) IS_AUDIO=1 ;; esac
+		else
+			BT_ICON=$(bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
+			case "$BT_ICON" in audio-*) IS_AUDIO=1 ;; esac
+		fi
+
+		if [ "$IS_AUDIO" -eq 1 ]; then
+			"$(dirname "$0")/audio_sink.sh" set-bt "$MAC" &
+		fi
 	else
 		LOG_WARN "$0" 0 "BTDEVICE" "$(printf "Connection to '%s' may have failed" "$MAC")"
 	fi
@@ -100,9 +126,21 @@ DO_DISCONNECT() {
 
 	LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Disconnecting from '%s'" "$MAC")"
 
+	MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
+	STORED_TYPE=$(cat "$BT_DIR/type_$MAC_CLEAN" 2>/dev/null)
+
+	IS_AUDIO=0
+
+	if [ -n "$STORED_TYPE" ]; then
+		case "$STORED_TYPE" in audio-*) IS_AUDIO=1 ;; esac
+	else
+		BT_ICON=$(bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
+		case "$BT_ICON" in audio-*) IS_AUDIO=1 ;; esac
+	fi
+
 	if bluetoothctl disconnect "$MAC" >/dev/null 2>&1; then
 		LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Disconnected from '%s'" "$MAC")"
-		"$(dirname "$0")/audio_sink.sh" set-builtin &
+		[ "$IS_AUDIO" -eq 1 ] && "$(dirname "$0")/audio_sink.sh" set-builtin &
 	else
 		LOG_WARN "$0" 0 "BTDEVICE" "$(printf "Disconnect from '%s' may have failed" "$MAC")"
 	fi
@@ -116,10 +154,19 @@ DO_FORGET() {
 	}
 
 	LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Forgetting device '%s'" "$MAC")"
+
+	bluetoothctl untrust "$MAC" >/dev/null 2>&1
+	bluetoothctl disconnect "$MAC" >/dev/null 2>&1
 	bluetoothctl remove "$MAC" >/dev/null 2>&1
 
 	MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
 	rm -f "$BT_DIR/alias_$MAC_CLEAN" "$BT_DIR/type_$MAC_CLEAN"
+
+	if [ -f "$BT_PAIRED" ]; then
+		TMP="$BT_DIR/paired.tmp.$$"
+		grep -v "^$MAC " "$BT_PAIRED" >"$TMP" 2>/dev/null || true
+		mv -f "$TMP" "$BT_PAIRED"
+	fi
 
 	LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Device '%s' removed" "$MAC")"
 }
@@ -212,12 +259,29 @@ DO_AUTOCONNECT() {
 
 	LOG_INFO "$0" 0 "BTDEVICE" "Auto-connecting to trusted paired devices"
 
-	bluetoothctl devices Paired 2>/dev/null | while IFS= read -r LINE; do
-		MAC=$(printf "%s" "$LINE" | awk '{ print $2 }')
+	[ -f "$BT_PAIRED" ] || {
+		LOG_INFO "$0" 0 "BTDEVICE" "No managed devices to auto-connect"
+		return 0
+	}
+
+	while IFS= read -r LINE; do
+		MAC=$(printf "%s" "$LINE" | awk '{ print $1 }')
+		[ -z "$MAC" ] && continue
+		bluetoothctl trust "$MAC" >/dev/null 2>&1
+	done <"$BT_PAIRED"
+
+	(
+		printf "scan on\n"
+		sleep 8
+		printf "scan off\n"
+	) | bluetoothctl >/dev/null 2>&1
+
+	while IFS= read -r LINE; do
+		MAC=$(printf "%s" "$LINE" | awk '{ print $1 }')
 		[ -z "$MAC" ] && continue
 		LOG_DEBUG "$0" 0 "BTDEVICE" "$(printf "Auto-connecting to '%s'" "$MAC")"
 		bluetoothctl connect "$MAC" >/dev/null 2>&1 &
-	done
+	done <"$BT_PAIRED"
 
 	LOG_SUCCESS "$0" 0 "BTDEVICE" "Auto-connect sequence initiated"
 }

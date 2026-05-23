@@ -82,7 +82,7 @@ DO_LIST() {
 
 	bluetoothctl devices 2>/dev/null | while IFS= read -r LINE; do
 		# Format: "Device AA:BB:CC:DD:EE:FF Device Name"
-		MAC=$(printf "%s" "$LINE" | awk '{ print $2 }')
+		MAC=$(printf "%s" "$LINE" | awk '{print $2}')
 		NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
 		[ -z "$MAC" ] && continue
 
@@ -96,8 +96,8 @@ DO_LIST() {
 
 		case "$NAME" in
 			"" | "$MAC" | \
-			[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F] | \
-			[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F])
+				[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F] | \
+				[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F])
 				VENDOR=$(OUI_LOOKUP "$MAC")
 				printf "%s %s\n" "$MAC" "${VENDOR:-$MAC}" >>"$TMP_UNKNOWN"
 				;;
@@ -141,11 +141,10 @@ DO_CONNECT() {
 	if bluetoothctl connect "$MAC" >/dev/null 2>&1; then
 		LOG_SUCCESS "$0" 0 "BTSCAN" "$(printf "Connected to '%s'" "$MAC")"
 
-		BT_KEYS="$MUOS_CONF_GLOBAL/bluetooth/lib"
-		mkdir -p "$BT_KEYS"
-		cp -a /var/lib/bluetooth/. "$BT_KEYS/" 2>/dev/null
-
-		"$(dirname "$0")/audio_sink.sh" set-bt "$MAC" &
+		BT_ICON=$(bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
+		case "$BT_ICON" in
+			audio-*) "$(dirname "$0")/audio_sink.sh" set-bt "$MAC" & ;;
+		esac
 	else
 		LOG_WARN "$0" 0 "BTSCAN" "$(printf "Connection to '%s' may have failed" "$MAC")"
 	fi

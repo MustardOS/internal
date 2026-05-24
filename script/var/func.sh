@@ -880,11 +880,10 @@ SETUP_SDL_ENVIRONMENT() {
 				case "$SEL" in
 					# honour "system" - otherwise use whatever was selected from content...
 					system)
-						if [ "$(GET_VAR "config" "settings/advanced/swap")" -eq 1 ]; then
-							GCDB_FILE="$GCDB_STORE/modern.txt"
-						else
-							GCDB_FILE="$GCDB_STORE/retro.txt"
-						fi
+						case "$(GET_VAR "config" "settings/remap/layout")" in
+							1) GCDB_FILE="$GCDB_STORE/modern.txt" ;;
+							*) GCDB_FILE="$GCDB_STORE/retro.txt" ;;
+						esac
 						;;
 					*) GCDB_FILE="$GCDB_STORE/$SEL.txt" ;;
 				esac
@@ -978,7 +977,7 @@ DETECT_CONTROL_SWAP() {
 		case "$CON_VAL" in
 			modern) DO_SWAP ;;
 			retro) ;;
-			*) [ "$(GET_VAR "config" "settings/advanced/swap")" -eq 1 ] && DO_SWAP ;;
+			*) [ "$(GET_VAR "config" "settings/remap/layout")" -eq 1 ] && DO_SWAP ;;
 		esac
 	fi
 

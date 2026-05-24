@@ -12,16 +12,21 @@ if [ -e "$CON_GO" ]; then
 fi
 
 if [ -z "$SELECTED_MAP" ]; then
-	if [ "$(GET_VAR "config" "settings/advanced/swap")" -eq 1 ]; then
-		SELECTED_MAP=modern
-	else
-		SELECTED_MAP=retro
-	fi
+	case "$(GET_VAR "config" "settings/remap/layout")" in
+		1) SELECTED_MAP=modern ;;
+		*) SELECTED_MAP=retro ;;
+	esac
+fi
+
+SRC="$MUOS_SHARE_DIR/info/gamecontrollerdb/${SELECTED_MAP}.txt"
+
+if [ ! -f "$SRC" ]; then
+	LOG_WARN "$0" 0 "SDL_MAP" "$(printf "Map '%s' not found, falling back to retro" "$SELECTED_MAP")"
+	SELECTED_MAP=retro
+	SRC="$MUOS_SHARE_DIR/info/gamecontrollerdb/retro.txt"
 fi
 
 LOG_INFO "$0" 0 "SDL_MAP" "$(printf "Linking SDL controller map: '%s'" "$SELECTED_MAP")"
-
-SRC="$MUOS_SHARE_DIR/info/gamecontrollerdb/${SELECTED_MAP}.txt"
 
 for LIB_D in lib lib32; do
 	BASE="/usr/$LIB_D"

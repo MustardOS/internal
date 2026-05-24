@@ -6,7 +6,7 @@ TARGET="$1"
 MAPPING="$2"
 
 [ -z "$TARGET" ] || [ -z "$MAPPING" ] && {
-	printf "Usage: %s <modern|retro|user> <mapping_line>\n" "$0"
+	printf "Usage: %s <modern|retro> <mapping_line>\n" "$0"
 	exit 1
 }
 
@@ -15,9 +15,6 @@ GCDB_DIR="$MUOS_SHARE_DIR/info/gamecontrollerdb"
 case "$TARGET" in
 	modern | retro)
 		DB_FILE="$GCDB_DIR/${TARGET}.txt"
-		;;
-	user)
-		DB_FILE="$GCDB_DIR/user.txt"
 		;;
 	*)
 		LOG_ERROR "$0" 0 "SDL_REMAP" "$(printf "Unknown target: '%s'" "$TARGET")"
@@ -35,12 +32,6 @@ fi
 
 LOG_INFO "$0" 0 "SDL_REMAP" "$(printf "Saving remap for GUID '%s' to '%s'" "$GUID" "$DB_FILE")"
 
-if [ "$TARGET" = "user" ]; then
-	printf "# muOS user input remap\n%s\n" "$MAPPING" >"$DB_FILE"
-	LOG_SUCCESS "$0" 0 "SDL_REMAP" "User remap written"
-	exit 0
-fi
-
 TMP_FILE="${DB_FILE}.tmp.$$"
 
 if [ -f "$DB_FILE" ]; then
@@ -52,5 +43,8 @@ fi
 
 printf "%s\n" "$MAPPING" >>"$TMP_FILE"
 mv -f "$TMP_FILE" "$DB_FILE"
+
+mkdir -p "$MUOS_CONF_GLOBAL/settings/remap"
+SET_VAR "config" "settings/remap/layout" "$([ "$TARGET" = modern ] && printf 1 || printf 0)"
 
 LOG_SUCCESS "$0" 0 "SDL_REMAP" "$(printf "Remap saved to '%s'" "$DB_FILE")"

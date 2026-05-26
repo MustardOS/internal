@@ -174,7 +174,12 @@ SAFE_ARCHIVE() {
 	}
 
 	if grep -E -q '^/|(^|/)\.\.(/|$)' "$ARCHIVE_CACHE_FILE"; then
-		printf "\nError: Archive contains unsafe paths (absolute or '..')\n" # Damn sith!
+		if [ -n "${MUOS_LOG_BIN:-}" ] && [ -x "${MUOS_LOG_BIN}" ]; then
+			grep -E '^/|(^|/)\.\.(/|$)' "$ARCHIVE_CACHE_FILE" | while IFS= read -r SA_LINE; do
+				"$MUOS_LOG_BIN" error "$0" 0 "EXTRACT" "Unsafe path in '${1##*/}': $SA_LINE"
+			done
+		fi
+		printf "\nError: Archive contains unsafe paths (absolute or '..')\n"
 		return 1
 	fi
 }

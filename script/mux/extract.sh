@@ -22,6 +22,13 @@ ALL_DONE() {
 	exit "${1:-0}"
 }
 
+REJECT_UNSAFE_ARCHIVE() {
+	"$MUOS_LOG_BIN" error "$0" 0 "EXTRACT" "$(printf "Rejected archive with unsafe paths: '%s'" "${1##*/}")"
+	printf "\nArchive blocked: '%s' contains unsafe file paths\n" "${1##*/}"
+	printf "Check system logs for details\n"
+	ALL_DONE 1
+}
+
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
 	LOG_ERROR "$0" 0 "EXTRACT" "$(printf "Invalid argument count: %s" "$#")"
 	printf "Usage: %s <archive> [mux module]\n" "$0"
@@ -72,6 +79,7 @@ case "$ARCHIVE_NAME" in
 		;;
 	*.muxthm)
 		LOG_INFO "$0" 0 "EXTRACT" "Detected theme archive (.muxthm)"
+		SAFE_ARCHIVE "$ARCHIVE" || REJECT_UNSAFE_ARCHIVE "$ARCHIVE"
 		if ! EXTRACT_ARCHIVE "Theme" "$ARCHIVE" "$MUOS_STORE_DIR/theme/$BASENAME"; then
 			LOG_ERROR "$0" 0 "EXTRACT" "Theme extraction failed"
 			printf "\nExtraction Failed...\n"
@@ -98,7 +106,7 @@ case "$ARCHIVE_NAME" in
 		;;
 	*.muxalt)
 		LOG_INFO "$0" 0 "EXTRACT" "Detected theme alternative archive (.muxalt)"
-		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
+		SAFE_ARCHIVE "$ARCHIVE" || REJECT_UNSAFE_ARCHIVE "$ARCHIVE"
 
 		ACTIVE="$(GET_VAR "config" "theme/active")"
 		if ! EXTRACT_ARCHIVE "Theme Alternative" "$ARCHIVE" "$MUOS_STORE_DIR/theme/$ACTIVE"; then
@@ -113,7 +121,7 @@ case "$ARCHIVE_NAME" in
 		;;
 	*.muxapp)
 		LOG_INFO "$0" 0 "EXTRACT" "Detected application archive (.muxapp)"
-		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
+		SAFE_ARCHIVE "$ARCHIVE" || REJECT_UNSAFE_ARCHIVE "$ARCHIVE"
 
 		if ! EXTRACT_ARCHIVE "Application" "$ARCHIVE" "$MUOS_STORE_DIR/application"; then
 			LOG_ERROR "$0" 0 "EXTRACT" "Application extraction failed"
@@ -123,7 +131,7 @@ case "$ARCHIVE_NAME" in
 		;;
 	*.muxupd)
 		LOG_INFO "$0" 0 "EXTRACT" "Detected system update archive (.muxupd)"
-		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
+		SAFE_ARCHIVE "$ARCHIVE" || REJECT_UNSAFE_ARCHIVE "$ARCHIVE"
 
 		if ! EXTRACT_ARCHIVE "System Update" "$ARCHIVE" "/"; then
 			LOG_ERROR "$0" 0 "EXTRACT" "System update extraction failed"
@@ -133,7 +141,7 @@ case "$ARCHIVE_NAME" in
 		;;
 	*.muxzip)
 		LOG_INFO "$0" 0 "EXTRACT" "Detected multi-section archive (.muxzip)"
-		SAFE_ARCHIVE "$ARCHIVE" || ALL_DONE 1
+		SAFE_ARCHIVE "$ARCHIVE" || REJECT_UNSAFE_ARCHIVE "$ARCHIVE"
 
 		printf "Scanning Archive Directories...\n"
 		if ! TOP_LEVEL="$(GET_TOP_LEVEL_DIRS "$ARCHIVE")"; then

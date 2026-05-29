@@ -105,7 +105,10 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Copying Default Friendly Name Files"
 SRC_DIR="$MUOS_SHARE_DIR/info"
 DST_DIR="$MUOS_DIR/info"
 cp -a "$SRC_DIR"/name/. "$DST_DIR/name/"
-cp -a "$SRC_DIR"/pass.ini "$SRC_DIR"/skip.ini "$DST_DIR/"
+cp -a "$SRC_DIR"/skip.ini "$DST_DIR/"
+
+LOG_INFO "$0" 0 "FACTORY RESET" "Resetting Passcode Configuration"
+rm -rf "$MUOS_DIR/config/passcode"
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Copying Default MustardOS Themes"
 SRC_DIR="$MUOS_SHARE_DIR/theme"

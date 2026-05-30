@@ -14,6 +14,7 @@ DO_LIST() {
 
 	if ! bluetoothctl show >/dev/null 2>&1; then
 		LOG_WARN "$0" 0 "BTDEVICE" "bluetoothd not ready - skipping list update"
+		: >"$BT_PAIRED"
 		return 0
 	fi
 

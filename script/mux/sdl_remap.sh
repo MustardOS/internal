@@ -33,16 +33,17 @@ fi
 LOG_INFO "$0" 0 "SDL_REMAP" "$(printf "Saving remap for GUID '%s' to '%s'" "$GUID" "$DB_FILE")"
 
 TMP_FILE="${DB_FILE}.tmp.$$"
+TMP_SWAP="${DB_FILE}.swap.$$"
 
 if [ -f "$DB_FILE" ]; then
-	# Remove any existing line for this GUID then append the new one
 	grep -v "^${GUID}," "$DB_FILE" >"$TMP_FILE" 2>/dev/null || : >"$TMP_FILE"
 else
 	: >"$TMP_FILE"
 fi
 
-printf "%s\n" "$MAPPING" >>"$TMP_FILE"
-mv -f "$TMP_FILE" "$DB_FILE"
+printf "%s\n" "$MAPPING" | cat - "$TMP_FILE" >"$TMP_SWAP"
+rm -f "$TMP_FILE"
+mv -f "$TMP_SWAP" "$DB_FILE"
 
 mkdir -p "$MUOS_CONF_GLOBAL/settings/remap"
 SET_VAR "config" "settings/remap/layout" "$([ "$TARGET" = modern ] && printf 1 || printf 0)"

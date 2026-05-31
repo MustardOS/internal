@@ -46,7 +46,7 @@ CLOSE_CONTENT() {
 		_I=$((_I + 1))
 	done
 
-	# Process did not respond to SIGTERM — escalate to SIGKILL.
+	# Process did not respond to SIGTERM - escalate to SIGKILL.
 	LOG_INFO "$0" 0 "QUIT" "$(printf "Escalating to SIGKILL (%s)..." "$FG_PROC_VAL")"
 
 	_I=0

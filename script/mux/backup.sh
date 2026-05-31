@@ -103,7 +103,7 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 
 		if command -v ARC_CREATE_PRE >/dev/null 2>&1; then
 			if ! ARC_CREATE_PRE; then
-				printf "\nPre-create hook failed for: %s — skipping\n" "$SRC_SHORTNAME"
+				printf "\nPre-create hook failed for: %s - skipping\n" "$SRC_SHORTNAME"
 				ARC_UNSET
 				continue
 			fi

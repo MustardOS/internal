@@ -155,7 +155,7 @@ fi
 # ===================== [Added] Early branch end =====================
 
 case "$CORE" in
-	# Rice 4:3 — 720x720 is the only exception, the rest are calculated in 4:3 width based on height.
+	# Rice 4:3 - 720x720 is the only exception, the rest are calculated in 4:3 width based on height.
 	ext-mupen64plus-rice)
 		if [ "$XRES" -eq 720 ] && [ "$YRES" -eq 720 ]; then
 			EXTRA_ARGS="$BASE --datadir $DATADIR --gfx $RICE_SO --resolution 720x540 --set Video-Rice[VerticalOffset]=90 --set Video-Rice[ResolutionWidth]=720 --set Video-Rice[ResolutionHeight]=540"

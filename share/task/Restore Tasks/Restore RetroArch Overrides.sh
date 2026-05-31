@@ -48,7 +48,7 @@ SPACE_REQ="$(GET_ARCHIVE_BYTES "$RA_CONF_ZIP" "")"
 
 if command -v ARC_EXTRACT_PRE >/dev/null 2>&1; then
 	if ! ARC_EXTRACT_PRE; then
-		printf "\nPre-extract hook failed for: %s — skipping\n" "$TOP"
+		printf "\nPre-extract hook failed for: %s - skipping\n" "$TOP"
 		ARC_UNSET
 	fi
 fi

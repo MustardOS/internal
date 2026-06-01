@@ -6,27 +6,38 @@ LOG_INFO "$0" 0 "BTDEVICE" "Bluetooth device management starting"
 
 BT_DIR="$MUOS_CONF_GLOBAL/bluetooth"
 BT_PAIRED="$BT_DIR/paired"
+BT_DEVICE_LOCK="$BT_DIR/device.lock"
 
 mkdir -p "$BT_DIR"
 
 DO_LIST() {
+	if [ -f "$BT_DEVICE_LOCK" ]; then
+		LOCK_PID=$(cat "$BT_DEVICE_LOCK" 2>/dev/null)
+		if [ -n "$LOCK_PID" ] && kill -0 "$LOCK_PID" 2>/dev/null; then
+			LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Device list already in progress (PID %s) - skipping" "$LOCK_PID")"
+			exit 0
+		fi
+		rm -f "$BT_DEVICE_LOCK"
+	fi
+	printf "%s" "$$" >"$BT_DEVICE_LOCK"
+	trap 'rm -f "$BT_DEVICE_LOCK"' EXIT
 	LOG_INFO "$0" 0 "BTDEVICE" "Listing paired Bluetooth devices"
 
-	if ! bluetoothctl show >/dev/null 2>&1; then
+	if ! timeout 3 bluetoothctl show >/dev/null 2>&1; then
 		LOG_WARN "$0" 0 "BTDEVICE" "bluetoothd not ready - skipping list update"
 		: >"$BT_PAIRED"
 		return 0
 	fi
 
-	CONNECTED_MACS=$(bluetoothctl devices Connected 2>/dev/null | awk '{ print $2 }')
+	CONNECTED_MACS=$(timeout 5 bluetoothctl devices Connected 2>/dev/null | awk '{ print $2 }')
 
 	TMP_BT_PAIR="$BT_DIR/paired.tmp.$$"
 	: >"$TMP_BT_PAIR"
 
 	{
-		bluetoothctl devices Paired 2>/dev/null
-		bluetoothctl devices Trusted 2>/dev/null
-		bluetoothctl devices Connected 2>/dev/null
+		timeout 5 bluetoothctl devices Paired 2>/dev/null
+		timeout 5 bluetoothctl devices Trusted 2>/dev/null
+		timeout 5 bluetoothctl devices Connected 2>/dev/null
 	} | awk '!seen[$2]++' | while IFS= read -r LINE; do
 		MAC=$(printf "%s" "$LINE" | awk '{ print $2 }')
 		NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
@@ -64,7 +75,7 @@ DO_LIST() {
 			ENTRY_NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
 			if [ "$ENTRY_CONN" = "0" ] && printf "%s\n" "$CONNECTED_NAMES" | grep -qxF "$ENTRY_NAME" 2>/dev/null; then
 				LOG_DEBUG "$0" 0 "BTDEVICE" "$(printf "Removing stale pairing '%s' (%s)" "$ENTRY_NAME" "$ENTRY_MAC")"
-				bluetoothctl remove "$ENTRY_MAC" >/dev/null 2>&1
+				timeout 5 bluetoothctl remove "$ENTRY_MAC" >/dev/null 2>&1
 				MAC_CLEAN=$(printf "%s" "$ENTRY_MAC" | tr ':' '_')
 				rm -f "$BT_DIR/alias_$MAC_CLEAN" "$BT_DIR/type_$MAC_CLEAN"
 			else
@@ -275,7 +286,7 @@ DO_AUTOCONNECT() {
 		printf "scan on\n"
 		sleep 8
 		printf "scan off\n"
-	) | bluetoothctl >/dev/null 2>&1
+	) | timeout 15 bluetoothctl >/dev/null 2>&1
 
 	while IFS= read -r LINE; do
 		MAC=$(printf "%s" "$LINE" | awk '{ print $1 }')

@@ -7,6 +7,7 @@ LOG_INFO "$0" 0 "BTSCAN" "Bluetooth scan manager starting"
 BT_DIR="$MUOS_CONF_GLOBAL/bluetooth"
 BT_SCAN="$BT_DIR/scan"
 BT_PAIRED="$BT_DIR/paired"
+BT_SCAN_LOCK="$BT_DIR/scan.lock"
 SCAN_TIMEOUT=10 # Is this enough?
 
 mkdir -p "$BT_DIR"
@@ -30,6 +31,17 @@ OUI_LOOKUP() {
 }
 
 DO_LIST() {
+	if [ -f "$BT_SCAN_LOCK" ]; then
+		LOCK_PID=$(cat "$BT_SCAN_LOCK" 2>/dev/null)
+		if [ -n "$LOCK_PID" ] && kill -0 "$LOCK_PID" 2>/dev/null; then
+			LOG_INFO "$0" 0 "BTSCAN" "$(printf "Scan already in progress (PID %s) - skipping" "$LOCK_PID")"
+			exit 0
+		fi
+		rm -f "$BT_SCAN_LOCK"
+	fi
+	printf "%s" "$$" >"$BT_SCAN_LOCK"
+	trap 'rm -f "$BT_SCAN_LOCK"' EXIT
+
 	LOG_INFO "$0" 0 "BTSCAN" "$(printf "Scanning for nearby Bluetooth devices (%ss)" "$SCAN_TIMEOUT")"
 
 	# Apparently it needs to be powered on even though it is... powered on?
@@ -42,7 +54,7 @@ DO_LIST() {
 		printf "scan on\n"
 		sleep "$SCAN_TIMEOUT"
 		printf "scan off\n"
-	) | bluetoothctl 2>/dev/null | while IFS= read -r LINE; do
+	) | timeout $((SCAN_TIMEOUT + 5)) bluetoothctl 2>/dev/null | while IFS= read -r LINE; do
 		MAC=""
 		NAME=""
 		case "$LINE" in
@@ -67,7 +79,7 @@ DO_LIST() {
 	: >"$TMP_NAMED"
 	: >"$TMP_UNKNOWN"
 
-	CONNECTED_MACS=$(bluetoothctl devices Connected 2>/dev/null | awk '{print $2}')
+	CONNECTED_MACS=$(timeout 5 bluetoothctl devices Connected 2>/dev/null | awk '{print $2}')
 	TRUSTED_MACS=$(
 		for ADAPTER_DIR in /var/lib/bluetooth/??:??:??:??:??:??/; do
 			[ -d "$ADAPTER_DIR" ] || continue

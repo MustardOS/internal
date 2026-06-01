@@ -60,6 +60,12 @@ DO_START() {
 	case "$BOARD_NAME" in
 		rg-vita*) ;; # Add this at some stage...
 		rg*)
+			NET_NAME=$(GET_VAR "device" "network/name")
+			HAS_NETWORK=$(GET_VAR "device" "board/network")
+			if [ "${HAS_NETWORK:-0}" -ne 0 ] && [ -n "$NET_NAME" ] && ! grep -q "^$NET_NAME " /proc/modules 2>/dev/null; then
+				LOG_INFO "$0" 0 "BLUETOOTH" "Loading network module required..."
+				/opt/muos/script/init/async/S02network.sh load
+			fi
 			LOG_INFO "$0" 0 "BLUETOOTH" "Attaching Realtek HCI (rg variant)"
 			modprobe /lib/modules/4.9.170/kernel/drivers/bluetooth/rtl_btlpm.ko
 			rtk_hciattach -n -s 115200 /dev/ttyS1 rtk_h5 >/dev/null 2>&1 &

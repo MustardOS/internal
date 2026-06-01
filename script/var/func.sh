@@ -1237,7 +1237,7 @@ EOF
 		cp -f "$SRC" "$TMP_FG"
 	fi
 
-	magick "$TMP_FG" "$TMP_BG" -compose Dst_Over -composite "$TMP_OUT"
+	magick "$TMP_FG" "$TMP_BG" -compose Dst_Over -composite -alpha off BMP3:"$TMP_OUT"
 	case "$OUT" in
 		*.bmp | *.BMP) magick "$TMP_OUT" BMP3:"$OUT" ;;
 		*) mv -f "$TMP_OUT" "$OUT" ;;
@@ -1251,12 +1251,14 @@ RESOLVE_ROLE_IMAGE() {
 	OUT="$2"
 
 	for BASE in "$THEME_DIR/$RES_DIR/image/$ROLE" "$THEME_DIR/image/$ROLE"; do
+		printf "Checking path: %s\n" "$BASE.png"
 		if [ -f "$BASE.png" ]; then
 			printf "Found %s PNG: %s\n" "$ROLE" "$BASE.png"
 			THEME_PNG_IMAGE "$ROLE" "$BASE.png" "$OUT"
 			return 0
 		fi
 
+		printf "Checking path: %s\n" "$BASE.bmp"
 		if [ -f "$BASE.bmp" ]; then
 			printf "Found %s BMP: %s\n" "$ROLE" "$BASE.bmp"
 			cp -f "$BASE.bmp" "$OUT"

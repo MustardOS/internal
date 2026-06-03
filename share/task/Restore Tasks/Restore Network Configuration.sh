@@ -6,6 +6,9 @@
 
 FRONTEND stop
 
+echo "Stopping Network Interface"
+/opt/muos/script/init/async/S02network.sh stop
+
 echo "Reverting to original network settings"
 SET_VAR "config" "network/type" "0"
 SET_VAR "config" "network/ssid" ""
@@ -18,9 +21,6 @@ SET_VAR "config" "network/dns" "1.1.1.1"
 
 echo "Removing WPA Supplicant"
 rm -rf "/etc/wpa_supplicant.conf"
-
-echo "Restarting Network Interface"
-/opt/muos/script/system/network.sh connect &
 
 echo "Sync Filesystem"
 sync

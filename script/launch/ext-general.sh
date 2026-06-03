@@ -14,7 +14,10 @@ LOG_INFO "$0" 0 "FILE" "$FILE"
 HOME="$(GET_VAR "device" "board/home")"
 export HOME
 
-#SETUP_STAGE_OVERLAY
+if [ "$CORE" != "external" ]; then
+    SETUP_STAGE_OVERLAY
+fi
+
 SETUP_SDL_ENVIRONMENT
 
 SET_VAR "system" "foreground_process" "external"

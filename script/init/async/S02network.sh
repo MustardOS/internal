@@ -2,6 +2,10 @@
 
 . /opt/muos/script/var/func.sh
 
+case "$1" in
+	start | restart) DEL_VAR "config" "network/*" ;;
+esac
+
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 BOARD_NAME=$(GET_VAR "device" "board/name")
 
@@ -33,7 +37,7 @@ SD2_HOST="$(GET_VAR "device" "storage/sdcard/mount")/$CUS_HOST"
 
 SCN_PATH="/sys/class/net"
 RESOLV_CONF="/etc/resolv.conf"
-DHCP_CONF_SRC="/opt/muos/share/conf/dhcpcd.conf"
+DHCP_CONF_SRC="${MUOS_SHARE_DIR}/conf/dhcpcd.conf"
 DHCP_CONF_RUN="$MUOS_RUN_DIR/dhcpcd.conf"
 DHCPCD_LOG="$MUOS_RUN_DIR/dhcpcd.log"
 STATUS_FILE="$MUOS_RUN_DIR/network.status"
@@ -618,8 +622,99 @@ VALIDATE_NETWORK() {
 	FAIL_WITH "FAILED" "$RC_FAIL"
 }
 
+BUILD_PROFILE_WPA_CONFIG() {
+	PROFILE_DIR="${MUOS_SHARE_DIR}/network"
+	[ -d "$PROFILE_DIR" ] || return 1
+
+	: >"$WPA_CONFIG"
+
+	for NET_PROF in "$PROFILE_DIR"/*.ini; do
+		[ -f "$NET_PROF" ] || continue
+
+		NET_PROF_AC=$(PARSE_INI "$NET_PROF" "network" "autoconnect")
+		[ "${NET_PROF_AC:-1}" -eq 1 ] || continue
+
+		NET_PROF_SSID=$(PARSE_INI "$NET_PROF" "network" "ssid")
+		[ -z "$NET_PROF_SSID" ] && continue
+
+		NET_PROF_PASS=$(PARSE_INI "$NET_PROF" "network" "pass")
+		NET_PROF_PR=$(PARSE_INI "$NET_PROF" "network" "priority")
+
+		NET_PROF_WPA=$((9 - ${NET_PROF_PR:-5}))
+		NET_PROF_SSID_WPA=$(printf '%s' "$NET_PROF_SSID" | sed 's/\\/\\\\/g; s/"/\\"/g')
+
+		case ${#NET_PROF_PASS} in
+			64)
+				printf "network={\n\tssid=\"%s\"\n\tscan_ssid=1\n\tpsk=%s\n\tpriority=%s\n}\n" \
+					"$NET_PROF_SSID_WPA" "$NET_PROF_PASS" "$NET_PROF_WPA" >>"$WPA_CONFIG"
+				;;
+			0)
+				printf "network={\n\tssid=\"%s\"\n\tscan_ssid=1\n\tkey_mgmt=NONE\n\tpriority=%s\n}\n" \
+					"$NET_PROF_SSID_WPA" "$NET_PROF_WPA" >>"$WPA_CONFIG"
+				;;
+			*)
+				NET_PROF_TMP=$(mktemp)
+				wpa_passphrase "$NET_PROF_SSID" "$NET_PROF_PASS" >"$NET_PROF_TMP"
+
+				NET_PROF_PSK=$(sed -n '/^[[:space:]]*psk=/s/^[[:space:]]*psk=//p' "$NET_PROF_TMP")
+				rm -f "$NET_PROF_TMP"
+
+				printf "network={\n\tssid=\"%s\"\n\tscan_ssid=1\n\tpsk=%s\n\tpriority=%s\n}\n" \
+					"$NET_PROF_SSID_WPA" "$NET_PROF_PSK" "$NET_PROF_WPA" >>"$WPA_CONFIG"
+				;;
+		esac
+	done
+
+	[ -s "$WPA_CONFIG" ] || return 1
+	return 0
+}
+
+WIFI_CONFIG_PROFILES() {
+	[ "$IFCE" = "eth0" ] && return 0
+
+	LOG_INFO "$0" 0 "NETWORK" "No active profile; scanning saved auto profiles"
+
+	BUILD_PROFILE_WPA_CONFIG || {
+		LOG_INFO "$0" 0 "NETWORK" "No auto-connect profiles available"
+		return 0
+	}
+
+	NET_STATUS "AUTHENTICATING"
+
+	case "$NET_DRIVER_TYPE" in
+		wext)
+			if ! wpa_supplicant -B -i "$IFCE" -c "$WPA_CONFIG" -D wext; then
+				LOG_ERROR "$0" 0 "NETWORK" "Failed to start WPA Supplicant (wext)"
+				FAIL_WITH "WPA_START_FAILED" "$RC_WPA_START_FAILED"
+				return $?
+			fi
+			;;
+		nl80211)
+			if ! wpa_supplicant -B -i "$IFCE" -c "$WPA_CONFIG" -D nl80211; then
+				LOG_ERROR "$0" 0 "NETWORK" "Failed to start WPA Supplicant (nl80211)"
+				FAIL_WITH "WPA_START_FAILED" "$RC_WPA_START_FAILED"
+				return $?
+			fi
+			;;
+	esac
+
+	NET_STATUS "ASSOCIATING"
+	WAIT_NETWORK_ASSOC || return $?
+	WAIT_CARRIER || return $?
+
+	case "$NET_DRIVER_TYPE" in
+		wext) SSID=$(iwconfig "$IFCE" 2>/dev/null | awk -F'"' '/ESSID:/ {print $2}') ;;
+		nl80211) SSID=$(iw dev "$IFCE" link 2>/dev/null | awk '/SSID:/ {print $2}') ;;
+	esac
+
+	[ -n "$SSID" ] && SET_VAR "config" "network/ssid" "$SSID"
+
+	return 0
+}
+
 TRY_CONNECT() {
-	[ -z "$SSID" ] && [ "$IFCE" != "eth0" ] && return 0
+	MULTI_PROFILE=0
+	[ -z "$SSID" ] && [ "$IFCE" != "eth0" ] && MULTI_PROFILE=1
 
 	rfkill unblock all
 
@@ -644,12 +739,18 @@ TRY_CONNECT() {
 
 	sleep 1
 
-	WIFI_CONFIG || return $?
-
-	if [ "${TYPE:-0}" -eq 0 ]; then
+	if [ "$MULTI_PROFILE" -eq 1 ]; then
+		WIFI_CONFIG_PROFILES || return $?
+		[ -z "$SSID" ] && return 0
 		IP_DHCP || return $?
 	else
-		IP_STATIC || return $?
+		WIFI_CONFIG || return $?
+
+		if [ "${TYPE:-0}" -eq 0 ]; then
+			IP_DHCP || return $?
+		else
+			IP_STATIC || return $?
+		fi
 	fi
 
 	sleep 1

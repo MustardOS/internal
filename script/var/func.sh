@@ -91,7 +91,10 @@ SET_VAR() {
 	[ -n "$BASE" ] || return 0
 
 	TMP="${BASE}/${2}.tmp.$$"
-	printf "%s" "$3" >"$TMP" && mv -f "$TMP" "$BASE/$2" || { rm -f "$TMP"; return 1; }
+	printf "%s" "$3" >"$TMP" && mv -f "$TMP" "$BASE/$2" || {
+		rm -f "$TMP"
+		return 1
+	}
 }
 
 GET_VAR() {
@@ -114,6 +117,55 @@ GET_VAR() {
 	VAL=${VAL%"$CR"}
 
 	printf "%s" "$VAL"
+}
+
+DEL_VAR() {
+	BASE=
+	case "$1" in
+		GLOBAL | global | CONFIG | config) BASE=$MUOS_CONF_GLOBAL ;;
+		DEVICE | device) BASE=$MUOS_CONF_DEVICE ;;
+		KIOSK | kiosk) BASE=$MUOS_CONF_KIOSK ;;
+		SYSTEM | system) BASE=$MUOS_CONF_SYSTEM ;;
+	esac
+
+	[ -n "$BASE" ] || return 0
+
+	DIR=$(dirname "$2")
+	PATTERN=$(basename "$2")
+	FULL_DIR="$BASE/$DIR"
+
+	[ -d "$FULL_DIR" ] || return 0
+
+	case "$PATTERN" in
+		\**)
+			EXCL_SPEC="${PATTERN#\*}"
+			EXCLUDES=
+
+			if [ -n "$EXCL_SPEC" ]; then
+				OLD_IFS="$IFS"
+				IFS='|'
+				for TOKEN in $EXCL_SPEC; do
+					EXCLUDES="$EXCLUDES ${TOKEN#!}"
+				done
+				IFS="$OLD_IFS"
+			fi
+
+			for FILE in "$FULL_DIR"/*; do
+				[ -f "$FILE" ] || continue
+				FNAME=$(basename "$FILE")
+
+				SKIP=0
+				for EXCL in $EXCLUDES; do
+					[ "$FNAME" = "$EXCL" ] && SKIP=1 && break
+				done
+
+				[ "$SKIP" -eq 0 ] && rm -f "$FILE"
+			done
+			;;
+		*)
+			rm -f "$FULL_DIR/$PATTERN"
+			;;
+	esac
 }
 
 SETUP_STAGE_OVERLAY() {

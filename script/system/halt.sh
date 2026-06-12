@@ -138,7 +138,7 @@ STOP_DIR() {
 		return 0
 	fi
 
-	echo "$SCRIPT_LIST" | while IFS= read -r SCRIPT; do
+	printf '%s\n' "$SCRIPT_LIST" | while IFS= read -r SCRIPT; do
 		[ -f "$SCRIPT" ] || continue
 		NAME=$(basename "$SCRIPT")
 		LOG_INFO "$0" 0 "HALT" "$(printf "Stopping %s (%s)" "$NAME" "$LABEL")"

@@ -1,18 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
-
-NAME=$1
-CORE=$2
-FILE=${3%/}
-
-LOG_INFO "$0" 0 "Content Launch" "DETAIL"
-LOG_INFO "$0" 0 "NAME" "$NAME"
-LOG_INFO "$0" 0 "CORE" "$CORE"
-LOG_INFO "$0" 0 "FILE" "$FILE"
-
-HOME="$(GET_VAR "device" "board/home")"
-export HOME
+. /opt/muos/script/var/launch.sh
 
 SETUP_STAGE_OVERLAY
 SETUP_SDL_ENVIRONMENT
@@ -31,24 +20,24 @@ if [ ! -f "$EMU" ]; then
 	[ ! -f "$EMU" ] && EMU="$EMUDIR/$P8_BIN"
 fi
 
-# Did the user select standard or Pixel Perfect scaler?
-if [ "$CORE" = "ext-pico8-scale" ]; then
-	PICO_FLAGS="-windowed 0"
-elif [ "$CORE" = "ext-pico8-pixel" ]; then
-	PICO_FLAGS="-windowed 0 -pixel_perfect 1"
-fi
-
 chmod +x "$EMU" "$EMUDIR"/wget
 cd "$EMUDIR" || exit
 
 GPTOKEYB "$P8_BIN" "$CORE"
 
-set -- -root_path "$(dirname "$FILE")"
-case $NAME in
-    [Ss]plore*|-[Ss]plore-*) set -- "$@" -splore ;;
-    *) set -- "$@" -run "$FILE" ;;
+# Build flag args, then append game path args
+case "$CORE" in
+	ext-pico8-scale) set -- -windowed 0 ;;
+	ext-pico8-pixel) set -- -windowed 0 -pixel_perfect 1 ;;
+	*) set -- ;;
 esac
-PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" $PICO_FLAGS "$@"
+
+set -- "$@" -root_path "$(dirname "$FILE")"
+case $NAME in
+	[Ss]plore* | -[Ss]plore-*) set -- "$@" -splore ;;
+	*) set -- "$@" -run "$FILE" ;;
+esac
+PATH="$EMUDIR:$PATH" HOME="$EMUDIR" "$EMU" "$@"
 
 FAVOURITE="$MUOS_STORE_DIR/save/pico8/favourites.txt"
 if [ -e "$FAVOURITE" ]; then
@@ -62,8 +51,10 @@ if [ -e "$FAVOURITE" ]; then
 	# TODO: Work out what these other fields mean?! (maybe useful?)
 	while IFS='|' read -r _ RAW_NAME _ _ _ _ GOOD_NAME; do
 		[ -z "$GOOD_NAME" ] || [ -z "$RAW_NAME" ] && continue
-		RAW_NAME=$(echo "$RAW_NAME" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[[:space:]]\+//g')
-		GOOD_NAME=$(echo "$GOOD_NAME" | sed -E 's/.*\|//;s/^[[:space:]]+|[[:space:]]+$//;s/\b(.)/\u\1/g' | tr -d ':')
+
+		RAW_NAME=$(printf '%s\n' "$RAW_NAME" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/[[:space:]]//g')
+		GOOD_NAME=$(printf '%s\n' "$GOOD_NAME" | sed 's/.*|//;s/^[[:space:]]*//;s/[[:space:]]*$//' | tr -d ':')
+		GOOD_NAME=$(CAPITALISE "$GOOD_NAME")
 
 		P8_SRC_EXT="p8.png"
 		DEST_EXT="p8"

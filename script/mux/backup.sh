@@ -173,7 +173,7 @@ fi
 # Remove the manifest file
 [ -f "$MANIFEST_FILE" ] && rm -f "$MANIFEST_FILE"
 
-echo "Sync Filesystem"
+printf "Sync Filesystem\n"
 sync
 
 sleep 3

@@ -1,25 +1,14 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
-
-NAME=$1
-CORE=$2
-FILE=${3%/}
-
-LOG_INFO "$0" 0 "Content Launch" "DETAIL"
-LOG_INFO "$0" 0 "NAME" "$NAME"
-LOG_INFO "$0" 0 "CORE" "$CORE"
-LOG_INFO "$0" 0 "FILE" "$FILE"
-
-HOME="$(GET_VAR "device" "board/home")"
-export HOME
+. /opt/muos/script/var/launch.sh
 
 SETUP_STAGE_OVERLAY
 SETUP_SDL_ENVIRONMENT skip_blitter
 
 SET_VAR "system" "foreground_process" "scummvm"
 
-F_PATH=$(echo "$FILE" | awk -F'/' '{NF--; print}' OFS='/')
+F_PATH=$(dirname "$FILE")
 SCVM=$(tr -d '[:space:]' <"$F_PATH/$NAME.scummvm" | head -n 1)
 
 if [ -d "$F_PATH/.$NAME" ]; then
@@ -38,7 +27,6 @@ CONFIG="$EMUDIR/.config/scummvm/scummvm.ini"
 LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/scummvm/log.txt"
 SAVE="$MUOS_STORE_DIR/save/file/ScummVM-Ext"
 
-# Create log folder if it doesn't exist
 mkdir -p "$(GET_VAR "device" "storage/rom/mount")/MUOS/log/scummvm"
 
 mkdir -p "$SAVE"
@@ -46,8 +34,7 @@ chmod +x "$EMUDIR"/scummvm
 
 cd "$EMUDIR" || exit
 
-extract_gameid() {
-	# Extract gameid from scummvm.ini
+EXTRACT_GAMEID() {
 	GAMEID=$(awk -v target_path="$F_PATH$SUBFOLDER" '
         /^\[.*\]/ {
             section=$0
@@ -60,8 +47,7 @@ extract_gameid() {
         }
     ' "$CONFIG")
 
-	# Write gameid to .scummvm file.
-	echo "$GAMEID" >"$F_PATH/$NAME.scummvm"
+	printf "%s" "$GAMEID" >"$F_PATH/$NAME.scummvm"
 }
 
 case "$SCVM" in
@@ -73,13 +59,13 @@ case "$SCVM" in
 		if ! grep -q "\[grim-win\]" "$CONFIG"; then
 			cat "$GRIMINI" >>"$CONFIG"
 		fi
-		extract_gameid
+		EXTRACT_GAMEID
 		;;
 	*:* | "")
 		# Legacy ScummVM entry found or game .scummvm file is blank.
 		# Auto Detect gameid based on game files and add to scummvm.ini
 		HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH$SUBFOLDER" --add
-		extract_gameid
+		EXTRACT_GAMEID
 		;;
 	*)
 		# Game .scummvm file contains gameid entry.
@@ -95,7 +81,7 @@ DPAD_SWAP=$(GET_VAR "device" "board/swap")
 # Switch analogue<>dpad for stickless devices
 [ "$(GET_VAR "device" "board/stick")" -eq 0 ] && STICK_ROT=2 || STICK_ROT=0
 case "$(GET_VAR "device" "board/name")" in
-	rg*) echo "$STICK_ROT" >"$DPAD_SWAP" ;;
+	rg*) printf "%s" "$STICK_ROT" >"$DPAD_SWAP" ;;
 	tui*) [ ! -f "$DPAD_SWAP" ] && touch "$DPAD_SWAP" ;;
 	*) ;;
 esac
@@ -106,10 +92,5 @@ SCVM=$(tr -d '[:space:]' <"$F_PATH/$NAME.scummvm" | head -n 1)
 # Launch game.
 HOME="$EMUDIR" ./scummvm --logfile="$LOGPATH" --joystick=0 --config="$CONFIG" -p "$F_PATH$SUBFOLDER" "$SCVM"
 
-# Switch analogue<>dpad back so we can navigate muX
-[ "$(GET_VAR "device" "board/stick")" -eq 0 ]
-case "$(GET_VAR "device" "board/name")" in
-	rg*) echo 0 >"$DPAD_SWAP" ;;
-	tui*) [ -f "$DPAD_SWAP" ] && rm -f "$DPAD_SWAP" ;;
-	*) ;;
-esac
+# Reset analogue<>dpad so we can navigate muOS
+RESET_DPAD_MODE

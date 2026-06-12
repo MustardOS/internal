@@ -1,18 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
-
-NAME=$1
-CORE=$2
-FILE=${3%/}
-
-LOG_INFO "$0" 0 "Content Launch" "DETAIL"
-LOG_INFO "$0" 0 "NAME" "$NAME"
-LOG_INFO "$0" 0 "CORE" "$CORE"
-LOG_INFO "$0" 0 "FILE" "$FILE"
-
-HOME="$(GET_VAR "device" "board/home")"
-export HOME
+. /opt/muos/script/var/launch.sh
 
 SETUP_STAGE_OVERLAY
 SETUP_SDL_ENVIRONMENT
@@ -22,7 +11,7 @@ SET_VAR "system" "foreground_process" "retroarch"
 RA_ARGS=$(CONFIGURE_RETROARCH)
 IS_SWAP=$(DETECT_CONTROL_SWAP)
 
-F_PATH=$(echo "$FILE" | awk -F'/' '{NF--; print}' OFS='/')
+F_PATH=$(dirname "$FILE")
 
 DOOM_RUNNER="$F_PATH/$NAME.doom"
 WAD_DIR="$F_PATH/.WAD"
@@ -91,7 +80,7 @@ for FILE in $DEHS; do
 	fi
 done
 
-[ $COPY_DONE -eq 1 ] && SHOW_MESSAGE 100 "Loading DOOM Content\n\nSuccess!" && sleep 0.5
+[ "$COPY_DONE" -eq 1 ] && SHOW_MESSAGE 100 "Loading DOOM Content\n\nSuccess!" && sleep 0.5
 
 MESSAGE stop
 
@@ -101,6 +90,8 @@ PRBW="$TARGET_DIR/${NAME}_prboom.wad"
 cp -f "$DOOM_RUNNER" "$PRBC"
 cp -f "$MUOS_STORE_DIR/bios/prboom.wad" "$PRBW"
 
-retroarch -v -f $RA_ARGS -L "$MUOS_SHARE_DIR/core/prboom_libretro.so" "$PRBW"
+set -- -v -f
+[ -n "$RA_ARGS" ] && set -- "$@" "$RA_ARGS"
+retroarch "$@" -L "$MUOS_SHARE_DIR/core/prboom_libretro.so" "$PRBW"
 
 [ "$IS_SWAP" -eq 1 ] && DETECT_CONTROL_SWAP

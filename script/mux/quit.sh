@@ -111,7 +111,10 @@ HALT_SYSTEM() {
 
 	LOG_INFO "$0" 0 "QUIT" "Detect if 'osf' or 'sleep' was triggered"
 	case "$HALT_SRC" in
-		osf) CLEAR_LAST_PLAY ;;
+		osf)
+			DISPLAY_BLANK
+			CLEAR_LAST_PLAY
+			;;
 		sleep)
 			DISPLAY_BLANK
 			CLOSE_CONTENT

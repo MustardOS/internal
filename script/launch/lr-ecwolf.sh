@@ -1,18 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
-
-NAME=$1
-CORE=$2
-FILE=${3%/}
-
-LOG_INFO "$0" 0 "Content Launch" "DETAIL"
-LOG_INFO "$0" 0 "NAME" "$NAME"
-LOG_INFO "$0" 0 "CORE" "$CORE"
-LOG_INFO "$0" 0 "FILE" "$FILE"
-
-HOME="$(GET_VAR "device" "board/home")"
-export HOME
+. /opt/muos/script/var/launch.sh
 
 SETUP_STAGE_OVERLAY
 SETUP_SDL_ENVIRONMENT
@@ -22,7 +11,7 @@ SET_VAR "system" "foreground_process" "retroarch"
 RA_ARGS=$(CONFIGURE_RETROARCH)
 IS_SWAP=$(DETECT_CONTROL_SWAP)
 
-F_PATH=$(echo "$FILE" | awk -F'/' '{NF--; print}' OFS='/')
+F_PATH=$(dirname "$FILE")
 
 WOLF_RUNNER="$F_PATH/$NAME.wolf"
 
@@ -35,7 +24,9 @@ FAKE_WOLF_EXE="$F_PATH/.$NAME/$(basename "$NAME").EXE"
 # We do this so that save states are not mixed...
 cp "$REAL_WOLF_EXE" "$FAKE_WOLF_EXE"
 
-retroarch -v -f $RA_ARGS -L "$MUOS_SHARE_DIR/core/ecwolf_libretro.so" "$FAKE_WOLF_EXE"
+set -- -v -f
+[ -n "$RA_ARGS" ] && set -- "$@" "$RA_ARGS"
+retroarch "$@" -L "$MUOS_SHARE_DIR/core/ecwolf_libretro.so" "$FAKE_WOLF_EXE"
 
 rm -f "$FAKE_WOLF_EXE"
 

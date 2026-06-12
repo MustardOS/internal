@@ -1,5 +1,4 @@
 #!/bin/sh
-# shellcheck disable=SC2086
 
 . /opt/muos/script/var/func.sh
 

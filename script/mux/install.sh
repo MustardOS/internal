@@ -2,8 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-ACT_GO=/tmp/act_go
-
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
 if [ "$(GET_VAR "config" "settings/advanced/audio_ready")" -eq 1 ]; then
 	until [ "$(GET_VAR "device" "audio/ready")" -eq 1 ]; do sleep 0.1; done

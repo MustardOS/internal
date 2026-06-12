@@ -1,5 +1,4 @@
 #!/bin/sh
-# shellcheck disable=SC2086
 
 MUX_LIB="/opt/muos/frontend/lib"
 
@@ -91,10 +90,10 @@ SET_VAR() {
 	[ -n "$BASE" ] || return 0
 
 	TMP="${BASE}/${2}.tmp.$$"
-	printf "%s" "$3" >"$TMP" && mv -f "$TMP" "$BASE/$2" || {
+	if ! { printf "%s" "$3" >"$TMP" && mv -f "$TMP" "$BASE/$2"; }; then
 		rm -f "$TMP"
 		return 1
-	}
+	fi
 }
 
 GET_VAR() {
@@ -983,7 +982,7 @@ SETUP_SDL_ENVIRONMENT() {
 }
 
 SETUP_APP() {
-	echo app >"/tmp/act_go"
+	printf "app\n" >"/tmp/act_go"
 
 	GOV_GO="/tmp/gov_go"
 	[ -e "$GOV_GO" ] && cp -f "$GOV_GO" "$(GET_VAR "device" "cpu/governor")"
@@ -1135,7 +1134,7 @@ CONFIGURE_RETROARCH() {
 	[ -e "$CHEEVOS_CONF" ] && APPEND_LIST="${APPEND_LIST}${APPEND_LIST:+|}$CHEEVOS_CONF"
 
 	[ -n "$APPEND_LIST" ] && EXTRA_ARGS="--appendconfig=$APPEND_LIST"
-	echo "$EXTRA_ARGS"
+	printf '%s\n' "$EXTRA_ARGS"
 }
 
 CHECK_EXIST() {
@@ -1474,10 +1473,10 @@ EOF
 
 	[ -z "$BACKGROUND_GRADIENT_COLOUR" ] && BACKGROUND_GRADIENT_COLOUR="$BACKGROUND_COLOUR"
 
-	SPLASH_ARGS="-r $ROTATE -s $SCALE -g ${BACKGROUND_COLOUR}:${BACKGROUND_GRADIENT_COLOUR}"
+	set -- -r "$ROTATE" -s "$SCALE" -g "${BACKGROUND_COLOUR}:${BACKGROUND_GRADIENT_COLOUR}"
 
 	if [ "$PNG_RECOLOUR_ALPHA" -gt 0 ]; then
-		SPLASH_ARGS="$SPLASH_ARGS -t $PNG_RECOLOUR -a $PNG_RECOLOUR_ALPHA"
+		set -- "$@" -t "$PNG_RECOLOUR" -a "$PNG_RECOLOUR_ALPHA"
 	fi
 
 	FBCON_DISABLE
@@ -1493,8 +1492,7 @@ EOF
 		"$MUOS_SHARE_DIR/media/splash/$RES_DIR/$ROLE.png" \
 		"$MUOS_SHARE_DIR/media/splash/$ROLE.png"; do
 		if [ -f "$SRC" ]; then
-			# shellcheck disable=SC2086
-			"$SPLASH_BIN" -i "$SRC" $SPLASH_ARGS
+			"$SPLASH_BIN" -i "$SRC" "$@"
 			return $?
 		fi
 	done

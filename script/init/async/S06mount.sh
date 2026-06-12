@@ -14,8 +14,6 @@ BOOT_NUM=$(GET_VAR "device" "storage/boot/num")
 BOOT_TYPE=$(GET_VAR "device" "storage/boot/type")
 BOOT_MOUNT=$(GET_VAR "device" "storage/boot/mount")
 
-USER_INIT=$(GET_VAR "config" "settings/advanced/user_init")
-
 DO_START() {
 	mount -t configfs none /sys/kernel/config
 

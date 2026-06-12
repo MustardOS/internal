@@ -1,20 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/var/func.sh
-
-NAME=$1
-CORE=$2
-FILE=${3%/}
-
-(
-	LOG_INFO "$0" 0 "Content Launch" "DETAIL"
-	LOG_INFO "$0" 0 "NAME" "$NAME"
-	LOG_INFO "$0" 0 "CORE" "$CORE"
-	LOG_INFO "$0" 0 "FILE" "$FILE"
-) &
-
-HOME="$(GET_VAR "device" "board/home")"
-export HOME
+. /opt/muos/script/var/launch.sh
 
 SETUP_STAGE_OVERLAY
 SETUP_SDL_ENVIRONMENT
@@ -35,9 +22,7 @@ if [ ! -f "$MP64_CFG" ]; then
 		exit 1
 	fi
 
-	cp "$DEVICE_CFG" "$MP64_CFG"
-
-	if [ $? -ne 0 ]; then
+	if ! cp "$DEVICE_CFG" "$MP64_CFG"; then
 		exit 1
 	fi
 fi
@@ -86,8 +71,10 @@ else
 	ln -sf "$TEMPLATE_INI" "$TARGET_INI"
 fi
 
-# 3) Panel resolution (for numeric parsing; for Rice centering calculations)
-eval "$(fbset -s 2>/dev/null | awk '/^ *geometry/ {print "PXRES="$2";PYRES="$3}')"
+# 3) Panel resolution
+FBSET_GEO=$(fbset -s 2>/dev/null | awk '/^ *geometry/ {print $2" "$3; exit}')
+PXRES=${FBSET_GEO%% *}
+PYRES=${FBSET_GEO##* }
 
 # Rotation
 ROT="$(GET_VAR device sdl/rotation)"
@@ -105,15 +92,13 @@ else
 	YRES="$PYRES"
 fi
 
-# 4:3 width by panel height (ex 720x480 → 640)
-W43=$(((YRES * 4) / 3))
-
 # 4) Compressed ROM processing (.zip only)
+ZIP_TMPDIR=""
 case "$FILE" in
 	*.zip | *.ZIP)
-		TMPDIR="$(mktemp -d)"
-		unzip -q "$FILE" -d "$TMPDIR"
-		for TMPFILE in "$TMPDIR"/*; do
+		ZIP_TMPDIR="$(mktemp -d)"
+		unzip -q "$FILE" -d "$ZIP_TMPDIR"
+		for TMPFILE in "$ZIP_TMPDIR"/*; do
 			case "$TMPFILE" in
 				*.n64 | *.N64 | *.v64 | *.V64 | *.z64 | *.Z64)
 					FILE="$TMPFILE"
@@ -130,63 +115,66 @@ MK2_SO="mupen64plus-video-glide64mk2.so"
 RICE_SO="mupen64plus-video-rice.so"
 GL64_SO="mupen64plus-video-GLideN64.so"
 
-# Rice only: UI-level resolution/fullscreen flag (to maintain center alignment)
-BASE="--plugindir $PLUGINDIR --datadir $DATADIR"
-EXTRA_ARGS=""
-
-# ===================== [Added] Early branch start =====================
-# Purpose: Only when it's 720x720 + GLideN64 Full, run via FB_SWITCH path and exit immediately
+# ===================== Early branch: 720x720 + GLideN64 Full via FB_SWITCH =====================
 if [ "$CORE" = "ext-mupen64plus-gliden64-full" ] && [ "$XRES" -eq 720 ] && [ "$YRES" -eq 720 ]; then
-	# Original method: enter FB_SWITCH → specify GLideN64 Full params → run
 	FB_SWITCH 320 240 32
 	HOME="$EMUDIR" ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . \
 		--plugindir "$PLUGINDIR" --datadir "$DATADIR" \
 		--gfx "$GL64_SO" --set "Video-GLideN64[AspectRatio]=0" --resolution "320x240" "$FILE"
 	RET=$?
 
-	# Clean up extracted zip (if any)
-	[ -n "$TMPDIR" ] && rm -r "$TMPDIR"
+	[ -n "$ZIP_TMPDIR" ] && rm -rf "$ZIP_TMPDIR"
 
-	# Restore panel native mode (720x720)
 	FB_SWITCH 720 720 32
-
 	exit $RET
 fi
-# ===================== [Added] Early branch end =====================
+
+# Build args via positional parameters to avoid word-splitting on flag strings
+set -- --plugindir "$PLUGINDIR" --datadir "$DATADIR"
 
 case "$CORE" in
 	# Rice 4:3 - 720x720 is the only exception, the rest are calculated in 4:3 width based on height.
 	ext-mupen64plus-rice)
 		if [ "$XRES" -eq 720 ] && [ "$YRES" -eq 720 ]; then
-			EXTRA_ARGS="$BASE --datadir $DATADIR --gfx $RICE_SO --resolution 720x540 --set Video-Rice[VerticalOffset]=90 --set Video-Rice[ResolutionWidth]=720 --set Video-Rice[ResolutionHeight]=540"
+			set -- "$@" --datadir "$DATADIR" --gfx "$RICE_SO" --resolution "720x540" \
+				--set "Video-Rice[VerticalOffset]=90" \
+				--set "Video-Rice[ResolutionWidth]=720" \
+				--set "Video-Rice[ResolutionHeight]=540"
 		else
-			EXTRA_ARGS="$BASE --datadir $DATADIR --gfx $RICE_SO --resolution $(((YRES * 4) / 3))x${YRES} --set Video-Rice[VerticalOffset]=0 --set Video-Rice[ResolutionWidth]=$XRES --set Video-Rice[ResolutionHeight]=$YRES"
+			set -- "$@" --datadir "$DATADIR" --gfx "$RICE_SO" \
+				--resolution "$(((YRES * 4) / 3))x${YRES}" \
+				--set "Video-Rice[VerticalOffset]=0" \
+				--set "Video-Rice[ResolutionWidth]=$XRES" \
+				--set "Video-Rice[ResolutionHeight]=$YRES"
 		fi
 		;;
 
 	# Rice full → As is the panel resolution
 	ext-mupen64plus-rice-full)
-		EXTRA_ARGS="$BASE --gfx $RICE_SO --resolution ${XRES}x${YRES} --set Video-Rice[VerticalOffset]=0 --set Video-Rice[ResolutionWidth]=$XRES --set Video-Rice[ResolutionHeight]=$YRES"
+		set -- "$@" --gfx "$RICE_SO" --resolution "${XRES}x${YRES}" \
+			--set "Video-Rice[VerticalOffset]=0" \
+			--set "Video-Rice[ResolutionWidth]=$XRES" \
+			--set "Video-Rice[ResolutionHeight]=$YRES"
 		;;
 
 	# GLideN64 4:3
 	ext-mupen64plus-gliden64)
-		EXTRA_ARGS="$BASE --gfx $GL64_SO --set Video-GLideN64[AspectRatio]=1 --resolution ${XRES}x${YRES}"
+		set -- "$@" --gfx "$GL64_SO" --set "Video-GLideN64[AspectRatio]=1" --resolution "${XRES}x${YRES}"
 		;;
 
 	# GLideN64 full
 	ext-mupen64plus-gliden64-full)
-		EXTRA_ARGS="$BASE --gfx $GL64_SO --set Video-GLideN64[AspectRatio]=0 --resolution ${XRES}x${YRES}"
+		set -- "$@" --gfx "$GL64_SO" --set "Video-GLideN64[AspectRatio]=0" --resolution "${XRES}x${YRES}"
 		;;
 
 	# Glide64mk2 4:3
 	ext-mupen64plus-glidemk2)
-		EXTRA_ARGS="$BASE --gfx $MK2_SO --set Video-Glide64mk2[aspect]=0 --resolution ${XRES}x${YRES}"
+		set -- "$@" --gfx "$MK2_SO" --set "Video-Glide64mk2[aspect]=0" --resolution "${XRES}x${YRES}"
 		;;
 
 	# Glide64mk2 full
 	ext-mupen64plus-glidemk2-full)
-		EXTRA_ARGS="$BASE --gfx $MK2_SO --set Video-Glide64mk2[aspect]=2 --resolution ${XRES}x${YRES}"
+		set -- "$@" --gfx "$MK2_SO" --set "Video-Glide64mk2[aspect]=2" --resolution "${XRES}x${YRES}"
 		;;
 esac
 
@@ -198,7 +186,6 @@ case "$(GET_VAR "device" "board/name")" in
 		;;
 esac
 
-HOME="$EMUDIR" ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . $EXTRA_ARGS "$FILE"
+HOME="$EMUDIR" ./mupen64plus --corelib ./libmupen64plus.so.2.0.0 --configdir . "$@" "$FILE"
 
-# Clean up temp files if we unzipped the file
-[ -n "$TMPDIR" ] && rm -r "$TMPDIR"
+[ -n "$ZIP_TMPDIR" ] && rm -rf "$ZIP_TMPDIR"

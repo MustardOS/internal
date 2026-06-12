@@ -16,7 +16,7 @@ DO_START() {
 	ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 
 	LOG_INFO "$0" 0 "BOOTING" "Copying Root Home Files"
-	if [ ! -f /root/.profile ] || [ /opt/muos/share/root/.profile -nt /root/.profile ]; then
+	if [ ! -f /root/.profile ] || find /opt/muos/share/root/.profile -prune -newer /root/.profile -print -quit 2>/dev/null | grep -q .; then
 		cp -rf /opt/muos/share/root/. /root/
 	fi
 
@@ -26,6 +26,9 @@ DO_START() {
 
 	LOG_INFO "$0" 0 "BOOTING" "Removing Existing Update Scripts"
 	rm -rf "/opt/update.sh"
+
+	LOG_INFO "$0" 0 "BOOTING" "Removing Temporary Downloads"
+	rm -rf "/opt/muos/temp_dl"
 
 	if [ "${CONSOLE_MODE:-0}" -eq 0 ]; then
 		LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"

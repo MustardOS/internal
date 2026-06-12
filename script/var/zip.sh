@@ -318,8 +318,7 @@ CREATE_ARCHIVE() {
 
 	(
 		cd "$BASE_DIR" || exit 2
-		# shellcheck disable=SC2086
-		exec zip -q -r${UPDATE_FLAG}${COMP} "$DEST_FILE" "$REL_FROM_ROOT"
+		exec zip -q "-r${UPDATE_FLAG}${COMP}" "$DEST_FILE" "$REL_FROM_ROOT"
 	) >/dev/null 2>&1 &
 	ZIP_PID=$!
 

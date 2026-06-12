@@ -64,16 +64,16 @@ RANDOM() {
             print files[int(rand() * NR) + 1]
         }'
 	) || {
-		echo "No files found"
+		printf "No files found\n"
 		ALL_DONE 1
 	}
 
 	relative=${selected#"$THEME_DIR"/}
 	relative=${relative%/version.txt}
 
-	printf "$relative\n"
+	printf '%s\n' "$relative"
 
-	echo "$relative" >/opt/muos/config/theme/active
+	printf '%s\n' "$relative" >"$MUOS_CONF_GLOBAL/theme/active"
 	UPDATE_BOOTLOGO
 	ALL_DONE 0
 }
@@ -81,7 +81,6 @@ RANDOM() {
 INSTALL() {
 	if [ "$THEME_ARG" = "?R" ]; then
 		RANDOM
-		return 0
 	else
 		THEME_ZIP="$THEME_DIR/$THEME_ARG.${THEME_EXT}"
 	fi
@@ -95,7 +94,7 @@ INSTALL() {
 	PIDS=$(lsof +D "$THEME_ACTIVE_DIR" 2>/dev/null | awk 'NR>1 {print $2}' | sort -u)
 	if [ -n "$PIDS" ]; then
 		SELF=$$
-		PIDS=$(printf "%s\n" $PIDS | awk -v self="$SELF" '$1 != self')
+		PIDS=$(printf '%s\n' "$PIDS" | awk -v self="$SELF" '$1 != self')
 		if [ -n "$PIDS" ]; then
 			for PID in $PIDS; do kill "$PID" 2>/dev/null; done
 			sleep 0.5
@@ -186,7 +185,8 @@ SAVE() {
 	DEST_FILE="$THEME_DIR/$BASE_THEME_NAME-$TIMESTAMP.${THEME_EXT}"
 
 	printf "Backing up Contents of '%s' to '%s'\n" "$THEME_ACTIVE_DIR" "$DEST_FILE"
-	cd "$THEME_ACTIVE_DIR" && zip -ru "$DEST_FILE" .
+	cd "$THEME_ACTIVE_DIR" || ALL_DONE 1
+	zip -ru "$DEST_FILE" .
 
 	printf "Backup Complete: %s\n" "$DEST_FILE"
 	ALL_DONE 0

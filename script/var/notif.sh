@@ -711,7 +711,7 @@ NOTIF_COUNTDOWN() {
 	CD_STYLE="${3:-}"
 	while [ "$CD_SECS" -ge 0 ]; do
 		NOTIF_STYLE_APPLY "$CD_STYLE"
-		NOTIF_WRITE_ST "$(printf "$CD_FMT" "$CD_SECS")"
+		NOTIF_WRITE_ST "$(awk -v f="$CD_FMT" -v v="$CD_SECS" 'BEGIN { printf f, v }')"
 		[ "$CD_SECS" -eq 0 ] && break
 		NOTIF_SLEEP 1
 		CD_SECS=$((CD_SECS - 1))
@@ -726,7 +726,7 @@ NOTIF_COUNTUP() {
 	CU_I=0
 	while [ "$CU_I" -le "$CU_TOTAL" ]; do
 		NOTIF_STYLE_APPLY "$CU_STYLE"
-		NOTIF_WRITE_ST "$(printf "$CU_FMT" "$CU_I")"
+		NOTIF_WRITE_ST "$(awk -v f="$CU_FMT" -v v="$CU_I" 'BEGIN { printf f, v }')"
 		[ "$CU_I" -eq "$CU_TOTAL" ] && break
 		NOTIF_SLEEP 1
 		CU_I=$((CU_I + 1))
@@ -801,7 +801,7 @@ NOTIF_WATCH_FILE() {
 	WF_STYLE="${4:-}"
 	while [ -f "$WF_FILE" ]; do
 		NOTIF_STYLE_APPLY "$WF_STYLE"
-		NOTIF_WRITE_ST "$(printf "$WF_FMT" "$(head -n1 "$WF_FILE" 2>/dev/null)")"
+		NOTIF_WRITE_ST "$(awk -v f="$WF_FMT" -v v="$(head -n1 "$WF_FILE" 2>/dev/null)" 'BEGIN { printf f, v }')"
 		NOTIF_SLEEP "$WF_INTERVAL"
 	done
 	NOTIF_CLEAR
@@ -814,7 +814,7 @@ NOTIF_WATCH_CMD() {
 	WC_STYLE="${4:-}"
 	while true; do
 		NOTIF_STYLE_APPLY "$WC_STYLE"
-		NOTIF_WRITE_ST "$(printf "$WC_FMT" "$(eval "$WC_CMD" 2>/dev/null | head -n1)")"
+		NOTIF_WRITE_ST "$(awk -v f="$WC_FMT" -v v="$(eval "$WC_CMD" 2>/dev/null | head -n1)" 'BEGIN { printf f, v }')"
 		NOTIF_SLEEP "$WC_INTERVAL"
 	done
 }

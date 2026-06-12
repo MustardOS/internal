@@ -101,7 +101,7 @@ DURATION_MAP_SYSFS() {
 		2) printf "%d" 3000 ;; # breath fast duration 3000
 		3) printf "%d" 5000 ;; # breath med  duration 5000
 		4) printf "%d" 10000 ;; # breath slow duration 10000
-		*) printf "%d" "$2" ;;  # fallback to second arg
+		*) printf "%d" "$2" ;; # fallback to second arg
 	esac
 }
 
@@ -150,8 +150,7 @@ RANDOM_RGB() {
 
 CHECKSUM_U8() {
 	SUM=0
-	# shellcheck disable=SC2068
-	for B in $@; do
+	for B in "$@"; do
 		SUM=$(((SUM + B) & 255))
 	done
 	printf "%d" "$SUM"
@@ -159,8 +158,7 @@ CHECKSUM_U8() {
 
 SERIAL_WRITE() {
 	# argv are decimal bytes 0..255; convert to a single escaped string then output as raw bytes
-	# shellcheck disable=SC2059
-	printf %b "$(printf '\\x%02X' "$@")" >"$SERIAL_DEVICE"
+	printf '%b' "$(printf '\\x%02X' "$@")" >"$SERIAL_DEVICE"
 }
 
 SERIAL_PREPARE() {
@@ -183,30 +181,29 @@ SERIAL_SEND_MODE1_COLORS() {
 	LG=$(CLAMP_RGB "$6")
 	LB=$(CLAMP_RGB "$7")
 
-	BYTES="1 $BRI"
+	set -- 1 "$BRI"
 
 	I=0
-	while [ $I -lt 8 ]; do
-		BYTES="$BYTES $RR $RG $RB"
+	while [ "$I" -lt 8 ]; do
+		set -- "$@" "$RR" "$RG" "$RB"
 		I=$((I + 1))
 	done
 
 	I=0
-	while [ $I -lt 8 ]; do
-		BYTES="$BYTES $LR $LG $LB"
+	while [ "$I" -lt 8 ]; do
+		set -- "$@" "$LR" "$LG" "$LB"
 		I=$((I + 1))
 	done
 
-	CHK=$(CHECKSUM_U8 $BYTES)
-	set -- $BYTES "$CHK"
+	CHK=$(CHECKSUM_U8 "$@")
 
 	[ "${RGB_DEBUG:-0}" -eq 1 ] && {
 		printf 'TX:' >&2
-		for X; do printf ' %02X' "$X" >&2; done
+		for X in "$@" "$CHK"; do printf ' %02X' "$X" >&2; done
 		printf '\n' >&2
 	}
 
-	SERIAL_WRITE "$@"
+	SERIAL_WRITE "$@" "$CHK"
 }
 
 SERIAL_RANDOMISE_DAEMON() {
@@ -224,15 +221,13 @@ SERIAL_RANDOMISE_DAEMON() {
 	trap 'exit 0' INT TERM
 
 	while :; do
-		set -- $(RANDOM_RGB)
-		RR=$1
-		RG=$2
-		RB=$3
+		RR=$(RANDOM_BYTE)
+		RG=$(RANDOM_BYTE)
+		RB=$(RANDOM_BYTE)
 
-		set -- $(RANDOM_RGB)
-		LR=$1
-		LG=$2
-		LB=$3
+		LR=$(RANDOM_BYTE)
+		LG=$(RANDOM_BYTE)
+		LB=$(RANDOM_BYTE)
 
 		SERIAL_SEND_MODE1_COLORS "$BRI" "$RR" "$RG" "$RB" "$LR" "$LG" "$LB"
 		SLEEP_MS "$IMS"
@@ -251,7 +246,7 @@ SYSFS_WRITE() {
 
 APPLY_SYSFS() {
 	MODE=$1
-	BRI=$(( $2 * 60 / 255 ))
+	BRI=$(($2 * 60 / 255))
 	shift 2
 
 	case "$MODE" in 1 | 2 | 3 | 4 | 5 | 6 | 7) : ;; *)
@@ -429,11 +424,11 @@ APPLY_SERIAL() {
 		}
 
 		SPEED=$(CLAMP "$1" 0 255)
-		CHK=$(CHECKSUM_U8 $MODE $BRI 1 1 $SPEED)
+		CHK=$(CHECKSUM_U8 "$MODE" "$BRI" 1 1 "$SPEED")
 
 		[ "${RGB_DEBUG:-0}" -eq 1 ] && {
 			printf 'TX:' >&2
-			for X in $MODE $BRI 1 1 $SPEED $CHK; do printf ' %02X' "$X" >&2; done
+			for X in "$MODE" "$BRI" 1 1 "$SPEED" "$CHK"; do printf ' %02X' "$X" >&2; done
 			printf '\n' >&2
 		}
 
@@ -456,30 +451,29 @@ APPLY_SERIAL() {
 		LG=$(CLAMP_RGB "$5")
 		LB=$(CLAMP_RGB "$6")
 
-		BYTES="$MODE $BRI"
+		set -- "$MODE" "$BRI"
 
 		I=0
-		while [ $I -lt 8 ]; do
-			BYTES="$BYTES $RR $RG $RB"
+		while [ "$I" -lt 8 ]; do
+			set -- "$@" "$RR" "$RG" "$RB"
 			I=$((I + 1))
 		done
 
 		I=0
-		while [ $I -lt 8 ]; do
-			BYTES="$BYTES $LR $LG $LB"
+		while [ "$I" -lt 8 ]; do
+			set -- "$@" "$LR" "$LG" "$LB"
 			I=$((I + 1))
 		done
 
-		CHK=$(CHECKSUM_U8 $BYTES)
-		set -- $BYTES "$CHK"
+		CHK=$(CHECKSUM_U8 "$@")
 
 		[ "${RGB_DEBUG:-0}" -eq 1 ] && {
 			printf 'TX:' >&2
-			for X; do printf ' %02X' "$X" >&2; done
+			for X in "$@" "$CHK"; do printf ' %02X' "$X" >&2; done
 			printf '\n' >&2
 		}
 
-		SERIAL_WRITE "$@"
+		SERIAL_WRITE "$@" "$CHK"
 		printf "LED mode %s set with brightness %s (SERIAL)\n" "$MODE" "$BRI"
 	else
 		[ $# -eq 3 ] || {
@@ -491,24 +485,23 @@ APPLY_SERIAL() {
 		G=$(CLAMP_RGB "$2")
 		B=$(CLAMP_RGB "$3")
 
-		BYTES="$MODE $BRI"
+		set -- "$MODE" "$BRI"
 
 		I=0
-		while [ $I -lt 16 ]; do
-			BYTES="$BYTES $R $G $B"
+		while [ "$I" -lt 16 ]; do
+			set -- "$@" "$R" "$G" "$B"
 			I=$((I + 1))
 		done
 
-		CHK=$(CHECKSUM_U8 $BYTES)
-		set -- $BYTES "$CHK"
+		CHK=$(CHECKSUM_U8 "$@")
 
 		[ "${RGB_DEBUG:-0}" -eq 1 ] && {
 			printf 'TX:' >&2
-			for X; do printf ' %02X' "$X" >&2; done
+			for X in "$@" "$CHK"; do printf ' %02X' "$X" >&2; done
 			printf '\n' >&2
 		}
 
-		SERIAL_WRITE "$@"
+		SERIAL_WRITE "$@" "$CHK"
 		printf "LED mode %s set with brightness %s (SERIAL)\n" "$MODE" "$BRI"
 	fi
 }
@@ -596,7 +589,9 @@ if [ "${1:-}" = "service" ]; then
 				I=$((I + 1))
 			done
 
-			IS_PID_ALIVE "$PID" && kill -9 "$PID" 2>/dev/null || :
+			if IS_PID_ALIVE "$PID"; then
+				kill -9 "$PID" 2>/dev/null
+			fi
 			CLEAR_PID
 
 			printf "Stopped RGB random (pid %s)\n" "$PID"

@@ -19,10 +19,10 @@ WRITE_ATOMIC() {
 	VAL="$2"
 	TMP="${FILE}.tmp.$$"
 
-	printf "%s" "$VAL" >"$TMP" && mv -f "$TMP" "$FILE" || {
+	if ! { printf "%s" "$VAL" >"$TMP" && mv -f "$TMP" "$FILE"; }; then
 		rm -f "$TMP"
 		return 1
-	}
+	fi
 }
 
 READ_FILE() {

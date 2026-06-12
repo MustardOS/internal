@@ -28,7 +28,7 @@ UPDATE_HOTKEY() {
 	NEW_COMBO=$(HK_COMBO "$(GET_VAR "config" "settings/hotkey/$1")")
 	[ -z "$NEW_COMBO" ] && return 1
 
-	JSON_TYPE=$(echo "$1" | tr '[:lower:]' '[:upper:]')
+	JSON_TYPE=$(printf '%s\n' "$1" | tr '[:lower:]' '[:upper:]')
 	TEMP_FILE="/tmp/new_$1.tmp"
 
 	if ! jq --arg key "$JSON_TYPE" --argjson combo "$NEW_COMBO" '.[$key].inputs = $combo' \

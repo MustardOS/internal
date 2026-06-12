@@ -5,131 +5,123 @@
 NET_STATE=$(GET_VAR "device" "network/state")
 RETROWAIT=$(GET_VAR "config" "settings/advanced/retrowait")
 
-ACT_GO="/tmp/act_go"
-GOV_GO="/tmp/gov_go"
-CON_GO="/tmp/con_go"
-FLT_GO="/tmp/flt_go"
-RAC_GO="/tmp/rac_go"
-ROM_GO="/tmp/rom_go"
-SHD_GO="/tmp/shd_go"
-
 NET_START="$MUOS_RUN_DIR/net_start"
+LAST_PLAY_FILE="/opt/muos/config/boot/last_play"
 
-LAST_PLAY=$(cat "/opt/muos/config/boot/last_play")
+NET_WAIT_MAX=60
+PING_WAIT_MAX=6
 GO_LAST_BOOT=1
 
-if [ -n "$LAST_PLAY" ]; then
+HANDLE_NET_START_CHOICE() {
+	[ -r "$NET_START" ] || return 1
+
+	NET_CHOICE=$(READ_FIRST_LINE "$NET_START")
+
+	case "$NET_CHOICE" in
+		ignore)
+			ENSURE_REMOVED_SYNC "$NET_START"
+			LOG_SUCCESS "$0" 0 "FRONTEND" "Ignoring network connection"
+			SHOW_MESSAGE 100 "Ignoring network connection... Booting content!"
+			GO_LAST_BOOT=1
+			return 0
+			;;
+		menu)
+			ENSURE_REMOVED_SYNC "$NET_START"
+			LOG_SUCCESS "$0" 0 "FRONTEND" "Booting to main menu"
+			SHOW_MESSAGE 100 "Booting to main menu!"
+			GO_LAST_BOOT=0
+			return 0
+			;;
+	esac
+
+	return 1
+}
+
+WAIT_FOR_NETWORK() {
+	SHOW_SPLASH clear
+	OIP=0
+
+	while [ "$OIP" -lt "$NET_WAIT_MAX" ]; do
+		NW_MSG=$(printf "Waiting for network to connect... (%s/%s)\n\nPress START to continue loading\nPress SELECT to go to main menu" "$OIP" "$NET_WAIT_MAX")
+		SHOW_MESSAGE 0 "$NW_MSG"
+
+		if [ -r "$NET_STATE" ] && [ "$(READ_FIRST_LINE "$NET_STATE")" = "up" ]; then
+			LOG_SUCCESS "$0" 0 "FRONTEND" "Network connected"
+			SHOW_MESSAGE 35 "Network connected"
+
+			PIP=0
+			while ! ping -c 1 -W 5 8.8.8.8 >/dev/null 2>&1; do
+				PIP=$((PIP + 1))
+
+				LOG_INFO "$0" 0 "FRONTEND" "Verifying connectivity"
+				SHOW_MESSAGE 70 "Verifying connectivity... (%s/%s)" "$PIP" "$PING_WAIT_MAX"
+
+				if [ "$PIP" -ge "$PING_WAIT_MAX" ]; then
+					LOG_WARN "$0" 0 "FRONTEND" "Connectivity check timed out; continuing"
+					SHOW_MESSAGE 100 "Connectivity check timed out... Booting content!"
+					GO_LAST_BOOT=1
+					return 0
+				fi
+
+				HANDLE_NET_START_CHOICE && return 0
+				sleep 1
+			done
+
+			LOG_SUCCESS "$0" 0 "FRONTEND" "Connectivity verified"
+			SHOW_MESSAGE 100 "Connectivity verified! Booting content!"
+			GO_LAST_BOOT=1
+			return 0
+		fi
+
+		HANDLE_NET_START_CHOICE && return 0
+
+		OIP=$((OIP + 1))
+		sleep 1
+	done
+
+	LOG_WARN "$0" 0 "FRONTEND" "Network wait timed out; continuing"
+	SHOW_MESSAGE 100 "Network wait timed out... Booting content!"
+	GO_LAST_BOOT=1
+	return 0
+}
+
+PREPARE_LAST_PLAY() {
+	LAST_PLAY=$1
+
+	LOG_INFO "$0" 0 "FRONTEND" "Booting to last launched content"
+	SAFE_WRITE "$LAST_PLAY" "$ROM_GO"
+
+	CONTENT_BASE=$(basename "$LAST_PLAY" .cfg)
+	CONTENT_DIR=$(dirname "$LAST_PLAY")
+	COPY_CONTENT_SETTINGS "$CONTENT_BASE" "$CONTENT_DIR"
+
+	ENSURE_REMOVED_SYNC "/tmp/safe_quit"
+	[ ! -e "/tmp/done_reset" ] && printf "1" >"/tmp/done_reset"
+	[ ! -e "/tmp/chime_done" ] && printf "1" >"/tmp/chime_done"
+	SET_VAR "config" "system/used_reset" 0
+
+	RESET_MIXER
+}
+
+LAST_PLAY=$(READ_FIRST_LINE "$LAST_PLAY_FILE" 2>/dev/null)
+
+if [ -n "$LAST_PLAY" ] && [ -r "$LAST_PLAY" ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Checking for network and retrowait"
 
-	if [ "$RETROWAIT" -eq 1 ]; then
-		SHOW_SPLASH clear
-		OIP=0
-
-		while :; do
-			NW_MSG=$(printf "Waiting for network to connect... (%s)\n\nPress START to continue loading\nPress SELECT to go to main menu" "$OIP")
-			SHOW_MESSAGE 0 "$NW_MSG"
-			OIP=$((OIP + 1))
-
-			if [ "$(cat "$NET_STATE")" = "up" ]; then
-				LOG_SUCCESS "$0" 0 "FRONTEND" "Network connected"
-				SHOW_MESSAGE 35 "Network connected"
-
-				PIP=0
-				while ! ping -c 1 -W 5 8.8.8.8 >/dev/null 2>&1; do
-					PIP=$((PIP + 1))
-					LOG_INFO "$0" 0 "FRONTEND" "Verifying connectivity..."
-					SHOW_MESSAGE 70 "Verifying connectivity... (%s)" "$PIP"
-					sleep 1
-				done
-
-				LOG_SUCCESS "$0" 0 "FRONTEND" "Connectivity verified! Booting content!"
-				SHOW_MESSAGE 100 "Connectivity verified! Booting content!"
-
-				GO_LAST_BOOT=1
-				break
-			fi
-
-			if [ -f "$NET_START" ] && [ "$(cat "$NET_START")" = "ignore" ]; then
-				LOG_SUCCESS "$0" 0 "FRONTEND" "Ignoring network connection"
-				SHOW_MESSAGE 100 "Ignoring network connection... Booting content!"
-
-				GO_LAST_BOOT=1
-				break
-			fi
-
-			if [ -f "$NET_START" ] && [ "$(cat "$NET_START")" = "menu" ]; then
-				LOG_SUCCESS "$0" 0 "FRONTEND" "Booting to main menu"
-				SHOW_MESSAGE 100 "Booting to main menu!"
-
-				GO_LAST_BOOT=0
-				break
-			fi
-
-			sleep 1
-		done
+	if IS_ONE "$RETROWAIT"; then
+		WAIT_FOR_NETWORK
 	fi
 
 	MESSAGE stop
 
-	if [ "$GO_LAST_BOOT" -eq 1 ]; then
-		LOG_INFO "$0" 0 "FRONTEND" "Booting to last launched content"
-		cat "$LAST_PLAY" >"$ROM_GO"
-
-		BASE="$(basename "$LAST_PLAY" .cfg)"
-		DIR="$(dirname "$LAST_PLAY")"
-
-		for TYPE in "governor" "control" "retroarch" "filter" "shader"; do
-			case "$TYPE" in
-				"governor")
-					CONTENT_FILE="${DIR}/${BASE}.gov"
-					FALLBACK_FILE="${DIR}/core.gov"
-					OUTPUT_FILE="$GOV_GO"
-					;;
-				"control")
-					CONTENT_FILE="${DIR}/${BASE}.con"
-					FALLBACK_FILE="${DIR}/core.con"
-					OUTPUT_FILE="$CON_GO"
-					;;
-				"retroarch")
-					CONTENT_FILE="${DIR}/${BASE}.rac"
-					FALLBACK_FILE="${DIR}/core.rac"
-					OUTPUT_FILE="$RAC_GO"
-					;;
-				"filter")
-					CONTENT_FILE="${DIR}/${BASE}.flt"
-					FALLBACK_FILE="${DIR}/core.flt"
-					OUTPUT_FILE="$FLT_GO"
-					;;
-				"shader")
-					CONTENT_FILE="${DIR}/${BASE}.shd"
-					FALLBACK_FILE="${DIR}/core.shd"
-					OUTPUT_FILE="$SHD_GO"
-					;;
-			esac
-
-			if [ -e "$CONTENT_FILE" ]; then
-				cat "$CONTENT_FILE" >"$OUTPUT_FILE"
-			elif [ -e "$FALLBACK_FILE" ]; then
-				cat "$FALLBACK_FILE" >"$OUTPUT_FILE"
-			else
-				LOG_INFO "$0" 0 "FRONTEND" "No ${TYPE} file found for launched content"
-			fi
-		done
-
-		# We'll set a few extra things here so that the user doesn't get
-		# a stupid "yOu UsEd tHe ReSeT bUtToN" message because ultimately
-		# we don't really care in this particular instance...
-		ENSURE_REMOVED "/tmp/safe_quit"
-		[ ! -e "/tmp/done_reset" ] && printf 1 >"/tmp/done_reset"
-		[ ! -e "/tmp/chime_done" ] && printf 1 >"/tmp/chime_done"
-		SET_VAR "config" "system/used_reset" 0
-
-		# Reset audio control status
-		RESET_MIXER
-
-		# Okay we're all set, time to launch whatever we were playing last
-		/opt/muos/script/mux/launch.sh
+	if IS_ONE "$GO_LAST_BOOT"; then
+		PREPARE_LAST_PLAY "$LAST_PLAY"
+	else
+		ENSURE_REMOVED_SYNC "$ROM_GO"
 	fi
+else
+	LOG_WARN "$0" 0 "FRONTEND" "No valid last launched content found"
+	ENSURE_REMOVED_SYNC "$ROM_GO"
 fi
 
-echo launcher >"$ACT_GO"
+SAFE_WRITE "launcher" "$ACT_GO"

@@ -1593,3 +1593,215 @@ FBCON_DISABLE() {
 	[ -w /sys/class/graphics/fbcon/cursor_blink ] && printf "0\n" >/sys/class/graphics/fbcon/cursor_blink
 	[ -w /sys/module/vt/parameters/default_utf8 ] && printf "1\n" >/sys/module/vt/parameters/default_utf8
 }
+
+ACT_GO="${ACT_GO:-/tmp/act_go}"
+APP_GO="${APP_GO:-/tmp/app_go}"
+GOV_GO="${GOV_GO:-/tmp/gov_go}"
+CON_GO="${CON_GO:-/tmp/con_go}"
+FLT_GO="${FLT_GO:-/tmp/flt_go}"
+RAC_GO="${RAC_GO:-/tmp/rac_go}"
+ROM_GO="${ROM_GO:-/tmp/rom_go}"
+SAA_GO="${SAA_GO:-/tmp/saa_go}"
+SAG_GO="${SAG_GO:-/tmp/sag_go}"
+SAR_GO="${SAR_GO:-/tmp/sar_go}"
+SHD_GO="${SHD_GO:-/tmp/shd_go}"
+OVL_GO="${OVL_GO:-/tmp/ovl_go}"
+EX_CARD="${EX_CARD:-/tmp/explore_card}"
+
+SAFE_WRITE() {
+	printf '%s\n' "$1" >"$2"
+}
+
+IS_ONE() {
+	[ "$1" = "1" ]
+}
+
+READ_FIRST_LINE() {
+	[ -r "$1" ] || return 1
+	READ_LINE=
+	IFS= read -r READ_LINE <"$1" || return 1
+	printf '%s\n' "$READ_LINE"
+}
+
+ENSURE_REMOVED_SYNC() {
+	REMOVE_PATH=$1
+	REMOVE_COUNT=0
+
+	while [ -e "$REMOVE_PATH" ] && [ "$REMOVE_COUNT" -lt 10 ]; do
+		rm -f -- "$REMOVE_PATH" 2>/dev/null
+		[ -e "$REMOVE_PATH" ] || break
+		REMOVE_COUNT=$((REMOVE_COUNT + 1))
+		sleep 0.1
+	done
+}
+
+REMOVE_RUNTIME_FILES() {
+	for RUNTIME_FILE in ra_no_load ra_autoload_once.cfg; do
+		ENSURE_REMOVED_SYNC "/tmp/$RUNTIME_FILE"
+	done
+
+	ENSURE_REMOVED_SYNC "$CON_GO"
+	ENSURE_REMOVED_SYNC "$FLT_GO"
+	ENSURE_REMOVED_SYNC "$OVL_GO"
+	ENSURE_REMOVED_SYNC "$RAC_GO"
+	ENSURE_REMOVED_SYNC "$SHD_GO"
+	ENSURE_REMOVED_SYNC "$MUOS_RUN_DIR/overlay.filter"
+	ENSURE_REMOVED_SYNC "$MUOS_RUN_DIR/overlay.shader"
+}
+
+RESET_LAUNCHER_FLAGS() {
+	ENSURE_REMOVED_SYNC "$GOV_GO"
+	ENSURE_REMOVED_SYNC "$CON_GO"
+	ENSURE_REMOVED_SYNC "$FLT_GO"
+	ENSURE_REMOVED_SYNC "$SHD_GO"
+	ENSURE_REMOVED_SYNC "$RAC_GO"
+	ENSURE_REMOVED_SYNC "$SAA_GO"
+	ENSURE_REMOVED_SYNC "$SAG_GO"
+	ENSURE_REMOVED_SYNC "$SAR_GO"
+}
+
+RESET_APP_FLAGS() {
+	ENSURE_REMOVED_SYNC "$GOV_GO"
+	ENSURE_REMOVED_SYNC "$CON_GO"
+}
+
+WAIT_FOR_AUDIO_READY() {
+	AUDIO_WAIT_MAX=${1:-100}
+	AUDIO_WAIT=0
+
+	LOG_INFO "$0" 0 "BOOTING" "Waiting for PipeWire initialisation"
+
+	while [ "$AUDIO_WAIT" -lt "$AUDIO_WAIT_MAX" ]; do
+		[ "$(GET_VAR "device" "audio/ready")" = "1" ] && return 0
+		AUDIO_WAIT=$((AUDIO_WAIT + 1))
+		sleep 0.1
+	done
+
+	LOG_WARN "$0" 0 "BOOTING" "PipeWire initialisation wait timed out"
+	return 1
+}
+
+RESET_DPAD_MODE() {
+	BOARD_STICK_VALUE=${1:-$(GET_VAR "device" "board/stick")}
+	BOARD_NAME_VALUE=${2:-$(GET_VAR "device" "board/name")}
+	DPAD_SWAP_PATH=${3:-$(GET_VAR "device" "board/swap")}
+
+	IS_ONE "$BOARD_STICK_VALUE" && return 0
+
+	case "$BOARD_NAME_VALUE" in
+		rg*) printf "0" >"$DPAD_SWAP_PATH" ;;
+		tui*) ENSURE_REMOVED_SYNC "$DPAD_SWAP_PATH" ;;
+	esac
+}
+
+COPY_IF_AVAILABLE() {
+	SETTING_NAME=$1
+	CONTENT_FILE=$2
+	FALLBACK_FILE=$3
+	OUTPUT_FILE=$4
+
+	if [ -e "$CONTENT_FILE" ]; then
+		cat "$CONTENT_FILE" >"$OUTPUT_FILE"
+	elif [ -e "$FALLBACK_FILE" ]; then
+		cat "$FALLBACK_FILE" >"$OUTPUT_FILE"
+	else
+		LOG_INFO "$0" 0 "FRONTEND" "No $SETTING_NAME file found for launched content"
+	fi
+}
+
+COPY_CONTENT_SETTINGS() {
+	CONTENT_BASE=$1
+	CONTENT_DIR=$2
+
+	COPY_IF_AVAILABLE "governor" "$CONTENT_DIR/$CONTENT_BASE.gov" "$CONTENT_DIR/core.gov" "$GOV_GO"
+	COPY_IF_AVAILABLE "control" "$CONTENT_DIR/$CONTENT_BASE.con" "$CONTENT_DIR/core.con" "$CON_GO"
+	COPY_IF_AVAILABLE "retroarch" "$CONTENT_DIR/$CONTENT_BASE.rac" "$CONTENT_DIR/core.rac" "$RAC_GO"
+	COPY_IF_AVAILABLE "filter" "$CONTENT_DIR/$CONTENT_BASE.flt" "$CONTENT_DIR/core.flt" "$FLT_GO"
+	COPY_IF_AVAILABLE "shader" "$CONTENT_DIR/$CONTENT_BASE.shd" "$CONTENT_DIR/core.shd" "$SHD_GO"
+}
+
+APPLY_OPTIONAL_FILE() {
+	SOURCE_FILE=$1
+	TARGET_FILE=$2
+	DESCRIPTION=$3
+
+	if [ -s "$SOURCE_FILE" ]; then
+		LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Applying %s from '%s' to '%s'" "$DESCRIPTION" "$SOURCE_FILE" "$TARGET_FILE")"
+		cat "$SOURCE_FILE" >"$TARGET_FILE"
+		return $?
+	fi
+
+	LOG_WARN "$0" 0 "LAUNCH" "$(printf "Missing %s file: '%s'" "$DESCRIPTION" "$SOURCE_FILE")"
+	return 1
+}
+
+RESTORE_DPAD_AND_LEDS() {
+	RESTORE_BOARD_NAME=${1:-$(GET_VAR "device" "board/name")}
+	RESTORE_DPAD_SWAP=${2:-$(GET_VAR "device" "board/swap")}
+	RESTORE_LED_NORMAL=${3:-$(GET_VAR "device" "led/normal")}
+	RESTORE_LED_STATE=${4:-"$MUOS_RUN_DIR/work_led_state"}
+
+	[ "$(GET_VAR "device" "board/stick")" = "1" ] && return 0
+
+	case "$RESTORE_BOARD_NAME" in
+		rg*)
+			LOG_DEBUG "$0" 0 "LAUNCH" "Resetting DPAD swap and LED state for rg* board"
+			printf "0" >"$RESTORE_DPAD_SWAP"
+			printf "1" >"$RESTORE_LED_NORMAL"
+			printf "1" >"$RESTORE_LED_STATE"
+			;;
+		tui*)
+			ENSURE_REMOVED_SYNC "$RESTORE_DPAD_SWAP"
+			;;
+		*) ;;
+	esac
+}
+
+RESTORE_FRAMEBUFFER_MODE() {
+	DEVICE_MODE_VALUE=${1:-$(GET_VAR "config" "boot/device_mode")}
+	INTERNAL_WIDTH=${2:-$(GET_VAR "device" "screen/internal/width")}
+	INTERNAL_HEIGHT=${3:-$(GET_VAR "device" "screen/internal/height")}
+	EXTERNAL_WIDTH=${4:-$(GET_VAR "device" "screen/external/width")}
+	EXTERNAL_HEIGHT=${5:-$(GET_VAR "device" "screen/external/height")}
+
+	if IS_ONE "$DEVICE_MODE_VALUE"; then
+		LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Switching framebuffer to external %sx%s@32" "$EXTERNAL_WIDTH" "$EXTERNAL_HEIGHT")"
+		FB_SWITCH "$EXTERNAL_WIDTH" "$EXTERNAL_HEIGHT" 32
+	else
+		LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Switching framebuffer to internal %sx%s@32" "$INTERNAL_WIDTH" "$INTERNAL_HEIGHT")"
+		FB_SWITCH "$INTERNAL_WIDTH" "$INTERNAL_HEIGHT" 32
+	fi
+}
+
+RUN_SYNCTHING_SCAN() {
+	USE_SYNCTHING_VALUE=${1:-$(GET_VAR "config" "web/syncthing")}
+	AUTO_SCAN_VALUE=${2:-$(GET_VAR "config" "syncthing/auto_scan")}
+	NET_STATE_PATH=${3:-$(GET_VAR "device" "network/state")}
+
+	IS_ONE "$USE_SYNCTHING_VALUE" || return 0
+	IS_ONE "$AUTO_SCAN_VALUE" || return 0
+	[ -r "$NET_STATE_PATH" ] || return 0
+	[ "$(READ_FIRST_LINE "$NET_STATE_PATH")" = "up" ] || return 0
+
+	SYNCTHING_CONFIG="$MUOS_STORE_DIR/syncthing/config.xml"
+	[ -r "$SYNCTHING_CONFIG" ] || {
+		LOG_WARN "$0" 0 "LAUNCH" "Syncthing config not readable; skipping folder rescan"
+		return 0
+	}
+
+	SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' "$SYNCTHING_CONFIG")
+	[ -n "$SYNCTHING_API" ] || {
+		LOG_WARN "$0" 0 "LAUNCH" "Syncthing API key missing; skipping folder rescan"
+		return 0
+	}
+
+	LOG_INFO "$0" 0 "LAUNCH" "Triggering Syncthing folder rescan"
+
+	if command -v curl >/dev/null 2>&1; then
+		curl --silent --show-error --max-time 5 \
+			-X POST \
+			-H "X-API-Key: $SYNCTHING_API" \
+			"http://localhost:7070/rest/db/scan" >/dev/null 2>&1 ||
+			LOG_WARN "$0" 0 "LAUNCH" "Syncthing folder rescan failed"
+	fi
+}

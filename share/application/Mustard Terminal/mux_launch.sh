@@ -23,4 +23,4 @@ if [ ! -e "$MUTERM_LOC" ]; then
 	fi
 fi
 
-/opt/muos/frontend/muterm
+/opt/muos/bin/muterm

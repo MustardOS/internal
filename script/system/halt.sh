@@ -26,7 +26,7 @@ case "$ACTION" in
 esac
 
 set --
-for OMIT_PID in $(pidof /opt/muos/frontend/muterm /sbin/mount.exfat-fuse 2>/dev/null); do
+for OMIT_PID in $(pidof /opt/muos/bin/muterm /sbin/mount.exfat-fuse 2>/dev/null); do
 	set -- "$@" -o "$OMIT_PID"
 done
 

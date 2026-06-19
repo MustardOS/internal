@@ -47,9 +47,12 @@ RUN_ASYNC() {
 	done
 }
 
-FBCON_DISABLE
-
-RUN_ASYNC "$INIT_DIR/async"
-RUN_NORMAL "$INIT_DIR"
+case "${1:-start}" in
+	start | "")
+		FBCON_DISABLE
+		RUN_ASYNC "$INIT_DIR/async"
+		RUN_NORMAL "$INIT_DIR"
+		;;
+esac
 
 exit 0

@@ -64,9 +64,6 @@ fi
 
 LED_CONTROL_CHANGE restore
 
-LOG_DEBUG "$0" 0 "TWEAK" "Applying screen colour temperature"
-GET_VAR "config" "settings/colour/temperature" >"$(GET_VAR "device" "screen/colour")"
-
 if [ "$(GET_VAR "config" "settings/advanced/overdrive")" -eq 1 ]; then
 	LOG_DEBUG "$0" 0 "TWEAK" "Audio overdrive enabled - max set to 200"
 	SET_VAR "device" "audio/max" "200"

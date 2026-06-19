@@ -10,9 +10,6 @@ BRIGHT_ADV=$(GET_VAR "config" "settings/advanced/brightness")
 BRIGHT_DEF=$(GET_VAR "config" "settings/general/brightness")
 BRIGHT_MAX=$(GET_VAR "device" "screen/bright")
 
-COLOUR_TEMP=$(GET_VAR "config" "settings/colour/temperature")
-COLOUR_PATH=$(GET_VAR "device" "screen/colour")
-
 DO_START() {
 	if [ "${BOARD_HDMI:-0}" -eq 1 ]; then
 		HDMI_VALUE=0
@@ -39,7 +36,6 @@ DO_START() {
 			*) /opt/muos/script/device/bright.sh "$BRIGHT_DEF" ;;
 		esac
 
-		printf "%s" "$COLOUR_TEMP" >"$COLOUR_PATH"
 		SET_VAR "config" "settings/hdmi/scan" "0"
 	fi
 }

@@ -89,7 +89,6 @@ save/state/PPSSPP-Ext
 save/state/YabaSanshiro-Ext
 screenshot
 syncthing
-theme/active
 '
 
 for D in $DIRS; do

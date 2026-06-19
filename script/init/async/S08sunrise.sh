@@ -48,6 +48,11 @@ DAEMON_LOOP() {
 
 case "$1" in
 	start)
+		SCHEDULE_MODE=$(GET_VAR "config" "settings/colour/schedule_mode")
+		if [ "${SCHEDULE_MODE:-0}" = "1" ]; then
+			"$0" stop
+			exit 0
+		fi
 		if IS_RUNNING; then
 			echo "Sunrise already running"
 			exit 0

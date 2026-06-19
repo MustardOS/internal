@@ -46,45 +46,41 @@ DAEMON_LOOP() {
 	done
 }
 
+DO_START() {
+	SCHEDULE_MODE=$(GET_VAR "config" "settings/colour/schedule_mode")
+	if [ "${SCHEDULE_MODE:-0}" = "1" ]; then
+		DO_STOP
+		exit 0
+	fi
+
+	if IS_RUNNING; then
+		echo "Sunrise already running"
+		exit 0
+	fi
+
+	DAEMON_LOOP &
+	printf "%s" "$!" >"$PID_FILE"
+}
+
+DO_STOP() {
+	if IS_RUNNING; then
+		IFS= read -r _PID <"$PID_FILE"
+		kill "$_PID" 2>/dev/null
+		rm -f "$PID_FILE"
+	else
+		echo "Sunrise not running"
+	fi
+}
+
 case "$1" in
-	start)
-		SCHEDULE_MODE=$(GET_VAR "config" "settings/colour/schedule_mode")
-		if [ "${SCHEDULE_MODE:-0}" = "1" ]; then
-			"$0" stop
-			exit 0
-		fi
-		if IS_RUNNING; then
-			echo "Sunrise already running"
-			exit 0
-		fi
-		DAEMON_LOOP &
-		printf "%s" "$!" >"$PID_FILE"
-		;;
-	stop)
-		if IS_RUNNING; then
-			IFS= read -r _PID <"$PID_FILE"
-			kill "$_PID" 2>/dev/null
-			rm -f "$PID_FILE"
-		else
-			echo "Sunrise not running"
-		fi
-		;;
-	restart | reload)
-		"$0" stop
-		"$0" start
-		;;
-	status)
-		if IS_RUNNING; then
-			echo "Sunrise is running"
-		else
-			echo "Sunrise is stopped"
-			exit 1
-		fi
+	start) DO_START ;;
+	stop) DO_STOP ;;
+	restart)
+		DO_STOP
+		DO_START
 		;;
 	*)
-		printf "Usage: %s {start|stop|restart|status}\n" "$0" >&2
+		printf "Usage: %s {start|stop|restart}\n" "$0" >&2
 		exit 1
 		;;
 esac
-
-exit 0

@@ -89,7 +89,7 @@ PREPARE_LAST_PLAY() {
 	LAST_PLAY=$1
 
 	LOG_INFO "$0" 0 "FRONTEND" "Booting to last launched content"
-	SAFE_WRITE "$LAST_PLAY" "$ROM_GO"
+	cat "$LAST_PLAY" >"$ROM_GO"
 
 	CONTENT_BASE=$(basename "$LAST_PLAY" .cfg)
 	CONTENT_DIR=$(dirname "$LAST_PLAY")
@@ -103,7 +103,7 @@ PREPARE_LAST_PLAY() {
 	RESET_MIXER
 }
 
-LAST_PLAY=$(READ_FIRST_LINE "$LAST_PLAY_FILE" 2>/dev/null)
+LAST_PLAY=$(cat "$LAST_PLAY_FILE" 2>/dev/null)
 
 if [ -n "$LAST_PLAY" ] && [ -r "$LAST_PLAY" ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Checking for network and retrowait"

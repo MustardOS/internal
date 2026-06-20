@@ -105,7 +105,7 @@ HALT_SYSTEM() {
 	# that was started via the launch script.
 	case "$(GET_VAR "config" "settings/general/startup")" in
 		last) ;;
-		resume) pidof launch.sh >/dev/null 2>&1 || CLEAR_LAST_PLAY ;;
+		resume) pgrep -f "launch.sh" >/dev/null 2>&1 || CLEAR_LAST_PLAY ;;
 		*) CLEAR_LAST_PLAY ;;
 	esac
 

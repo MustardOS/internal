@@ -5,7 +5,9 @@
 PID_FILE="$MUOS_RUN_DIR/sunrise.pid"
 
 IS_RUNNING() {
-	[ -f "$PID_FILE" ] && IFS= read -r _PID <"$PID_FILE" 2>/dev/null && kill -0 "$_PID" 2>/dev/null
+	[ -f "$PID_FILE" ] || return 1
+	_PID=$(cat "$PID_FILE" 2>/dev/null)
+	[ -n "$_PID" ] && kill -0 "$_PID" 2>/dev/null
 }
 
 APPLY_TEMP() {
@@ -59,12 +61,11 @@ DO_START() {
 	fi
 
 	DAEMON_LOOP &
-	printf "%s" "$!" >"$PID_FILE"
+	printf "%s\n" "$!" >"$PID_FILE"
 }
 
 DO_STOP() {
 	if IS_RUNNING; then
-		IFS= read -r _PID <"$PID_FILE"
 		kill "$_PID" 2>/dev/null
 		rm -f "$PID_FILE"
 	else

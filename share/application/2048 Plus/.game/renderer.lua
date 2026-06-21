@@ -113,7 +113,7 @@ function renderer.captureOldAchievementsSlide(tab)
     if not achievements_old_canvas then
         achievements_old_canvas = love.graphics.newCanvas(w, h)
     end
-    love.graphics.setCanvas(achievements_old_canvas)
+    love.graphics.setCanvas({achievements_old_canvas, stencil = true})
     love.graphics.clear()
     renderer.drawAchievements(0, true, true, tab)
     love.graphics.setCanvas()
@@ -1670,7 +1670,11 @@ local function drawSelectionPill(x, y, w, h, cr)
     roundedRect("fill", x, y, w, h, cr)
 
     love.graphics.pop()
-    love.graphics.setCanvas(old_canvas)
+    if old_canvas then
+        love.graphics.setCanvas({old_canvas, stencil = true})
+    else
+        love.graphics.setCanvas()
+    end
     if sx then
         love.graphics.setScissor(sx, sy, sw, sh)
     end
@@ -2593,7 +2597,11 @@ local function drawKeyBadge(text, x, y, w, h)
     draw()
 
     love.graphics.pop()
-    love.graphics.setCanvas(old_canvas)
+    if old_canvas then
+        love.graphics.setCanvas({old_canvas, stencil = true})
+    else
+        love.graphics.setCanvas()
+    end
     if sx then
         love.graphics.setScissor(sx, sy, sw, sh)
     end
@@ -3887,7 +3895,11 @@ function renderer.drawMainMenu(selection, skip_transition)
         love.graphics.print("PLUS", x_plus, y_plus, 0, logo_s, logo_s)
 
         love.graphics.pop()
-        love.graphics.setCanvas(old_canvas)
+        if old_canvas then
+            love.graphics.setCanvas({old_canvas, stencil = true})
+        else
+            love.graphics.setCanvas()
+        end
 
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("alpha", "premultiplied")
@@ -5712,7 +5724,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
             if not achievements_new_canvas then
                 achievements_new_canvas = love.graphics.newCanvas(w, h)
             end
-            love.graphics.setCanvas(achievements_new_canvas)
+            love.graphics.setCanvas({achievements_new_canvas, stencil = true})
             love.graphics.clear()
             renderer.drawAchievements(scroll, true, true, active_tab)
             love.graphics.setCanvas()

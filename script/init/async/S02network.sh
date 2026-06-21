@@ -758,7 +758,89 @@ TRY_CONNECT() {
 	VALIDATE_NETWORK
 }
 
+SETUP_PROXY() {
+	PROXY_ENABLED=$(GET_VAR "config" "settings/network/proxy_enabled")
+
+	if [ "${PROXY_ENABLED:-0}" -ne 1 ]; then
+		CLEAR_PROXY
+		return 0
+	fi
+
+	PROXY_TYPE_IDX=$(GET_VAR "config" "settings/network/proxy_type")
+	PROXY_SERVER=$(GET_VAR "config" "settings/network/proxy_server")
+	PROXY_NOPROXY=$(GET_VAR "config" "settings/network/proxy_noproxy")
+
+	[ -z "$PROXY_SERVER" ] && {
+		CLEAR_PROXY
+		return 0
+	}
+
+	case "${PROXY_TYPE_IDX:-0}" in
+		1) PROXY_SCHEME="https://" ;;
+		2) PROXY_SCHEME="socks5://" ;;
+		*) PROXY_SCHEME="http://" ;;
+	esac
+
+	PROXY_URL="${PROXY_SCHEME}${PROXY_SERVER}"
+
+	{
+		printf "HTTP_PROXY=%s\n" "$PROXY_URL"
+		printf "HTTPS_PROXY=%s\n" "$PROXY_URL"
+		printf "ALL_PROXY=%s\n" "$PROXY_URL"
+		printf "http_proxy=%s\n" "$PROXY_URL"
+		printf "https_proxy=%s\n" "$PROXY_URL"
+		printf "all_proxy=%s\n" "$PROXY_URL"
+		if [ -n "$PROXY_NOPROXY" ]; then
+			printf "NO_PROXY=%s\n" "$PROXY_NOPROXY"
+			printf "no_proxy=%s\n" "$PROXY_NOPROXY"
+		fi
+	} >/etc/environment
+
+	mkdir -p /etc/profile.d
+	{
+		printf "export HTTP_PROXY=%s\n" "$PROXY_URL"
+		printf "export HTTPS_PROXY=%s\n" "$PROXY_URL"
+		printf "export ALL_PROXY=%s\n" "$PROXY_URL"
+		printf "export http_proxy=%s\n" "$PROXY_URL"
+		printf "export https_proxy=%s\n" "$PROXY_URL"
+		printf "export all_proxy=%s\n" "$PROXY_URL"
+		if [ -n "$PROXY_NOPROXY" ]; then
+			printf "export NO_PROXY=%s\n" "$PROXY_NOPROXY"
+			printf "export no_proxy=%s\n" "$PROXY_NOPROXY"
+		fi
+	} >/etc/profile.d/proxy.sh
+
+	export HTTP_PROXY="$PROXY_URL"
+	export HTTPS_PROXY="$PROXY_URL"
+	export ALL_PROXY="$PROXY_URL"
+	export http_proxy="$PROXY_URL"
+	export https_proxy="$PROXY_URL"
+	export all_proxy="$PROXY_URL"
+	if [ -n "$PROXY_NOPROXY" ]; then
+		export NO_PROXY="$PROXY_NOPROXY"
+		export no_proxy="$PROXY_NOPROXY"
+	fi
+
+	LOG_INFO "$0" 0 "NETWORK" "$(printf "Proxy configured: %s" "$PROXY_URL")"
+}
+
+CLEAR_PROXY() {
+	if [ -f /etc/environment ]; then
+		PROXY_TMP=$(mktemp)
+		grep -iv "^\(http\|https\|all\|no\)_proxy=" /etc/environment >"$PROXY_TMP" 2>/dev/null || true
+		mv -f "$PROXY_TMP" /etc/environment
+	fi
+
+	rm -f /etc/profile.d/proxy.sh
+
+	unset HTTP_PROXY HTTPS_PROXY ALL_PROXY http_proxy https_proxy all_proxy NO_PROXY no_proxy
+
+	LOG_INFO "$0" 0 "NETWORK" "Proxy configuration cleared"
+}
+
 ON_CONNECTED() {
+	SETUP_PROXY
+
 	LOG_INFO "$0" 0 "NETWORK" "Starting Keepalive Script"
 	/opt/muos/script/web/keepalive.sh &
 
@@ -867,6 +949,8 @@ DO_STOP() {
 	[ "${HAS_NETWORK:-0}" -eq 0 ] && return 0
 
 	LOG_INFO "$0" 0 "NETWORK" "Stopping Network Service"
+
+	CLEAR_PROXY
 
 	DESTROY_DHCPCD
 	NET_STATUS_CLEAR

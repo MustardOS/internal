@@ -1657,6 +1657,9 @@ local function drawSelectionPill(x, y, w, h, cr)
 
     local r, g, b, a = love.graphics.getColor()
     local old_canvas = love.graphics.getCanvas()
+    local sx, sy, sw, sh = love.graphics.getScissor()
+    love.graphics.setScissor()
+
     love.graphics.setCanvas(selection_canvas)
     love.graphics.clear(0, 0, 0, 0)
     love.graphics.push("all")
@@ -1668,6 +1671,9 @@ local function drawSelectionPill(x, y, w, h, cr)
 
     love.graphics.pop()
     love.graphics.setCanvas(old_canvas)
+    if sx then
+        love.graphics.setScissor(sx, sy, sw, sh)
+    end
 
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setBlendMode("alpha", "premultiplied")
@@ -2575,6 +2581,9 @@ local function drawKeyBadge(text, x, y, w, h)
     end
 
     local old_canvas = love.graphics.getCanvas()
+    local sx, sy, sw, sh = love.graphics.getScissor()
+    love.graphics.setScissor()
+
     love.graphics.setCanvas(badge_canvas)
     love.graphics.clear(0, 0, 0, 0)
     love.graphics.push("all")
@@ -2585,6 +2594,9 @@ local function drawKeyBadge(text, x, y, w, h)
 
     love.graphics.pop()
     love.graphics.setCanvas(old_canvas)
+    if sx then
+        love.graphics.setScissor(sx, sy, sw, sh)
+    end
 
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setBlendMode("alpha", "premultiplied")
@@ -3721,7 +3733,7 @@ function renderer.drawSettings(selection, skip_transition)
     if not menu_anim_w then menu_anim_w = target_ow end
 
     love.graphics.setColor(help_key_color)
-    drawSelectionPill(menu_anim_x, menu_anim_y + 2 * scale, menu_anim_w, font_message:getHeight() - 4 * scale, 8 * scale)
+    drawSelectionPill(menu_anim_x, menu_anim_y - 3 * scale, menu_anim_w, font_message:getHeight() + 6 * scale, 8 * scale)
 
     for i, opt in ipairs(options) do
         local oy = menu_start_y + (i - 1) * gap
@@ -3916,7 +3928,7 @@ function renderer.drawMainMenu(selection, skip_transition)
     if not menu_anim_w then menu_anim_w = target_ow end
 
     love.graphics.setColor(help_key_color)
-    drawSelectionPill(menu_anim_x, menu_anim_y + 2 * scale, menu_anim_w, font_message:getHeight() - 4 * scale, 8 * scale)
+    drawSelectionPill(menu_anim_x, menu_anim_y - 3 * scale, menu_anim_w, font_message:getHeight() + 6 * scale, 8 * scale)
 
     for i, opt in ipairs(options) do
         local oy = menu_start_y + (i - 1) * gap
@@ -5242,12 +5254,20 @@ function renderer.drawPlaySelectMenu(play_select_selection, arcade_selection, sk
     end
 
     -- Page 1 Footer
-    local right_x1 = panel_x + panel_w - math.floor(12 * scale)
-    local footer_actions_arc = {
-        {key = "A", label = "Play"},
-        {key = "B", label = "Back"},
-    }
     if love.system.getOS() ~= "Web" then
+        local dpad_x = panel_x + math.floor(12 * scale)
+        local dpad_size = math.floor(24 * scale)
+        drawKeyBadge("DPAD", dpad_x, badge_y_foot + (badge_h_foot - dpad_size) / 2, dpad_size, dpad_size)
+        dpad_x = dpad_x + dpad_size + math.floor(6 * scale)
+        love.graphics.setFont(font_help_label)
+        love.graphics.setColor(0.7, 0.75, 0.8, 1.0)
+        love.graphics.print("Navigate", dpad_x, badge_y_foot + (badge_h_foot - font_help_label:getHeight()) / 2)
+
+        local right_x1 = panel_x + panel_w - math.floor(12 * scale)
+        local footer_actions_arc = {
+            {key = "A", label = "Play"},
+            {key = "B", label = "Back"},
+        }
         for _, action in ipairs(footer_actions_arc) do
             love.graphics.setFont(font_help_label)
             local lbl_w = font_help_label:getWidth(action.label)
@@ -5350,7 +5370,7 @@ function renderer.drawSecretMenu(selection, skip_transition)
     if not menu_anim_w then menu_anim_w = target_ow end
 
     love.graphics.setColor(help_key_color)
-    drawSelectionPill(menu_anim_x, menu_anim_y + 2 * scale, menu_anim_w, font_message:getHeight() - 4 * scale, 8 * scale)
+    drawSelectionPill(menu_anim_x, menu_anim_y - 3 * scale, menu_anim_w, font_message:getHeight() + 6 * scale, 8 * scale)
 
     local max_text_w = w - block_x - margin
     for i, opt in ipairs(options) do

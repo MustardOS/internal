@@ -12,6 +12,13 @@ PIPEWIRE_READY() {
 	[ -S "$PW_SOCKET" ] && pw-cli info 0 >/dev/null 2>&1
 }
 
+SAVE_ACTIVE_SINK() {
+	NODE_ID="$1"
+	DO_LIST
+	SINK_IDX=$(awk -v id="$NODE_ID" 'BEGIN{FS="\t"} $1==id{print NR-1;exit}' "$AUDIO_SINKS_RAW")
+	[ -n "$SINK_IDX" ] && SET_VAR "config" "settings/general/audiosink" "$SINK_IDX"
+}
+
 DO_LIST() {
 	LOG_INFO "$0" 0 "AUDIOSINK" "Enumerating PipeWire audio sinks"
 
@@ -131,6 +138,7 @@ DO_SET_BT() {
 	LOG_INFO "$0" 0 "AUDIOSINK" "$(printf "Setting BT audio sink for '%s' (id=%s)" "$MAC" "$NODE_ID")"
 
 	wpctl set-default "$NODE_ID" >/dev/null 2>&1
+	SAVE_ACTIVE_SINK "$NODE_ID"
 
 	LOG_SUCCESS "$0" 0 "AUDIOSINK" "$(printf "BT audio sink active for '%s' (id=%s)" "$MAC" "$NODE_ID")"
 }
@@ -157,6 +165,7 @@ DO_SET_BUILTIN() {
 	LOG_INFO "$0" 0 "AUDIOSINK" "$(printf "Reverting to built-in sink (id=%s)" "$NODE_ID")"
 
 	wpctl set-default "$NODE_ID" >/dev/null 2>&1
+	SAVE_ACTIVE_SINK "$NODE_ID"
 
 	LOG_SUCCESS "$0" 0 "AUDIOSINK" "$(printf "Reverted to built-in sink (id=%s)" "$NODE_ID")"
 }

@@ -130,6 +130,9 @@ INSTALL_WIREPLUMBER_CONF() {
 		# WirePlumber 4
 		RESTORE_CONF "$DEVICE_CONTROL_DIR/wireplumber.lua" \
 			"/usr/share/wireplumber/main.lua.d/60-muos-wireplumber.lua"
+
+		RESTORE_CONF "$MUOS_SHARE_DIR/conf/bluetooth.lua" \
+			"/usr/share/wireplumber/bluetooth.lua.d/50-bluez-config.lua"
 	fi
 }
 

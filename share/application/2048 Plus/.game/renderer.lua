@@ -3622,12 +3622,14 @@ end
 -- ============================================================================
 function renderer.getMainMenuOptions()
     local theme_name = _G.theme:gsub("^%l", string.upper)
-    local options = {
-        "Play Game",
-        "Select Theme: " .. theme_name,
-        "Achievements & Stats",
-        "Tutorial"
-    }
+    local options = {}
+    if save.hasLastActiveGame() then
+        table.insert(options, "Continue")
+    end
+    table.insert(options, "Play Game")
+    table.insert(options, "Select Theme: " .. theme_name)
+    table.insert(options, "Achievements & Stats")
+    table.insert(options, "Tutorial")
     if _G.cheats_unlocked then
         table.insert(options, "Secret Menu")
     end
@@ -3741,7 +3743,7 @@ function renderer.drawSettings(selection, skip_transition)
     if not menu_anim_w then menu_anim_w = target_ow end
 
     love.graphics.setColor(help_key_color)
-    drawSelectionPill(menu_anim_x, menu_anim_y - 3 * scale, menu_anim_w, font_message:getHeight() + 6 * scale, 8 * scale)
+    drawSelectionPill(menu_anim_x, menu_anim_y - 1 * scale, menu_anim_w, font_message:getHeight() + 2 * scale, 6 * scale)
 
     for i, opt in ipairs(options) do
         local oy = menu_start_y + (i - 1) * gap
@@ -3815,17 +3817,17 @@ function renderer.drawMainMenu(selection, skip_transition)
 
     local options = renderer.getMainMenuOptions()
     love.graphics.setFont(font_message)
-    local gap = (_G.text_size == "large" and 37 or 34) * scale
+    local gap = (_G.text_size == "large" and 35 or 31) * scale
     local menu_h = (#options - 1) * gap + font_message:getHeight()
     local badge_h = math.floor(28 * scale)
     local badge_y = h - badge_h - math.floor(15 * scale)
 
     -- Dynamically space a beautiful theme-colored 2048 tile logo header
-    local header_h = math.floor((_G.text_size == "large" and 120 or 145) * scale)
+    local header_h = math.floor((_G.text_size == "large" and 100 or 120) * scale)
 
-    local total_h = header_h + math.floor(12 * scale) + menu_h
+    local total_h = header_h + math.floor(8 * scale) + menu_h
     local available_h = badge_y - math.floor(10 * scale)
-    local start_y = math.max(math.floor(10 * scale), math.floor(math.floor(10 * scale) + (available_h - total_h) / 2))
+    local start_y = math.max(math.floor(12 * scale), math.floor((available_h - total_h) * 0.35))
 
     -- Draw beautifully stylized header
     local tile_size = header_h - math.floor(10 * scale)
@@ -3908,7 +3910,7 @@ function renderer.drawMainMenu(selection, skip_transition)
     end
 
     -- Menu options start position
-    local menu_start_y = start_y + header_h + math.floor(12 * scale)
+    local menu_start_y = start_y + header_h + math.floor(8 * scale)
 
     local max_ow = 0
     for _, opt in ipairs(options) do
@@ -3940,7 +3942,7 @@ function renderer.drawMainMenu(selection, skip_transition)
     if not menu_anim_w then menu_anim_w = target_ow end
 
     love.graphics.setColor(help_key_color)
-    drawSelectionPill(menu_anim_x, menu_anim_y - 3 * scale, menu_anim_w, font_message:getHeight() + 6 * scale, 8 * scale)
+    drawSelectionPill(menu_anim_x, menu_anim_y - 1 * scale, menu_anim_w, font_message:getHeight() + 2 * scale, 6 * scale)
 
     for i, opt in ipairs(options) do
         local oy = menu_start_y + (i - 1) * gap
@@ -4716,7 +4718,7 @@ function renderer.drawPlaySelectMenu(play_select_selection, arcade_selection, sk
     end
 
     -- 3. Panel geometry
-    local panel_pad_x = math.floor(24 * scale)
+    local panel_pad_x = math.floor(16 * scale)
     local panel_pad_y = math.floor(16 * scale)
     local card_gap    = math.floor(12 * scale)
     local card_h_arc  = math.floor((_G.text_size == "large" and 124 or 120) * scale)
@@ -5382,7 +5384,7 @@ function renderer.drawSecretMenu(selection, skip_transition)
     if not menu_anim_w then menu_anim_w = target_ow end
 
     love.graphics.setColor(help_key_color)
-    drawSelectionPill(menu_anim_x, menu_anim_y - 3 * scale, menu_anim_w, font_message:getHeight() + 6 * scale, 8 * scale)
+    drawSelectionPill(menu_anim_x, menu_anim_y - 1 * scale, menu_anim_w, font_message:getHeight() + 2 * scale, 6 * scale)
 
     local max_text_w = w - block_x - margin
     for i, opt in ipairs(options) do

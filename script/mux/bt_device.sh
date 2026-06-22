@@ -150,12 +150,13 @@ DO_DISCONNECT() {
 		case "$BT_ICON" in audio-*) IS_AUDIO=1 ;; esac
 	fi
 
-	if bluetoothctl disconnect "$MAC" >/dev/null 2>&1; then
+	if timeout 5 bluetoothctl disconnect "$MAC" >/dev/null 2>&1; then
 		LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Disconnected from '%s'" "$MAC")"
-		[ "$IS_AUDIO" -eq 1 ] && "$(dirname "$0")/audio_sink.sh" set-builtin &
 	else
-		LOG_WARN "$0" 0 "BTDEVICE" "$(printf "Disconnect from '%s' may have failed" "$MAC")"
+		LOG_WARN "$0" 0 "BTDEVICE" "$(printf "Disconnect from '%s' timed out or failed; continuing" "$MAC")"
 	fi
+
+	[ "$IS_AUDIO" -eq 1 ] && "$(dirname "$0")/audio_sink.sh" set-builtin &
 }
 
 DO_FORGET() {
@@ -168,7 +169,7 @@ DO_FORGET() {
 	LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Forgetting device '%s'" "$MAC")"
 
 	bluetoothctl untrust "$MAC" >/dev/null 2>&1
-	bluetoothctl disconnect "$MAC" >/dev/null 2>&1
+	timeout 5 bluetoothctl disconnect "$MAC" >/dev/null 2>&1 || true
 	bluetoothctl remove "$MAC" >/dev/null 2>&1
 
 	MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')

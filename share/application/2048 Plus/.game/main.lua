@@ -468,6 +468,7 @@ function love.update(dt)
             end
 
             local options = renderer.getMainMenuOptions()
+            menuSelection = math.max(1, math.min(#options, menuSelection))
             local max_menu = #options
             if event == input.events.UP then
                 menuSelection = menuSelection > 1 and (menuSelection - 1) or max_menu
@@ -479,7 +480,13 @@ function love.update(dt)
                 sound.playMenuSelect()
                 queueTransitionAction(event, 0.08, function()
                     local sel = options[menuSelection]
-                    if sel == "Play Game" then
+                    if sel == "Continue" then
+                        local mode = save.loadLastMode()
+                        if mode then
+                            _G.appState = "GAME"
+                            game = Game.new(mode)
+                        end
+                    elseif sel == "Play Game" then
                         _G.appState = "PLAY_SELECT"
                         _G.play_select_selection = 1
                         _G.arcade_selection = 1

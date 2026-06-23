@@ -5,6 +5,57 @@
 
 . /opt/muos/script/var/func.sh
 
+APP_NAME="2048 Plus"
+APP_SUBPATH="application/$APP_NAME"
+APP_DIRECTORY="$MUOS_SHARE_DIR/$APP_SUBPATH"
+[ -d "$APP_DIRECTORY" ] || APP_DIRECTORY="$MUOS_STORE_DIR/$APP_SUBPATH"
+APP_GAME_DIRECTORY="$APP_DIRECTORY/.game"
+APP_STATIC_DIRECTORY="$APP_GAME_DIRECTORY/static"
+APP_BINARY_DIRECTORY="$APP_GAME_DIRECTORY/bin"
+LOVE_BINARY="$APP_BINARY_DIRECTORY/love"
+LOG_FILE="$APP_GAME_DIRECTORY/$APP_NAME.log"
+ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
+GPTOKEYB="$ROM_MOUNT/MUOS/emulator/gptokeyb/gptokeyb2.armhf"
+SCREEN_WIDTH="$(GET_VAR device mux/width)"
+SCREEN_HEIGHT="$(GET_VAR device mux/height)"
+SCREEN_RESOLUTION="${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
+CAFFEINE="$(command -v CAFFEINE 2>/dev/null || true)"
+
+STOP_MUSIC() {
+    killall -q "playbgm.sh" "mpg123" 2>/dev/null || true
+}
+
+SET_LOVE_ENVIRONMENT() {
+    export SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt"
+    export XDG_DATA_HOME="$APP_STATIC_DIRECTORY"
+    export HOME="$APP_STATIC_DIRECTORY"
+    export LD_LIBRARY_PATH="$APP_BINARY_DIRECTORY/libs.aarch64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+}
+
+SET_RK3576_WORKAROUND() {
+    grep -q "rk3576" /proc/device-tree/compatible 2>/dev/null || return 0
+
+    for MALI_LIBRARY in /usr/lib/libmali.so /usr/lib/aarch64-linux-gnu/libmali.so; do
+        if [ -e "$MALI_LIBRARY" ]; then
+            export SDL_VIDEO_EGL_DRIVER="$MALI_LIBRARY"
+            break
+        fi
+    done
+
+    export SDL_OPENGL_ES_DRIVER=1
+}
+
+START_LOVE() {
+    [ -n "$CAFFEINE" ] && "$CAFFEINE" on
+    SET_VAR "system" "foreground_process" "love"
+    "$GPTOKEYB" "love" &
+    GPTOKEYB_PROCESS="$!"
+    "$LOVE_BINARY" . "$SCREEN_RESOLUTION" > "$LOG_FILE" 2>&1
+    kill "$GPTOKEYB_PROCESS" 2>/dev/null || kill -9 "$(pidof gptokeyb2.armhf)" 2>/dev/null || true
+    wait "$GPTOKEYB_PROCESS" 2>/dev/null || true
+    [ -n "$CAFFEINE" ] && "$CAFFEINE" off
+}
+
 # Check for SETUP_APP (Jacaranda or newer)
 if command -v SETUP_APP >/dev/null 2>&1; then
     # --- Jacaranda Logic ---
@@ -12,102 +63,46 @@ if command -v SETUP_APP >/dev/null 2>&1; then
     APP_BIN="bin/love"
     SETUP_APP "love" ""
 
-    if [ -d "$MUOS_SHARE_DIR/application/2048 Plus" ]; then
-        APP_DIR="$MUOS_SHARE_DIR/application/2048 Plus"
-    else
-        APP_DIR="$MUOS_STORE_DIR/application/2048 Plus"
-    fi
-    cd "$APP_DIR/.game" || exit
+    cd "$APP_GAME_DIRECTORY" || exit
 
-    export SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt"
-    export XDG_DATA_HOME="$APP_DIR/.game/static"
-    export HOME="$APP_DIR/.game/static"
-    export LD_LIBRARY_PATH="$APP_DIR/.game/bin/libs.aarch64:$LD_LIBRARY_PATH"
-
-    if pgrep -f "playbgm.sh" >/dev/null; then
-        killall -q "playbgm.sh" "mpg123"
-    fi
-
-    GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2.armhf"
-    SCREEN_WIDTH="$(GET_VAR device mux/width)"
-    SCREEN_HEIGHT="$(GET_VAR device mux/height)"
-    SCREEN_RESOLUTION="${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
+    SET_LOVE_ENVIRONMENT
 
     # Workaround for RK3576 devices (Vita Pro etc.)
-    if grep -q "rk3576" /proc/device-tree/compatible 2>/dev/null; then
-        for _ml in /usr/lib/libmali.so /usr/lib/aarch64-linux-gnu/libmali.so; do
-            [ -e "$_ml" ] && export SDL_VIDEO_EGL_DRIVER="$_ml" && break
-        done
-        export SDL_OPENGL_ES_DRIVER=1
-    fi
+    SET_RK3576_WORKAROUND
 
-    command -v CAFFEINE >/dev/null 2>&1 && CAFFEINE on
-    SET_VAR "system" "foreground_process" "love"
-    $GPTOKEYB "love" &
-    ./bin/love . "${SCREEN_RESOLUTION}" > "$APP_DIR/.game/2048 Plus.log" 2>&1
-    kill -9 "$(pidof gptokeyb2.armhf)" 2>/dev/null || true
-    command -v CAFFEINE >/dev/null 2>&1 && CAFFEINE off
+    START_LOVE
 
 else
     # --- Legacy Logic (Loose Goose / Older) ---
 
-    SCREEN_WIDTH=$(GET_VAR device mux/width)
-    SCREEN_HEIGHT=$(GET_VAR device mux/height)
-    SCREEN_RESOLUTION="${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
-
-    if pgrep -f "playbgm.sh" >/dev/null; then
-        killall -q "playbgm.sh" "mpg123"
-    fi
+    STOP_MUSIC
 
     echo app >/tmp/act_go
 
-    if [ -d "$MUOS_SHARE_DIR/application/2048 Plus" ]; then
-        APP_DIR="$MUOS_SHARE_DIR/application/2048 Plus"
-    else
-        APP_DIR="$MUOS_STORE_DIR/application/2048 Plus"
-    fi
-    LOVEDIR="$APP_DIR/.game"
-    GPTOKEYB="$(GET_VAR "device" "storage/rom/mount")/MUOS/emulator/gptokeyb/gptokeyb2.armhf"
-    STATICDIR="$LOVEDIR/static/"
-    BINDIR="$LOVEDIR/bin"
-
     SETUP_SDL_ENVIRONMENT
-    export SDL_GAMECONTROLLERCONFIG_FILE="/usr/lib/gamecontrollerdb.txt"
-    export XDG_DATA_HOME="$STATICDIR"
-    export HOME="$STATICDIR"
-    export LD_LIBRARY_PATH="$BINDIR/libs.aarch64:$LD_LIBRARY_PATH"
+    SET_LOVE_ENVIRONMENT
 
     # Mirror glyphs (Legacy requirement)
-    PRIMARY_APP_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/application"
-    APP_DIR="$(dirname "$LOVEDIR")"
-    SRC_GLYPH_DIR="$APP_DIR/glyph"
-    DEST_APP_DIR="$PRIMARY_APP_DIR/2048 Plus"
-    DEST_GLYPH_DIR="$DEST_APP_DIR/glyph"
+    PRIMARY_APP_DIRECTORY="$ROM_MOUNT/MUOS/application"
+    CURRENT_APP_DIRECTORY="$APP_DIRECTORY"
+    SOURCE_GLYPH_DIRECTORY="$CURRENT_APP_DIRECTORY/glyph"
+    DESTINATION_APP_DIRECTORY="$PRIMARY_APP_DIRECTORY/$APP_NAME"
+    DESTINATION_GLYPH_DIRECTORY="$DESTINATION_APP_DIRECTORY/glyph"
 
-    case "$APP_DIR/" in
-    "$PRIMARY_APP_DIR"/*) : ;;
+    case "$CURRENT_APP_DIRECTORY/" in
+    "$PRIMARY_APP_DIRECTORY"/*) : ;;
     *)
-        if [ -d "$SRC_GLYPH_DIR" ]; then
-            mkdir -p "$DEST_GLYPH_DIR" 2>/dev/null || true
-            cp -rf "$SRC_GLYPH_DIR"/. "$DEST_GLYPH_DIR"/ 2>/dev/null || true
+        if [ -d "$SOURCE_GLYPH_DIRECTORY" ]; then
+            mkdir -p "$DESTINATION_GLYPH_DIRECTORY" 2>/dev/null || true
+            cp -rf "$SOURCE_GLYPH_DIRECTORY"/. "$DESTINATION_GLYPH_DIRECTORY"/ 2>/dev/null || true
         fi
         ;;
     esac
 
-    cd "$LOVEDIR" || exit
-    SET_VAR "system" "foreground_process" "love"
+    cd "$APP_GAME_DIRECTORY" || exit
 
     # Workaround for RK3576 devices (Vita Pro etc.)
-    if grep -q "rk3576" /proc/device-tree/compatible 2>/dev/null; then
-        for _ml in /usr/lib/libmali.so /usr/lib/aarch64-linux-gnu/libmali.so; do
-            [ -e "$_ml" ] && export SDL_VIDEO_EGL_DRIVER="$_ml" && break
-        done
-        export SDL_OPENGL_ES_DRIVER=1
-    fi
+    SET_RK3576_WORKAROUND
 
-    command -v CAFFEINE >/dev/null 2>&1 && CAFFEINE on
-    $GPTOKEYB "love" &
-    ./bin/love . "${SCREEN_RESOLUTION}" > "$LOVEDIR/2048 Plus.log" 2>&1
-    kill -9 "$(pidof gptokeyb2.armhf)" 2>/dev/null || true
-    command -v CAFFEINE >/dev/null 2>&1 && CAFFEINE off
+    START_LOVE
 fi

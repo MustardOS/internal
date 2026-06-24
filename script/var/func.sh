@@ -640,13 +640,25 @@ PARSE_INI() {
 	sed -n "/^\[$SECTION\]/ { :l /^${KEY}[ ]*=[ ]*/ { s/^[^=]*=[ ]*//; p; q; }; n; b l; }" "${INI_FILE}"
 }
 
-# Read debug_mode directly to skip a GET_VAR fork on every script source
-DEBUG_MODE=0
-[ -r "$MUOS_CONF_SYSTEM/debug_mode" ] && IFS= read -r DEBUG_MODE <"$MUOS_CONF_SYSTEM/debug_mode" 2>/dev/null
-DEBUG_MODE=${DEBUG_MODE%"$CR"}
-[ "$DEBUG_MODE" = "1" ] || DEBUG_MODE=0
+GET_DEBUG() {
+	DEBUG_MODE=0
 
-if [ "$DEBUG_MODE" -eq 1 ]; then
+	[ -r "$MUOS_CONF_SYSTEM/debug_mode" ] && {
+		IFS= read -r DEBUG_MODE <"$MUOS_CONF_SYSTEM/debug_mode" 2>/dev/null
+	}
+
+	DEBUG_MODE=${DEBUG_MODE%"$CR"}
+
+	case "$DEBUG_MODE" in
+		''|*[!0-9]*)
+			DEBUG_MODE=0
+			;;
+	esac
+
+	printf "%d" "$DEBUG_MODE"
+}
+
+if [ "$(GET_DEBUG)" -gt 0 ]; then
 	LOG_INFO() {
 		"$MUOS_LOG_BIN" info "$@"
 	}

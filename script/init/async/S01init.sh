@@ -12,6 +12,9 @@ DO_START() {
 	LOG_INFO "$0" 0 "BOOTING" "Creating Required Run Directory"
 	mkdir -p "$MUOS_RUN_DIR"
 
+	# Set console_loglevel to 0 unless debug mode is enabled
+	[ "$(GET_DEBUG)" -eq 0 ] && printf "%d" 0 >/proc/sys/kernel/printk
+
 	grep -qE "defaults\.(ctl|pcm)\.card [1-9]" /usr/share/alsa/alsa.conf 2>/dev/null && \
 		sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf
 

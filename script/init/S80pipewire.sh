@@ -117,6 +117,60 @@ GET_BOOT_SAVED_VOLUME() {
 	esac
 }
 
+APPLY_AUDIO_SUSPEND() {
+	WP_MIN=$1
+	ADV_AS=$(GET_VAR "config" "settings/advanced/audio_suspend")
+
+	WP5_SUSPEND="/usr/share/wireplumber/wireplumber.conf.d/70-muos-audio-suspend.conf"
+	WP4_SUSPEND="/usr/share/wireplumber/main.lua.d/70-muos-audio-suspend.lua"
+
+	if [ "${ADV_AS:-1}" -eq 1 ]; then
+		if [ "${WP_MIN:-0}" -ge 5 ]; then
+			cat >"$WP5_SUSPEND" <<'EOF'
+monitor.alsa.rules = [
+  {
+    matches = [ { media.class = "Audio/Sink" } ]
+    actions = {
+      update-props = {
+        node.pause-on-idle              = true
+        node.always-process             = false
+        session.suspend-timeout-seconds = 10
+        dither.noise                    = 1
+      }
+    }
+  }
+]
+EOF
+			rm -f "$WP4_SUSPEND"
+		else
+			cat >"$WP4_SUSPEND" <<'EOF'
+rules = {
+  {
+    matches = {
+      {
+        { "media.class", "matches", "Audio/Sink" },
+      },
+    },
+    apply_properties = {
+      ["node.pause-on-idle"] = true,
+      ["node.always-process"] = false,
+      ["session.suspend-timeout-seconds"] = 10,
+      ["dither.noise"] = 1,
+    },
+  },
+}
+
+for _, rule in ipairs(rules) do
+  table.insert(alsa_monitor.rules, rule)
+end
+EOF
+			rm -f "$WP5_SUSPEND"
+		fi
+	else
+		rm -f "$WP5_SUSPEND" "$WP4_SUSPEND"
+	fi
+}
+
 INSTALL_WIREPLUMBER_CONF() {
 	# Determine the WirePlumber minor version to select the correct config format.
 	WP_MINOR=$(wireplumber --version 2>/dev/null |
@@ -134,6 +188,8 @@ INSTALL_WIREPLUMBER_CONF() {
 		RESTORE_CONF "$MUOS_SHARE_DIR/conf/bluetooth.lua" \
 			"/usr/share/wireplumber/bluetooth.lua.d/50-bluez-config.lua"
 	fi
+
+	APPLY_AUDIO_SUSPEND "${WP_MINOR:-0}"
 }
 
 STOP_PROC() {

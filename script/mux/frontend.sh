@@ -54,7 +54,7 @@ if [ "$SKIP" = "0" ]; then
 	esac
 fi
 
-if IS_ONE "$DEBUG_MODE"; then
+if [ "$(GET_DEBUG)" -gt 0 ]; then
 	BL_PATH="$ROM_MOUNT/MUOS/log/boot"
 	mkdir -p "$BL_PATH"
 	cp "$MUOS_LOG_DIR"/*.log "$BL_PATH"/. 2>/dev/null

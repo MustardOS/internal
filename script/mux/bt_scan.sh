@@ -8,7 +8,8 @@ BT_DIR="$MUOS_CONF_GLOBAL/bluetooth"
 BT_SCAN="$BT_DIR/scan"
 BT_PAIRED="$BT_DIR/paired"
 BT_SCAN_LOCK="$BT_DIR/scan.lock"
-SCAN_TIMEOUT=10 # Is this enough?
+BT_SCAN_TIMEOUT=$(GET_VAR "config" "settings/advanced/bt_scan_timeout")
+SCAN_TIMEOUT=${BT_SCAN_TIMEOUT:-20}
 
 mkdir -p "$BT_DIR"
 
@@ -54,7 +55,8 @@ DO_LIST() {
 		printf "scan on\n"
 		sleep "$SCAN_TIMEOUT"
 		printf "scan off\n"
-	) | timeout $((SCAN_TIMEOUT + 5)) bluetoothctl 2>/dev/null | while IFS= read -r LINE; do
+		sleep 2
+	) | timeout $((SCAN_TIMEOUT + 7)) bluetoothctl 2>/dev/null | while IFS= read -r LINE; do
 		MAC=""
 		NAME=""
 		case "$LINE" in

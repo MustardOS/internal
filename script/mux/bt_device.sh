@@ -105,10 +105,10 @@ DO_CONNECT() {
 
 	LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Connecting to '%s'" "$MAC")"
 
-	bluetoothctl pair "$MAC" >/dev/null 2>&1
-	bluetoothctl trust "$MAC" >/dev/null 2>&1
+	timeout 10 bluetoothctl pair "$MAC" >/dev/null 2>&1
+	timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
 
-	if bluetoothctl connect "$MAC" >/dev/null 2>&1; then
+	if timeout 30 bluetoothctl connect "$MAC" >/dev/null 2>&1; then
 		LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Connected to '%s'" "$MAC")"
 
 		MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')

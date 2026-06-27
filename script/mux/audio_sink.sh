@@ -19,6 +19,36 @@ SAVE_ACTIVE_SINK() {
 	[ -n "$SINK_IDX" ] && SET_VAR "config" "settings/general/audiosink" "$SINK_IDX"
 }
 
+GET_DEFAULT_SINK_ID() {
+	DEF_NAME=$(pw-dump 2>/dev/null | jq -r '
+		.[] |
+		select(.type == "PipeWire:Interface:Metadata") |
+		.metadata[]? |
+		select(.key == "default.audio.sink") |
+		.value.name // empty
+	' 2>/dev/null | head -1)
+
+	[ -z "$DEF_NAME" ] && return 1
+
+	pw-dump 2>/dev/null | jq -r --arg name "$DEF_NAME" '
+		first(
+			.[] |
+			select(.type == "PipeWire:Interface:Node") |
+			select(.info.props["node.name"] == $name) |
+			.id | tostring
+		) // empty
+	' 2>/dev/null
+}
+
+# Resync the saved sink index to whatever sink is actually the live default
+SYNC_ACTIVE_INDEX() {
+	DEFAULT_ID=$(GET_DEFAULT_SINK_ID)
+	[ -z "$DEFAULT_ID" ] && return 0
+
+	ACTIVE_IDX=$(awk -v id="$DEFAULT_ID" 'BEGIN{FS="\t"} $1==id{print NR-1;exit}' "$AUDIO_SINKS_RAW")
+	[ -n "$ACTIVE_IDX" ] && SET_VAR "config" "settings/general/audiosink" "$ACTIVE_IDX"
+}
+
 DO_LIST() {
 	LOG_INFO "$0" 0 "AUDIOSINK" "Enumerating PipeWire audio sinks"
 
@@ -59,6 +89,8 @@ DO_LIST() {
 
 	mv -f "$TMP_SINKS" "$AUDIO_SINKS"
 	mv -f "$TMP_SINKS_RAW" "$AUDIO_SINKS_RAW"
+
+	SYNC_ACTIVE_INDEX
 
 	COUNT=$(wc -l <"$AUDIO_SINKS" 2>/dev/null)
 	LOG_SUCCESS "$0" 0 "AUDIOSINK" "$(printf "Found %s audio sink(s)" "${COUNT:-0}")"
@@ -108,6 +140,14 @@ DO_SET_BT() {
 		LOG_ERROR "$0" 0 "AUDIOSINK" "No MAC address provided for set-bt"
 		exit 1
 	}
+
+	# BT autoconnect can fire before PipeWire has finished initialising at
+	# boot so wait briefly for it to become ready before routing
+	PW_ATTEMPTS=30
+	while [ "$PW_ATTEMPTS" -gt 0 ] && ! PIPEWIRE_READY; do
+		sleep 1
+		PW_ATTEMPTS=$((PW_ATTEMPTS - 1))
+	done
 
 	if ! PIPEWIRE_READY; then
 		LOG_WARN "$0" 0 "AUDIOSINK" "PipeWire not available - cannot set BT sink"

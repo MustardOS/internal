@@ -105,7 +105,15 @@ DO_CONNECT() {
 
 	LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Connecting to '%s'" "$MAC")"
 
-	timeout 10 bluetoothctl pair "$MAC" >/dev/null 2>&1
+	# The adapter is not always powered on after boot so ensure it is awake!
+	bluetoothctl power on >/dev/null 2>&1
+	bluetoothctl unblock "$MAC" >/dev/null 2>&1
+
+	BT_INFO=$(bluetoothctl info "$MAC" 2>/dev/null)
+	IS_PAIRED=$(printf "%s" "$BT_INFO" | awk -F': ' '/^\tPaired:/ { print $2; exit }')
+	if [ "${IS_PAIRED}" != "yes" ]; then
+		timeout 10 bluetoothctl pair "$MAC" >/dev/null 2>&1
+	fi
 	timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
 
 	if timeout 30 bluetoothctl connect "$MAC" >/dev/null 2>&1; then
@@ -117,7 +125,7 @@ DO_CONNECT() {
 		if [ -n "$STORED_TYPE" ]; then
 			case "$STORED_TYPE" in audio-*) IS_AUDIO=1 ;; esac
 		else
-			BT_ICON=$(bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
+			BT_ICON=$(printf "%s" "$BT_INFO" | awk -F': ' '/^\tIcon:/ { print $2; exit }')
 			case "$BT_ICON" in audio-*) IS_AUDIO=1 ;; esac
 		fi
 
@@ -155,6 +163,11 @@ DO_DISCONNECT() {
 	else
 		LOG_WARN "$0" 0 "BTDEVICE" "$(printf "Disconnect from '%s' timed out or failed; continuing" "$MAC")"
 	fi
+
+	# Trusted devices autoreconnect themselves so block until the user reconnects
+	# so if we manually disconnect just block the device, it will clear on reboot
+	# or a device restart...
+	bluetoothctl block "$MAC" >/dev/null 2>&1
 
 	[ "$IS_AUDIO" -eq 1 ] && "$(dirname "$0")/audio_sink.sh" set-builtin &
 }
@@ -272,6 +285,8 @@ DO_AUTOCONNECT() {
 
 	LOG_INFO "$0" 0 "BTDEVICE" "Auto-connecting to trusted paired devices"
 
+	bluetoothctl power on >/dev/null 2>&1
+
 	[ -f "$BT_PAIRED" ] || {
 		LOG_INFO "$0" 0 "BTDEVICE" "No managed devices to auto-connect"
 		return 0
@@ -280,6 +295,7 @@ DO_AUTOCONNECT() {
 	while IFS= read -r LINE; do
 		MAC=$(printf "%s" "$LINE" | awk '{ print $1 }')
 		[ -z "$MAC" ] && continue
+		bluetoothctl unblock "$MAC" >/dev/null 2>&1
 		bluetoothctl trust "$MAC" >/dev/null 2>&1
 	done <"$BT_PAIRED"
 
@@ -293,7 +309,22 @@ DO_AUTOCONNECT() {
 		MAC=$(printf "%s" "$LINE" | awk '{ print $1 }')
 		[ -z "$MAC" ] && continue
 		LOG_DEBUG "$0" 0 "BTDEVICE" "$(printf "Auto-connecting to '%s'" "$MAC")"
-		bluetoothctl connect "$MAC" >/dev/null 2>&1 &
+		(
+			if timeout 15 bluetoothctl connect "$MAC" >/dev/null 2>&1; then
+				MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
+				STORED_TYPE=$(cat "$BT_DIR/type_$MAC_CLEAN" 2>/dev/null)
+				IS_AUDIO=0
+
+				if [ -n "$STORED_TYPE" ]; then
+					case "$STORED_TYPE" in audio-*) IS_AUDIO=1 ;; esac
+				else
+					BT_ICON=$(bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
+					case "$BT_ICON" in audio-*) IS_AUDIO=1 ;; esac
+				fi
+
+				[ "$IS_AUDIO" -eq 1 ] && "$(dirname "$0")/audio_sink.sh" set-bt "$MAC"
+			fi
+		) &
 	done <"$BT_PAIRED"
 
 	LOG_SUCCESS "$0" 0 "BTDEVICE" "Auto-connect sequence initiated"

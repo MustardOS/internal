@@ -7,7 +7,6 @@ HDMI_SPACE=$(GET_VAR "config" "settings/hdmi/space")
 HDMI_DEPTH=$(GET_VAR "config" "settings/hdmi/depth")
 HDMI_RANGE=$(GET_VAR "config" "settings/hdmi/range")
 HDMI_SCAN=$(GET_VAR "config" "settings/hdmi/scan")
-HDMI_AUDIO=$(GET_VAR "config" "settings/hdmi/audio")
 
 REFRESH_HDMI() {
 	printf "1" >"$MUOS_RUN_DIR/hdmi_refresh"
@@ -76,14 +75,6 @@ GET_SCAN_MODE() {
 		0) printf "overscan" ;;
 		1) printf "underscan" ;;
 		*) printf "underscan" ;;
-	esac
-}
-
-GET_AUDIO_MODE() {
-	case "$HDMI_AUDIO" in
-		0) printf "external" ;;
-		1) printf "internal" ;;
-		*) printf "external" ;;
 	esac
 }
 
@@ -164,11 +155,10 @@ COLOUR_SPACE=$(GET_COLOUR_SPACE)
 COLOUR_DEPTH=$(GET_COLOUR_DEPTH)
 COLOUR_RANGE=$(GET_COLOUR_RANGE)
 SCAN_MODE=$(GET_SCAN_MODE)
-AUDIO_MODE=$(GET_AUDIO_MODE)
 
 GET_DELAYS "$FB_MODE"
 
-LOG_INFO "hdmi" 0 "HDMI" "Switching HDMI: mode=$TV_MODE res=$FB_MODE space=$COLOUR_SPACE depth=${COLOUR_DEPTH}bit range=$COLOUR_RANGE scan=$SCAN_MODE audio=$AUDIO_MODE"
+LOG_INFO "hdmi" 0 "HDMI" "Switching HDMI: mode=$TV_MODE res=$FB_MODE space=$COLOUR_SPACE depth=${COLOUR_DEPTH}bit range=$COLOUR_RANGE scan=$SCAN_MODE"
 
 CHECK_HPD || exit 1
 

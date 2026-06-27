@@ -6,7 +6,6 @@ PF_INTERNAL=$(GET_VAR "device" "audio/pf_internal")
 PF_EXTERNAL=$(GET_VAR "device" "audio/pf_external")
 
 BOOT_CONSOLE_MODE=$(GET_VAR "config" "boot/device_mode")
-HDMI_INTERNAL_AUDIO=$(GET_VAR "config" "settings/hdmi/audio")
 
 ADV_VOL=$(GET_VAR "config" "settings/advanced/volume")
 ADV_OD=$(GET_VAR "config" "settings/advanced/overdrive")
@@ -62,14 +61,11 @@ RESTORE_CONF() {
 }
 
 GET_TARGET_NODE() {
-	TARGET_ID=$PF_INTERNAL
-
 	if [ "${BOOT_CONSOLE_MODE:-0}" -eq 1 ]; then
-		TARGET_ID=$PF_EXTERNAL
-		[ "${HDMI_INTERNAL_AUDIO:-0}" -eq 1 ] && TARGET_ID=$PF_INTERNAL
+		printf "%s\n" "$PF_EXTERNAL"
+	else
+		printf "%s\n" "$PF_INTERNAL"
 	fi
-
-	printf "%s\n" "$TARGET_ID"
 }
 
 GET_NODE_ID() {
@@ -261,8 +257,11 @@ FINALISE_AUDIO() {
 		return 1
 	fi
 
-	wpctl set-default "$DEF_ID" >/dev/null 2>&1 ||
+	if wpctl set-default "$DEF_ID" >/dev/null 2>&1; then
+		/opt/muos/script/mux/audio_sink.sh save-node "$DEF_ID" || true
+	else
 		LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "Unable to set default node '%s'" "$DEF_ID")"
+	fi
 
 	APPLY_VOL=${RUNTIME_PERCENT:-$SAVED_VOL}
 	if [ "${WP_MINOR:-0}" -ge 5 ]; then
@@ -316,7 +315,6 @@ DO_START() {
 	RESET_MIXER
 
 	FINALISE_AUDIO || exit 1
-	/opt/muos/script/mux/audio_sink.sh save-active || true
 	exit 0
 }
 
@@ -345,7 +343,6 @@ DO_RELOAD() {
 	fi
 
 	if FINALISE_AUDIO 1; then
-		/opt/muos/script/mux/audio_sink.sh save-active || true
 		LOG_SUCCESS "$0" 0 "PIPEWIRE" "Reload complete"
 		exit 0
 	fi

@@ -150,9 +150,8 @@ DO_SET_BUILTIN() {
 	fi
 
 	BOOT_CONSOLE_MODE=$(GET_VAR "config" "boot/device_mode")
-	HDMI_INTERNAL_AUDIO=$(GET_VAR "config" "settings/hdmi/audio")
 
-	if [ "${BOOT_CONSOLE_MODE:-0}" -eq 1 ] && [ "${HDMI_INTERNAL_AUDIO:-0}" -eq 0 ]; then
+	if [ "${BOOT_CONSOLE_MODE:-0}" -eq 1 ]; then
 		TARGET_NAME=$(GET_VAR "device" "audio/pf_external")
 	else
 		TARGET_NAME=$(GET_VAR "device" "audio/pf_internal")
@@ -180,49 +179,16 @@ DO_SET_BUILTIN() {
 	LOG_SUCCESS "$0" 0 "AUDIOSINK" "$(printf "Reverted to default sink (id=%s)" "$NODE_ID")"
 }
 
-DO_SAVE_ACTIVE() {
+DO_SAVE_NODE() {
+	NODE_ID="$1"
+	[ -z "$NODE_ID" ] && return 1
+
 	if ! PIPEWIRE_READY; then
 		LOG_WARN "$0" 0 "AUDIOSINK" "PipeWire not available"
 		return 1
 	fi
 
-	DO_LIST
-
-	PW_DATA=$(pw-dump 2>/dev/null)
-
-	DEFAULT_NAME=$(printf "%s" "$PW_DATA" | jq -r '
-		.[] |
-		select(.type == "PipeWire:Interface:Metadata") |
-		select(.info.props["metadata.name"] == "default") |
-		(.info.metadata // [])[] |
-		select(.key == "default.audio.sink") |
-		.value.name // empty
-	' 2>/dev/null | head -1)
-
-	[ -z "$DEFAULT_NAME" ] && {
-		LOG_WARN "$0" 0 "AUDIOSINK" "Cannot determine current default audio sink"
-		return 1
-	}
-
-	NODE_ID=$(printf "%s" "$PW_DATA" | jq -r --arg name "$DEFAULT_NAME" '
-		first(
-			.[] |
-			select(.type == "PipeWire:Interface:Node") |
-			select(.info.props["node.name"] == $name) |
-			.id | tostring
-		) // empty
-	' 2>/dev/null)
-
-	[ -z "$NODE_ID" ] && {
-		LOG_WARN "$0" 0 "AUDIOSINK" "Cannot find node for default sink"
-		return 1
-	}
-
-	SINK_IDX=$(awk -v id="$NODE_ID" 'BEGIN{FS="\t"} $1==id{print NR-1;exit}' "$AUDIO_SINKS_RAW")
-	[ -n "$SINK_IDX" ] && {
-		SET_VAR "config" "settings/general/audiosink" "$SINK_IDX"
-		LOG_SUCCESS "$0" 0 "AUDIOSINK" "$(printf "Active audio sink saved (index %s)" "$SINK_IDX")"
-	}
+	SAVE_ACTIVE_SINK "$NODE_ID"
 }
 
 case "${1:-}" in
@@ -230,9 +196,9 @@ case "${1:-}" in
 	set) DO_SET "$2" ;;
 	set-bt) DO_SET_BT "$2" ;;
 	set-builtin) DO_SET_BUILTIN ;;
-	save-active) DO_SAVE_ACTIVE ;;
+	save-node) DO_SAVE_NODE "$2" ;;
 	*)
-		printf "Usage: %s {list|set <index>|set-bt <mac>|set-builtin|save-active}\n" "$0"
+		printf "Usage: %s {list|set <index>|set-bt <mac>|set-builtin|save-node <id>}\n" "$0"
 		exit 1
 		;;
 esac

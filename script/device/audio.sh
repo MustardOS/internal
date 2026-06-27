@@ -2,10 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-DEVICE_MODE=$(GET_VAR "config" "boot/device_mode")
-AUDIO_MODE=$(GET_VAR "config" "settings/hdmi/audio")
-
-{ [ -z "$1" ] || { [ "$DEVICE_MODE" -ne 0 ] && [ "$AUDIO_MODE" -eq 0 ]; }; } && exit 0
+[ -z "$1" ] && exit 0
 
 MIN=$(GET_VAR "device" "audio/min")
 MAX=$(GET_VAR "device" "audio/max")

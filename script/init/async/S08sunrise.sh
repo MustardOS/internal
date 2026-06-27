@@ -71,6 +71,8 @@ DO_STOP() {
 	else
 		echo "Sunrise not running"
 	fi
+	SUNRISE_TEMP=$(GET_VAR "config" "settings/colour/sunrise_temp")
+	APPLY_TEMP "${SUNRISE_TEMP:-30}"
 }
 
 case "$1" in

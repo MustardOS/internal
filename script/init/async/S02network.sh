@@ -2,8 +2,16 @@
 
 . /opt/muos/script/var/func.sh
 
+ADDR=$(GET_VAR "config" "network/address")
+SUBN=$(GET_VAR "config" "network/subnet")
+SSID=$(GET_VAR "config" "network/ssid")
+PASS=$(GET_VAR "config" "network/pass")
+GATE=$(GET_VAR "config" "network/gateway")
+TYPE=$(GET_VAR "config" "network/type")
+DNSA=$(GET_VAR "config" "network/dns")
+
 case "$1" in
-	start | restart) DEL_VAR "config" "network/*" ;;
+	start | restart) DEL_VAR "config" "network/address" ;;
 esac
 
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
@@ -13,14 +21,6 @@ HAS_NETWORK=$(GET_VAR "device" "board/network")
 NET_MODULE=$(GET_VAR "device" "network/module")
 NET_IFACE=$(GET_VAR "device" "network/iface")
 NET_NAME=$(GET_VAR "device" "network/name")
-
-ADDR=$(GET_VAR "config" "network/address")
-SUBN=$(GET_VAR "config" "network/subnet")
-SSID=$(GET_VAR "config" "network/ssid")
-PASS=$(GET_VAR "config" "network/pass")
-GATE=$(GET_VAR "config" "network/gateway")
-TYPE=$(GET_VAR "config" "network/type")
-DNSA=$(GET_VAR "config" "network/dns")
 
 NET_COMPAT=$(GET_VAR "config" "settings/network/compat")
 MAX_WAIT=$(GET_VAR "config" "settings/network/wait_timer")
@@ -858,14 +858,19 @@ ON_CONNECTED() {
 
 DO_START() {
 	[ "${HAS_NETWORK:-0}" -eq 0 ] && return 0
-	[ "${CONNECT_ON_BOOT:-0}" -eq 0 ] && return 0
 
 	LOG_INFO "$0" 0 "NETWORK" "Starting Network Service"
 
+	# Load the shared WiFi/BT module and unblock rfkill regardless of
+	# connect-on-boot, since Bluetooth uses the same hardware chip.
 	case "$BOARD_NAME" in
 		mgx* | rg-vita* | rk* | tui*) LOAD_MODULE ;;
 		rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && LOAD_MODULE ;;
 	esac
+
+	rfkill unblock all
+
+	[ "${CONNECT_ON_BOOT:-0}" -eq 0 ] && return 0
 
 	NET_STATUS "ASSOCIATING"
 
@@ -957,6 +962,8 @@ DO_STOP() {
 
 	iw dev "$IFCE" disconnect
 	: >"$WPA_CONFIG"
+
+	SET_VAR "config" "network/ssid" ""
 
 	LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting '%s' device down" "$IFCE")"
 	ip addr flush dev "$IFCE"

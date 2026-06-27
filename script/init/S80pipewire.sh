@@ -316,6 +316,7 @@ DO_START() {
 	RESET_MIXER
 
 	FINALISE_AUDIO || exit 1
+	/opt/muos/script/mux/audio_sink.sh save-active || true
 	exit 0
 }
 
@@ -344,6 +345,7 @@ DO_RELOAD() {
 	fi
 
 	if FINALISE_AUDIO 1; then
+		/opt/muos/script/mux/audio_sink.sh save-active || true
 		LOG_SUCCESS "$0" 0 "PIPEWIRE" "Reload complete"
 		exit 0
 	fi

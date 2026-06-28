@@ -29,9 +29,15 @@ CURRENT_TEMP() {
 	SUNRISE_SEC=$((SUNRISE_TIME * 15))
 	SUNSET_SEC=$((SUNSET_TIME * 15))
 
-	TIME=$(date +%H%M)
-	TIME_HOUR=$(printf "%d" "${TIME%??}")
-	TIME_MINUTE=$(printf "%d" "${TIME#??}")
+	TIME_HOUR=$(date +%H)
+	TIME_MINUTE=$(date +%M)
+
+	TIME_HOUR=${TIME_HOUR#0}
+	TIME_MINUTE=${TIME_MINUTE#0}
+
+	: "${TIME_HOUR:=0}"
+	: "${TIME_MINUTE:=0}"
+
 	TIME_NOW=$((TIME_HOUR * 60 + TIME_MINUTE))
 
 	if [ "$TIME_NOW" -ge "$SUNRISE_SEC" ] && [ "$TIME_NOW" -lt "$SUNSET_SEC" ]; then

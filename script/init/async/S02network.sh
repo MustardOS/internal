@@ -40,7 +40,10 @@ RESOLV_CONF="/etc/resolv.conf"
 DHCP_CONF_SRC="${MUOS_SHARE_DIR}/conf/dhcpcd.conf"
 DHCP_CONF_RUN="$MUOS_RUN_DIR/dhcpcd.conf"
 DHCPCD_LOG="$MUOS_RUN_DIR/dhcpcd.log"
-STATUS_FILE="$MUOS_RUN_DIR/network.status"
+
+# Per profile network states!
+NET_STATUS_DIR="$MUOS_RUN_DIR/network"
+CURRENT_PROFILE=""
 
 [ -n "$NET_IFACE" ] || NET_IFACE=$(GET_VAR "device" "network/iface_active")
 [ -n "$NET_IFACE" ] || NET_IFACE="wlan0"
@@ -65,11 +68,21 @@ if [ -z "$DNSA" ]; then
 fi
 
 NET_STATUS() {
-	printf "%s" "$1" >"$STATUS_FILE"
+	[ -n "$CURRENT_PROFILE" ] || return 0
+	mkdir -p "$NET_STATUS_DIR" 2>/dev/null
+	printf "%s" "$1" >"$NET_STATUS_DIR/$CURRENT_PROFILE.status"
 }
 
 NET_STATUS_CLEAR() {
-	rm -f "$STATUS_FILE"
+	[ -n "$CURRENT_PROFILE" ] && rm -f "$NET_STATUS_DIR/$CURRENT_PROFILE.status"
+}
+
+SET_ACTIVE() {
+	SET_VAR "config" "network/active" "$1"
+}
+
+CLEAR_ACTIVE() {
+	SET_VAR "config" "network/active" ""
 }
 
 FAIL_WITH() {
@@ -711,10 +724,107 @@ LOAD_PROFILE_BY_SSID() {
 			SET_VAR "config" "network/dns" "$DNSA"
 		fi
 
+		NET_PROF_BASE="${NET_PROF##*/}"
+		CURRENT_PROFILE="${NET_PROF_BASE%.ini}"
+
 		return 0
 	done
 
 	return 1
+}
+
+# Load a profiles definition by its profile name (the INI) into the connection variables
+LOAD_PROFILE_BY_NAME() {
+	PROFILE_NAME="$1"
+	[ -n "$PROFILE_NAME" ] || return 1
+
+	NET_PROF="${MUOS_SHARE_DIR}/network/${PROFILE_NAME}.ini"
+	[ -f "$NET_PROF" ] || return 1
+
+	SSID=$(PARSE_INI "$NET_PROF" "network" "ssid")
+	[ -n "$SSID" ] || return 1
+
+	NET_PROF_TYPE=$(PARSE_INI "$NET_PROF" "network" "type")
+	PASS=$(PARSE_INI "$NET_PROF" "network" "pass")
+	ADDR=$(PARSE_INI "$NET_PROF" "network" "address")
+	SUBN=$(PARSE_INI "$NET_PROF" "network" "subnet")
+	GATE=$(PARSE_INI "$NET_PROF" "network" "gateway")
+	NET_PROF_DNSA=$(PARSE_INI "$NET_PROF" "network" "dns")
+	[ -n "$NET_PROF_DNSA" ] && DNSA="$NET_PROF_DNSA"
+
+	case "$NET_PROF_TYPE" in
+		static) TYPE=1 ;;
+		*) TYPE=0 ;;
+	esac
+
+	SET_VAR "config" "network/type" "$TYPE"
+	SET_VAR "config" "network/ssid" "$SSID"
+	SET_VAR "config" "network/pass" "$PASS"
+	DEL_VAR "config" "network/ssid_wpa"
+
+	if [ "$TYPE" -eq 1 ]; then
+		SET_VAR "config" "network/address" "$ADDR"
+		SET_VAR "config" "network/subnet" "$SUBN"
+		SET_VAR "config" "network/gateway" "$GATE"
+		SET_VAR "config" "network/dns" "$DNSA"
+	fi
+
+	CURRENT_PROFILE="$PROFILE_NAME"
+
+	return 0
+}
+
+SCAN_SETTLE() {
+	[ "$IFCE" = "eth0" ] && return 0
+
+	I=0
+	while [ "$I" -lt "${SCAN_SETTLE_TRIES:-8}" ]; do
+		iw dev "$IFCE" scan >/dev/null 2>&1 && return 0
+		I=$((I + 1))
+		sleep 1
+	done
+
+	return 0
+}
+
+# Pick the highest-priority auto-connect profile whose SSID is currently in range, and print its
+# profile name. Manual profiles (autoconnect != 1) are ignored.  Strict priority: a lower
+# number in our frontend means it takes priority (1 = highest)
+SELECT_BEST_PROFILE() {
+	PROFILE_DIR="${MUOS_SHARE_DIR}/network"
+	[ -d "$PROFILE_DIR" ] || return 1
+
+	SCAN_OUT=$(iw dev "$IFCE" scan 2>/dev/null | sed -n 's/^[[:space:]]*SSID: //p')
+	[ -n "$SCAN_OUT" ] || return 1
+
+	BEST_NAME=""
+	BEST_PRIO=99
+
+	for NET_PROF in "$PROFILE_DIR"/*.ini; do
+		[ -f "$NET_PROF" ] || continue
+
+		NET_PROF_AC=$(PARSE_INI "$NET_PROF" "network" "autoconnect")
+		[ "${NET_PROF_AC:-1}" -eq 1 ] || continue
+
+		NET_PROF_SSID=$(PARSE_INI "$NET_PROF" "network" "ssid")
+		[ -n "$NET_PROF_SSID" ] || continue
+
+		printf '%s\n' "$SCAN_OUT" | grep -Fxq "$NET_PROF_SSID" || continue
+
+		NET_PROF_PR=$(PARSE_INI "$NET_PROF" "network" "priority")
+		case "${NET_PROF_PR:-5}" in
+			"" | *[!0-9]*) NET_PROF_PR=5 ;;
+		esac
+
+		if [ "$NET_PROF_PR" -lt "$BEST_PRIO" ]; then
+			BEST_PRIO="$NET_PROF_PR"
+			NET_PROF_BASE="${NET_PROF##*/}"
+			BEST_NAME="${NET_PROF_BASE%.ini}"
+		fi
+	done
+
+	[ -n "$BEST_NAME" ] || return 1
+	printf "%s" "$BEST_NAME"
 }
 
 BUILD_PROFILE_WPA_CONFIG() {
@@ -957,6 +1067,7 @@ ON_CONNECTED() {
 
 DO_START() {
 	CONNECT_MODE="${1:-start}"
+	CONNECT_PROFILE="$2"
 
 	[ "${HAS_NETWORK:-0}" -eq 0 ] && return 0
 
@@ -971,7 +1082,36 @@ DO_START() {
 
 	rfkill unblock all
 
+	# A fresh boot owns no connection until one is established, so drop any persisted active pointer!
+	[ "$CONNECT_MODE" = "connect" ] || CLEAR_ACTIVE
+
 	[ "${CONNECT_ON_BOOT:-0}" -eq 0 ] && [ "$CONNECT_MODE" != "connect" ] && return 0
+
+	if [ "$CONNECT_MODE" != "connect" ]; then
+		WAIT_FOR_IFACE "$IFCE" 5
+		WAIT_FOR_IFACE_READY "$IFCE" 5
+		SCAN_SETTLE
+
+		BEST_PROFILE=$(SELECT_BEST_PROFILE)
+		if [ -n "$BEST_PROFILE" ]; then
+			LOG_INFO "$0" 0 "NETWORK" "$(printf "Auto-connect selecting highest-priority profile in range: %s" "$BEST_PROFILE")"
+			CONNECT_PROFILE="$BEST_PROFILE"
+			CONNECT_MODE="connect"
+		fi
+	fi
+
+	if [ "$CONNECT_MODE" = "connect" ]; then
+		if ! LOAD_PROFILE_BY_NAME "$CONNECT_PROFILE"; then
+			LOG_ERROR "$0" 0 "NETWORK" "$(printf "Connect profile not found: %s" "$CONNECT_PROFILE")"
+			return 1
+		fi
+
+		PREV_ACTIVE=$(GET_VAR "config" "network/active")
+		if [ -n "$PREV_ACTIVE" ] && [ "$PREV_ACTIVE" != "$CURRENT_PROFILE" ]; then
+			rm -f "$NET_STATUS_DIR/$PREV_ACTIVE.status"
+		fi
+		CLEAR_ACTIVE
+	fi
 
 	NET_STATUS "ASSOCIATING"
 
@@ -1003,6 +1143,7 @@ DO_START() {
 		if [ "$RC" -eq "$RC_OK" ]; then
 			LOG_SUCCESS "$0" 0 "NETWORK" "Network Connected Successfully"
 			ON_CONNECTED
+			SET_ACTIVE "$CURRENT_PROFILE"
 			NET_STATUS "CONNECTED"
 			return 0
 		fi
@@ -1059,12 +1200,14 @@ DO_STOP() {
 	CLEAR_PROXY
 
 	DESTROY_DHCPCD
+
+	# Clear the connected profile status and the active pointer
+	CURRENT_PROFILE=$(GET_VAR "config" "network/active")
 	NET_STATUS_CLEAR
+	CLEAR_ACTIVE
 
 	iw dev "$IFCE" disconnect
 	: >"$WPA_CONFIG"
-
-	SET_VAR "config" "network/ssid" ""
 
 	LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting '%s' device down" "$IFCE")"
 	ip addr flush dev "$IFCE"
@@ -1081,8 +1224,11 @@ DO_STOP() {
 }
 
 DO_STATUS() {
+	ACTIVE_PROFILE=$(GET_VAR "config" "network/active")
+
 	CURRENT_STATUS=""
-	[ -f "$STATUS_FILE" ] && IFS= read -r CURRENT_STATUS <"$STATUS_FILE"
+	[ -n "$ACTIVE_PROFILE" ] && [ -f "$NET_STATUS_DIR/$ACTIVE_PROFILE.status" ] &&
+		IFS= read -r CURRENT_STATUS <"$NET_STATUS_DIR/$ACTIVE_PROFILE.status"
 
 	IP=$(ip -4 -o addr show dev "$IFCE" | awk '{split($4, a, "/"); print a[1]; exit}')
 	IFACE_UP=0
@@ -1097,6 +1243,7 @@ DO_STATUS() {
 	printf "Interface:\t%s\t(%s)\n" "$IFCE" "$([ "$IFACE_UP" -eq 1 ] && printf "up" || printf "down")"
 	printf "Module:\t\t%s\t(%s)\n" "${NET_NAME:-unknown}" "$([ "$MOD_LOADED" -eq 1 ] && printf "loaded" || printf "not loaded")"
 	printf "WPA Supplicant:\t%s\n" "$([ "$WPA_STATE" -eq 1 ] && printf "running" || printf "stopped")"
+	printf "Active Profile:\t%s\n" "${ACTIVE_PROFILE:-none}"
 	printf "IP Address:\t%s\n" "${IP:-none}"
 	printf "Status:\t\t%s\n" "${CURRENT_STATUS:-inactive}"
 
@@ -1111,8 +1258,8 @@ ifconfig lo up &
 
 case "$1" in
 	start) DO_START start ;;
-	connect) DO_START connect ;;
-	stop) DO_STOP ;;
+	connect) DO_START connect "$2" ;;
+	stop | disconnect) DO_STOP ;;
 	restart)
 		DO_STOP
 		DO_START start
@@ -1121,7 +1268,7 @@ case "$1" in
 	unload) UNLOAD_MODULE ;;
 	status) DO_STATUS ;;
 	*)
-		printf "Usage: %s {start|connect|stop|restart|load|unload|status}\n" "$0" >&2
+		printf "Usage: %s {start|connect <profile>|stop|disconnect|restart|load|unload|status}\n" "$0" >&2
 		exit 1
 		;;
 esac

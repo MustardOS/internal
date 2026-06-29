@@ -303,10 +303,21 @@ WAIT_FOR_IFACE_READY() {
 DESTROY_DHCPCD() {
 	if NETWORK_DAEMONS_RUNNING; then
 		killall -q dhcpcd udhcpc wpa_supplicant
-		sleep 1
-		killall -9 dhcpcd udhcpc wpa_supplicant
-		sleep 1
+
+		WAIT_PROCESS_GONE dhcpcd 3
+		WAIT_PROCESS_GONE udhcpc 3
+		WAIT_PROCESS_GONE wpa_supplicant 3
+
+		if NETWORK_DAEMONS_RUNNING; then
+			killall -9 dhcpcd udhcpc wpa_supplicant
+			WAIT_PROCESS_GONE dhcpcd 2
+			WAIT_PROCESS_GONE udhcpc 2
+			WAIT_PROCESS_GONE wpa_supplicant 2
+		fi
 	fi
+
+	rm -rf /var/run/wpa_supplicant 2>/dev/null
+	mkdir -p /var/run/wpa_supplicant 2>/dev/null
 }
 
 RESTORE_HOSTNAME() {
@@ -415,6 +426,89 @@ WPA_RUNNING() {
 	pgrep -f "wpa_supplicant.*$IFCE" >/dev/null 2>&1
 }
 
+WAIT_PROCESS_GONE() {
+	PROC_NAME="$1"
+	TIMEOUT="${2:-5}"
+	I=0
+
+	[ -n "$PROC_NAME" ] || return 0
+
+	while [ "$I" -lt "$TIMEOUT" ]; do
+		if ! pgrep -x "$PROC_NAME" >/dev/null 2>&1; then
+			return 0
+		fi
+
+		I=$((I + 1))
+		sleep 1
+	done
+
+	return 1
+}
+
+WPA_CONFIG_HEADER() {
+	[ "$IFCE" = "eth0" ] && return 0
+	[ -n "$WPA_CONFIG" ] || return 1
+
+	mkdir -p /var/run/wpa_supplicant 2>/dev/null
+
+	if [ -f "$WPA_CONFIG" ] && grep -q '^ctrl_interface=' "$WPA_CONFIG"; then
+		return 0
+	fi
+
+	WPA_CONFIG_TMP="$WPA_CONFIG.$$"
+
+	{
+		printf "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=0\n"
+		printf "update_config=1\n"
+		[ -f "$WPA_CONFIG" ] && cat "$WPA_CONFIG"
+	} >"$WPA_CONFIG_TMP" || {
+		rm -f "$WPA_CONFIG_TMP"
+		return 1
+	}
+
+	mv -f "$WPA_CONFIG_TMP" "$WPA_CONFIG"
+}
+
+WPA_STATUS_VALUE() {
+	WPA_KEY="$1"
+	[ -n "$WPA_KEY" ] || return 1
+	command -v wpa_cli >/dev/null 2>&1 || return 1
+
+	wpa_cli -i "$IFCE" status 2>/dev/null | awk -F= -v KEY="$WPA_KEY" '$1 == KEY { print $2; exit }'
+}
+
+WAIT_WPA_COMPLETED() {
+	[ "$IFCE" = "eth0" ] && return 0
+	[ -n "$PASS" ] || return 0
+	command -v wpa_cli >/dev/null 2>&1 || return 0
+
+	WAIT=25
+	while [ "$WAIT" -gt 0 ]; do
+		WPA_STATE=$(WPA_STATUS_VALUE "wpa_state")
+
+		case "$WPA_STATE" in
+			COMPLETED)
+				LOG_INFO "$0" 0 "NETWORK" "WPA handshake completed"
+				return 0
+				;;
+			DISCONNECTED | INACTIVE)
+				if ! WPA_RUNNING; then
+					LOG_ERROR "$0" 0 "NETWORK" "WPA Supplicant exited before handshake completed"
+					FAIL_WITH "INVALID_PASSWORD" "$RC_INVALID_PASSWORD"
+					return $?
+				fi
+				;;
+		esac
+
+		LOG_WARN "$0" 0 "NETWORK" "$(printf "Waiting for WPA completion... (%ds, state: %s)" "$WAIT" "${WPA_STATE:-unknown}")"
+		WAIT=$((WAIT - 1))
+		sleep 1
+	done
+
+	LOG_ERROR "$0" 0 "NETWORK" "WPA authentication timeout"
+	FAIL_WITH "AUTH_TIMEOUT" "$RC_AUTH_TIMEOUT"
+}
+
 WAIT_CARRIER() {
 	[ "$IFCE" = "eth0" ] && return 0
 
@@ -443,6 +537,7 @@ WAIT_NETWORK_ASSOC() {
 				case "$OUT" in
 					*'ESSID:"'*)
 						LOG_INFO "$0" 0 "NETWORK" "WiFi Associated!"
+						WAIT_WPA_COMPLETED || return $?
 						return 0
 						;;
 				esac
@@ -450,6 +545,7 @@ WAIT_NETWORK_ASSOC() {
 			nl80211)
 				if iw dev "$IFCE" link | grep -q "SSID:"; then
 					LOG_INFO "$0" 0 "NETWORK" "WiFi Associated!"
+					WAIT_WPA_COMPLETED || return $?
 					return 0
 				fi
 				;;
@@ -488,6 +584,11 @@ WIFI_CONFIG() {
 	if [ -n "$PASS" ]; then
 		NET_STATUS "AUTHENTICATING"
 		/opt/muos/script/web/password.sh
+		WPA_CONFIG_HEADER || {
+			LOG_ERROR "$0" 0 "NETWORK" "Failed to prepare WPA control interface"
+			FAIL_WITH "WPA_START_FAILED" "$RC_WPA_START_FAILED"
+			return $?
+		}
 
 		case "$NET_DRIVER_TYPE" in
 			wext)
@@ -617,6 +718,15 @@ VALIDATE_NETWORK() {
 	NET_STATUS "VALIDATING"
 	[ ! -s "$RESOLV_CONF" ] && printf "nameserver %s\n" "$DNSA" >"$RESOLV_CONF"
 
+	IP=$(ip -4 -o addr show dev "$IFCE" | awk '{split($4, a, "/"); print a[1]; exit}')
+	if [ -z "$IP" ]; then
+		LOG_ERROR "$0" 0 "NETWORK" "No active network address"
+		FAIL_WITH "DHCP_FAILED" "$RC_DHCP_FAILED"
+		return $?
+	fi
+
+	SET_VAR "config" "network/address" "$IP"
+
 	for TGT in "$DNSA" 1.1.1.1 8.8.8.8; do
 		if ping -q -c1 -w2 "$TGT" >/dev/null 2>&1; then
 			if arping -c1 -w1 "$GATE" >/dev/null 2>&1; then
@@ -625,14 +735,13 @@ VALIDATE_NETWORK() {
 				LOG_WARN "$0" 0 "NETWORK" "Gateway did not respond to ARP"
 			fi
 
-			SET_VAR "config" "network/address" "$IP"
 			LOG_SUCCESS "$0" 0 "NETWORK" "$(printf "Network is now active (%s)" "$IP")"
 			return 0
 		fi
 	done
 
-	LOG_ERROR "$0" 0 "NETWORK" "No active network connection"
-	FAIL_WITH "FAILED" "$RC_FAIL"
+	LOG_WARN "$0" 0 "NETWORK" "$(printf "Network has local address %s but external validation failed" "$IP")"
+	return 0
 }
 
 NORMALISE_PRIORITY() {
@@ -832,6 +941,7 @@ BUILD_PROFILE_WPA_CONFIG() {
 	[ -d "$PROFILE_DIR" ] || return 1
 
 	: >"$WPA_CONFIG"
+	WPA_CONFIG_HEADER || return 1
 
 	NET_PROFILE_COUNT=0
 
@@ -960,6 +1070,13 @@ TRY_CONNECT() {
 		else
 			IP_STATIC || return $?
 		fi
+	fi
+
+	IP=$(ip -4 -o addr show dev "$IFCE" | awk '{split($4, a, "/"); print a[1]; exit}')
+	if [ -n "$IP" ]; then
+		SET_VAR "config" "network/address" "$IP"
+		[ -n "$CURRENT_PROFILE" ] && SET_ACTIVE "$CURRENT_PROFILE"
+		NET_STATUS "CONNECTED"
 	fi
 
 	sleep 1
@@ -1142,9 +1259,9 @@ DO_START() {
 
 		if [ "$RC" -eq "$RC_OK" ]; then
 			LOG_SUCCESS "$0" 0 "NETWORK" "Network Connected Successfully"
-			ON_CONNECTED
-			SET_ACTIVE "$CURRENT_PROFILE"
+			[ -n "$CURRENT_PROFILE" ] && SET_ACTIVE "$CURRENT_PROFILE"
 			NET_STATUS "CONNECTED"
+			ON_CONNECTED
 			return 0
 		fi
 
@@ -1152,6 +1269,7 @@ DO_START() {
 			"$RC_INVALID_PASSWORD")
 				LOG_ERROR "$0" 0 "NETWORK" "Invalid WiFi password"
 				NET_STATUS "INVALID_PASSWORD"
+				CLEAR_ACTIVE
 				sleep 2
 				NET_STATUS_CLEAR
 				return 1
@@ -1159,6 +1277,7 @@ DO_START() {
 			"$RC_AP_NOT_FOUND")
 				LOG_ERROR "$0" 0 "NETWORK" "Access point not found"
 				NET_STATUS "AP_NOT_FOUND"
+				CLEAR_ACTIVE
 				sleep 2
 				NET_STATUS_CLEAR
 				return 1
@@ -1166,6 +1285,7 @@ DO_START() {
 			"$RC_WPA_START_FAILED")
 				LOG_ERROR "$0" 0 "NETWORK" "WPA Supplicant start failed"
 				NET_STATUS "WPA_START_FAILED"
+				CLEAR_ACTIVE
 				sleep 2
 				NET_STATUS_CLEAR
 				return 1
@@ -1186,6 +1306,7 @@ DO_START() {
 	done
 
 	LOG_ERROR "$0" 0 "NETWORK" "All Connection Attempts Failed"
+	CLEAR_ACTIVE
 	NET_STATUS "FAILED"
 	sleep 2
 	NET_STATUS_CLEAR

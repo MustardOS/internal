@@ -1305,7 +1305,7 @@ DO_START() {
 				CLEAR_ACTIVE
 				sleep 2
 				NET_STATUS_CLEAR
-				return 1
+				return "$RC_INVALID_PASSWORD"
 				;;
 			"$RC_AP_NOT_FOUND")
 				LOG_ERROR "$0" 0 "NETWORK" "Access point not found"
@@ -1313,7 +1313,7 @@ DO_START() {
 				CLEAR_ACTIVE
 				sleep 2
 				NET_STATUS_CLEAR
-				return 1
+				return "$RC_AP_NOT_FOUND"
 				;;
 			"$RC_WPA_START_FAILED")
 				LOG_ERROR "$0" 0 "NETWORK" "WPA Supplicant start failed"
@@ -1321,7 +1321,7 @@ DO_START() {
 				CLEAR_ACTIVE
 				sleep 2
 				NET_STATUS_CLEAR
-				return 1
+				return "$RC_WPA_START_FAILED"
 				;;
 		esac
 
@@ -1343,7 +1343,7 @@ DO_START() {
 	NET_STATUS "FAILED"
 	sleep 2
 	NET_STATUS_CLEAR
-	return 1
+	return "$RC_FAIL"
 }
 
 DO_STOP() {

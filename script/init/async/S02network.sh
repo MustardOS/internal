@@ -59,6 +59,7 @@ RC_AUTH_TIMEOUT=4
 RC_DHCP_FAILED=5
 RC_LINK_TIMEOUT=6
 RC_WPA_START_FAILED=7
+RC_ACTIVE_PROFILE=8
 
 # Just in case some weird shit happens and the DNS is being
 # cleared for whatever reason: https://dns.kitchen/jingle
@@ -83,6 +84,34 @@ SET_ACTIVE() {
 
 CLEAR_ACTIVE() {
 	SET_VAR "config" "network/active" ""
+}
+
+CURRENT_IP() {
+	ip -4 -o addr show dev "$IFCE" 2>/dev/null | awk '{split($4, a, "/"); print a[1]; exit}'
+}
+
+LIVE_NETWORK_CONNECTED() {
+	LIVE_IP=$(CURRENT_IP)
+	[ -n "$LIVE_IP" ] && return 0
+
+	LIVE_WPA_STATE=$(WPA_STATUS_VALUE "wpa_state")
+	[ "$LIVE_WPA_STATE" = "COMPLETED" ] && return 0
+
+	return 1
+}
+
+BLOCK_PROFILE_SWITCH() {
+	BLOCK_TARGET="$1"
+	BLOCK_ACTIVE=$(GET_VAR "config" "network/active")
+
+	[ -n "$BLOCK_ACTIVE" ] || return 1
+	[ "$BLOCK_ACTIVE" != "$BLOCK_TARGET" ] || return 1
+
+	LIVE_NETWORK_CONNECTED || return 1
+
+	LOG_WARN "$0" 0 "NETWORK" "$(printf "Refusing network switch from '%s' to '%s'; disconnect first" "$BLOCK_ACTIVE" "$BLOCK_TARGET")"
+
+	return 0
 }
 
 FAIL_WITH() {
@@ -1218,6 +1247,10 @@ DO_START() {
 	fi
 
 	if [ "$CONNECT_MODE" = "connect" ]; then
+		if BLOCK_PROFILE_SWITCH "$CONNECT_PROFILE"; then
+			return "$RC_ACTIVE_PROFILE"
+		fi
+
 		if ! LOAD_PROFILE_BY_NAME "$CONNECT_PROFILE"; then
 			LOG_ERROR "$0" 0 "NETWORK" "$(printf "Connect profile not found: %s" "$CONNECT_PROFILE")"
 			return 1

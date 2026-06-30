@@ -953,7 +953,10 @@ SETUP_SDL_ENVIRONMENT() {
 					*) GCDB_FILE="$GCDB_STORE/$SEL.txt" ;;
 				esac
 			else
-				GCDB_FILE="$GCDB_STORE/retro.txt"
+				case "$(GET_VAR "config" "settings/remap/layout")" in
+					1) GCDB_FILE="$GCDB_STORE/modern.txt" ;;
+					*) GCDB_FILE="$GCDB_STORE/retro.txt" ;;
+				esac
 			fi
 			;;
 	esac
@@ -1044,6 +1047,8 @@ DETECT_CONTROL_SWAP() {
 			retro) ;;
 			*) [ "$(GET_VAR "config" "settings/remap/layout")" -eq 1 ] && DO_SWAP ;;
 		esac
+	else
+		[ "$(GET_VAR "config" "settings/remap/layout")" -eq 1 ] && DO_SWAP
 	fi
 
 	printf "%s\n" "$IS_SWAP"

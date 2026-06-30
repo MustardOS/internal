@@ -64,6 +64,9 @@ LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Launcher"
 SHOW_SPLASH clear
 
 while :; do
+	# Unset SDL controller env vars exported by SETUP_APP so muX modules start fresh
+	unset SDL_GAMECONTROLLERCONFIG_FILE SDL_GAMECONTROLLERCONFIG
+
 	# Reset audio control status
 	LOG_INFO "$0" 0 "FRONTEND" "Audio Mixer Reset"
 	RESET_MIXER

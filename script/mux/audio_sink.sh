@@ -65,8 +65,8 @@ DO_LIST() {
 	: >"$TMP_SINKS_RAW"
 
 	TAB=$(printf '\t')
+	CONSOLE_MODE=$(GET_VAR "config" "boot/device_mode")
 
-	# Fucking HDMI Audio Output...
 	pw-dump 2>/dev/null | jq -r '
 		.[] |
 		select(.type == "PipeWire:Interface:Node") |
@@ -83,6 +83,8 @@ DO_LIST() {
 		join("\t")
 	' 2>/dev/null | while IFS="$TAB" read -r ID NAME; do
 		[ -z "$ID" ] && continue
+		# HDMI audio is only valid in console (HDMI output) mode
+		[ "${CONSOLE_MODE:-0}" -ne 1 ] && [ "$NAME" = "HDMI Audio" ] && continue
 		printf "%s\n" "$NAME" >>"$TMP_SINKS"
 		printf "%s\t%s\n" "$ID" "$NAME" >>"$TMP_SINKS_RAW"
 	done
@@ -172,6 +174,7 @@ DO_SET_BT() {
 
 	if [ -z "$NODE_ID" ]; then
 		LOG_INFO "$0" 0 "AUDIOSINK" "$(printf "No BT audio sink for '%s' - not an audio device or not ready" "$MAC")"
+		DO_SET_BUILTIN
 		return 0
 	fi
 
@@ -179,6 +182,13 @@ DO_SET_BT() {
 
 	wpctl set-default "$NODE_ID" >/dev/null 2>&1
 	SAVE_ACTIVE_SINK "$NODE_ID"
+
+	# The PipeWire node appears before the BlueZ A2DP codec handshake
+	# completes; switching too quickly causes silence ~10% of the time on
+	# reboot. Sleep briefly then restore the saved volume — the BT sink
+	# starts at its own default level, not the configured system volume.
+	sleep 1
+	RESTORE_AUDIO_VOLUME
 
 	LOG_SUCCESS "$0" 0 "AUDIOSINK" "$(printf "BT audio sink active for '%s' (id=%s)" "$MAC" "$NODE_ID")"
 }

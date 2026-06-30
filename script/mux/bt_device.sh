@@ -181,11 +181,23 @@ DO_FORGET() {
 
 	LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Forgetting device '%s'" "$MAC")"
 
+	MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
+
+	# Check if this is an audio device BEFORE removing the type file so the
+	# audio sink can be reverted regardless of bt_monitor disconnect timing
+	IS_AUDIO=0
+	STORED_TYPE=$(cat "$BT_DIR/type_$MAC_CLEAN" 2>/dev/null)
+	if [ -n "$STORED_TYPE" ]; then
+		case "$STORED_TYPE" in audio-*) IS_AUDIO=1 ;; esac
+	else
+		BT_ICON=$(bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
+		case "$BT_ICON" in audio-*) IS_AUDIO=1 ;; esac
+	fi
+
 	bluetoothctl untrust "$MAC" >/dev/null 2>&1
 	timeout 5 bluetoothctl disconnect "$MAC" >/dev/null 2>&1 || true
-	bluetoothctl remove "$MAC" >/dev/null 2>&1
+	timeout 5 bluetoothctl remove "$MAC" >/dev/null 2>&1 || true
 
-	MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
 	rm -f "$BT_DIR/alias_$MAC_CLEAN" "$BT_DIR/type_$MAC_CLEAN"
 
 	if [ -f "$BT_PAIRED" ]; then
@@ -193,6 +205,10 @@ DO_FORGET() {
 		grep -v "^$MAC " "$BT_PAIRED" >"$TMP" 2>/dev/null || true
 		mv -f "$TMP" "$BT_PAIRED"
 	fi
+
+	# Revert audio routing to the built-in sink — bt_monitor's disconnect
+	# handler cannot be relied on here because the type file is deleted above
+	[ "$IS_AUDIO" -eq 1 ] && "$(dirname "$0")/audio_sink.sh" set-builtin >/dev/null 2>&1 &
 
 	LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Device '%s' removed" "$MAC")"
 }

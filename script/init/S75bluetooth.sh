@@ -72,6 +72,9 @@ DO_START() {
 			printf "%s" "$!" >"$HCI_PID"
 			;;
 		tui*)
+			LOG_INFO "$0" 0 "BLUETOOTH" "Unblocking Bluetooth hardware (tui/xradio variant)"
+			rfkill unblock all 2>/dev/null
+			sleep 1
 			LOG_INFO "$0" 0 "BLUETOOTH" "Attaching Realtek HCI (tui/xradio variant)"
 			rtk_hciattach -n -s 115200 ttyS1 xradio >/dev/null 2>&1 &
 			printf "%s" "$!" >"$HCI_PID"

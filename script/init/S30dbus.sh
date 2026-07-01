@@ -2,10 +2,17 @@
 
 PIDFILE="/run/messagebus.pid"
 LOCKFILE="/var/lock/subsys/dbus-daemon"
+BT_DBUS_CONF_SRC="/opt/muos/share/conf/bluetooth.conf"
+BT_DBUS_CONF_DST="/etc/dbus-1/system.d/bluetooth.conf"
 
 RET_VAL=0
 
 START() {
+	if [ -f "$BT_DBUS_CONF_SRC" ]; then
+		mkdir -p "$(dirname "$BT_DBUS_CONF_DST")"
+		cmp -s "$BT_DBUS_CONF_SRC" "$BT_DBUS_CONF_DST" 2>/dev/null || cp -f "$BT_DBUS_CONF_SRC" "$BT_DBUS_CONF_DST"
+	fi
+
 	printf "Starting system message bus: "
 
 	dbus-uuidgen --ensure

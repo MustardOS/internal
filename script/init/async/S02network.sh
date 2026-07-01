@@ -1060,7 +1060,7 @@ TRY_CONNECT() {
 		MULTI_PROFILE=1
 	fi
 
-	rfkill unblock all
+	rfkill unblock all 2>/dev/null
 
 	RESTORE_HOSTNAME
 	DESTROY_DHCPCD
@@ -1226,7 +1226,7 @@ DO_START() {
 		rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && LOAD_MODULE ;;
 	esac
 
-	rfkill unblock all
+	rfkill unblock all 2>/dev/null
 
 	# A fresh boot owns no connection until one is established, so drop any persisted active pointer!
 	[ "$CONNECT_MODE" = "connect" ] || CLEAR_ACTIVE

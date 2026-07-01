@@ -195,6 +195,7 @@ DO_FORGET() {
 	fi
 
 	bluetoothctl untrust "$MAC" >/dev/null 2>&1
+	bluetoothctl block "$MAC" >/dev/null 2>&1
 	timeout 5 bluetoothctl disconnect "$MAC" >/dev/null 2>&1 || true
 	timeout 5 bluetoothctl remove "$MAC" >/dev/null 2>&1 || true
 

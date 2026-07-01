@@ -158,7 +158,7 @@ DO_SET_BT() {
 
 	MAC_UPPER=$(printf "%s" "$MAC" | tr '[:lower:]' '[:upper:]')
 
-	ATTEMPTS=6
+	ATTEMPTS=15
 	NODE_ID=""
 	while [ "$ATTEMPTS" -gt 0 ] && [ -z "$NODE_ID" ]; do
 		NODE_ID=$(pw-dump 2>/dev/null | jq -r --arg mac "$MAC_UPPER" '

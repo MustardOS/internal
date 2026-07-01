@@ -115,7 +115,7 @@ DO_RUN() {
 		CHECK "$FAIL" "bluetoothd binary NOT found at $BT_DAEMON - BlueZ not installed"
 	fi
 
-	if pgrep -x bluetoothd >/dev/null 2>&1; then
+	if pgrep bluetoothd >/dev/null 2>&1; then
 		CHECK "$PASS" "bluetoothd is running"
 	else
 		CHECK "$FAIL" "bluetoothd is NOT running - start with S75bluetooth.sh start"

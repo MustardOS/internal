@@ -31,47 +31,10 @@ OUI_LOOKUP() {
 	return 1
 }
 
-DO_LIST() {
-	if [ -f "$BT_SCAN_LOCK" ]; then
-		LOCK_PID=$(cat "$BT_SCAN_LOCK" 2>/dev/null)
-		if [ -n "$LOCK_PID" ] && kill -0 "$LOCK_PID" 2>/dev/null; then
-			LOG_INFO "$0" 0 "BTSCAN" "$(printf "Scan already in progress (PID %s) - skipping" "$LOCK_PID")"
-			exit 0
-		fi
-		rm -f "$BT_SCAN_LOCK"
-	fi
-	printf "%s" "$$" >"$BT_SCAN_LOCK"
-	trap 'rm -f "$BT_SCAN_LOCK"' EXIT
+BT_SCAN_STOP="$BT_DIR/scan.stop"
 
-	LOG_INFO "$0" 0 "BTSCAN" "$(printf "Scanning for nearby Bluetooth devices (%ss)" "$SCAN_TIMEOUT")"
-
-	# Apparently it needs to be powered on even though it is... powered on?
-	bluetoothctl power on >/dev/null 2>&1
-
-	TMP_NAMES="$BT_DIR/scan_names.tmp.$$"
-	: >"$TMP_NAMES"
-
-	(
-		printf "scan on\n"
-		sleep "$SCAN_TIMEOUT"
-		printf "scan off\n"
-		sleep 2
-	) | timeout $((SCAN_TIMEOUT + 7)) bluetoothctl 2>/dev/null | while IFS= read -r LINE; do
-		MAC=""
-		NAME=""
-		case "$LINE" in
-			*"[NEW] Device "*)
-				MAC=$(printf "%s" "$LINE" | awk '{print $3}')
-				NAME=$(printf "%s" "$LINE" | cut -d' ' -f4-)
-				;;
-			*"[CHG] Device "*"Name: "*)
-				MAC=$(printf "%s" "$LINE" | awk '{print $3}')
-				NAME=$(printf "%s" "$LINE" | awk -F'Name: ' '{print $2}')
-				;;
-		esac
-		[ -n "$MAC" ] && [ -n "$NAME" ] && [ "$NAME" != "$MAC" ] &&
-			printf "%s\t%s\n" "$MAC" "$NAME" >>"$TMP_NAMES"
-	done
+WRITE_SCAN_RESULTS() {
+	TMP_NAMES_FILE="${1:-}"
 
 	TMP_SPECIAL="$BT_DIR/scan_special.tmp.$$"
 	TMP_NAMED="$BT_DIR/scan_named.tmp.$$"
@@ -105,8 +68,10 @@ DO_LIST() {
 		printf "%s\n" "$TRUSTED_MACS" | grep -qxF "$MAC" 2>/dev/null && continue
 		printf "%s\n" "$CONNECTED_MACS" | grep -qxF "$MAC" 2>/dev/null && continue
 
-		RESOLVED=$(awk -F'\t' -v mac="$MAC" '$1==mac{name=$2} END{if(name) print name}' "$TMP_NAMES" 2>/dev/null)
-		[ -n "$RESOLVED" ] && NAME="$RESOLVED"
+		if [ -n "$TMP_NAMES_FILE" ] && [ -f "$TMP_NAMES_FILE" ]; then
+			RESOLVED=$(awk -F'\t' -v mac="$MAC" '$1==mac{name=$2} END{if(name) print name}' "$TMP_NAMES_FILE" 2>/dev/null)
+			[ -n "$RESOLVED" ] && NAME="$RESOLVED"
+		fi
 
 		case "$NAME" in
 			"" | "$MAC" | \
@@ -124,8 +89,6 @@ DO_LIST() {
 		esac
 	done
 
-	rm -f "$TMP_NAMES"
-
 	TMP_BT_SCAN="$BT_DIR/scan.tmp.$$"
 	{
 		sort -k2 -f "$TMP_SPECIAL"
@@ -137,7 +100,69 @@ DO_LIST() {
 	mv -f "$TMP_BT_SCAN" "$BT_SCAN"
 
 	COUNT=$(wc -l <"$BT_SCAN" 2>/dev/null)
-	LOG_SUCCESS "$0" 0 "BTSCAN" "$(printf "Found %s device(s); results written to '%s'" "${COUNT:-0}" "$BT_SCAN")"
+	LOG_SUCCESS "$0" 0 "BTSCAN" "$(printf "Found %s device(s)" "${COUNT:-0}")"
+}
+
+DO_LIST() {
+	if [ -f "$BT_SCAN_LOCK" ]; then
+		LOCK_PID=$(cat "$BT_SCAN_LOCK" 2>/dev/null)
+		if [ -n "$LOCK_PID" ] && kill -0 "$LOCK_PID" 2>/dev/null; then
+			LOG_INFO "$0" 0 "BTSCAN" "$(printf "Scan already in progress (PID %s) - skipping" "$LOCK_PID")"
+			exit 0
+		fi
+		rm -f "$BT_SCAN_LOCK"
+	fi
+	printf "%s" "$$" >"$BT_SCAN_LOCK"
+	rm -f "$BT_SCAN_STOP"
+	trap 'rm -f "$BT_SCAN_LOCK" "$BT_SCAN_STOP"' EXIT
+
+	LOG_INFO "$0" 0 "BTSCAN" "Continuous scan starting"
+
+	bluetoothctl power on >/dev/null 2>&1
+
+	TMP_NAMES="$BT_DIR/scan_names.tmp.$$"
+	: >"$TMP_NAMES"
+
+	(
+		printf "scan on\n"
+		while [ ! -f "$BT_SCAN_STOP" ]; do sleep 5; done
+		printf "scan off\n"
+		sleep 2
+	) | timeout 3610 bluetoothctl 2>/dev/null | while IFS= read -r LINE; do
+		MAC=""
+		NAME=""
+		case "$LINE" in
+			*"[NEW] Device "*)
+				MAC=$(printf "%s" "$LINE" | awk '{print $3}')
+				NAME=$(printf "%s" "$LINE" | cut -d' ' -f4-)
+				;;
+			*"[CHG] Device "*"Name: "*)
+				MAC=$(printf "%s" "$LINE" | awk '{print $3}')
+				NAME=$(printf "%s" "$LINE" | awk -F'Name: ' '{print $2}')
+				;;
+		esac
+		[ -n "$MAC" ] && [ -n "$NAME" ] && [ "$NAME" != "$MAC" ] &&
+			printf "%s\t%s\n" "$MAC" "$NAME" >>"$TMP_NAMES"
+	done &
+
+	# Wait briefly for scan to populate device cache before first write!
+	sleep "$SCAN_TIMEOUT"
+
+	WRITE_SCAN_RESULTS "$TMP_NAMES"
+	while [ ! -f "$BT_SCAN_STOP" ]; do
+		sleep 5
+		[ -f "$BT_SCAN_STOP" ] && break
+		WRITE_SCAN_RESULTS "$TMP_NAMES"
+	done
+
+	wait
+	rm -f "$TMP_NAMES"
+	LOG_INFO "$0" 0 "BTSCAN" "Continuous scan stopped"
+}
+
+DO_STOP() {
+	LOG_INFO "$0" 0 "BTSCAN" "Stopping continuous scan"
+	touch "$BT_SCAN_STOP"
 }
 
 DO_CONNECT() {
@@ -207,10 +232,11 @@ DO_INFO() {
 
 case "${1:-}" in
 	list) DO_LIST ;;
+	stop) DO_STOP ;;
 	connect) DO_CONNECT "$2" ;;
 	info) DO_INFO "$2" ;;
 	*)
-		printf "Usage: %s {list|connect <mac>|info <mac>}\n" "$0"
+		printf "Usage: %s {list|stop|connect <mac>|info <mac>}\n" "$0"
 		exit 1
 		;;
 esac

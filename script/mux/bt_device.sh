@@ -25,7 +25,6 @@ DO_LIST() {
 
 	if ! timeout 3 bluetoothctl show >/dev/null 2>&1; then
 		LOG_WARN "$0" 0 "BTDEVICE" "bluetoothd not ready - skipping list update"
-		: >"$BT_PAIRED"
 		return 0
 	fi
 
@@ -83,6 +82,29 @@ DO_LIST() {
 			fi
 		done <"$TMP_BT_PAIR"
 		mv -f "$TMP_DEDUP" "$TMP_BT_PAIR"
+	fi
+
+	if [ ! -s "$TMP_BT_PAIR" ]; then
+		for ADAPTER_DIR in /var/lib/bluetooth/??:??:??:??:??:??/; do
+			[ -d "$ADAPTER_DIR" ] || continue
+			for DEVICE_DIR in "$ADAPTER_DIR"??:??:??:??:??:??/; do
+				INFO_FILE="$DEVICE_DIR/info"
+				[ -f "$INFO_FILE" ] || continue
+				grep -qE '^(Paired|Trusted)=true' "$INFO_FILE" 2>/dev/null || continue
+				DEV_MAC=$(basename "$DEVICE_DIR")
+				DEV_NAME=$(awk '/^\[General\]/{f=1} f && /^Name=/{sub(/^[^=]+=/, ""); print; exit}' "$INFO_FILE" 2>/dev/null)
+				[ -z "$DEV_NAME" ] && DEV_NAME="$DEV_MAC"
+				case "$DEV_NAME" in Modalias:*) continue ;; esac
+				MAC_CLEAN=$(printf "%s" "$DEV_MAC" | tr ':' '_')
+				if [ -f "$BT_DIR/alias_$MAC_CLEAN" ]; then
+					OUR_ALIAS=$(cat "$BT_DIR/alias_$MAC_CLEAN" 2>/dev/null)
+					[ -n "$OUR_ALIAS" ] && DEV_NAME="$OUR_ALIAS"
+				fi
+				CONNECTED=0
+				printf "%s\n" "$CONNECTED_MACS" | grep -qxF "$DEV_MAC" 2>/dev/null && CONNECTED=1
+				printf "%s %d %s\n" "$DEV_MAC" "$CONNECTED" "$DEV_NAME" >>"$TMP_BT_PAIR"
+			done
+		done
 	fi
 
 	if [ ! -s "$TMP_BT_PAIR" ]; then
@@ -195,9 +217,12 @@ DO_FORGET() {
 	fi
 
 	bluetoothctl untrust "$MAC" >/dev/null 2>&1
-	bluetoothctl block "$MAC" >/dev/null 2>&1
-	timeout 5 bluetoothctl disconnect "$MAC" >/dev/null 2>&1 || true
 	timeout 5 bluetoothctl remove "$MAC" >/dev/null 2>&1 || true
+	timeout 5 bluetoothctl disconnect "$MAC" >/dev/null 2>&1 || true
+
+	for ADAPTER_DIR in /var/lib/bluetooth/??:??:??:??:??:??/; do
+		[ -d "${ADAPTER_DIR}${MAC}" ] && rm -rf "${ADAPTER_DIR}${MAC}"
+	done
 
 	rm -f "$BT_DIR/alias_$MAC_CLEAN" "$BT_DIR/type_$MAC_CLEAN"
 
@@ -224,7 +249,7 @@ DO_INFO() {
 	LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Fetching info for '%s'" "$MAC")"
 
 	BT_INFO_FILE="$BT_DIR/device_info"
-	BT_RAW=$(bluetoothctl info "$MAC" 2>/dev/null)
+	BT_RAW=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
 
 	{
 		ALIAS=$(printf "%s" "$BT_RAW" | awk -F': ' '/^\tAlias:/ { print $2; exit }')

@@ -13,7 +13,7 @@ TIMEOUT=5000
 INTERVAL=100
 
 PROC_RUNNING() {
-	pgrep -x "$1" >/dev/null 2>&1
+	pgrep "$1" >/dev/null 2>&1
 }
 
 HCI_READY() {
@@ -52,7 +52,7 @@ STOP_PROC() {
 		rm -f "$PIDFILE"
 	elif PROC_RUNNING "$NAME"; then
 		LOG_DEBUG "$0" 0 "BLUETOOTH" "$(printf "Stopping '%s' by name" "$NAME")"
-		pkill -15 -x "$NAME" 2>/dev/null
+		pkill -15 "$NAME" 2>/dev/null
 	fi
 }
 
@@ -75,6 +75,20 @@ DO_START() {
 			LOG_INFO "$0" 0 "BLUETOOTH" "Unblocking Bluetooth hardware (tui/xradio variant)"
 			rfkill unblock all 2>/dev/null
 			sleep 1
+			if [ ! -f /etc/bluetooth/xr_bt.conf ]; then
+				WIFI_MAC=$(cat /sys/class/net/wlan0/address 2>/dev/null)
+				if [ -n "$WIFI_MAC" ]; then
+					FIRST_HEX=$(printf "%s" "$WIFI_MAC" | cut -d: -f1)
+					REST=$(printf "%s" "$WIFI_MAC" | cut -d: -f2-)
+					LOCAL_FIRST=$(printf "%02x" "$(( 0x$FIRST_HEX | 0x02 ))")
+					BT_MAC_SPACE=$(printf "%s %s" "$LOCAL_FIRST" "$(printf "%s" "$REST" | tr ':' ' ')")
+					mkdir -p /etc/bluetooth
+					printf "%s\n" "$BT_MAC_SPACE" >/etc/bluetooth/xr_bt.conf
+					LOG_INFO "$0" 0 "BLUETOOTH" "$(printf "Created XR829 BT MAC config: %s" "$BT_MAC_SPACE")"
+				else
+					LOG_WARN "$0" 0 "BLUETOOTH" "Cannot derive BT MAC: wlan0 address not available"
+				fi
+			fi
 			LOG_INFO "$0" 0 "BLUETOOTH" "Attaching Realtek HCI (tui/xradio variant)"
 			rtk_hciattach -n -s 115200 ttyS1 xradio >/dev/null 2>&1 &
 			printf "%s" "$!" >"$HCI_PID"

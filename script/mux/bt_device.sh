@@ -72,10 +72,22 @@ DO_LIST() {
 			ENTRY_MAC=$(printf "%s" "$LINE" | awk '{print $1}')
 			ENTRY_CONN=$(printf "%s" "$LINE" | awk '{print $2}')
 			ENTRY_NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
+			MAC_CLEAN=$(printf "%s" "$ENTRY_MAC" | tr ':' '_')
+
+			ENTRY_IS_AUDIO=0
 			if [ "$ENTRY_CONN" = "0" ] && printf "%s\n" "$CONNECTED_NAMES" | grep -qxF "$ENTRY_NAME" 2>/dev/null; then
-				LOG_DEBUG "$0" 0 "BTDEVICE" "$(printf "Removing stale pairing '%s' (%s)" "$ENTRY_NAME" "$ENTRY_MAC")"
+				STORED_TYPE=$(cat "$BT_DIR/type_$MAC_CLEAN" 2>/dev/null)
+				if [ -n "$STORED_TYPE" ]; then
+					case "$STORED_TYPE" in audio-*) ENTRY_IS_AUDIO=1 ;; esac
+				else
+					BT_ICON=$(timeout 3 bluetoothctl info "$ENTRY_MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
+					case "$BT_ICON" in audio-*) ENTRY_IS_AUDIO=1 ;; esac
+				fi
+			fi
+
+			if [ "$ENTRY_IS_AUDIO" -eq 1 ]; then
+				LOG_DEBUG "$0" 0 "BTDEVICE" "$(printf "Removing stale audio pairing '%s' (%s)" "$ENTRY_NAME" "$ENTRY_MAC")"
 				timeout 5 bluetoothctl remove "$ENTRY_MAC" >/dev/null 2>&1
-				MAC_CLEAN=$(printf "%s" "$ENTRY_MAC" | tr ':' '_')
 				rm -f "$BT_DIR/alias_$MAC_CLEAN" "$BT_DIR/type_$MAC_CLEAN"
 			else
 				printf "%s\n" "$LINE" >>"$TMP_DEDUP"
@@ -136,7 +148,11 @@ DO_CONNECT() {
 	if [ "${IS_PAIRED}" != "yes" ]; then
 		timeout 10 bluetoothctl pair "$MAC" >/dev/null 2>&1
 	fi
-	timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
+
+	AUTOCONNECT=$(GET_VAR "config" "bluetooth/autoconnect")
+	if [ "${AUTOCONNECT:-0}" -eq 1 ]; then
+		timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
+	fi
 
 	if timeout 30 bluetoothctl connect "$MAC" >/dev/null 2>&1; then
 		LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Connected to '%s'" "$MAC")"
@@ -320,19 +336,24 @@ DO_ALIAS() {
 DO_AUTOCONNECT() {
 	AUTOCONNECT=$(GET_VAR "config" "bluetooth/autoconnect")
 
-	if [ "${AUTOCONNECT:-0}" -ne 1 ]; then
-		LOG_INFO "$0" 0 "BTDEVICE" "Auto-connect disabled - skipping"
-		return 0
-	fi
-
-	LOG_INFO "$0" 0 "BTDEVICE" "Auto-connecting to trusted paired devices"
-
 	bluetoothctl power on >/dev/null 2>&1
 
 	[ -f "$BT_PAIRED" ] || {
 		LOG_INFO "$0" 0 "BTDEVICE" "No managed devices to auto-connect"
 		return 0
 	}
+
+	if [ "${AUTOCONNECT:-0}" -ne 1 ]; then
+		LOG_INFO "$0" 0 "BTDEVICE" "Auto-connect disabled - untrusting paired devices"
+		while IFS= read -r LINE; do
+			MAC=$(printf "%s" "$LINE" | awk '{ print $1 }')
+			[ -z "$MAC" ] && continue
+			bluetoothctl untrust "$MAC" >/dev/null 2>&1
+		done <"$BT_PAIRED"
+		return 0
+	fi
+
+	LOG_INFO "$0" 0 "BTDEVICE" "Auto-connecting to trusted paired devices"
 
 	while IFS= read -r LINE; do
 		MAC=$(printf "%s" "$LINE" | awk '{ print $1 }')

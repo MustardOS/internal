@@ -107,17 +107,28 @@ DO_LIST() {
 	if [ -f "$BT_SCAN_LOCK" ]; then
 		LOCK_PID=$(cat "$BT_SCAN_LOCK" 2>/dev/null)
 		if [ -n "$LOCK_PID" ] && kill -0 "$LOCK_PID" 2>/dev/null; then
-			LOG_INFO "$0" 0 "BTSCAN" "$(printf "Scan already in progress (PID %s) - skipping" "$LOCK_PID")"
-			exit 0
+			LOG_INFO "$0" 0 "BTSCAN" "$(printf "Scan already in progress (PID %s) - signalling stop and waiting" "$LOCK_PID")"
+			touch "$BT_SCAN_STOP"
+
+			WAIT_ELAPSED=0
+			while [ -f "$BT_SCAN_LOCK" ] && [ "$WAIT_ELAPSED" -lt 8000 ]; do
+				sleep 0.2
+				WAIT_ELAPSED=$((WAIT_ELAPSED + 200))
+			done
+
+			if [ -f "$BT_SCAN_LOCK" ]; then
+				LOG_WARN "$0" 0 "BTSCAN" "$(printf "Previous scan (PID %s) did not stop in time - aborting" "$LOCK_PID")"
+				exit 1
+			fi
+		else
+			rm -f "$BT_SCAN_LOCK"
 		fi
-		rm -f "$BT_SCAN_LOCK"
 	fi
 	printf "%s" "$$" >"$BT_SCAN_LOCK"
 	rm -f "$BT_SCAN_STOP"
 	trap 'rm -f "$BT_SCAN_LOCK" "$BT_SCAN_STOP"' EXIT
 
-	LOG_INFO "$0" 0 "BTSCAN" "Continuous scan starting"
-
+	LOG_INFO "$0" 0 "BTSCAN" "$(printf "Scan starting (%ss)" "$SCAN_TIMEOUT")"
 	bluetoothctl power on >/dev/null 2>&1
 
 	TMP_NAMES="$BT_DIR/scan_names.tmp.$$"
@@ -125,7 +136,7 @@ DO_LIST() {
 
 	(
 		printf "scan on\n"
-		while [ ! -f "$BT_SCAN_STOP" ]; do sleep 5; done
+		while [ ! -f "$BT_SCAN_STOP" ]; do sleep 2; done
 		printf "scan off\n"
 		sleep 2
 	) | timeout 3610 bluetoothctl 2>/dev/null | while IFS= read -r LINE; do
@@ -145,23 +156,21 @@ DO_LIST() {
 			printf "%s\t%s\n" "$MAC" "$NAME" >>"$TMP_NAMES"
 	done &
 
-	# Wait briefly for scan to populate device cache before first write!
-	sleep "$SCAN_TIMEOUT"
-
-	WRITE_SCAN_RESULTS "$TMP_NAMES"
-	while [ ! -f "$BT_SCAN_STOP" ]; do
-		sleep 5
-		[ -f "$BT_SCAN_STOP" ] && break
+	ELAPSED=0
+	while [ "$ELAPSED" -lt "$SCAN_TIMEOUT" ] && [ ! -f "$BT_SCAN_STOP" ]; do
+		sleep 2
+		ELAPSED=$((ELAPSED + 2))
 		WRITE_SCAN_RESULTS "$TMP_NAMES"
 	done
 
+	touch "$BT_SCAN_STOP"
 	wait
 	rm -f "$TMP_NAMES"
-	LOG_INFO "$0" 0 "BTSCAN" "Continuous scan stopped"
+	LOG_INFO "$0" 0 "BTSCAN" "Scan finished"
 }
 
 DO_STOP() {
-	LOG_INFO "$0" 0 "BTSCAN" "Stopping continuous scan"
+	LOG_INFO "$0" 0 "BTSCAN" "Stopping scan"
 	touch "$BT_SCAN_STOP"
 }
 
@@ -175,7 +184,11 @@ DO_CONNECT() {
 	LOG_INFO "$0" 0 "BTSCAN" "$(printf "Pairing and connecting to '%s'" "$MAC")"
 
 	timeout 30 bluetoothctl pair "$MAC" >/dev/null 2>&1
-	timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
+
+	AUTOCONNECT=$(GET_VAR "config" "bluetooth/autoconnect")
+	if [ "${AUTOCONNECT:-0}" -eq 1 ]; then
+		timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
+	fi
 
 	if timeout 30 bluetoothctl connect "$MAC" >/dev/null 2>&1; then
 		LOG_SUCCESS "$0" 0 "BTSCAN" "$(printf "Connected to '%s'" "$MAC")"

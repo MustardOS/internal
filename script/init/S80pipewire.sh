@@ -5,7 +5,19 @@
 PF_INTERNAL=$(GET_VAR "device" "audio/pf_internal")
 PF_EXTERNAL=$(GET_VAR "device" "audio/pf_external")
 
-BOOT_CONSOLE_MODE=$(GET_VAR "config" "boot/device_mode")
+BOARD_HDMI=$(GET_VAR "device" "board/hdmi")
+if [ "${BOARD_HDMI:-0}" -eq 1 ]; then
+	HDMI_PATH=$(GET_VAR "device" "screen/hdmi")
+	HDMI_VALUE=0
+	[ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ] && IFS= read -r HDMI_VALUE <"$HDMI_PATH"
+
+	case "$HDMI_VALUE" in
+		1) BOOT_CONSOLE_MODE=1 ;;
+		*) BOOT_CONSOLE_MODE=0 ;;
+	esac
+else
+	BOOT_CONSOLE_MODE=$(GET_VAR "config" "boot/device_mode")
+fi
 
 ADV_VOL=$(GET_VAR "config" "settings/advanced/volume")
 ADV_OD=$(GET_VAR "config" "settings/advanced/overdrive")
@@ -19,6 +31,12 @@ PW_SOCKET="${PIPEWIRE_RUNTIME_DIR}/pipewire-0"
 
 TIMEOUT=3000
 INTERVAL=100
+
+if [ "${BOOT_CONSOLE_MODE:-0}" -eq 1 ]; then
+	NODE_TIMEOUT=10000
+else
+	NODE_TIMEOUT=$TIMEOUT
+fi
 
 SOCKET_READY() {
 	[ -S "$PW_SOCKET" ] || return 1
@@ -244,7 +262,7 @@ FINALISE_AUDIO() {
 	# Wait for the target node to appear, capturing its ID in the same poll to avoid a second pw-dump.
 	DEF_ID=
 	NODE_ELAPSED=0
-	while [ "$NODE_ELAPSED" -lt "$TIMEOUT" ]; do
+	while [ "$NODE_ELAPSED" -lt "$NODE_TIMEOUT" ]; do
 		DEF_ID=$(GET_NODE_ID "$TARGET_NAME")
 		[ -n "$DEF_ID" ] && break
 		sleep 0.1
@@ -254,6 +272,15 @@ FINALISE_AUDIO() {
 	if [ -z "$DEF_ID" ]; then
 		LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "Target node '%s' not ready after timeout" "$TARGET_NAME")"
 		[ "${ADV_AR:-0}" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
+
+		if [ "${WP_MINOR:-0}" -ge 5 ]; then
+			WPCTL_VOL=$(awk "BEGIN { printf \"%.2f\", ${APPLY_VOL}/100 }")
+			wpctl set-volume @DEFAULT_AUDIO_SINK@ "$WPCTL_VOL" >/dev/null 2>&1
+		else
+			wpctl set-volume @DEFAULT_AUDIO_SINK@ "${APPLY_VOL}%" >/dev/null 2>&1
+		fi
+		wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1
+
 		return 1
 	fi
 

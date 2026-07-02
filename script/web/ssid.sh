@@ -26,14 +26,20 @@ HEX_ESCAPE() {
 	}'
 }
 
-case "$(GET_VAR "device" "board/name")" in
-	mgx* | rg-vita* | rk* | tui*) /opt/muos/script/init/async/S02network.sh load ;;
-	rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && /opt/muos/script/init/async/S02network.sh load ;;
-	*) ;;
-esac
+# If we are already connected, do NOT touch network at all...
+WAS_ACTIVE=0
+[ -n "$(GET_VAR "config" "network/active")" ] && WAS_ACTIVE=1
 
-LOG_INFO "$0" 0 "SSID-SCAN" "$(printf "Setting '%s' device up" "$IFCE")"
-ip link set dev "$IFCE" up
+if [ "$WAS_ACTIVE" -eq 0 ]; then
+	case "$(GET_VAR "device" "board/name")" in
+		mgx* | rg-vita* | rk* | tui*) /opt/muos/script/init/async/S02network.sh load ;;
+		rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && /opt/muos/script/init/async/S02network.sh load ;;
+		*) ;;
+	esac
+
+	LOG_INFO "$0" 0 "SSID-SCAN" "$(printf "Setting '%s' device up" "$IFCE")"
+	ip link set dev "$IFCE" up
+fi
 
 LOG_INFO "$0" 0 "SSID-SCAN" "Scanning for networks..."
 SCAN_DATA=""
@@ -44,7 +50,10 @@ case "$(GET_VAR "device" "network/type")" in
 esac
 
 : >"$NET_SCAN"
-[ -z "$SCAN_DATA" ] && exit 0
+if [ -z "$SCAN_DATA" ]; then
+	[ "$WAS_ACTIVE" -eq 0 ] && /opt/muos/script/init/async/S02network.sh stop
+	exit 0
+fi
 
 printf '%s\n' "$SCAN_DATA" |
 	grep -E 'ESSID:|SSID:' |
@@ -54,5 +63,5 @@ printf '%s\n' "$SCAN_DATA" |
 	sort -u |
 	HEX_ESCAPE >>"$NET_SCAN"
 
-/opt/muos/script/init/async/S02network.sh stop
+[ "$WAS_ACTIVE" -eq 0 ] && /opt/muos/script/init/async/S02network.sh stop
 [ ! -s "$NET_SCAN" ] && printf "[!]" >"$NET_SCAN"

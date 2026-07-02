@@ -270,10 +270,10 @@ UNLOAD_MODULE() {
 	killall -q wpa_supplicant dhcpcd udhcpc
 	sleep 2
 
-	# PCIe WiFi modules are autoloaded by the kernel - don't unload them
-	# as modprobe -qf silently fails to reload them after removal
+	# We no longer remove the network module for any H700 based devices!
+	# Bluetooth relies on the same chipset...
 	case "$BOARD_NAME" in
-		rg-vita*) ;;
+		rg*) ;;
 		*)
 			if MODULE_LOADED "$NET_NAME"; then
 				modprobe -qr "$NET_NAME"

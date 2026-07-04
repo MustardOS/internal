@@ -11,6 +11,28 @@ local menuSelectSource = nil
 local menuBackSource = nil
 local toastSource = nil
 
+local bgmEnabled = true
+local bgmPlaylist = {}
+local currentBgmIdx = 0
+local currentBgmSource = nil
+local bgmStartDelay = 1.2
+local duckTimer = 0
+
+local downloadingBgm = false
+local downloadProgress = ""
+local bgmTrackList = {
+    { name = "Beloved - Roa.mp3", url = "Beloved%20-%20Roa.mp3" },
+    { name = "Chillout - AudioCoffee.mp3", url = "Chillout%20-%20AudioCoffee.mp3" },
+    { name = "Crescent Moon - Purrple Cat.mp3", url = "Crescent%20Moon%20-%20Purrple%20Cat.mp3" },
+    { name = "Downtown Glow - Ghostrifter Official.mp3", url = "Downtown%20Glow%20-%20Ghostrifter%20Official.mp3" },
+    { name = "Golden Hour - Purrple Cat.mp3", url = "Golden%20Hour%20-%20Purrple%20Cat.mp3" },
+    { name = "Green Tea - Purrple Cat.mp3", url = "Green%20Tea%20-%20Purrple%20Cat.mp3" },
+    { name = "Late At Night - Sakura Girl.mp3", url = "Late%20At%20Night%20-%20Sakura%20Girl.mp3" },
+    { name = "Missing You - Purrple Cat.mp3", url = "Missing%20You%20-%20Purrple%20Cat.mp3" },
+    { name = "Sunset Drive - Tokyo Music Walker.mp3", url = "Sunset%20Drive%20-%20Tokyo%20Music%20Walker.mp3" },
+    { name = "When I Was A Boy - Tokyo Music Walker.mp3", url = "When%20I%20Was%20A%20Boy%20-%20Tokyo%20Music%20Walker.mp3" }
+}
+
 local activeJoystick = nil
 local joystickInitialized = false
 
@@ -226,6 +248,158 @@ function sound.init()
         toastSource = love.audio.newSource(toastSoundData)
         toastSource:setVolume(0.40)
     end
+
+    enabled = save.loadSound()
+    bgmEnabled = save.loadMusic()
+
+    -- Check if a previous download completed while game was closed
+    local status = love.filesystem.read("download_status.txt")
+    if status and status:gsub("^%s*(.-)%s*$", "%1") == "done" then
+        love.filesystem.remove("download_status.txt")
+        love.filesystem.remove("download_music.sh")
+        love.filesystem.remove("download_music.bat")
+    end
+
+    sound.initPlaylist()
+end
+
+function sound.initPlaylist()
+    bgmPlaylist = {}
+    currentBgmIdx = 0
+    currentBgmSource = nil
+
+    -- Ensure write/save directory path exists for dynamic downloaded tracks
+    love.filesystem.createDirectory("assets/music")
+
+    local files = love.filesystem.getDirectoryItems("assets/music")
+    for _, file in ipairs(files) do
+        if file:match("%.mp3$") or file:match("%.ogg$") then
+            local title, artist
+            local stem = file:match("^(.+)%.[^.]+$") or file
+            local t_part, a_part = stem:match("^([^-]+)%s*-%s*(.+)$")
+            if t_part and a_part then
+                title = t_part:gsub("^%s*(.-)%s*$", "%1")
+                artist = a_part:gsub("^%s*(.-)%s*$", "%1")
+            else
+                title = stem
+                artist = "Unknown Artist"
+            end
+
+            table.insert(bgmPlaylist, {
+                path = "assets/music/" .. file,
+                title = title,
+                artist = artist
+            })
+        end
+    end
+
+    if #bgmPlaylist > 1 then
+        for i = #bgmPlaylist, 2, -1 do
+            local j = love.math.random(1, i)
+            bgmPlaylist[i], bgmPlaylist[j] = bgmPlaylist[j], bgmPlaylist[i]
+        end
+    end
+end
+
+function sound.playNextBgm()
+    if #bgmPlaylist == 0 then return end
+
+    if currentBgmSource then
+        currentBgmSource:stop()
+        currentBgmSource = nil
+    end
+
+    currentBgmIdx = currentBgmIdx + 1
+    if currentBgmIdx > #bgmPlaylist then
+        currentBgmIdx = 1
+    end
+
+    local track = bgmPlaylist[currentBgmIdx]
+    local success, source = pcall(love.audio.newSource, track.path, "stream")
+    if success and source then
+        currentBgmSource = source
+        currentBgmSource:setVolume(0.55)
+        currentBgmSource:play()
+    else
+        print("Failed to load music track: " .. tostring(track.path))
+    end
+end
+
+function sound.update(dt)
+    if not sound.isBgmEnabled() or _G.appState ~= "GAME" then
+        if currentBgmSource and currentBgmSource:isPlaying() then
+            currentBgmSource:stop()
+        end
+        bgmStartDelay = 1.2
+        duckTimer = 0
+        return
+    end
+
+    if bgmStartDelay > 0 then
+        bgmStartDelay = bgmStartDelay - dt
+        return
+    end
+
+    -- Update ducking timer
+    if duckTimer > 0 then
+        duckTimer = math.max(0, duckTimer - dt)
+    end
+
+    -- Update BGM volume smoothly if BGM is active
+    if currentBgmSource and currentBgmSource:isPlaying() then
+        local currentVol = currentBgmSource:getVolume()
+        local targetVol = 0.55
+        if duckTimer > 0 then
+            targetVol = 0.12 -- Ducked BGM volume during SFX chimes
+        end
+        if math.abs(currentVol - targetVol) > 0.01 then
+            local speed = (targetVol < currentVol) and 4 or 2 -- Fade out faster than fade in
+            local newVol = currentVol + (targetVol - currentVol) * math.min(1.0, speed * dt)
+            currentBgmSource:setVolume(newVol)
+        else
+            currentBgmSource:setVolume(targetVol)
+        end
+    end
+
+    if #bgmPlaylist == 0 then return end
+
+    if not currentBgmSource or not currentBgmSource:isPlaying() then
+        sound.playNextBgm()
+    end
+end
+
+function sound.isBgmEnabled()
+    return bgmEnabled and sound.isBgmDownloaded()
+end
+
+function sound.toggleBgm()
+    if not sound.isBgmDownloaded() then
+        local renderer = require("renderer")
+        renderer.showToast("Download lofi music first!")
+        return
+    end
+
+    bgmEnabled = not bgmEnabled
+    save.saveMusic(bgmEnabled)
+    if not bgmEnabled then
+        if currentBgmSource then
+            currentBgmSource:stop()
+        end
+    else
+        -- Only start playing immediately if we are currently in the gameplay screen
+        if _G.appState == "GAME" then
+            if not currentBgmSource or not currentBgmSource:isPlaying() then
+                sound.playNextBgm()
+            end
+        end
+    end
+end
+
+function sound.getCurrentTrack()
+    if not bgmEnabled or #bgmPlaylist == 0 or currentBgmIdx == 0 then
+        return nil
+    end
+    return bgmPlaylist[currentBgmIdx]
 end
 
 function sound.isEnabled()
@@ -241,6 +415,7 @@ function sound.playAchievement()
     if enabled and achSource then
         achSource:seek(0)
         achSource:play()
+        duckTimer = 1.5 -- Duck BGM for achievement sound
     end
     sound.vibrate(0.15)
 end
@@ -262,6 +437,7 @@ function sound.playVictory()
     if enabled and victorySource then
         victorySource:seek(0)
         victorySource:play()
+        duckTimer = 2.0 -- Duck BGM for victory sound
     end
     sound.vibrate(0.4)
 end
@@ -270,6 +446,7 @@ function sound.playGameOver()
     if enabled and gameOverSource then
         gameOverSource:seek(0)
         gameOverSource:play()
+        duckTimer = 2.5 -- Duck BGM for game over sound
     end
     sound.vibrate(0.5)
 end
@@ -307,6 +484,152 @@ function sound.vibrate(duration)
     local j = getJoystick()
     if j and j:isVibrationSupported() then
         j:setVibration(0.6, 0.6, duration or 0.1)
+    end
+end
+
+-- ============================================================================
+-- Background Music Downloader Management
+-- ============================================================================
+
+function sound.isBgmDownloaded()
+    if not love.filesystem.getInfo("assets/music") then return false end
+    local files = love.filesystem.getDirectoryItems("assets/music")
+    local count = 0
+    for _, file in ipairs(files) do
+        if file:match("%.mp3$") or file:match("%.ogg$") then
+            count = count + 1
+        end
+    end
+    return count >= 10
+end
+
+function sound.isDownloadingBgm()
+    return downloadingBgm
+end
+
+function sound.getBgmDownloadProgress()
+    return downloadProgress
+end
+
+function sound.startBgmDownload()
+    if downloadingBgm then return end
+    
+    love.filesystem.createDirectory("assets/music")
+    local saveDir = love.filesystem.getSaveDirectory()
+    local isWindows = (love.system.getOS() == "Windows")
+
+    if isWindows then
+        -- Write Windows batch script (supports native curl.exe)
+        local lines = {}
+        table.insert(lines, "@echo off")
+        table.insert(lines, "cd /d " .. string.format("%q", saveDir))
+        table.insert(lines, "if not exist \"assets\\music\" mkdir \"assets\\music\"")
+        table.insert(lines, "echo 0/10 > download_status.txt")
+
+        local baseUrl = "https://raw.githubusercontent.com/saitamasahil/2048-muos/main/assets/music/"
+        for i, track in ipairs(bgmTrackList) do
+            local destPath = "assets\\music\\" .. track.name
+            local url = baseUrl .. track.url
+            table.insert(lines, string.format("curl -k -L -s -f -o %q %q", destPath, url))
+            table.insert(lines, string.format("echo %q > download_status.txt", tostring(i) .. "/10"))
+        end
+        table.insert(lines, "echo done > download_status.txt")
+
+        local scriptContent = table.concat(lines, "\r\n") .. "\r\n"
+        love.filesystem.write("download_music.bat", scriptContent)
+
+        downloadingBgm = true
+        downloadProgress = "0/10"
+
+        local cmd = "cd /d " .. string.format("%q", saveDir) .. " && start /B cmd /c download_music.bat"
+        os.execute(cmd)
+    else
+        -- Write POSIX shell script (Linux FWs like Knulli/muOS, macOS)
+        local lines = {}
+        table.insert(lines, "#!/bin/sh")
+        table.insert(lines, "export LD_LIBRARY_PATH=\"\"")
+        table.insert(lines, "cd " .. string.format("%q", saveDir))
+        table.insert(lines, "mkdir -p assets/music")
+        table.insert(lines, "echo \"0/10\" > download_status.txt")
+
+        local helper = [[
+download_file() {
+  dest="$1"
+  url="$2"
+  if command -v curl >/dev/null 2>&1; then
+    curl -k -L -s -f -o "$dest" "$url"
+  else
+    wget --no-check-certificate -q -O "$dest" "$url"
+  fi
+}
+]]
+        table.insert(lines, helper)
+
+        local baseUrl = "https://raw.githubusercontent.com/saitamasahil/2048-muos/main/assets/music/"
+        for i, track in ipairs(bgmTrackList) do
+            local destPath = "assets/music/" .. track.name
+            local url = baseUrl .. track.url
+            table.insert(lines, string.format("download_file %q %q", destPath, url))
+            table.insert(lines, string.format("echo %q > download_status.txt", tostring(i) .. "/10"))
+        end
+        table.insert(lines, "echo \"done\" > download_status.txt")
+
+        local scriptContent = table.concat(lines, "\n") .. "\n"
+        love.filesystem.write("download_music.sh", scriptContent)
+
+        downloadingBgm = true
+        downloadProgress = "0/10"
+
+        -- Change directory to saveDir and run from local path to avoid shell quote issues
+        local cmd = "cd " .. string.format("%q", saveDir) .. " && sh download_music.sh &"
+        os.execute(cmd)
+    end
+end
+
+function sound.deleteBgmTracks()
+    if currentBgmSource then
+        currentBgmSource:stop()
+        currentBgmSource = nil
+    end
+    bgmPlaylist = {}
+    currentBgmIdx = 0
+
+    local files = love.filesystem.getDirectoryItems("assets/music")
+    for _, file in ipairs(files) do
+        if file:match("%.mp3$") or file:match("%.ogg$") then
+            love.filesystem.remove("assets/music/" .. file)
+        end
+    end
+    
+    sound.initPlaylist()
+end
+
+local pollTimer = 0
+function sound.updateDownloadStatus(dt)
+    if not downloadingBgm then return end
+
+    pollTimer = pollTimer + dt
+    if pollTimer >= 0.5 then
+        pollTimer = 0
+        local status = love.filesystem.read("download_status.txt")
+        if status then
+            status = status:gsub("^%s*(.-)%s*$", "%1")
+            if status == "done" then
+                downloadingBgm = false
+                downloadProgress = ""
+                love.filesystem.remove("download_status.txt")
+                love.filesystem.remove("download_music.sh")
+                love.filesystem.remove("download_music.bat")
+                sound.initPlaylist()
+                if bgmEnabled then
+                    sound.playNextBgm()
+                end
+            else
+                downloadProgress = status
+            end
+        else
+            downloadProgress = "0/10"
+        end
     end
 end
 

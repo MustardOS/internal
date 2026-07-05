@@ -331,7 +331,6 @@ function love.update(dt)
 
     -- Update BGM playback and playlist states
     sound.update(dt)
-    sound.updateDownloadStatus(dt)
 
     -- Handle visual transition delays to show key badge animations
     if transition_delay_timer > 0 then
@@ -814,15 +813,6 @@ function love.update(dt)
                         save.saveVibration(_G.vibration)
                         sound.playMenuSelect()
                         sound.vibrate(0.1)
-                    elseif sel:match("^Lofi Music") then
-                        if not sound.isDownloadingBgm() then
-                            sound.playMenuSelect()
-                            if sound.isBgmDownloaded() then
-                                sound.deleteBgmTracks()
-                            else
-                                sound.startBgmDownload()
-                            end
-                        end
                     elseif sel == "Back" then
                         sound.playMenuBack()
                         if _G.screen_transitions then

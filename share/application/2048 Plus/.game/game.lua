@@ -120,9 +120,19 @@ function Game.new(mode)
             self.totalTime = savedState.totalTime or 60.0
         end
 
-        self.runTime = savedState.runTime or 0
-        self.undo_used_this_run = savedState.undo_used_this_run or false
-        self.swap_used_this_run = savedState.swap_used_this_run or false
+        local saved_undo = savedState.undo_used_this_run
+        if type(saved_undo) == "boolean" then
+            self.undo_used_this_run = saved_undo and 1 or 0
+        else
+            self.undo_used_this_run = saved_undo or 0
+        end
+
+        local saved_swap = savedState.swap_used_this_run
+        if type(saved_swap) == "boolean" then
+            self.swap_used_this_run = saved_swap and 1 or 0
+        else
+            self.swap_used_this_run = saved_swap or 0
+        end
     else
         -- Start a fresh game if no save state exists
         self:addStartTiles()
@@ -145,8 +155,8 @@ function Game.new(mode)
         end
 
         self.runTime = 0
-        self.undo_used_this_run = false
-        self.swap_used_this_run = false
+        self.undo_used_this_run = 0
+        self.swap_used_this_run = 0
     end
 
     -- Trigger "First Steps" achievement
@@ -705,8 +715,8 @@ function Game:undo()
     if self.mode == "plus" then
         if self.powerups.undo <= 0 then return end
         self.powerups.undo = self.powerups.undo - 1
-        self.undo_used_this_run = true
-        if self.undo_used_this_run and self.swap_used_this_run and _G.unlockAchievement then
+        self.undo_used_this_run = (self.undo_used_this_run or 0) + 1
+        if self.undo_used_this_run >= 5 and self.swap_used_this_run >= 5 and _G.unlockAchievement then
             _G.unlockAchievement("ach_tactician")
         end
     end
@@ -1004,8 +1014,8 @@ function Game:confirmTarget()
             if t2 then t2:setPosition(self.swapTarget.x, self.swapTarget.y) end
 
             self.powerups.swap = self.powerups.swap - 1
-            self.swap_used_this_run = true
-            if self.undo_used_this_run and self.swap_used_this_run and _G.unlockAchievement then
+            self.swap_used_this_run = (self.swap_used_this_run or 0) + 1
+            if self.undo_used_this_run >= 5 and self.swap_used_this_run >= 5 and _G.unlockAchievement then
                 _G.unlockAchievement("ach_tactician")
             end
             if _G.stats then

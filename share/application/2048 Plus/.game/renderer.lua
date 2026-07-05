@@ -4284,19 +4284,10 @@ end
 function renderer.getSettingsOptions()
     local sound = require("sound")
     if _G.settings_page == "audio" then
-        local lofi_status = ""
-        if sound.isDownloadingBgm() then
-            lofi_status = "Downloading (" .. sound.getBgmDownloadProgress() .. ")"
-        elseif sound.isBgmDownloaded() then
-            lofi_status = "Delete (Free Space)"
-        else
-            lofi_status = "Download (66MB)"
-        end
         return {
             "Sound Effects: " .. (sound.isEnabled() and "On" or "Off"),
             "Music: " .. (sound.isBgmEnabled() and "On" or "Off"),
             "Vibration: " .. (_G.vibration and "On" or "Off"),
-            "Lofi Music: " .. lofi_status,
             "Back"
         }
     end
@@ -4368,7 +4359,6 @@ function renderer.drawSettings(selection, skip_transition)
             "Sound Effects: Off",
             "Music: Off",
             "Vibration: Off",
-            "Lofi Music: Downloading (10/10)",
             "Back"
         }
     else
@@ -6470,7 +6460,7 @@ local achievementsList = {
     { id = "ach_score_250k", name = "Infinity Legend", desc = "Reach 250,000 points", reward = "Hyperdrive Theme" },
     { id = "ach_speedrun_2048", name = "Speed Demon", desc = "Create a 2048 tile in under 5 minutes", reward = "Retro Gold Theme" },
     { id = "ach_hardcore_2048", name = "Hardcore Gamer", desc = "Create 2048 in Plus Mode without powerups or undos", reward = "Spectrum Theme" },
-    { id = "ach_tactician", name = "Tactician", desc = "Use both Undo and Swap in a single Plus Mode game", reward = "Steel Theme" }
+    { id = "ach_tactician", name = "Tactician", desc = "Use 5 Undos and 5 Swaps in a single Plus Mode game", reward = "Steel Theme" }
 }
 
 function renderer.getAchievementsCount()

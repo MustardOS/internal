@@ -42,9 +42,6 @@ if IS_ONE "$AUDIO_READY"; then
 	WAIT_FOR_AUDIO_READY "$AUDIO_WAIT_MAX"
 fi
 
-LOG_INFO "$0" 0 "BOOTING" "Restoring Saved Volume"
-RESTORE_AUDIO_VOLUME || LOG_WARN "$0" 0 "BOOTING" "Unable to restore saved volume"
-
 LED_CONTROL_CHANGE restore
 
 if [ "$SKIP" = "0" ]; then

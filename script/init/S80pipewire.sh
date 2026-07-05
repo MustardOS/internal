@@ -338,10 +338,15 @@ DO_START() {
 	LOG_INFO "$0" 0 "PIPEWIRE" "Restoring Audio State"
 	alsactl -U -f "$DEVICE_CONTROL_DIR/asound.state" restore >/dev/null 2>&1
 
-	VOLUME_RAMP up
+	wpctl set-volume @DEFAULT_AUDIO_SINK@ "$(GET_SAVED_AUDIO_VOLUME)%" >/dev/null 2>&1
 	RESET_MIXER
 
-	FINALISE_AUDIO || exit 1
+	if [ "${ADV_AR:-0}" -eq 1 ]; then
+		FINALISE_AUDIO || exit 1
+	else
+		FINALISE_AUDIO >/dev/null 2>&1 &
+	fi
+
 	exit 0
 }
 

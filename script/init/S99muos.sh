@@ -32,7 +32,6 @@ DO_START() {
 
 	if [ "${CONSOLE_MODE:-0}" -eq 0 ]; then
 		LOG_INFO "$0" 0 "BOOTING" "Detecting Charge Mode"
-		LED_CONTROL_CHANGE off
 		/opt/muos/script/device/charge.sh
 	fi
 

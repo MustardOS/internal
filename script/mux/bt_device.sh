@@ -173,6 +173,8 @@ DO_CONNECT() {
 	else
 		LOG_WARN "$0" 0 "BTDEVICE" "$(printf "Connection to '%s' may have failed" "$MAC")"
 	fi
+
+	DO_LIST
 }
 
 DO_DISCONNECT() {
@@ -208,6 +210,8 @@ DO_DISCONNECT() {
 	bluetoothctl block "$MAC" >/dev/null 2>&1
 
 	[ "$IS_AUDIO" -eq 1 ] && "$(dirname "$0")/audio_sink.sh" set-builtin &
+
+	DO_LIST
 }
 
 DO_FORGET() {

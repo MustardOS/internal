@@ -15,6 +15,9 @@ fi
 case "$1" in
 	load)
 		[ "$HAS_NETWORK" -eq 1 ] && modprobe -q "$NET_NAME"
+		if [ "$HAS_NETWORK" -eq 1 ] && [ "$NET_NAME" = "8821cs" ]; then
+			/opt/muos/script/init/S75bluetooth.sh start
+		fi
 
 		case "$BOARD_NAME" in
 			rg*)
@@ -43,6 +46,10 @@ case "$1" in
 		esac
 		;;
 	unload)
+		if [ "$HAS_NETWORK" -eq 1 ] && [ "$NET_NAME" = "8821cs" ]; then
+			/opt/muos/script/init/S75bluetooth.sh stop
+		fi
+
 		[ "$HAS_NETWORK" -eq 1 ] && modprobe -qr "$NET_NAME"
 
 		case "$BOARD_NAME" in

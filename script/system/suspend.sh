@@ -11,6 +11,7 @@ RECENT_WAKE_STALE="${RECENT_WAKE_STALE:-60}"
 
 BOARD_NAME=$(GET_VAR "device" "board/name")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
+NET_NAME=$(GET_VAR "device" "network/name")
 CPU_GOV_PATH="$(GET_VAR "device" "cpu/governor")"
 LED_NORMAL="$(GET_VAR "device" "led/normal")"
 LED_RGB="$(GET_VAR "device" "led/rgb")"
@@ -130,6 +131,10 @@ SLEEP() {
 		/opt/muos/script/init/async/S02network.sh stop
 	fi
 
+	if [ "$HAS_NETWORK" -eq 1 ] && [ "$NET_NAME" = "8821cs" ]; then
+		/opt/muos/script/init/S75bluetooth.sh stop
+	fi
+
 	/opt/muos/script/device/module.sh unload
 
 	echo "$SUSPEND_STATE" >"/sys/power/state"
@@ -158,6 +163,10 @@ RESUME() {
 
 	# Network module must be loaded before attempting reconnect
 	wait "$MODULE_PID"
+
+	if [ "$HAS_NETWORK" -eq 1 ] && [ "$NET_NAME" = "8821cs" ]; then
+		/opt/muos/script/init/S75bluetooth.sh start &
+	fi
 
 	if [ "$HAS_NETWORK" -eq 1 ] && [ "$CONNECT_ON_WAKE" -eq 1 ]; then
 		/opt/muos/script/init/async/S02network.sh start &

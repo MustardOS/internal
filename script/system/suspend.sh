@@ -100,12 +100,22 @@ CHECK_RA_AND_SAVE() {
 	# My answer is, you find out how to restore save game content and let us know!
 }
 
+CHECK_MUXRETRO_AND_SAVE() {
+	# muxretro hosts libretro cores in process, it listens for:
+	# SIGUSR1 (save state + flush sram + pause)
+	# SIGUSR2 (resume)
+
+	MUXRETRO_PID="$(pidof muxretro)"
+	[ -n "$MUXRETRO_PID" ] && kill -"$1" "$MUXRETRO_PID"
+}
+
 SLEEP() {
 	RECENT_WAKE_MARK
 
 	LED_CONTROL_CHANGE off
 	ACTIVITY_TRACKER stop
 
+	CHECK_MUXRETRO_AND_SAVE "USR1"
 	CHECK_RA_AND_SAVE "SAVE_STATE"
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
@@ -180,7 +190,9 @@ RESUME() {
 	# Restart hotkey just in case something explodes
 	HOTKEY restart &
 
+	CHECK_MUXRETRO_AND_SAVE "USR2"
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
+
 	amixer set "Master" unmute >/dev/null 2>&1
 
 	E_BRIGHT="$DEFAULT_BRIGHTNESS"

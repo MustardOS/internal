@@ -4,14 +4,10 @@
 # Samples the framebuffer and drives the RGB sticks to match the on-screen
 # colour. Runs while the RGB mode is set to Screen React and exits otherwise,
 # so it is (re)started by "murgb restore" and left alone by every other mode.
-#
-# Testing: set FORCE_ON=1, set the RGB mode to Off, then run this over SSH to
-# always react regardless of the saved mode.
 
 . /opt/muos/script/var/func.sh
 
 # Behaviour
-FORCE_ON=0            # 1: ignore the saved mode and always react (testing only)
 SCREEN_REACT_MODE=10  # settings/rgb/mode value that enables Screen React
 
 # Sampling
@@ -237,7 +233,7 @@ trap 'rm -f "$PID_FILE"' EXIT INT TERM
 
 # Nothing to do without RGB sticks
 [ "$(GET_VAR "device" "led/rgb")" -eq 1 ] || exit 0
-[ "$FORCE_ON" -eq 1 ] || [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] || exit 0
+[ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] || exit 0
 
 STICK_COUNT=$(GET_VAR "device" "board/stick")
 [ -z "$STICK_COUNT" ] && STICK_COUNT=2
@@ -290,10 +286,8 @@ while :; do
 	NOW_MS
 	LOOP_START=$NOW
 
-	if [ "$FORCE_ON" -ne 1 ]; then
-		[ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] || exit 0
-		[ "$(GET_VAR "config" "settings/rgb/mode")" = "$SCREEN_REACT_MODE" ] || exit 0
-	fi
+	[ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] || exit 0
+	[ "$(GET_VAR "config" "settings/rgb/mode")" = "$SCREEN_REACT_MODE" ] || exit 0
 
 	# Stand down only when muOS blanks the LEDs on idle/dim (it does the same
 	# to every RGB mode). IDLE_STATE, not the stale IS_IDLE, is cleared again

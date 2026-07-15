@@ -132,6 +132,9 @@ APPLY_OPTIONAL_FILE "$FLT_GO" "$MUOS_RUN_DIR/overlay.filter" "Overlay Filter"
 # Set the chosen shader of content.
 APPLY_OPTIONAL_FILE "$SHD_GO" "$MUOS_RUN_DIR/overlay.shader" "Overlay Shader"
 
+# Set the chosen overlay alpha/anchor/scale options of content.
+APPLY_OPTIONAL_FILE "$OVO_GO" "$MUOS_RUN_DIR/overlay.options" "Overlay Options"
+
 # Construct the path to the assigned launcher INI file based on device storage,
 # assignment name ($ASSIGN), and launcher name ($LAUNCH).  This is created within
 # the launching/assigning of the system and core.

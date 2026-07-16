@@ -14,3 +14,13 @@ ARC_CREATE() {
 	LABEL="$ARC_LABEL"
 	COMP=9
 }
+
+# The extract/patched/archive directories under Pickles are wiped on every content launch,
+# or (for archive) regenerate on demand as the VFS extraction cache, so none belong in a backup!
+ARC_CREATE_PRE() {
+	for TRANSIENT in extract patched archive; do
+		[ -d "$ARC_DIR/save/pickles/$TRANSIENT" ] && rm -rf "${ARC_DIR:?}/save/pickles/$TRANSIENT"
+	done
+
+	return 0
+}

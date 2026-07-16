@@ -68,6 +68,24 @@ if [ -z "$DNSA" ]; then
 	SET_VAR "config" "network/dns" "$DNSA"
 fi
 
+SYS_DNS=$(GET_VAR "config" "settings/network/system_dns")
+DNSA2=""
+case "$SYS_DNS" in
+	1) DNSA="1.1.1.1"; DNSA2="1.0.0.1" ;;
+	2) DNSA="8.8.8.8"; DNSA2="8.8.4.4" ;;
+	3) DNSA="9.9.9.9"; DNSA2="149.112.112.112" ;;
+	*) SYS_DNS=0 ;;
+esac
+
+WRITE_RESOLV() {
+	[ -n "$DNSA" ] || return 0
+	[ -f "$RESOLV_CONF" ] && cp "$RESOLV_CONF" "$RESOLV_CONF.bak"
+	{
+		printf "nameserver %s\n" "$DNSA"
+		[ -n "$DNSA2" ] && printf "nameserver %s\n" "$DNSA2"
+	} >"$RESOLV_CONF"
+}
+
 NET_STATUS() {
 	[ -n "$CURRENT_PROFILE" ] || return 0
 	mkdir -p "$NET_STATUS_DIR" 2>/dev/null
@@ -248,10 +266,7 @@ LOAD_MODULE() {
 
 	[ -L "$SCN_PATH/$IFCE/phy80211" ] && iw dev "$IFCE" set power_save off
 
-	if [ -n "$DNSA" ]; then
-		[ -f "$RESOLV_CONF" ] && cp "$RESOLV_CONF" "$RESOLV_CONF.bak"
-		printf "nameserver %s\n" "$DNSA" >"$RESOLV_CONF"
-	fi
+	WRITE_RESOLV
 
 	return 0
 }
@@ -728,10 +743,7 @@ IP_STATIC() {
 	fi
 
 	# Write DNS immediately for static configs so VALIDATE_NETWORK can ping
-	if [ -n "$DNSA" ]; then
-		[ -f "$RESOLV_CONF" ] && cp "$RESOLV_CONF" "$RESOLV_CONF.bak"
-		printf "nameserver %s\n" "$DNSA" >"$RESOLV_CONF"
-	fi
+	WRITE_RESOLV
 
 	IP=$(ip -4 -o addr show dev "$IFCE" | awk '{split($4, a, "/"); print a[1]; exit}')
 	if [ -z "$IP" ]; then
@@ -745,7 +757,12 @@ IP_STATIC() {
 
 VALIDATE_NETWORK() {
 	NET_STATUS "VALIDATING"
-	[ ! -s "$RESOLV_CONF" ] && printf "nameserver %s\n" "$DNSA" >"$RESOLV_CONF"
+
+	if [ "$SYS_DNS" -ne 0 ]; then
+		WRITE_RESOLV
+	else
+		[ ! -s "$RESOLV_CONF" ] && printf "nameserver %s\n" "$DNSA" >"$RESOLV_CONF"
+	fi
 
 	IP=$(ip -4 -o addr show dev "$IFCE" | awk '{split($4, a, "/"); print a[1]; exit}')
 	if [ -z "$IP" ]; then

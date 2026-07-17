@@ -87,6 +87,13 @@ EOF
 
 		if [ "$FIRST_INIT" -eq 0 ]; then
 			DELETE_CRUFT "$MOUNT_POINT"
+
+			if [ "$TYPE" = "sdcard" ] && [ -d "$MOUNT_POINT/MUOS/theme/MustardOS" ]; then
+				LOG_INFO "$0" 0 "STORAGE" "Refreshing default MustardOS theme on SD2"
+				rm -rf "$MOUNT_POINT/MUOS/theme/MustardOS"
+				mkdir -p "$MOUNT_POINT/MUOS/theme/MustardOS"
+				cp -a "$MUOS_SHARE_DIR/theme/MustardOS/." "$MOUNT_POINT/MUOS/theme/MustardOS/"
+			fi
 		fi
 
 		return 0

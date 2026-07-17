@@ -840,7 +840,7 @@ APPEND_WPA_PROFILE() {
 
 LOAD_PROFILE_BY_SSID() {
 	PROFILE_MATCH_SSID="$1"
-	PROFILE_DIR="${MUOS_SHARE_DIR}/network"
+	PROFILE_DIR="${MUOS_STORE_DIR}/network"
 
 	[ -d "$PROFILE_DIR" ] || return 1
 
@@ -893,7 +893,7 @@ LOAD_PROFILE_BY_NAME() {
 	PROFILE_NAME="$1"
 	[ -n "$PROFILE_NAME" ] || return 1
 
-	NET_PROF="${MUOS_SHARE_DIR}/network/${PROFILE_NAME}.ini"
+	NET_PROF="${MUOS_STORE_DIR}/network/${PROFILE_NAME}.ini"
 	[ -f "$NET_PROF" ] || return 1
 
 	SSID=$(PARSE_INI "$NET_PROF" "network" "ssid")
@@ -946,7 +946,7 @@ SCAN_SETTLE() {
 # profile name. Manual profiles (autoconnect != 1) are ignored.  Strict priority: a lower
 # number in our frontend means it takes priority (1 = highest)
 SELECT_BEST_PROFILE() {
-	PROFILE_DIR="${MUOS_SHARE_DIR}/network"
+	PROFILE_DIR="${MUOS_STORE_DIR}/network"
 	[ -d "$PROFILE_DIR" ] || return 1
 
 	SCAN_OUT=$(iw dev "$IFCE" scan 2>/dev/null | sed -n 's/^[[:space:]]*SSID: //p')
@@ -983,7 +983,7 @@ SELECT_BEST_PROFILE() {
 }
 
 BUILD_PROFILE_WPA_CONFIG() {
-	PROFILE_DIR="${MUOS_SHARE_DIR}/network"
+	PROFILE_DIR="${MUOS_STORE_DIR}/network"
 	[ -d "$PROFILE_DIR" ] || return 1
 
 	: >"$WPA_CONFIG"

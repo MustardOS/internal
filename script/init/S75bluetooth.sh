@@ -128,7 +128,6 @@ DO_START() {
 	(
 		WAIT_UNTIL BLUETOOTHD_READY || exit 0
 		sleep 2
-		bluetoothctl power on >/dev/null 2>&1
 		/opt/muos/script/mux/bt_device.sh list
 		/opt/muos/script/mux/bt_device.sh autoconnect
 		/opt/muos/script/mux/bt_monitor.sh start

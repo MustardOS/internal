@@ -1,3 +1,2 @@
 # Custom
-030000005e0400008e02000014010000,TRIMUI Brick Controller,x:b6,a:b5,b:b4,y:b7,back:b16,guide:b15,start:b14,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,dpup:h0.1,leftshoulder:b10,lefttrigger:b8,rightshoulder:b9,righttrigger:b11,leftstick:b12,rightstick:b13,leftx:a0,lefty:a1,platform:Linux
-
+030000005e0400008e02000014010000,TRIMUI Brick Pro Controller,a:b6,b:b5,x:b7,y:b8,leftshoulder:b9,rightshoulder:b10,lefttrigger:b11,righttrigger:b12,leftstick:b16,rightstick:b17,start:b14,back:b13,guide:b15,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,leftx:a0,lefty:a1,rightx:a2,righty:a3,platform:Linux,

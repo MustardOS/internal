@@ -13,8 +13,9 @@ LED_RGB=$(GET_VAR "device" "led/rgb")
 LED_CMD=""
 if [ "$LED_RGB" -eq 1 ] && [ -x "$MUOS_RGB_BIN" ]; then
 	case "$BOARD_NAME" in
-		rg*) LED_CMD="$MUOS_RGB_BIN -b SERIAL 2 255 255 0 0" ;;
+		rg*) LED_CMD="$MUOS_RGB_BIN -b SERIAL 1 255 255 0 0 255 0 0" ;;
 		tui-brick) LED_CMD="$MUOS_RGB_BIN -b SYSFS 1 10 255 0 0 255 0 0 255 0 0 255 0 0 255 0 0" ;;
+		tui-brick-pro) LED_CMD="$MUOS_RGB_BIN -b SYSFS 1 10 255 0 0 255 0 0 255 0 0 255 0 0 255 0 0 255 0 0 255 0 0 255 0 0 255 0 0 255 0 0 255 0 0" ;;
 		tui-spoon) LED_CMD="$MUOS_RGB_BIN -b SYSFS 1 10 255 0 0 255 0 0 255 0 0" ;;
 	esac
 fi

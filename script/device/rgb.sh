@@ -244,8 +244,68 @@ SYSFS_WRITE() {
 	[ -w "$P" ] && printf "%s\n" "$V" >"$P"
 }
 
+BOARD_IS_TUI_BRICK_PRO() {
+	[ "$(GET_VAR "device" "board/name")" = "tui-brick-pro" ]
+}
+
+SCALE_CHANNEL() {
+	V=$(CLAMP_RGB "$1")
+	BRI_RAW=$(CLAMP "$2" 0 255)
+	printf "%d" "$(((V * BRI_RAW) / 255))"
+}
+
+# The brick pro is a special little fella...
+WRITE_RAW_ZONE_FRAME() {
+	RS1R=$1
+	RS1G=$2
+	RS1B=$3
+
+	RS2R=$4
+	RS2G=$5
+	RS2B=$6
+
+	SHL1R=$7
+	SHL1G=$8
+	SHL1B=$9
+
+	shift 9
+
+	SHL2R=$1
+	SHL2G=$2
+	SHL2B=$3
+
+	SHR2R=$4
+	SHR2G=$5
+	SHR2B=$6
+
+	SHR1R=$7
+	SHR1G=$8
+	SHR1B=$9
+
+	FRAME=""
+	I=0
+	while [ "$I" -lt 23 ]; do
+		case "$I" in
+			14) F=$(TO_HEX3 "$RS1G" "$RS1R" "$RS1B") ;;
+			15) F=$(TO_HEX3 "$RS1G" "$RS1R" "$RS1B") ;;
+			16) F=$(TO_HEX3 "$RS2G" "$RS2R" "$RS2B") ;;
+			17) F=$(TO_HEX3 "$RS2G" "$RS2R" "$RS2B") ;;
+			18) F=$(TO_HEX3 "$SHL1R" "$SHL1G" "$SHL1B") ;;
+			19) F=$(TO_HEX3 "$SHL2R" "$SHL2G" "$SHL2B") ;;
+			20) F=$(TO_HEX3 "$SHR2R" "$SHR2G" "$SHR2B") ;;
+			21) F=$(TO_HEX3 "$SHR1R" "$SHR1G" "$SHR1B") ;;
+			*) F="000000" ;;
+		esac
+		FRAME="${FRAME}${F} "
+		I=$((I + 1))
+	done
+
+	SYSFS_WRITE "frame_hex" "$FRAME"
+}
+
 APPLY_SYSFS() {
 	MODE=$1
+	BRI_RAW=$2
 	BRI=$(($2 * 60 / 255))
 	shift 2
 
@@ -277,6 +337,34 @@ APPLY_SYSFS() {
 	F2G=${14:-$RG}
 	F2B=${15:-$RB}
 
+	# Right stick (two arcs) and the four shoulder button LEDs only reached
+	# via WRITE_RAW_ZONE_FRAME on the brick-pro. Same fallback convention as
+	# the zones above.  So RS1 mirrors R, RS2 mirrors RS1, the left shoulder
+	# pair mirrors F1, the right shoulder pair mirrors F2. Mmm confusing!
+	RS1R=${16:-$RR}
+	RS1G=${17:-$RG}
+	RS1B=${18:-$RB}
+
+	RS2R=${19:-$RS1R}
+	RS2G=${20:-$RS1G}
+	RS2B=${21:-$RS1B}
+
+	SHL1R=${22:-$F1R}
+	SHL1G=${23:-$F1G}
+	SHL1B=${24:-$F1B}
+
+	SHL2R=${25:-$SHL1R}
+	SHL2G=${26:-$SHL1G}
+	SHL2B=${27:-$SHL1B}
+
+	SHR2R=${28:-$F2R}
+	SHR2G=${29:-$F2G}
+	SHR2B=${30:-$F2B}
+
+	SHR1R=${31:-$SHR2R}
+	SHR1G=${32:-$SHR2G}
+	SHR1B=${33:-$SHR2B}
+
 	if [ -z "$LR" ] || [ -z "$LG" ] || [ -z "$LB" ] || [ -z "$RR" ] || [ -z "$RG" ] || [ -z "$RB" ]; then
 		printf "SYSFS usage:\n  %s -b sysfs [--dur ...] [--cycles ...] <mode 1-7> <brightness 0-60> \\\n    <L_r L_g L_b> <R_r R_g R_b> [M_r M_g M_b] [F1_r F1_g F1_b] [F2_r F2_g F2_b]\n" "$0" >&2
 		exit 1
@@ -302,11 +390,16 @@ APPLY_SYSFS() {
 	F2G=$(CLAMP_RGB "$F2G")
 	F2B=$(CLAMP_RGB "$F2B")
 
-	# Hex strings (driver expects trailing space)
-	HEX_L=$(TO_HEX3 "$LR" "$LG" "$LB")
+	# Hex strings (driver expects trailing space!)
+	# L/R channels are swapped on tui-brick-pro
+	if BOARD_IS_TUI_BRICK_PRO; then
+		HEX_L=$(TO_HEX3 "$LG" "$LR" "$LB")
+		HEX_R=$(TO_HEX3 "$RG" "$RR" "$RB")
+	else
+		HEX_L=$(TO_HEX3 "$LR" "$LG" "$LB")
+		HEX_R=$(TO_HEX3 "$RR" "$RG" "$RB")
+	fi
 	HEX_L_SP="${HEX_L} "
-
-	HEX_R=$(TO_HEX3 "$RR" "$RG" "$RB")
 	HEX_R_SP="${HEX_R} "
 
 	HEX_M=$(TO_HEX3 "$MR" "$MG" "$MB")
@@ -378,7 +471,7 @@ APPLY_SYSFS() {
 	SYSFS_WRITE "effect_cycles_f1" "$CYC_F1V"
 	SYSFS_WRITE "effect_cycles_f2" "$CYC_F2V"
 
-	if SYSFS_HAS "effect_lr"; then
+	if [ "$HEX_L" = "$HEX_R" ] && SYSFS_HAS "effect_lr"; then
 		SYSFS_WRITE "effect_lr" "$EFFECT"
 	else
 		SYSFS_WRITE "effect_l" "$EFFECT"
@@ -390,6 +483,16 @@ APPLY_SYSFS() {
 	SYSFS_WRITE "effect_f2" "$EFFECT"
 
 	SYSFS_WRITE "effect_enable" "1"
+
+	if BOARD_IS_TUI_BRICK_PRO; then
+		WRITE_RAW_ZONE_FRAME \
+			"$(SCALE_CHANNEL "$RS1R" "$BRI_RAW")" "$(SCALE_CHANNEL "$RS1G" "$BRI_RAW")" "$(SCALE_CHANNEL "$RS1B" "$BRI_RAW")" \
+			"$(SCALE_CHANNEL "$RS2R" "$BRI_RAW")" "$(SCALE_CHANNEL "$RS2G" "$BRI_RAW")" "$(SCALE_CHANNEL "$RS2B" "$BRI_RAW")" \
+			"$(SCALE_CHANNEL "$SHL1R" "$BRI_RAW")" "$(SCALE_CHANNEL "$SHL1G" "$BRI_RAW")" "$(SCALE_CHANNEL "$SHL1B" "$BRI_RAW")" \
+			"$(SCALE_CHANNEL "$SHL2R" "$BRI_RAW")" "$(SCALE_CHANNEL "$SHL2G" "$BRI_RAW")" "$(SCALE_CHANNEL "$SHL2B" "$BRI_RAW")" \
+			"$(SCALE_CHANNEL "$SHR2R" "$BRI_RAW")" "$(SCALE_CHANNEL "$SHR2G" "$BRI_RAW")" "$(SCALE_CHANNEL "$SHR2B" "$BRI_RAW")" \
+			"$(SCALE_CHANNEL "$SHR1R" "$BRI_RAW")" "$(SCALE_CHANNEL "$SHR1G" "$BRI_RAW")" "$(SCALE_CHANNEL "$SHR1B" "$BRI_RAW")"
+	fi
 
 	printf "LED mode %s applied (SYSFS)\n" "$MODE"
 	printf "Brightness: %s\n" "$BRI"

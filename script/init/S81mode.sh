@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
-
 HDMI_PATH=$(GET_VAR "device" "screen/hdmi")
 BOARD_HDMI=$(GET_VAR "device" "board/hdmi")
 DEVICE_MODE=$(GET_VAR "config" "boot/device_mode")

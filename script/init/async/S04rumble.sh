@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
-
 BOARD_NAME=$(GET_VAR "device" "board/name")
 RUMBLE_PIN=$(GET_VAR "device" "board/rumble")
 

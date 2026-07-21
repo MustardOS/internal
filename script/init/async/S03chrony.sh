@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
-
 DAEMON="/opt/muos/bin/chronyd"
 CONF="/opt/muos/share/conf/chrony.conf"
 PID_FILE="/run/chronyd.pid"

@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Flags that this file is already loaded, so sysinit/shutdown boot scripts that ALSO run
+# standalone elsewhere can skip reloading it: `[ -n "$MUOS_FUNC_LOADED" ] || . func.sh`
+# shellcheck disable=SC2034
+MUOS_FUNC_LOADED=1
+
 MUX_LIB="/opt/muos/frontend/lib"
 
 case ":${LD_LIBRARY_PATH-}:" in

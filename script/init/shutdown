@@ -1,6 +1,8 @@
 #!/bin/sh
 # shellcheck source=/dev/null
 
+. /opt/muos/script/var/func.sh
+
 INIT_DIR="/opt/muos/script/init"
 
 RUN_SCRIPT() {

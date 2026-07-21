@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
-
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 
 DO_START() {

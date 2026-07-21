@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
 
 PID_FILE="$MUOS_RUN_DIR/sunrise.pid"
 

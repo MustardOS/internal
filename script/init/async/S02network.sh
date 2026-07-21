@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
 
 ADDR=$(GET_VAR "config" "network/address")
 SUBN=$(GET_VAR "config" "network/subnet")

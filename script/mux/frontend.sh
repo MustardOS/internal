@@ -42,7 +42,7 @@ if IS_ONE "$AUDIO_READY"; then
 	WAIT_FOR_AUDIO_READY "$AUDIO_WAIT_MAX"
 fi
 
-LED_CONTROL_CHANGE restore
+LED_CONTROL_CHANGE restore &
 
 if [ "$SKIP" = "0" ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Checking for last/resume startup"

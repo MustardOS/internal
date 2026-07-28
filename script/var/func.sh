@@ -326,27 +326,60 @@ VOLUME_RAMP() {
 	return 0
 }
 
+SYNC_GPU_FREQUENCY() {
+	GOV="$1"
+
+	for GPU_DEV in /sys/class/devfreq/*/; do
+		case "$GPU_DEV" in
+			*gpu*) ;;
+			*) continue ;;
+		esac
+
+		[ -w "$GPU_DEV/min_freq" ] || continue
+		[ -r "$GPU_DEV/available_frequencies" ] || continue
+
+		if [ "$GOV" = "performance" ]; then
+			GPU_TARGET=$(tr ' ' '\n' <"$GPU_DEV/available_frequencies" | grep -v '^$' | sort -n | tail -1)
+		else
+			GPU_TARGET=$(tr ' ' '\n' <"$GPU_DEV/available_frequencies" | grep -v '^$' | sort -n | head -1)
+		fi
+
+		[ -n "$GPU_TARGET" ] || continue
+
+		LOG_DEBUG "$0" 0 "FRONTEND" "$(printf "GPU floor set to %s for governor '%s'" "$GPU_TARGET" "$GOV")"
+		printf "%s" "$GPU_TARGET" >"$GPU_DEV/min_freq"
+	done
+}
+
 SET_DEFAULT_GOVERNOR() {
 	(
 		DEF_GOV=$(GET_VAR "device" "cpu/default")
 		GOV_PATH="$(GET_VAR "device" "cpu/governor")"
+		AVAIL_PATH="$(GET_VAR "device" "cpu/available")"
+
+		if [ -f "$AVAIL_PATH" ] && ! grep -qw "$DEF_GOV" "$AVAIL_PATH"; then
+			LOG_WARN "$0" 0 "FRONTEND" "$(printf "Governor '%s' unavailable, falling back to ondemand" "$DEF_GOV")"
+			DEF_GOV="ondemand"
+		fi
+
 		printf "%s" "$DEF_GOV" >"$GOV_PATH"
+		SYNC_GPU_FREQUENCY "$DEF_GOV"
+
+		CPU_PATH=$(dirname "$GOV_PATH")
+
+		MIN_PATH="$(GET_VAR "device" "cpu/min_freq")"
+		MAX_PATH="$(GET_VAR "device" "cpu/max_freq")"
+
+		[ -f "$MIN_PATH" ] && GET_VAR "device" "cpu/min_freq_default" >"$MIN_PATH"
+		[ -f "$MAX_PATH" ] && GET_VAR "device" "cpu/max_freq_default" >"$MAX_PATH"
 
 		if [ "$DEF_GOV" = "ondemand" ]; then
-			CPU_PATH=$(dirname "$GOV_PATH")
-
 			# Detect differing kernel version layout
 			if [ -d "$CPU_PATH/ondemand" ]; then
 				OD_PATH="$CPU_PATH/ondemand"
 			else
 				OD_PATH="$CPU_PATH"
 			fi
-
-			MIN_PATH="$(GET_VAR "device" "cpu/min_freq")"
-			MAX_PATH="$(GET_VAR "device" "cpu/max_freq")"
-
-			[ -f "$MIN_PATH" ] && GET_VAR "device" "cpu/min_freq_default" >"$MIN_PATH"
-			[ -f "$MAX_PATH" ] && GET_VAR "device" "cpu/max_freq_default" >"$MAX_PATH"
 
 			[ -f "$OD_PATH/sampling_rate" ] && GET_VAR "device" "cpu/sampling_rate_default" >"$OD_PATH/sampling_rate"
 			[ -f "$OD_PATH/up_threshold" ] && GET_VAR "device" "cpu/up_threshold_default" >"$OD_PATH/up_threshold"

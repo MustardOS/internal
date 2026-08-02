@@ -5,9 +5,11 @@
 # Lonely, oh so lonely...
 RECENT_WAKE="$MUOS_RUN_DIR/recent_wake"
 LED_STATE="$MUOS_RUN_DIR/work_led_state"
+MUXRETRO_SAVE_READY="$MUOS_RUN_DIR/muxretro_save_ready"
 
 RECENT_WAKE_GRACE="${RECENT_WAKE_GRACE:-6}"
 RECENT_WAKE_STALE="${RECENT_WAKE_STALE:-60}"
+MUXRETRO_SAVE_WAIT_STEPS="${MUXRETRO_SAVE_WAIT_STEPS:-100}"
 
 BOARD_NAME=$(GET_VAR "device" "board/name")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
@@ -102,11 +104,36 @@ CHECK_RA_AND_SAVE() {
 
 CHECK_MUXRETRO_AND_SAVE() {
 	# muxretro hosts libretro cores in process, it listens for:
-	# SIGUSR1 (save state + flush sram + pause)
+	# SIGUSR1 (save state + flush sram + pause + acknowledgement)
 	# SIGUSR2 (resume)
 
 	MUXRETRO_PID="$(pidof muxretro)"
-	[ -n "$MUXRETRO_PID" ] && kill -"$1" "$MUXRETRO_PID"
+	MUXRETRO_PID=${MUXRETRO_PID%% *}
+	[ -n "$MUXRETRO_PID" ] || return 0
+
+	if [ "$1" != "USR1" ]; then
+		kill -"$1" "$MUXRETRO_PID" 2>/dev/null || :
+		return 0
+	fi
+
+	rm -f "$MUXRETRO_SAVE_READY" 2>/dev/null || :
+	kill -USR1 "$MUXRETRO_PID" 2>/dev/null || return 0
+
+	WAIT_STEP=0
+	while [ "$WAIT_STEP" -lt "$MUXRETRO_SAVE_WAIT_STEPS" ]; do
+		MUXRETRO_READY_PID=""
+		[ -r "$MUXRETRO_SAVE_READY" ] && read -r MUXRETRO_READY_PID <"$MUXRETRO_SAVE_READY"
+		if [ "$MUXRETRO_READY_PID" = "$MUXRETRO_PID" ]; then
+			rm -f "$MUXRETRO_SAVE_READY" 2>/dev/null || :
+			return 0
+		fi
+		kill -0 "$MUXRETRO_PID" 2>/dev/null || break
+		sleep 0.05
+		WAIT_STEP=$((WAIT_STEP + 1))
+	done
+
+	rm -f "$MUXRETRO_SAVE_READY" 2>/dev/null || :
+	LOG_WARN "$0" 0 "SUSPEND" "Pickles save acknowledgement timed out; continuing suspend"
 }
 
 SLEEP() {

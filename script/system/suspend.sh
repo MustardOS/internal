@@ -67,29 +67,20 @@ RECENT_WAKE_CLEAR_LATER() {
 }
 
 ACTIVITY_TRACKER() {
-	ROM_GO="/tmp/rom_go"
-	if [ -e "$ROM_GO" ]; then
-		{
-			read -r NAME
-			read -r CORE
-			read -r _
-			read -r _
-			read -r _
-			read -r _
-			read -r R_DIR1
-			read -r R_DIR2
-			read -r ROM_NAME
-		} <"$ROM_GO"
+	[ "${USE_ACTIVITY:-0}" -eq 1 ] || return 0
 
-		R_DIR="$R_DIR1$R_DIR2"
-		ROM="$R_DIR/$ROM_NAME"
+	TRACK_CURRENT="$MUOS_STORE_DIR/info/track/.current_session"
+	[ -r "$TRACK_CURRENT" ] || return 0
 
-		case "$1" in
-			start) [ "${USE_ACTIVITY:-0}" -eq 1 ] && /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" start ;;
-			resume) [ "${USE_ACTIVITY:-0}" -eq 1 ] && /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" resume ;;
-			stop) [ "${USE_ACTIVITY:-0}" -eq 1 ] && /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" stop ;;
-		esac
-	fi
+	{
+		read -r T_NAME
+		read -r T_CORE
+		read -r T_ROM
+	} <"$TRACK_CURRENT"
+
+	[ -n "$T_ROM" ] || return 0
+
+	/opt/muos/script/mux/track.sh "$T_NAME" "$T_CORE" "$T_ROM" "$1"
 }
 
 CHECK_RA_AND_SAVE() {
@@ -140,7 +131,7 @@ SLEEP() {
 	RECENT_WAKE_MARK
 
 	LED_CONTROL_CHANGE off
-	ACTIVITY_TRACKER stop
+	ACTIVITY_TRACKER suspend
 
 	CHECK_MUXRETRO_AND_SAVE "USR1"
 	CHECK_RA_AND_SAVE "SAVE_STATE"
@@ -271,6 +262,7 @@ case "$SHUTDOWN_TIME_SETTING" in
 
 		CURRENT_TIME=$(cat "$S_EPOCH")
 		if [ "$CURRENT_TIME" -ge "$WAKE_EPOCH" ]; then
+			ACTIVITY_TRACKER stop
 			CHECK_RA_AND_SAVE "CLOSE_CONTENT"
 			/opt/muos/script/mux/quit.sh poweroff sleep
 		else

@@ -91,6 +91,9 @@ DO_START() {
 	# Adjust headphone output for certain devices
 	/opt/muos/script/device/headphone.sh &
 
+	# Follow USB-C headphones and earbuds as they come and go
+	/opt/muos/script/device/usbaudio.sh &
+
 	# Swap the speaker audio if set
 	/opt/muos/script/device/speaker.sh &
 

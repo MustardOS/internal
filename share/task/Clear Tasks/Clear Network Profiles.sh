@@ -1,21 +1,24 @@
 #!/bin/sh
 # HELP: Clear Network Profiles
 # ICON: clear
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "clear_network_profiles" "Clear Network Profiles"
+
 
 MUOS_NP_DIR="$MUOS_STORE_DIR/network"
 
-echo "Deleting Network Profiles"
+TASK_STATUS "Deleting Network Profiles"
 rm -rf "${MUOS_NP_DIR:?}"/*
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Clear Network Profiles"
 
-FRONTEND start task
 exit 0

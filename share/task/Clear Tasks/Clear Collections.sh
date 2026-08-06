@@ -1,21 +1,24 @@
 #!/bin/sh
 # HELP: Clear Collections
 # ICON: clear
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "clear_collections" "Clear Collections"
+
 
 MUOS_COLL_DIR="$MUOS_STORE_DIR/info/collection"
 
-echo "Deleting Collection Files"
+TASK_STATUS "Deleting Collection Files"
 rm -rf "${MUOS_COLL_DIR:?}"/*
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Clear Collections"
 
-FRONTEND start task
 exit 0

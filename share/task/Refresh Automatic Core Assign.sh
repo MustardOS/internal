@@ -1,18 +1,22 @@
 #!/bin/sh
 # HELP: Refresh Automatic Core Assign
 # ICON: junk
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "refresh_automatic_core_assign" "Refresh Automatic Core Assign"
+
 
 /opt/muos/script/system/assign.sh -p -v
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
+TASK_COMPLETE "Refresh Automatic Core Assign"
 sleep 5
 
-FRONTEND start task
 exit 0

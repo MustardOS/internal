@@ -1,25 +1,28 @@
 #!/bin/sh
 # HELP: Run Dot and Junk File Cleanup
 # ICON: junk
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "dot_and_junk_file_cleanup" "Dot and Junk File Cleanup"
 
-echo "Checking ROM for junk"
+
+TASK_STATUS "Checking ROM for junk"
 DELETE_CRUFT "$(GET_VAR "device" "storage/rom/mount")"
 
-echo "Checking SDCARD for junk"
+TASK_STATUS "Checking SDCARD for junk"
 DELETE_CRUFT "$(GET_VAR "device" "storage/sdcard/mount")"
 
-echo "Checking USB for junk"
+TASK_STATUS "Checking USB for junk"
 DELETE_CRUFT "$(GET_VAR "device" "storage/usb/mount")"
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Dot and Junk File Cleanup"
 
-FRONTEND start task
 exit 0

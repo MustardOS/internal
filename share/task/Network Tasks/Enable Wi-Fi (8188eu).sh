@@ -1,14 +1,19 @@
 #!/bin/sh
 # HELP: Enable Wi-Fi using an 8188eu chipset USB adapter
 # ICON: ethernet
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 # USB Wi-Fi script created for muOS 2508.0 Goose +
 # This script will set wlan0 to use the 8188eu driver
 # Additionally it'll enable network and PortMaster, and generate SSH Keys if needed.
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "enable_wi_fi_8188eu" "Enable Wi-Fi (8188eu)"
+
 
 SET_VAR "device" "board/network" "1"
 SET_VAR "device" "board/portmaster" "1"
@@ -26,12 +31,11 @@ case "$BOARD_NAME" in
 		;;
 esac
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-echo "Please restart your device!"
+TASK_COMPLETE "Enable Wi-Fi (8188eu)"
+TASK_STATUS "Please restart your device!"
 sleep 3
 
-FRONTEND start task
 exit 0

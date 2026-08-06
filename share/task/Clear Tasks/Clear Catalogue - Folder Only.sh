@@ -1,10 +1,15 @@
 #!/bin/sh
 # HELP: Clear the Folder directory within the catalogue
 # ICON: clear
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "clear_catalogue_folder_only" "Clear Catalogue - Folder Only"
+
 
 CATALOGUE_DIR="$MUOS_STORE_DIR/info/catalogue"
 
@@ -13,14 +18,12 @@ CATALOGUE_DIR="$MUOS_STORE_DIR/info/catalogue"
 	rm -rf "$CATALOGUE_DIR/Folder"
 }
 
-echo "Generating Predefined Catalogue"
+TASK_STATUS "Generating Predefined Catalogue"
 /opt/muos/script/system/catalogue.sh
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Clear Catalogue - Folder Only"
 
-FRONTEND start task
 exit 0

@@ -1,19 +1,22 @@
 #!/bin/sh
 # HELP: Will attempt to eject any secondary storage that has been configured by the system
 # ICON: storage
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "eject_secondary_storage" "Eject Secondary Storage"
 
-echo "Trying to eject Secondary Storage"
+
+TASK_STATUS "Trying to eject Secondary Storage"
 /opt/muos/script/device/storage.sh "sdcard" "eject"
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Eject Secondary Storage"
 
-FRONTEND start task
 exit 0

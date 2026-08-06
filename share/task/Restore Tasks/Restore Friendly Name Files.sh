@@ -1,11 +1,16 @@
 #!/bin/sh
 # HELP: Restore the default friendly name files
 # ICON: sdcard
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
+
+TASK_BEGIN "restore_friendly_name_files" "Restore Friendly Name Files"
 . /opt/muos/script/var/zip.sh
 
-FRONTEND stop
 
 NAME_DIR="$MUOS_STORE_DIR/info/name"
 NAME_ZIP="$MUOS_SHARE_DIR/archive/muos.name.zip"
@@ -13,12 +18,9 @@ NAME_ZIP="$MUOS_SHARE_DIR/archive/muos.name.zip"
 ALL_DONE() {
 	ARC_UNSET
 
-	echo "Sync Filesystem"
+	TASK_STATUS "Sync Filesystem"
 	sync
 
-	sleep 2
-
-	FRONTEND start task
 	exit "$1"
 }
 
@@ -66,5 +68,5 @@ if command -v ARC_EXTRACT_POST >/dev/null 2>&1; then
 	ARC_EXTRACT_POST "$ARC_STATUS"
 fi
 
-echo "All Done!"
+TASK_COMPLETE "Restore Friendly Name Files"
 ALL_DONE 0

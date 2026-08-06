@@ -1,10 +1,15 @@
 #!/bin/sh
 # HELP: Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1
 # ICON: star
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "export_collection_to_html" "Export Collection to HTML"
+
 
 COLLECTION_DIR="$MUOS_STORE_DIR/info/collection"
 COLLECTION_OUTPUT="$(GET_VAR "device" "storage/rom/mount")/collection.html"
@@ -84,28 +89,28 @@ RENDER_SECTION() {
 	printf '\t\t\t</div>\n\t\t</div>\n\t</div>\n'
 }
 
-echo "Clearing previous section output..."
+TASK_STATUS "Clearing previous section output..."
 : >"$TEMP_SECTIONS"
 
-echo "Scanning directories in $COLLECTION_DIR..."
+TASK_STATUS "Scanning directories in $COLLECTION_DIR..."
 find "$COLLECTION_DIR" -mindepth 1 -maxdepth 1 -type d | sort | while IFS= read -r SUB_DIR; do
 	SECTION_NAME=$(basename "$SUB_DIR")
 	RENDER_SECTION "$SECTION_NAME" "$SUB_DIR" >>"$TEMP_SECTIONS"
 done
 
-echo "Processing unsorted items..."
+TASK_STATUS "Processing unsorted items..."
 RENDER_SECTION "Unsorted" "$COLLECTION_DIR" >>"$TEMP_SECTIONS"
 
-echo "Using template..."
+TASK_STATUS "Using template..."
 if [ -f "$THEME_TEMPLATE" ]; then
-	echo "  Using theme template: $THEME_TEMPLATE"
+	TASK_STATUS "  Using theme template: $THEME_TEMPLATE"
 	cp "$THEME_TEMPLATE" "$TEMP_TEMPLATE"
 else
-	echo "  Using built-in template: $FALLBACK_TEMPLATE"
+	TASK_STATUS "  Using built-in template: $FALLBACK_TEMPLATE"
 	cp "$FALLBACK_TEMPLATE" "$TEMP_TEMPLATE"
 fi
 
-echo "Substituting placeholders..."
+TASK_STATUS "Substituting placeholders..."
 sed "s/{{TITLE}}/Content Collection/g" "$TEMP_TEMPLATE" | while IFS= read -r LINE; do
 	case "$LINE" in
 		*"{{SECTIONS}}"*)
@@ -117,14 +122,12 @@ sed "s/{{TITLE}}/Content Collection/g" "$TEMP_TEMPLATE" | while IFS= read -r LIN
 	esac
 done >"$COLLECTION_OUTPUT"
 
-echo "Collection list written to $COLLECTION_OUTPUT"
+TASK_STATUS "Collection list written to $COLLECTION_OUTPUT"
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Export Collection to HTML"
 
-FRONTEND start task
 exit 0
 

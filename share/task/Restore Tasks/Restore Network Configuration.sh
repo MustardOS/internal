@@ -1,15 +1,20 @@
 #!/bin/sh
 # HELP: Restore Network Configuration
 # ICON: network
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "restore_network_configuration" "Restore Network Configuration"
 
-echo "Stopping Network Interface"
+
+TASK_STATUS "Stopping Network Interface"
 /opt/muos/script/init/async/S02network.sh stop
 
-echo "Reverting to original network settings"
+TASK_STATUS "Reverting to original network settings"
 SET_VAR "config" "network/type" "0"
 SET_VAR "config" "network/ssid" ""
 SET_VAR "config" "network/pass" ""
@@ -19,14 +24,12 @@ SET_VAR "config" "network/gateway" ""
 SET_VAR "config" "network/subnet" ""
 SET_VAR "config" "network/dns" "1.1.1.1"
 
-echo "Removing WPA Supplicant"
+TASK_STATUS "Removing WPA Supplicant"
 rm -rf "/etc/wpa_supplicant.conf"
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Restore Network Configuration"
 
-FRONTEND start task
 exit 0

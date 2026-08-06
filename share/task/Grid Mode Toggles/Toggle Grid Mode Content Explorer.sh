@@ -1,14 +1,19 @@
 #!/bin/sh
 # HELP: Toggle Grid Mode Content Explorer
 # ICON: theme
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 # Created for muOS 2502.0 Pixie +
 # This script will enable or disable Grid mode for content explorer
 # by updating the muxplore.ini theme override file
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "toggle_grid_mode_content_explorer" "Toggle Grid Mode Content Explorer"
+
 
 INI_FILE="$MUOS_STORE_DIR/theme/override/muxplore.ini"
 GRID_SECTION="[grid]"
@@ -19,11 +24,11 @@ mkdir -p "$(dirname "$INI_FILE")"
 
 if grep -qFx "$GRID_SECTION" "$INI_FILE"; then
     if grep -qFx "$COLUMN_SETTING" "$INI_FILE" && grep -qFx "$ROW_SETTING" "$INI_FILE"; then
-		echo "Enabling Grid Mode for Content Explorer"
+		TASK_STATUS "Enabling Grid Mode for Content Explorer"
         sed -i "/$COLUMN_SETTING/d" "$INI_FILE"
         sed -i "/$ROW_SETTING/d" "$INI_FILE"
     else
-		echo "Disabling Grid Mode for Content Explorer"
+		TASK_STATUS "Disabling Grid Mode for Content Explorer"
         awk -v col="$COLUMN_SETTING" -v row="$ROW_SETTING" '
             /^\[grid\]$/ {print; found=1; next}
             found && NF==0 {print col "\n" row; found=0}
@@ -32,15 +37,13 @@ if grep -qFx "$GRID_SECTION" "$INI_FILE"; then
         ' "$INI_FILE" > /tmp/temp.ini && mv /tmp/temp.ini "$INI_FILE"
     fi
 else
-	echo "Disabling Grid Mode for Content Explorer"
+	TASK_STATUS "Disabling Grid Mode for Content Explorer"
     echo -e "\n$GRID_SECTION\n$COLUMN_SETTING\n$ROW_SETTING" >> "$INI_FILE"
 fi
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Toggle Grid Mode Content Explorer"
 
-FRONTEND start task
 exit 0

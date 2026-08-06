@@ -1,25 +1,29 @@
 #!/bin/sh
 # HELP: Clear SFTPGO Keys
 # ICON: clear
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 # This script will remove the SFTPGO keys
 # These will be (re)generated on next boot.
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "clear_sftpgo_keys" "Clear SFTPGO Keys"
+
 
 SFTP_DIR="/opt/sftpgo"
 
-echo "Deleting SFTPGO Keys"
+TASK_STATUS "Deleting SFTPGO Keys"
 rm -f "${SFTP_DIR:?}"/id_*
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-echo "Please reboot your device."
+TASK_COMPLETE "Clear SFTPGO Keys"
+TASK_STATUS "Please reboot your device."
 sleep 5
 
-FRONTEND start task
 exit 0

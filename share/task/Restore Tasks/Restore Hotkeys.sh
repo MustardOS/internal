@@ -1,12 +1,17 @@
 #!/bin/sh
 # HELP: Restore the default MustardOS hotkeys.
 # ICON: sdcard
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "restore_hotkeys" "Restore Hotkeys"
 
-echo "Restoring MustardOS Hotkeys"
+
+TASK_STATUS "Restoring MustardOS Hotkeys"
 
 # Define paths to hotkey files
 RG_INI="$MUOS_SHARE_DIR/hotkey/rg.ini"
@@ -32,11 +37,9 @@ cat > "$TUI_INI" << 'EOF'
 5=["MENU","SELECT"]
 EOF
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Restore Hotkeys"
 
-FRONTEND start task
 exit 0

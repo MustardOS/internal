@@ -1,35 +1,38 @@
 #!/bin/sh
 # HELP: Toggle Ethernet
 # ICON: ethernet
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 # USB Ethernet script created for muOS 2405.1 Refried Beans +
 # This script will toggle the iface between eth0 and wlan0
 # Additionally it'll enable network and PortMaster, and generate SSH Keys if needed.
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "toggle_ethernet" "Toggle Ethernet"
+
 
 SET_VAR "device" "board/network" "1"
 SET_VAR "device" "board/portmaster" "1"
 
 if [ "$(GET_VAR "device" "network/iface")" = "wlan0" ]; then
-	echo "Switching to 'eth0'"
+	TASK_STATUS "Switching to 'eth0'"
 	SET_VAR "device" "network/iface" "eth0"
 	SET_VAR "device" "network/state" "/sys/class/net/eth0/operstate"
 else
-	echo "Switching to 'wlan0'"
+	TASK_STATUS "Switching to 'wlan0'"
 	SET_VAR "device" "network/iface" "wlan0"
 	SET_VAR "device" "network/state" "/sys/class/net/wlan0/operstate"
 fi
 
 /opt/openssh/bin/ssh-keygen -A
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Toggle Ethernet"
 
-FRONTEND start task
 exit 0

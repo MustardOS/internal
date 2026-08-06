@@ -1,21 +1,24 @@
 #!/bin/sh
 # HELP: Clear Core Assignments
 # ICON: clear
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "clear_content_assignments" "Clear Content Assignments"
+
 
 MUOS_CONTENT_DIR="$MUOS_SHARE_DIR/info/content"
 
-echo "Removing all content assignments"
+TASK_STATUS "Removing all content assignments"
 rm -rf "${MUOS_CONTENT_DIR:?}"/*
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Clear Content Assignments"
 
-FRONTEND start task
 exit 0

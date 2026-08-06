@@ -1,21 +1,24 @@
 #!/bin/sh
 # HELP: Clear History
 # ICON: clear
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "clear_history" "Clear History"
+
 
 MUOS_HIST_DIR="$MUOS_STORE_DIR/info/history"
 
-echo "Deleting History Files"
+TASK_STATUS "Deleting History Files"
 rm -rf "${MUOS_HIST_DIR:?}"/*
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Clear History"
 
-FRONTEND start task
 exit 0

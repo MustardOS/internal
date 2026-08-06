@@ -1,11 +1,16 @@
 #!/bin/sh
 # HELP: Restore the default RetroArch overrides
 # ICON: retroarch
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
+
+TASK_BEGIN "restore_retroarch_overrides" "Restore RetroArch Overrides"
 . /opt/muos/script/var/zip.sh
 
-FRONTEND stop
 
 RA_CONF_DIR="$MUOS_SHARE_DIR/info/config"
 RA_CONF_ZIP="$MUOS_SHARE_DIR/archive/ra.config.zip"
@@ -13,12 +18,9 @@ RA_CONF_ZIP="$MUOS_SHARE_DIR/archive/ra.config.zip"
 ALL_DONE() {
 	ARC_UNSET
 
-	echo "Sync Filesystem"
+	TASK_STATUS "Sync Filesystem"
 	sync
 
-	sleep 2
-
-	FRONTEND start task
 	exit "$1"
 }
 
@@ -66,5 +68,5 @@ if command -v ARC_EXTRACT_POST >/dev/null 2>&1; then
 	ARC_EXTRACT_POST "$ARC_STATUS"
 fi
 
-echo "All Done!"
+TASK_COMPLETE "Restore RetroArch Overrides"
 ALL_DONE 0

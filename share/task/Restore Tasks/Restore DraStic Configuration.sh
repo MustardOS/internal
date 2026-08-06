@@ -1,23 +1,26 @@
 #!/bin/sh
 # HELP: Restore the default DraStic settings and hotkeys.
 # ICON: retroarch
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
 . /opt/muos/script/var/func.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "restore_drastic_configuration" "Restore DraStic Configuration"
 
-echo "Restoring DraStic Configuration"
+
+TASK_STATUS "Restoring DraStic Configuration"
 
 DRASTIC_DIR="$MUOS_SHARE_DIR/emulator/drastic-trngaje"
 rm -f "${DRASTIC_DIR}/config/drastic.cfg" "${DRASTIC_DIR}/resources/settings.json"
 
 /opt/muos/script/control/drastic.sh
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-sleep 2
+TASK_COMPLETE "Restore DraStic Configuration"
 
-FRONTEND start task
 exit 0

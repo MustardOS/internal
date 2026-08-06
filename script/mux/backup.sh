@@ -1,14 +1,16 @@
 #!/bin/sh
+# NEVER_CANCEL: 1
 # The following script reads a manifest file to determine which files to back up,
 # where to back them up, and whether to do it in individual or batch mode.
 # It supports both individual backups and batch processing of multiple files.
 
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/var/zip.sh
+. /opt/muos/script/var/ui.sh
 
 LOG_INFO "$0" 0 "BACKUP" "Backup script started"
 
-FRONTEND stop
+TASK_IS_NATIVE || FRONTEND stop
 
 SET_VAR "system" "foreground_process" "muxbackup"
 
@@ -27,23 +29,23 @@ LOG_INFO "$0" 0 "BACKUP" "$(printf "Merge mode: %s" "$MERGE_ALL")"
 # Check if manifest file exists
 if [ ! -f "$MANIFEST_FILE" ]; then
 	LOG_ERROR "$0" 0 "BACKUP" "$(printf "Manifest file not found: '%s'" "$MANIFEST_FILE")"
-	printf "\nManifest file not found: %s\n" "$MANIFEST_FILE"
+	TASK_ERROR "manifest_missing" "$(printf "Manifest file not found: %s" "$MANIFEST_FILE")"
 	ERROR_FLAG=1
 elif ! read -r SRC_MODE DEST_MNT <"$MANIFEST_FILE"; then
 	LOG_ERROR "$0" 0 "BACKUP" "$(printf "Failed to read manifest header from: '%s'" "$MANIFEST_FILE")"
-	printf "\nFailed to read manifest header from: %s\n" "$MANIFEST_FILE"
+	TASK_ERROR "manifest_unreadable" "$(printf "Could not read the manifest header from %s" "$MANIFEST_FILE")"
 	ERROR_FLAG=1
 elif [ -z "$SRC_MODE" ] || [ -z "$DEST_MNT" ]; then
 	LOG_ERROR "$0" 0 "BACKUP" "Invalid manifest header format"
-	printf "\nInvalid manifest header format. Expected: SRC_MODE DEST_MNT\n"
+	TASK_ERROR "manifest_invalid" "Invalid manifest header, expected SRC_MODE and DEST_MNT."
 	ERROR_FLAG=1
 elif [ "$SRC_MODE" != "INDIVIDUAL" ] && [ "$SRC_MODE" != "BATCH" ]; then
 	LOG_ERROR "$0" 0 "BACKUP" "$(printf "Invalid SRC_MODE in manifest: '%s'" "$SRC_MODE")"
-	printf "\nInvalid SRC_MODE in manifest: %s\n" "$SRC_MODE"
+	TASK_ERROR "manifest_invalid" "$(printf "Invalid SRC_MODE in the manifest: %s" "$SRC_MODE")"
 	ERROR_FLAG=1
 elif [ "$DEST_MNT" != "SD1" ] && [ "$DEST_MNT" != "SD2" ] && [ "$DEST_MNT" != "USB" ]; then
 	LOG_ERROR "$0" 0 "BACKUP" "$(printf "Invalid DEST_MNT in manifest: '%s'" "$DEST_MNT")"
-	printf "\nInvalid DEST_MNT in manifest: %s\n" "$DEST_MNT"
+	TASK_ERROR "manifest_invalid" "$(printf "Invalid DEST_MNT in the manifest: %s" "$DEST_MNT")"
 	ERROR_FLAG=1
 fi
 
@@ -72,45 +74,45 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 		elif [ "$ERROR_FLAG" -ne 0 ]; then
 			break
 		elif [ -z "$SRC_MNT" ] || [ -z "$SRC_SHORTNAME" ]; then
-			printf "\nInvalid line %s in manifest: %s %s\n" "$LINE_NUM" "$SRC_MNT" "$SRC_SHORTNAME"
+			TASK_ERROR "manifest_invalid" "$(printf "Invalid manifest line %s" "$LINE_NUM")"
 			ERROR_FLAG=1
 			break
 		fi
 
 		CREATOR="/opt/muos/script/archive/$SRC_SHORTNAME.sh"
 		if [ ! -r "$CREATOR" ]; then
-			printf "\nSkipping unsupported archive: %s\n" "$SRC_SHORTNAME"
+			TASK_DETAIL "$(printf "Skipping unsupported archive: %s" "$SRC_SHORTNAME")"
 			continue
 		fi
 
 		# shellcheck disable=SC1090
 		. "$CREATOR" || {
-			printf "\n\nInvalid creator for: %s\nCreator not executable or cannot be sourced\n\n" "$SRC_SHORTNAME"
+			TASK_DETAIL "$(printf "Invalid creator for %s, cannot be sourced" "$SRC_SHORTNAME")"
 			continue
 		}
 
 		if ! command -v ARC_CREATE >/dev/null 2>&1; then
-			printf "\n\nInvalid extractor for: %s\nMissing 'ARC_CREATE' function\n\n" "$SRC_SHORTNAME"
+			TASK_DETAIL "$(printf "Invalid creator for %s, missing 'ARC_CREATE'" "$SRC_SHORTNAME")"
 			ARC_UNSET
 			continue
 		fi
 
 		ARC_CREATE || {
-			printf "\n\nInvalid extractor for: %s\nCannot source 'ARC_CREATE' function\n\n" "$SRC_SHORTNAME"
+			TASK_DETAIL "$(printf "Invalid creator for %s, 'ARC_CREATE' failed" "$SRC_SHORTNAME")"
 			ARC_UNSET
 			continue
 		}
 
 		if command -v ARC_CREATE_PRE >/dev/null 2>&1; then
 			if ! ARC_CREATE_PRE; then
-				printf "\nPre-create hook failed for: %s - skipping\n" "$SRC_SHORTNAME"
+				TASK_DETAIL "$(printf "Pre-create hook failed for %s, skipping" "$SRC_SHORTNAME")"
 				ARC_UNSET
 				continue
 			fi
 		fi
 
 		if [ -z "${SRC}" ] || [ -z "${LABEL}" ]; then
-			printf "\n\nInvalid extractor for: %s\nMissing 'SRC' or 'LABEL' variables\n\n" "$SRC_SHORTNAME"
+			TASK_DETAIL "$(printf "Invalid creator for %s, missing 'SRC' or 'LABEL'" "$SRC_SHORTNAME")"
 			ARC_UNSET
 			continue
 		fi
@@ -118,7 +120,7 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 		SRC_SUFFIX="${SRC}/${SRC_SHORTNAME}"
 
 		if [ ! -e "$SRC_SUFFIX" ]; then
-			printf "\nSource path not found: %s\n" "$SRC_SUFFIX"
+			TASK_DETAIL "$(printf "Source path not found: %s" "$SRC_SUFFIX")"
 			ARC_UNSET
 			continue
 		fi
@@ -127,24 +129,28 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 			if [ "$MERGE_ALL" -eq 1 ]; then
 				ZIP_FILE="MustardOS.FullBackup.$(date +%Y%m%d).muxzip"
 
-				printf "(%s/%s) Adding %s to Archive: %s\n" "$INDEX" "$TOTAL" "$LABEL" "$ZIP_FILE"
+				TASK_STATUS "$(printf "Adding %s to archive" "$LABEL")"
+				TASK_DETAIL "$ZIP_FILE"
 			else
 				CAP_SRC_SN=$(CAPITALISE "$SRC_SHORTNAME")
 				ZIP_FILE="MustardOS.${CAP_SRC_SN}.$(date +%Y%m%d).muxzip"
 
-				printf "(%s/%s) Creating %s Archive: %s\n" "$INDEX" "$TOTAL" "$LABEL" "$ZIP_FILE"
+				TASK_STATUS "$(printf "Creating %s archive" "$LABEL")"
+				TASK_DETAIL "$ZIP_FILE"
 			fi
+
+			TASK_PROGRESS "$INDEX" "$TOTAL"
 
 			DEST_FILE="${DEST_PATH}/${ZIP_FILE}"
 			LOG_INFO "$0" 0 "BACKUP" "$(printf "Archiving '%s' -> '%s'" "$SRC_SUFFIX" "$DEST_FILE")"
 			if CREATE_ARCHIVE "$SRC_SHORTNAME" "$DEST_FILE" "$SRC_MNT" "$SRC_SHORTNAME" "$SRC_SUFFIX" "$COMP"; then
 				[ "$MERGE_ALL" -eq 1 ] && WHAT_DO="Added" || WHAT_DO="Created"
 				LOG_SUCCESS "$0" 0 "BACKUP" "$(printf "%s '%s'" "$WHAT_DO" "$LABEL")"
-				printf "%s '%s' successfully\n\n" "$WHAT_DO" "$LABEL"
+				TASK_DETAIL "$(printf "%s '%s' successfully" "$WHAT_DO" "$LABEL")"
 				ARC_STATUS=0
 			else
 				LOG_ERROR "$0" 0 "BACKUP" "$(printf "Failed to add '%s' for '%s'" "$SRC_SUFFIX" "$SRC_SHORTNAME")"
-				printf "Failed to add %s for %s\n\n" "$SRC_SUFFIX" "$SRC_SHORTNAME"
+				TASK_ERROR "archive_failed" "$(printf "Failed to archive %s" "$SRC_SHORTNAME")"
 				ERROR_FLAG=1
 				ARC_STATUS=1
 			fi
@@ -156,29 +162,31 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 			ARC_UNSET
 
 			INDEX=$((INDEX + 1))
-			sleep 1
+			TASK_IS_NATIVE || sleep 1
 		fi
 	done <"$MANIFEST_FILE"
 fi
 
 if [ "$ERROR_FLAG" -ne 0 ]; then
 	LOG_ERROR "$0" 0 "BACKUP" "Errors occurred during backup process"
-	printf "Errors occurred during the backup process\n\n"
-	sleep 3
+	TASK_ERROR "backup_incomplete" "Errors occurred during the backup."
+	TASK_IS_NATIVE || sleep 3
 else
 	LOG_SUCCESS "$0" 0 "BACKUP" "Backup completed successfully"
-	printf "Backup completed successfully\n\n"
+	TASK_COMPLETE "Backup completed successfully"
 fi
 
 # Remove the manifest file
 [ -f "$MANIFEST_FILE" ] && rm -f "$MANIFEST_FILE"
 
-printf "Sync Filesystem\n"
+TASK_STATUS "Sync Filesystem"
 sync
 
-sleep 3
-FRONTEND start backup
+TASK_IS_NATIVE || {
+	sleep 3
+	FRONTEND start backup
+}
 
 SET_VAR "system" "foreground_process" "muxfrontend"
 
-exit 0
+exit "$ERROR_FLAG"

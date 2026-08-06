@@ -1,15 +1,20 @@
 #!/bin/sh
+# NEVER_CANCEL: 1
 
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/var/zip.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_IS_NATIVE || FRONTEND stop
 
 COMMAND=$(basename "$0")
 
+# Set by whichever path ran so the completion text matches what actually happened
+DONE_MESSAGE="Done"
+
 USAGE() {
-	printf "Usage: %s <install|save|bootlogo> <theme>\n" "$COMMAND"
-	FRONTEND start picker
+	TASK_ERROR "bad_arguments" "$(printf "Usage: %s <install|save|bootlogo> <theme>" "$COMMAND")"
+	TASK_IS_NATIVE || FRONTEND start picker
 	exit 1
 }
 
@@ -23,21 +28,25 @@ THEME_ACTIVE_DIR="$THEME_DIR/active"
 
 LOCK_DIR="$THEME_DIR/.theme.lock"
 if ! touch "$LOCK_DIR" 2>/dev/null; then
-	printf "Another Theme Operation is in progress. Please try again shortly...\n"
-	sleep 2
-
-	FRONTEND start picker
+	TASK_ERROR "theme_locked" "Another theme operation is already in progress."
+	TASK_IS_NATIVE || {
+		sleep 2
+		FRONTEND start picker
+	}
 	exit 1
 fi
 
 ALL_DONE() {
 	FE_CMD="${2:-picker}"
-	printf "\nSync Filesystem\n"
+	TASK_STATUS "Sync Filesystem"
 	sync
 
-	printf "All Done!\n"
-	sleep 2
-	FRONTEND start "$FE_CMD"
+	# A failure has already reported itself, saying it completed would overwrite that
+	[ "${1:-0}" -eq 0 ] && TASK_COMPLETE "$DONE_MESSAGE"
+	TASK_IS_NATIVE || {
+		sleep 2
+		FRONTEND start "$FE_CMD"
+	}
 
 	rm -f "$LOCK_DIR"
 
@@ -45,7 +54,7 @@ ALL_DONE() {
 }
 
 RANDOM() {
-	printf "Selecting Random Theme\n"
+	TASK_STATUS "Selecting Random Theme"
 
 	selected=$(
 		find "$THEME_DIR" \
@@ -64,17 +73,18 @@ RANDOM() {
             print files[int(rand() * NR) + 1]
         }'
 	) || {
-		printf "No files found\n"
+		TASK_ERROR "no_themes" "No themes were found to choose from."
 		ALL_DONE 1
 	}
 
 	relative=${selected#"$THEME_DIR"/}
 	relative=${relative%/version.txt}
 
-	printf '%s\n' "$relative"
+	TASK_DETAIL "$relative"
 
 	printf '%s\n' "$relative" >"$MUOS_CONF_GLOBAL/theme/active"
 	UPDATE_BOOTLOGO
+	DONE_MESSAGE="Theme installed"
 	ALL_DONE 0
 }
 
@@ -86,11 +96,11 @@ INSTALL() {
 	fi
 
 	if [ ! -f "$THEME_ZIP" ]; then
-		printf "Theme Archive Not Found: %s\n" "$THEME_ZIP"
+		TASK_ERROR "theme_missing" "$(printf "Theme archive not found: %s" "$THEME_ZIP")"
 		ALL_DONE 1
 	fi
 
-	printf "Checking for Processes using Active Theme...\n"
+	TASK_STATUS "Checking Active Theme"
 	PIDS=$(lsof +D "$THEME_ACTIVE_DIR" 2>/dev/null | awk 'NR>1 {print $2}' | sort -u)
 	if [ -n "$PIDS" ]; then
 		SELF=$$
@@ -105,7 +115,7 @@ INSTALL() {
 	fi
 
 	NEW_DIR="$(mktemp -d "$THEME_DIR/.new.XXXXXX")" || {
-		printf "Failed to create temp dir\n"
+		TASK_ERROR "temp_failed" "A working directory could not be created."
 		ALL_DONE 1
 	}
 
@@ -113,12 +123,12 @@ INSTALL() {
 
 	SPACE_REQ="$(GET_ARCHIVE_BYTES "$THEME_ZIP" "")"
 	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$NEW_DIR" "theme" && {
-		printf "Not enough space to extract theme\n"
+		TASK_ERROR "no_space" "There is not enough space to extract the theme."
 		ALL_DONE 1
 	}
 
 	if ! EXTRACT_ARCHIVE "Theme" "$THEME_ZIP" "$NEW_DIR"; then
-		printf "\nExtraction Failed...\n"
+		TASK_ERROR "extract_failed" "The theme could not be extracted."
 		ALL_DONE 1
 	fi
 
@@ -127,20 +137,20 @@ INSTALL() {
 
 	OLD_DIR="$THEME_DIR/.active.old.$$"
 
-	printf "\nActivating Theme\n"
+	TASK_STATUS "Activating Theme"
 	if [ -d "$THEME_ACTIVE_DIR" ]; then
 		mv "$THEME_ACTIVE_DIR" "$OLD_DIR" 2>/dev/null || {
-			printf "Rename Failure...\n\tAttempting Fallback Purge\n"
+			TASK_DETAIL "Rename failed, purging the active theme instead"
 			find "$THEME_ACTIVE_DIR" -mindepth 1 -exec rm -rf {} + 2>/dev/null
 			OLD_DIR=
 		}
 	fi
 
 	if ! mv "$NEW_DIR" "$THEME_ACTIVE_DIR" 2>/dev/null; then
-		printf "Theme Move Failure...\n\tReverting to copying theme into place\n"
+		TASK_DETAIL "Move failed, copying the theme into place instead"
 		mkdir -p "$THEME_ACTIVE_DIR" 2>/dev/null
 		if ! cp -a "$NEW_DIR"/. "$THEME_ACTIVE_DIR"/ 2>/dev/null; then
-			printf "Failed to Activate Theme\n"
+			TASK_ERROR "activate_failed" "The theme could not be activated."
 			[ -n "$OLD_DIR" ] && mv "$OLD_DIR" "$THEME_ACTIVE_DIR" 2>/dev/null
 			ALL_DONE 1
 		fi
@@ -162,14 +172,14 @@ INSTALL() {
 	ASSETS_ZIP="$THEME_ACTIVE_DIR/assets.muxzip"
 	if [ -f "$ASSETS_ZIP" ]; then
 		CAT_GRID_CLEAR "$ASSETS_ZIP"
-		printf "Extracting Theme Assets\n"
+		TASK_STATUS "Extracting Theme Assets"
 
 		export THEME_INSTALLING=1
 		/opt/muos/script/mux/extract.sh "$ASSETS_ZIP" picker
 		unset THEME_INSTALLING
 	fi
 
-	printf "Install Complete\n"
+	DONE_MESSAGE="Theme installed"
 	ALL_DONE 0
 }
 
@@ -178,24 +188,25 @@ SAVE() {
 		BASE_THEME_NAME=$(sed -n '1p' "$THEME_ACTIVE_DIR/name.txt")
 	else
 		BASE_THEME_NAME="current_theme"
-		printf "Using Default Theme Name: %s\n" "$BASE_THEME_NAME"
+		TASK_DETAIL "$(printf "Using the default name: %s" "$BASE_THEME_NAME")"
 	fi
 
 	TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 	DEST_FILE="$THEME_DIR/$BASE_THEME_NAME-$TIMESTAMP.${THEME_EXT}"
 
-	printf "Backing up Contents of '%s' to '%s'\n" "$THEME_ACTIVE_DIR" "$DEST_FILE"
+	TASK_STATUS "Creating Package"
+	TASK_DETAIL "$DEST_FILE"
 	cd "$THEME_ACTIVE_DIR" || ALL_DONE 1
 	zip -ru "$DEST_FILE" .
 
-	printf "Backup Complete: %s\n" "$DEST_FILE"
+	DONE_MESSAGE="Theme package saved"
 	ALL_DONE 0
 }
 
 BOOTLOGO() {
 	UPDATE_BOOTLOGO
 
-	printf "Bootlogo Updated\n"
+	DONE_MESSAGE="Bootlogo updated"
 	ALL_DONE 0 "${THEME_ARG:-custom}"
 }
 

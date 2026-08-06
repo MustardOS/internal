@@ -1395,6 +1395,44 @@ UPDATE_IMAGE_ROLE() {
 	return 0
 }
 
+APPLY_LOGO_IMAGE() {
+	SRC="$1"
+	OUT="$2"
+	MODE="${3:-fullscreen}"
+
+	mkdir -p "$(dirname "$OUT")"
+
+	TMP_OUT="/tmp/logo_out_$$.png"
+	rm -f "$TMP_OUT"
+
+	case "$MODE" in
+		# Cover the screen and trim whatever falls outside it
+		crop)
+			magick "${SRC}[0]" -resize "${DEVICE_W}x${DEVICE_H}^" -background black -gravity center \
+				-extent "${DEVICE_W}x${DEVICE_H}" -alpha off "$TMP_OUT"
+			;;
+		# Fill the screen exactly, aspect ratio be damned
+		stretch)
+			magick "${SRC}[0]" -resize "${DEVICE_W}x${DEVICE_H}!" -alpha off "$TMP_OUT"
+			;;
+		# Left at its own size, centred, and trimmed if it overhangs
+		original)
+			magick "${SRC}[0]" -background black -gravity center \
+				-extent "${DEVICE_W}x${DEVICE_H}" -alpha off "$TMP_OUT"
+			;;
+		# As large as it will go while keeping its shape
+		*)
+			magick "${SRC}[0]" -resize "${DEVICE_W}x${DEVICE_H}" -background black -gravity center \
+				-extent "${DEVICE_W}x${DEVICE_H}" -alpha off "$TMP_OUT"
+			;;
+	esac
+
+	magick "$TMP_OUT" BMP3:"$OUT"
+	rm -f "$TMP_OUT"
+
+	DEVICE_THEME_FIX "bootlogo" "$OUT"
+}
+
 UPDATE_BOOTLOGO() {
 	rm -f "/tmp/btl_go"
 

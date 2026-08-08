@@ -24,6 +24,6 @@ TASK_STATUS "Generating Predefined Catalogue"
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Clear Catalogue - Everything"
+TASK_COMPLETE "Catalogue cleared"
 
 exit 0

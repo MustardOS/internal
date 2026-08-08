@@ -19,6 +19,6 @@ rm -rf "${MUOS_NP_DIR:?}"/*
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Clear Network Profiles"
+TASK_COMPLETE "Network profiles cleared"
 
 exit 0

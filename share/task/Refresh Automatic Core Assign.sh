@@ -16,7 +16,7 @@ TASK_BEGIN "refresh_automatic_core_assign" "Refresh Automatic Core Assign"
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Refresh Automatic Core Assign"
+TASK_COMPLETE "Core assignments refreshed"
 sleep 5
 
 exit 0

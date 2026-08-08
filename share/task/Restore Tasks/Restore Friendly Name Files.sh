@@ -68,5 +68,5 @@ if command -v ARC_EXTRACT_POST >/dev/null 2>&1; then
 	ARC_EXTRACT_POST "$ARC_STATUS"
 fi
 
-TASK_COMPLETE "Restore Friendly Name Files"
+TASK_COMPLETE "Friendly name files restored"
 ALL_DONE 0

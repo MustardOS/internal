@@ -10,13 +10,16 @@
 
 TASK_BEGIN "eject_secondary_storage" "Eject Secondary Storage"
 
-
 TASK_STATUS "Trying to eject Secondary Storage"
-/opt/muos/script/device/storage.sh "sdcard" "eject"
 
-TASK_STATUS "Sync Filesystem"
-sync
+# storage.sh reports why it failed, so all that is left to say here is how it ended
+if /opt/muos/script/device/storage.sh "sdcard" "eject"; then
+	TASK_STATUS "Sync Filesystem"
+	sync
 
-TASK_COMPLETE "Eject Secondary Storage"
+	TASK_COMPLETE "Secondary Storage ejected"
+	exit 0
+fi
 
-exit 0
+TASK_COMPLETE "Secondary Storage could not be ejected"
+exit 1

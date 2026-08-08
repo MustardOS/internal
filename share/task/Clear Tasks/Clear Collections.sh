@@ -19,6 +19,6 @@ rm -rf "${MUOS_COLL_DIR:?}"/*
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Clear Collections"
+TASK_COMPLETE "Collections cleared"
 
 exit 0

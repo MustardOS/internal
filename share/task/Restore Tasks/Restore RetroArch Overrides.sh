@@ -68,5 +68,5 @@ if command -v ARC_EXTRACT_POST >/dev/null 2>&1; then
 	ARC_EXTRACT_POST "$ARC_STATUS"
 fi
 
-TASK_COMPLETE "Restore RetroArch Overrides"
+TASK_COMPLETE "RetroArch overrides restored"
 ALL_DONE 0

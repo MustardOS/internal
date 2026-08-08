@@ -16,15 +16,21 @@ TASK_BEGIN "toggle_syncthing_auto_scan" "Toggle Syncthing Auto-Scan"
 
 if [ "$(GET_VAR "config" "syncthing/auto_scan")" -eq 0 ]; then
 	TASK_STATUS "Turning on Syncthing Auto-Scan"
+	RESULT="on"
 	SET_VAR "config" "syncthing/auto_scan" "1"
 else
 	TASK_STATUS "Turning off Syncthing Auto-Scan"
+	RESULT="off"
 	SET_VAR "config" "syncthing/auto_scan" "0"
 fi
 
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Toggle Syncthing Auto-Scan"
+if [ "$RESULT" = "on" ]; then
+	TASK_COMPLETE "Syncthing Auto-Scan is now on"
+else
+	TASK_COMPLETE "Syncthing Auto-Scan is now off"
+fi
 
 exit 0

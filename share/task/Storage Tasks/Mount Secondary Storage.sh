@@ -10,13 +10,16 @@
 
 TASK_BEGIN "mount_secondary_storage" "Mount Secondary Storage"
 
-
 TASK_STATUS "Trying to mount Secondary Storage"
-/opt/muos/script/device/storage.sh "sdcard" "mount"
 
-TASK_STATUS "Sync Filesystem"
-sync
+# storage.sh reports why it failed, so all that is left to say here is how it ended
+if /opt/muos/script/device/storage.sh "sdcard" "mount"; then
+	TASK_STATUS "Sync Filesystem"
+	sync
 
-TASK_COMPLETE "Mount Secondary Storage"
+	TASK_COMPLETE "Secondary Storage mounted"
+	exit 0
+fi
 
-exit 0
+TASK_COMPLETE "Secondary Storage could not be mounted"
+exit 1

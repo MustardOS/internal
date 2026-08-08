@@ -25,6 +25,6 @@ fi
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Clear Activity Data"
+TASK_COMPLETE "Activity data cleared"
 
 exit 0

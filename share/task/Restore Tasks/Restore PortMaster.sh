@@ -13,6 +13,21 @@ TASK_BEGIN "restore_portmaster" "Restore PortMaster"
 
 
 PM_DIR="/mnt/mmc/MUOS/PortMaster"
+ALL_DONE() {
+	ARC_UNSET
+
+	if [ "$1" -eq 0 ]; then
+		TASK_STATUS "Sync Filesystem"
+		sync
+
+		TASK_COMPLETE "PortMaster restored"
+	else
+		TASK_COMPLETE "PortMaster was not restored"
+	fi
+
+	exit "$1"
+}
+
 PM_ZIP="$MUOS_SHARE_DIR/archive/muos.portmaster.zip"
 
 RT_DIR="$PM_DIR/runtimes"
@@ -30,7 +45,7 @@ SPACE_REQ="$(GET_ARCHIVE_BYTES "$PM_ZIP" "")"
 ! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$PM_DIR" && ALL_DONE 1
 
 if ! EXTRACT_ARCHIVE "PortMaster" "$PM_ZIP" "/"; then
-	printf "\nExtraction Failed...\n"
+	TASK_ERROR "extract_failed" "PortMaster could not be extracted"
 	ALL_DONE 1
 fi
 
@@ -39,14 +54,9 @@ if [ -e "$RT_ZIP" ]; then
 	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$RT_DIR" && ALL_DONE 1
 
 	if ! EXTRACT_ARCHIVE "PortMaster Runtimes" "$RT_ZIP" "$RT_DIR"; then
-		printf "\nExtraction Failed...\n"
+		TASK_ERROR "extract_failed" "PortMaster Runtimes could not be extracted"
 		ALL_DONE 1
 	fi
 fi
 
-printf "\nSync Filesystem"
-sync
-
-printf "\nAll Done!"
-
-exit 0
+ALL_DONE 0

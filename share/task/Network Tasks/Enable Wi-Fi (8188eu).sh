@@ -34,7 +34,7 @@ esac
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Enable Wi-Fi (8188eu)"
+TASK_COMPLETE "Wi-Fi driver enabled"
 TASK_STATUS "Please restart your device!"
 sleep 3
 

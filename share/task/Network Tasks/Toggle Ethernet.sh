@@ -20,10 +20,12 @@ SET_VAR "device" "board/portmaster" "1"
 
 if [ "$(GET_VAR "device" "network/iface")" = "wlan0" ]; then
 	TASK_STATUS "Switching to 'eth0'"
+	IFACE="eth0"
 	SET_VAR "device" "network/iface" "eth0"
 	SET_VAR "device" "network/state" "/sys/class/net/eth0/operstate"
 else
 	TASK_STATUS "Switching to 'wlan0'"
+	IFACE="wlan0"
 	SET_VAR "device" "network/iface" "wlan0"
 	SET_VAR "device" "network/state" "/sys/class/net/wlan0/operstate"
 fi
@@ -33,6 +35,6 @@ fi
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Toggle Ethernet"
+TASK_COMPLETE "$(printf "Network interface is now %s" "$IFACE")"
 
 exit 0

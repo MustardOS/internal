@@ -19,6 +19,6 @@ rm -rf "${MUOS_CONTENT_DIR:?}"/*
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Clear Content Assignments"
+TASK_COMPLETE "Content assignments cleared"
 
 exit 0

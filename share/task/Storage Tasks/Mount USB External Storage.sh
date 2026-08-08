@@ -10,13 +10,16 @@
 
 TASK_BEGIN "mount_usb_external_storage" "Mount USB External Storage"
 
-
 TASK_STATUS "Trying to mount USB External Storage"
-/opt/muos/script/device/storage.sh "usb" "mount"
 
-TASK_STATUS "Sync Filesystem"
-sync
+# storage.sh reports why it failed, so all that is left to say here is how it ended
+if /opt/muos/script/device/storage.sh "usb" "mount"; then
+	TASK_STATUS "Sync Filesystem"
+	sync
 
-TASK_COMPLETE "Mount USB External Storage"
+	TASK_COMPLETE "USB External Storage mounted"
+	exit 0
+fi
 
-exit 0
+TASK_COMPLETE "USB External Storage could not be mounted"
+exit 1

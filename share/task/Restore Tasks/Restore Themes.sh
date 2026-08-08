@@ -20,6 +20,6 @@ cp -rfv "$SRC_DIR"/* "$DST_DIR/"
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Restore Themes"
+TASK_COMPLETE "Themes restored"
 
 exit 0

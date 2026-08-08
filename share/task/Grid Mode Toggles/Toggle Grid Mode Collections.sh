@@ -25,10 +25,12 @@ mkdir -p "$(dirname "$INI_FILE")"
 if grep -qFx "$GRID_SECTION" "$INI_FILE"; then
     if grep -qFx "$COLUMN_SETTING" "$INI_FILE" && grep -qFx "$ROW_SETTING" "$INI_FILE"; then
 		TASK_STATUS "Enabling Grid Mode for collections"
+		RESULT="on"
         sed -i "/$COLUMN_SETTING/d" "$INI_FILE"
         sed -i "/$ROW_SETTING/d" "$INI_FILE"
     else
 		TASK_STATUS "Disabling Grid Mode for collections"
+		RESULT="off"
         awk -v col="$COLUMN_SETTING" -v row="$ROW_SETTING" '
             /^\[grid\]$/ {print; found=1; next}
             found && NF==0 {print col "\n" row; found=0}
@@ -38,12 +40,17 @@ if grep -qFx "$GRID_SECTION" "$INI_FILE"; then
     fi
 else
 	TASK_STATUS "Disabling Grid Mode for collections"
-    echo -e "\n$GRID_SECTION\n$COLUMN_SETTING\n$ROW_SETTING" >> "$INI_FILE"
+	RESULT="off"
+    printf '\n%s\n%s\n%s\n' "$GRID_SECTION" "$COLUMN_SETTING" "$ROW_SETTING" >>"$INI_FILE"
 fi
 
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Toggle Grid Mode Collections"
+if [ "$RESULT" = "on" ]; then
+	TASK_COMPLETE "Grid Mode enabled for Collections"
+else
+	TASK_COMPLETE "Grid Mode disabled for Collections"
+fi
 
 exit 0

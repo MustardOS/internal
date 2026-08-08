@@ -23,6 +23,6 @@ SET_VAR "config" "settings/advanced/retrofree" "0"
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Restore RetroArch Configuration"
+TASK_COMPLETE "RetroArch configuration restored"
 
 exit 0

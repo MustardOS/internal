@@ -21,6 +21,6 @@ rm -f "${PPSSPP_SYS}/controls.ini" "${PPSSPP_SYS}/ppsspp.ini"
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Restore PPSSPP Configuration"
+TASK_COMPLETE "PPSSPP configuration restored"
 
 exit 0

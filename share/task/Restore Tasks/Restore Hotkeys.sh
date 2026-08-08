@@ -40,6 +40,6 @@ EOF
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Restore Hotkeys"
+TASK_COMPLETE "Hotkeys restored"
 
 exit 0

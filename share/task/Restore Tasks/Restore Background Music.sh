@@ -19,6 +19,6 @@ cp -rfv "$SRC_DIR"/* "$DST_DIR/"
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Restore Background Music"
+TASK_COMPLETE "Background music restored"
 
 exit 0

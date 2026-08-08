@@ -22,7 +22,7 @@ rm -f "${SFTP_DIR:?}"/id_*
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Clear SFTPGO Keys"
+TASK_COMPLETE "SFTPGo keys cleared"
 TASK_STATUS "Please reboot your device."
 sleep 5
 

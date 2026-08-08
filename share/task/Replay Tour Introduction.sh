@@ -20,4 +20,4 @@ TASK_DETAIL "Every menu will introduce itself once more"
 
 sync
 
-TASK_COMPLETE "Orientation will show again"
+TASK_COMPLETE "Tour introduction will show again"

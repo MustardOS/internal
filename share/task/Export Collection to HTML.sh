@@ -127,7 +127,7 @@ TASK_STATUS "Collection list written to $COLLECTION_OUTPUT"
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Export Collection to HTML"
+TASK_COMPLETE "Collection exported"
 
 exit 0
 

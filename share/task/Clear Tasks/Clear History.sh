@@ -19,6 +19,6 @@ rm -rf "${MUOS_HIST_DIR:?}"/*
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Clear History"
+TASK_COMPLETE "History cleared"
 
 exit 0

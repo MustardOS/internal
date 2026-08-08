@@ -21,6 +21,6 @@ rm -f "${DRASTIC_DIR}/config/drastic.cfg" "${DRASTIC_DIR}/resources/settings.jso
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Restore DraStic Configuration"
+TASK_COMPLETE "DraStic configuration restored"
 
 exit 0

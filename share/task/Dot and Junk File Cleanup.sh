@@ -23,6 +23,6 @@ DELETE_CRUFT "$(GET_VAR "device" "storage/usb/mount")"
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Dot and Junk File Cleanup"
+TASK_COMPLETE "Junk files removed"
 
 exit 0

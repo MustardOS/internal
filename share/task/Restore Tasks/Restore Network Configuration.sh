@@ -30,6 +30,6 @@ rm -rf "/etc/wpa_supplicant.conf"
 TASK_STATUS "Sync Filesystem"
 sync
 
-TASK_COMPLETE "Restore Network Configuration"
+TASK_COMPLETE "Network configuration restored"
 
 exit 0

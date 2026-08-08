@@ -145,10 +145,10 @@ zip -r "$ARCHIVE_FILE" ./* >/dev/null 2>&1
 
 rm -rf "$OUTPUT_DIR"
 
-TASK_STATUS "Diagnostics Collected: $ARCHIVE_FILE"
 TASK_STATUS "Sync Filesystem"
 sync
 
-sleep 3
+TASK_DETAIL "$ARCHIVE_FILE"
+TASK_COMPLETE "Diagnostics saved"
 
 exit 0

@@ -727,6 +727,7 @@ fi
 CRITICAL_FAILURE() {
 	case "$1" in
 		mount) MESSAGE=$(printf "Mount Failure\n\n%s%s" "$1" "$2") ;;
+		format) MESSAGE=$(printf "Format Failure\n\nCould not create a %s filesystem on %s" "$3" "$2") ;;
 		udev) MESSAGE=$(printf "Critical Failure\n\nFailed to initialise udev!") ;;
 		*) MESSAGE=$(printf "Critical Failure\n\nAn unknown error occurred!") ;;
 	esac
@@ -1901,4 +1902,43 @@ RUN_SYNCTHING_SCAN() {
 			"http://localhost:7070/rest/db/scan" >/dev/null 2>&1 ||
 			LOG_WARN "$0" 0 "LAUNCH" "Syncthing folder rescan failed"
 	fi
+}
+
+MUOS_MKE2FS="/opt/muos/bin/mke2fs"
+MUOS_MKE2FS_CONF="/opt/muos/share/conf/mke2fs.conf"
+
+FS_CAN_MAKE() {
+	case "$1" in
+		ext2 | ext3 | ext4)
+			[ -x "$MUOS_MKE2FS" ] && return 0
+			;;
+	esac
+
+	command -v "mkfs.$1" >/dev/null 2>&1
+}
+
+MAKE_FILESYSTEM() {
+	MKFS_TYPE="$1"
+	MKFS_PART="$2"
+	MKFS_LABEL="$3"
+
+	case "$MKFS_TYPE" in
+		ext2 | ext3 | ext4)
+			if [ -x "$MUOS_MKE2FS" ]; then
+				if [ -f "$MUOS_MKE2FS_CONF" ]; then
+					MKE2FS_CONFIG="$MUOS_MKE2FS_CONF" \
+						"$MUOS_MKE2FS" -q -F -t "$MKFS_TYPE" -L "$MKFS_LABEL" "$MKFS_PART"
+				else
+					"$MUOS_MKE2FS" -q -F -t "$MKFS_TYPE" -L "$MKFS_LABEL" "$MKFS_PART"
+				fi
+
+				return "$?"
+			fi
+
+			mkfs."$MKFS_TYPE" -F -L "$MKFS_LABEL" "$MKFS_PART"
+			;;
+		exfat) mkfs.exfat -n "$MKFS_LABEL" "$MKFS_PART" ;;
+		vfat) mkfs.vfat -F 32 -n "$MKFS_LABEL" "$MKFS_PART" ;;
+		*) mkfs."$MKFS_TYPE" "$MKFS_PART" ;;
+	esac
 }

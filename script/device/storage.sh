@@ -2,6 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/var/sync.sh
+. /opt/muos/script/var/ui.sh
 
 TYPE="${1:-}"
 ACTION="${2:-}"
@@ -115,22 +116,23 @@ UNMOUNT_DEVICE() {
 
 DO_MOUNT() {
 	if MOUNTED; then
-		printf "%s already mounted\n" "$TYPE"
+		TASK_STATUS "$(printf "%s already mounted" "$TYPE")"
 		exit 0
 	fi
 
 	if MOUNT_DEVICE; then
 		[ "$DURING_BOOT" -eq 0 ] && /opt/muos/script/device/bind.sh
-		printf "%s mounted: /dev/%s -> %s\n" "$TYPE" "$DEVICE" "$MOUNT_POINT"
+		TASK_STATUS "$(printf "%s mounted" "$TYPE")"
+		TASK_DETAIL "$(printf "/dev/%s to %s" "$DEVICE" "$MOUNT_POINT")"
 		exit 0
 	fi
 
 	# At this point we don not know if it failed due to...
 	# Missing device / Unsupported filesystem / General mount error
 	if [ ! -b "/dev/$DEVICE" ]; then
-		printf "%s device not present: /dev/%s\n" "$TYPE" "$DEVICE" >&2
+		TASK_ERROR "no_device" "$(printf "%s device not present: /dev/%s" "$TYPE" "$DEVICE")"
 	else
-		printf "%s mount failed: /dev/%s\n" "$TYPE" "$DEVICE" >&2
+		TASK_ERROR "mount_failed" "$(printf "%s could not be mounted: /dev/%s" "$TYPE" "$DEVICE")"
 	fi
 
 	SET_VAR "device" "storage/$TYPE/active" "0"
@@ -141,33 +143,33 @@ DO_MOUNT() {
 DO_EJECT() {
 	if ! MOUNTED; then
 		SET_VAR "device" "storage/$TYPE/active" "0"
-		printf "%s already unmounted\n" "$TYPE"
+		TASK_STATUS "$(printf "%s already unmounted" "$TYPE")"
 		exit 0
 	fi
 
 	if UNMOUNT_DEVICE; then
 		[ "$DURING_BOOT" -eq 0 ] && /opt/muos/script/device/bind.sh
-		printf "%s ejected: %s\n" "$TYPE" "$MOUNT_POINT"
+		TASK_STATUS "$(printf "%s ejected" "$TYPE")"
 		exit 0
 	fi
 
-	printf "%s eject failed: %s\n" "$TYPE" "$MOUNT_POINT" >&2
+	TASK_ERROR "eject_failed" "$(printf "%s could not be ejected: %s" "$TYPE" "$MOUNT_POINT")"
 	exit 1
 }
 
 DO_DOWN() {
 	if ! MOUNTED; then
 		SET_VAR "device" "storage/$TYPE/active" "0"
-		printf "%s already unmounted\n" "$TYPE"
+		TASK_STATUS "$(printf "%s already unmounted" "$TYPE")"
 		exit 0
 	fi
 
 	if UNMOUNT_DEVICE; then
-		printf "%s down: %s\n" "$TYPE" "$MOUNT_POINT"
+		TASK_STATUS "$(printf "%s unmounted" "$TYPE")"
 		exit 0
 	fi
 
-	printf "%s down failed: %s\n" "$TYPE" "$MOUNT_POINT" >&2
+	TASK_ERROR "unmount_failed" "$(printf "%s could not be unmounted: %s" "$TYPE" "$MOUNT_POINT")"
 	SET_VAR "device" "storage/$TYPE/active" "0"
 
 	exit 1
@@ -175,11 +177,11 @@ DO_DOWN() {
 
 DO_STATUS() {
 	if MOUNTED; then
-		printf "%s mounted\n" "$TYPE"
+		TASK_STATUS "$(printf "%s mounted" "$TYPE")"
 		exit 0
 	fi
 
-	printf "%s not mounted\n" "$TYPE"
+	TASK_STATUS "$(printf "%s not mounted" "$TYPE")"
 	exit 1
 }
 

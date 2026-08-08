@@ -26,12 +26,11 @@ parted ---pretend-input-tty /dev/"$ROM_DEV" resizepart "$ROM_NUM" 100%
 mkdir -p "$ROM_MOUNT"
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Formatting ROM Partition"
-case "$ROM_TYPE" in
-	exfat) mkfs.exfat -n ROMS "$ROM_PART" ;;
-	vfat) mkfs.vfat -F 32 -n ROMS "$ROM_PART" ;;
-	ext4) mkfs."$ROM_TYPE" -F -L ROMS "$ROM_PART" ;;
-	*) mkfs."$ROM_TYPE" "$ROM_PART" ;;
-esac
+if ! MAKE_FILESYSTEM "$ROM_TYPE" "$ROM_PART" "ROMS"; then
+	LOG_ERROR "$0" 0 "FACTORY RESET" "$(printf "Could not format %s as %s" "$ROM_PART" "$ROM_TYPE")"
+	killall -q "mpv"
+	CRITICAL_FAILURE format "$ROM_PART" "$ROM_TYPE"
+fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Setting ROM Partition Flags"
 parted ---pretend-input-tty /dev/"$ROM_DEV" set "$ROM_NUM" boot off

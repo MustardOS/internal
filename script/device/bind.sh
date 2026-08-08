@@ -90,7 +90,7 @@ SAFE_BIND() {
 	mkdir -p "$TGT"
 
 	if IS_MOUNTED "$TGT"; then
-		umount "$TGT" 2>/dev/null || return 1
+		umount "$TGT" 2>/dev/null || umount -l "$TGT" 2>/dev/null || return 1
 	fi
 
 	mount -n --bind "$SRC" "$TGT"

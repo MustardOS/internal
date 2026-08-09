@@ -5,49 +5,7 @@
 
 INIT_DIR="/opt/muos/script/init"
 
-RUN_SCRIPT() {
-	SCRIPT="$1"
-
-	[ -e "$SCRIPT" ] || return 0
-	[ -f "$SCRIPT" ] || return 0
-
-	case "$SCRIPT" in
-		*.sh)
-			(
-				trap - INT QUIT TSTP
-				set stop
-				. "$SCRIPT"
-			)
-			;;
-		*)
-			"$SCRIPT" stop
-			;;
-	esac
-}
-
-RUN_NORMAL() {
-	DIR="$1"
-
-	[ -d "$DIR" ] || return 0
-
-	for SCRIPT in $(printf '%s\n' "$DIR"/S??* | sort -r); do
-		[ -e "$SCRIPT" ] || continue
-		RUN_SCRIPT "$SCRIPT"
-	done
-}
-
-RUN_ASYNC() {
-	DIR="$1"
-
-	[ -d "$DIR" ] || return 0
-
-	for SCRIPT in $(printf '%s\n' "$DIR"/S??* | sort -r); do
-		[ -e "$SCRIPT" ] || continue
-		(RUN_SCRIPT "$SCRIPT") >/dev/null 2>&1 &
-	done
-}
-
-RUN_ASYNC "$INIT_DIR/async"
-RUN_NORMAL "$INIT_DIR"
+RUN_INIT_DIR_BOUNDED stop "$INIT_DIR/async" reverse
+RUN_INIT_DIR stop "$INIT_DIR" reverse
 
 exit 0

@@ -26,6 +26,7 @@ CONFIG_DIR="$MUOS_SHARE_DIR/info/config"
 CONFIG_ZIP_DIR="$MUOS_STORE_DIR/package/config"
 
 ALL_DONE() {
+	ARCHIVE_CACHE_CLEANUP
 	TASK_STATUS "Sync Filesystem"
 	sync
 

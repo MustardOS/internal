@@ -140,14 +140,6 @@ CLEAR_PID() {
 	rm -f "$PID_FILE"
 }
 
-RANDOM_BYTE() {
-	printf "%s" "$(od -An -N1 -tu1 /dev/urandom 2>/dev/null | tr -d ' ')"
-}
-
-RANDOM_RGB() {
-	printf "%s %s %s\n" "$(RANDOM_BYTE)" "$(RANDOM_BYTE)" "$(RANDOM_BYTE)"
-}
-
 CHECKSUM_U8() {
 	SUM=0
 	for B in "$@"; do
@@ -221,13 +213,11 @@ SERIAL_RANDOMISE_DAEMON() {
 	trap 'exit 0' INT TERM
 
 	while :; do
-		RR=$(RANDOM_BYTE)
-		RG=$(RANDOM_BYTE)
-		RB=$(RANDOM_BYTE)
-
-		LR=$(RANDOM_BYTE)
-		LG=$(RANDOM_BYTE)
-		LB=$(RANDOM_BYTE)
+		RANDOM_VALUES=$(od -An -N6 -tu1 /dev/urandom 2>/dev/null) || continue
+		read -r RR RG RB LR LG LB <<-EOF
+		$RANDOM_VALUES
+		EOF
+		case "$RR:$RG:$RB:$LR:$LG:$LB" in *[!0-9:]* | *::* | :* | *:) continue ;; esac
 
 		SERIAL_SEND_MODE1_COLORS "$BRI" "$RR" "$RG" "$RB" "$LR" "$LG" "$LB"
 		SLEEP_MS "$IMS"

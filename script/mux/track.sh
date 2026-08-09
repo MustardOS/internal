@@ -6,7 +6,7 @@
 
 . /opt/muos/script/var/func.sh
 
-[ "$(GET_VAR "config" "settings/general/activity")" -eq 0 ] && exit 0
+[ "$(GET_VAR "config" "$MUOS_SETTING_ACTIVITY")" -eq 0 ] && exit 0
 
 NAME=${1-}
 CORE=${2-}
@@ -71,7 +71,7 @@ IS_UINT() {
 
 GET_UPTIME() {
 	if [ -r /proc/uptime ]; then
-		IFS=' ' read -r UPTIME_VALUE UPTIME_REST </proc/uptime
+		IFS=' ' read -r UPTIME_VALUE _ </proc/uptime
 		UPTIME_VALUE=${UPTIME_VALUE%%.*}
 		IS_UINT "$UPTIME_VALUE" && {
 			printf '%s\n' "$UPTIME_VALUE"

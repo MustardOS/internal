@@ -30,6 +30,7 @@ elif [ -z "$NETWORK_STATE" ]; then
     ERROR_FLAG=1
 elif [ "$SYNCTHING_ENABLED" -eq 1 ] && [ "$NETWORK_STATE" = "up" ]; then
     SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' "$MUOS_STORE_DIR/syncthing/config.xml")
+    SYNCTHING_PORT=$(GET_WEB_PORT "syncthing_port" 7070)
 fi
 
 if [ "$ERROR_FLAG" -eq 0 ] && [ -z "$SYNCTHING_API" ]; then 
@@ -37,12 +38,12 @@ if [ "$ERROR_FLAG" -eq 0 ] && [ -z "$SYNCTHING_API" ]; then
     ERROR_FLAG=1
 else
     # Get list of folder IDs from Syncthing API
-    FOLDER_IDS=$(curl -s -H "X-API-Key: $SYNCTHING_API" "http://localhost:7070/rest/config" | jq -r '.folders[].id')
+    FOLDER_IDS=$(curl -s -H "X-API-Key: $SYNCTHING_API" "http://localhost:$SYNCTHING_PORT/rest/config" | jq -r '.folders[].id')
     for FOLDER_ID in $FOLDER_IDS; do
         TASK_STATUS "$(printf "Scanning folder %s" "$FOLDER_ID")"
         SCANNED=$((SCANNED + 1))
         # Initiate scan (non-blocking)
-        curl -s -X POST -H "X-API-Key: $SYNCTHING_API" "http://localhost:7070/rest/db/scan?folder=$FOLDER_ID" >/dev/null 2>&1 &
+        curl -s -X POST -H "X-API-Key: $SYNCTHING_API" "http://localhost:$SYNCTHING_PORT/rest/db/scan?folder=$FOLDER_ID" >/dev/null 2>&1 &
         sleep 1
     done
 fi

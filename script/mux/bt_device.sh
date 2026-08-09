@@ -242,8 +242,12 @@ DO_FORGET() {
 	fi
 
 	bluetoothctl untrust "$MAC" >/dev/null 2>&1
-	timeout 5 bluetoothctl remove "$MAC" >/dev/null 2>&1 || true
-	timeout 5 bluetoothctl disconnect "$MAC" >/dev/null 2>&1 || true
+	if ! timeout 5 bluetoothctl disconnect "$MAC" >/dev/null 2>&1; then
+		LOG_WARN "$0" 0 "BTDEVICE" "The Bluetooth device was already disconnected or did not respond"
+	fi
+	if ! timeout 5 bluetoothctl remove "$MAC" >/dev/null 2>&1; then
+		LOG_WARN "$0" 0 "BTDEVICE" "BlueZ did not confirm removal of the Bluetooth device"
+	fi
 
 	for ADAPTER_DIR in /var/lib/bluetooth/??:??:??:??:??:??/; do
 		[ -d "${ADAPTER_DIR}${MAC}" ] && rm -rf "${ADAPTER_DIR}${MAC}"
@@ -253,7 +257,9 @@ DO_FORGET() {
 
 	if [ -f "$BT_PAIRED" ]; then
 		TMP="$BT_DIR/paired.tmp.$$"
-		grep -v "^$MAC " "$BT_PAIRED" >"$TMP" 2>/dev/null || true
+		if ! grep -v "^$MAC " "$BT_PAIRED" >"$TMP" 2>/dev/null; then
+			: >"$TMP"
+		fi
 		mv -f "$TMP" "$BT_PAIRED"
 	fi
 

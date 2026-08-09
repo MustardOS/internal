@@ -5,9 +5,11 @@ TS_CLI="/opt/muos/bin/tailscale"
 TS_STATEDIR="/opt/muos/config/tailscale"
 TS_SOCKET="/var/run/tailscale/tailscaled.sock"
 TS_RUNDIR="/var/run/tailscale"
+TS_PROCESS="web-tailscaled"
+PROCESS_HELPER="/opt/muos/script/var/process.sh"
 
 TS_RUNNING() {
-	pgrep -f "$TS_DAEMON" >/dev/null 2>&1
+	"$PROCESS_HELPER" status "$TS_PROCESS"
 }
 
 TS_EXEC() {
@@ -24,9 +26,9 @@ case "$1" in
 			mkdir -p "$TS_STATEDIR" "$TS_RUNDIR"
 			# Remove stale socket from a previous crash
 			rm -f "$TS_SOCKET"
-			"$TS_DAEMON" \
+			"$PROCESS_HELPER" start "$TS_PROCESS" "$TS_DAEMON" \
 				--statedir="$TS_STATEDIR" \
-				--socket="$TS_SOCKET" &
+				--socket="$TS_SOCKET"
 			# Wait for the socket to appear (up to 5s)
 			i=0
 			while [ ! -S "$TS_SOCKET" ] && [ "$i" -lt 10 ]; do
@@ -38,9 +40,7 @@ case "$1" in
 
 	stop)
 		TS_EXEC down >/dev/null 2>&1
-		pkill -TERM tailscaled >/dev/null 2>&1
-		sleep 0.5
-		pkill -KILL tailscaled >/dev/null 2>&1
+		"$PROCESS_HELPER" stop-group "$TS_PROCESS"
 		rm -f "$TS_SOCKET"
 		;;
 

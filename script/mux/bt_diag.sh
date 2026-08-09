@@ -285,7 +285,7 @@ DO_RUN() {
 				printf "scan off\n"
 			} | timeout 10 bluetoothctl 2>/dev/null
 		)
-		FOUND=$(printf "%s\n" "$SCAN_RAW" | grep -c "\[NEW\] Device" 2>/dev/null || true)
+		FOUND=$(printf "%s\n" "$SCAN_RAW" | awk '/\[NEW\] Device/ { count++ } END { print count + 0 }')
 		if [ "${FOUND:-0}" -gt 0 ]; then
 			CHECK "$PASS" "$(printf "%s device(s) discovered during scan:" "$FOUND")"
 			printf "%s\n" "$SCAN_RAW" | grep "\[NEW\] Device" | while IFS= read -r LINE; do

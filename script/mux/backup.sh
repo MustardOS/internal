@@ -189,4 +189,5 @@ TASK_IS_NATIVE || {
 
 SET_VAR "system" "foreground_process" "muxfrontend"
 
+ARCHIVE_CACHE_CLEANUP
 exit "$ERROR_FLAG"

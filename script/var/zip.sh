@@ -18,6 +18,22 @@ ARCHIVE_LIST_CACHE_FILE=""
 
 ARCHIVE_CACHE_ARCHIVE=""
 ARCHIVE_CACHE_FILE=""
+ARCHIVE_WORK_DIR=""
+
+ARCHIVE_WORKSPACE() {
+	[ -n "$ARCHIVE_WORK_DIR" ] && [ -d "$ARCHIVE_WORK_DIR" ] && return 0
+	ARCHIVE_WORK_DIR="$(mktemp -d /tmp/muos-archive.XXXXXX)" || return 1
+	chmod 700 "$ARCHIVE_WORK_DIR" || return 1
+}
+
+ARCHIVE_CACHE_CLEANUP() {
+	[ -n "$ARCHIVE_WORK_DIR" ] && [ -d "$ARCHIVE_WORK_DIR" ] && rm -rf "$ARCHIVE_WORK_DIR"
+	ARCHIVE_WORK_DIR=""
+	ARCHIVE_LIST_CACHE_ARCHIVE=""
+	ARCHIVE_LIST_CACHE_FILE=""
+	ARCHIVE_CACHE_ARCHIVE=""
+	ARCHIVE_CACHE_FILE=""
+}
 
 CACHE_ARCHIVE_LIST() {
 	ARCH="$1"
@@ -26,7 +42,8 @@ CACHE_ARCHIVE_LIST() {
 		[ -n "${ARCHIVE_LIST_CACHE_FILE:-}" ] &&
 		[ -s "$ARCHIVE_LIST_CACHE_FILE" ] && return 0
 
-	ARCHIVE_LIST_CACHE_FILE="/tmp/unzip_list.$$.txt"
+	ARCHIVE_WORKSPACE || return 1
+	ARCHIVE_LIST_CACHE_FILE="$ARCHIVE_WORK_DIR/list.txt"
 	ARCHIVE_LIST_CACHE_ARCHIVE="$ARCH"
 
 	unzip -l "$ARCH" >"$ARCHIVE_LIST_CACHE_FILE" 2>/dev/null || {
@@ -42,7 +59,8 @@ CACHE_ARCHIVE() {
 		[ -n "${ARCHIVE_CACHE_FILE:-}" ] &&
 		[ -s "$ARCHIVE_CACHE_FILE" ] && return 0
 
-	ARCHIVE_CACHE_FILE="/tmp/unzip_cache.$$.txt"
+	ARCHIVE_WORKSPACE || return 1
+	ARCHIVE_CACHE_FILE="$ARCHIVE_WORK_DIR/names.txt"
 	ARCHIVE_CACHE_ARCHIVE="$ARCH"
 
 	unzip -Z1 "$ARCH" >"$ARCHIVE_CACHE_FILE" 2>/dev/null || {
@@ -173,15 +191,50 @@ SAFE_ARCHIVE() {
 		return 1
 	}
 
-	if grep -E -q '^/|(^|/)\.\.(/|$)' "$ARCHIVE_CACHE_FILE"; then
+	if grep -E -q '^/|^[A-Za-z]:|(^|/)\.\.(/|$)|\\' "$ARCHIVE_CACHE_FILE"; then
 		if [ -n "${MUOS_LOG_BIN:-}" ] && [ -x "${MUOS_LOG_BIN}" ]; then
-			grep -E '^/|(^|/)\.\.(/|$)' "$ARCHIVE_CACHE_FILE" | while IFS= read -r SA_LINE; do
+			grep -E '^/|^[A-Za-z]:|(^|/)\.\.(/|$)|\\' "$ARCHIVE_CACHE_FILE" | while IFS= read -r SA_LINE; do
 				"$MUOS_LOG_BIN" error "$0" 0 "EXTRACT" "Unsafe path in '${1##*/}': $SA_LINE"
 			done
 		fi
-		printf "\nError: Archive contains unsafe paths (absolute or '..')\n"
+		printf "\nError: Archive contains unsafe paths\n"
 		return 1
 	fi
+
+	MAX_ENTRIES="${ARCHIVE_MAX_ENTRIES:-16384}"
+	MAX_ENTRY_BYTES="${ARCHIVE_MAX_ENTRY_BYTES:-536870912}"
+	MAX_TOTAL_BYTES="${ARCHIVE_MAX_TOTAL_BYTES:-2147483648}"
+	MAX_RATIO="${ARCHIVE_MAX_RATIO:-1000}"
+
+	case "$MAX_ENTRIES:$MAX_ENTRY_BYTES:$MAX_TOTAL_BYTES:$MAX_RATIO" in
+		*[!0-9:]* | *::* | :* | *:) return 1 ;;
+	esac
+
+	if ! unzip -Zl "$1" 2>/dev/null | awk \
+		-v max_entries="$MAX_ENTRIES" \
+		-v max_entry="$MAX_ENTRY_BYTES" \
+		-v max_total="$MAX_TOTAL_BYTES" \
+		-v max_ratio="$MAX_RATIO" '
+		$1 ~ /^[-dbclps]/ && $4 ~ /^[0-9]+$/ && $6 ~ /^[0-9]+$/ {
+			type = substr($1, 1, 1)
+			uncompressed = $4 + 0
+			compressed = $6 + 0
+			entries++
+			if (type != "-" && type != "d") unsafe = 1
+			if (uncompressed > max_entry) oversized = 1
+			total += uncompressed
+			if (compressed == 0 && uncompressed > 0) ratio = 1
+			else if (compressed > 0 && uncompressed / compressed > max_ratio) ratio = 1
+		}
+		END {
+			if (entries == 0 || entries > max_entries || total > max_total || unsafe || oversized || ratio) exit 1
+		}'
+	then
+		printf "\nError: Archive contains links, special files or exceeds extraction limits\n"
+		return 1
+	fi
+
+	return 0
 }
 
 CAT_GRID_CLEAR() {

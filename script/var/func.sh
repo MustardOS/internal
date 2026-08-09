@@ -5,6 +5,8 @@
 # shellcheck disable=SC2034
 MUOS_FUNC_LOADED=1
 
+. /opt/muos/script/var/contract.sh
+
 MUX_LIB="/opt/muos/frontend/lib"
 
 case ":${LD_LIBRARY_PATH-}:" in
@@ -22,12 +24,12 @@ DEVICE_CONTROL_DIR="/opt/muos/device/control"
 MUOS_LOG_DIR="/opt/muos/log"
 MUOS_LOG_BIN="/opt/muos/frontend/mulog"
 MUOS_RGB_BIN="/opt/muos/frontend/murgb"
-MUOS_RUN_DIR="/run/muos"
+MUOS_RUN_DIR=${MUOS_RUN_PATH%/}
 MUOS_SHARE_DIR="/opt/muos/share"
 MUOS_STORE_DIR="$MUOS_RUN_DIR/storage"
 OVERLAY_NOP="$MUOS_RUN_DIR/overlay.disable"
 IS_IDLE="$MUOS_RUN_DIR/is_idle"
-IDLE_STATE="$MUOS_RUN_DIR/idle_state"
+IDLE_STATE="$MUOS_IDLE_STATE"
 
 export HOME XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
 	ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR MUOS_LOG_BIN \
@@ -46,7 +48,7 @@ MESSAGE_TEXT="/tmp/msg_livetext"
 MESSAGE_PROG="/tmp/msg_progress"
 
 [ -d "$MUOS_LOG_DIR" ] || mkdir -p "$MUOS_LOG_DIR"
-SAFE_QUIT=/tmp/safe_quit
+SAFE_QUIT=$MUOS_SAFE_QUIT
 
 # Module-level CR literal used by GET_VAR to strip trailing carriage returns
 CR=$(printf '\r')
@@ -83,6 +85,13 @@ TBOX() {
 	/opt/muos/bin/toybox "$CMD" "$@"
 }
 
+VALID_VAR_PATH() {
+	case "${1:-}" in
+		"" | /* | */../* | ../* | */.. | .. | *//* | *[!A-Za-z0-9_./-]*) return 1 ;;
+		*) return 0 ;;
+	esac
+}
+
 SET_VAR() {
 	BASE=
 	case "$1" in
@@ -92,7 +101,9 @@ SET_VAR() {
 		SYSTEM | system) BASE=$MUOS_CONF_SYSTEM ;;
 	esac
 
-	[ -n "$BASE" ] || return 0
+	[ -n "$BASE" ] || return 1
+	VALID_VAR_PATH "$2" || return 1
+	[ -d "$BASE/$(dirname "$2")" ] || return 1
 
 	TMP="${BASE}/${2}.tmp.$$"
 	if ! { printf "%s" "$3" >"$TMP" && mv -f "$TMP" "$BASE/$2"; }; then
@@ -110,7 +121,8 @@ GET_VAR() {
 		SYSTEM | system) BASE=$MUOS_CONF_SYSTEM ;;
 	esac
 
-	[ -n "$BASE" ] || return 0
+	[ -n "$BASE" ] || return 1
+	VALID_VAR_PATH "$2" || return 1
 
 	FILE="$BASE/$2"
 	[ -r "$FILE" ] || return 0
@@ -132,10 +144,15 @@ DEL_VAR() {
 		SYSTEM | system) BASE=$MUOS_CONF_SYSTEM ;;
 	esac
 
-	[ -n "$BASE" ] || return 0
+	[ -n "$BASE" ] || return 1
 
 	DIR=$(dirname "$2")
 	PATTERN=$(basename "$2")
+	VALID_VAR_PATH "$DIR" || return 1
+	case "$PATTERN" in
+		\**) ;;
+		*) VALID_VAR_PATH "$PATTERN" || return 1 ;;
+	esac
 	FULL_DIR="$BASE/$DIR"
 
 	[ -d "$FULL_DIR" ] || return 0
@@ -483,14 +500,10 @@ HOTKEY() {
 	case "$1" in
 		stop)
 			rm -f "$IDLE_STATE" 2>/dev/null
-			while pgrep -f 'muhotkey|hotkey\.sh' >/dev/null; do
-				killall -9 muhotkey hotkey.sh
-				sleep 1
-			done
+			/opt/muos/script/var/process.sh stop hotkey
 			;;
 		start)
-			pgrep -f muhotkey >/dev/null && return 0
-			setsid -f /opt/muos/script/mux/hotkey.sh </dev/null >/dev/null 2>&1
+			/opt/muos/script/var/process.sh start hotkey /opt/muos/script/mux/hotkey.sh
 			;;
 		restart)
 			HOTKEY stop
@@ -505,15 +518,9 @@ HOTKEY() {
 
 BATTERY() {
 	case "$1" in
-		stop)
-			while pgrep -f mubattery >/dev/null; do
-				killall -9 mubattery
-				sleep 1
-			done
-			;;
+		stop) /opt/muos/script/var/process.sh stop battery ;;
 		start)
-			pgrep -f mubattery >/dev/null && return 0
-			setsid -f /opt/muos/frontend/mubattery </dev/null >/dev/null 2>&1
+			/opt/muos/script/var/process.sh start battery /opt/muos/frontend/mubattery
 			;;
 		restart)
 			BATTERY stop
@@ -590,15 +597,15 @@ MUXCTL() {
 MESSAGE() {
 	case "$1" in
 		stop)
-			if pgrep -f "$MESSAGE_EXEC" >/dev/null; then
+			if /opt/muos/script/var/process.sh status message; then
 				[ -f "$MESSAGE_TEXT" ] && rm -f "$MESSAGE_TEXT" "$MESSAGE_PROG"
-				pkill -9 -f "$MESSAGE_EXEC"
+				/opt/muos/script/var/process.sh stop message
 			fi
 			;;
 		start)
-			pgrep -f "$MESSAGE_EXEC" >/dev/null && return 0
+			/opt/muos/script/var/process.sh status message && return 0
 			[ ! -f "$MESSAGE_TEXT" ] && touch "$MESSAGE_TEXT"
-			setsid -f "$MESSAGE_EXEC" 0 "" -l "$MESSAGE_TEXT" </dev/null >/dev/null 2>&1
+			/opt/muos/script/var/process.sh start message "$MESSAGE_EXEC" 0 "" -l "$MESSAGE_TEXT"
 			;;
 		restart)
 			MESSAGE stop
@@ -614,7 +621,7 @@ MESSAGE() {
 SHOW_MESSAGE() {
 	[ ! -f "$MESSAGE_TEXT" ] && MESSAGE start
 
-	if pgrep -f "$MESSAGE_EXEC" >/dev/null; then
+	if /opt/muos/script/var/process.sh status message; then
 		echo "$1" >"$MESSAGE_PROG"
 		echo "$2" >"$MESSAGE_TEXT"
 	fi
@@ -973,12 +980,11 @@ SETUP_SDL_ENVIRONMENT() {
 	GCDB_DEFAULT="/usr/lib/gamecontrollerdb.txt"
 	GCDB_STORE="$MUOS_SHARE_DIR/info/gamecontrollerdb"
 
-	# Decide controller DB (priority: arg -> /tmp/con_go -> default)
 	case "$REQ_STYLE" in
 		modern) GCDB_FILE="$GCDB_STORE/modern.txt" ;;
 		retro) GCDB_FILE="$GCDB_STORE/retro.txt" ;;
 		*)
-			CON_GO="/tmp/con_go"
+			CON_GO="$MUOS_CONTROLLER_FILE"
 			if [ -e "$CON_GO" ]; then
 				IFS= read -r SEL <"$CON_GO"
 				case "$SEL" in
@@ -1038,9 +1044,9 @@ SETUP_SDL_ENVIRONMENT() {
 }
 
 SETUP_APP() {
-	printf "app\n" >"/tmp/act_go"
+	printf "app\n" >"$ACT_GO"
 
-	GOV_GO="/tmp/gov_go"
+	GOV_GO="$MUOS_GOVERNOR_FILE"
 	[ -e "$GOV_GO" ] && cp -f "$GOV_GO" "$(GET_VAR "device" "cpu/governor")"
 
 	HOME="$(GET_VAR "device" "board/home")"
@@ -1071,7 +1077,7 @@ UPDATE_RA_VALUE() {
 
 DETECT_CONTROL_SWAP() {
 	RA_DEV_CONF="$DEVICE_CONTROL_DIR/retroarch.device.cfg"
-	CON_GO="/tmp/con_go"
+	CON_GO="$MUOS_CONTROLLER_FILE"
 	IS_SWAP=0
 
 	DO_SWAP() {
@@ -1126,7 +1132,7 @@ CONFIGURE_RETROARCH() {
 	) >"$RA_CONTROL.resolution.cfg"
 
 	# Modify the RetroArch threaded video option based on content settings
-	RAC_GO="/tmp/rac_go"
+	RAC_GO="$MUOS_RETROARCH_FILE"
 	if [ -f "$RAC_GO" ]; then
 		IFS= read -r RAC_VAL <"$RAC_GO"
 		sed -i '/^video_threaded = /d' "$RA_CONF"
@@ -1603,7 +1609,11 @@ GPTOKEYB() {
 	if [ -f "$GPTOKEYB_DIR/$2.gptk" ]; then
 		LIB_IPOSE="libinterpose.aarch64.so"
 		ln -sf "$PM_DIR/$LIB_IPOSE" "/usr/lib/$LIB_IPOSE" >/dev/null 2>&1
-		"$PM_DIR"/gptokeyb2 "$1" -c "$GPTOKEYB_DIR/$2.gptk" >/dev/null 2>&1 &
+		if ! /opt/muos/script/var/process.sh stop-group gptokeyb >/dev/null 2>&1; then
+			LOG_WARN "$0" 0 "INPUT" "The previous gptokeyb process did not stop cleanly"
+		fi
+		/opt/muos/script/var/process.sh start gptokeyb \
+			"$PM_DIR/gptokeyb2" "$1" -c "$GPTOKEYB_DIR/$2.gptk"
 	fi
 }
 
@@ -1611,20 +1621,27 @@ TERMINATE_SYNCTHING() {
 	if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ]; then
 		LOG_INFO "$0" 0 "HALT" "Shutdown Syncthing gracefully"
 		SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' "$MUOS_STORE_DIR/syncthing/config.xml")
+		SYNCTHING_PORT=$(GET_WEB_PORT "syncthing_port" 7070)
 		CURL_OUTPUT=$(
 			curl -s --connect-timeout 1 --max-time 2 -o /dev/null -w "%{http_code}" \
 				-X POST -H "X-API-Key: $SYNCTHING_API" \
-				"http://localhost:7070/rest/system/shutdown"
+				"http://localhost:$SYNCTHING_PORT/rest/system/shutdown"
 		)
 		[ "$CURL_OUTPUT" -eq 200 ] && LOG_INFO "$0" 0 "HALT" "Syncthing shutdown request sent successfully"
 	fi
 }
 
-# Terminate any active SSH connections, then bring down SSH itself
-STOP_SSHD_GRACEFUL() {
-	pkill -TERM -f 'sshd:.*@' >/dev/null 2>&1
-	sleep 0.2
-	pkill -TERM -f sshd >/dev/null 2>&1
+GET_WEB_PORT() {
+	WEB_PORT_VALUE=$(GET_VAR "config" "web/$1")
+	case "$WEB_PORT_VALUE" in
+		'' | *[!0-9]*) WEB_PORT_VALUE="$2" ;;
+		*)
+			if [ "${#WEB_PORT_VALUE}" -gt 5 ] || [ "$WEB_PORT_VALUE" -lt 1 ] || [ "$WEB_PORT_VALUE" -gt 65535 ]; then
+				WEB_PORT_VALUE="$2"
+			fi
+			;;
+	esac
+	printf '%s\n' "$WEB_PORT_VALUE"
 }
 
 LOG_CLEANER() {
@@ -1688,23 +1705,126 @@ FBCON_DISABLE() {
 	[ -w /sys/module/vt/parameters/default_utf8 ] && printf "1\n" >/sys/module/vt/parameters/default_utf8
 }
 
-ACT_GO="${ACT_GO:-/tmp/act_go}"
-APP_GO="${APP_GO:-/tmp/app_go}"
-GOV_GO="${GOV_GO:-/tmp/gov_go}"
-CON_GO="${CON_GO:-/tmp/con_go}"
-FLT_GO="${FLT_GO:-/tmp/flt_go}"
-RAC_GO="${RAC_GO:-/tmp/rac_go}"
-ROM_GO="${ROM_GO:-/tmp/rom_go}"
-SAA_GO="${SAA_GO:-/tmp/saa_go}"
-SAG_GO="${SAG_GO:-/tmp/sag_go}"
-SAR_GO="${SAR_GO:-/tmp/sar_go}"
-SHD_GO="${SHD_GO:-/tmp/shd_go}"
-OVL_GO="${OVL_GO:-/tmp/ovl_go}"
-OVO_GO="${OVO_GO:-/tmp/ovo_go}"
+ACT_GO="${ACT_GO:-$MUOS_ACTION_FILE}"
+APP_GO="${APP_GO:-$MUOS_APPLICATION_FILE}"
+GOV_GO="${GOV_GO:-$MUOS_GOVERNOR_FILE}"
+CON_GO="${CON_GO:-$MUOS_CONTROLLER_FILE}"
+FLT_GO="${FLT_GO:-$MUOS_FILTER_FILE}"
+RAC_GO="${RAC_GO:-$MUOS_RETROARCH_FILE}"
+ROM_GO="${ROM_GO:-$MUOS_CONTENT_FILE}"
+SAA_GO="${SAA_GO:-$MUOS_AUTO_CORE_FILE}"
+SAG_GO="${SAG_GO:-$MUOS_AUTO_GOVERNOR_FILE}"
+SAR_GO="${SAR_GO:-$MUOS_AUTO_RETROARCH_FILE}"
+SHD_GO="${SHD_GO:-$MUOS_SHADER_FILE}"
+OVL_GO="${OVL_GO:-$MUOS_OVERLAY_FILE}"
+OVO_GO="${OVO_GO:-$MUOS_OVERLAY_OPTIONS_FILE}"
 EX_CARD="${EX_CARD:-/tmp/explore_card}"
 
 SAFE_WRITE() {
 	printf '%s\n' "$1" >"$2"
+}
+
+RUN_INIT_SCRIPT() {
+	INIT_MODE=$1
+	INIT_SCRIPT=$2
+
+	[ -f "$INIT_SCRIPT" ] || return 0
+
+	case "$INIT_SCRIPT" in
+		*.sh)
+			(
+				trap - INT QUIT TSTP
+				set "$INIT_MODE"
+				. "$INIT_SCRIPT"
+			)
+			;;
+		*) "$INIT_SCRIPT" "$INIT_MODE" ;;
+	esac
+}
+
+RUN_INIT_RECORDED() {
+	INIT_MODE=$1
+	INIT_SCRIPT=$2
+	INIT_NAME=${INIT_SCRIPT##*/}
+	INIT_STATUS_DIR="$MUOS_RUN_DIR/boot"
+	INIT_STATUS_TMP="$INIT_STATUS_DIR/${INIT_MODE}_${INIT_NAME}.tmp.$$"
+	INIT_STATUS_FILE="$INIT_STATUS_DIR/${INIT_MODE}_${INIT_NAME}.status"
+
+	mkdir -p "$INIT_STATUS_DIR" || return 1
+	read -r INIT_STARTED _ </proc/uptime || INIT_STARTED=0
+	RUN_INIT_SCRIPT "$INIT_MODE" "$INIT_SCRIPT"
+	INIT_RESULT=$?
+	read -r INIT_FINISHED _ </proc/uptime || INIT_FINISHED=0
+	printf 'start=%s\nfinish=%s\nstatus=%s\n' "$INIT_STARTED" "$INIT_FINISHED" "$INIT_RESULT" >"$INIT_STATUS_TMP"
+	mv -f "$INIT_STATUS_TMP" "$INIT_STATUS_FILE"
+	return "$INIT_RESULT"
+}
+
+RUN_INIT_DIR() {
+	INIT_MODE=$1
+	INIT_DIR=$2
+	INIT_ORDER=${3:-forward}
+
+	[ -d "$INIT_DIR" ] || return 0
+
+	if [ "$INIT_ORDER" = "reverse" ]; then
+		INIT_SCRIPTS=$(printf '%s\n' "$INIT_DIR"/S??* | sort -r)
+	else
+		INIT_SCRIPTS=$(printf '%s\n' "$INIT_DIR"/S??*)
+	fi
+
+	INIT_DIR_RESULT=0
+	for INIT_SCRIPT in $INIT_SCRIPTS; do
+		[ -e "$INIT_SCRIPT" ] || continue
+		RUN_INIT_RECORDED "$INIT_MODE" "$INIT_SCRIPT" || INIT_DIR_RESULT=1
+	done
+	return "$INIT_DIR_RESULT"
+}
+
+RUN_INIT_DIR_BOUNDED() {
+	INIT_MODE=$1
+	INIT_DIR=$2
+	INIT_ORDER=${3:-forward}
+	INIT_SKIP=${4:-}
+	INIT_LIMIT=${MUOS_INIT_ASYNC_LIMIT:-3}
+
+	case "$INIT_LIMIT" in
+		'' | *[!0-9]*) INIT_LIMIT=3 ;;
+	esac
+	[ "$INIT_LIMIT" -ge 1 ] 2>/dev/null || INIT_LIMIT=1
+	[ "$INIT_LIMIT" -le 8 ] 2>/dev/null || INIT_LIMIT=8
+	[ -d "$INIT_DIR" ] || return 0
+
+	if [ "$INIT_ORDER" = "reverse" ]; then
+		INIT_SCRIPTS=$(printf '%s\n' "$INIT_DIR"/S??* | sort -r)
+	else
+		INIT_SCRIPTS=$(printf '%s\n' "$INIT_DIR"/S??*)
+	fi
+
+	INIT_PIDS=
+	INIT_COUNT=0
+	INIT_DIR_RESULT=0
+	for INIT_SCRIPT in $INIT_SCRIPTS; do
+		[ -e "$INIT_SCRIPT" ] || continue
+		INIT_NAME=${INIT_SCRIPT##*/}
+		[ "$INIT_NAME" = "$INIT_SKIP" ] && continue
+		(RUN_INIT_RECORDED "$INIT_MODE" "$INIT_SCRIPT") >/dev/null 2>&1 &
+		INIT_PIDS="$INIT_PIDS $!"
+		INIT_COUNT=$((INIT_COUNT + 1))
+
+		if [ "$INIT_COUNT" -ge "$INIT_LIMIT" ]; then
+			set -- $INIT_PIDS
+			wait "$1" || INIT_DIR_RESULT=1
+			shift
+			INIT_PIDS="$*"
+			INIT_COUNT=$((INIT_COUNT - 1))
+		fi
+	done
+
+	for INIT_PID in $INIT_PIDS; do
+		wait "$INIT_PID" || INIT_DIR_RESULT=1
+	done
+	return "$INIT_DIR_RESULT"
 }
 
 IS_ONE() {
@@ -1894,12 +2014,13 @@ RUN_SYNCTHING_SCAN() {
 	}
 
 	LOG_INFO "$0" 0 "LAUNCH" "Triggering Syncthing folder rescan"
+	SYNCTHING_PORT=$(GET_WEB_PORT "syncthing_port" 7070)
 
 	if command -v curl >/dev/null 2>&1; then
 		curl --silent --show-error --max-time 5 \
 			-X POST \
 			-H "X-API-Key: $SYNCTHING_API" \
-			"http://localhost:7070/rest/db/scan" >/dev/null 2>&1 ||
+			"http://localhost:$SYNCTHING_PORT/rest/db/scan" >/dev/null 2>&1 ||
 			LOG_WARN "$0" 0 "LAUNCH" "Syncthing folder rescan failed"
 	fi
 }

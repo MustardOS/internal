@@ -5,53 +5,16 @@
 
 INIT_DIR="/opt/muos/script/init"
 
-RUN_SCRIPT() {
-	SCRIPT="$1"
-
-	[ -e "$SCRIPT" ] || return 0
-	[ -f "$SCRIPT" ] || return 0
-
-	case "$SCRIPT" in
-		*.sh)
-			(
-				trap - INT QUIT TSTP
-				set start
-				. "$SCRIPT"
-			)
-			;;
-		*)
-			"$SCRIPT" start
-			;;
-	esac
-}
-
-RUN_NORMAL() {
-	DIR="$1"
-
-	[ -d "$DIR" ] || return 0
-
-	for SCRIPT in "$DIR"/S??*; do
-		[ -e "$SCRIPT" ] || continue
-		RUN_SCRIPT "$SCRIPT"
-	done
-}
-
-RUN_ASYNC() {
-	DIR="$1"
-
-	[ -d "$DIR" ] || return 0
-
-	for SCRIPT in "$DIR"/S??*; do
-		[ -e "$SCRIPT" ] || continue
-		(RUN_SCRIPT "$SCRIPT") >/dev/null 2>&1 &
-	done
+RUN_ASYNC_START() {
+	RUN_INIT_RECORDED start "$INIT_DIR/async/S06mount.sh"
+	RUN_INIT_DIR_BOUNDED start "$INIT_DIR/async" forward "S06mount.sh"
 }
 
 case "${1:-start}" in
 	start | "")
 		FBCON_DISABLE
-		RUN_ASYNC "$INIT_DIR/async"
-		RUN_NORMAL "$INIT_DIR"
+		(RUN_ASYNC_START) >/dev/null 2>&1 &
+		RUN_INIT_DIR start "$INIT_DIR" forward
 		;;
 esac
 

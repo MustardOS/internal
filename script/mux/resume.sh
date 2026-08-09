@@ -95,7 +95,7 @@ PREPARE_LAST_PLAY() {
 	CONTENT_DIR=$(dirname "$LAST_PLAY")
 	COPY_CONTENT_SETTINGS "$CONTENT_BASE" "$CONTENT_DIR"
 
-	ENSURE_REMOVED_SYNC "/tmp/safe_quit"
+	ENSURE_REMOVED_SYNC "$SAFE_QUIT"
 	[ ! -e "/tmp/done_reset" ] && printf "1" >"/tmp/done_reset"
 	[ ! -e "/tmp/chime_done" ] && printf "1" >"/tmp/chime_done"
 	SET_VAR "config" "system/used_reset" 0

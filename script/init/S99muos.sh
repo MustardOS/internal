@@ -2,6 +2,47 @@
 
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 
+RUN_BOOT_MAINTENANCE() {
+	ROM_MOUNT=$1
+	FIRST_INIT=$2
+	RA_CACHE=$3
+
+	/opt/muos/script/system/swap.sh &
+	BOOT_SWAP=$!
+	/opt/muos/script/system/checkmsd.sh &
+	BOOT_STORAGE=$!
+	if [ "$FIRST_INIT" -eq 0 ]; then
+		/opt/muos/script/device/control.sh FORCE_COPY &
+	else
+		/opt/muos/script/device/control.sh &
+	fi
+	BOOT_CONTROL=$!
+	wait "$BOOT_SWAP"
+	wait "$BOOT_STORAGE"
+	wait "$BOOT_CONTROL"
+
+	/opt/muos/script/mux/sdl_map.sh &
+	BOOT_MAP=$!
+	ionice -c idle /opt/muos/script/system/catalogue.sh &
+	BOOT_CATALOGUE=$!
+	LOG_CLEANER &
+	BOOT_LOGS=$!
+	wait "$BOOT_MAP"
+	wait "$BOOT_CATALOGUE"
+	wait "$BOOT_LOGS"
+
+	if [ "$RA_CACHE" -eq 1 ]; then
+		ionice -c idle /opt/muos/bin/vmtouch -tfb "$MUOS_SHARE_DIR/conf/preload.txt" &
+		BOOT_CACHE=$!
+	else
+		BOOT_CACHE=
+	fi
+	ionice -c idle sh -c 'dmesg >"$1"' sh "$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
+	BOOT_DMESG=$!
+	[ -z "$BOOT_CACHE" ] || wait "$BOOT_CACHE"
+	wait "$BOOT_DMESG"
+}
+
 DO_START() {
 	if [ "$FACTORY_RESET" -eq 1 ]; then
 		LED_CONTROL_CHANGE off
@@ -39,15 +80,6 @@ DO_START() {
 	LOG_INFO "$0" 0 "BOOTING" "Starting muX Frontend"
 	FRONTEND start
 
-	LOG_INFO "$0" 0 "BOOTING" "Checking Swap Requirements"
-	/opt/muos/script/system/swap.sh &
-
-	LOG_INFO "$0" 0 "BOOTING" "Storage Authenticity Check"
-	/opt/muos/script/system/checkmsd.sh &
-
-	LOG_INFO "$0" 0 "BOOTING" "Purging Old Logs"
-	LOG_CLEANER &
-
 	LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"
 	/opt/muos/script/system/lowpower.sh &
 
@@ -56,26 +88,8 @@ DO_START() {
 		/opt/muos/script/system/usb_gadget.sh start &
 	fi
 
-	LOG_INFO "$0" 0 "BOOTING" "Setting Device Controls"
-	if [ "$FIRST_INIT" -eq 0 ]; then
-		/opt/muos/script/device/control.sh FORCE_COPY &
-	else
-		/opt/muos/script/device/control.sh &
-	fi
-
-	LOG_INFO "$0" 0 "BOOTING" "Setting up SDL Controller Map"
-	/opt/muos/script/mux/sdl_map.sh &
-
-	LOG_INFO "$0" 0 "BOOTING" "Running Catalogue Generator"
-	/opt/muos/script/system/catalogue.sh &
-
-	if [ "${RA_CACHE:-0}" -eq 1 ]; then
-		LOG_INFO "$0" 0 "BOOTING" "Precaching RetroArch System"
-		ionice -c idle /opt/muos/bin/vmtouch -tfb "$MUOS_SHARE_DIR/conf/preload.txt" &
-	fi
-
-	LOG_INFO "$0" 0 "BOOTING" "Saving Kernel Boot Log"
-	dmesg >"$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
+	LOG_INFO "$0" 0 "BOOTING" "Starting bounded background maintenance"
+	RUN_BOOT_MAINTENANCE "$ROM_MOUNT" "$FIRST_INIT" "${RA_CACHE:-0}" >/dev/null 2>&1 &
 
 	[ "$FIRST_INIT" -eq 0 ] && SET_VAR "config" "boot/first_init" "1"
 }

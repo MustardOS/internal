@@ -45,6 +45,7 @@ DO_START() {
 	# Set up bind mounts under /run/muos/storage. Creates /run/muos/storage/mounted
 	# upon completion to unblock the rest of the boot process.
 	/opt/muos/script/device/bind.sh &
+	BIND_PID=$!
 
 	# Mount boot partition and start watching for USB storage. These aren't needed
 	# by the rest of the boot process, so handle them after bind mounts are set up.
@@ -60,6 +61,8 @@ DO_START() {
 	LOG_INFO "$0" 0 "BOOTING" "Checking for Safety Script"
 	OOPS="$ROM_MOUNT/oops.sh"
 	[ -x "$OOPS" ] && "$OOPS" && rm -f "$OOPS"
+
+	wait "$BIND_PID"
 }
 
 DO_STOP() {

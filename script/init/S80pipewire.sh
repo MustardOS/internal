@@ -283,7 +283,9 @@ FINALISE_AUDIO() {
 	fi
 
 	if wpctl set-default "$DEF_ID" >/dev/null 2>&1; then
-		/opt/muos/script/mux/audio_sink.sh save-node "$DEF_ID" || true
+		if ! /opt/muos/script/mux/audio_sink.sh save-node "$DEF_ID"; then
+			LOG_WARN "$0" 0 "PIPEWIRE" "Unable to save the selected default audio node"
+		fi
 	else
 		LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "Unable to set default node '%s'" "$DEF_ID")"
 	fi

@@ -27,7 +27,40 @@ THEME_DIR="$MUOS_STORE_DIR/theme"
 THEME_ACTIVE_DIR="$THEME_DIR/active"
 
 LOCK_DIR="$THEME_DIR/.theme.lock"
-if ! touch "$LOCK_DIR" 2>/dev/null; then
+LOCK_HELD=0
+
+CLEANUP() {
+	ARCHIVE_CACHE_CLEANUP
+	if [ "$LOCK_HELD" -eq 1 ]; then
+		rm -f "$LOCK_DIR/pid" "$LOCK_DIR/start" 2>/dev/null
+		rmdir "$LOCK_DIR" 2>/dev/null
+	fi
+}
+
+ACQUIRE_LOCK() {
+	if mkdir "$LOCK_DIR" 2>/dev/null; then
+		LOCK_HELD=1
+	else
+		LOCK_PID="$(cat "$LOCK_DIR/pid" 2>/dev/null)"
+		LOCK_START="$(cat "$LOCK_DIR/start" 2>/dev/null)"
+		CURRENT_START=""
+		case "$LOCK_PID" in '' | *[!0-9]*) ;; *) CURRENT_START="$(awk '{print $22}' "/proc/$LOCK_PID/stat" 2>/dev/null)" ;; esac
+		[ -n "$CURRENT_START" ] && [ "$CURRENT_START" = "$LOCK_START" ] && return 1
+		rm -f "$LOCK_DIR/pid" "$LOCK_DIR/start" 2>/dev/null
+		rmdir "$LOCK_DIR" 2>/dev/null || return 1
+		mkdir "$LOCK_DIR" 2>/dev/null || return 1
+		LOCK_HELD=1
+	fi
+
+	printf '%s\n' "$$" >"$LOCK_DIR/pid" || return 1
+	awk '{print $22}' "/proc/$$/stat" >"$LOCK_DIR/start" 2>/dev/null || return 1
+	return 0
+}
+
+trap 'CLEANUP' EXIT
+trap 'exit 1' HUP INT TERM
+
+if ! ACQUIRE_LOCK; then
 	TASK_ERROR "theme_locked" "Another theme operation is already in progress."
 	TASK_IS_NATIVE || {
 		sleep 2
@@ -47,8 +80,6 @@ ALL_DONE() {
 		sleep 2
 		FRONTEND start "$FE_CMD"
 	}
-
-	rm -f "$LOCK_DIR"
 
 	exit "${1:-0}"
 }
@@ -98,20 +129,6 @@ INSTALL() {
 	if [ ! -f "$THEME_ZIP" ]; then
 		TASK_ERROR "theme_missing" "$(printf "Theme archive not found: %s" "$THEME_ZIP")"
 		ALL_DONE 1
-	fi
-
-	TASK_STATUS "Checking Active Theme"
-	PIDS=$(lsof +D "$THEME_ACTIVE_DIR" 2>/dev/null | awk 'NR>1 {print $2}' | sort -u)
-	if [ -n "$PIDS" ]; then
-		SELF=$$
-		PIDS=$(printf '%s\n' "$PIDS" | awk -v self="$SELF" '$1 != self')
-		if [ -n "$PIDS" ]; then
-			for PID in $PIDS; do kill "$PID" 2>/dev/null; done
-			sleep 0.5
-
-			for PID in $PIDS; do kill -0 "$PID" 2>/dev/null && kill -9 "$PID" 2>/dev/null; done
-			sleep 0.25
-		fi
 	fi
 
 	NEW_DIR="$(mktemp -d "$THEME_DIR/.new.XXXXXX")" || {

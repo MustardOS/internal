@@ -7,9 +7,16 @@ ASSIGN_DIR="$MUOS_SHARE_DIR/info/assign"
 OUTPUT_FILE="$ASSIGN_DIR/assign.json"
 LOG_FILE="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/assign_gen.txt"
 
-TMP_JSON="/tmp/assign_add.json"
-TMP_LIST="/tmp/assign_list.txt"
-TMP_KEYS="/tmp/assign_keys.txt"
+ASSIGN_WORK=""
+OUTPUT_TMP=""
+
+ASSIGN_CLEANUP() {
+	[ -n "$ASSIGN_WORK" ] && [ -d "$ASSIGN_WORK" ] && rm -rf "$ASSIGN_WORK"
+	[ -n "$OUTPUT_TMP" ] && [ -f "$OUTPUT_TMP" ] && rm -f "$OUTPUT_TMP"
+}
+
+trap 'ASSIGN_CLEANUP' EXIT
+trap 'exit 1' HUP INT TERM
 
 ADDED=0
 SKIPPED=0
@@ -23,19 +30,28 @@ for ARG in "$@"; do
 	esac
 done
 
-[ "$PURGE" -eq 1 ] && rm -f "$OUTPUT_FILE"
 [ "$VERBOSE" -eq 1 ] && : >"$LOG_FILE"
 
-[ -f "$OUTPUT_FILE" ] || echo "{}" >"$OUTPUT_FILE"
-: >"$TMP_JSON"
-: >"$TMP_LIST"
-: >"$TMP_KEYS"
+mkdir -p "$ASSIGN_DIR" || exit 1
+ASSIGN_WORK=$(mktemp -d /tmp/muos-assign.XXXXXX) || exit 1
+chmod 700 "$ASSIGN_WORK" || exit 1
 
-jq -r 'keys[]' "$OUTPUT_FILE" >"$TMP_KEYS"
+TMP_BASE="$ASSIGN_WORK/base.json"
+TMP_JSON="$ASSIGN_WORK/add.json"
+TMP_LIST="$ASSIGN_WORK/list.txt"
+TMP_KEYS="$ASSIGN_WORK/keys.txt"
+
+if [ "$PURGE" -eq 0 ] && [ -f "$OUTPUT_FILE" ]; then
+	jq -e -S 'select(type == "object")' "$OUTPUT_FILE" >"$TMP_BASE" || exit 1
+else
+	printf '{}\n' >"$TMP_BASE"
+fi
+
+jq -r 'keys[]' "$TMP_BASE" >"$TMP_KEYS"
 find "$ASSIGN_DIR" -type f -name "*.ini" >"$TMP_LIST"
 
-ENTRIES=""
-while read -r INI; do
+set --
+while IFS= read -r INI; do
 	SECTION=0
 	DIR_NAME=$(basename "$(dirname "$INI")")
 	while IFS= read -r LINE || [ -n "$LINE" ]; do
@@ -46,13 +62,14 @@ while read -r INI; do
 			*)
 				if [ "$SECTION" -eq 1 ]; then
 					KEY=$(printf '%s' "$LINE" | tr -d '[:space:]')
+					[ -n "$KEY" ] || continue
 					if grep -Fxq "$KEY" "$TMP_KEYS"; then
 						[ "$VERBOSE" -eq 1 ] && printf "Ignore '%s' already exists\n" "$KEY" | tee -a "$LOG_FILE"
 						SKIPPED=$((SKIPPED + 1))
 					else
 						[ "$VERBOSE" -eq 1 ] && printf "Assign '%s' to '%s'\n" "$KEY" "$DIR_NAME" | tee -a "$LOG_FILE"
-						ENTRIES="$ENTRIES\"$KEY\":\"$DIR_NAME\","
-						echo "$KEY" >>"$TMP_KEYS"
+						set -- "$@" "$KEY" "$DIR_NAME"
+						printf '%s\n' "$KEY" >>"$TMP_KEYS"
 						ADDED=$((ADDED + 1))
 					fi
 				fi
@@ -61,16 +78,18 @@ while read -r INI; do
 	done <"$INI"
 done <"$TMP_LIST"
 
-rm -f "$TMP_LIST" "$TMP_KEYS"
+jq -n --args \
+	'$ARGS.positional as $items | reduce range(0; $items|length; 2) as $i ({}; .[$items[$i]] = $items[$i + 1])' \
+	"$@" >"$TMP_JSON" || exit 1
 
-if [ -n "$ENTRIES" ]; then
-	echo "{${ENTRIES%,}}" >"$TMP_JSON"
-else
-	echo "{}" >"$TMP_JSON"
+OUTPUT_TMP=$(mktemp "$ASSIGN_DIR/.assign.json.XXXXXX") || exit 1
+if ! jq -S -s '.[0] * .[1]' "$TMP_BASE" "$TMP_JSON" >"$OUTPUT_TMP" || ! chmod 644 "$OUTPUT_TMP" ||
+	! mv -f "$OUTPUT_TMP" "$OUTPUT_FILE"; then
+	rm -f "$OUTPUT_TMP"
+	OUTPUT_TMP=""
+	exit 1
 fi
-
-jq -S -s 'add' "$OUTPUT_FILE" "$TMP_JSON" >"$OUTPUT_FILE.tmp" && mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
-rm -f "$TMP_JSON"
+OUTPUT_TMP=""
 
 [ "$VERBOSE" -eq 1 ] && {
 	printf "\nAssign Added\t\t%d\n" "$ADDED"

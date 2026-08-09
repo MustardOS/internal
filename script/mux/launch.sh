@@ -11,7 +11,7 @@ GOVERNOR=$(GET_VAR "device" "cpu/governor")
 RUMBLE_PATH=$(GET_VAR "device" "board/rumble")
 NET_STATE=$(GET_VAR "device" "network/state")
 DPAD_SWAP=$(GET_VAR "device" "board/swap")
-USE_ACTIVITY=$(GET_VAR "config" "settings/advanced/activity")
+USE_ACTIVITY=$(GET_VAR "config" "$MUOS_SETTING_ACTIVITY")
 USE_LEDS=$(GET_VAR "config" "settings/advanced/led")
 DEV_MODE=$(GET_VAR "config" "boot/device_mode")
 USE_SYNCTHING=$(GET_VAR "config" "web/syncthing")
@@ -59,8 +59,10 @@ CLEANUP_AFTER_LAUNCH() {
 	LOG_DEBUG "$0" 0 "LAUNCH" "Restoring default CPU governor"
 	SET_DEFAULT_GOVERNOR
 
-	LOG_DEBUG "$0" 0 "LAUNCH" "Killing any leftover gptokeyb processes"
-	killall -9 "gptokeyb" "gptokeyb2" >/dev/null 2>&1
+	LOG_DEBUG "$0" 0 "LAUNCH" "Stopping the owned gptokeyb process"
+	if ! /opt/muos/script/var/process.sh stop-group gptokeyb >/dev/null 2>&1; then
+		LOG_WARN "$0" 0 "LAUNCH" "The owned gptokeyb process did not stop cleanly"
+	fi
 
 	RESTORE_DPAD_AND_LEDS "$BOARD_NAME" "$DPAD_SWAP" "$LED_NORMAL" "$LED_STATE"
 	RESTORE_FRAMEBUFFER_MODE "$DEV_MODE" "$SCREEN_INT_W" "$SCREEN_INT_H" "$SCREEN_EXT_W" "$SCREEN_EXT_H"

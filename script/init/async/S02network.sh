@@ -1199,7 +1199,9 @@ SETUP_PROXY() {
 CLEAR_PROXY() {
 	if [ -f /etc/environment ]; then
 		PROXY_TMP=$(mktemp)
-		grep -iv "^\(http\|https\|all\|no\)_proxy=" /etc/environment >"$PROXY_TMP" 2>/dev/null || true
+		if ! grep -iv "^\(http\|https\|all\|no\)_proxy=" /etc/environment >"$PROXY_TMP" 2>/dev/null; then
+			: >"$PROXY_TMP"
+		fi
 		mv -f "$PROXY_TMP" /etc/environment
 	fi
 

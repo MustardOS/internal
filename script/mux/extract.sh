@@ -10,6 +10,7 @@ LOG_INFO "$0" 0 "EXTRACT" "Archive extraction started"
 TASK_IS_NATIVE || { [ -z "${THEME_INSTALLING:-}" ] && FRONTEND stop; }
 
 ALL_DONE() {
+	ARCHIVE_CACHE_CLEANUP
 	[ -e "/tmp/no_fe" ] && exit 0
 
 	LOG_INFO "$0" 0 "EXTRACT" "$(printf "Cleanup and exit (code: %s)" "${1:-0}")"
@@ -29,6 +30,68 @@ REJECT_UNSAFE_ARCHIVE() {
 	"$MUOS_LOG_BIN" error "$0" 0 "EXTRACT" "$(printf "Rejected archive with unsafe paths: '%s'" "${1##*/}")"
 	TASK_ERROR "archive_unsafe" "$(printf "Archive blocked: '%s' contains unsafe file paths" "${1##*/}")"
 	ALL_DONE 1
+}
+
+VERIFY_UPDATE() {
+	UPDATE_STAGE="$(mktemp -d /tmp/muos-update.XXXXXX)" || return 2
+	chmod 700 "$UPDATE_STAGE" || return 2
+	mkdir -p "$UPDATE_STAGE/payload" || return 2
+
+	unzip -p "$ARCHIVE" manifest.sha256 >"$UPDATE_STAGE/manifest.sha256" 2>/dev/null || return 1
+	[ -s "$UPDATE_STAGE/manifest.sha256" ] || return 1
+
+	awk '
+		length($1) != 64 || $1 !~ /^[0-9a-fA-F]+$/ { exit 1 }
+		{
+			line = $0
+			sub(/^[0-9a-fA-F]+ [ *]/, "", line)
+			if (line == "" || line == "manifest.sha256" || line ~ /^\// || line ~ /^[A-Za-z]:/ || line ~ /(^|\/)\.\.(\/|$)/ || line ~ /\\/) exit 1
+		}
+		END { if (NR == 0) exit 1 }
+	' "$UPDATE_STAGE/manifest.sha256" || return 1
+
+	unzip -o "$ARCHIVE" -d "$UPDATE_STAGE/payload" >/dev/null || return 2
+	(
+		cd "$UPDATE_STAGE/payload" || exit 1
+		sha256sum -c manifest.sha256 >/dev/null 2>&1
+	) || return 1
+
+	unzip -Z1 "$ARCHIVE" >"$UPDATE_STAGE/archive-entries" || return 2
+	sed '/\/$/d; /^manifest\.sha256$/d' "$UPDATE_STAGE/archive-entries" | sort >"$UPDATE_STAGE/archive-files" || return 2
+	sed -n 's/^[0-9a-fA-F]\{64\} [ *]//p' "$UPDATE_STAGE/manifest.sha256" | sort >"$UPDATE_STAGE/manifest-files"
+	cmp -s "$UPDATE_STAGE/archive-files" "$UPDATE_STAGE/manifest-files" || return 1
+
+	return 0
+}
+
+STAGE_UPDATE_WITHOUT_MANIFEST() {
+	[ -n "${UPDATE_STAGE:-}" ] && rm -rf "$UPDATE_STAGE"
+
+	UPDATE_STAGE="$(mktemp -d /tmp/muos-update.XXXXXX)" || return 1
+	chmod 700 "$UPDATE_STAGE" || return 1
+	mkdir -p "$UPDATE_STAGE/payload" || return 1
+	unzip -o "$ARCHIVE" -d "$UPDATE_STAGE/payload" >/dev/null || return 1
+	unzip -Z1 "$ARCHIVE" >"$UPDATE_STAGE/archive-entries" || return 1
+	sed '/\/$/d; /^manifest\.sha256$/d' "$UPDATE_STAGE/archive-entries" | sort >"$UPDATE_STAGE/manifest-files" || return 1
+	[ -s "$UPDATE_STAGE/manifest-files" ] || return 1
+}
+
+INSTALL_UPDATE() {
+	(
+		cd "$UPDATE_STAGE/payload" || exit 1
+		find . -type d ! -path . | while IFS= read -r UPDATE_DIR; do
+			mkdir -p "/${UPDATE_DIR#./}" || exit 1
+		done || exit 1
+
+		while IFS= read -r UPDATE_FILE; do
+			UPDATE_SOURCE="$UPDATE_STAGE/payload/$UPDATE_FILE"
+			UPDATE_DEST="/$UPDATE_FILE"
+			UPDATE_PARENT="${UPDATE_DEST%/*}"
+			[ -n "$UPDATE_PARENT" ] || UPDATE_PARENT=/
+			mkdir -p "$UPDATE_PARENT" || exit 1
+			cp -p "$UPDATE_SOURCE" "$UPDATE_DEST" || exit 1
+		done <"$UPDATE_STAGE/manifest-files"
+	)
 }
 
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
@@ -137,11 +200,49 @@ case "$ARCHIVE_NAME" in
 		LOG_INFO "$0" 0 "EXTRACT" "Detected system update archive (.muxupd)"
 		SAFE_ARCHIVE "$ARCHIVE" || REJECT_UNSAFE_ARCHIVE "$ARCHIVE"
 
-		if ! EXTRACT_ARCHIVE "System Update" "$ARCHIVE" "/"; then
-			LOG_ERROR "$0" 0 "EXTRACT" "System update extraction failed"
-			TASK_ERROR "extract_failed" "The archive could not be extracted."
+		TASK_STATUS "Verifying Update..."
+		VERIFY_UPDATE
+		VERIFY_RESULT=$?
+
+		if [ "$VERIFY_RESULT" -ne 0 ]; then
+			INSTALL_WITHOUT_MANIFEST=0
+
+			if [ "$VERIFY_RESULT" -eq 1 ] && TASK_IS_NATIVE && [ "$FRONTEND_START_PROGRAM" = "archive" ]; then
+				if UPDATE_CHOICE="$(TASK_PROMPT update_manifest update_manifest "" "" "install|cancel" cancel)" &&
+					[ "$UPDATE_CHOICE" = "install" ]; then
+					if STAGE_UPDATE_WITHOUT_MANIFEST; then
+						INSTALL_WITHOUT_MANIFEST=1
+					else
+						LOG_ERROR "$0" 0 "EXTRACT" "Could not stage update without a manifest"
+						TASK_ERROR "update_stage_failed" "The update could not be prepared."
+						[ -n "${UPDATE_STAGE:-}" ] && rm -rf "$UPDATE_STAGE"
+						ALL_DONE 1
+					fi
+				else
+					LOG_INFO "$0" 0 "EXTRACT" "Update installation cancelled after invalid manifest warning"
+					TASK_ERROR "update_cancelled" "Update installation cancelled."
+					[ -n "${UPDATE_STAGE:-}" ] && rm -rf "$UPDATE_STAGE"
+					ALL_DONE 1
+				fi
+			fi
+
+			if [ "$INSTALL_WITHOUT_MANIFEST" -ne 1 ]; then
+				LOG_ERROR "$0" 0 "EXTRACT" "System update integrity verification failed"
+				TASK_ERROR "update_invalid" "The update is incomplete or damaged."
+				[ -n "${UPDATE_STAGE:-}" ] && rm -rf "$UPDATE_STAGE"
+				ALL_DONE 1
+			fi
+		fi
+
+		TASK_STATUS "Installing Update..."
+		if ! INSTALL_UPDATE; then
+			LOG_ERROR "$0" 0 "EXTRACT" "Validated system update installation failed"
+			TASK_ERROR "extract_failed" "The validated update could not be installed."
+			rm -rf "$UPDATE_STAGE"
 			ALL_DONE 1
 		fi
+		rm -rf "$UPDATE_STAGE"
+		UPDATE_STAGE=""
 		;;
 	*.muxzip)
 		LOG_INFO "$0" 0 "EXTRACT" "Detected multi-section archive (.muxzip)"
@@ -240,13 +341,6 @@ case "$ARCHIVE_NAME" in
 		TASK_ERROR "no_method" "$(printf "There is no extraction method for '%s'" "$ARCHIVE_NAME")"
 		;;
 esac
-
-LOG_DEBUG "$0" 0 "EXTRACT" "Correcting permissions under /opt/muos"
-TASK_STATUS "Correcting Permissions..."
-if ! chmod -R 755 /opt/muos; then
-	LOG_WARN "$0" 0 "EXTRACT" "Failed to correct permissions under /opt/muos"
-	TASK_STATUS "Permission Correction Failed..."
-fi
 
 # Only allow update archives to run the update script!
 case "$ARCHIVE_NAME" in

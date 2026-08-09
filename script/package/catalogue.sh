@@ -26,6 +26,7 @@ CATALOGUE_DIR="$MUOS_STORE_DIR/info/catalogue"
 CATALOGUE_ZIP_DIR="$MUOS_STORE_DIR/package/catalogue"
 
 ALL_DONE() {
+	ARCHIVE_CACHE_CLEANUP
 	TASK_STATUS "Sync Filesystem"
 	sync
 

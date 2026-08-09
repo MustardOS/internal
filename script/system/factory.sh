@@ -8,7 +8,7 @@ hwclock -w
 
 while pgrep "muwarn" >/dev/null 2>&1; do sleep 0.25; done
 
-printf "installer" >"/tmp/act_go"
+printf "installer" >"$ACT_GO"
 /opt/muos/script/mux/install.sh
 
 printf 0 >"/tmp/msg_progress"

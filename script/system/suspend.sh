@@ -5,7 +5,9 @@
 # Lonely, oh so lonely...
 RECENT_WAKE="$MUOS_RUN_DIR/recent_wake"
 LED_STATE="$MUOS_RUN_DIR/work_led_state"
-MUXRETRO_SAVE_READY="$MUOS_PICKLES_SAVE_READY"
+MUXRETRO_SAVE_READY="$MUOS_RUN_DIR/muxretro_save_ready"
+MUXRETRO_SUSPEND_SIGNAL="USR1"
+MUXRETRO_RESUME_SIGNAL="USR2"
 
 RECENT_WAKE_GRACE="${RECENT_WAKE_GRACE:-6}"
 RECENT_WAKE_STALE="${RECENT_WAKE_STALE:-60}"
@@ -27,7 +29,7 @@ SUSPEND_STATE="$(GET_VAR "config" "danger/state")"
 DEFAULT_BRIGHTNESS="$(GET_VAR "config" "settings/general/brightness")"
 SHUTDOWN_TIME_SETTING="$(GET_VAR "config" "settings/power/shutdown")"
 CONNECT_ON_WAKE=$(GET_VAR "config" "settings/network/wake")
-USE_ACTIVITY="$(GET_VAR "config" "$MUOS_SETTING_ACTIVITY")"
+USE_ACTIVITY="$(GET_VAR "config" "settings/advanced/activity")"
 USB_FUNCTION="$(GET_VAR "config" "settings/advanced/usb_function")"
 
 UPTIME_SEC() {
@@ -102,13 +104,13 @@ CHECK_MUXRETRO_AND_SAVE() {
 	MUXRETRO_PID=${MUXRETRO_PID%% *}
 	[ -n "$MUXRETRO_PID" ] || return 0
 
-	if [ "$1" != "$MUOS_PICKLES_SUSPEND_SIGNAL" ]; then
+	if [ "$1" != "$MUXRETRO_SUSPEND_SIGNAL" ]; then
 		kill -"$1" "$MUXRETRO_PID" 2>/dev/null || :
 		return 0
 	fi
 
 	rm -f "$MUXRETRO_SAVE_READY" 2>/dev/null || :
-	kill -"$MUOS_PICKLES_SUSPEND_SIGNAL" "$MUXRETRO_PID" 2>/dev/null || return 0
+	kill -"$MUXRETRO_SUSPEND_SIGNAL" "$MUXRETRO_PID" 2>/dev/null || return 0
 
 	WAIT_STEP=0
 	while [ "$WAIT_STEP" -lt "$MUXRETRO_SAVE_WAIT_STEPS" ]; do
@@ -133,7 +135,7 @@ SLEEP() {
 	LED_CONTROL_CHANGE off
 	ACTIVITY_TRACKER suspend
 
-	CHECK_MUXRETRO_AND_SAVE "USR1"
+	CHECK_MUXRETRO_AND_SAVE "$MUXRETRO_SUSPEND_SIGNAL"
 	CHECK_RA_AND_SAVE "SAVE_STATE"
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
@@ -208,7 +210,7 @@ RESUME() {
 	# Restart hotkey just in case something explodes
 	HOTKEY restart &
 
-	CHECK_MUXRETRO_AND_SAVE "USR2"
+	CHECK_MUXRETRO_AND_SAVE "$MUXRETRO_RESUME_SIGNAL"
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
 	amixer set "Master" unmute >/dev/null 2>&1

@@ -5,8 +5,6 @@
 # shellcheck disable=SC2034
 MUOS_FUNC_LOADED=1
 
-. /opt/muos/script/var/contract.sh
-
 MUX_LIB="/opt/muos/frontend/lib"
 
 case ":${LD_LIBRARY_PATH-}:" in
@@ -24,12 +22,12 @@ DEVICE_CONTROL_DIR="/opt/muos/device/control"
 MUOS_LOG_DIR="/opt/muos/log"
 MUOS_LOG_BIN="/opt/muos/frontend/mulog"
 MUOS_RGB_BIN="/opt/muos/frontend/murgb"
-MUOS_RUN_DIR=${MUOS_RUN_PATH%/}
+MUOS_RUN_DIR="/run/muos"
 MUOS_SHARE_DIR="/opt/muos/share"
 MUOS_STORE_DIR="$MUOS_RUN_DIR/storage"
 OVERLAY_NOP="$MUOS_RUN_DIR/overlay.disable"
 IS_IDLE="$MUOS_RUN_DIR/is_idle"
-IDLE_STATE="$MUOS_IDLE_STATE"
+IDLE_STATE="$MUOS_RUN_DIR/idle_state"
 
 export HOME XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
 	ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR MUOS_LOG_BIN \
@@ -48,7 +46,7 @@ MESSAGE_TEXT="/tmp/msg_livetext"
 MESSAGE_PROG="/tmp/msg_progress"
 
 [ -d "$MUOS_LOG_DIR" ] || mkdir -p "$MUOS_LOG_DIR"
-SAFE_QUIT=$MUOS_SAFE_QUIT
+SAFE_QUIT="$MUOS_RUN_DIR/safe_quit"
 
 # Module-level CR literal used by GET_VAR to strip trailing carriage returns
 CR=$(printf '\r')
@@ -984,7 +982,7 @@ SETUP_SDL_ENVIRONMENT() {
 		modern) GCDB_FILE="$GCDB_STORE/modern.txt" ;;
 		retro) GCDB_FILE="$GCDB_STORE/retro.txt" ;;
 		*)
-			CON_GO="$MUOS_CONTROLLER_FILE"
+			CON_GO="$MUOS_RUN_DIR/controller"
 			if [ -e "$CON_GO" ]; then
 				IFS= read -r SEL <"$CON_GO"
 				case "$SEL" in
@@ -1046,7 +1044,7 @@ SETUP_SDL_ENVIRONMENT() {
 SETUP_APP() {
 	printf "app\n" >"$ACT_GO"
 
-	GOV_GO="$MUOS_GOVERNOR_FILE"
+	GOV_GO="$MUOS_RUN_DIR/governor"
 	[ -e "$GOV_GO" ] && cp -f "$GOV_GO" "$(GET_VAR "device" "cpu/governor")"
 
 	HOME="$(GET_VAR "device" "board/home")"
@@ -1077,7 +1075,7 @@ UPDATE_RA_VALUE() {
 
 DETECT_CONTROL_SWAP() {
 	RA_DEV_CONF="$DEVICE_CONTROL_DIR/retroarch.device.cfg"
-	CON_GO="$MUOS_CONTROLLER_FILE"
+	CON_GO="$MUOS_RUN_DIR/controller"
 	IS_SWAP=0
 
 	DO_SWAP() {
@@ -1132,7 +1130,7 @@ CONFIGURE_RETROARCH() {
 	) >"$RA_CONTROL.resolution.cfg"
 
 	# Modify the RetroArch threaded video option based on content settings
-	RAC_GO="$MUOS_RETROARCH_FILE"
+	RAC_GO="$MUOS_RUN_DIR/retroarch"
 	if [ -f "$RAC_GO" ]; then
 		IFS= read -r RAC_VAL <"$RAC_GO"
 		sed -i '/^video_threaded = /d' "$RA_CONF"
@@ -1705,19 +1703,19 @@ FBCON_DISABLE() {
 	[ -w /sys/module/vt/parameters/default_utf8 ] && printf "1\n" >/sys/module/vt/parameters/default_utf8
 }
 
-ACT_GO="${ACT_GO:-$MUOS_ACTION_FILE}"
-APP_GO="${APP_GO:-$MUOS_APPLICATION_FILE}"
-GOV_GO="${GOV_GO:-$MUOS_GOVERNOR_FILE}"
-CON_GO="${CON_GO:-$MUOS_CONTROLLER_FILE}"
-FLT_GO="${FLT_GO:-$MUOS_FILTER_FILE}"
-RAC_GO="${RAC_GO:-$MUOS_RETROARCH_FILE}"
-ROM_GO="${ROM_GO:-$MUOS_CONTENT_FILE}"
-SAA_GO="${SAA_GO:-$MUOS_AUTO_CORE_FILE}"
-SAG_GO="${SAG_GO:-$MUOS_AUTO_GOVERNOR_FILE}"
-SAR_GO="${SAR_GO:-$MUOS_AUTO_RETROARCH_FILE}"
-SHD_GO="${SHD_GO:-$MUOS_SHADER_FILE}"
-OVL_GO="${OVL_GO:-$MUOS_OVERLAY_FILE}"
-OVO_GO="${OVO_GO:-$MUOS_OVERLAY_OPTIONS_FILE}"
+ACT_GO="${ACT_GO:-$MUOS_RUN_DIR/action}"
+APP_GO="${APP_GO:-$MUOS_RUN_DIR/application}"
+GOV_GO="${GOV_GO:-$MUOS_RUN_DIR/governor}"
+CON_GO="${CON_GO:-$MUOS_RUN_DIR/controller}"
+FLT_GO="${FLT_GO:-$MUOS_RUN_DIR/filter}"
+RAC_GO="${RAC_GO:-$MUOS_RUN_DIR/retroarch}"
+ROM_GO="${ROM_GO:-$MUOS_RUN_DIR/content}"
+SAA_GO="${SAA_GO:-$MUOS_RUN_DIR/auto_core}"
+SAG_GO="${SAG_GO:-$MUOS_RUN_DIR/auto_governor}"
+SAR_GO="${SAR_GO:-$MUOS_RUN_DIR/auto_retroarch}"
+SHD_GO="${SHD_GO:-$MUOS_RUN_DIR/shader}"
+OVL_GO="${OVL_GO:-$MUOS_RUN_DIR/overlay}"
+OVO_GO="${OVO_GO:-$MUOS_RUN_DIR/overlay_options}"
 EX_CARD="${EX_CARD:-/tmp/explore_card}"
 
 SAFE_WRITE() {

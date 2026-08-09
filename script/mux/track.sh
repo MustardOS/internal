@@ -6,7 +6,7 @@
 
 . /opt/muos/script/var/func.sh
 
-[ "$(GET_VAR "config" "$MUOS_SETTING_ACTIVITY")" -eq 0 ] && exit 0
+[ "$(GET_VAR "config" "settings/advanced/activity")" -eq 0 ] && exit 0
 
 NAME=${1-}
 CORE=${2-}

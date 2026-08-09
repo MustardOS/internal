@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/func.sh
 
-CON_GO="$MUOS_CONTROLLER_FILE"
+CON_GO="$MUOS_RUN_DIR/controller"
 SELECTED_MAP=
 
 if [ -e "$CON_GO" ]; then

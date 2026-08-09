@@ -35,8 +35,9 @@ MAP_BRIGHT() {
 
 SET_BLANK() {
 	TARGET_BLANK=$1
+	FORCE_BLANK=${2:-0}
 
-	[ "$(cat "$FB_BLANK" 2>/dev/null || printf 0)" -eq "$TARGET_BLANK" ] && return
+	[ "$FORCE_BLANK" -eq 0 ] && [ "$(cat "$FB_BLANK" 2>/dev/null || printf 0)" -eq "$TARGET_BLANK" ] && return
 
 	echo "$TARGET_BLANK" >/sys/class/graphics/fb0/blank
 	echo "$TARGET_BLANK" >"$FB_BLANK"
@@ -67,7 +68,9 @@ SET_CURRENT() {
 	CURRENT_BLANK=$(cat "$FB_BLANK" 2>/dev/null || printf 0)
 
 	# Keep framebuffer blank state in sync
-	[ "$CURRENT_BLANK" -ne "$DESIRED_BLANK" ] && SET_BLANK "$DESIRED_BLANK"
+	if [ "$FORCE" -eq 1 ] || [ "$CURRENT_BLANK" -ne "$DESIRED_BLANK" ]; then
+		SET_BLANK "$DESIRED_BLANK" "$FORCE"
+	fi
 
 	if [ "$NEW_BRIGHT" -le 0 ]; then
 		DISPLAY_WRITE disp0 setbl "$(MAP_BRIGHT 0)"

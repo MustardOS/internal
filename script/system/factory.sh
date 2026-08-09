@@ -8,6 +8,9 @@ hwclock -w
 
 while pgrep "muwarn" >/dev/null 2>&1; do sleep 0.25; done
 
+/opt/muos/script/device/amp.sh
+/opt/muos/script/device/speaker.sh
+
 printf "installer" >"$ACT_GO"
 /opt/muos/script/mux/install.sh
 

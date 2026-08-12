@@ -52,6 +52,7 @@ USB_SINK_INDEX() {
 
 LAST=""
 SWITCHED=0
+PENDING=0
 
 while true; do
 	if [ "$(GET_VAR "config" "boot/device_mode")" = "1" ]; then
@@ -67,6 +68,8 @@ while true; do
 
 	if [ "$NOW" != "$LAST" ]; then
 		if [ "$NOW" = "1" ]; then
+			[ -n "$LAST" ] && SAVE_SINK_VOLUME
+
 			# PipeWire needs a moment to register the card...
 			IDX=""
 			TRIES=0
@@ -89,10 +92,17 @@ while true; do
 
 				SWITCHED=1
 				LOG_SUCCESS "$0" 0 "USBAUDIO" "$(printf "Switched to USB audio sink %s" "$IDX")"
+			elif [ "$PENDING" -lt 10 ]; then
+				PENDING=$((PENDING + 1))
+				LOG_WARN "$0" 0 "USBAUDIO" "$(printf "USB audio present but no sink yet, retry %s" "$PENDING")"
+				sleep 2
+				continue
 			else
-				LOG_WARN "$0" 0 "USBAUDIO" "USB audio card present but no matching sink"
+				LOG_WARN "$0" 0 "USBAUDIO" "USB audio card present but no matching sink, giving up"
 			fi
 		elif [ "$SWITCHED" = "1" ]; then
+			SAVE_SINK_VOLUME
+
 			"$SINK_SCRIPT" set-builtin >/dev/null 2>&1
 			"$SINK_SCRIPT" list >/dev/null 2>&1
 
@@ -100,6 +110,7 @@ while true; do
 			LOG_SUCCESS "$0" 0 "USBAUDIO" "USB audio removed, back to built-in"
 		fi
 
+		PENDING=0
 		LAST="$NOW"
 	fi
 

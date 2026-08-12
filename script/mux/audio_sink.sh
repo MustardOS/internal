@@ -134,6 +134,9 @@ DO_SET() {
 		LOG_ERROR "$0" 0 "AUDIOSINK" "$(printf "Failed to set default sink to '%s'" "$SINK_NAME")"
 		exit 1
 	fi
+
+	LOAD_SINK_VOLUME "$SINK_NAME"
+	RESTORE_AUDIO_VOLUME
 }
 
 DO_SET_BT() {
@@ -225,6 +228,9 @@ DO_SET_BUILTIN() {
 
 	wpctl set-default "$NODE_ID" >/dev/null 2>&1
 	SAVE_ACTIVE_SINK "$NODE_ID"
+
+	LOAD_SINK_VOLUME
+	RESTORE_AUDIO_VOLUME
 
 	LOG_SUCCESS "$0" 0 "AUDIOSINK" "$(printf "Reverted to default sink (id=%s)" "$NODE_ID")"
 }

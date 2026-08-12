@@ -102,6 +102,64 @@ NODE_VISIBLE() {
 	[ -n "$(GET_NODE_ID "$1")" ]
 }
 
+USB_CARD_PRESENT() {
+	grep -qi "usb" /proc/asound/cards 2>/dev/null
+}
+
+GET_SINK_ROW() {
+	MATCH_NAME=$1
+	WANT_USB=$2
+
+	pw-dump 2>/dev/null |
+		jq -r --arg name "$MATCH_NAME" --arg usb "$WANT_USB" '
+			[
+				.[] |
+				select(.type == "PipeWire:Interface:Node") |
+				select(.info.props["media.class"] == "Audio/Sink") |
+				{
+					id: (.id | tostring),
+					name: (.info.props["node.name"] // ""),
+					card: (.info.props["api.alsa.card.name"] // ""),
+					path: (.info.props["api.alsa.path"] // ""),
+					desc: (.info.props["node.description"] // .info.props["node.name"] // "Unknown")
+				} |
+				. + { label: (if ((.name + .path + .card) | ascii_downcase | contains("hdmi")) then "HDMI Audio" else .desc end) }
+			] as $sink |
+			first(
+				$sink[] |
+				select(
+					if $usb == "1"
+					then (.name | startswith("alsa_output.usb-")) or (.card | ascii_downcase | contains("usb"))
+					else .name == $name
+					end
+				)
+			) // empty |
+			[.id, .label] | join("\t")
+		' 2>/dev/null
+}
+
+WAIT_FOR_SINK() {
+	MATCH_NAME=$1
+	WANT_USB=$2
+	BUDGET=$3
+
+	SINK_ELAPSED=0
+	while [ "$SINK_ELAPSED" -lt "$BUDGET" ]; do
+		SINK_ROW=$(GET_SINK_ROW "$MATCH_NAME" "$WANT_USB")
+
+		if [ -n "$SINK_ROW" ]; then
+			DEF_ID=$(printf "%s" "$SINK_ROW" | cut -f1)
+			DEF_LABEL=$(printf "%s" "$SINK_ROW" | cut -f2-)
+			return 0
+		fi
+
+		sleep 0.1
+		SINK_ELAPSED=$((SINK_ELAPSED + INTERVAL))
+	done
+
+	return 1
+}
+
 DBUS_READY() {
 	[ -S "$DBUS_SOCKET" ]
 }
@@ -257,15 +315,18 @@ FINALISE_AUDIO() {
 		APPLY_VOL=${RUNTIME_PERCENT:-$SAVED_VOL}
 	fi
 
-	# Wait for the target node to appear, capturing its ID in the same poll to avoid a second pw-dump.
+	ALLOW_USB=0
+	[ "${BOOT_CONSOLE_MODE:-0}" -ne 1 ] && USB_CARD_PRESENT && ALLOW_USB=1
+
 	DEF_ID=
-	NODE_ELAPSED=0
-	while [ "$NODE_ELAPSED" -lt "$NODE_TIMEOUT" ]; do
-		DEF_ID=$(GET_NODE_ID "$TARGET_NAME")
-		[ -n "$DEF_ID" ] && break
-		sleep 0.1
-		NODE_ELAPSED=$((NODE_ELAPSED + INTERVAL))
-	done
+	DEF_LABEL=
+
+	if [ "$ALLOW_USB" -eq 1 ]; then
+		WAIT_FOR_SINK "" 1 "$((NODE_TIMEOUT / 2))" ||
+			LOG_WARN "$0" 0 "PIPEWIRE" "USB audio card present but no sink appeared, using the configured output"
+	fi
+
+	[ -n "$DEF_ID" ] || WAIT_FOR_SINK "$TARGET_NAME" 0 "$NODE_TIMEOUT"
 
 	if [ -z "$DEF_ID" ]; then
 		LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "Target node '%s' not ready after timeout" "$TARGET_NAME")"
@@ -289,6 +350,15 @@ FINALISE_AUDIO() {
 	else
 		LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "Unable to set default node '%s'" "$DEF_ID")"
 	fi
+
+	case "$ADV_VOL" in
+		1 | 2 | 3) ;;
+		*)
+			if [ -n "$DEF_LABEL" ] && LOAD_SINK_VOLUME "$DEF_LABEL"; then
+				SAVED_VOL=$(GET_SAVED_AUDIO_VOLUME)
+			fi
+			;;
+	esac
 
 	APPLY_VOL=${RUNTIME_PERCENT:-$SAVED_VOL}
 	if [ "${WP_MINOR:-0}" -ge 5 ]; then

@@ -270,6 +270,49 @@ SET_SAVED_AUDIO_VOLUME() {
 	return 0
 }
 
+AUDIO_VOLUME_DIR="/opt/muos/share/volume"
+
+AUDIO_SINK_SLOT() {
+	[ -e "$1" ] && return 1
+	/opt/muos/bin/fnv1a "$1"
+}
+
+CURRENT_SINK_NAME() {
+	IDX=$(GET_VAR "config" "settings/general/audiosink")
+	[ -n "$IDX" ] || return 1
+
+	sed -n "$((IDX + 1))p" "$MUOS_RUN_DIR/audio_sinks" 2>/dev/null
+}
+
+SAVE_SINK_VOLUME() {
+	NAME=$(CURRENT_SINK_NAME)
+	[ -n "$NAME" ] || return 1
+
+	SLOT=$(AUDIO_SINK_SLOT "$NAME")
+	[ -n "$SLOT" ] || return 1
+
+	mkdir -p "$AUDIO_VOLUME_DIR"
+	GET_SAVED_AUDIO_VOLUME >"$AUDIO_VOLUME_DIR/$SLOT"
+
+	LOG_INFO "$0" 0 "AUDIOSINK" "$(printf "Saved volume for '%s'" "$NAME")"
+}
+
+LOAD_SINK_VOLUME() {
+	NAME=$1
+	[ -n "$NAME" ] || NAME=$(CURRENT_SINK_NAME)
+	[ -n "$NAME" ] || return 1
+
+	SLOT=$(AUDIO_SINK_SLOT "$NAME")
+	[ -f "$AUDIO_VOLUME_DIR/$SLOT" ] || return 1
+
+	LEVEL=$(cat "$AUDIO_VOLUME_DIR/$SLOT" 2>/dev/null)
+	[ -n "$LEVEL" ] || return 1
+
+	SET_SAVED_AUDIO_VOLUME "$LEVEL"
+
+	LOG_INFO "$0" 0 "AUDIOSINK" "$(printf "Restored volume for '%s'" "$NAME")"
+}
+
 RESTORE_AUDIO_VOLUME() {
 	RESET_MIXER
 	SAVED_VOL=$(GET_SAVED_AUDIO_VOLUME)
@@ -280,7 +323,7 @@ RESTORE_AUDIO_VOLUME() {
 	done
 
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
-	/opt/muos/script/device/audio.sh "$SAVED_VOL"
+	MUOS_VOLUME_RESTORE=1 /opt/muos/script/device/audio.sh "$SAVED_VOL"
 }
 
 VOLUME_RAMP() {

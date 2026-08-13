@@ -25,22 +25,34 @@ MANAGE_WEBSERV() {
 			case "$SRV" in
 				sshd)
 					SSHD_PORT=$(GET_WEB_PORT "sshd_port" 22)
+					SSHD_ETC=/etc/ssh
+					SSHD_EMPTY=/var/empty
+
 					if [ -x /opt/openssh/sbin/sshd ]; then
-						chown root:root "/root" "/opt/openssh" "/opt/sftpgo"
-						chmod 700 "/root" /opt/openssh/var /opt/openssh/etc
-						"$PROCESS_HELPER" start "$PROCESS_NAME" /opt/openssh/sbin/sshd -D -p "$SSHD_PORT"
+						SSHD_BIN=/opt/openssh/sbin/sshd
+						SSHD_ETC=/opt/openssh/etc
+						SSHD_EMPTY=/opt/openssh/var/empty
 					elif [ -x /usr/sbin/sshd ]; then
-						chown root:root "/root" "/etc/ssh" "/opt/sftpgo" "/var/empty"
-						chmod 700 "/root"
-						chmod 755 "/opt/sftpgo"
-						chmod 600 /etc/ssh/ssh_host_*_key
-						chmod 700 /etc/ssh
-						"$PROCESS_HELPER" start "$PROCESS_NAME" /usr/sbin/sshd -D -p "$SSHD_PORT"
+						SSHD_BIN=/usr/sbin/sshd
 					else
-						"$PROCESS_HELPER" start "$PROCESS_NAME" sshd -D -p "$SSHD_PORT"
+						SSHD_BIN=sshd
 					fi
+
+					mkdir -p "$SSHD_EMPTY"
+					chown root:root /root "$SSHD_ETC" "$SSHD_EMPTY"
+					chmod 700 /root "$SSHD_ETC" "$SSHD_EMPTY"
+					chown root:root "$SSHD_ETC"/ssh_host_*_key
+					chmod 600 "$SSHD_ETC"/ssh_host_*_key
+
+					SSHD_CHECK=$("$SSHD_BIN" -t 2>&1) || {
+						LOG_ERROR "$0" 0 "WEB" "$(printf "OpenSSH refused to start: %s" "$SSHD_CHECK")"
+						return 1
+					}
+
+					"$PROCESS_HELPER" start "$PROCESS_NAME" "$SSHD_BIN" -D -p "$SSHD_PORT"
 					;;
 				sftpgo)
+					chmod 755 "/opt/sftpgo"
 					SFTPGO_PORT=$(GET_WEB_PORT "sftpgo_port" 9090)
 					SFTPGO_SFTP_PORT=$(GET_WEB_PORT "sftpgo_sftp_port" 2022)
 					"$PROCESS_HELPER" start "$PROCESS_NAME" env \
@@ -136,7 +148,10 @@ case "$1" in
 		SERVICE_PROCESS_NAME "$2" >/dev/null || exit 1
 		MANAGE_WEBSERV stop "$2" || exit 1
 		if [ "$(GET_VAR "config" "web/$2")" = "1" ]; then
-			MANAGE_WEBSERV start "$2"
+			MANAGE_WEBSERV start "$2" || {
+				LOG_ERROR "$0" 0 "WEB" "$(printf "Failed to start '%s' web service" "$2")"
+				exit 1
+			}
 		fi
 		;;
 	stopall)
@@ -147,7 +162,8 @@ case "$1" in
 	*)
 		for WEBSRV in $SERVICE_LIST; do
 			if [ "$(GET_VAR "config" "web/$WEBSRV")" = "1" ]; then
-				MANAGE_WEBSERV start "$WEBSRV" &
+				MANAGE_WEBSERV start "$WEBSRV" ||
+					LOG_ERROR "$0" 0 "WEB" "$(printf "Failed to start '%s' web service" "$WEBSRV")" &
 			else
 				MANAGE_WEBSERV stop "$WEBSRV" &
 			fi

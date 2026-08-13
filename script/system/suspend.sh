@@ -190,6 +190,7 @@ RESUME() {
 	esac
 
 	RESTORE_CPU_GOV "$CPU_GOV_PATH"
+	SYNC_GPU_FREQUENCY "$(cat "$CPU_GOV_PATH" 2>/dev/null)"
 
 	# Network module must be loaded before attempting reconnect
 	wait "$MODULE_PID"

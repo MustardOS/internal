@@ -1,21 +1,127 @@
-<svg width="42" height="42" viewBox="0 0 42 42" role="img" xmlns="http://www.w3.org/2000/svg">
-  <title>vTree icon</title>
-  <desc>vTree file manager icon, 42x42px, black on transparent</desc>
-
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="80"
+   height="80"
+   viewBox="0 0 80 80"
+   role="img"
+   version="1.1"
+   id="svg6"
+   sodipodi:docname="vtree.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs6" />
+  <sodipodi:namedview
+     id="namedview6"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="6.8437835"
+     inkscape:cx="44.054579"
+     inkscape:cy="52.091069"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6" />
+  <title
+     id="title1">vTree icon</title>
+  <desc
+     id="desc1">vTree file manager icon, 42x42px, black on transparent</desc>
   <!-- V chevron at top -->
-  <polyline points="8,5 21,16 34,5" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-
   <!-- Vertical spine -->
-  <line x1="21" y1="16" x2="21" y2="38" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
-
   <!-- Horizontal branch lines -->
-  <line x1="21" y1="21" x2="28" y2="21" stroke="black" stroke-width="2" stroke-linecap="round"/>
-  <line x1="21" y1="27" x2="28" y2="27" stroke="black" stroke-width="2" stroke-linecap="round"/>
-  <line x1="21" y1="33" x2="28" y2="33" stroke="black" stroke-width="2" stroke-linecap="round"/>
-
   <!-- File block indicators -->
-  <rect x="29" y="18.5" width="8"  height="4" rx="1" fill="black"/>
-  <rect x="29" y="24.5" width="10" height="4" rx="1" fill="black"/>
-  <rect x="29" y="30.5" width="9"  height="4" rx="1" fill="black"/>
-
+  <polyline
+     points="8,5 21,16 34,5"
+     fill="none"
+     stroke="#000000"
+     stroke-width="3"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="polyline1"
+     transform="matrix(1.9047385,0,0,1.9047385,-3.3328007,-0.1483237)" />
+  <line
+     x1="36.66671"
+     y1="30.327492"
+     x2="36.66671"
+     y2="72.231735"
+     stroke="#000000"
+     stroke-width="2.5"
+     stroke-linecap="round"
+     id="line1" />
+  <line
+     x1="36.66671"
+     y1="39.851185"
+     x2="49.999878"
+     y2="39.851185"
+     stroke="#000000"
+     stroke-width="2"
+     stroke-linecap="round"
+     id="line2" />
+  <line
+     x1="36.66671"
+     y1="51.279613"
+     x2="49.999878"
+     y2="51.279613"
+     stroke="#000000"
+     stroke-width="2"
+     stroke-linecap="round"
+     id="line3" />
+  <line
+     x1="36.66671"
+     y1="62.708046"
+     x2="49.999878"
+     y2="62.708046"
+     stroke="#000000"
+     stroke-width="2"
+     stroke-linecap="round"
+     id="line4" />
+  <rect
+     x="51.904617"
+     y="35.089336"
+     width="15.237907"
+     height="7.6189537"
+     rx="1.9047384"
+     fill="#000000"
+     id="rect4"
+     style="stroke-width:1.90474" />
+  <rect
+     x="51.904617"
+     y="46.517769"
+     width="19.047384"
+     height="7.6189537"
+     rx="1.9047384"
+     fill="#000000"
+     id="rect5"
+     style="stroke-width:1.90474" />
+  <rect
+     x="51.904617"
+     y="57.946201"
+     width="17.142647"
+     height="7.6189537"
+     rx="1.9047384"
+     fill="#000000"
+     id="rect6"
+     style="stroke-width:1.90474" />
+  <metadata
+     id="metadata6">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>vTree icon</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
 </svg>

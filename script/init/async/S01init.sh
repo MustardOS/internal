@@ -10,8 +10,17 @@ DO_START() {
 	LOG_INFO "$0" 0 "BOOTING" "Creating Required Run Directory"
 	mkdir -p "$MUOS_RUN_DIR"
 
-	# Set console_loglevel to 0 unless debug mode is enabled
-	[ "$(GET_DEBUG)" -eq 0 ] && printf "%d" 0 >/proc/sys/kernel/printk
+	KERNEL_LOG="$(GET_VAR "config" "settings/advanced/kernellog")"
+	case "$KERNEL_LOG" in
+		1) PRINTK=1 ;;
+		2) PRINTK=3 ;;
+		3) PRINTK=4 ;;
+		4) PRINTK=7 ;;
+		*) PRINTK=0 ;;
+	esac
+
+	LOG_INFO "$0" 0 "BOOTING" "$(printf "Setting kernel log level to %d" "$PRINTK")"
+	printf "%d\t7\t1\t%d\n" "$PRINTK" "$PRINTK" >/proc/sys/kernel/printk
 
 	grep -qE "defaults\.(ctl|pcm)\.card [1-9]" /usr/share/alsa/alsa.conf 2>/dev/null && \
 		sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf

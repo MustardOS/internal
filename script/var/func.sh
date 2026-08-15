@@ -2069,6 +2069,10 @@ RUN_SYNCTHING_SCAN() {
 MUOS_MKE2FS="/opt/muos/bin/mke2fs"
 MUOS_MKE2FS_CONF="/opt/muos/share/conf/mke2fs.conf"
 
+FS_HAS_CASEFOLD() {
+	[ -e /sys/fs/ext4/features/casefold ]
+}
+
 FS_CAN_MAKE() {
 	case "$1" in
 		ext2 | ext3 | ext4)
@@ -2086,12 +2090,18 @@ MAKE_FILESYSTEM() {
 
 	case "$MKFS_TYPE" in
 		ext2 | ext3 | ext4)
+			MKFS_FOLD=""
+			if [ "$MKFS_TYPE" = "ext4" ] && FS_HAS_CASEFOLD; then
+				MKFS_FOLD="-O casefold -E encoding=utf8"
+				LOG_INFO "$0" 0 "FILESYSTEM" "Kernel supports case folding, enabling it on $MKFS_PART"
+			fi
+
 			if [ -x "$MUOS_MKE2FS" ]; then
 				if [ -f "$MUOS_MKE2FS_CONF" ]; then
 					MKE2FS_CONFIG="$MUOS_MKE2FS_CONF" \
-						"$MUOS_MKE2FS" -q -F -t "$MKFS_TYPE" -L "$MKFS_LABEL" "$MKFS_PART"
+						"$MUOS_MKE2FS" -q -F -t "$MKFS_TYPE" $MKFS_FOLD -L "$MKFS_LABEL" "$MKFS_PART"
 				else
-					"$MUOS_MKE2FS" -q -F -t "$MKFS_TYPE" -L "$MKFS_LABEL" "$MKFS_PART"
+					"$MUOS_MKE2FS" -q -F -t "$MKFS_TYPE" $MKFS_FOLD -L "$MKFS_LABEL" "$MKFS_PART"
 				fi
 
 				return "$?"

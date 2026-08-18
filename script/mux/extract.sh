@@ -35,7 +35,6 @@ REJECT_UNSAFE_ARCHIVE() {
 VERIFY_UPDATE() {
 	UPDATE_STAGE="$(mktemp -d /tmp/muos-update.XXXXXX)" || return 2
 	chmod 700 "$UPDATE_STAGE" || return 2
-	mkdir -p "$UPDATE_STAGE/payload" || return 2
 
 	unzip -p "$ARCHIVE" manifest.sha256 >"$UPDATE_STAGE/manifest.sha256" 2>/dev/null || return 1
 	[ -s "$UPDATE_STAGE/manifest.sha256" ] || return 1
@@ -50,16 +49,73 @@ VERIFY_UPDATE() {
 		END { if (NR == 0) exit 1 }
 	' "$UPDATE_STAGE/manifest.sha256" || return 1
 
-	unzip -o "$ARCHIVE" -d "$UPDATE_STAGE/payload" >/dev/null || return 2
-	(
-		cd "$UPDATE_STAGE/payload" || exit 1
-		sha256sum -c manifest.sha256 >/dev/null 2>&1
-	) || return 1
-
 	unzip -Z1 "$ARCHIVE" >"$UPDATE_STAGE/archive-entries" || return 2
 	sed '/\/$/d; /^manifest\.sha256$/d' "$UPDATE_STAGE/archive-entries" | sort >"$UPDATE_STAGE/archive-files" || return 2
 	sed -n 's/^[0-9a-fA-F]\{64\} [ *]//p' "$UPDATE_STAGE/manifest.sha256" | sort >"$UPDATE_STAGE/manifest-files"
 	cmp -s "$UPDATE_STAGE/archive-files" "$UPDATE_STAGE/manifest-files" || return 1
+
+	UPDATE_BYTES="$(GET_ARCHIVE_BYTES "$ARCHIVE")"
+	UPDATE_STAGE_NEED="$(REQUIRED_WITH_BUFFER "${UPDATE_BYTES:-0}")"
+	UPDATE_STAGE_HAVE="$(BYTES_FREE /tmp)"
+	# Large payloads must not be expanded into RAM-backed /tmp before installation.
+	UPDATE_STAGE_MAX_BYTES="${UPDATE_STAGE_MAX_BYTES:-268435456}"
+
+	case "$UPDATE_BYTES:$UPDATE_STAGE_NEED:$UPDATE_STAGE_HAVE:$UPDATE_STAGE_MAX_BYTES" in
+		*[!0-9:]*) return 2 ;;
+	esac
+
+	if [ "$UPDATE_BYTES" -le "$UPDATE_STAGE_MAX_BYTES" ] &&
+		[ "$UPDATE_STAGE_HAVE" -ge "$UPDATE_STAGE_NEED" ]; then
+		mkdir -p "$UPDATE_STAGE/payload" || return 2
+		unzip -o "$ARCHIVE" -d "$UPDATE_STAGE/payload" >/dev/null || return 2
+		(
+			cd "$UPDATE_STAGE/payload" || exit 1
+			sha256sum -c manifest.sha256 >/dev/null 2>&1
+		) || return 1
+		UPDATE_INSTALL_MODE=staged
+		return 0
+	fi
+
+	LOG_INFO "$0" 0 "EXTRACT" "$(printf "Using streaming verification for %s bytes (/tmp has %s bytes free)" "$UPDATE_BYTES" "$UPDATE_STAGE_HAVE")"
+	TASK_DETAIL "Streaming verification for large update"
+	UPDATE_HASH_PIPE="$UPDATE_STAGE/hash-input"
+	UPDATE_HASH_RESULT="$UPDATE_STAGE/hash-result"
+	mkfifo "$UPDATE_HASH_PIPE" || return 2
+
+	UPDATE_FILE_COUNT="$(wc -l <"$UPDATE_STAGE/manifest.sha256")"
+	UPDATE_FILE_INDEX=0
+
+	while IFS= read -r MANIFEST_LINE || [ -n "$MANIFEST_LINE" ]; do
+		EXPECTED_HASH="${MANIFEST_LINE%% *}"
+		UPDATE_FILE="${MANIFEST_LINE#"$EXPECTED_HASH"}"
+		UPDATE_FILE="${UPDATE_FILE#??}"
+
+		sha256sum <"$UPDATE_HASH_PIPE" >"$UPDATE_HASH_RESULT" &
+		HASH_PID=$!
+
+		unzip -p "$ARCHIVE" "$UPDATE_FILE" >"$UPDATE_HASH_PIPE" 2>/dev/null
+		UNZIP_RESULT=$?
+		wait "$HASH_PID"
+		HASH_RESULT=$?
+
+		if [ "$UNZIP_RESULT" -ne 0 ] || [ "$HASH_RESULT" -ne 0 ]; then
+			rm -f "$UPDATE_HASH_PIPE" "$UPDATE_HASH_RESULT"
+			return 2
+		fi
+
+		ACTUAL_HASH="$(awk 'NR == 1 { print $1; exit }' "$UPDATE_HASH_RESULT")"
+		EXPECTED_HASH="$(printf '%s' "$EXPECTED_HASH" | tr 'A-F' 'a-f')"
+		if [ "$ACTUAL_HASH" != "$EXPECTED_HASH" ]; then
+			rm -f "$UPDATE_HASH_PIPE" "$UPDATE_HASH_RESULT"
+			return 1
+		fi
+
+		UPDATE_FILE_INDEX=$((UPDATE_FILE_INDEX + 1))
+		TASK_PROGRESS "$UPDATE_FILE_INDEX" "$UPDATE_FILE_COUNT"
+	done <"$UPDATE_STAGE/manifest.sha256"
+
+	rm -f "$UPDATE_HASH_PIPE" "$UPDATE_HASH_RESULT"
+	UPDATE_INSTALL_MODE=direct
 
 	return 0
 }
@@ -69,14 +125,22 @@ STAGE_UPDATE_WITHOUT_MANIFEST() {
 
 	UPDATE_STAGE="$(mktemp -d /tmp/muos-update.XXXXXX)" || return 1
 	chmod 700 "$UPDATE_STAGE" || return 1
-	mkdir -p "$UPDATE_STAGE/payload" || return 1
-	unzip -o "$ARCHIVE" -d "$UPDATE_STAGE/payload" >/dev/null || return 1
 	unzip -Z1 "$ARCHIVE" >"$UPDATE_STAGE/archive-entries" || return 1
 	sed '/\/$/d; /^manifest\.sha256$/d' "$UPDATE_STAGE/archive-entries" | sort >"$UPDATE_STAGE/manifest-files" || return 1
 	[ -s "$UPDATE_STAGE/manifest-files" ] || return 1
+	UPDATE_INSTALL_MODE=direct
 }
 
 INSTALL_UPDATE() {
+	if [ "${UPDATE_INSTALL_MODE:-staged}" = "direct" ]; then
+		if grep -qx 'manifest\.sha256' "$UPDATE_STAGE/archive-entries"; then
+			unzip -o "$ARCHIVE" -x manifest.sha256 -d / >/dev/null
+		else
+			unzip -o "$ARCHIVE" -d / >/dev/null
+		fi
+		return $?
+	fi
+
 	(
 		cd "$UPDATE_STAGE/payload" || exit 1
 		find . -type d ! -path . | while IFS= read -r UPDATE_DIR; do
@@ -234,6 +298,7 @@ case "$ARCHIVE_NAME" in
 			fi
 		fi
 
+		TASK_PROGRESS 0 0
 		TASK_STATUS "Installing Update..."
 		if ! INSTALL_UPDATE; then
 			LOG_ERROR "$0" 0 "EXTRACT" "Validated system update installation failed"

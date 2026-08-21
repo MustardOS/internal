@@ -15,14 +15,13 @@ APP_BINARY_DIRECTORY="$APP_GAME_DIRECTORY/bin"
 LOVE_BINARY="$APP_BINARY_DIRECTORY/love"
 LOG_FILE="$APP_GAME_DIRECTORY/$APP_NAME.log"
 ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
-GPTOKEYB="$ROM_MOUNT/MUOS/emulator/gptokeyb/gptokeyb2.armhf"
 SCREEN_WIDTH="$(GET_VAR device mux/width)"
 SCREEN_HEIGHT="$(GET_VAR device mux/height)"
 SCREEN_RESOLUTION="${SCREEN_WIDTH}x${SCREEN_HEIGHT}"
-CAFFEINE="$(command -v CAFFEINE 2>/dev/null)"
+CAFFEINE="$(command -v CAFFEINE 2>/dev/null || true)"
 
 STOP_MUSIC() {
-    if ! killall -q "playbgm.sh" "mpg123" 2>/dev/null; then :; fi
+    killall -q "playbgm.sh" "mpg123" 2>/dev/null || true
 }
 
 SET_LOVE_ENVIRONMENT() {
@@ -48,14 +47,7 @@ SET_RK3576_WORKAROUND() {
 START_LOVE() {
     [ -n "$CAFFEINE" ] && "$CAFFEINE" on
     SET_VAR "system" "foreground_process" "love"
-    "$GPTOKEYB" "love" &
-    GPTOKEYB_PROCESS="$!"
     "$LOVE_BINARY" . "$SCREEN_RESOLUTION" > "$LOG_FILE" 2>&1
-    if ! kill "$GPTOKEYB_PROCESS" 2>/dev/null; then
-        GPTOKEYB_FALLBACK_PID="$(pidof gptokeyb2.armhf 2>/dev/null)"
-        [ -z "$GPTOKEYB_FALLBACK_PID" ] || kill -9 "$GPTOKEYB_FALLBACK_PID" 2>/dev/null
-    fi
-    if ! wait "$GPTOKEYB_PROCESS" 2>/dev/null; then :; fi
     [ -n "$CAFFEINE" ] && "$CAFFEINE" off
 }
 
@@ -80,7 +72,7 @@ else
 
     STOP_MUSIC
 
-    printf '%s\n' app >"$ACT_GO"
+    echo app >/tmp/act_go
 
     SETUP_SDL_ENVIRONMENT
     SET_LOVE_ENVIRONMENT
@@ -96,14 +88,8 @@ else
     "$PRIMARY_APP_DIRECTORY"/*) : ;;
     *)
         if [ -d "$SOURCE_GLYPH_DIRECTORY" ]; then
-            if ! mkdir -p "$DESTINATION_GLYPH_DIRECTORY" 2>/dev/null; then
-                LOG_ERROR "$0" 0 "2048" "Unable to create the glyph directory"
-                exit 1
-            fi
-            if ! cp -rf "$SOURCE_GLYPH_DIRECTORY"/. "$DESTINATION_GLYPH_DIRECTORY"/ 2>/dev/null; then
-                LOG_ERROR "$0" 0 "2048" "Unable to copy application glyphs"
-                exit 1
-            fi
+            mkdir -p "$DESTINATION_GLYPH_DIRECTORY" 2>/dev/null || true
+            cp -rf "$SOURCE_GLYPH_DIRECTORY"/. "$DESTINATION_GLYPH_DIRECTORY"/ 2>/dev/null || true
         fi
         ;;
     esac

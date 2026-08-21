@@ -574,6 +574,26 @@ BATTERY() {
 	esac
 }
 
+DIRECTLINK() {
+	case "$1" in
+		stop)
+			/opt/muos/script/var/process.sh stop directlink
+			rm -f "$MUOS_RUN_DIR/network/link"
+			;;
+		start)
+			/opt/muos/script/var/process.sh start directlink /opt/muos/frontend/mulink
+			;;
+		restart)
+			DIRECTLINK stop
+			DIRECTLINK start
+			;;
+		*)
+			printf "Usage: DIRECTLINK start | stop | restart\n"
+			return 1
+			;;
+	esac
+}
+
 CAFFEINE() {
 	DRINK="$MUOS_RUN_DIR/caffeine"
 

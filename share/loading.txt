@@ -1,0 +1,310 @@
+Calibrating Load Sequence
+Reversing the Polarity
+Counting Uncountable Things
+Negotiating with Pixels
+Warming the Cold Storage
+Cooling the Hot Storage
+Reorganising the Organisation
+Sorting the Unsorted
+Unscrambling the Scrambler
+Recombobulating Components
+Discombobulating Components
+Aligning Misalignments
+Misaligning Perfection
+Polishing the Rough Edges
+Roughening the Polished Edges
+Optimising Optimisations
+Deoptimising Bottlenecks
+Compressing Empty Space
+Expanding Available Nothing
+Allocating Spare Nonsense
+Freeing Unused Thoughts
+Defragmenting Reality
+Indexing the Index
+Caching the Cache
+Flushing the Flush
+Buffering the Buffers
+Paging the Pages
+Mounting Unmountable Things
+Unpacking Packed Bits
+Enumerating Possibilities
+Randomising Determinism
+Determining Randomness
+Initialising Initialisation
+Finalising Preliminary Work
+Preliminary Finalisation
+Verifying Verification
+Validating Validation
+Confirming Confirmation
+Checking the Checksum's Vibes
+Counting Bytes Individually
+Asking the Kernel Nicely
+Appeasing the Scheduler
+Convincing Threads to Cooperate
+Herding Background Processes
+Untangling Race Conditions
+Racing the Conditions
+Locating Missing Semicolons
+Removing Excess Semicolons
+Adding Emergency Semicolons
+Consulting the Stack
+Blaming the Heap
+Sweeping Up Memory Leaks
+Compressing the Call Stack
+Reheating Cached Data
+Cooling Down the CPU
+Encouraging the GPU
+Feeding the Framebuffer
+Counting Frames Before They Hatch
+Polishing Pixels
+Sharpening Blunt Pixels
+Rounding Square Pixels
+Squaring Round Pixels
+Teaching Pixels Their Places
+Convincing Vertices to Meet
+Triangulating Rectangles
+Rasterising the Imagination
+Rendering the Unrenderable
+Drawing Outside the Buffer
+Calculating Approximately Everything
+Approximating Exact Values
+Dividing by Something Sensible
+Carrying the One
+Borrowing the Zero
+Recounting the Integers
+Negotiating Floating Points
+Moving Decimal Places Somewhere Safe
+Checking for Imaginary Numbers
+Rotating the Coordinate System
+Recentering the Centre
+Finding the Middle Bit
+Looking Behind the Bits
+Dusting the Registers
+Exercising the ALU
+Refilling the Bit Bucket
+Emptying the Bit Bucket
+Sorting Ones from Zeroes
+Turning Zeroes Upside Down
+Packing Loose Bits
+Recounting Available Megabytes
+Measuring the Megahertz
+Synchronising Unsynchronised Clocks
+Waiting for Yesterday
+Predicting Previous Events
+Correcting Future Timestamps
+Rescheduling the Present
+Adjusting Temporal Drift
+Rewinding the Loading Screen
+Fast-Forwarding the Progress Bar
+Loading the Loading Loader
+Preparing to Prepare
+Getting Ready to Begin Starting
+Commencing Pre-Commencement
+Almost Nearly Starting
+Finishing the Beginning
+Beginning the Finish
+Completing Approximately 73%
+Recalculating 100%
+Adding More Progress Bar
+Making the Percentage Look Busy
+Moving the Bar Slightly to the Right
+Holding at 99% for Dramatic Effect
+Estimating an Estimate
+Revising the Estimated Estimate
+Ignoring Previous Estimates
+Consulting an Unreliable Stopwatch
+Taking the Scenic Code Path
+Searching for the Fast Path
+Finding the Slow Path Instead
+Optimising for Maximum Loading
+Reducing Unnecessary Efficiency
+Applying Performance Enhancements
+Removing Performance Enhancements
+Benchmarking Patience
+Testing User Patience
+Increasing Anticipation
+Decreasing Expectations
+Generating Plausible Excuses
+Preparing a Better Excuse
+Hiding the Loading Screen Behind This Message
+Distracting the User
+Pretending Something Important Is Happening
+Performing Essential Nonsense
+Performing Non-Essential Essentials
+Doing Computer Things
+Doing More Computer Things
+Doing the Other Computer Things
+Thinking Very Digitally
+Processing Thoughts
+Processing Processing
+Contemplating the Next Instruction
+Asking a Rubber Duck
+Ignoring the Rubber Duck
+Consulting Ancient Documentation
+Discovering the Documentation Is Outdated
+Writing New Documentation
+Forgetting to Read the New Documentation
+Turning It Off and On Internally
+Checking Whether It Is Plugged In
+Plugging In the Virtual Cable
+Jiggling the Virtual Cable
+Tightening Digital Screws
+Loosening Digital Screws
+Applying Percussive Maintenance
+Locating the Tiny Hammer
+Greasing the Algorithms
+Oiling the Data Pipeline
+Untwisting the Data Pipes
+Pressurising the Data Pipes
+Draining Excess Bandwidth
+Downloading More RAM
+Uploading Spare CPU
+Installing Additional Megahertz
+Reserving Emergency Frames
+Borrowing Frames from Tomorrow
+Returning Overdue Frames
+Feeding the Watchdog
+Walking the Watchdog
+Teaching the Watchdog New Tricks
+Checking the Watchdog's Credentials
+Herding Daemons
+Summoning Helpful Daemons
+Banishing Unhelpful Daemons
+Negotiating with the Bootloader
+Whispering to the Firmware
+Interpreting Device Trees
+Pruning Device Tree Branches
+Growing Additional Device Nodes
+Polling Interrupts
+Harvesting Interrupt Requests
+Untangling GPIOs
+Reversing GPIO Polarity Again
+Asking the Display to Wake Up
+Asking the Display More Firmly
+Negotiating with HDMI
+Searching for the Missing Audio Sink
+Waking the Amplifier Gently
+Silencing Rogue Beeps
+Synthesising Authentic Beeps
+Calibrating Invisible Speakers
+Balancing Left and Other Left
+Adjusting Volume to Eleven
+Reducing Volume from Eleven
+Synchronising Unsynchronised Synchronisation
+Waiting for VSync to Feel Ready
+Chasing Dropped Frames
+Returning Misplaced Frames
+Rendering Next Tuesday
+Preloading Yesterday
+Caching Tomorrow
+Checking the Memory Card
+Pretending the Memory Card Is Fine
+Aligning Save States
+Reconstructing Missing High Scores
+Adding Another Polygon
+Removing Suspicious Polygons
+Counting Sprites
+Herding Sprites
+Training Sprites to Queue
+Asking Sprites to Stop Flickering
+Increasing Parallax
+Decreasing Paralysis
+Quantising the Fun
+Calibrating Enjoyment
+Enabling Maximum Fun
+Loading Optional Fun
+Verifying Runtime Dependencies
+Checking Runtime Dependencies
+Installing Runtime Components
+Rebuilding Runtime Cache
+Checking Thermal Headroom
+Negotiating Clock Speeds
+Waking Sleeping Cores
+Putting Idle Cores to Work
+Counting Available Cores
+Balancing Processor Load
+Rebalancing Processor Load
+Flushing Instruction Cache
+Warming Instruction Cache
+Checking Cache Coherency
+Cohering the Cache
+Aligning Memory Pages
+Rearranging Memory Pages
+Defragmenting Virtual Memory
+Checking Bus Traffic
+Reducing Bus Congestion
+Scheduling Interruptions
+Interrupting the Interrupts
+Polling the Poller
+Queuing the Queue
+Dequeuing the Queue
+Draining the Event Loop
+Refilling the Event Loop
+Spinning the Spinlock
+Unlocking the Unlock
+Locking the Lock
+Checking Mutex Etiquette
+Convincing Processes to Share
+Allocating Temporary Permanence
+Freeing Permanent Temporaries
+Rebuilding What Was Just Built
+Checking What Was Just Checked
+Loading Unnecessary Prerequisites
+Preparing Necessary Unnecessaries
+Negotiating with Legacy Hardware
+Detecting Detectable Devices
+Probing the Probe
+Enumerating Hardware
+Re-enumerating Hardware
+Calibrating Input Devices
+Debouncing the Debouncer
+Checking Button Alignment
+Recentering Analogue Centres
+Normalising Abnormal Inputs
+Sampling the Samples
+Resampling the Samples
+Checking Controller Vibes
+Priming the Audio Buffer
+Draining the Audio Buffer
+Synchronising Audio and Slightly More Audio
+Checking Display Timings
+Timing the Display Timings
+Negotiating Refresh Rates
+Counting Vertical Blanks
+Waiting for the Next Blank
+Checking Frame Pacing
+Pacing the Frame Pacer
+Smoothing Out the Smoothness
+Reducing Excess Smoothness
+Compiling Complications
+Linking Loose Ends
+Resolving Unresolved Symbols
+Searching for Missing Libraries
+Loading Shared Things
+Sharing Loaded Things
+Checking ABI Compatibility
+Negotiating API Differences
+Parsing the Parser
+Tokenising the Tokens
+Serialising the Serialiser
+Deserialising the Deserialiser
+Hashing the Hash
+Rehashing the Hash
+Checking Entropy Levels
+Generating Deterministic Randomness
+Reading Between the Bytes
+Writing Between the Lines
+Checking Endianness
+Flipping the Endianness Just in Case
+Aligning the Alignment
+Padding the Padding
+Removing Excess Padding
+Checking Magic Numbers
+Generating Less Magical Numbers
+Inspecting Header Headers
+Loading Footer Metadata
+Searching for the Beginning
+Confirming the End
+Checking Whether We're Done
+Checking Again Whether We're Done
+Almost Definitely Nearly Done

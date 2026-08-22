@@ -930,11 +930,16 @@ LOAD_PROFILE_BY_NAME() {
 }
 
 SCAN_SETTLE() {
+	SCAN_RESULT=
+
 	[ "$IFCE" = "eth0" ] && return 0
 
 	I=0
 	while [ "$I" -lt "${SCAN_SETTLE_TRIES:-8}" ]; do
-		iw dev "$IFCE" scan >/dev/null 2>&1 && return 0
+		if SCAN_RAW=$(iw dev "$IFCE" scan 2>/dev/null); then
+			SCAN_RESULT=$(printf '%s\n' "$SCAN_RAW" | sed -n 's/^[[:space:]]*SSID: //p')
+			return 0
+		fi
 		I=$((I + 1))
 		sleep 1
 	done
@@ -949,7 +954,12 @@ SELECT_BEST_PROFILE() {
 	PROFILE_DIR="${MUOS_STORE_DIR}/network"
 	[ -d "$PROFILE_DIR" ] || return 1
 
-	SCAN_OUT=$(iw dev "$IFCE" scan 2>/dev/null | sed -n 's/^[[:space:]]*SSID: //p')
+	if [ -n "${SCAN_RESULT:-}" ]; then
+		SCAN_OUT=$SCAN_RESULT
+	else
+		SCAN_OUT=$(iw dev "$IFCE" scan 2>/dev/null | sed -n 's/^[[:space:]]*SSID: //p')
+	fi
+
 	[ -n "$SCAN_OUT" ] || return 1
 
 	BEST_NAME=""

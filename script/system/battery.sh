@@ -166,9 +166,9 @@ DO_INIT() {
 
 	WAIT_COUNT=0
 	until [ -f "$BATT_CAP" ] && [ -f "$BATT_CHG" ]; do
-		sleep 1
+		sleep 0.1
 		WAIT_COUNT=$((WAIT_COUNT + 1))
-		if [ "$WAIT_COUNT" -ge 30 ]; then
+		if [ "$WAIT_COUNT" -ge 300 ]; then
 			LOG_WARN "$0" 0 "BATTERY_USAGE" "Battery files not ready after 30s - continuing anyway"
 			break
 		fi

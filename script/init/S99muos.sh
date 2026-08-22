@@ -80,6 +80,9 @@ DO_START() {
 	LOG_INFO "$0" 0 "BOOTING" "Starting muX Frontend"
 	FRONTEND start
 
+	LOG_INFO "$0" 0 "BOOTING" "Starting deferred init scripts"
+	RUN_INIT_DEFERRED "/opt/muos/script/init/async"
+
 	LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"
 	/opt/muos/script/system/lowpower.sh &
 

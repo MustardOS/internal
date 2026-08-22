@@ -33,8 +33,8 @@ WRITE_ACTIVE_WPA_CONFIG() {
 
 			wpa_passphrase "$SSID" "$PASS" >"$WPA_PASS_TMP" || return 1
 
-			# Extract the derived hex PSK and persist it (replacing the plain password)
-			sed -n '/^[[:space:]]*psk=/s/^[[:space:]]*psk=//p' "$WPA_PASS_TMP" >"/opt/muos/config/network/pass"
+			SET_VAR "config" "network/pass" \
+				"$(sed -n '/^[[:space:]]*psk=/s/^[[:space:]]*psk=//p' "$WPA_PASS_TMP")"
 
 			awk '/^network=/ { print; print "\tpriority=10"; next }
 			     /ssid=/     { print; print "\tscan_ssid=1"; next }

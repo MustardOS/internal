@@ -2,6 +2,10 @@
 
 [ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
 
+case "${1:-start}" in
+	start | restart) IN_SAFE_MODE && exit 0 ;;
+esac
+
 PID_FILE="$MUOS_RUN_DIR/sunrise.pid"
 
 IS_RUNNING() {

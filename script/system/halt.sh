@@ -194,6 +194,9 @@ RUN_WITH_TIMEOUT 5 2 hwclock --systohc --utc
 LOG_INFO "$0" 0 "HALT" "Resetting used_reset variable"
 SET_VAR "system" "used_reset" 0
 
+LOG_INFO "$0" 0 "HALT" "Flushing config cache"
+[ -x "$MUOS_VAR_BIN" ] && { "$MUOS_VAR_BIN" flush || LOG_WARN "$0" 0 "HALT" "Config cache flush reported failed writes"; }
+
 # Run S??* stop scripts directly in reverse order
 LOG_INFO "$0" 0 "HALT" "Stopping system services"
 STOP_SERVICES
@@ -216,21 +219,47 @@ case "$RUMBLE_SETTING" in
 		;;
 esac
 
-# Sync filesystems before handing off. If init subsequent `umount -a -r`
-# (from inittab) hangs, or the user hard resets, syncing here reduces the
-# likelihood of corrupting any configs, RetroArch autosaves, etc...
+# Sync filesystems before handing off. If the user hard resets, or anything
+# below cannot finish, syncing here reduces the likelihood of corrupting any
+# configs, RetroArch autosaves, etc...
 LOG_INFO "$0" 0 "HALT" "Syncing writes to disk"
 sync
 
 # NOTE: We deliberately do NOT call `umount -ar` here!
 #
-# Long story short, the `/etc/inittab` declares `::shutdown:/bin/umount -a -r` which
-# BusyBox init runs automatically after our handoff to poweroff/reboot. More importantly,
-# calling umount -ar from this script can hang in D-state (uninterruptible sleep) if
+# Calling umount -ar from this script can hang in D-state (uninterruptible sleep) if
 # any FUSE mount's userspace daemon was killed by the TERM/KILL sweep above the kernel
 # waits forever for replies that won't come, and RUN_WITH_TIMEOUT cannot rescue a
 # process stuck in D-state because signals are queued but not delivered until the
 # it returns from kernel space. https://www.youtube.com/watch?v=rksCTVFtjM4
+#
+# The `/etc/inittab` does declare `::shutdown:/bin/umount -a -r`, but that never
+# runs: BusyBox poweroff and reboot with -f bypass init and call the reboot
+# syscall straight out, so nothing marks the filesystems clean.  Left like that
+# every following boot replays the ext4 journal before it can even start, which
+# is both slow and a standing risk to whatever was still in flight.
+#
+# So the block backed filesystems are remounted read only here instead.  FUSE is
+# skipped for the D-state reason above, and a filesystem that refuses because
+# something still holds a write handle simply stays as it was, which is no
+# worse than not trying I suppose!
+REMOUNT_READ_ONLY() {
+	MOUNT_LIST=$(awk '$3 ~ /^(ext2|ext3|ext4|vfat|msdos)$/ && $4 !~ /^ro(,|$)/ { print $2 }' /proc/mounts)
+	[ -n "$MOUNT_LIST" ] || return 0
+
+	# Root goes last, since anything mounted beneath it wants doing first.
+	for MOUNT_POINT in $(printf '%s\n' "$MOUNT_LIST" | grep -v '^/$') $(printf '%s\n' "$MOUNT_LIST" | grep '^/$'); do
+		if RUN_WITH_TIMEOUT 3 1 mount -o remount,ro "$MOUNT_POINT"; then
+			LOG_INFO "$0" 0 "HALT" "$(printf "Remounted %s read only" "$MOUNT_POINT")"
+		else
+			LOG_WARN "$0" 0 "HALT" "$(printf "Could not remount %s read only, still in use" "$MOUNT_POINT")"
+		fi
+	done
+}
+
+LOG_INFO "$0" 0 "HALT" "Remounting filesystems read only"
+REMOUNT_READ_ONLY
+sync
 
 LOG_INFO "$0" 0 "HALT" "$(printf "Handing off to %s -f" "$ACTION")"
 "$ACTION" -f

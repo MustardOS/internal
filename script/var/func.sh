@@ -22,6 +22,7 @@ DEVICE_CONTROL_DIR="/opt/muos/device/control"
 MUOS_LOG_DIR="/opt/muos/log"
 MUOS_LOG_BIN="/opt/muos/frontend/mulog"
 MUOS_RGB_BIN="/opt/muos/frontend/murgb"
+MUOS_VAR_BIN="/opt/muos/frontend/muvarctl"
 MUOS_RUN_DIR="/run/muos"
 MUOS_SHARE_DIR="/opt/muos/share"
 MUOS_STORE_DIR="$MUOS_RUN_DIR/storage"
@@ -31,7 +32,7 @@ IDLE_STATE="$MUOS_RUN_DIR/idle_state"
 
 export HOME XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
 	ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR MUOS_LOG_BIN \
-	MUOS_RGB_BIN MUOS_RUN_DIR MUOS_SHARE_DIR MUOS_STORE_DIR OVERLAY_NOP \
+	MUOS_RGB_BIN MUOS_VAR_BIN MUOS_RUN_DIR MUOS_SHARE_DIR MUOS_STORE_DIR OVERLAY_NOP \
 	IS_IDLE IDLE_STATE
 
 MUOS_CONF_GLOBAL="/opt/muos/config"
@@ -44,6 +45,7 @@ export MUOS_CONF_GLOBAL MUOS_CONF_DEVICE MUOS_CONF_KIOSK MUOS_CONF_SYSTEM
 MESSAGE_EXEC="/opt/muos/frontend/muxmessage"
 MESSAGE_TEXT="/tmp/msg_livetext"
 MESSAGE_PROG="/tmp/msg_progress"
+MESSAGE_FINISH="/tmp/msg_finish"
 
 [ -d "$MUOS_LOG_DIR" ] || mkdir -p "$MUOS_LOG_DIR"
 SAFE_QUIT="$MUOS_RUN_DIR/safe_quit"
@@ -91,6 +93,25 @@ VALID_VAR_PATH() {
 }
 
 SET_VAR() {
+	case "$1" in
+		GLOBAL | global | CONFIG | config) NS=global ;;
+		DEVICE | device) NS=device ;;
+		KIOSK | kiosk) NS=kiosk ;;
+		SYSTEM | system) NS=system ;;
+		*) return 1 ;;
+	esac
+
+	VALID_VAR_PATH "$2" || return 1
+
+	[ -x "$MUOS_VAR_BIN" ] && {
+		"$MUOS_VAR_BIN" set "$NS" "$2" "$3"
+		return $?
+	}
+
+	SET_VAR_DIRECT "$1" "$2" "$3"
+}
+
+SET_VAR_DIRECT() {
 	BASE=
 	case "$1" in
 		GLOBAL | global | CONFIG | config) BASE=$MUOS_CONF_GLOBAL ;;
@@ -101,7 +122,10 @@ SET_VAR() {
 
 	[ -n "$BASE" ] || return 1
 	VALID_VAR_PATH "$2" || return 1
-	[ -d "$BASE/$(dirname "$2")" ] || return 1
+
+	VAR_DIR=${2%/*}
+	[ "$VAR_DIR" = "$2" ] && VAR_DIR=.
+	[ -d "$BASE/$VAR_DIR" ] || return 1
 
 	TMP="${BASE}/${2}.tmp.$$"
 	if ! { printf "%s" "$3" >"$TMP" && mv -f "$TMP" "$BASE/$2"; }; then
@@ -144,8 +168,17 @@ DEL_VAR() {
 
 	[ -n "$BASE" ] || return 1
 
-	DIR=$(dirname "$2")
-	PATTERN=$(basename "$2")
+	case "$2" in
+		*/*)
+			DIR=${2%/*}
+			PATTERN=${2##*/}
+			;;
+		*)
+			DIR=.
+			PATTERN=$2
+			;;
+	esac
+
 	VALID_VAR_PATH "$DIR" || return 1
 	case "$PATTERN" in
 		\**) ;;
@@ -171,20 +204,42 @@ DEL_VAR() {
 
 			for FILE in "$FULL_DIR"/*; do
 				[ -f "$FILE" ] || continue
-				FNAME=$(basename "$FILE")
+				FNAME=${FILE##*/}
 
 				SKIP=0
 				for EXCL in $EXCLUDES; do
 					[ "$FNAME" = "$EXCL" ] && SKIP=1 && break
 				done
 
-				[ "$SKIP" -eq 0 ] && rm -f "$FILE"
+				[ "$SKIP" -eq 0 ] && {
+					rm -f "$FILE"
+					if [ "$DIR" = "." ]; then
+						DROP_VAR "$1" "$FNAME"
+					else
+						DROP_VAR "$1" "$DIR/$FNAME"
+					fi
+				}
 			done
 			;;
 		*)
 			rm -f "$FULL_DIR/$PATTERN"
+			DROP_VAR "$1" "$2"
 			;;
 	esac
+}
+
+DROP_VAR() {
+	[ -x "$MUOS_VAR_BIN" ] || return 0
+
+	case "$1" in
+		GLOBAL | global | CONFIG | config) NS=global ;;
+		DEVICE | device) NS=device ;;
+		KIOSK | kiosk) NS=kiosk ;;
+		SYSTEM | system) NS=system ;;
+		*) return 0 ;;
+	esac
+
+	"$MUOS_VAR_BIN" del "$NS" "$2" 2>/dev/null || return 0
 }
 
 SETUP_STAGE_OVERLAY() {
@@ -213,6 +268,27 @@ SETUP_STAGE_OVERLAY() {
 MIXER_INIT=
 MIXER_CONTROL=
 MIXER_DVOL=
+
+ENSURE_AUDIO_OUTPUT() {
+	AUDIO_CARD="${1:-0}"
+
+	case "$(GET_VAR "device" "board/name")" in
+		rg*) ;;
+		*) return 0 ;;
+	esac
+
+	for AUDIO_SWITCH in LINEOUT SPK; do
+		AUDIO_STATE=$(amixer -c "$AUDIO_CARD" sget "$AUDIO_SWITCH" 2>/dev/null) || continue
+		[ -n "$AUDIO_STATE" ] || continue
+
+		case "$AUDIO_STATE" in
+			*"[off]"*)
+				LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "Audio output '%s' was off, switching it back on" "$AUDIO_SWITCH")"
+				amixer -q -c "$AUDIO_CARD" sset "$AUDIO_SWITCH" on 2>/dev/null
+				;;
+		esac
+	done
+}
 
 RESET_MIXER() {
 	if [ -z "$MIXER_INIT" ]; then
@@ -677,6 +753,148 @@ MESSAGE() {
 			return 1
 			;;
 	esac
+}
+
+BOOT_PROGRESS_TARGET="$MUOS_RUN_DIR/boot/progress_target"
+BOOT_PROGRESS_TEXT="Starting up"
+BOOT_PROGRESS_QUIPS="$MUOS_SHARE_DIR/loading.txt"
+BOOT_PROGRESS_DONE="$MUOS_RUN_DIR/boot/progress_done"
+LOADING_PAINT_FLAG="$MUOS_RUN_DIR/loading_paint"
+
+BOOT_PROGRESS_QUIP() {
+	[ -r "$BOOT_PROGRESS_QUIPS" ] || return 1
+
+	awk 'BEGIN { srand() } { line[NR] = $0 } END { if (NR > 0) print line[int(rand() * NR) + 1] }' \
+		"$BOOT_PROGRESS_QUIPS" 2>/dev/null
+}
+
+BOOT_PROGRESS() {
+	mkdir -p "${BOOT_PROGRESS_TARGET%/*}" 2>/dev/null
+	printf '%s\n' "$1" >"$BOOT_PROGRESS_TARGET" 2>/dev/null
+}
+
+BOOT_PROGRESS_SMOOTH() {
+	(
+		PROG_CUR=0
+		PROG_SHOWN=-1
+		PROG_TICK=0
+		PROG_QUIP=$BOOT_PROGRESS_TEXT
+		PROG_LAST_QUIP=
+
+		while [ ! -e "$MESSAGE_FINISH" ] && [ ! -e "$BOOT_PROGRESS_DONE" ]; do
+			[ -f "$MESSAGE_TEXT" ] || break
+
+			PROG_TGT=0
+			[ -r "$BOOT_PROGRESS_TARGET" ] && read -r PROG_TGT <"$BOOT_PROGRESS_TARGET" 2>/dev/null
+			case "$PROG_TGT" in
+				'' | *[!0-9]*) PROG_TGT=0 ;;
+			esac
+
+			if [ $((PROG_TICK % 20)) -eq 0 ]; then
+				PROG_QUIP=$(BOOT_PROGRESS_QUIP)
+				[ -n "$PROG_QUIP" ] || PROG_QUIP=$BOOT_PROGRESS_TEXT
+			fi
+			PROG_TICK=$((PROG_TICK + 1))
+
+			if [ ! -e "$LOADING_PAINT_FLAG" ]; then
+				PROG_CUR=0
+			elif [ "$PROG_CUR" -lt "$PROG_TGT" ]; then
+				PROG_STEP=$(((PROG_TGT - PROG_CUR) / 2))
+				[ "$PROG_STEP" -lt 2 ] && PROG_STEP=2
+				PROG_CUR=$((PROG_CUR + PROG_STEP))
+			else
+				PROG_CEIL=$((PROG_TGT + 14))
+				[ "$PROG_CEIL" -gt 97 ] && PROG_CEIL=97
+
+				if [ "$PROG_CUR" -lt "$PROG_CEIL" ]; then
+					PROG_STEP=$(((PROG_CEIL - PROG_CUR) / 5))
+					[ "$PROG_STEP" -lt 1 ] && PROG_STEP=1
+					PROG_CUR=$((PROG_CUR + PROG_STEP))
+				fi
+			fi
+
+			if [ "$PROG_CUR" -ne "$PROG_SHOWN" ] || [ "$PROG_QUIP" != "$PROG_LAST_QUIP" ]; then
+				PROG_SHOWN=$PROG_CUR
+				PROG_LAST_QUIP=$PROG_QUIP
+
+				printf '%s\n' "$PROG_CUR" >"$MESSAGE_PROG" 2>/dev/null
+				printf '%s\\n\\n%s%%\n' "$PROG_QUIP" "$PROG_CUR" >"$MESSAGE_TEXT" 2>/dev/null
+			fi
+
+			sleep 0.15
+		done
+	) &
+}
+
+BOOT_PROGRESS_START() {
+	[ -x "$MESSAGE_EXEC" ] || return 0
+
+	[ "$(GET_VAR "config" "boot/factory_reset")" = "1" ] && return 0
+	[ "$(GET_VAR "config" "boot/first_init")" = "0" ] && return 0
+
+	(
+		PROG_WAIT=0
+		while [ "$PROG_WAIT" -lt 100 ]; do
+			[ -e /dev/mali0 ] && break
+			sleep 0.1
+			PROG_WAIT=$((PROG_WAIT + 1))
+		done
+
+		[ -e /dev/mali0 ] || exit 0
+
+		rm -f "$MESSAGE_FINISH" "$BOOT_PROGRESS_DONE" 2>/dev/null
+		printf '0\n' >"$MESSAGE_PROG" 2>/dev/null
+
+		MESSAGE start
+		BOOT_PROGRESS_SMOOTH
+	) &
+}
+
+BOOT_PROGRESS_STOP() {
+	pidof muxmessage >/dev/null 2>&1 || return 0
+	: >"$BOOT_PROGRESS_DONE" 2>/dev/null
+
+	PROG_QUIP=$(BOOT_PROGRESS_QUIP)
+	[ -n "$PROG_QUIP" ] || PROG_QUIP="Nearly There"
+
+	PROG_NOW=0
+	[ -r "$MESSAGE_PROG" ] && read -r PROG_NOW <"$MESSAGE_PROG" 2>/dev/null
+	case "$PROG_NOW" in
+		'' | *[!0-9]*) PROG_NOW=0 ;;
+	esac
+
+	while [ "$PROG_NOW" -lt 100 ]; do
+		PROG_STEP=$(((100 - PROG_NOW) / 2))
+		[ "$PROG_STEP" -lt 6 ] && PROG_STEP=6
+		PROG_NOW=$((PROG_NOW + PROG_STEP))
+		[ "$PROG_NOW" -gt 100 ] && PROG_NOW=100
+
+		printf '%s\n' "$PROG_NOW" >"$MESSAGE_PROG" 2>/dev/null
+		printf '%s\\n\\n%s%%\n' "$PROG_QUIP" "$PROG_NOW" >"$MESSAGE_TEXT" 2>/dev/null
+		sleep 0.06
+	done
+
+	sleep 0.12
+
+	: >"$MESSAGE_FINISH" 2>/dev/null
+
+	PROG_WAIT=0
+	while [ "$PROG_WAIT" -lt 40 ]; do
+		pidof muxmessage >/dev/null 2>&1 || break
+		sleep 0.05
+		PROG_WAIT=$((PROG_WAIT + 1))
+	done
+
+	if pidof muxmessage >/dev/null 2>&1; then
+		LOG_WARN "$0" 0 "BOOTING" "Progress screen did not exit on its own, terminating"
+		for PROG_PID in $(pidof muxmessage 2>/dev/null); do
+			kill -TERM "$PROG_PID" 2>/dev/null
+		done
+		sleep 0.2
+	fi
+
+	rm -f "$MESSAGE_TEXT" "$MESSAGE_PROG" "$MESSAGE_FINISH" \
+		"$BOOT_PROGRESS_TARGET" "$BOOT_PROGRESS_DONE" 2>/dev/null
 }
 
 SHOW_MESSAGE() {
@@ -1785,6 +2003,138 @@ SAFE_WRITE() {
 	printf '%s\n' "$1" >"$2"
 }
 
+BOOT_STATE_DIR="$MUOS_CONF_SYSTEM/boot"
+BOOT_ATTEMPT_KEY="boot/attempt_count"
+SAFE_MODE_FLAG="$MUOS_RUN_DIR/safe_mode"
+BOOT_CONFIRMED_FLAG="$MUOS_RUN_DIR/boot_confirmed"
+SAFE_MODE_THRESHOLD=3
+BOOT_CONFIRM_GRACE=8
+FRONTEND_BIN="/opt/muos/frontend/muxfrontend"
+
+export SAFE_MODE_FLAG BOOT_CONFIRMED_FLAG FRONTEND_BIN
+
+IN_SAFE_MODE() {
+	[ -e "$SAFE_MODE_FLAG" ]
+}
+
+BOOT_GUARD_ARM() {
+	mkdir -p "$BOOT_STATE_DIR" "$MUOS_RUN_DIR" 2>/dev/null
+
+	BOOT_COUNT=
+	[ -r "$BOOT_STATE_DIR/attempt_count" ] && {
+		IFS= read -r BOOT_COUNT <"$BOOT_STATE_DIR/attempt_count" 2>/dev/null
+	}
+
+	case "$BOOT_COUNT" in
+		'' | *[!0-9]*) BOOT_COUNT=0 ;;
+	esac
+
+	BOOT_COUNT=$((BOOT_COUNT + 1))
+
+	SET_VAR_DIRECT "system" "$BOOT_ATTEMPT_KEY" "$BOOT_COUNT" || return 0
+
+	sync
+
+	if [ "$BOOT_COUNT" -ge "$SAFE_MODE_THRESHOLD" ]; then
+		: >"$SAFE_MODE_FLAG" 2>/dev/null
+
+		SET_VAR_DIRECT "system" "$BOOT_ATTEMPT_KEY" "0"
+		sync
+
+		LOG_WARN "$0" 0 "BOOTING" "$(printf "Boot attempt %s with no confirmed frontend, this boot is safe mode" "$BOOT_COUNT")"
+	else
+		rm -f "$SAFE_MODE_FLAG" 2>/dev/null
+	fi
+}
+
+BOOT_GUARD_CONFIRM() {
+	SET_VAR_DIRECT "system" "$BOOT_ATTEMPT_KEY" "0"
+	rm -f "$SAFE_MODE_FLAG" 2>/dev/null
+	: >"$BOOT_CONFIRMED_FLAG" 2>/dev/null
+	LOG_INFO "$0" 0 "BOOTING" "Frontend confirmed good, boot counter cleared"
+}
+
+BOOT_CONFIRMED() {
+	[ -e "$BOOT_CONFIRMED_FLAG" ]
+}
+
+BOOT_GUARD_CONFIRM_LATER() {
+	(
+		WATCH_PID=
+		ELAPSED=0
+
+		while [ "$ELAPSED" -lt "$BOOT_CONFIRM_GRACE" ]; do
+			sleep 1
+			ELAPSED=$((ELAPSED + 1))
+
+			NOW_PID=$(pgrep -f "$FRONTEND_BIN" 2>/dev/null | head -n 1)
+			[ -n "$NOW_PID" ] || return 0
+
+			if [ -z "$WATCH_PID" ]; then
+				WATCH_PID="$NOW_PID"
+			elif [ "$NOW_PID" != "$WATCH_PID" ]; then
+				LOG_WARN "$0" 0 "BOOTING" "Frontend restarted inside grace window, not confirming this boot"
+				return 0
+			fi
+		done
+
+		BOOT_GUARD_CONFIRM
+	) &
+}
+
+WATCHDOG_START() {
+	WATCHDOG_DEV="/dev/watchdog"
+	WATCHDOG_TIMEOUT=60
+
+	[ -e "$WATCHDOG_DEV" ] || return 0
+	pgrep -f "watchdog.*$WATCHDOG_DEV" >/dev/null 2>&1 && return 0
+
+	if command -v watchdog >/dev/null 2>&1; then
+		watchdog -T "$WATCHDOG_TIMEOUT" -t "$((WATCHDOG_TIMEOUT / 3))" "$WATCHDOG_DEV" 2>/dev/null
+		return 0
+	fi
+
+	if command -v busybox >/dev/null 2>&1; then
+		busybox watchdog -T "$WATCHDOG_TIMEOUT" -t "$((WATCHDOG_TIMEOUT / 3))" "$WATCHDOG_DEV" 2>/dev/null
+		return 0
+	fi
+
+	(
+		exec 9>"$WATCHDOG_DEV" 2>/dev/null || exit 0
+		while :; do
+			printf "\0" >&9 2>/dev/null || break
+			sleep "$((WATCHDOG_TIMEOUT / 3))"
+		done
+	) &
+}
+
+MUOS_INIT_DEFERRED=""
+export MUOS_INIT_DEFERRED
+
+RUN_INIT_DEFERRED() {
+	INIT_DEFER_DIR="${1:-/opt/muos/script/init/async}"
+
+	[ -d "$INIT_DEFER_DIR" ] || return 0
+
+	(
+		INIT_DEFER_WAIT=0
+		while [ "$INIT_DEFER_WAIT" -lt 150 ]; do
+			pgrep -f "$FRONTEND_BIN" >/dev/null 2>&1 && break
+			sleep 0.1
+			INIT_DEFER_WAIT=$((INIT_DEFER_WAIT + 1))
+		done
+
+		sleep "${MUOS_INIT_DEFER_SETTLE:-3}"
+
+		for INIT_DEFER in $MUOS_INIT_DEFERRED; do
+			[ -f "$INIT_DEFER_DIR/$INIT_DEFER" ] || continue
+			(RUN_INIT_RECORDED start "$INIT_DEFER_DIR/$INIT_DEFER") >/dev/null 2>&1 &
+		done
+
+		wait
+	) &
+}
+
 RUN_INIT_SCRIPT() {
 	INIT_MODE=$1
 	INIT_SCRIPT=$2
@@ -1835,9 +2185,21 @@ RUN_INIT_DIR() {
 	fi
 
 	INIT_DIR_RESULT=0
+	INIT_TOTAL=0
+
+	for INIT_SCRIPT in $INIT_SCRIPTS; do
+		[ -e "$INIT_SCRIPT" ] && INIT_TOTAL=$((INIT_TOTAL + 1))
+	done
+
+	INIT_DONE=0
 	for INIT_SCRIPT in $INIT_SCRIPTS; do
 		[ -e "$INIT_SCRIPT" ] || continue
+
 		RUN_INIT_RECORDED "$INIT_MODE" "$INIT_SCRIPT" || INIT_DIR_RESULT=1
+		INIT_DONE=$((INIT_DONE + 1))
+
+		[ "$INIT_MODE" = "start" ] && [ "$INIT_TOTAL" -gt 0 ] &&
+			BOOT_PROGRESS "$((INIT_DONE * 90 / INIT_TOTAL))"
 	done
 	return "$INIT_DIR_RESULT"
 }
@@ -1868,7 +2230,12 @@ RUN_INIT_DIR_BOUNDED() {
 	for INIT_SCRIPT in $INIT_SCRIPTS; do
 		[ -e "$INIT_SCRIPT" ] || continue
 		INIT_NAME=${INIT_SCRIPT##*/}
-		[ "$INIT_NAME" = "$INIT_SKIP" ] && continue
+
+		INIT_SKIPPED=0
+		for INIT_EXCLUDE in $INIT_SKIP; do
+			[ "$INIT_NAME" = "$INIT_EXCLUDE" ] && INIT_SKIPPED=1 && break
+		done
+		[ "$INIT_SKIPPED" -eq 1 ] && continue
 		(RUN_INIT_RECORDED "$INIT_MODE" "$INIT_SCRIPT") >/dev/null 2>&1 &
 		INIT_PIDS="$INIT_PIDS $!"
 		INIT_COUNT=$((INIT_COUNT + 1))
@@ -1877,6 +2244,7 @@ RUN_INIT_DIR_BOUNDED() {
 			set -- $INIT_PIDS
 			wait "$1" || INIT_DIR_RESULT=1
 			shift
+
 			INIT_PIDS="$*"
 			INIT_COUNT=$((INIT_COUNT - 1))
 		fi

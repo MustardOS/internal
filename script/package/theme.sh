@@ -113,7 +113,7 @@ RANDOM() {
 
 	TASK_DETAIL "$relative"
 
-	printf '%s\n' "$relative" >"$MUOS_CONF_GLOBAL/theme/active"
+	SET_VAR "config" "theme/active" "$relative"
 	UPDATE_BOOTLOGO
 	DONE_MESSAGE="Theme installed"
 	ALL_DONE 0

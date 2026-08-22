@@ -75,7 +75,7 @@ DISPLAY_BLANK() {
 # Clears the last-played content so we won't relaunch it on the next boot.
 CLEAR_LAST_PLAY() {
 	LOG_INFO "$0" 0 "QUIT" "Clearing last played content"
-	: >/opt/muos/config/boot/last_play
+	SET_VAR "config" "boot/last_play" ""
 }
 
 # Cleanly halts, shuts down, or reboots the device.

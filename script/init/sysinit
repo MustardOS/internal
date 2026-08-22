@@ -7,13 +7,20 @@ INIT_DIR="/opt/muos/script/init"
 
 RUN_ASYNC_START() {
 	RUN_INIT_RECORDED start "$INIT_DIR/async/S06mount.sh"
-	RUN_INIT_DIR_BOUNDED start "$INIT_DIR/async" forward "S06mount.sh"
+	RUN_INIT_DIR_BOUNDED start "$INIT_DIR/async" forward "S06mount.sh $MUOS_INIT_DEFERRED"
 }
 
 case "${1:-start}" in
 	start | "")
+		BOOT_GUARD_ARM
+
+		timeout 10 "$MUOS_VAR_BIN" build ||
+			LOG_WARN "$0" 0 "BOOTING" "Config cache build failed or timed out, continuing without it"
+
 		FBCON_DISABLE
 		(RUN_ASYNC_START) >/dev/null 2>&1 &
+
+		BOOT_PROGRESS_START
 		RUN_INIT_DIR start "$INIT_DIR" forward
 		;;
 esac

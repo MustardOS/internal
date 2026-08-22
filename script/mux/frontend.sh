@@ -44,11 +44,14 @@ fi
 
 LED_CONTROL_CHANGE restore &
 
-if [ "$SKIP" = "0" ]; then
+if [ "$SKIP" = "0" ] && ! IN_SAFE_MODE; then
 	LOG_INFO "$0" 0 "FRONTEND" "Checking for last/resume startup"
 	case "$STARTUP" in
 		last | resume) /opt/muos/script/mux/resume.sh ;;
 	esac
+elif IN_SAFE_MODE; then
+	LOG_WARN "$0" 0 "FRONTEND" "Safe mode, skipping last/resume startup"
+	SAFE_WRITE "launcher" "$ACT_GO"
 fi
 
 if [ "$(GET_DEBUG)" -gt 0 ]; then
@@ -58,9 +61,23 @@ if [ "$(GET_DEBUG)" -gt 0 ]; then
 fi
 
 LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Launcher"
+
+BOOT_PROGRESS 100
+BOOT_PROGRESS_STOP
+
 SHOW_SPLASH clear
 
+BOOT_GUARD_CONFIRM_LATER
+WATCHDOG_START
+
+CRASH_LOOP_LIMIT=5
+CRASH_LOOP_FAST=10
+CRASH_LOOP_COUNT=0
+
 while :; do
+	read -r LOOP_STARTED _ </proc/uptime || LOOP_STARTED=0
+	LOOP_STARTED=${LOOP_STARTED%.*}
+
 	# Unset SDL controller env vars exported by SETUP_APP so muX modules start fresh
 	unset SDL_GAMECONTROLLERCONFIG_FILE SDL_GAMECONTROLLERCONFIG
 
@@ -153,4 +170,25 @@ while :; do
 			EXEC_MUX "$ACTION" "muxfrontend"
 			;;
 	esac
+
+	read -r LOOP_ENDED _ </proc/uptime || LOOP_ENDED=0
+	LOOP_ENDED=${LOOP_ENDED%.*}
+
+	if BOOT_CONFIRMED; then
+		CRASH_LOOP_COUNT=0
+		continue
+	fi
+
+	LOOP_ELAPSED=$((LOOP_ENDED - LOOP_STARTED))
+	if [ "$LOOP_ELAPSED" -lt "$CRASH_LOOP_FAST" ]; then
+		CRASH_LOOP_COUNT=$((CRASH_LOOP_COUNT + 1))
+	else
+		CRASH_LOOP_COUNT=0
+	fi
+
+	if [ "$CRASH_LOOP_COUNT" -ge "$CRASH_LOOP_LIMIT" ]; then
+		LOG_ERROR "$0" 0 "FRONTEND" "$(printf "Frontend returned %s times in a row without settling, rebooting to recover" "$CRASH_LOOP_COUNT")"
+		/opt/muos/script/mux/quit.sh reboot frontend
+		exit 1
+	fi
 done

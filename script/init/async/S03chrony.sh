@@ -1,5 +1,9 @@
 #!/bin/sh
 
+case "${1:-start}" in
+	start | restart) IN_SAFE_MODE && exit 0 ;;
+esac
+
 DAEMON="/opt/muos/bin/chronyd"
 CONF="/opt/muos/share/conf/chrony.conf"
 PID_FILE="/run/chronyd.pid"

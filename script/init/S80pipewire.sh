@@ -242,9 +242,33 @@ EOF
 }
 
 INSTALL_WIREPLUMBER_CONF() {
-	# Determine the WirePlumber minor version to select the correct config format.
-	WP_MINOR=$(wireplumber --version 2>/dev/null |
+	WP_MINOR=
+	for WP_LIB in /usr/lib/libwireplumber-*.so /usr/lib/libwireplumber-*.so.*; do
+		[ -e "$WP_LIB" ] || continue
+
+		WP_SOV=${WP_LIB##*/libwireplumber-}
+		WP_SOV=${WP_SOV%%.so*}
+
+		case "$WP_SOV" in
+			*.*)
+				WP_MINOR=${WP_SOV#*.}
+				WP_MINOR=${WP_MINOR%%.*}
+				;;
+			*) WP_MINOR= ;;
+		esac
+
+		case "$WP_MINOR" in
+			'' | *[!0-9]*) WP_MINOR= ;;
+			*) break ;;
+		esac
+	done
+
+	[ -n "$WP_MINOR" ] || WP_MINOR=$(wireplumber --version 2>/dev/null |
 		awk 'match($0, /[0-9]+\.[0-9]+\.[0-9]+/) { s=substr($0, RSTART, RLENGTH); split(s, a, "."); print a[2]; exit }')
+
+	case "$WP_MINOR" in
+		'' | *[!0-9]*) WP_MINOR=0 ;;
+	esac
 
 	if [ "${WP_MINOR:-0}" -ge 5 ]; then
 		# WirePlumber 5+
@@ -407,6 +431,8 @@ DO_START() {
 
 	LOG_INFO "$0" 0 "PIPEWIRE" "Restoring Audio State"
 	alsactl -U -f "$DEVICE_CONTROL_DIR/asound.state" restore >/dev/null 2>&1
+
+	ENSURE_AUDIO_OUTPUT 0
 
 	wpctl set-volume @DEFAULT_AUDIO_SINK@ "$(GET_SAVED_AUDIO_VOLUME)%" >/dev/null 2>&1
 	RESET_MIXER

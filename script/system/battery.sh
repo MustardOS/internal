@@ -12,6 +12,9 @@ WATCHER_PID_FILE="$RUN_DIR/watcher.pid"
 MAX_DELTA=604800
 POLL_INTERVAL=60
 
+TIME_FLOOR=1735689600
+TIME_CEILING=4102444799
+
 mkdir -p "$RUN_DIR" "$CONF_DIR"
 
 WRITE_ATOMIC() {
@@ -41,6 +44,58 @@ READ_FILE() {
 	[ -n "$VAL" ] && printf "%s" "$VAL" || printf "%s" "$DEFAULT"
 }
 
+IS_UINT() {
+	case ${1-} in
+		'' | *[!0-9]*) return 1 ;;
+		*) return 0 ;;
+	esac
+}
+
+CLOCK_IS_SANE() {
+	IS_UINT "$1" || return 1
+	[ "$1" -ge "$TIME_FLOOR" ] && [ "$1" -le "$TIME_CEILING" ]
+}
+
+GET_UPTIME() {
+	if [ -r /proc/uptime ]; then
+		IFS=' ' read -r UPTIME_VALUE _ </proc/uptime
+		UPTIME_VALUE=${UPTIME_VALUE%%.*}
+		IS_UINT "$UPTIME_VALUE" && {
+			printf "%s" "$UPTIME_VALUE"
+			return 0
+		}
+	fi
+
+	printf "0"
+}
+
+GET_BOOT_ID() {
+	if [ -r /proc/sys/kernel/random/boot_id ]; then
+		IFS= read -r BOOT_VALUE </proc/sys/kernel/random/boot_id
+		[ -n "$BOOT_VALUE" ] && {
+			printf "%s" "$BOOT_VALUE"
+			return 0
+		}
+	fi
+
+	printf "unknown"
+}
+
+REPAIR_LAST_CHARGED() {
+	CLOCK_IS_SANE "$1" || return 0
+
+	LAST_CHARGED=$(READ_FILE "$CONF_DIR/last_charged_timestamp" "0")
+	CLOCK_IS_SANE "$LAST_CHARGED" && return 0
+
+	[ "$2" -gt 0 ] || return 0
+
+	REPAIRED=$(($1 - $2))
+	CLOCK_IS_SANE "$REPAIRED" || return 0
+
+	WRITE_ATOMIC "$CONF_DIR/last_charged_timestamp" "$REPAIRED"
+	LOG_INFO "$0" 0 "BATTERY_USAGE" "$(printf "Clock is trustworthy again - last_charged corrected to %d" "$REPAIRED")"
+}
+
 IS_CHARGING() {
 	CHG=$(READ_FILE "$BATT_CHG" "")
 	case "$CHG" in
@@ -61,19 +116,30 @@ READ_CAPACITY() {
 	[ "$CAP" -ge 0 ] && [ "$CAP" -le 100 ] && printf "%s" "$CAP"
 }
 
+MARK_MEASUREMENT() {
+	WRITE_ATOMIC "$CONF_DIR/last_measurement_timestamp" "$1"
+	WRITE_ATOMIC "$CONF_DIR/last_measurement_uptime" "$2"
+	WRITE_ATOMIC "$CONF_DIR/last_measurement_boot" "$3"
+}
+
 DO_UPDATE() {
 	NOW_TS=$(date +%s)
-	LAST_TS=$(READ_FILE "$CONF_DIR/last_measurement_timestamp" "$NOW_TS")
+	IS_UINT "$NOW_TS" || NOW_TS=0
+
+	UP_NOW=$(GET_UPTIME)
+	BOOT_NOW=$(GET_BOOT_ID)
+
+	LAST_UP=$(READ_FILE "$CONF_DIR/last_measurement_uptime" "")
+	LAST_BOOT=$(READ_FILE "$CONF_DIR/last_measurement_boot" "")
 	TIME_ON_BATT=$(READ_FILE "$CONF_DIR/time_on_battery" "0")
 	LAST_STATE=$(READ_FILE "$CONF_DIR/last_power_state" "")
 
-	DELTA=$((NOW_TS - LAST_TS))
-
-	if [ "$DELTA" -lt 0 ]; then
-		LOG_WARN "$0" 0 "BATTERY_USAGE" "$(printf "Clock went backwards by %ds - resetting timestamp" "$((0 - DELTA))")"
-		WRITE_ATOMIC "$CONF_DIR/last_measurement_timestamp" "$NOW_TS"
+	if [ "$LAST_BOOT" != "$BOOT_NOW" ] || ! IS_UINT "$LAST_UP" || [ "$UP_NOW" -lt "$LAST_UP" ]; then
+		MARK_MEASUREMENT "$NOW_TS" "$UP_NOW" "$BOOT_NOW"
 		return
 	fi
+
+	DELTA=$((UP_NOW - LAST_UP))
 
 	if [ "$DELTA" -gt "$MAX_DELTA" ]; then
 		LOG_WARN "$0" 0 "BATTERY_USAGE" "$(printf "Delta %ds exceeds max %ds - clamping" "$DELTA" "$MAX_DELTA")"
@@ -85,7 +151,9 @@ DO_UPDATE() {
 		WRITE_ATOMIC "$CONF_DIR/time_on_battery" "$TIME_ON_BATT"
 	fi
 
-	WRITE_ATOMIC "$CONF_DIR/last_measurement_timestamp" "$NOW_TS"
+	REPAIR_LAST_CHARGED "$NOW_TS" "$TIME_ON_BATT"
+
+	MARK_MEASUREMENT "$NOW_TS" "$UP_NOW" "$BOOT_NOW"
 }
 
 SYNC_RUNTIME() {
@@ -111,16 +179,22 @@ DO_EVENT() {
 
 			WRITE_ATOMIC "$CONF_DIR/was_charging" "1"
 			WRITE_ATOMIC "$CONF_DIR/last_power_state" "1"
-			WRITE_ATOMIC "$CONF_DIR/last_measurement_timestamp" "$NOW_TS"
+			MARK_MEASUREMENT "$NOW_TS" "$(GET_UPTIME)" "$(GET_BOOT_ID)"
 		fi
 	else
 		WAS_CHARGING=$(READ_FILE "$CONF_DIR/was_charging" "0")
 		if [ "$WAS_CHARGING" = "1" ]; then
 			LOG_INFO "$0" 0 "BATTERY_USAGE" "$(printf "Charger unplugged - recording last_charged=%d, resetting time_on_battery" "$NOW_TS")"
 
-			WRITE_ATOMIC "$CONF_DIR/last_charged_timestamp" "$NOW_TS"
+			if CLOCK_IS_SANE "$NOW_TS"; then
+				WRITE_ATOMIC "$CONF_DIR/last_charged_timestamp" "$NOW_TS"
+			else
+				WRITE_ATOMIC "$CONF_DIR/last_charged_timestamp" "0"
+				LOG_WARN "$0" 0 "BATTERY_USAGE" "$(printf "Clock reads %d and is not trustworthy - last_charged left unknown" "$NOW_TS")"
+			fi
+
 			WRITE_ATOMIC "$CONF_DIR/time_on_battery" "0"
-			WRITE_ATOMIC "$CONF_DIR/last_measurement_timestamp" "$NOW_TS"
+			MARK_MEASUREMENT "$NOW_TS" "$(GET_UPTIME)" "$(GET_BOOT_ID)"
 			WRITE_ATOMIC "$CONF_DIR/was_charging" "0"
 			WRITE_ATOMIC "$CONF_DIR/last_power_state" "0"
 
@@ -138,8 +212,6 @@ DO_EVENT() {
 }
 
 DO_WATCH() {
-	WRITE_ATOMIC "$WATCHER_PID_FILE" "$$"
-
 	PREV_CHARGING=""
 
 	while :; do
@@ -175,6 +247,15 @@ DO_INIT() {
 	done
 
 	NOW_TS=$(date +%s)
+	IS_UINT "$NOW_TS" || NOW_TS=0
+
+	STORED_CHARGED=$(READ_FILE "$CONF_DIR/last_charged_timestamp" "0")
+	if [ "$STORED_CHARGED" != "0" ] && ! CLOCK_IS_SANE "$STORED_CHARGED"; then
+		LOG_WARN "$0" 0 "BATTERY_USAGE" "$(printf "Stored last_charged %s came from an unset clock - discarding" "$STORED_CHARGED")"
+		WRITE_ATOMIC "$CONF_DIR/last_charged_timestamp" "0"
+	fi
+
+	REPAIR_LAST_CHARGED "$NOW_TS" "$(READ_FILE "$CONF_DIR/time_on_battery" "0")"
 
 	SYNC_RUNTIME
 
@@ -185,11 +266,12 @@ DO_INIT() {
 		WRITE_ATOMIC "$CONF_DIR/last_power_state" "0"
 	fi
 
-	WRITE_ATOMIC "$CONF_DIR/last_measurement_timestamp" "$NOW_TS"
+	MARK_MEASUREMENT "$NOW_TS" "$(GET_UPTIME)" "$(GET_BOOT_ID)"
 
 	LOG_SUCCESS "$0" 0 "BATTERY_USAGE" "Battery usage tracker initialised - starting watcher"
 
 	DO_WATCH &
+	WRITE_ATOMIC "$WATCHER_PID_FILE" "$!"
 }
 
 DO_STATUS() {

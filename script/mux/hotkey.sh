@@ -58,7 +58,7 @@ HANDLE_HOTKEY() {
 
 LID_CLOSED() {
 	case "$BOARD_NAME" in
-		rg34xx-sp | rg35xx-sp)
+		rg34xx-sp | rg35xx-sp | rgsp)
 			HALL_KEY="$(cat "$(GET_VAR "device" "board/hall")")"
 			read -r VAL <"$HALL_KEY" 2>/dev/null || return 1
 			[ "$VAL" -eq 0 ]
@@ -78,7 +78,7 @@ SLEEP() {
 
 	# Ignore if our lid switch is disabled
 	case "$BOARD_NAME" in
-		rg34xx-sp | rg35xx-sp) [ "$(GET_VAR "config" "settings/advanced/lidswitch")" -eq 0 ] && return 0 ;;
+		rg34xx-sp | rg35xx-sp | rgsp) [ "$(GET_VAR "config" "settings/advanced/lidswitch")" -eq 0 ] && return 0 ;;
 	esac
 
 	CURR_UPTIME=$(UPTIME 2>/dev/null)

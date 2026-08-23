@@ -1,5 +1,6 @@
 {
   "devices": [
+    "rg-vita-pro",
     "rg28xx-h",
     "rg34xx-h",
     "rg34xx-sp",
@@ -11,7 +12,7 @@
     "rg40xx-h",
     "rg40xx-v",
     "rgcubexx-h",
-    "rg-vita-pro",
+    "rgsp",
     "tui-brick",
     "tui-brick-pro",
     "tui-spoon"

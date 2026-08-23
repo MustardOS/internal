@@ -1,7 +1,8 @@
 {
   "devices": [
     "rg34xx-sp",
-    "rg35xx-sp"
+    "rg35xx-sp",
+    "rgsp"
   ],
   "SLEEP_LONG": {
     "handle_hold": false,

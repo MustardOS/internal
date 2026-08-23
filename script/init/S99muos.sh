@@ -8,6 +8,7 @@ RUN_BOOT_MAINTENANCE() {
 	RA_CACHE=$3
 
 	/opt/muos/script/system/swap.sh &
+	/opt/muos/script/system/irq.sh &
 	BOOT_SWAP=$!
 	/opt/muos/script/system/checkmsd.sh &
 	BOOT_STORAGE=$!

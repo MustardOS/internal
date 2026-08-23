@@ -12,6 +12,7 @@ RUN_ASYNC_START() {
 
 case "${1:-start}" in
 	start | "")
+		LED_QUIET
 		BOOT_GUARD_ARM
 
 		timeout 10 "$MUOS_VAR_BIN" build ||

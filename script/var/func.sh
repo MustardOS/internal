@@ -463,6 +463,12 @@ VOLUME_RAMP() {
 SYNC_GPU_FREQUENCY() {
 	GOV="$1"
 
+	GPU_CAP="$(GET_VAR "device" "gpu/max_freq_default")"
+	case "$(GET_VAR "config" "danger/gpuoverclock")" in
+		'' | 0) ;;
+		*) GPU_CAP= ;;
+	esac
+
 	for GPU_DEV in /sys/class/devfreq/*/; do
 		case "$GPU_DEV" in
 			*gpu*) ;;
@@ -472,17 +478,53 @@ SYNC_GPU_FREQUENCY() {
 		[ -w "$GPU_DEV/min_freq" ] || continue
 		[ -r "$GPU_DEV/available_frequencies" ] || continue
 
+		GPU_LIST=$(tr ' ' '\n' <"$GPU_DEV/available_frequencies" | grep -v '^$' | sort -n)
+		[ -n "$GPU_CAP" ] && GPU_LIST=$(printf "%s\n" "$GPU_LIST" | awk -v c="$GPU_CAP" '$1 + 0 <= c + 0')
+
+		GPU_CEIL=$(printf "%s\n" "$GPU_LIST" | tail -1)
+		GPU_FLOOR=$(printf "%s\n" "$GPU_LIST" | head -1)
+
 		if [ "$GOV" = "performance" ]; then
-			GPU_TARGET=$(tr ' ' '\n' <"$GPU_DEV/available_frequencies" | grep -v '^$' | sort -n | tail -1)
+			GPU_TARGET=$GPU_CEIL
 		else
-			GPU_TARGET=$(tr ' ' '\n' <"$GPU_DEV/available_frequencies" | grep -v '^$' | sort -n | head -1)
+			GPU_TARGET=$GPU_FLOOR
 		fi
 
 		[ -n "$GPU_TARGET" ] || continue
 
-		LOG_DEBUG "$0" 0 "FRONTEND" "$(printf "GPU floor set to %s for governor '%s'" "$GPU_TARGET" "$GOV")"
+		if [ -w "$GPU_DEV/max_freq" ]; then
+			printf "%s" "$GPU_FLOOR" >"$GPU_DEV/min_freq"
+			printf "%s" "$GPU_CEIL" >"$GPU_DEV/max_freq"
+		fi
+
+		LOG_DEBUG "$0" 0 "FRONTEND" "$(printf "GPU floor set to %s, ceiling %s, for governor '%s'" "$GPU_TARGET" "$GPU_CEIL" "$GOV")"
 		printf "%s" "$GPU_TARGET" >"$GPU_DEV/min_freq"
 	done
+}
+
+SYNC_CPU_IDLE() {
+	GOV="$1"
+
+	[ -d /sys/devices/system/cpu/cpu0/cpuidle ] || return 0
+
+	if [ "$GOV" = "performance" ]; then
+		IDLE_OFF=1
+	else
+		IDLE_OFF=0
+	fi
+
+	for IDLE_STATE in /sys/devices/system/cpu/cpu*/cpuidle/state*/disable; do
+		[ -w "$IDLE_STATE" ] || continue
+
+		case "$IDLE_STATE" in
+			*/state0/*) continue ;;
+		esac
+
+		printf "%s" "$IDLE_OFF" >"$IDLE_STATE" 2>/dev/null
+	done
+
+	LOG_DEBUG "$0" 0 "FRONTEND" "$(printf "Deep CPU idle %s for governor '%s'" \
+		"$([ "$IDLE_OFF" -eq 1 ] && echo disabled || echo enabled)" "$GOV")"
 }
 
 SET_DEFAULT_GOVERNOR() {
@@ -498,6 +540,7 @@ SET_DEFAULT_GOVERNOR() {
 
 		printf "%s" "$DEF_GOV" >"$GOV_PATH"
 		SYNC_GPU_FREQUENCY "$DEF_GOV"
+		SYNC_CPU_IDLE "$DEF_GOV"
 
 		CPU_PATH=$(dirname "$GOV_PATH")
 
@@ -506,6 +549,17 @@ SET_DEFAULT_GOVERNOR() {
 
 		[ -f "$MIN_PATH" ] && GET_VAR "device" "cpu/min_freq_default" >"$MIN_PATH"
 		[ -f "$MAX_PATH" ] && GET_VAR "device" "cpu/max_freq_default" >"$MAX_PATH"
+
+		CPU_OC="$(GET_VAR "config" "danger/overclock")"
+		CPU_STOCK="$(GET_VAR "device" "cpu/max_freq_default")"
+		case "$CPU_OC" in
+			'' | 0 | *[!0-9]*) ;;
+			*)
+				if [ -f "$MAX_PATH" ] && [ "$CPU_OC" -gt "${CPU_STOCK:-0}" ]; then
+					printf "%s" "$CPU_OC" >"$MAX_PATH"
+				fi
+				;;
+		esac
 
 		if [ "$DEF_GOV" = "ondemand" ]; then
 			# Detect differing kernel version layout
@@ -757,14 +811,33 @@ MESSAGE() {
 
 BOOT_PROGRESS_TARGET="$MUOS_RUN_DIR/boot/progress_target"
 BOOT_PROGRESS_TEXT="Starting up"
+
+LED_QUIET() {
+	LED_ANIM_DIR="/sys/class/led_anim"
+	[ -d "$LED_ANIM_DIR" ] || return 0
+
+	for LED_ZONE in l r lr m f1 f2; do
+		printf "0" >"$LED_ANIM_DIR/effect_$LED_ZONE" 2>/dev/null
+		printf "000000" >"$LED_ANIM_DIR/effect_rgb_hex_$LED_ZONE" 2>/dev/null
+	done
+
+	printf "0" >"$LED_ANIM_DIR/max_scale" 2>/dev/null
+}
+
 BOOT_PROGRESS_QUIPS="$MUOS_SHARE_DIR/loading.txt"
 BOOT_PROGRESS_DONE="$MUOS_RUN_DIR/boot/progress_done"
 LOADING_PAINT_FLAG="$MUOS_RUN_DIR/loading_paint"
+FIRST_PAINT_FLAG="$MUOS_RUN_DIR/first_paint"
+
+BOOT_PROGRESS_FLOOR=5
 
 BOOT_PROGRESS_QUIP() {
 	[ -r "$BOOT_PROGRESS_QUIPS" ] || return 1
 
-	awk 'BEGIN { srand() } { line[NR] = $0 } END { if (NR > 0) print line[int(rand() * NR) + 1] }' \
+	read -r QUIP_SEED _ </proc/uptime 2>/dev/null || QUIP_SEED=0
+
+	awk -v seed="${QUIP_SEED#*.}$$" \
+		'BEGIN { srand(seed) } { line[NR] = $0 } END { if (NR > 0) print line[int(rand() * NR) + 1] }' \
 		"$BOOT_PROGRESS_QUIPS" 2>/dev/null
 }
 
@@ -775,7 +848,7 @@ BOOT_PROGRESS() {
 
 BOOT_PROGRESS_SMOOTH() {
 	(
-		PROG_CUR=0
+		PROG_CUR=$BOOT_PROGRESS_FLOOR
 		PROG_SHOWN=-1
 		PROG_TICK=0
 		PROG_QUIP=$BOOT_PROGRESS_TEXT
@@ -797,7 +870,7 @@ BOOT_PROGRESS_SMOOTH() {
 			PROG_TICK=$((PROG_TICK + 1))
 
 			if [ ! -e "$LOADING_PAINT_FLAG" ]; then
-				PROG_CUR=0
+				PROG_CUR=$BOOT_PROGRESS_FLOOR
 			elif [ "$PROG_CUR" -lt "$PROG_TGT" ]; then
 				PROG_STEP=$(((PROG_TGT - PROG_CUR) / 2))
 				[ "$PROG_STEP" -lt 2 ] && PROG_STEP=2
@@ -826,6 +899,16 @@ BOOT_PROGRESS_SMOOTH() {
 	) &
 }
 
+GPU_NODE_READY() {
+	[ -e /dev/mali0 ] && return 0
+
+	for GPU_NODE in /dev/dri/renderD* /dev/dri/card*; do
+		[ -e "$GPU_NODE" ] && return 0
+	done
+
+	return 1
+}
+
 BOOT_PROGRESS_START() {
 	[ -x "$MESSAGE_EXEC" ] || return 0
 
@@ -835,24 +918,64 @@ BOOT_PROGRESS_START() {
 	(
 		PROG_WAIT=0
 		while [ "$PROG_WAIT" -lt 100 ]; do
-			[ -e /dev/mali0 ] && break
+			GPU_NODE_READY && break
 			sleep 0.1
 			PROG_WAIT=$((PROG_WAIT + 1))
 		done
 
-		[ -e /dev/mali0 ] || exit 0
+		if ! GPU_NODE_READY; then
+			LOG_WARN "$0" 0 "BOOTING" "No render node appeared, skipping the loading screen"
+			exit 0
+		fi
 
 		rm -f "$MESSAGE_FINISH" "$BOOT_PROGRESS_DONE" 2>/dev/null
-		printf '0\n' >"$MESSAGE_PROG" 2>/dev/null
 
-		MESSAGE start
+		PROG_QUIP=$(BOOT_PROGRESS_QUIP)
+		[ -n "$PROG_QUIP" ] || PROG_QUIP=$BOOT_PROGRESS_TEXT
+
+		printf '%s\n' "$BOOT_PROGRESS_FLOOR" >"$MESSAGE_PROG" 2>/dev/null
+		printf '%s\\n\\n%s%%\n' "$PROG_QUIP" "$BOOT_PROGRESS_FLOOR" >"$MESSAGE_TEXT" 2>/dev/null
+
+		PROG_TRY=0
+		while [ "$PROG_TRY" -lt 8 ]; do
+			[ -e "$BOOT_PROGRESS_DONE" ] && exit 0
+			[ -e "$FIRST_PAINT_FLAG" ] && exit 0
+
+			MESSAGE start
+
+			PROG_SETTLE=0
+			while [ "$PROG_SETTLE" -lt 15 ]; do
+				[ -e "$LOADING_PAINT_FLAG" ] && break
+				sleep 0.1
+				PROG_SETTLE=$((PROG_SETTLE + 1))
+			done
+
+			[ -e "$LOADING_PAINT_FLAG" ] && break
+
+			for PROG_PID in $(pidof muxmessage 2>/dev/null); do
+				kill -TERM "$PROG_PID" 2>/dev/null
+			done
+
+			sleep 0.25
+			PROG_TRY=$((PROG_TRY + 1))
+		done
+
+		if [ ! -e "$LOADING_PAINT_FLAG" ]; then
+			LOG_WARN "$0" 0 "BOOTING" "Loading screen never painted, carrying on without it"
+			exit 0
+		fi
+
 		BOOT_PROGRESS_SMOOTH
 	) &
 }
 
 BOOT_PROGRESS_STOP() {
-	pidof muxmessage >/dev/null 2>&1 || return 0
 	: >"$BOOT_PROGRESS_DONE" 2>/dev/null
+
+	if ! pidof muxmessage >/dev/null 2>&1; then
+		rm -f "$MESSAGE_TEXT" "$MESSAGE_PROG" "$MESSAGE_FINISH" "$BOOT_PROGRESS_TARGET" 2>/dev/null
+		return 0
+	fi
 
 	PROG_QUIP=$(BOOT_PROGRESS_QUIP)
 	[ -n "$PROG_QUIP" ] || PROG_QUIP="Nearly There"
@@ -894,7 +1017,7 @@ BOOT_PROGRESS_STOP() {
 	fi
 
 	rm -f "$MESSAGE_TEXT" "$MESSAGE_PROG" "$MESSAGE_FINISH" \
-		"$BOOT_PROGRESS_TARGET" "$BOOT_PROGRESS_DONE" 2>/dev/null
+		"$BOOT_PROGRESS_TARGET" 2>/dev/null
 }
 
 SHOW_MESSAGE() {

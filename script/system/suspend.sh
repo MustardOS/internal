@@ -186,11 +186,22 @@ RESUME() {
 	# Some stupid TrimUI GPU shenanigans
 	case "$BOARD_NAME" in
 		rg*) cat "$LED_STATE" >"$LED_NORMAL" ;;
-		mgx* | tui*) setalpha 0 ;;
+		mgx* | tui*)
+			setalpha 0
+			(
+				ALPHA_TRY=0
+				while [ "$ALPHA_TRY" -lt 20 ]; do
+					sleep 0.2
+					setalpha 0
+					ALPHA_TRY=$((ALPHA_TRY + 1))
+				done
+			) &
+			;;
 	esac
 
 	RESTORE_CPU_GOV "$CPU_GOV_PATH"
 	SYNC_GPU_FREQUENCY "$(cat "$CPU_GOV_PATH" 2>/dev/null)"
+	SYNC_CPU_IDLE "$(cat "$CPU_GOV_PATH" 2>/dev/null)"
 
 	# Network module must be loaded before attempting reconnect
 	wait "$MODULE_PID"

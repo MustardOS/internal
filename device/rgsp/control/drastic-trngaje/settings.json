@@ -1,0 +1,17 @@
+{
+  "pen":5,
+  "theme":0,
+  "mode":11,
+  "alpha":2,
+  "position":2,
+  "border":3,
+  "overlay":1,
+  "lang":"english",
+  "menu_c0":"0xffffff",
+  "menu_c1":"0x404040",
+  "menu_c2":"0x004000",
+  "states":"/run/muos/storage/save/drastic",
+  "menu_bg":0,
+  "menu_cursor":1,
+  "pixel_filter":1
+}

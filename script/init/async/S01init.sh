@@ -25,6 +25,14 @@ DO_START() {
 	grep -qE "defaults\.(ctl|pcm)\.card [1-9]" /usr/share/alsa/alsa.conf 2>/dev/null && \
 		sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf
 
+	if [ ! -L /usr/share/soundfonts ]; then
+		LOG_INFO "$0" 0 "BOOTING" "Relocating Soundfonts To Share Directory"
+		mkdir -p "$MUOS_SHARE_DIR/soundfont"
+		[ -d /usr/share/soundfonts ] && mv -n /usr/share/soundfonts/* "$MUOS_SHARE_DIR/soundfont/" 2>/dev/null
+		rm -rf /usr/share/soundfonts
+		ln -sf "$MUOS_SHARE_DIR/soundfont" /usr/share/soundfonts
+	fi
+
 	LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"
 	printf "performance" >"$GOVERNOR"
 

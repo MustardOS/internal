@@ -2842,9 +2842,9 @@
 					compatible = "x-powers,axp2101-pek";
 					pmu_powkey_off_time = <0x6000>;
 					pmu_powkey_off_func = <0x00>;
-					pmu_powkey_off_en = <0x0>;
+					pmu_powkey_off_en = <0x00>;
 					pmu_powkey_long_time = <0x5dc>;
-					pmu_powkey_on_time = <0x80>;
+					pmu_powkey_on_time = <0x7f>;
 					wakeup_rising;
 					wakeup_falling;
 					hall_key = <0x4b 0x04 0x07 0x00 0x01 0xffffffff 0x00>;
@@ -3840,17 +3840,17 @@
 			lcd_y = <0x1e0>;
 			lcd_width = <0x96>;
 			lcd_height = <0x5e>;
-			lcd_dclk_freq = <54>;
+			lcd_dclk_freq = <0x36>;
 			lcd_pwm_used = <0x01>;
 			lcd_pwm_ch = <0x00>;
 			lcd_pwm_freq = <0xc350>;
 			lcd_pwm_pol = <0x01>;
 			lcd_pwm_max_limit = <0xff>;
 			lcd_hbp = <0x2e>;
-			lcd_ht = <1679>;
+			lcd_ht = <0x68f>;
 			lcd_hspw = <0x02>;
 			lcd_vbp = <0x14>;
-			lcd_vt = <536>;
+			lcd_vt = <0x218>;
 			lcd_vspw = <0x05>;
 			lcd_lvds_if = <0x00>;
 			lcd_lvds_colordepth = <0x00>;
@@ -4506,7 +4506,7 @@
 					phandle = <0x188>;
 
 					trip-point@0 {
-						temperature = <0xea60>;
+						temperature = <0x124f8>;
 						type = "passive";
 						hysteresis = <0x00>;
 						linux,phandle = <0x189>;
@@ -4514,7 +4514,7 @@
 					};
 
 					trip-point@1 {
-						temperature = <0x11170>;
+						temperature = <0x14c08>;
 						type = "passive";
 						hysteresis = <0x00>;
 						linux,phandle = <0xd2>;
@@ -4606,7 +4606,7 @@
 			pinctrl-names = "default";
 			#address-cells = <0x01>;
 			#size-cells = <0x00>;
-			poll-interval = <0x14>;
+			poll-interval = <0x05>;
 			label = "muOS-Keys";
 			amux-en-gpios = <0x4b 0x08 0x00 0x01 0x02 0x01 0x01>;
 			A0_gpio = <0x4b 0x08 0x01 0x01 0x02 0x01 0x00>;
@@ -5929,6 +5929,22 @@
 			opp-microvolt-b0 = <0x111700>;
 			clock-latency-ns = <0x3b9b0>;
 		};
+
+		opp@1608000000-ab {
+			opp-hz = <0x00 0x5fd82200>;
+			opp-microvolt-a1 = <0x124f80>;
+			opp-microvolt-b1 = <0x124f80>;
+			opp-microvolt-b0 = <0x11b340>;
+			clock-latency-ns = <0x3b9b0>;
+		};
+
+		opp@1704000000-ab {
+			opp-hz = <0x00 0x6590fa00>;
+			opp-microvolt-a1 = <0x12ebc0>;
+			opp-microvolt-b1 = <0x12ebc0>;
+			opp-microvolt-b0 = <0x124f80>;
+			clock-latency-ns = <0x3b9b0>;
+		};
 	};
 
 	psci {
@@ -6176,7 +6192,7 @@
 		#cooling-cells = <0x02>;
 		gpu_idle = <0x01>;
 		dvfs_status = <0x01>;
-		operating-points = <0x9e340 0xea600 0x927c0 0xdbba0 0x86c40 0xdbba0 0x7b0c0 0xdbba0 0x6f540 0xdbba0 0x668a0 0xdbba0>;
+		operating-points = <0xb8920 0xf4240 0x9e340 0xea600 0x927c0 0xdbba0 0x86c40 0xdbba0 0x7b0c0 0xdbba0 0x6f540 0xdbba0 0x668a0 0xdbba0>;
 		linux,phandle = <0xd4>;
 		phandle = <0xd4>;
 

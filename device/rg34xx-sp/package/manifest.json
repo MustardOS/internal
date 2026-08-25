@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "device": "rg34xx-sp",
+  "platform": "H700",
+  "source": {
+    "release": "2606.0 ANDROMEDA",
+    "image": "MustardOS_RG34XX-SP_2606.0_ANDROMEDA.img",
+    "image_size": 8769240576,
+    "image_sha256": "42504666dc4d98ce4816738972eb9cf403241ee63b322dd03dec61d71c607ccf",
+    "distribution_artifact": null
+  },
+  "allwinner_package": {
+    "image_offset": 16793600,
+    "fixed_size": 1310720,
+    "logical_size": 1310720,
+    "checksum": "0xd07f2387",
+    "checksum_valid": true,
+    "items": [
+      {
+        "name": "u-boot",
+        "file": "u-boot.fex",
+        "offset": 2048,
+        "length": 1048576,
+        "sha256": "b9b39ab26f7240fbfae28e6fbfb510b109916181d972d8993205f8fb772500e8"
+      },
+      {
+        "name": "monitor",
+        "file": "monitor.fex",
+        "offset": 1050624,
+        "length": 107520,
+        "sha256": "c9c30fd37353af8f33725e66eab264b0d289eadd461161142c65777ea15c564a"
+      },
+      {
+        "name": "dtbo",
+        "file": "p1.dtbo",
+        "offset": 1158144,
+        "length": 3072,
+        "sha256": "9b23b8300e34f32a73a2a36e54d86ee24ad0784c60e697bc191e2ea1a341b547"
+      },
+      {
+        "name": "dtb",
+        "file": "sunxi.fex",
+        "offset": 1161216,
+        "length": 137988,
+        "sha256": "ed5998c8d035904532da5d23f2fb4cb14e7b3e5cbfd29367f34813ca031f7ff4"
+      }
+    ]
+  },
+  "android_boot": {
+    "image_offset": 96468992,
+    "partition_limit": 67108864,
+    "logical_size": 20436992,
+    "page_size": 2048,
+    "cmdline": "",
+    "header_hash_components": [
+      "kernel",
+      "ramdisk",
+      "second",
+      "recovery",
+      "dtb"
+    ],
+    "header_sha1_valid": true,
+    "components": {
+      "kernel": {
+        "length": 17686536,
+        "sha256": "2aadaca2991ffb0fae2f5554954ff904ba39f44bee09d934f95c05ee513b617c"
+      },
+      "ramdisk": {
+        "length": 2606717,
+        "sha256": "ea7c678ed3cdeae0db4a480d4ca15c52175a974c80032105a9d6e78fac24c836"
+      },
+      "second": {
+        "length": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recovery": {
+        "length": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "dtb": {
+        "length": 137988,
+        "sha256": "ed5998c8d035904532da5d23f2fb4cb14e7b3e5cbfd29367f34813ca031f7ff4"
+      }
+    }
+  },
+  "device_tree_facts": {
+    "compatible": [
+      "allwinner,h616\\0arm,sun50iw9p1"
+    ],
+    "poll_interval_ms": [
+      5
+    ],
+    "pmu_powkey_on_time": [
+      127
+    ],
+    "sd_uhs_sdr50_property_count": 1,
+    "stick_adc_mux_present": true,
+    "hall_key_present": true
+  },
+  "policy": {
+    "variant": "LOWLEVEL SAFE-EVAL",
+    "controller_poll_ms": {
+      "before": 20,
+      "after": 5
+    },
+    "powerkey_effective_ms": 128,
+    "sdr50_changes": false,
+    "stick_device": true,
+    "cardinal_snapping_instruction_count": 9,
+    "kernel_sha256_after": "2aadaca2991ffb0fae2f5554954ff904ba39f44bee09d934f95c05ee513b617c",
+    "dtb_sha256_after": "ed5998c8d035904532da5d23f2fb4cb14e7b3e5cbfd29367f34813ca031f7ff4"
+  }
+}

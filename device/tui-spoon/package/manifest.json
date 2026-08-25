@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "device": "tui-spoon",
+  "platform": "A133",
+  "source": {
+    "release": "2606.0 ANDROMEDA",
+    "image": "MustardOS_TUI-SPOON_2606.0_ANDROMEDA.img",
+    "image_size": 8806879232,
+    "image_sha256": null,
+    "distribution_artifact": {
+      "file": "MustardOS_TUI-SPOON_2606.0_ANDROMEDA-4c3ce3d5.img.gz",
+      "sha256": "98da9b35857f9771be6f03562c8455cd423f91b3bb673d328c8682b971fc1c14"
+    }
+  },
+  "allwinner_package": {
+    "image_offset": 16793600,
+    "fixed_size": 1081344,
+    "logical_size": 1081344,
+    "checksum": "0xd4c5865f",
+    "checksum_valid": true,
+    "items": [
+      {
+        "name": "u-boot",
+        "file": "u-boot.fex",
+        "offset": 2048,
+        "length": 770048,
+        "sha256": "05bf352f9d11a3b783099b530789506d61c14bcd6efa188f41629cb600c96f0d"
+      },
+      {
+        "name": "monitor",
+        "file": "monitor.fex",
+        "offset": 772096,
+        "length": 70412,
+        "sha256": "5f24f14ba081e1b210c58aef8a7117f633fbb967d608cc5c2eb46acaa71900c4"
+      },
+      {
+        "name": "scp",
+        "file": "scp.fex",
+        "offset": 842752,
+        "length": 81928,
+        "sha256": "b25eacb050bc5c19245bb3b032f8851f83bcd4e634bb7111aee811bd5ba8bbe8"
+      },
+      {
+        "name": "dtb",
+        "file": "sunxi.fex",
+        "offset": 925696,
+        "length": 148439,
+        "sha256": "56b1b56c942a14f9d1a6d6e5a5fbadf9ad5c7038bf71c908a281625d09bf1b5c"
+      }
+    ]
+  },
+  "android_boot": {
+    "image_offset": 37748736,
+    "partition_limit": 15728640,
+    "logical_size": 15173632,
+    "page_size": 2048,
+    "cmdline": "console=ttyS0,115200 root=/dev/mmcblk0p5 rootwait init=/sbin/init",
+    "header_hash_components": [
+      "kernel",
+      "ramdisk",
+      "second"
+    ],
+    "header_sha1_valid": true,
+    "components": {
+      "kernel": {
+        "length": 11859976,
+        "sha256": "bd513a77d4ea081aa2c6d52f709bbad98690657b5cca8589ce1da42bdc0070f3"
+      },
+      "ramdisk": {
+        "length": 3308100,
+        "sha256": "d3e8e9cc8eacc025ab1229bc435686a2964fc17ce57def328bb5d0b764b09236"
+      },
+      "second": {
+        "length": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "recovery": {
+        "length": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "dtb": {
+        "length": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "device_tree_facts": {
+    "compatible": [
+      "allwinner,a133\\0arm,sun50iw10p1"
+    ],
+    "poll_interval_ms": [],
+    "pmu_powkey_on_time": [
+      512
+    ],
+    "sd_uhs_sdr50_property_count": 2,
+    "stick_adc_mux_present": false,
+    "hall_key_present": false
+  },
+  "policy": null
+}

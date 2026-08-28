@@ -79,12 +79,42 @@ fi
 USB_GADGET_RUN="/opt/muos/script/system/usb_gadget.sh"
 GADGET_PID="$MUOS_RUN_DIR/usb_gadget.pid"
 
+STAGE_PIXEL_USB_ROLE() {
+	[ "$(GET_VAR "device" "board/name")" = "rk-pixel-2" ] || return 0
+
+	BOOT_MOUNT="$(GET_VAR "device" "storage/boot/mount")"
+	ACTIVE_DTB="$BOOT_MOUNT/rk3326s-gkd-pixel2.dtb"
+
+	case "$1" in
+		0) ROLE="wifi" ;;
+		1 | 2) ROLE="adb" ;;
+		*) return 0 ;;
+	esac
+
+	ROLE_DTB="$BOOT_MOUNT/rk3326s-gkd-pixel2-$ROLE.dtb"
+	if [ ! -r "$ROLE_DTB" ] || [ ! -w "$ACTIVE_DTB" ]; then
+		LOG_INFO "$0" 0 "TWEAK" "Pixel 2 USB role files unavailable"
+		return 1
+	fi
+
+	if ! cmp -s "$ROLE_DTB" "$ACTIVE_DTB"; then
+		if cp "$ROLE_DTB" "$ACTIVE_DTB"; then
+			sync
+			LOG_INFO "$0" 0 "TWEAK" "$(printf "Pixel 2 USB role staged: %s (reboot required)" "$ROLE")"
+		else
+			LOG_INFO "$0" 0 "TWEAK" "$(printf "Could not stage Pixel 2 USB role: %s" "$ROLE")"
+			return 1
+		fi
+	fi
+}
+
 GADGET_WD() {
 	[ -r "$GADGET_PID" ] && kill -0 "$(cat "$GADGET_PID" 2>/dev/null)" 2>/dev/null
 }
 
 USB_FUNC="$(GET_VAR "config" "settings/advanced/usb_function")"
 LOG_INFO "$0" 0 "TWEAK" "$(printf "USB function mode: %s" "$USB_FUNC")"
+STAGE_PIXEL_USB_ROLE "$USB_FUNC"
 case "$USB_FUNC" in
 	0)
 		# Disable and remove all usb functions and then stop...

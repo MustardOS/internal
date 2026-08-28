@@ -29,6 +29,21 @@ RETRY_DELAY="${RETRY_DELAY:-2}"
 
 CONNECT_ON_BOOT=$(GET_VAR "config" "settings/network/boot")
 NET_DRIVER_TYPE=$(GET_VAR "device" "network/type")
+WPA_SUPPLICANT=$(command -v wpa_supplicant)
+[ -n "$WPA_SUPPLICANT" ] || WPA_SUPPLICANT="wpa_supplicant"
+
+WPA_ARCH=$(uname -m)
+case "$WPA_ARCH" in
+	arm64) WPA_ARCH="aarch64" ;;
+	amd64) WPA_ARCH="x86_64" ;;
+	armv7*) WPA_ARCH="armv7" ;;
+esac
+
+WPA_WEXT_BIN="/opt/muos/bin/$WPA_ARCH/wpa_supplicant/wext"
+
+if [ "$NET_DRIVER_TYPE" = "wext" ] && [ -x "$WPA_WEXT_BIN" ]; then
+	WPA_SUPPLICANT="$WPA_WEXT_BIN"
+fi
 
 CUS_HOST="MUOS/info/hostname"
 DEV_HOST=$(GET_VAR "device" "network/hostname")
@@ -282,7 +297,8 @@ UNLOAD_MODULE() {
 		ip link set "$IFCE" down
 	fi
 
-	killall -q wpa_supplicant dhcpcd udhcpc
+	KILL_WPA TERM
+	killall -q dhcpcd udhcpc
 	sleep 2
 
 	# We no longer remove the network module for any H700 based devices!
@@ -346,17 +362,19 @@ WAIT_FOR_IFACE_READY() {
 
 DESTROY_DHCPCD() {
 	if NETWORK_DAEMONS_RUNNING; then
-		killall -q dhcpcd udhcpc wpa_supplicant
+		killall -q dhcpcd udhcpc
+		KILL_WPA TERM
 
 		WAIT_PROCESS_GONE dhcpcd 3
 		WAIT_PROCESS_GONE udhcpc 3
-		WAIT_PROCESS_GONE wpa_supplicant 3
+		WAIT_WPA_GONE 3
 
 		if NETWORK_DAEMONS_RUNNING; then
-			killall -9 dhcpcd udhcpc wpa_supplicant
+			killall -9 dhcpcd udhcpc
+			KILL_WPA KILL
 			WAIT_PROCESS_GONE dhcpcd 2
 			WAIT_PROCESS_GONE udhcpc 2
-			WAIT_PROCESS_GONE wpa_supplicant 2
+			WAIT_WPA_GONE 2
 		fi
 	fi
 
@@ -470,6 +488,27 @@ WPA_RUNNING() {
 	pgrep -f "wpa_supplicant.*$IFCE" >/dev/null 2>&1
 }
 
+KILL_WPA() {
+	WPA_SIGNAL="${1:-TERM}"
+
+	for WPA_PID in $(pgrep -f "wpa_supplicant.*$IFCE"); do
+		kill "-$WPA_SIGNAL" "$WPA_PID" 2>/dev/null
+	done
+}
+
+WAIT_WPA_GONE() {
+	TIMEOUT="${1:-5}"
+	I=0
+
+	while [ "$I" -lt "$TIMEOUT" ]; do
+		WPA_RUNNING || return 0
+		I=$((I + 1))
+		sleep 1
+	done
+
+	return 1
+}
+
 WAIT_PROCESS_GONE() {
 	PROC_NAME="$1"
 	TIMEOUT="${2:-5}"
@@ -478,7 +517,7 @@ WAIT_PROCESS_GONE() {
 	[ -n "$PROC_NAME" ] || return 0
 
 	while [ "$I" -lt "$TIMEOUT" ]; do
-		if ! pgrep -x "$PROC_NAME" >/dev/null 2>&1; then
+		if ! pidof "$PROC_NAME" >/dev/null 2>&1; then
 			return 0
 		fi
 
@@ -637,7 +676,7 @@ WIFI_CONFIG() {
 		case "$NET_DRIVER_TYPE" in
 			wext)
 				LOG_INFO "$0" 0 "NETWORK" "Starting WPA Supplicant (wext)"
-				if ! wpa_supplicant -B -i "$IFCE" -c "$WPA_CONFIG" -D wext; then
+				if ! "$WPA_SUPPLICANT" -B -i "$IFCE" -c "$WPA_CONFIG" -D wext; then
 					LOG_ERROR "$0" 0 "NETWORK" "Failed to start WPA Supplicant (wext)"
 					FAIL_WITH "WPA_START_FAILED" "$RC_WPA_START_FAILED"
 					return $?
@@ -645,7 +684,7 @@ WIFI_CONFIG() {
 				;;
 			nl80211)
 				LOG_INFO "$0" 0 "NETWORK" "Starting WPA Supplicant (nl80211)"
-				if ! wpa_supplicant -B -i "$IFCE" -c "$WPA_CONFIG" -D nl80211; then
+				if ! "$WPA_SUPPLICANT" -B -i "$IFCE" -c "$WPA_CONFIG" -D nl80211; then
 					LOG_ERROR "$0" 0 "NETWORK" "Failed to start WPA Supplicant (nl80211)"
 					FAIL_WITH "WPA_START_FAILED" "$RC_WPA_START_FAILED"
 					return $?
@@ -1038,14 +1077,14 @@ WIFI_CONFIG_PROFILES() {
 
 	case "$NET_DRIVER_TYPE" in
 		wext)
-			if ! wpa_supplicant -B -i "$IFCE" -c "$WPA_CONFIG" -D wext; then
+			if ! "$WPA_SUPPLICANT" -B -i "$IFCE" -c "$WPA_CONFIG" -D wext; then
 				LOG_ERROR "$0" 0 "NETWORK" "Failed to start WPA Supplicant (wext)"
 				FAIL_WITH "WPA_START_FAILED" "$RC_WPA_START_FAILED"
 				return $?
 			fi
 			;;
 		nl80211)
-			if ! wpa_supplicant -B -i "$IFCE" -c "$WPA_CONFIG" -D nl80211; then
+			if ! "$WPA_SUPPLICANT" -B -i "$IFCE" -c "$WPA_CONFIG" -D nl80211; then
 				LOG_ERROR "$0" 0 "NETWORK" "Failed to start WPA Supplicant (nl80211)"
 				FAIL_WITH "WPA_START_FAILED" "$RC_WPA_START_FAILED"
 				return $?

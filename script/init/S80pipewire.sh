@@ -42,7 +42,7 @@ SOCKET_READY() {
 }
 
 PROC_RUNNING() {
-	pgrep -x "$1" >/dev/null 2>&1
+	pidof "$1" >/dev/null 2>&1
 }
 
 WAIT_UNTIL() {
@@ -498,8 +498,8 @@ PRINT_STATUS() {
 		DEF_SINK=$(wpctl status 2>/dev/null | awk -F': ' '/Default Sink:/ { print $2; exit }')
 	fi
 
-	PW_PID=$(pgrep -o -x pipewire 2>/dev/null)
-	WP_PID=$(pgrep -o -x wireplumber 2>/dev/null)
+	PW_PID=$(pidof -s pipewire 2>/dev/null)
+	WP_PID=$(pidof -s wireplumber 2>/dev/null)
 
 	printf "PipeWire:\t\t%s\n" "$([ "$PW_RUNNING" -eq 1 ] && printf "running\t\t%s" "${PW_PID:-unknown}" || printf "stopped")"
 	printf "WirePlumber:\t\t%s\n" "$([ "$WP_RUNNING" -eq 1 ] && printf "running\t\t%s" "${WP_PID:-unknown}" || printf "stopped")"

@@ -4,7 +4,7 @@
 . /opt/muos/script/var/launch.sh
 
 SETUP_STAGE_OVERLAY
-SETUP_SDL_ENVIRONMENT skip_blitter
+SETUP_SDL_ENVIRONMENT skip_blitter keep_cursor
 
 SET_VAR "system" "foreground_process" "scummvm"
 

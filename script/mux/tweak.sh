@@ -50,6 +50,10 @@ LOG_INFO "$0" 0 "TWEAK" "Refreshing hotkey configuration"
 UPDATE_HOTKEY "screenshot"
 UPDATE_HOTKEY "dpad_toggle"
 
+for MUINPUT_PID in $(pidof muinput); do
+	kill -HUP "$MUINPUT_PID"
+done
+
 rm -rf "$MUOS_RUN_DIR/wake_cpu_gov"
 HOTKEY restart
 

@@ -116,9 +116,6 @@ DO_START() {
 		mgx* | tui*)
 			EMU_VER="tui"
 
-			# Create TrimUI Input folder
-			mkdir -p "/tmp/trimui_inputd"
-
 			# Modified GPU parameters
 			echo 0 >/sys/module/pvrsrvkm/parameters/PVRDebugLevel
 

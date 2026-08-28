@@ -121,7 +121,7 @@ DO_RUN() {
 		CHECK "$FAIL" "bluetoothd is NOT running - start with S75bluetooth.sh start"
 	fi
 
-	if pgrep -x dbus-daemon >/dev/null 2>&1; then
+	if pidof dbus-daemon >/dev/null 2>&1; then
 		CHECK "$PASS" "dbus-daemon is running"
 	else
 		CHECK "$FAIL" "dbus-daemon is NOT running - bluetoothd requires dbus"
@@ -268,7 +268,7 @@ DO_RUN() {
 		[ -n "$PIDS" ] && CHECK "$INFO" "$PROC running (PID: $PIDS)"
 	done
 
-	BTC_PIDS=$(pgrep -x bluetoothctl 2>/dev/null | tr '\n' ' ')
+	BTC_PIDS=$(pidof bluetoothctl 2>/dev/null)
 	if [ -n "$BTC_PIDS" ]; then
 		CHECK "$WARN" "bluetoothctl instance(s) already running (PID: $BTC_PIDS) - may interfere with scan/connect"
 	fi

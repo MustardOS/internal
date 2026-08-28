@@ -271,6 +271,13 @@ MIXER_DVOL=
 
 ENSURE_AUDIO_OUTPUT() {
 	AUDIO_CARD="${1:-0}"
+	AUDIO_PATH=$(GET_VAR "device" "audio/path")
+
+	if [ -n "$AUDIO_PATH" ]; then
+		amixer -q -c "$AUDIO_CARD" sset "Playback Path" "$AUDIO_PATH" 2>/dev/null
+		amixer -q -c "$AUDIO_CARD" sset "Resume Path" ON 2>/dev/null
+		amixer -q -c "$AUDIO_CARD" sset Speaker on 2>/dev/null
+	fi
 
 	case "$(GET_VAR "device" "board/name")" in
 		rg*) ;;
@@ -1371,11 +1378,13 @@ SETUP_GL4ES() {
 SETUP_SDL_ENVIRONMENT() {
 	REQ_STYLE=""
 	SKIP_BLITTER=0
+	KEEP_CURSOR=0
 
 	for A in "$@"; do
 		case "$A" in
 			retro | modern) REQ_STYLE="$A" ;; # Optional priority override: $1 = retro | modern
 			skip_blitter) SKIP_BLITTER=1 ;; # Used primarily for external ScummVM at the moment
+			keep_cursor) KEEP_CURSOR=1 ;; # Mouse-driven applications such as ScummVM
 		esac
 	done
 
@@ -1440,6 +1449,30 @@ SETUP_SDL_ENVIRONMENT() {
 		export SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 	else
 		export SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION
+	fi
+
+	SDL_CURSOR_LIB="$MUX_LIB/libmucursor.so"
+	if [ "$KEEP_CURSOR" -eq 0 ]; then
+		if [ -f "$SDL_CURSOR_LIB" ]; then
+			case " ${LD_PRELOAD-} " in
+				*" $SDL_CURSOR_LIB "*) ;;
+				*) LD_PRELOAD="$SDL_CURSOR_LIB${LD_PRELOAD:+ $LD_PRELOAD}" ;;
+			esac
+			export LD_PRELOAD
+		fi
+	else
+		SDL_PRELOAD=""
+		for PRELOAD_LIB in ${LD_PRELOAD-}; do
+			[ "$PRELOAD_LIB" = "$SDL_CURSOR_LIB" ] && continue
+			SDL_PRELOAD="$SDL_PRELOAD${SDL_PRELOAD:+ }$PRELOAD_LIB"
+		done
+
+		if [ -n "$SDL_PRELOAD" ]; then
+			LD_PRELOAD="$SDL_PRELOAD"
+			export LD_PRELOAD
+		else
+			unset LD_PRELOAD
+		fi
 	fi
 
 	SETUP_GL4ES

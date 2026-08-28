@@ -101,7 +101,7 @@ state.rockchiprk817 {
 	control.4 {
 		iface MIXER
 		name 'Playback Path'
-		value SPK_HP
+		value SPK
 		comment {
 			access 'read write'
 			type ENUMERATED
@@ -158,7 +158,7 @@ state.rockchiprk817 {
 	control.8 {
 		iface MIXER
 		name 'Speaker Switch'
-		value false
+		value true
 		comment {
 			access 'read write'
 			type BOOLEAN

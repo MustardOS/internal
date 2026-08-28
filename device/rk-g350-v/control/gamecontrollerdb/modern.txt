@@ -1,3 +1,2 @@
 # Custom
-190000004b4800000300000011010000,g350_joypad,platform:Linux,x:b3,a:b0,b:b1,y:b2,back:b12,guide:b16,start:b13,dpleft:b10,dpdown:b9,dpright:b11,dpup:b8,leftshoulder:b4,lefttrigger:b6,rightshoulder:b5,righttrigger:b7,leftstick:b14,rightstick:b15,leftx:a0~,lefty:a2~,rightx:a3~,righty:a1,
-
+060000006d750000013500006f730000,muOS-Keys,a:b3,b:b2,x:b5,y:b4,leftshoulder:b6,rightshoulder:b7,lefttrigger:b8,righttrigger:b9,guide:b12,start:b11,back:b10,dpup:h0.1,dpleft:h0.8,dpright:h0.2,dpdown:h0.4,volumedown:b0,volumeup:b1,leftx:a0,lefty:a1,rightx:a2,righty:a3,leftstick:b13,rightstick:b14,platform:Linux,

@@ -1,3 +1,2 @@
 # Custom
-
-
+060000006d750000050000006f730000,muOS-Keys,a:b3,b:b2,x:b5,y:b4,leftshoulder:b6,rightshoulder:b7,lefttrigger:b8,righttrigger:b9,guide:b12,start:b11,back:b10,dpup:h0.1,dpleft:h0.8,dpright:h0.2,dpdown:h0.4,volumedown:b0,volumeup:b1,leftx:a0,lefty:a1,rightx:a2,righty:a3,leftstick:b13,rightstick:b14,platform:Linux,

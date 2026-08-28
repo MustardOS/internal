@@ -4620,8 +4620,8 @@
 			pinctrl-names = "default";
 			#address-cells = <0x01>;
 			#size-cells = <0x00>;
-			poll-interval = <0x05>;
-			label = "muOS-Keys";
+			poll-interval = <0x01>;
+			label = "muOS-Input-Source";
 
 			keyUP {
 				label = "Key Up";

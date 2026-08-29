@@ -10,6 +10,38 @@ BT_DEVICE_LOCK="$BT_DIR/device.lock"
 
 mkdir -p "$BT_DIR"
 
+DEVICE_READY() {
+	READY_INFO=$(timeout 5 bluetoothctl info "$1" 2>/dev/null)
+	READY_CONNECTED=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tConnected:/ { print $2; exit }')
+	READY_SERVICES=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tServicesResolved:/ { print $2; exit }')
+
+	[ "$READY_CONNECTED" = "yes" ] && [ "$READY_SERVICES" != "no" ]
+}
+
+WAIT_FOR_DEVICE() {
+	WAIT_COUNT=0
+	while [ "$WAIT_COUNT" -lt 10 ]; do
+		DEVICE_READY "$1" && return 0
+		sleep 1
+		WAIT_COUNT=$((WAIT_COUNT + 1))
+	done
+
+	return 1
+}
+
+CONNECT_DEVICE() {
+	DEVICE_READY "$1" && return 0
+
+	CONNECT_ATTEMPT=0
+	while [ "$CONNECT_ATTEMPT" -lt 2 ]; do
+		timeout 20 bluetoothctl connect "$1" >/dev/null 2>&1
+		WAIT_FOR_DEVICE "$1" && return 0
+		CONNECT_ATTEMPT=$((CONNECT_ATTEMPT + 1))
+	done
+
+	return 1
+}
+
 DO_LIST() {
 	if [ -f "$BT_DEVICE_LOCK" ]; then
 		LOCK_PID=$(cat "$BT_DEVICE_LOCK" 2>/dev/null)
@@ -67,39 +99,8 @@ DO_LIST() {
 		printf "%s %d %s\n" "$MAC" "$CONNECTED" "$NAME" >>"$TMP_BT_PAIR"
 	done
 
-	# When the same device name appears both connected and disconnected, the
-	# disconnected entry is a stale pairing so we'll remove the crusty pair.
-	CONNECTED_NAMES=$(awk '$2 == 1' "$TMP_BT_PAIR" | cut -d' ' -f3-)
-	if [ -n "$CONNECTED_NAMES" ]; then
-		TMP_DEDUP="$BT_DIR/paired.dedup.tmp.$$"
-		: >"$TMP_DEDUP"
-		while IFS= read -r LINE; do
-			ENTRY_MAC=$(printf "%s" "$LINE" | awk '{print $1}')
-			ENTRY_CONN=$(printf "%s" "$LINE" | awk '{print $2}')
-			ENTRY_NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
-			MAC_CLEAN=$(printf "%s" "$ENTRY_MAC" | tr ':' '_')
-
-			ENTRY_IS_AUDIO=0
-			if [ "$ENTRY_CONN" = "0" ] && printf "%s\n" "$CONNECTED_NAMES" | grep -qxF "$ENTRY_NAME" 2>/dev/null; then
-				STORED_TYPE=$(cat "$BT_DIR/type_$MAC_CLEAN" 2>/dev/null)
-				if [ -n "$STORED_TYPE" ]; then
-					case "$STORED_TYPE" in audio-*) ENTRY_IS_AUDIO=1 ;; esac
-				else
-					BT_ICON=$(timeout 3 bluetoothctl info "$ENTRY_MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
-					case "$BT_ICON" in audio-*) ENTRY_IS_AUDIO=1 ;; esac
-				fi
-			fi
-
-			if [ "$ENTRY_IS_AUDIO" -eq 1 ]; then
-				LOG_DEBUG "$0" 0 "BTDEVICE" "$(printf "Removing stale audio pairing '%s' (%s)" "$ENTRY_NAME" "$ENTRY_MAC")"
-				timeout 5 bluetoothctl remove "$ENTRY_MAC" >/dev/null 2>&1
-				rm -f "$BT_DIR/alias_$MAC_CLEAN" "$BT_DIR/type_$MAC_CLEAN"
-			else
-				printf "%s\n" "$LINE" >>"$TMP_DEDUP"
-			fi
-		done <"$TMP_BT_PAIR"
-		mv -f "$TMP_DEDUP" "$TMP_BT_PAIR"
-	fi
+	# Device addresses are the identity. Equal display names are valid and must
+	# remain as separate pairings (for example, multiple identical controllers).
 
 	if [ ! -s "$TMP_BT_PAIR" ]; then
 		for ADAPTER_DIR in /var/lib/bluetooth/??:??:??:??:??:??/; do
@@ -148,10 +149,17 @@ DO_CONNECT() {
 	bluetoothctl power on >/dev/null 2>&1
 	bluetoothctl unblock "$MAC" >/dev/null 2>&1
 
-	BT_INFO=$(bluetoothctl info "$MAC" 2>/dev/null)
+	BT_INFO=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
 	IS_PAIRED=$(printf "%s" "$BT_INFO" | awk -F': ' '/^\tPaired:/ { print $2; exit }')
 	if [ "${IS_PAIRED}" != "yes" ]; then
-		timeout 10 bluetoothctl pair "$MAC" >/dev/null 2>&1
+		timeout 30 bluetoothctl pair "$MAC" >/dev/null 2>&1
+		BT_INFO=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
+		IS_PAIRED=$(printf "%s" "$BT_INFO" | awk -F': ' '/^\tPaired:/ { print $2; exit }')
+		if [ "$IS_PAIRED" != "yes" ]; then
+			LOG_WARN "$0" 0 "BTDEVICE" "$(printf "Pairing with '%s' failed" "$MAC")"
+			DO_LIST
+			return 1
+		fi
 	fi
 
 	AUTOCONNECT=$(GET_VAR "config" "bluetooth/autoconnect")
@@ -159,7 +167,7 @@ DO_CONNECT() {
 		timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
 	fi
 
-	if timeout 30 bluetoothctl connect "$MAC" >/dev/null 2>&1; then
+	if CONNECT_DEVICE "$MAC"; then
 		LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Connected to '%s'" "$MAC")"
 
 		MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
@@ -176,7 +184,9 @@ DO_CONNECT() {
 			"$(dirname "$0")/audio_sink.sh" set-bt "$MAC" &
 		fi
 	else
-		LOG_WARN "$0" 0 "BTDEVICE" "$(printf "Connection to '%s' may have failed" "$MAC")"
+		LOG_WARN "$0" 0 "BTDEVICE" "$(printf "Connection to '%s' failed readiness verification" "$MAC")"
+		DO_LIST
+		return 1
 	fi
 
 	DO_LIST

@@ -13,6 +13,38 @@ SCAN_TIMEOUT=${BT_SCAN_TIMEOUT:-20}
 
 mkdir -p "$BT_DIR"
 
+DEVICE_READY() {
+	READY_INFO=$(timeout 5 bluetoothctl info "$1" 2>/dev/null)
+	READY_CONNECTED=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tConnected:/ { print $2; exit }')
+	READY_SERVICES=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tServicesResolved:/ { print $2; exit }')
+
+	[ "$READY_CONNECTED" = "yes" ] && [ "$READY_SERVICES" != "no" ]
+}
+
+WAIT_FOR_DEVICE() {
+	WAIT_COUNT=0
+	while [ "$WAIT_COUNT" -lt 10 ]; do
+		DEVICE_READY "$1" && return 0
+		sleep 1
+		WAIT_COUNT=$((WAIT_COUNT + 1))
+	done
+
+	return 1
+}
+
+CONNECT_DEVICE() {
+	DEVICE_READY "$1" && return 0
+
+	CONNECT_ATTEMPT=0
+	while [ "$CONNECT_ATTEMPT" -lt 2 ]; do
+		timeout 20 bluetoothctl connect "$1" >/dev/null 2>&1
+		WAIT_FOR_DEVICE "$1" && return 0
+		CONNECT_ATTEMPT=$((CONNECT_ATTEMPT + 1))
+	done
+
+	return 1
+}
+
 # Oui oui monsieur
 # https://www.linuxnet.ca/ieee/oui.html
 OUI_LOOKUP() {
@@ -184,13 +216,20 @@ DO_CONNECT() {
 	LOG_INFO "$0" 0 "BTSCAN" "$(printf "Pairing and connecting to '%s'" "$MAC")"
 
 	timeout 30 bluetoothctl pair "$MAC" >/dev/null 2>&1
+	BT_RAW=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
+	IS_PAIRED=$(printf "%s" "$BT_RAW" | awk -F': ' '/^\tPaired:/ { print $2; exit }')
+	if [ "$IS_PAIRED" != "yes" ]; then
+		LOG_WARN "$0" 0 "BTSCAN" "$(printf "Pairing with '%s' failed" "$MAC")"
+		"$(dirname "$0")/bt_device.sh" list
+		return 1
+	fi
 
 	AUTOCONNECT=$(GET_VAR "config" "bluetooth/autoconnect")
 	if [ "${AUTOCONNECT:-0}" -eq 1 ]; then
 		timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
 	fi
 
-	if timeout 30 bluetoothctl connect "$MAC" >/dev/null 2>&1; then
+	if CONNECT_DEVICE "$MAC"; then
 		LOG_SUCCESS "$0" 0 "BTSCAN" "$(printf "Connected to '%s'" "$MAC")"
 
 		BT_ICON=$(bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
@@ -198,7 +237,9 @@ DO_CONNECT() {
 			audio-*) "$(dirname "$0")/audio_sink.sh" set-bt "$MAC" & ;;
 		esac
 	else
-		LOG_WARN "$0" 0 "BTSCAN" "$(printf "Connection to '%s' may have failed" "$MAC")"
+		LOG_WARN "$0" 0 "BTSCAN" "$(printf "Connection to '%s' failed readiness verification" "$MAC")"
+		"$(dirname "$0")/bt_device.sh" list
+		return 1
 	fi
 
 	"$(dirname "$0")/bt_device.sh" list

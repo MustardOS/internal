@@ -65,6 +65,19 @@ ENSURE_CONFIG_FS() {
 	[ -d "/sys/kernel/config" ] || mount -t configfs none "/sys/kernel/config" 2>/dev/null
 }
 
+RESOLVE_UDC() {
+	[ -n "$UDC" ] && [ -e "/sys/class/udc/$UDC" ] && return 0
+
+	for UDC_PATH in /sys/class/udc/*; do
+		[ -e "$UDC_PATH" ] || continue
+		UDC=${UDC_PATH##*/}
+		return 0
+	done
+
+	UDC=
+	return 1
+}
+
 UNBIND_UDC() {
 	[ -e "$GADGET/UDC" ] || return 0
 
@@ -75,7 +88,7 @@ UNBIND_UDC() {
 }
 
 BIND_UDC() {
-	[ -n "$UDC" ] || return 1
+	RESOLVE_UDC || return 1
 	[ -z "$(cat "$GADGET/UDC" 2>/dev/null)" ] && echo "$UDC" >"$GADGET/UDC"
 }
 
@@ -240,7 +253,7 @@ REPAIR_AFTER_RESUME() {
 
 READ_UDC_STATE() {
 	# Typical values: "not attached", "powered", "attached", "configured"
-	if [ -n "$UDC" ] && [ -r "/sys/class/udc/$UDC/state" ]; then
+	if RESOLVE_UDC && [ -r "/sys/class/udc/$UDC/state" ]; then
 		ST=$(tr -d "\r" <"/sys/class/udc/$UDC/state" 2>/dev/null)
 		printf '%s' "$ST"
 	else
@@ -313,7 +326,7 @@ WATCHDOG_LOOP() {
 	ENSURE_DESIRED_STATE
 
 	while :; do
-		[ -n "$UDC" ] || {
+		RESOLVE_UDC || {
 			sleep "$INTERVAL"
 			continue
 		}
@@ -393,7 +406,7 @@ CMD_STATUS() {
 		printf "Watchdog: not running\n"
 	fi
 
-	if [ -z "$UDC" ]; then
+	if ! RESOLVE_UDC; then
 		printf "UDC: not present\n"
 		return 0
 	fi

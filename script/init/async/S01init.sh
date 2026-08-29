@@ -52,7 +52,6 @@ DO_START() {
 	SET_VAR "system" "resume_uptime" "$MU_UPTIME"
 	SET_VAR "system" "idle_inhibit" "0"
 	SET_VAR "config" "boot/device_mode" "0"
-	SET_VAR "device" "audio/ready" "0"
 
 	(
 		SET_VAR "device" "screen/width" "$WIDTH"

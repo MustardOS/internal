@@ -1,6 +1,12 @@
 // Name: Aperture Grille
 // Author: MustardOS
-// Version: 2
+// Version: 3
+
+#pragma parameter strength "Grille Strength" 0.50 0.00 1.00 0.05
+#pragma parameter floor_level "Mask Floor" 0.80 0.40 1.00 0.01
+
+uniform float strength;
+uniform float floor_level;
 
 vec2 native_res() {
     return max(u_native_resolution, vec2(1.0));
@@ -26,9 +32,9 @@ void main() {
 
     float x = floor(v_uv.x * n.x);
     float luma = dot(col, vec3(0.2126, 0.7152, 0.0722));
-    float strength = 0.50 * smoothstep(0.05, 0.30, luma);
+    float mask = strength * smoothstep(0.05, 0.30, luma);
 
-    col *= mix(vec3(0.80), grille_mask(x), strength);
+    col *= mix(vec3(floor_level), grille_mask(x), mask);
 
     gl_FragColor = vec4(col, 1.0);
 }

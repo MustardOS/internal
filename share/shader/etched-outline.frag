@@ -1,6 +1,10 @@
 // Name: Etched Outline
 // Author: MustardOS
-// Version: 2
+// Version: 3
+
+#pragma parameter gain "Edge Gain" 1.00 0.10 4.00 0.10
+
+uniform float gain;
 
 vec2 native_res() {
     return max(u_native_resolution, vec2(1.0));
@@ -15,5 +19,5 @@ void main() {
     float c = dot(texture2D(u_tex, clamp(v_uv + vec2(-px.x,  px.y), 0.0, 1.0)).rgb, LUMA);
     float d = dot(texture2D(u_tex, clamp(v_uv + vec2( px.x,  px.y), 0.0, 1.0)).rgb, LUMA);
 
-    gl_FragColor = vec4(vec3(abs(a - d) + abs(b - c)), 1.0);
+    gl_FragColor = vec4(vec3((abs(a - d) + abs(b - c)) * gain), 1.0);
 }

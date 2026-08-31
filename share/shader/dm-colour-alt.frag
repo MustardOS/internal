@@ -1,6 +1,16 @@
-// Name: Game Boy - Color Alt.
+// Name: Dot Matrix - Colour Alt.
 // Author: MustardOS
-// Version: 2
+// Version: 3
+
+#pragma parameter grid_x "Grid Depth X" 0.040 0.000 0.200 0.005
+#pragma parameter grid_y "Grid Depth Y" 0.015 0.000 0.200 0.005
+#pragma parameter edge_fade "Edge Fade" 1.00 0.00 8.00 0.25
+#pragma parameter column_depth "Column Depth" 0.009 0.000 0.050 0.001
+
+uniform float grid_x;
+uniform float grid_y;
+uniform float edge_fade;
+uniform float column_depth;
 
 vec2 native_res() {
     return max(u_native_resolution, vec2(1.0));
@@ -23,8 +33,9 @@ vec3 sample_rgb(vec2 uv) {
 float edge_x(vec2 uv) {
     vec2 n = native_res();
     float px = uv.x * n.x;
-    return smoothstep(1.5, 4.0, px) *
-           smoothstep(1.5, 4.0, (n.x - 1.0) - px);
+    float fade = max(edge_fade, 0.001);
+    return smoothstep(0.0, fade, px) *
+           smoothstep(0.0, fade, n.x - px);
 }
 
 vec3 soft_sample(vec2 uv, vec2 px) {
@@ -50,10 +61,10 @@ void main() {
     float l = dot(c, vec3(0.299, 0.587, 0.114));
     vec3 col = mix(vec3(l), c, 0.985) * vec3(1.00, 0.995, 0.95);
 
-    float ex = edge_x(uv);
-    float gx = mix(1.0, 0.96 + 0.04 * sin(uv.x * n.x * PI), ex);
-    float gy = 0.985 + 0.015 * sin(uv.y * n.y * PI);
-    float column = mix(1.0, 0.991 + 0.009 * sin(uv.x * n.x * 1.5708), ex);
+    float ex = edge_x(v_uv);
+    float gx = mix(1.0, 1.0 - grid_x + grid_x * sin(v_uv.x * n.x * PI), ex);
+    float gy = 1.0 - grid_y + grid_y * sin(v_uv.y * n.y * PI);
+    float column = mix(1.0, 1.0 - column_depth + column_depth * sin(v_uv.x * n.x * 1.5708), ex);
 
     col *= gx * gy;
     col *= column;

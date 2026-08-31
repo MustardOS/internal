@@ -1,6 +1,10 @@
 // Name: Terminal - Ascii Edition
 // Author: MustardOS
-// Version: 2
+// Version: 3
+
+#pragma parameter columns "Character Columns" 64.0 16.0 160.0 4.0
+
+uniform float columns;
 
 float glyph(float d, vec2 p) {
     float dotc = 1.0 - step(0.02, dot(p - 0.5, p - 0.5));
@@ -18,7 +22,7 @@ float glyph(float d, vec2 p) {
 }
 
 void main() {
-    const float cols = 64.0;
+    float cols = max(columns, 8.0);
     const float char_ar = 2.0;
 
     float rows = cols / char_ar * (u_resolution.y / u_resolution.x);

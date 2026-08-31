@@ -1,6 +1,16 @@
-// Name: Game Boy - DMG Alt
+// Name: Dot Matrix - Pocket Alt.
 // Author: MustardOS
-// Version: 2
+// Version: 3
+
+#pragma parameter grid_x "Grid Depth X" 0.040 0.000 0.200 0.005
+#pragma parameter grid_y "Grid Depth Y" 0.015 0.000 0.200 0.005
+#pragma parameter edge_fade "Edge Fade" 1.00 0.00 8.00 0.25
+#pragma parameter column_depth "Column Depth" 0.008 0.000 0.050 0.001
+
+uniform float grid_x;
+uniform float grid_y;
+uniform float edge_fade;
+uniform float column_depth;
 
 vec2 native_res() {
     return max(u_native_resolution, vec2(1.0));
@@ -23,8 +33,9 @@ vec3 sample_rgb(vec2 uv) {
 float edge_x(vec2 uv) {
     vec2 n = native_res();
     float px = uv.x * n.x;
-    return smoothstep(1.5, 4.0, px) *
-           smoothstep(1.5, 4.0, (n.x - 1.0) - px);
+    float fade = max(edge_fade, 0.001);
+    return smoothstep(0.0, fade, px) *
+           smoothstep(0.0, fade, n.x - px);
 }
 
 vec3 map_palette(float l, vec3 p0, vec3 p1, vec3 p2, vec3 p3) {
@@ -38,10 +49,10 @@ void main() {
     const float PI = 3.14159265;
     const vec3 LUMA = vec3(0.299, 0.587, 0.114);
 
-    const vec3 p0 = vec3(0.06, 0.16, 0.06);
-    const vec3 p1 = vec3(0.19, 0.38, 0.19);
-    const vec3 p2 = vec3(0.55, 0.67, 0.26);
-    const vec3 p3 = vec3(0.85, 0.93, 0.09);
+    const vec3 p0 = vec3(0.05, 0.10, 0.12);
+    const vec3 p1 = vec3(0.28, 0.42, 0.46);
+    const vec3 p2 = vec3(0.58, 0.72, 0.75);
+    const vec3 p3 = vec3(0.86, 0.96, 0.98);
 
     vec2 n = native_res();
     vec2 uv = snap_uv(v_uv);
@@ -49,10 +60,10 @@ void main() {
     float l = dot(sample_rgb(uv), LUMA);
     vec3 col = map_palette(l, p0, p1, p2, p3);
 
-    float ex = edge_x(uv);
-    float gx = mix(1.0, 0.95 + 0.05 * sin(uv.x * n.x * PI), ex);
-    float gy = 0.98 + 0.02 * sin(uv.y * n.y * PI);
-    float column = mix(1.0, 0.990 + 0.010 * sin(uv.x * n.x * 1.5708), ex);
+    float ex = edge_x(v_uv);
+    float gx = mix(1.0, 1.0 - grid_x + grid_x * sin(v_uv.x * n.x * PI), ex);
+    float gy = 1.0 - grid_y + grid_y * sin(v_uv.y * n.y * PI);
+    float column = mix(1.0, 1.0 - column_depth + column_depth * sin(v_uv.x * n.x * 1.5708), ex);
 
     col *= gx * gy;
     col *= column;

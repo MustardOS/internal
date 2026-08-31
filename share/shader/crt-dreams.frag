@@ -1,6 +1,16 @@
 // Name: CRT Dreams
 // Author: MustardOS
-// Version: 2
+// Version: 3
+
+#pragma parameter curve "Curvature" 0.035 0.000 0.150 0.005
+#pragma parameter sharpness "Pixel Snap" 0.62 0.00 1.00 0.01
+#pragma parameter scanline "Scanline" 0.05 0.00 0.30 0.01
+#pragma parameter mask "Triad Mask" 0.10 0.00 0.50 0.01
+
+uniform float curve;
+uniform float sharpness;
+uniform float scanline;
+uniform float mask;
 
 vec2 native_res() {
     return max(u_native_resolution, vec2(1.0));
@@ -16,7 +26,7 @@ vec2 curved_uv(vec2 uv) {
     float aspect = u_resolution.x / u_resolution.y;
 
     p.x *= aspect;
-    p *= 1.0 + dot(p, p) * 0.035;
+    p *= 1.0 + dot(p, p) * curve;
     p.x /= aspect;
 
     return p * 0.5 + 0.5;
@@ -45,8 +55,6 @@ void main() {
     float edge;
     vec2 suv;
     vec3 col;
-    vec2 centred;
-    float r;
     float luma;
     float mask_strength;
 
@@ -56,19 +64,15 @@ void main() {
     }
 
     edge = edge_mask(uv);
-    suv = mix(uv, snap_uv(uv), 0.62);
+    suv = mix(uv, snap_uv(uv), sharpness);
 
     col = texture2D(u_tex, suv).rgb;
 
-    centred = uv * 2.0 - 1.0;
-    r = dot(centred, centred);
-
-    col *= 0.95 + 0.05 * sin((suv.y + 0.0005) * n.y * PI);
+    col *= 1.0 - scanline + scanline * sin((suv.y + 0.0005) * n.y * PI);
     col *= 0.99 + 0.01 * sin((suv.x + 0.0005) * n.x * PI);
-    col *= 1.0 - r * 0.18;
 
     luma = dot(col, vec3(0.2126, 0.7152, 0.0722));
-    mask_strength = edge * smoothstep(0.12, 0.45, luma) * 0.10;
+    mask_strength = edge * smoothstep(0.12, 0.45, luma) * mask;
     col *= mix(vec3(1.0), triad_mask(gl_FragCoord.xy), mask_strength);
 
     col *= edge;

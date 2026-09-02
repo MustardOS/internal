@@ -2166,8 +2166,9 @@ BOOT_CONFIRMED_FLAG="$MUOS_RUN_DIR/boot_confirmed"
 SAFE_MODE_THRESHOLD=3
 BOOT_CONFIRM_GRACE=8
 FRONTEND_BIN="/opt/muos/frontend/muxfrontend"
+LAUNCH_SCRIPT="/opt/muos/script/mux/launch.sh"
 
-export SAFE_MODE_FLAG BOOT_CONFIRMED_FLAG FRONTEND_BIN
+export SAFE_MODE_FLAG BOOT_CONFIRMED_FLAG FRONTEND_BIN LAUNCH_SCRIPT
 
 IN_SAFE_MODE() {
 	[ -e "$SAFE_MODE_FLAG" ]
@@ -2224,7 +2225,11 @@ BOOT_GUARD_CONFIRM_LATER() {
 			ELAPSED=$((ELAPSED + 1))
 
 			NOW_PID=$(pgrep -f "$FRONTEND_BIN" 2>/dev/null | head -n 1)
-			[ -n "$NOW_PID" ] || return 0
+
+			if [ -z "$NOW_PID" ]; then
+				pgrep -f "$LAUNCH_SCRIPT" >/dev/null 2>&1 || return 0
+				continue
+			fi
 
 			if [ -z "$WATCH_PID" ]; then
 				WATCH_PID="$NOW_PID"
@@ -2276,6 +2281,7 @@ RUN_INIT_DEFERRED() {
 		INIT_DEFER_WAIT=0
 		while [ "$INIT_DEFER_WAIT" -lt 150 ]; do
 			pgrep -f "$FRONTEND_BIN" >/dev/null 2>&1 && break
+			pgrep -f "$LAUNCH_SCRIPT" >/dev/null 2>&1 && break
 			sleep 0.1
 			INIT_DEFER_WAIT=$((INIT_DEFER_WAIT + 1))
 		done

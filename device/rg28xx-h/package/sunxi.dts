@@ -5549,7 +5549,7 @@
 	};
 
 	chosen {
-		bootargs = "earlyprintk=sunxi-uart,0x05000000 loglevel=8 initcall_debug=1 console=ttyS0 init=/init";
+		bootargs = "quiet loglevel=3 init=/init";
 		linux,initrd-start = <0x00 0x00>;
 		linux,initrd-end = <0x00 0x00>;
 	};

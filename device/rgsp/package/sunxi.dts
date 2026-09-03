@@ -3840,14 +3840,14 @@
 			lcd_y = <0x1e0>;
 			lcd_width = <0x96>;
 			lcd_height = <0x5e>;
-			lcd_dclk_freq = <0x36>;
+			lcd_dclk_freq = <0x1b>;
 			lcd_pwm_used = <0x01>;
 			lcd_pwm_ch = <0x00>;
 			lcd_pwm_freq = <0xc350>;
 			lcd_pwm_pol = <0x01>;
 			lcd_pwm_max_limit = <0xff>;
 			lcd_hbp = <0x2e>;
-			lcd_ht = <0x68f>;
+			lcd_ht = <0x348>;
 			lcd_hspw = <0x02>;
 			lcd_vbp = <0x14>;
 			lcd_vt = <0x218>;
@@ -5545,7 +5545,7 @@
 	};
 
 	chosen {
-		bootargs = "earlyprintk=sunxi-uart,0x05000000 loglevel=8 initcall_debug=1 console=ttyS0 init=/init";
+		bootargs = "quiet loglevel=3 init=/init";
 		linux,initrd-start = <0x00 0x00>;
 		linux,initrd-end = <0x00 0x00>;
 	};

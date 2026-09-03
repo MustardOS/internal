@@ -92,9 +92,9 @@ PROCESS_START() {
 	mkdir -p "$PROCESS_ROOT" || return 1
 	PROCESS_ACQUIRE_START_LOCK "$PSTART_NAME" || {
 		PSTART_WAIT=0
-		while [ "$PSTART_WAIT" -lt 20 ]; do
+		while [ "$PSTART_WAIT" -lt 40 ]; do
 			PROCESS_READ "$PSTART_NAME" && return 0
-			sleep 0.1
+			sleep 0.05
 			PSTART_WAIT=$((PSTART_WAIT + 1))
 		done
 		return 1
@@ -104,9 +104,9 @@ PROCESS_START() {
 	PROCESS_READ "$PSTART_NAME" && return 0
 	setsid -f "$0" run "$PSTART_NAME" "$@" </dev/null >/dev/null 2>&1 || return 1
 	PSTART_WAIT=0
-	while [ "$PSTART_WAIT" -lt 20 ]; do
+	while [ "$PSTART_WAIT" -lt 40 ]; do
 		PROCESS_READ "$PSTART_NAME" && return 0
-		sleep 0.1
+		sleep 0.05
 		PSTART_WAIT=$((PSTART_WAIT + 1))
 	done
 	return 1

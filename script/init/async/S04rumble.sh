@@ -12,6 +12,11 @@ DO_START() {
 			printf "out" >/sys/class/gpio/gpio227/direction
 			printf "0" >/sys/class/gpio/gpio227/value
 			;;
+		rk-g350-v)
+			G350_RUMBLE_GPIO=/sys/class/gpio/gpio15
+			[ -d "$G350_RUMBLE_GPIO" ] || printf '%s' 15 >/sys/class/gpio/export 2>/dev/null
+			[ ! -d "$G350_RUMBLE_GPIO" ] || printf '%s' low >"$G350_RUMBLE_GPIO/direction"
+			;;
 		rk*)
 			[ -e /sys/class/pwm/pwmchip0/pwm0 ] || printf "0" >/sys/class/pwm/pwmchip0/export
 			printf "1000000" >/sys/class/pwm/pwmchip0/pwm0/period
@@ -27,8 +32,9 @@ DO_START() {
 	esac
 
 	LOG_INFO "$0" 0 "BOOTING" "Device Rumble Check"
-	case "$RUMBLE_SETTING" in
-		1 | 4 | 5) RUMBLE "$RUMBLE_PIN" 0.3 ;;
+	case "$BOARD_NAME:$RUMBLE_SETTING" in
+		rk-g350-v:*) ;;
+		*:1 | *:4 | *:5) RUMBLE "$RUMBLE_PIN" 0.3 ;;
 	esac
 }
 

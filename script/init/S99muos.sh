@@ -2,6 +2,24 @@
 
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 
+CAPTURE_G350_PSTORE() {
+	[ "$(GET_VAR "device" "board/name")" = rk-g350-v ] || return 0
+	[ -d /sys/fs/pstore ] || return 0
+
+	if ! grep -qs ' /sys/fs/pstore pstore ' /proc/mounts; then
+		mount -t pstore pstore /sys/fs/pstore 2>/dev/null || return 0
+	fi
+
+	G350_PSTORE_DIR=/opt/muos/config/g350-pstore
+	mkdir -p "$G350_PSTORE_DIR"
+
+	for G350_PSTORE_SOURCE in /sys/fs/pstore/*; do
+		[ -f "$G350_PSTORE_SOURCE" ] || continue
+		G350_PSTORE_NAME=${G350_PSTORE_SOURCE##*/}
+		cp "$G350_PSTORE_SOURCE" "$G350_PSTORE_DIR/$G350_PSTORE_NAME"
+	done
+}
+
 RUN_BOOT_MAINTENANCE() {
 	ROM_MOUNT=$1
 	FIRST_INIT=$2
@@ -45,6 +63,8 @@ RUN_BOOT_MAINTENANCE() {
 }
 
 DO_START() {
+	CAPTURE_G350_PSTORE
+
 	if [ "$FACTORY_RESET" -eq 1 ]; then
 		LED_CONTROL_CHANGE off
 		/opt/muos/script/system/factory.sh

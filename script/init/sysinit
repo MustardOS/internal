@@ -1,6 +1,25 @@
 #!/bin/sh
 # shellcheck source=/dev/null
 
+G350_INITIALISE_RUMBLE_GPIO() {
+	[ "$(cat /opt/muos/device/config/board/name 2>/dev/null)" = rk-g350-v ] || return 0
+
+	G350_RUMBLE_GPIO=/sys/class/gpio/gpio15
+	[ -d "$G350_RUMBLE_GPIO" ] || printf '%s' 15 >/sys/class/gpio/export 2>/dev/null || return 1
+
+	G350_GPIO_ATTEMPT=0
+	while [ ! -d "$G350_RUMBLE_GPIO" ] && [ "$G350_GPIO_ATTEMPT" -lt 20 ]; do
+		G350_GPIO_ATTEMPT=$((G350_GPIO_ATTEMPT + 1))
+		sleep 0.05
+	done
+	[ -d "$G350_RUMBLE_GPIO" ] || return 1
+
+	# The "low" changes the direction and output value
+	printf "%s" low >"$G350_RUMBLE_GPIO/direction"
+}
+
+G350_INITIALISE_RUMBLE_GPIO
+
 . /opt/muos/script/var/func.sh
 
 INIT_DIR="/opt/muos/script/init"

@@ -65,7 +65,10 @@ LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Launcher"
 BOOT_PROGRESS 100
 BOOT_PROGRESS_STOP
 
-SHOW_SPLASH clear
+case "$BOARD_NAME" in
+	rk-g350-v) ;;
+	*) SHOW_SPLASH clear ;;
+esac
 
 BOOT_GUARD_CONFIRM_LATER
 WATCHDOG_START

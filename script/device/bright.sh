@@ -2,6 +2,10 @@
 
 . /opt/muos/script/var/func.sh
 
+mkdir -p "$MUOS_RUN_DIR"
+exec 9>"$MUOS_RUN_DIR/brightness.lock"
+flock -x 9 # of seagulls
+
 DEVICE_MODE=$(GET_VAR "config" "boot/device_mode")
 { [ -z "$1" ] || [ "$DEVICE_MODE" -ne 0 ]; } && exit 0
 
@@ -67,9 +71,11 @@ SET_CURRENT() {
 	DESIRED_BLANK=$([ "$NEW_BRIGHT" -eq 0 ] && printf 4 || printf 0)
 	CURRENT_BLANK=$(cat "$FB_BLANK" 2>/dev/null || printf 0)
 
-	# Keep framebuffer blank state in sync
-	if [ "$FORCE" -eq 1 ] || [ "$CURRENT_BLANK" -ne "$DESIRED_BLANK" ]; then
-		SET_BLANK "$DESIRED_BLANK" "$FORCE"
+	# Keep framebuffer blank state in sync...
+	if [ "$CURRENT_BLANK" -ne "$DESIRED_BLANK" ]; then
+		SET_BLANK "$DESIRED_BLANK"
+	elif [ "$FORCE" -eq 1 ] && [ "$BOARD_NAME" != rk-g350-v ]; then
+		SET_BLANK "$DESIRED_BLANK" 1
 	fi
 
 	if [ "$NEW_BRIGHT" -le 0 ]; then

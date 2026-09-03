@@ -766,15 +766,24 @@ MUXCTL() {
 			BATTERY stop
 			;;
 		start)
-			HOTKEY start
+			HOTKEY start &
+			MUXCTL_HOTKEY_PID=$!
+
+			BATTERY start &
+			MUXCTL_BATTERY_PID=$!
+
+			MUXCTL_RESULT=0
+
+			wait "$MUXCTL_HOTKEY_PID" || MUXCTL_RESULT=1
 
 			if [ -n "${2:-}" ]; then
-				FRONTEND start "$2"
+				FRONTEND start "$2" || MUXCTL_RESULT=1
 			else
-				FRONTEND start
+				FRONTEND start || MUXCTL_RESULT=1
 			fi
 
-			BATTERY start
+			wait "$MUXCTL_BATTERY_PID" || MUXCTL_RESULT=1
+			return "$MUXCTL_RESULT"
 			;;
 		restart)
 			MUXCTL stop
@@ -1156,6 +1165,11 @@ CRITICAL_FAILURE() {
 RUMBLE() {
 	if [ -n "$(GET_VAR "device" "board/rumble")" ]; then
 		case "$(GET_VAR "device" "board/name")" in
+			rk-g350-v)
+				echo 1 >"$1"
+				sleep "$2"
+				echo 0 >"$1"
+				;;
 			rk*)
 				echo 1 >"$1"
 				sleep "$2"

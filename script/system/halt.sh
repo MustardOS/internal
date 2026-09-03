@@ -20,10 +20,6 @@ case "$1" in
 esac
 
 ACTION=$1
-case "$ACTION" in
-	poweroff | shutdown) SHOW_SPLASH shutdown ;;
-	*) SHOW_SPLASH "$ACTION" ;;
-esac
 
 set --
 for OMIT_PID in $(pidof /opt/muos/bin/muterm /sbin/mount.exfat-fuse 2>/dev/null); do
@@ -158,6 +154,13 @@ STOP_SERVICES() {
 
 LOG_INFO "$0" 0 "HALT" "Stopping muX services"
 MUXCTL stop
+
+LOG_INFO "$0" 0 "HALT" "Drawing splash"
+case "$ACTION" in
+	poweroff | shutdown) SPLASH_ROLE=shutdown ;;
+	*) SPLASH_ROLE=$ACTION ;;
+esac
+SHOW_SPLASH "$SPLASH_ROLE" || LOG_WARN "$0" 0 "HALT" "Could not draw splash"
 
 # Avoid hangups from syncthing if it's running.
 LOG_INFO "$0" 0 "HALT" "Stopping Syncthing"

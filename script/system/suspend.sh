@@ -9,6 +9,8 @@ MUXRETRO_SAVE_READY="$MUOS_RUN_DIR/muxretro_save_ready"
 MUXRETRO_SUSPEND_SIGNAL="USR1"
 MUXRETRO_RESUME_SIGNAL="USR2"
 
+G350_SUSPEND_DEBUG="/opt/muos/config/g350-suspend-debug"
+
 RECENT_WAKE_GRACE="${RECENT_WAKE_GRACE:-6}"
 RECENT_WAKE_STALE="${RECENT_WAKE_STALE:-60}"
 MUXRETRO_SAVE_WAIT_STEPS="${MUXRETRO_SAVE_WAIT_STEPS:-100}"
@@ -31,6 +33,187 @@ SHUTDOWN_TIME_SETTING="$(GET_VAR "config" "settings/power/shutdown")"
 CONNECT_ON_WAKE=$(GET_VAR "config" "settings/network/wake")
 USE_ACTIVITY="$(GET_VAR "config" "settings/advanced/activity")"
 USB_FUNCTION="$(GET_VAR "config" "settings/advanced/usb_function")"
+
+# We'll keep the suspend state for the G350 at freeze for now, not that it even works!
+if [ "$BOARD_NAME" = rk-g350-v ] && [ "$SUSPEND_STATE" = mem ]; then
+	SUSPEND_STATE=freeze
+fi
+
+G350_PREPARE_WAKE() {
+	[ "$BOARD_NAME" = rk-g350-v ] || return 0
+	[ "${G350_PM_TEST_ACTIVE:-0}" -eq 1 ] || [ -r "$G350_SUSPEND_DEBUG" ] || return 0
+	G350_PMIC_PATH=/sys/devices/platform/ff180000.i2c/i2c-0/0-0020
+
+	G350_CONSOLE_SUSPEND_OLD=
+	G350_PRINTK_OLD=
+	[ -r /sys/module/printk/parameters/console_suspend ] && \
+		IFS= read -r G350_CONSOLE_SUSPEND_OLD </sys/module/printk/parameters/console_suspend
+	[ -r /proc/sys/kernel/printk ] && IFS= read -r G350_PRINTK_OLD </proc/sys/kernel/printk
+
+	# The G350 ships with an old crappy 4.4 kernel. Serialising the device PM
+	# avoids dependency races during suspend or resume, while the extra PM output
+	# is captured by the device tree console if the kernel never returns properly...
+	[ -w /sys/power/pm_async ] && printf '%s' 0 >/sys/power/pm_async
+	[ -w /sys/power/pm_print_times ] && printf '%s' 1 >/sys/power/pm_print_times
+	[ -w /sys/module/printk/parameters/console_suspend ] && \
+		printf '%s' N >/sys/module/printk/parameters/console_suspend
+	[ -w /proc/sys/kernel/printk ] && printf '%s\n' '8 4 1 7' >/proc/sys/kernel/printk
+
+	for G350_WAKE_CONTROL in \
+		"$G350_PMIC_PATH"/power/wakeup \
+		"$G350_PMIC_PATH"/*/power/wakeup \
+		"$G350_PMIC_PATH"/input/*/device/power/wakeup \
+		/sys/devices/platform/ff180000.i2c/power/wakeup \
+		/sys/devices/platform/ff040000.gpio/power/wakeup; do
+		[ -w "$G350_WAKE_CONTROL" ] && printf '%s' enabled >"$G350_WAKE_CONTROL"
+	done
+}
+
+G350_RESTORE_PM_DEBUG() {
+	[ "$BOARD_NAME" = rk-g350-v ] || return 0
+
+	[ -n "$G350_CONSOLE_SUSPEND_OLD" ] && \
+		[ -w /sys/module/printk/parameters/console_suspend ] && \
+		printf '%s' "$G350_CONSOLE_SUSPEND_OLD" >/sys/module/printk/parameters/console_suspend
+	[ -n "$G350_PRINTK_OLD" ] && [ -w /proc/sys/kernel/printk ] && \
+		printf '%s\n' "$G350_PRINTK_OLD" >/proc/sys/kernel/printk
+}
+
+G350_PREPARE_PM_TEST() {
+	G350_PM_TEST_ACTIVE=0
+	G350_INITCALL_DEBUG_OLD=
+	[ "$BOARD_NAME" = rk-g350-v ] || return 0
+
+	G350_PM_TEST_REQUEST=/opt/muos/config/g350-pm-test
+	G350_PM_TEST_RUNNING=/opt/muos/config/g350-pm-test.running
+
+	[ -r "$G350_PM_TEST_REQUEST" ] || return 0
+	[ -w /sys/power/pm_test ] || {
+		mv "$G350_PM_TEST_REQUEST" /opt/muos/config/g350-pm-test.unsupported
+		return 1
+	}
+
+	G350_PM_TEST_LEVEL=
+	IFS= read -r G350_PM_TEST_LEVEL <"$G350_PM_TEST_REQUEST" || return 1
+	case "$G350_PM_TEST_LEVEL" in
+		freezer | devices | platform | processors | core) ;;
+		*)
+			mv "$G350_PM_TEST_REQUEST" /opt/muos/config/g350-pm-test.invalid
+			return 1
+			;;
+	esac
+
+	mv "$G350_PM_TEST_REQUEST" "$G350_PM_TEST_RUNNING"
+	printf '%s' "$G350_PM_TEST_LEVEL" >/sys/power/pm_test
+
+	G350_INITCALL_DEBUG_PATH=/sys/module/kernel/parameters/initcall_debug
+
+	if [ -r "$G350_INITCALL_DEBUG_PATH" ]; then
+		IFS= read -r G350_INITCALL_DEBUG_OLD <"$G350_INITCALL_DEBUG_PATH"
+	fi
+
+	[ -w "$G350_INITCALL_DEBUG_PATH" ] && printf '%s' Y >"$G350_INITCALL_DEBUG_PATH"
+
+	SUSPEND_STATE=mem
+	G350_PM_TEST_ACTIVE=1
+
+	sync
+}
+
+G350_COMPLETE_PM_TEST() {
+	[ "$G350_PM_TEST_ACTIVE" -eq 1 ] || return 0
+
+	printf '%s' none >/sys/power/pm_test
+	[ -n "$G350_INITCALL_DEBUG_OLD" ] && [ -w "$G350_INITCALL_DEBUG_PATH" ] && printf '%s' "$G350_INITCALL_DEBUG_OLD" >"$G350_INITCALL_DEBUG_PATH"
+
+	mv "$G350_PM_TEST_RUNNING" "/opt/muos/config/g350-pm-test.$1"
+}
+
+RUN_SUSPEND_BACKEND() {
+	SUSPEND_HELPER=/opt/muos/frontend/mususpend
+	if [ ! -x "$SUSPEND_HELPER" ]; then
+		G350_LOG_SUSPEND suspend-helper-unavailable
+		return 1
+	fi
+
+	SHUTDOWN_EPOCH=${WAKE_EPOCH:-0}
+	case "$SHUTDOWN_EPOCH" in
+		'' | *[!0-9]*) SHUTDOWN_EPOCH=0 ;;
+	esac
+
+	REMAINING=
+	if [ "$SHUTDOWN_EPOCH" -gt 0 ]; then
+		CURRENT_EPOCH=$(cat "$RTC_WAKE_PATH/since_epoch" 2>/dev/null || printf '%s' 0)
+		REMAINING=$((SHUTDOWN_EPOCH - CURRENT_EPOCH))
+		[ "$REMAINING" -lt 0 ] && REMAINING=0
+	fi
+
+	if [ "$BOARD_NAME" = rk-g350-v ]; then
+		G350_LOG_SUSPEND userspace-wait
+
+		if [ -n "$REMAINING" ]; then
+			"$SUSPEND_HELPER" --state userspace --power-device rk8xx_pwrkey --optimise \
+				--quiesce muxfrontend --quiesce muxretro --quiesce retroarch --timeout "$REMAINING"
+		else
+			"$SUSPEND_HELPER" --state userspace --power-device rk8xx_pwrkey --optimise \
+				--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
+		fi
+	else
+		if [ -n "$REMAINING" ]; then
+			"$SUSPEND_HELPER" --state "$SUSPEND_STATE" --timeout "$REMAINING"
+		else
+			"$SUSPEND_HELPER" --state "$SUSPEND_STATE"
+		fi
+	fi
+	SUSPEND_RESULT=$?
+
+	case "$SUSPEND_RESULT" in
+		0) G350_LOG_SUSPEND power-key-wake ;;
+		2) G350_LOG_SUSPEND shutdown-deadline ;;
+		*)
+			G350_LOG_SUSPEND suspend-backend-failed
+			return 1
+			;;
+	esac
+
+	return 0
+}
+
+# We'll keep a log of this until we figure out why the fuck it isn't waking up properly.
+G350_LOG_SUSPEND() {
+	[ "$BOARD_NAME" = rk-g350-v ] || return 0
+	[ -r "$G350_SUSPEND_DEBUG" ] || [ "${G350_PM_TEST_ACTIVE:-0}" -eq 1 ] || return 0
+	G350_PMIC_PATH=/sys/devices/platform/ff180000.i2c/i2c-0/0-0020
+
+	{
+		printf '\nphase=%s uptime=' "$1"
+		cat /proc/uptime
+
+		printf 'state=%s supported=' "$SUSPEND_STATE"
+		cat /sys/power/state
+
+		if [ -r /sys/power/pm_test ]; then
+			printf 'pm_test='
+			cat /sys/power/pm_test
+		fi
+
+		for G350_WAKE_CONTROL in \
+			"$G350_PMIC_PATH"/power/wakeup \
+			"$G350_PMIC_PATH"/*/power/wakeup \
+			"$G350_PMIC_PATH"/input/*/device/power/wakeup \
+			/sys/devices/platform/ff180000.i2c/power/wakeup \
+			/sys/devices/platform/ff040000.gpio/power/wakeup; do
+			[ -r "$G350_WAKE_CONTROL" ] || continue
+			printf 'wakeup[%s]=' "$G350_WAKE_CONTROL"
+			cat "$G350_WAKE_CONTROL"
+		done
+
+		grep -E 'rk8xx|rk808|rk817|ff180000|gpio0' /proc/interrupts 2>/dev/null || :
+		grep -E 'rk8xx|rk808|rk817|ff180000|gpio0' /sys/kernel/debug/wakeup_sources 2>/dev/null || :
+	} >>/opt/muos/config/g350-suspend.log 2>&1
+
+	sync
+}
 
 UPTIME_SEC() {
 	U=$(cut -d ' ' -f 1 /proc/uptime 2>/dev/null || echo 0)
@@ -167,7 +350,27 @@ SLEEP() {
 
 	/opt/muos/script/device/module.sh unload
 
-	echo "$SUSPEND_STATE" >"/sys/power/state"
+	# G350 this, G350 that... sigh!
+	if ! G350_PREPARE_PM_TEST; then
+		G350_LOG_SUSPEND pm-test-unavailable
+		return 0
+	fi
+
+	G350_PREPARE_WAKE
+	G350_LOG_SUSPEND entering
+
+	if [ "$G350_PM_TEST_ACTIVE" -eq 1 ]; then
+		G350_LOG_SUSPEND pm-test-dispatch
+		echo "$SUSPEND_STATE" >"/sys/power/state"
+		G350_LOG_SUSPEND returned
+		G350_COMPLETE_PM_TEST passed
+	elif RUN_SUSPEND_BACKEND; then
+		G350_LOG_SUSPEND returned
+	else
+		G350_LOG_SUSPEND backend-error
+	fi
+
+	G350_RESTORE_PM_DEBUG
 
 	sleep 0.5
 }

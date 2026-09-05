@@ -5,7 +5,10 @@
 CONTROL_DIR="/opt/muos/script/control"
 
 FORCE_COPY=0
-[ "$1" = "FORCE_COPY" ] && FORCE_COPY=1
+[ "${1:-}" = "FORCE_COPY" ] && FORCE_COPY=1
+
+CONTROL_PIDS=""
+CONTROL_RESULT=0
 
 START_CONTROL() {
 	NAME="$1"
@@ -19,6 +22,8 @@ START_CONTROL() {
 	else
 		"$CONTROL_SCRIPT" </dev/null >/dev/null 2>&1 &
 	fi
+
+	CONTROL_PIDS="$CONTROL_PIDS $!"
 }
 
 CONTROLS="drastic gamecontrollerdb mupen64plus openbor ppsspp retroarch task yabasanshiro"
@@ -27,3 +32,9 @@ CONTROLS="drastic gamecontrollerdb mupen64plus openbor ppsspp retroarch task yab
 for CONTROL in $CONTROLS; do
 	START_CONTROL "$CONTROL"
 done
+
+for CONTROL_PID in $CONTROL_PIDS; do
+	wait "$CONTROL_PID" || CONTROL_RESULT=1
+done
+
+exit "$CONTROL_RESULT"

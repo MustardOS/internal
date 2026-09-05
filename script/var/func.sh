@@ -1613,8 +1613,6 @@ CONFIGURE_RETROARCH() {
 	RA_DEF="$MUOS_SHARE_DIR/emulator/retroarch/retroarch.default.cfg"
 	RA_CONTROL="$DEVICE_CONTROL_DIR/retroarch"
 
-	# Stop the user from doing anything harmful to the main RetroArch configuration.
-	[ "$(GET_VAR "config" "settings/advanced/retrofree")" -eq 0 ] && rm -f "$RA_CONF"
 
 	# Check if the default RetroArch configuration exists.
 	[ ! -f "$RA_CONF" ] && cp "$RA_DEF" "$RA_CONF"

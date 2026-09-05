@@ -1,0 +1,53 @@
+From: MustardOS
+Subject: [PATCH] rsn_supp: tolerate WEXT scan-only RSNXE omission for WPA2-PSK
+
+Some legacy Wireless Extensions drivers do not expose RSNXE in their scan
+results even when the AP includes it in EAPOL-Key message 3. The message-3
+copy is MIC protected. Allow only that asymmetric omission for plain
+WPA2-PSK when the dedicated muOS compatibility option is enabled.
+
+All other RSNXE mismatch cases retain the upstream rejection behaviour.
+---
+ src/rsn_supp/wpa.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/src/rsn_supp/wpa.c b/src/rsn_supp/wpa.c
+--- a/src/rsn_supp/wpa.c
++++ b/src/rsn_supp/wpa.c
+@@ -2129,6 +2129,8 @@ static int wpa_supplicant_validate_ie(struct wpa_sm *sm,
+ 				      const unsigned char *src_addr,
+ 				      struct wpa_eapol_ie_parse *ie)
+ {
++	bool allow_missing_scan_rsnxe = false;
++
+ 	if (sm->ap_wpa_ie == NULL && sm->ap_rsn_ie == NULL) {
+ 		wpa_dbg(sm->ctx->msg_ctx, MSG_DEBUG,
+ 			"WPA: No WPA/RSN IE for this AP known. "
+@@ -2177,9 +2179,24 @@ static int wpa_supplicant_validate_ie(struct wpa_sm *sm,
+ 		return -1;
+ 	}
+ 
++	/*
++	 * Legacy WEXT scan results can omit RSNXE even though an AP includes it
++	 * in message 3/4. The EAPOL-Key MIC protects the latter. Permit only this
++	 * asymmetric omission for plain WPA2-PSK in the dedicated muOS WEXT build;
++	 * all other RSNXE mismatch checks remain unchanged.
++	 */
++#ifdef CONFIG_MUOS_WEXT_RSNXE_COMPAT
++	if (sm->proto == WPA_PROTO_RSN && !sm->ap_rsnxe && ie->rsnxe &&
++	    sm->key_mgmt == WPA_KEY_MGMT_PSK) {
++		allow_missing_scan_rsnxe = true;
++		wpa_msg(sm->ctx->msg_ctx, MSG_INFO,
++			"WPA: accepting EAPOL-Key RSNXE omitted from legacy WEXT scan results");
++	}
++#endif /* CONFIG_MUOS_WEXT_RSNXE_COMPAT */
++
+ 	if (sm->proto == WPA_PROTO_RSN &&
+ 	    ((sm->ap_rsnxe && !ie->rsnxe) ||
+-	     (!sm->ap_rsnxe && ie->rsnxe) ||
++	     (!sm->ap_rsnxe && ie->rsnxe && !allow_missing_scan_rsnxe) ||
+ 	     (sm->ap_rsnxe && ie->rsnxe &&
+ 	      (sm->ap_rsnxe_len != ie->rsnxe_len ||
+ 	       os_memcmp(sm->ap_rsnxe, ie->rsnxe, sm->ap_rsnxe_len) != 0)))) {
+-- 
+2.51.0

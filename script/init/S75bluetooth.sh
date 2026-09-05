@@ -80,7 +80,9 @@ DO_START() {
 			rfkill unblock all 2>/dev/null
 			sleep 1
 			if [ ! -f /etc/bluetooth/xr_bt.conf ]; then
-				WIFI_MAC=$(cat /sys/class/net/wlan0/address 2>/dev/null)
+				WIFI_IFACE=$(GET_VAR "device" "network/iface_active")
+				[ -n "$WIFI_IFACE" ] || WIFI_IFACE=$(GET_VAR "device" "network/iface")
+				WIFI_MAC=$(cat "/sys/class/net/$WIFI_IFACE/address" 2>/dev/null)
 				if [ -n "$WIFI_MAC" ]; then
 					FIRST_HEX=$(printf "%s" "$WIFI_MAC" | cut -d: -f1)
 					REST=$(printf "%s" "$WIFI_MAC" | cut -d: -f2-)
@@ -90,7 +92,7 @@ DO_START() {
 					printf "%s\n" "$BT_MAC_SPACE" >/etc/bluetooth/xr_bt.conf
 					LOG_INFO "$0" 0 "BLUETOOTH" "$(printf "Created XR829 BT MAC config: %s" "$BT_MAC_SPACE")"
 				else
-					LOG_WARN "$0" 0 "BLUETOOTH" "Cannot derive BT MAC: wlan0 address not available"
+					LOG_WARN "$0" 0 "BLUETOOTH" "$(printf "Cannot derive BT MAC: %s address not available" "${WIFI_IFACE:-wireless interface}")"
 				fi
 			fi
 			LOG_INFO "$0" 0 "BLUETOOTH" "Attaching Realtek HCI (tui/xradio variant)"

@@ -155,12 +155,14 @@ STOP_SERVICES() {
 LOG_INFO "$0" 0 "HALT" "Stopping muX services"
 MUXCTL stop
 
-LOG_INFO "$0" 0 "HALT" "Drawing splash"
+LOG_INFO "$0" 0 "HALT" "Drawing splash asynchronously"
 case "$ACTION" in
 	poweroff | shutdown) SPLASH_ROLE=shutdown ;;
 	*) SPLASH_ROLE=$ACTION ;;
 esac
-SHOW_SPLASH "$SPLASH_ROLE" || LOG_WARN "$0" 0 "HALT" "Could not draw splash"
+(
+	SHOW_SPLASH "$SPLASH_ROLE" || LOG_WARN "$0" 0 "HALT" "Could not draw splash"
+) &
 
 # Avoid hangups from syncthing if it's running.
 LOG_INFO "$0" 0 "HALT" "Stopping Syncthing"

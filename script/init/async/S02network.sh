@@ -189,24 +189,87 @@ WAIT_FOR_SDIO() {
 	return 1
 }
 
+NORMALISE_MODULE_NAME() {
+	printf "%s" "${1##*/}" | sed 's/\.ko$//' | tr '-' '_'
+}
+
+INTERFACE_DRIVER() {
+	I_DRIVER=""
+	for I_LINK in "$SCN_PATH/$1/device/driver/module" "$SCN_PATH/$1/device/driver"; do
+		[ -L "$I_LINK" ] || continue
+		I_DRIVER=$(basename "$(readlink -f "$I_LINK" 2>/dev/null)")
+		[ -n "$I_DRIVER" ] && break
+	done
+	NORMALISE_MODULE_NAME "$I_DRIVER"
+}
+
+IS_STATION_INTERFACE() {
+	I_NAME=$1
+	[ -n "$I_NAME" ] && [ -d "$SCN_PATH/$I_NAME" ] || return 1
+
+	case "$I_NAME" in
+		p2p* | ap* | mon*) return 1 ;;
+	esac
+
+	I_TYPE=$(iw dev "$I_NAME" info 2>/dev/null | awk '$1 == "type" { print $2; exit }')
+	case "$I_TYPE" in
+		managed | station) return 0 ;;
+		"") ;;
+		*) return 1 ;;
+	esac
+
+	# Older WEXT drivers may not report an nl80211 interface type. Their
+	# wireless sysfs directory still distinguishes them from Ethernet.
+	[ -d "$SCN_PATH/$I_NAME/wireless" ] || [ -L "$SCN_PATH/$I_NAME/phy80211" ]
+}
+
+INTERFACE_USES_CONFIGURED_DRIVER() {
+	[ -n "$NET_NAME" ] || return 0
+	I_EXPECTED=$(NORMALISE_MODULE_NAME "$NET_NAME")
+	I_ACTUAL=$(INTERFACE_DRIVER "$1")
+	[ -n "$I_ACTUAL" ] && [ "$I_ACTUAL" = "$I_EXPECTED" ]
+}
+
+SELECT_STATION_INTERFACE() {
+	I_REQUESTED=$1
+
+	if IS_STATION_INTERFACE "$I_REQUESTED" && INTERFACE_USES_CONFIGURED_DRIVER "$I_REQUESTED"; then
+		printf "%s" "$I_REQUESTED"
+		return 0
+	fi
+
+	for I_PATH in "$SCN_PATH"/wlan* "$SCN_PATH"/wl*; do
+		[ -d "$I_PATH" ] || continue
+		I_CANDIDATE=${I_PATH##*/}
+		if IS_STATION_INTERFACE "$I_CANDIDATE" && INTERFACE_USES_CONFIGURED_DRIVER "$I_CANDIDATE"; then
+			printf "%s" "$I_CANDIDATE"
+			return 0
+		fi
+	done
+
+	if IS_STATION_INTERFACE "$I_REQUESTED"; then
+		printf "%s" "$I_REQUESTED"
+		return 0
+	fi
+
+	for I_PATH in "$SCN_PATH"/wlan* "$SCN_PATH"/wl*; do
+		[ -d "$I_PATH" ] || continue
+		I_CANDIDATE=${I_PATH##*/}
+		if IS_STATION_INTERFACE "$I_CANDIDATE"; then
+			printf "%s" "$I_CANDIDATE"
+			return 0
+		fi
+	done
+
+	return 1
+}
+
 WAIT_FOR_IFACE_SCAN() {
 	W_IFACE=$1
 	I=0
 
 	while [ "$I" -lt "${MAX_WAIT:-5}" ]; do
-		if [ -n "$W_IFACE" ] && [ -d "$SCN_PATH/$W_IFACE" ]; then
-			printf "%s" "$W_IFACE"
-			return 0
-		fi
-		if [ -d "$SCN_PATH/wlan0" ]; then
-			printf "%s" "wlan0"
-			return 0
-		fi
-		for N in "$SCN_PATH"/wlan* "$SCN_PATH"/eth*; do
-			[ -d "$N" ] || continue
-			printf "%s" "${N##*/}"
-			return 0
-		done
+		SELECT_STATION_INTERFACE "$W_IFACE" && return 0
 		I=$((I + 1))
 		sleep 1
 	done

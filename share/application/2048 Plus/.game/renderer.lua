@@ -9174,7 +9174,8 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
         local current_y = list_y - (scroll * item_h)
         for i, ach in ipairs(achievementsList) do
             do
-                           -- Card background
+                local isUnlocked = (_G.achievements and _G.achievements[ach.id]) or false
+                -- Card background
                 love.graphics.setColor(board_color[1], board_color[2], board_color[3], isUnlocked and 0.95 or 0.85)
                 roundedRect("fill", padding, current_y, w - padding * 2, item_h - math.floor(10 * scale), math.floor(12 * scale))
 

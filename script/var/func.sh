@@ -2009,8 +2009,15 @@ SHOW_SPLASH() {
 		*) SCALE=0 ;;
 	esac
 
-	case "$(GET_VAR "device" "board/name")" in
-		rg28xx-h | rg-vita-pro) ROTATE=270 ;;
+	ROTATE=$(GET_VAR "device" "screen/splash_rotate")
+	case "$ROTATE" in
+		0 | 90 | 180 | 270) ;;
+		"")
+			case "$(GET_VAR "device" "board/name")" in
+				rg28xx-h | rg-vita-pro) ROTATE=270 ;;
+				*) ROTATE=0 ;;
+			esac
+			;;
 		*) ROTATE=0 ;;
 	esac
 

@@ -8,7 +8,7 @@ case "$ROOT_PREFIX" in
 	*/) ROOT_PREFIX=${ROOT_PREFIX%/} ;;
 esac
 
-COMMON_ROOT="$ROOT_PREFIX/opt/muos/share/conf"
+COMMON_ROOT="$ROOT_PREFIX/opt/muos/share/conf/rootfs"
 
 ROOT_PATH() {
 	printf "%s/%s" "$ROOT_PREFIX" "$1"
@@ -99,13 +99,17 @@ esac
 
 RESULT=0
 
+INSTALL_FILE etc/issue 0644 0 || RESULT=1
 INSTALL_FILE etc/hostname 0644 1 || RESULT=1
 INSTALL_FILE etc/wpa_supplicant.conf 0600 1 || RESULT=1
+INSTALL_FILE etc/umtprd/umtprd.conf 0644 0 || RESULT=1
+INSTALL_FILE opt/sftpgo/sftpgo.json 0644 0 || RESULT=1
 
-ENSURE_LINK etc/nsswitch.conf /opt/muos/share/conf/nsswitch.conf || RESULT=1
-ENSURE_LINK etc/profile.d/umask.sh /opt/muos/share/conf/umask.sh || RESULT=1
+ENSURE_LINK etc/nsswitch.conf /opt/muos/share/conf/rootfs/nsswitch.conf || RESULT=1
+ENSURE_LINK etc/profile.d/50-muos.sh /opt/muos/share/conf/rootfs/muos-profile.sh || RESULT=1
+ENSURE_LINK etc/profile.d/umask.sh /opt/muos/share/conf/rootfs/umask.sh || RESULT=1
 
-ENSURE_LINK etc/security/limits.d/25-pw-rlimits.conf /opt/muos/share/conf/rlimits.conf || RESULT=1
+ENSURE_LINK etc/security/limits.d/25-pw-rlimits.conf /opt/muos/share/conf/rootfs/rlimits.conf || RESULT=1
 
 ENSURE_LINK etc/mtab ../proc/self/mounts || RESULT=1
 ENSURE_LINK etc/resolv.conf ../tmp/resolv.conf || RESULT=1

@@ -279,7 +279,7 @@ INSTALL_WIREPLUMBER_CONF() {
 		RESTORE_CONF "$DEVICE_CONTROL_DIR/wireplumber.lua" \
 			"/usr/share/wireplumber/main.lua.d/60-muos-wireplumber.lua"
 
-		RESTORE_CONF "$MUOS_SHARE_DIR/conf/bluetooth.lua" \
+		RESTORE_CONF "$MUOS_SHARE_DIR/conf/rootfs/bluetooth.lua" \
 			"/usr/share/wireplumber/bluetooth.lua.d/50-bluez-config.lua"
 	fi
 
@@ -407,10 +407,10 @@ DO_START() {
 	[ "${ADV_AR:-0}" -eq 1 ] && SET_VAR "device" "audio/ready" "0"
 
 	LOG_INFO "$0" 0 "PIPEWIRE" "Restoring Default Sound System"
-	RESTORE_CONF "$MUOS_SHARE_DIR/conf/asound.conf" "/etc/asound.conf"
+	RESTORE_CONF "$MUOS_SHARE_DIR/conf/rootfs/asound.conf" "/etc/asound.conf"
 
 	LOG_INFO "$0" 0 "PIPEWIRE" "Restoring ALSA Config"
-	RESTORE_CONF "$MUOS_SHARE_DIR/conf/alsa.conf" "/usr/share/alsa/alsa.conf"
+	RESTORE_CONF "$MUOS_SHARE_DIR/conf/rootfs/alsa.conf" "/usr/share/alsa/alsa.conf"
 
 	if ! START_PIPEWIRE; then
 		LOG_ERROR "$0" 0 "PIPEWIRE" "Failed to start"

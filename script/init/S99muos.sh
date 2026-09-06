@@ -80,8 +80,9 @@ DO_START() {
 	ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 
 	LOG_INFO "$0" 0 "BOOTING" "Copying Root Home Files"
-	if [ ! -f /root/.profile ] || find /opt/muos/share/root/.profile -prune -newer /root/.profile -print -quit 2>/dev/null | grep -q .; then
-		cp -rf /opt/muos/share/root/. /root/
+	ROOT_HOME_SOURCE=/opt/muos/share/conf/rootfs/root
+	if [ ! -f /root/.profile ] || find "$ROOT_HOME_SOURCE" -type f -newer /root/.profile -print -quit 2>/dev/null | grep -q .; then
+		cp -rf "$ROOT_HOME_SOURCE/." /root/
 	fi
 
 	USB_FUNCTION=$(GET_VAR "config" "settings/advanced/usb_function")

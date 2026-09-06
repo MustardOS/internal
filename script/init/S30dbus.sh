@@ -2,7 +2,7 @@
 
 PIDFILE="/run/messagebus.pid"
 LOCKFILE="/var/lock/subsys/dbus-daemon"
-BT_DBUS_CONF_SRC="/opt/muos/share/conf/bluetooth.conf"
+BT_DBUS_CONF_SRC="/opt/muos/share/conf/rootfs/bluetooth.conf"
 BT_DBUS_CONF_DST="/etc/dbus-1/system.d/bluetooth.conf"
 
 RET_VAL=0

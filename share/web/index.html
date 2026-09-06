@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1f1f1f">
+    <meta name="description" content="MustardOS device dashboard">
+    <title>MustardOS</title>
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="muOS.css">
+</head>
+<body>
+<main class="wrap">
+    <p class="box offline" id="offline" hidden>No data from the device.</p>
+
+    <section class="grid grid-4" id="tiles" aria-label="Summary" hidden>
+        <div class="box stat">
+            <h2>Time</h2>
+            <p class="stat-value" id="clock-value">&mdash;</p>
+            <p class="stat-note" id="clock-note"></p>
+        </div>
+        <div class="box stat">
+            <h2>Battery</h2>
+            <p class="stat-value" id="battery-value">&mdash;</p>
+            <div class="bar"><span id="battery-bar"></span></div>
+            <p class="stat-note" id="battery-note"></p>
+        </div>
+        <div class="box stat">
+            <h2>Uptime</h2>
+            <p class="stat-value" id="uptime-value">&mdash;</p>
+            <p class="stat-note" id="uptime-note"></p>
+        </div>
+        <div class="box stat">
+            <h2>Playtime</h2>
+            <p class="stat-value" id="playtime-value">&mdash;</p>
+            <p class="stat-note" id="playtime-note"></p>
+        </div>
+    </section>
+
+    <section class="grid grid-2" id="dash" hidden>
+        <div class="box" id="now-box">
+            <h2>Now running</h2>
+            <dl class="kv" id="now-facts"></dl>
+        </div>
+        <div class="box" id="device-box">
+            <h2>Device</h2>
+            <dl class="kv" id="device-spec"></dl>
+        </div>
+        <div class="box">
+            <h2>Storage</h2>
+            <div class="meters" id="storage-list"></div>
+            <p class="note" id="storage-empty" hidden>Nothing mounted.</p>
+        </div>
+        <div class="box">
+            <h2>Most played</h2>
+            <ol class="rank" id="activity-list"></ol>
+            <p class="note" id="activity-empty" hidden>No activity recorded.</p>
+        </div>
+    </section>
+
+    <section class="grid grid-3">
+        <div class="box">
+            <h2>Services</h2>
+            <div class="rows">
+                <a class="row" data-service="sftpgo" href="#"><span>Files</span><i></i></a>
+                <a class="row" data-service="syncthing" href="#"><span>Syncthing</span><i></i></a>
+                <a class="row" data-service="ttyd" href="#"><span>Terminal</span><i></i></a>
+                <button class="row" data-service="sshd" type="button"><span>Secure Shell</span><i></i></button>
+            </div>
+            <p class="note" id="no-services" hidden>None enabled.</p>
+        </div>
+        <div class="box">
+            <h2>Documentation</h2>
+            <div class="rows">
+                <a class="row" href="https://muos.dev/tour"><span>Grand Tour</span><i>↗</i></a>
+                <a class="row" href="https://muos.dev/hotkeys"><span>Hotkeys</span><i>↗</i></a>
+                <a class="row" href="https://muos.dev/systems"><span>Systems</span><i>↗</i></a>
+                <a class="row" href="https://muos.dev/themes"><span>Themes</span><i>↗</i></a>
+            </div>
+        </div>
+        <div class="box">
+            <h2>Community</h2>
+            <div class="rows">
+                <a class="row" href="https://discord.gg/mustardos-1152022492001603615"><span>Discord</span><i>↗</i></a>
+                <a class="row" href="https://community.muos.dev/"><span>Forum</span><i>↗</i></a>
+                <a class="row" href="https://web.libera.chat/#MustardOS"><span>IRC</span><i>↗</i></a>
+                <a class="row" href="https://shop.muos.dev/"><span>Merch</span><i>↗</i></a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="runtime.js"></script>
+<script src="muOS.js"></script>
+</body>
+</html>

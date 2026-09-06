@@ -15,6 +15,8 @@ FFS_ROOT="/dev/usb-ffs"
 UDC="$(GET_VAR "device" "board/udc")"
 
 PID_FILE="$MUOS_RUN_DIR/usb_gadget.pid"
+UMTPRD_CONF_SOURCE=${UMTPRD_CONF_SOURCE:-"$MUOS_SHARE_DIR/conf/rootfs/umtprd.conf"}
+UMTPRD_CONF_TARGET=${UMTPRD_CONF_TARGET:-"/etc/umtprd/umtprd.conf"}
 
 GET_USB_FUNCTION() {
 	case "$(GET_VAR "config" "settings/advanced/usb_function")" in
@@ -107,12 +109,12 @@ CREATE_GADGET_SHELL() {
 MOUNT_FFS() {
 	F="$1"
 
-	mkdir -p "$GFUN/ffs.$F"
-	[ -L "$GCFG/ffs.$F" ] || ln -s "$GFUN/ffs.$F" "$GCFG/ffs.$F"
+	mkdir -p "$GFUN/ffs.$F" || return 1
+	[ -L "$GCFG/ffs.$F" ] || ln -s "$GFUN/ffs.$F" "$GCFG/ffs.$F" || return 1
 
-	mkdir -p "$FFS_ROOT/$F"
+	mkdir -p "$FFS_ROOT/$F" || return 1
 	if ! IS_MOUNTED "$FFS_ROOT/$F"; then
-		mount -t functionfs "$F" "$FFS_ROOT/$F"
+		mount -t functionfs "$F" "$FFS_ROOT/$F" || return 1
 	fi
 }
 
@@ -130,9 +132,16 @@ UMOUNT_FFS() {
 
 START_DAEMON_PROC() {
 	case "$1" in
-		adb) IS_RUNNING adbd || /usr/bin/adbd & ;;
+		adb)
+			[ -x /usr/bin/adbd ] || return 1
+			IS_RUNNING adbd || /usr/bin/adbd &
+			;;
 		mtp)
-			UPDATE_UMTPRD_CONF
+			[ -x /usr/bin/umtprd ] || return 1
+			UPDATE_UMTPRD_CONF || {
+				LOG_ERROR "$0" 0 "USB" "Unable to prepare the uMTP Responder configuration"
+				return 1
+			}
 			IS_RUNNING umtprd || /usr/bin/umtprd &
 			;;
 	esac
@@ -168,11 +177,42 @@ DAEMON_UP() {
 	esac
 }
 
+FUNCTION_AVAILABLE() {
+	case "$1" in
+		adb) [ -x /usr/bin/adbd ] ;;
+		mtp) [ -x /usr/bin/umtprd ] ;;
+		none) return 0 ;;
+		*) return 1 ;;
+	esac
+}
+
+FUNCTION_READY() {
+	F="$1"
+	DAEMON_UP "$F" || return 1
+	[ -e "$FFS_ROOT/$F/ep0" ] || return 1
+	[ -e "$FFS_ROOT/$F/ep1" ] || return 1
+	[ -e "$FFS_ROOT/$F/ep2" ] || return 1
+	[ "$F" != mtp ] || [ -e "$FFS_ROOT/$F/ep3" ]
+}
+
+WAIT_FUNCTION_READY() {
+	F="$1"
+	FFS_WAIT=30
+	while [ "$FFS_WAIT" -gt 0 ]; do
+		FUNCTION_READY "$F" && return 0
+		sleep 0.1
+		FFS_WAIT=$((FFS_WAIT - 1))
+	done
+
+	LOG_ERROR "$0" 0 "USB" "$(printf "FunctionFS '%s' did not become ready" "$F")"
+	return 1
+}
+
 SWITCH_TO() {
 	TGT="$1"
 	OTHER="$([ "$TGT" = adb ] && echo mtp || echo adb)"
 
-	if [ "$(CURRENT_FUNCTION)" = "$TGT" ] && IS_MOUNTED "$FFS_ROOT/$TGT" && DAEMON_UP "$TGT"; then
+	if [ "$(CURRENT_FUNCTION)" = "$TGT" ] && IS_MOUNTED "$FFS_ROOT/$TGT" && FUNCTION_READY "$TGT"; then
 		BIND_UDC
 		return 0
 	fi
@@ -181,19 +221,22 @@ SWITCH_TO() {
 	STOP_DAEMONS
 	UMOUNT_FFS "$OTHER"
 
-	MOUNT_FFS "$TGT"
-	START_DAEMON_PROC "$TGT"
-
-	sleep 0.25
+	MOUNT_FFS "$TGT" || return 1
+	START_DAEMON_PROC "$TGT" || return 1
+	WAIT_FUNCTION_READY "$TGT" || return 1
 	BIND_UDC
 }
 
 UPDATE_UMTPRD_CONF() {
-	if [ "$(GET_VAR "device" "storage/sdcard/active")" -eq 1 ]; then
-		sed -i 's|^#storage "/mnt/sdcard"|storage "/mnt/sdcard"|' /etc/umtprd/umtprd.conf
-	else
-		sed -i 's|^storage "/mnt/sdcard"|#storage "/mnt/sdcard"|' /etc/umtprd/umtprd.conf
-	fi
+	[ -r "$UMTPRD_CONF_SOURCE" ] || return 1
+	mkdir -p "${UMTPRD_CONF_TARGET%/*}" || return 1
+	UMTPRD_CONF_TEMP="$UMTPRD_CONF_TARGET.tmp.$$"
+	rm -f "$UMTPRD_CONF_TEMP"
+	cp -f "$UMTPRD_CONF_SOURCE" "$UMTPRD_CONF_TEMP" || return 1
+	chmod 0644 "$UMTPRD_CONF_TEMP" || {
+		rm -f "$UMTPRD_CONF_TEMP"
+		return 1
+	}
 
 	_VID="$(USB_VID)"
 	_PID="$(USB_PID)"
@@ -202,14 +245,26 @@ UPDATE_UMTPRD_CONF() {
 	_PRD="$(USB_PRODUCT)"
 	_FWV="$(FIRMWARE_VERSION)"
 
+	if [ "$(GET_VAR "device" "storage/sdcard/active")" -eq 1 ]; then
+		_SDCARD_EXPR='s|^#storage "/mnt/sdcard"|storage "/mnt/sdcard"|'
+	else
+		_SDCARD_EXPR='s|^storage "/mnt/sdcard"|#storage "/mnt/sdcard"|'
+	fi
+
 	sed -i \
+		-e "$_SDCARD_EXPR" \
 		-e "s/^usb_vendor_id .*/usb_vendor_id \"$_VID\"/" \
 		-e "s/^usb_product_id .*/usb_product_id \"$_PID\"/" \
 		-e "s/^serial .*/serial \"$_SER\"/" \
 		-e "s/^manufacturer .*/manufacturer \"$_MFR\"/" \
 		-e "s/^product .*/product \"$_PRD\"/" \
 		-e "s/^firmware_version .*/firmware_version \"$_FWV\"/" \
-		/etc/umtprd/umtprd.conf
+		"$UMTPRD_CONF_TEMP" || {
+		rm -f "$UMTPRD_CONF_TEMP"
+		return 1
+	}
+
+	mv -f "$UMTPRD_CONF_TEMP" "$UMTPRD_CONF_TARGET"
 }
 
 START_GADGET() {
@@ -218,9 +273,9 @@ START_GADGET() {
 
 	case "$USB_FUNCTION" in
 		adb | mtp)
-			MOUNT_FFS "$USB_FUNCTION"
-			START_DAEMON_PROC "$USB_FUNCTION"
-			sleep 0.2
+			MOUNT_FFS "$USB_FUNCTION" || return 1
+			START_DAEMON_PROC "$USB_FUNCTION" || return 1
+			WAIT_FUNCTION_READY "$USB_FUNCTION" || return 1
 			BIND_UDC
 			;;
 	esac
@@ -243,8 +298,9 @@ REPAIR_AFTER_RESUME() {
 	if [ -d "$GADGET" ]; then
 		case "$USB_FUNCTION" in
 			adb | mtp)
-				MOUNT_FFS "$USB_FUNCTION"
-				START_DAEMON_PROC "$USB_FUNCTION"
+				MOUNT_FFS "$USB_FUNCTION" || return 1
+				START_DAEMON_PROC "$USB_FUNCTION" || return 1
+				WAIT_FUNCTION_READY "$USB_FUNCTION" || return 1
 				;;
 		esac
 		BIND_UDC
@@ -273,6 +329,10 @@ ENSURE_DESIRED_STATE() {
 		none) [ -d "$GADGET" ] && STOP_GADGET ;;
 		adb | mtp)
 			USB_FUNCTION="$CUR_FUNC"
+			FUNCTION_AVAILABLE "$USB_FUNCTION" || {
+				LOG_ERROR "$0" 0 "USB" "$(printf "USB function '%s' is unavailable on this rootfs" "$USB_FUNCTION")"
+				return 2
+			}
 			if [ ! -d "$GADGET" ]; then
 				ENSURE_CONFIG_FS
 				CREATE_GADGET_SHELL
@@ -320,10 +380,12 @@ WATCHDOG_LOOP() {
 	ACQUIRE_PIDFILE || exit 0
 
 	INTERVAL="1"
-	STALL_REBIND_SECS="4"
+	STALL_REBIND_SECS="10"
 	STALL_COUNT=0
 
 	ENSURE_DESIRED_STATE
+	ENSURE_RESULT=$?
+	[ "$ENSURE_RESULT" -ne 2 ] || exit 1
 
 	while :; do
 		RESOLVE_UDC || {
@@ -332,6 +394,8 @@ WATCHDOG_LOOP() {
 		}
 
 		ENSURE_DESIRED_STATE
+		ENSURE_RESULT=$?
+		[ "$ENSURE_RESULT" -ne 2 ] || exit 1
 		STATE="$(READ_UDC_STATE)"
 
 		case "$STATE" in
@@ -340,6 +404,7 @@ WATCHDOG_LOOP() {
 				;;
 			"not attached")
 				STALL_COUNT=0
+				[ -n "$(cat "$GADGET/UDC" 2>/dev/null)" ] || BIND_UDC
 				;;
 			powered | attached | "configured with no interfaces")
 				STALL_COUNT=$((STALL_COUNT + 1))
@@ -358,6 +423,12 @@ WATCHDOG_LOOP() {
 }
 
 CMD_START() {
+	REQUESTED_FUNCTION=$(GET_USB_FUNCTION)
+	FUNCTION_AVAILABLE "$REQUESTED_FUNCTION" || {
+		printf "usb_gadgetd: %s is unavailable on this rootfs\n" "$REQUESTED_FUNCTION" >&2
+		return 1
+	}
+
 	if [ -r "$PID_FILE" ]; then
 		P="$(cat "$PID_FILE" 2>/dev/null)"
 		if [ -n "$P" ] && kill -0 "$P" 2>/dev/null; then

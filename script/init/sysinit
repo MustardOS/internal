@@ -22,6 +22,10 @@ G350_INITIALISE_RUMBLE_GPIO
 
 . /opt/muos/script/var/func.sh
 
+if ! /opt/muos/script/system/rootfs.sh restore; then
+	LOG_WARN "$0" 0 "BOOTING" "Unable to restore one or more common rootfs configurations"
+fi
+
 INIT_DIR="/opt/muos/script/init"
 
 RUN_ASYNC_START() {

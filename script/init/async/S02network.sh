@@ -613,6 +613,7 @@ WPA_CONFIG_HEADER() {
 	}
 
 	mv -f "$WPA_CONFIG_TMP" "$WPA_CONFIG"
+	chmod 0600 "$WPA_CONFIG"
 }
 
 WPA_STATUS_VALUE() {
@@ -1099,6 +1100,7 @@ BUILD_PROFILE_WPA_CONFIG() {
 	[ -d "$PROFILE_DIR" ] || return 1
 
 	: >"$WPA_CONFIG"
+	chmod 0600 "$WPA_CONFIG"
 	WPA_CONFIG_HEADER || return 1
 
 	NET_PROFILE_COUNT=0
@@ -1493,6 +1495,7 @@ DO_STOP() {
 
 	iw dev "$IFCE" disconnect
 	: >"$WPA_CONFIG"
+	chmod 0600 "$WPA_CONFIG"
 
 	LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting '%s' device down" "$IFCE")"
 	ip addr flush dev "$IFCE"

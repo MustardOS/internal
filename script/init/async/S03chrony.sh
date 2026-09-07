@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+
 case "${1:-start}" in
 	start | restart) IN_SAFE_MODE && exit 0 ;;
 esac

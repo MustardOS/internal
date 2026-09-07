@@ -1335,13 +1335,27 @@ ON_CONNECTED() {
 	LOG_INFO "$0" 0 "NETWORK" "Starting Enabled Network Services"
 	/opt/muos/script/web/service.sh &
 
-	LOG_INFO "$0" 0 "NETWORK" "Restarting Chrony Service"
-	/opt/muos/script/init/async/S02chrony.sh restart &
+	LOG_INFO "$0" 0 "NETWORK" "Ensuring Chrony Service is Running"
+	/opt/muos/script/init/async/S03chrony.sh start
 
 	LOG_INFO "$0" 0 "NETWORK" "Running Chrony Time Sync"
-	chronyc burst 4/4
-	sleep 2
-	chronyc -a makestep
+	CHRONY_ATTEMPT=0
+	while ! /opt/muos/bin/chronyc -a online >/dev/null 2>&1; do
+		CHRONY_ATTEMPT=$((CHRONY_ATTEMPT + 1))
+		if [ "$CHRONY_ATTEMPT" -ge 5 ]; then
+			LOG_WARN "$0" 0 "NETWORK" "Chrony did not become ready after network connection"
+			return 0
+		fi
+		sleep 1
+	done
+
+	if /opt/muos/bin/chronyc -a burst 4/4 >/dev/null 2>&1; then
+		sleep 2
+		/opt/muos/bin/chronyc -a makestep >/dev/null 2>&1 ||
+			LOG_WARN "$0" 0 "NETWORK" "Chrony could not step the system clock"
+	else
+		LOG_WARN "$0" 0 "NETWORK" "Chrony could not start its initial measurement burst"
+	fi
 }
 
 DO_START() {

@@ -1522,6 +1522,8 @@ SETUP_SDL_ENVIRONMENT() {
 	if [ "$SKIP_BLITTER" -eq 0 ]; then
 		export SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 	else
+		# Do not retain a value inherited from a previous or nested launcher.
+		unset SDL_BLITTER_DISABLED
 		export SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION
 	fi
 

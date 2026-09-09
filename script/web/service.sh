@@ -4,6 +4,8 @@
 
 PROCESS_HELPER="/opt/muos/script/var/process.sh"
 LANDING_STATUS="/opt/muos/script/web/status.sh"
+LANDING_BIN="/opt/muos/frontend/muweb"
+LANDING_SECRET="$MUOS_CONF_SYSTEM/landing_secret"
 
 SERVICE_PROCESS_NAME() {
 	case "$1" in
@@ -23,26 +25,80 @@ BOOL_WEB_SETTING() {
 	[ "$(GET_VAR "config" "web/$1")" = "1" ] && printf true || printf false
 }
 
+# The dashboard should look like the device it is showing, so the active theme's palette
+# is read out of its scheme and handed to the page. Only the handful of colours the page
+# actually needs are taken; everything else it derives from them.
+#
+# A theme has a default scheme and, when active.txt names one, an alternate that overrides
+# part of it. The alternate is rarely complete: muOS.ini restyles the background and the
+# accent but says nothing about the list text, which still comes from the default. So both
+# are read, in that order, and the later value wins key by key.
+THEME_PALETTE() {
+	TP_ACTIVE=$(GET_VAR "config" "theme/active")
+	[ -n "$TP_ACTIVE" ] || TP_ACTIVE="MustardOS"
+	TP_DIR="$MUOS_STORE_DIR/theme/$TP_ACTIVE"
+
+	# A theme keeps a palette at its root and one per screen size; either will do, since
+	# the colours are the same and only the metrics differ.
+	TP_INI="$TP_DIR/scheme/global.ini"
+	[ -r "$TP_INI" ] || TP_INI=$(find "$TP_DIR" -name global.ini -path '*/scheme/*' 2>/dev/null | head -n 1)
+	[ -n "$TP_INI" ] && [ -r "$TP_INI" ] || return 1
+
+	TP_ALT=""
+	if [ -r "$TP_DIR/active.txt" ]; then
+		IFS= read -r TP_NAME <"$TP_DIR/active.txt"
+		TP_NAME=${TP_NAME%"$(printf '\r')"}
+		[ -n "$TP_NAME" ] &&
+			TP_ALT=$(find "$TP_DIR/alternate" -maxdepth 1 -iname "$TP_NAME.ini" 2>/dev/null | head -n 1)
+	fi
+
+	awk -F' *= *' '
+		FNR == 1 { section = "" }
+		/^\[/ { section = $0; next }
+		$2 ~ /^[0-9A-Fa-f]{6}$/ { colour[section "|" $1] = $2 }
+		END {
+			want["[background]|BACKGROUND"] = "background"
+			want["[background]|BACKGROUND_GRADIENT_COLOR"] = "shade"
+			want["[grid]|CELL_DEFAULT_TEXT"] = "text"
+			want["[grid]|CELL_FOCUS_BACKGROUND"] = "accent"
+			want["[header]|HEADER_TEXT"] = "heading"
+			want["[battery]|BATTERY_LOW"] = "warn"
+			want["[battery]|BATTERY_ACTIVE"] = "good"
+
+			for (key in want)
+				if (key in colour) printf "        %s: \"#%s\",\n", want[key], colour[key]
+		}
+	' "$TP_INI" $TP_ALT
+}
+
 PREPARE_LANDING_ROOT() {
 	LANDING_ROOT="$MUOS_RUN_DIR/landing"
 	LANDING_SOURCE=/opt/muos/share/web
 	[ -d "$LANDING_SOURCE" ] || return 1
-	mkdir -p "$LANDING_ROOT" || return 1
-	cp -f "$LANDING_SOURCE"/index.html "$LANDING_SOURCE"/muOS.css "$LANDING_SOURCE"/muOS.js \
-		"$LANDING_SOURCE"/logo.svg "$LANDING_ROOT"/ || return 1
+	mkdir -p "$LANDING_ROOT/js" "$LANDING_ROOT/css" || return 1
+
+	cp -f "$LANDING_SOURCE"/index.html "$LANDING_SOURCE"/logo.svg "$LANDING_ROOT"/ || return 1
+	cp -f "$LANDING_SOURCE"/css/dashboard.css "$LANDING_ROOT/css"/ || return 1
+
+	for LANDING_PART in core theme dialog session view dashboard crop catalogue pickles boot; do
+		cp -f "$LANDING_SOURCE/js/$LANDING_PART.js" "$LANDING_ROOT/js"/ || return 1
+	done
 
 	mkdir -p "$LANDING_ROOT/state" || return 1
-	"$LANDING_STATUS" once || LOG_WARN "$0" 0 "WEB" "Landing page dashboard could not gather its first reading"
+	"$LANDING_STATUS" once || LOG_WARN "$0" 0 "WEB" "Web Dashboard could not gather its first reading"
 
 	MDNS_NAME=$(GET_VAR "config" "web/mdns_name")
 	VALID_LOCAL_NAME "$MDNS_NAME" || MDNS_NAME=muos
 	LOCAL_NAME=
 	[ "$(GET_VAR "config" "web/mdns")" = "1" ] && LOCAL_NAME="$MDNS_NAME.local"
-	LANDING_RUNTIME=$(mktemp "$LANDING_ROOT/.runtime.XXXXXX") || return 1
+	LANDING_RUNTIME=$(mktemp "$LANDING_ROOT/js/.runtime.XXXXXX") || return 1
 
 	{
 		printf 'window.MUOS_RUNTIME = {\n'
 		printf '    localName: "%s",\n' "$LOCAL_NAME"
+		printf '    theme: {\n'
+		THEME_PALETTE
+		printf '    },\n'
 		printf '    services: {\n'
 		printf '        sftpgo: {enabled: %s, port: %s},\n' \
 			"$(BOOL_WEB_SETTING sftpgo)" "$(GET_WEB_PORT "sftpgo_port" 9090)"
@@ -59,7 +115,7 @@ PREPARE_LANDING_ROOT() {
 	}
 
 	chmod 0644 "$LANDING_RUNTIME"
-	mv -f "$LANDING_RUNTIME" "$LANDING_ROOT/runtime.js"
+	mv -f "$LANDING_RUNTIME" "$LANDING_ROOT/js/runtime.js"
 }
 
 START_MDNS() {
@@ -111,24 +167,67 @@ MANAGE_WEBSERV() {
 			case "$SRV" in
 				mdns) START_MDNS ;;
 				landing)
-					DARKHTTPD_BIN=/opt/muos/bin/darkhttpd
-					[ -x "$DARKHTTPD_BIN" ] || DARKHTTPD_BIN=/usr/sbin/darkhttpd
-					[ -x "$DARKHTTPD_BIN" ] || {
-						LOG_ERROR "$0" 0 "WEB" "Landing page web server is unavailable"
+					[ -x "$LANDING_BIN" ] || {
+						LOG_ERROR "$0" 0 "WEB" "Web Dashboard server is unavailable"
 						return 1
 					}
 					PREPARE_LANDING_ROOT || {
-						LOG_ERROR "$0" 0 "WEB" "Landing page files could not be prepared"
+						LOG_ERROR "$0" 0 "WEB" "Web Dashboard files could not be prepared"
 						return 1
 					}
 					LANDING_PORT=$(GET_WEB_PORT "landing_port" 80)
-					"$PROCESS_HELPER" start "$PROCESS_NAME" "$DARKHTTPD_BIN" "$LANDING_ROOT" \
-						--port "$LANDING_PORT" --no-listing --hide-dotfiles --no-server-id --timeout 15 \
-						--header "X-Content-Type-Options: nosniff" \
-						--header "Content-Security-Policy: default-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'" || return 1
+
+					# Both trees are made on demand elsewhere, so make sure they exist before
+					# the server resolves them, otherwise a fresh device has nothing to open.
+					LANDING_CATALOGUE="$MUOS_STORE_DIR/info/catalogue"
+					LANDING_PICKLES="$MUOS_STORE_DIR/save/pickles"
+					mkdir -p "$LANDING_CATALOGUE" "$LANDING_PICKLES"
+
+					set -- "$LANDING_BIN" --root "$LANDING_ROOT" --port "$LANDING_PORT" \
+						--catalogue "$LANDING_CATALOGUE" --pickles "$LANDING_PICKLES"
+
+					# A catalogue folder is named after a system, and a system is not content:
+					# on its own it can only report the artwork somebody already put there.
+					# Given the assign map and the card, the dashboard can list the content
+					# each catalogue is actually responsible for, and so say what is missing.
+					LANDING_INFO="$MUOS_SHARE_DIR/info"
+					[ -r "$LANDING_INFO/assign/assign.json" ] && set -- "$@" --info "$LANDING_INFO"
+
+					# Only the ROMS directory of each storage root: the rest of a card holds
+					# BIOS files, ports, muOS itself and whatever else has been copied on, and
+					# none of that is content the catalogue is responsible for. The device's
+					# own mount comes first so it is still covered when it is not one of the
+					# three standard ones.
+					LANDING_SEEN=""
+					for LANDING_MOUNT in "$(GET_VAR "device" "storage/rom/mount")" /mnt/mmc /mnt/sdcard /mnt/usb; do
+						[ -n "$LANDING_MOUNT" ] || continue
+
+						LANDING_ROMS="$LANDING_MOUNT/ROMS"
+						[ -d "$LANDING_ROMS" ] || continue
+
+						# The device mount is usually /mnt/mmc as well, so do not pass it twice.
+						case " $LANDING_SEEN " in
+							*" $LANDING_ROMS "*) continue ;;
+						esac
+
+						LANDING_SEEN="$LANDING_SEEN $LANDING_ROMS"
+						set -- "$@" --content "$LANDING_ROMS"
+					done
+
+					# Browsing and downloading are always available. Authentication is what
+					# unlocks changing anything, and every change then wants the rolling code
+					# the device is showing, so two handhelds on one network cannot touch each
+					# other by accident. Without it the dashboard stays strictly read only.
+					if [ "$(GET_VAR "config" "web/landing_auth")" = "0" ]; then
+						set -- "$@" --readonly
+					else
+						set -- "$@" --secret "$LANDING_SECRET"
+					fi
+
+					"$PROCESS_HELPER" start "$PROCESS_NAME" "$@" || return 1
 
 					"$PROCESS_HELPER" start web-landstat "$LANDING_STATUS" watch ||
-						LOG_ERROR "$0" 0 "WEB" "Landing page dashboard readings are unavailable"
+						LOG_ERROR "$0" 0 "WEB" "Web Dashboard readings are unavailable"
 					;;
 				sshd)
 					SSHD_PORT=$(GET_WEB_PORT "sshd_port" 22)
@@ -273,7 +372,7 @@ case "$1" in
 
 		if [ "$2" != "landing" ] && [ "$(GET_VAR "config" "web/landing")" = "1" ]; then
 			MANAGE_WEBSERV stop landing
-			MANAGE_WEBSERV start landing || LOG_ERROR "$0" 0 "WEB" "Failed to refresh Landing Page links"
+			MANAGE_WEBSERV start landing || LOG_ERROR "$0" 0 "WEB" "Failed to refresh Web Dashboard links"
 		fi
 		;;
 	stopall)

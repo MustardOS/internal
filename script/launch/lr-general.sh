@@ -4,7 +4,9 @@
 . /opt/muos/script/var/launch.sh
 
 SETUP_STAGE_OVERLAY
-SETUP_SDL_ENVIRONMENT
+# Keep the fbdev scanout blitter enabled for stable panel cadence.  RetroArch
+# and Pickles both perform their own rendering and do not require this bypass.
+SETUP_SDL_ENVIRONMENT skip_blitter
 
 SET_VAR "system" "foreground_process" "retroarch"
 

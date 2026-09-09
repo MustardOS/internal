@@ -7,91 +7,195 @@
     <meta name="description" content="MustardOS device dashboard">
     <title>MustardOS</title>
     <link rel="icon" href="logo.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="muOS.css">
+    <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
 <main class="wrap">
-    <p class="box offline" id="offline" hidden>No data from the device.</p>
+    <nav class="tabs" aria-label="Sections">
+        <button class="tab" type="button" data-view="dash">Dashboard</button>
+        <button class="tab" type="button" data-view="catalogue">Catalogue</button>
+        <button class="tab" type="button" data-view="pickles">Saves</button>
+        <button class="lock" type="button" id="lock-toggle" aria-live="polite" hidden></button>
+    </nav>
 
-    <section class="grid grid-4" id="tiles" aria-label="Summary" hidden>
-        <div class="box stat">
-            <h2>Time</h2>
-            <p class="stat-value" id="clock-value">&mdash;</p>
-            <p class="stat-note" id="clock-note"></p>
-        </div>
-        <div class="box stat">
-            <h2>Battery</h2>
-            <p class="stat-value" id="battery-value">&mdash;</p>
-            <div class="bar"><span id="battery-bar"></span></div>
-            <p class="stat-note" id="battery-note"></p>
-        </div>
-        <div class="box stat">
-            <h2>Uptime</h2>
-            <p class="stat-value" id="uptime-value">&mdash;</p>
-            <p class="stat-note" id="uptime-note"></p>
-        </div>
-        <div class="box stat">
-            <h2>Playtime</h2>
-            <p class="stat-value" id="playtime-value">&mdash;</p>
-            <p class="stat-note" id="playtime-note"></p>
-        </div>
-    </section>
+    <div class="view" id="view-dash">
+        <p class="box offline" id="offline" hidden>No data from the device.</p>
 
-    <section class="grid grid-2" id="dash" hidden>
-        <div class="box" id="now-box">
-            <h2>Now running</h2>
-            <dl class="kv" id="now-facts"></dl>
-        </div>
-        <div class="box" id="device-box">
-            <h2>Device</h2>
-            <dl class="kv" id="device-spec"></dl>
-        </div>
-        <div class="box">
-            <h2>Storage</h2>
-            <div class="meters" id="storage-list"></div>
-            <p class="note" id="storage-empty" hidden>Nothing mounted.</p>
-        </div>
-        <div class="box">
-            <h2>Most played</h2>
-            <ol class="rank" id="activity-list"></ol>
-            <p class="note" id="activity-empty" hidden>No activity recorded.</p>
-        </div>
-    </section>
+        <section class="grid grid-4" id="tiles" aria-label="Summary" hidden>
+            <div class="box stat">
+                <h2>Time</h2>
+                <p class="stat-value" id="clock-value">-</p>
+                <p class="stat-note" id="clock-note"></p>
+            </div>
+            <div class="box stat">
+                <h2>Battery</h2>
+                <p class="stat-value" id="battery-value">-</p>
+                <div class="bar"><span id="battery-bar"></span></div>
+                <p class="stat-note" id="battery-note"></p>
+            </div>
+            <div class="box stat">
+                <h2>Uptime</h2>
+                <p class="stat-value" id="uptime-value">-</p>
+                <p class="stat-note" id="uptime-note"></p>
+            </div>
+            <div class="box stat">
+                <h2>Playtime</h2>
+                <p class="stat-value" id="playtime-value">-</p>
+                <p class="stat-note" id="playtime-note"></p>
+            </div>
+        </section>
 
-    <section class="grid grid-3">
-        <div class="box">
-            <h2>Services</h2>
-            <div class="rows">
-                <a class="row" data-service="sftpgo" href="#"><span>Files</span><i></i></a>
-                <a class="row" data-service="syncthing" href="#"><span>Syncthing</span><i></i></a>
-                <a class="row" data-service="ttyd" href="#"><span>Terminal</span><i></i></a>
-                <button class="row" data-service="sshd" type="button"><span>Secure Shell</span><i></i></button>
+        <section class="grid grid-2" id="dash" hidden>
+            <div class="box" id="now-box">
+                <h2>Now running</h2>
+                <dl class="kv" id="now-facts"></dl>
             </div>
-            <p class="note" id="no-services" hidden>None enabled.</p>
-        </div>
-        <div class="box">
-            <h2>Documentation</h2>
-            <div class="rows">
-                <a class="row" href="https://muos.dev/tour"><span>Grand Tour</span><i>↗</i></a>
-                <a class="row" href="https://muos.dev/hotkeys"><span>Hotkeys</span><i>↗</i></a>
-                <a class="row" href="https://muos.dev/systems"><span>Systems</span><i>↗</i></a>
-                <a class="row" href="https://muos.dev/themes"><span>Themes</span><i>↗</i></a>
+            <div class="box" id="device-box">
+                <h2>Device</h2>
+                <dl class="kv" id="device-spec"></dl>
             </div>
-        </div>
-        <div class="box">
-            <h2>Community</h2>
-            <div class="rows">
-                <a class="row" href="https://discord.gg/mustardos-1152022492001603615"><span>Discord</span><i>↗</i></a>
-                <a class="row" href="https://community.muos.dev/"><span>Forum</span><i>↗</i></a>
-                <a class="row" href="https://web.libera.chat/#MustardOS"><span>IRC</span><i>↗</i></a>
-                <a class="row" href="https://shop.muos.dev/"><span>Merch</span><i>↗</i></a>
+            <div class="box">
+                <h2>Storage</h2>
+                <div class="meters" id="storage-list"></div>
+                <p class="note" id="storage-empty" hidden>Nothing mounted.</p>
             </div>
+            <div class="box">
+                <h2>Most played</h2>
+                <ol class="rank" id="activity-list"></ol>
+                <p class="note" id="activity-empty" hidden>No activity recorded.</p>
+            </div>
+        </section>
+
+        <section class="grid grid-3">
+            <div class="box">
+                <h2>Services</h2>
+                <div class="rows">
+                    <a class="row" data-service="sftpgo" href="#"><span>Files</span><i></i></a>
+                    <a class="row" data-service="syncthing" href="#"><span>Syncthing</span><i></i></a>
+                    <a class="row" data-service="ttyd" href="#"><span>Terminal</span><i></i></a>
+                    <button class="row" data-service="sshd" type="button"><span>Secure Shell</span><i></i></button>
+                </div>
+                <p class="note" id="no-services" hidden>None enabled.</p>
+            </div>
+            <div class="box">
+                <h2>Documentation</h2>
+                <div class="rows">
+                    <a class="row" href="https://muos.dev/tour"><span>Grand Tour</span><i>↗</i></a>
+                    <a class="row" href="https://muos.dev/hotkeys"><span>Hotkeys</span><i>↗</i></a>
+                    <a class="row" href="https://muos.dev/systems"><span>Systems</span><i>↗</i></a>
+                    <a class="row" href="https://muos.dev/themes"><span>Themes</span><i>↗</i></a>
+                </div>
+            </div>
+            <div class="box">
+                <h2>Community</h2>
+                <div class="rows">
+                    <a class="row" href="https://discord.gg/mustardos-1152022492001603615"><span>Discord</span><i>↗</i></a>
+                    <a class="row" href="https://community.muos.dev/"><span>Forum</span><i>↗</i></a>
+                    <a class="row" href="https://web.libera.chat/#MustardOS"><span>IRC</span><i>↗</i></a>
+                    <a class="row" href="https://shop.muos.dev/"><span>Merch</span><i>↗</i></a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="view" id="view-catalogue" hidden>
+        <div class="box" role="region" aria-label="Catalogue">
+            <div class="space" id="catalogue-space" role="group" aria-label="Storage" hidden>
+                <div class="space-head">
+                    <b id="catalogue-space-free"></b>
+                    <span id="catalogue-space-total"></span>
+                </div>
+                <div class="space-bar"><span id="catalogue-space-fill"></span></div>
+            </div>
+            <div class="head">
+                <nav class="crumbs" id="catalogue-crumbs" aria-label="Breadcrumb"></nav>
+                <input class="search" type="search" id="catalogue-search" placeholder="Search" aria-label="Search"
+                       hidden>
+            </div>
+            <div id="catalogue-body"></div>
         </div>
-    </section>
+    </div>
+
+    <div class="view" id="view-pickles" hidden>
+        <div class="box" role="region" aria-label="Saves">
+            <div class="space" id="pickles-space" role="group" aria-label="Storage" hidden>
+                <div class="space-head">
+                    <b id="pickles-space-free"></b>
+                    <span id="pickles-space-total"></span>
+                </div>
+                <div class="space-bar"><span id="pickles-space-fill"></span></div>
+            </div>
+            <div class="head">
+                <nav class="crumbs" id="pickles-crumbs" aria-label="Breadcrumb"></nav>
+                <input class="search" type="search" id="pickles-search" placeholder="Search" aria-label="Search"
+                       hidden>
+            </div>
+            <div id="pickles-body"></div>
+        </div>
+
+    </div>
 </main>
 
+<div class="modal" id="crop-box" hidden>
+    <div class="box" role="dialog" aria-labelledby="crop-title" aria-modal="true">
+        <h2 id="crop-title">Trim and resize</h2>
+        <div class="crop-stage" id="crop-stage">
+            <canvas id="crop-canvas"></canvas>
+            <div class="crop-frame" id="crop-frame">
+                <span data-handle="nw"></span><span data-handle="ne"></span>
+                <span data-handle="sw"></span><span data-handle="se"></span>
+            </div>
+        </div>
+        <div class="crop-foot">
+            <select class="sort" id="crop-limit" aria-label="Largest edge"></select>
+            <span class="note" id="crop-size"></span>
+        </div>
+        <div class="code-actions">
+            <button class="link" type="button" id="crop-reset">Reset</button>
+            <button class="link" type="button" id="crop-cancel">Cancel</button>
+            <button class="link" type="button" id="crop-save">Use this</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="ask-box" hidden>
+    <div class="box" role="alertdialog" aria-labelledby="ask-title" aria-describedby="ask-message">
+        <h2 id="ask-title"></h2>
+        <p class="note" id="ask-message"></p>
+        <div class="code-actions">
+            <button class="link" type="button" id="ask-cancel">Cancel</button>
+            <button class="link" type="button" id="ask-confirm"></button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="code-box" hidden>
+    <form class="box" id="code-form">
+        <h2>Device code</h2>
+        <p class="note">Open Web Dashboard Code on the device.</p>
+        <input id="code-input" type="text" inputmode="numeric" autocomplete="off" pattern="[0-9]{6}"
+               maxlength="6" size="6" placeholder="000000" aria-label="Device code" required>
+        <div class="bar"><span id="code-bar"></span></div>
+        <p class="note" id="code-expiry"></p>
+        <p class="note danger" id="code-note"></p>
+        <div class="code-actions">
+            <button class="link" type="button" id="code-cancel">Cancel</button>
+            <button class="link" type="submit">Confirm</button>
+        </div>
+    </form>
+</div>
+
 <div id="toast" role="status" aria-live="polite"></div>
-<script src="runtime.js"></script>
-<script src="muOS.js"></script>
+    <script src="js/runtime.js" defer></script>
+    <script src="js/core.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/dialog.js" defer></script>
+    <script src="js/session.js" defer></script>
+    <script src="js/view.js" defer></script>
+    <script src="js/dashboard.js" defer></script>
+    <script src="js/crop.js" defer></script>
+    <script src="js/catalogue.js" defer></script>
+    <script src="js/pickles.js" defer></script>
+    <script src="js/boot.js" defer></script>
 </body>
 </html>

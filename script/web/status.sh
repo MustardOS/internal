@@ -9,6 +9,7 @@ STATUS_CR=$(printf '\r')
 
 LANDING_STATE="$MUOS_RUN_DIR/landing/state"
 STATUS_FILE="$LANDING_STATE/status.json"
+ACTIVITY_FILE="$LANDING_STATE/activity.json"
 BATTERY_DIR="$MUOS_RUN_DIR/battery"
 TRACK_JSON="$MUOS_STORE_DIR/info/track/playtime_data.json"
 
@@ -101,6 +102,48 @@ ACTIVITY_DOC() {
 	[ -n "$AD_OUT" ] || AD_OUT=null
 
 	printf '%s' "$AD_OUT"
+}
+
+# The activity tracker is keyed by the full ROM path, and Pickles names each save
+# directory after that same ROM without its extension, so the two join exactly on the
+# stem. Written beside the status reading and refreshed on the slow tick, since play
+# figures do not move while nothing is running.
+ACTIVITY_INDEX() {
+	[ -r "$TRACK_JSON" ] || {
+		printf '{}'
+		return 0
+	}
+
+	AI_OUT=$("$JQ_BIN" -c '
+		[to_entries[] | select(.value | type == "object") | {
+			"key": (.key | split("/") | last | sub("\\.[^.]*$"; "")),
+			"value": {
+				"name": (.value.name // ""),
+				"time": (.value.total_time // 0),
+				"launches": (.value.launches // 0),
+				"average": (.value.avg_time // 0),
+				"session": (.value.last_session // 0),
+				"core": (.value.last_core // ""),
+				"device": (.value.last_device // "")
+			}
+		}]
+		| from_entries
+	' "$TRACK_JSON" 2>/dev/null) || AI_OUT=
+	[ -n "$AI_OUT" ] || AI_OUT='{}'
+
+	printf '%s' "$AI_OUT"
+}
+
+WRITE_ACTIVITY() {
+	WA_TMP=$(mktemp "$LANDING_STATE/.activity.XXXXXX") || return 1
+
+	if ACTIVITY_INDEX >"$WA_TMP" 2>/dev/null; then
+		chmod 0644 "$WA_TMP"
+		mv -f "$WA_TMP" "$ACTIVITY_FILE" && return 0
+	fi
+
+	rm -f "$WA_TMP"
+	return 1
 }
 
 CONTENT_DOC() {
@@ -231,10 +274,11 @@ WRITE_STATUS() {
 REFRESH_SLOW() {
 	STORAGE_CACHE=$(STORAGE_DOC)
 	ACTIVITY_CACHE=$(ACTIVITY_DOC)
+	WRITE_ACTIVITY || LOG_WARN "$0" 0 "WEB" "Web Dashboard could not write the activity index"
 }
 
 [ -x "$JQ_BIN" ] || {
-	LOG_ERROR "$0" 0 "WEB" "Landing page dashboard needs jq, which is unavailable"
+	LOG_ERROR "$0" 0 "WEB" "Web Dashboard needs jq, which is unavailable"
 	exit 1
 }
 

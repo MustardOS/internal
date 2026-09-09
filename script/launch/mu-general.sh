@@ -3,7 +3,9 @@
 . /opt/muos/script/var/func.sh
 . /opt/muos/script/var/launch.sh
 
-SETUP_SDL_ENVIRONMENT
+# The fbdev blitter synchronises scanout to the panel.  Disabling it exposes
+# uneven application submission cadence as visible repeats/flicker.
+SETUP_SDL_ENVIRONMENT skip_blitter
 
 SET_VAR "system" "foreground_process" "muxretro"
 

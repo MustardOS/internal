@@ -1,59 +1,14 @@
 (function () {
     "use strict";
 
-    const runtime = window.MUOS_RUNTIME || {};
+    const MU = window.MU = window.MU || {};
+    const {bytes, count, duration, el, make, runtime, setBar, showToast} = MU;
     const services = runtime.services || {};
     const browserHost = window.location.hostname || runtime.localName || "muos.local";
     const hostName = runtime.localName || browserHost;
     const urlHost = browserHost.includes(":") && !browserHost.startsWith("[") ? `[${browserHost}]` : browserHost;
-
-    const el = (id) => document.getElementById(id);
-
-    function make(tag, className, text) {
-        const node = document.createElement(tag);
-        if (className) node.className = className;
-        if (text !== undefined) node.textContent = text;
-        return node;
-    }
-
-    /* Formatting */
-
-    const UNITS = ["B", "KB", "MB", "GB", "TB"];
-
-    function bytes(value) {
-        let size = Number(value) || 0;
-        let unit = 0;
-        while (size >= 1000 && unit < UNITS.length - 1) {
-            size /= 1000;
-            unit += 1;
-        }
-        return `${unit === 0 || size >= 100 ? Math.round(size) : Number(size.toFixed(1))} ${UNITS[unit]}`;
-    }
-
-    function duration(seconds, withDays) {
-        const total = Math.max(0, Math.floor(Number(seconds) || 0));
-        const days = withDays ? Math.floor(total / 86400) : 0;
-        const hours = Math.floor((total - days * 86400) / 3600);
-        const minutes = Math.floor((total % 3600) / 60);
-        if (days) return `${days}d ${hours}h`;
-        return hours ? `${hours}h ${minutes}m` : `${minutes}m`;
-    }
-
-    const count = (value) => (Number(value) || 0).toLocaleString();
-
-    /* Services */
-
-    const toast = el("toast");
-    let toastTimer;
-
-    function showToast(text) {
-        toast.textContent = text;
-        toast.classList.add("visible");
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.remove("visible"), 1800);
-    }
-
     let enabled = 0;
+
     document.querySelectorAll("[data-service]").forEach((row) => {
         const service = services[row.dataset.service];
         row.hidden = !(service && service.enabled);
@@ -80,9 +35,8 @@
             meta.textContent = `:${port}`;
         }
     });
-    el("no-services").hidden = enabled > 0;
 
-    /* Dashboard */
+    el("no-services").hidden = enabled > 0;
 
     const PROGRAMS = {
         muxfrontend: "MustardOS frontend",
@@ -111,29 +65,24 @@
         return target.childElementCount > 0;
     }
 
-    function setBar(bar, percent, warn) {
-        bar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
-        bar.classList.toggle("warn", Boolean(warn));
-    }
-
     function renderTiles(status) {
         const battery = status.battery || {};
         const capacity = Number.isFinite(battery.capacity) ? battery.capacity : null;
         const volts = Number.isFinite(battery.voltage) ? `${(battery.voltage / 1000).toFixed(2)}V` : "";
         const state = battery.charging === 1 ? "Charging" : battery.charging === 0 ? "On battery" : "";
 
-        el("battery-value").textContent = capacity === null ? "—" : `${capacity}%`;
+        el("battery-value").textContent = capacity === null ? "-" : `${capacity}%`;
         el("battery-note").textContent = [state, volts].filter(Boolean).join(" · ");
         setBar(el("battery-bar"), capacity || 0, capacity !== null && capacity <= 15 && battery.charging !== 1);
 
-        el("clock-value").textContent = status.clock || "—";
+        el("clock-value").textContent = status.clock || "-";
         el("clock-note").textContent = [status.day, status.zone].filter(Boolean).join(" ");
 
         el("uptime-value").textContent = duration(status.uptime, true);
         el("uptime-note").textContent = status.boot ? `Booted ${status.boot}` : "";
 
         const activity = status.activity;
-        el("playtime-value").textContent = activity ? duration(activity.total_time) : "—";
+        el("playtime-value").textContent = activity ? duration(activity.total_time) : "-";
         el("playtime-note").textContent = activity
             ? `${count(activity.launches)} launches · ${count(activity.titles)} titles`
             : "";
@@ -209,8 +158,6 @@
         el("offline").hidden = live;
     }
 
-    /* Polling */
-
     async function refresh() {
         const response = await fetch(`state/status.json?_=${Date.now()}`, {cache: "no-store"});
         if (response.status === 404) return setLive(false);
@@ -226,8 +173,7 @@
     }
 
     async function tick() {
-        // Skip while the tab is hidden, so an idle page costs the device nothing.
-        if (document.hidden) return;
+        if (document.hidden || el("view-dash").hidden) return;
         try {
             await refresh();
         } catch (_) {
@@ -236,6 +182,12 @@
     }
 
     tick();
+
     setInterval(tick, 5000);
+
     document.addEventListener("visibilitychange", tick);
+
+    Object.assign(MU, {
+        fillKv
+    });
 }());

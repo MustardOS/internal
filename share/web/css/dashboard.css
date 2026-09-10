@@ -160,7 +160,7 @@ h2 { color: var(--head); }
 
 .crumb-here:focus { outline: 0; }
 
-.search { width: 9rem; max-width: 40%; padding: 5px 9px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--head); font: inherit; font-size: .8rem; }
+.search { width: 20rem; max-width: 55%; padding: 5px 9px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--head); font: inherit; font-size: .8rem; }
 .search:focus { border-color: var(--accent); outline: 0; }
 
 .link { padding: 0; border: 0; background: none; color: var(--accent); cursor: pointer; font: inherit; font-size: .82rem; }
@@ -188,23 +188,27 @@ h2 { color: var(--head); }
     padding: 7px 0;
     border-bottom: 1px solid var(--line);
     gap: 4px 14px;
-    grid-template-areas: "art name actions" "art meta actions";
-    grid-template-columns: auto minmax(0, 1fr) auto;
+}
+.cards.as-comfortable > .card {
+    grid-template-areas: "art name chips actions" "art meta chips actions";
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+}
+.cards.as-compact > .card {
+    padding: 3px 0;
+    grid-template-areas: "name chips actions";
+    grid-template-columns: minmax(0, 1fr) auto auto;
 }
 .cards.as-comfortable > .card:last-child, .cards.as-compact > .card:last-child { border-bottom: 0; }
 
 .cards.as-comfortable > .card > .card-art, .cards.as-compact > .card > .card-art { grid-area: art; }
-.cards.as-comfortable > .card > .card-name, .cards.as-compact > .card > .card-name { grid-area: name; text-align: left; }
+.cards.as-comfortable > .card > .card-name, .cards.as-compact > .card > .card-name { grid-area: name; justify-self: start; text-align: left; }
 .cards.as-comfortable > .card > .card-meta, .cards.as-compact > .card > .card-meta { grid-area: meta; }
+.cards.as-comfortable > .card > .chips, .cards.as-compact > .card > .chips { max-width: 50%; grid-area: chips; justify-content: flex-end; }
 .cards.as-comfortable > .card > .card-actions, .cards.as-compact > .card > .card-actions { margin: 0; grid-area: actions; }
 
 .cards.as-comfortable > .card > .card-art { width: 64px; }
-.cards.as-compact > .card { padding: 3px 0; grid-template-areas: "name actions"; grid-template-columns: minmax(0, 1fr) auto; }
 .cards.as-compact > .card > .card-meta { display: none; }
-
 .cards.as-compact > .card > .card-art { display: none; }
-
-.cards.as-comfortable > .card > .card-name, .cards.as-compact > .card > .card-name { justify-self: start; }
 
 .cards.counts.as-grid { display: grid; }
 .cards.as-comfortable > .card.wide .card-art, .cards.as-compact > .card.wide .card-art { aspect-ratio: 1; }
@@ -218,6 +222,8 @@ h2 { color: var(--head); }
 
 .card-art { display: flex; overflow: hidden; align-items: center; justify-content: center; padding: 0; border: 1px solid var(--line); border-radius: 4px; aspect-ratio: 1; background: var(--box-alt); color: var(--muted); font: inherit; text-align: center; }
 .card-art img { width: 100%; height: 100%; object-fit: contain; }
+.card-art video { width: 100%; height: 100%; background: #000; object-fit: contain; }
+.card-text { overflow: hidden; width: 100%; height: 100%; padding: 6px 7px; color: var(--muted); font-family: var(--mono); font-size: .58rem; line-height: 1.35; text-align: left; white-space: pre-wrap; word-break: break-word; }
 .card-art.opens { padding: 0; border: 1px solid var(--line); background: var(--box-alt); color: inherit; cursor: pointer; font: inherit; }
 .card-art.opens:hover { border-color: var(--accent); }
 
@@ -238,6 +244,10 @@ button.card-name:hover, button.card-name:focus-visible { color: var(--accent); }
 .card-meta { color: var(--muted); font-family: var(--mono); font-size: .7rem; line-height: 1.4; white-space: pre-line; }
 
 .card-meta.orphan { color: var(--warn); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 3px; }
+.chip { padding: 1px 6px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); font-family: var(--mono); font-size: .62rem; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+.chip.on { border-color: var(--accent); color: var(--accent); }
 .card-actions { margin-top: auto; }
 .card-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .card-actions .link { font-size: .72rem; }
@@ -292,7 +302,7 @@ button.card-name:hover, button.card-name:focus-visible { color: var(--accent); }
 @media (max-width: 560px) {
     .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
 
-    .search { width: 7rem; }
+    .search { width: 11rem; }
     .card-count { font-size: 1.2rem; }
 }
 

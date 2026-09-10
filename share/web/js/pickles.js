@@ -295,6 +295,13 @@
         return panel;
     }
 
+    function detailBar(count, noun) {
+        const bar = make("div", "filters");
+        bar.append(layoutControl("pickles"),
+            make("span", "note", `${count.toLocaleString()} ${count === 1 ? noun[0] : noun[1]}`));
+        return bar;
+    }
+
     async function showGame(path) {
         const game = states.find((candidate) => candidate.path === path);
         if (!game) return showSection("state");
@@ -312,8 +319,12 @@
             if (panel) body.append(panel);
 
             const slots = data.slots || [];
-            body.append(slots.length ? grid(slots.map((slot) => slotCard(game, slot)))
-                                     : make("p", "note", "No saves for this game."));
+            if (slots.length) {
+                body.append(detailBar(slots.length, ["save", "saves"]),
+                    grid(slots.map((slot) => slotCard(game, slot))));
+            } else {
+                body.append(make("p", "note", "No saves for this game."));
+            }
         } catch (error) {
             body.replaceChildren(problem(error.message, () => showGame(path)));
         }
@@ -359,7 +370,7 @@
             }));
         });
 
-        body.append(grid(cards));
+        body.append(detailBar(cards.length, ["copy", "copies"]), grid(cards));
     }
 
     function showSystem(name) {
@@ -378,7 +389,7 @@
             actions: [download("Download", `sram/${item.path}`, item.name)]
         }));
 
-        body.append(grid(cards));
+        body.append(detailBar(cards.length, ["file", "files"]), grid(cards));
         if (group.items && group.items.length < group.files) {
             body.append(make("p", "note",
                 `${(group.files - group.items.length).toLocaleString()} more not shown`));

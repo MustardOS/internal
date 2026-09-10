@@ -5,66 +5,85 @@
            sortItems, sortControl, navigate, crumbs, ask, busy, problem, loading, showSpace,
            layoutClass, layoutControl, onLayoutChange} = window.MU;
 
-    const KINDS = [
-        {key: "box", name: "Box Art"},
-        {key: "grid", name: "Grid Image"},
-        {key: "manual", name: "Pickles Manuals"},
-        {
-            name: "Overlays",
-            parts: [
-                {key: "overlay/base", name: "Base"},
-                {key: "overlay/battery", name: "Battery"},
-                {key: "overlay/bright", name: "Brightness"},
-                {key: "overlay/volume", name: "Volume"}
-            ]
-        },
-        {key: "preview", name: "Content Preview Image"},
-        {key: "splash", name: "Content Launch Splash Image"},
-        {key: "text", name: "Content Description Text"},
-        {key: "video", name: "Content Preview Video"}
+    const TYPES = [
+        {key: "box", name: "Box Art", short: "Box"},
+        {key: "grid", name: "Grid Image", short: "Grid"},
+        {key: "preview", name: "Preview Image", short: "Preview"},
+        {key: "splash", name: "Launch Splash", short: "Splash"},
+        {key: "text", name: "Description Text", short: "Text"},
+        {key: "video", name: "Preview Video", short: "Video"},
+        {key: "manual", name: "Manual", short: "Manual"},
+        {key: "overlay/base", name: "Overlay", short: "Overlay"}
     ];
 
+    const STEPS = [
+        {key: "overlay/battery", leaf: "battery", name: "Battery"},
+        {key: "overlay/bright", leaf: "bright", name: "Brightness"},
+        {key: "overlay/volume", leaf: "volume", name: "Volume"}
+    ];
+
+    const STEP_COUNT = 10;
+
+    const FACE = ["box", "grid", "preview", "splash"];
     const VIEWABLE = ["svg", "png", "jpg", "jpeg", "webp", "gif", "bmp"];
+    const PLAYABLE = ["mp4"];
+    const READABLE = ["txt"];
+
+    const ACCEPTS = {
+        text: ".txt,text/plain",
+        manual: ".txt,text/plain",
+        video: ".mp4,video/mp4"
+    };
+    const UPLOAD_LIMIT = 32 * 1024 * 1024;
     const PAGE = 60;
+
     const trail = el("catalogue-crumbs");
     const body = el("catalogue-body");
     const search = el("catalogue-search");
+
     let folder = null;
-    let group = null;
-    let type = null;
+    let opened = null;
+    let overlays = null;
+    let steps = {};
     let entries = [];
     let shown = PAGE;
-    let missingOnly = false;
+    let bareOnly = false;
     let order = "name";
+
     const label = (entry) => (entry.friendly ? `${entry.friendly} (${entry.stem})` : entry.stem);
     const extension = (name) => (name.split(".").pop() || "").toLowerCase();
-    const plural = (n, one, many) => `${n.toLocaleString()} ${n === 1 ? one : many}`;
-    const held = (key) => entries.filter((entry) => entry.files[key]).length;
+    const placeable = (entry) => Boolean(entry.catalogue);
+    const pathUrl = (path) => apiPath(...path.split("/"));
+    const held = (entry) => TYPES.filter((kind) => entry.files[kind.key]).length;
+    const facePick = (entry) => FACE.map((key) => entry.files[key] && {key, file: entry.files[key]}).find(Boolean);
 
     function chrome(searchable) {
-        const steps = [{label: "Catalogue", go: () => go(null, null, null)}];
+        const trailSteps = [{label: "Catalogue", go: () => go(null, null, null)}];
 
         if (folder) {
             const parts = folder.path.split("/");
             parts.forEach((part, index) => {
                 const upto = parts.slice(0, index + 1).join("/");
-                steps.push({label: part, go: () => go(upto, null, null)});
+                trailSteps.push({label: part, go: () => go(upto, null, null)});
             });
         }
 
-        if (group) steps.push({label: group.name, go: () => go(folder.path, group, null)});
-        if (type) steps.push({label: type.name});
+        if (overlays) trailSteps.push({label: "System overlays"});
+        else if (opened) {
+            const entry = entries.find((item) => item.stem === opened);
+            trailSteps.push({label: entry ? label(entry) : opened});
+        }
 
-        crumbs(trail, steps);
+        crumbs(trail, trailSteps);
         search.hidden = !searchable;
     }
 
-    function go(nextFolder, nextGroup, nextType, push = true) {
-        if (push) navigate({folder: nextFolder, group: nextGroup && nextGroup.name, type: nextType && nextType.key});
-        return render(nextFolder, nextGroup, nextType);
+    function go(nextFolder, nextOpened, nextOverlays, push = true) {
+        if (push) navigate({folder: nextFolder, opened: nextOpened, overlays: Boolean(nextOverlays)});
+        return render(nextFolder, nextOpened, nextOverlays);
     }
 
-    async function render(nextFolder, nextGroup, nextType) {
+    async function render(nextFolder, nextOpened, nextOverlays) {
         if (!nextFolder) return showFolders();
 
         if (!folder || nextFolder !== folder.path || !entries.length) {
@@ -72,23 +91,15 @@
             if (!loaded) return;
         }
 
-        if (nextType) return showType(nextType, nextGroup);
-        if (nextGroup) return showGroup(nextGroup);
-        return showKinds();
+        if (nextOverlays) return showOverlays();
+        if (nextOpened) return showItem(nextOpened);
+        return showContents();
     }
 
     function restore(where) {
         const at = where || {};
-        const kind = KINDS.find((k) => k.parts && k.name === at.group) || null;
-        const leaf = at.type
-            ? KINDS.find((k) => k.key === at.type)
-              || KINDS.flatMap((k) => k.parts || []).find((part) => part.key === at.type)
-            : null;
-        return render(at.folder || null, kind, leaf || null);
+        return render(at.folder || null, at.opened || null, at.overlays || null);
     }
-
-    const NOUNS = {text: ["file", "files"], video: ["video", "videos"], manual: ["manual", "manuals"]};
-    const nounFor = (key) => NOUNS[key] || ["image", "images"];
 
     function countCard(name, count, noun, onOpen) {
         const face = make("div", "card-art opens");
@@ -106,7 +117,9 @@
     }
 
     async function showFolders() {
-        folder = group = type = null;
+        folder = null;
+        opened = null;
+        overlays = null;
         chrome(false);
         body.replaceChildren(loading("Reading the card…"));
 
@@ -143,52 +156,13 @@
         }
     }
 
-    function kindBar() {
-        const bar = make("div", "filters");
-        bar.append(layoutControl("catalogue"));
-        return bar;
-    }
-
-    function showKinds() {
-        group = type = null;
-        chrome(false);
-        body.replaceChildren();
-        body.append(kindBar());
-
-        const grid = make("div", layoutClass("catalogue", "counts"));
-        KINDS.forEach((kind) => {
-            if (kind.parts) {
-                const done = kind.parts.reduce((sum, part) => sum + held(part.key), 0);
-                grid.append(countCard(kind.name, done, ["image", "images"], () => go(folder.path, kind, null)));
-                return;
-            }
-            grid.append(countCard(kind.name, held(kind.key), nounFor(kind.key),
-                () => go(folder.path, null, kind)));
-        });
-
-        body.append(grid);
-    }
-
-    function showGroup(kind) {
-        group = kind;
-        type = null;
-        chrome(false);
-        body.replaceChildren();
-        body.append(kindBar());
-
-        const grid = make("div", layoutClass("catalogue", "counts"));
-        kind.parts.forEach((part) => {
-            grid.append(countCard(part.name, held(part.key), ["image", "images"],
-                () => go(folder.path, kind, part)));
-        });
-        body.append(grid);
-    }
-
-    const pathUrl = (path) => apiPath(...path.split("/"));
-
     async function loadFolder(path) {
         folder = {path, name: path.split("/").pop(), catalogue: null};
-        group = type = null;
+        opened = null;
+        overlays = null;
+        shown = PAGE;
+        bareOnly = false;
+        search.value = "";
         chrome(false);
         body.replaceChildren(loading(`Reading ${path.split("/").pop()}…`));
 
@@ -201,6 +175,7 @@
                 catalogue: data.catalogue || null
             };
             entries = data.entries || [];
+            steps = data.overlays || {};
             return true;
         } catch (error) {
             body.replaceChildren(problem(error.message, () => go(path, null, null, false)));
@@ -208,52 +183,55 @@
         }
     }
 
-    function card(entry) {
-        const file = entry.files[type.key];
+    function chips(entry) {
+        const row = make("span", "chips");
+
+        TYPES.forEach((kind) => {
+            const has = Boolean(entry.files[kind.key]);
+            const chip = make("span", `chip${has ? " on" : ""}`, kind.short);
+            chip.title = `${kind.name}: ${has ? "added" : "missing"}`;
+            row.append(chip);
+        });
+
+        return row;
+    }
+
+    function contentCard(entry) {
         const box = make("div", "card");
+        const open = () => go(folder.path, entry.stem, null);
 
-        const editable = canManage() && placeable(entry);
+        const art = make("div", "card-art opens");
+        art.title = `Open ${label(entry)}`;
+        art.addEventListener("click", open);
 
-        const art = make(editable ? "button" : "div", "card-art");
-        if (editable) {
-            art.type = "button";
-            art.classList.add("opens");
-        }
-
-        if (file && VIEWABLE.includes(extension(file))) {
+        const shot = facePick(entry);
+        if (shot && VIEWABLE.includes(extension(shot.file))) {
             const image = make("img");
             image.loading = "lazy";
             image.alt = "";
-            image.src = mediaUrl("catalogue", artPath(entry, file));
-
+            image.src = mediaUrl("catalogue", `${entry.catalogue}/${shot.key}/${shot.file}`);
             image.addEventListener("error", () => {
                 image.remove();
-                art.append(make("span", "card-mark", extension(file)));
+                art.append(make("span", "card-mark", String(held(entry))));
             });
             art.append(image);
         } else {
-            art.append(make("span", "card-mark", file ? extension(file) : editable ? "+" : ""));
-            if (!file) art.classList.add("empty");
+            art.append(make("span", "card-mark", held(entry) ? String(held(entry)) : ""));
+            if (!held(entry)) art.classList.add("empty");
         }
 
-        if (entry.path) {
-            const into = make("button", "card-name", entry.stem);
-            into.type = "button";
-            into.title = `Open ${entry.stem}`;
-            into.addEventListener("click", () => go(entry.path, group, type));
-            into.textContent = label(entry);
-            box.append(art, into);
-        } else {
-            box.append(art, make("span", "card-name",
-                entry.self ? `${label(entry)} (this folder)` : label(entry)));
-        }
+        const title = make("button", "card-name", entry.self ? `${label(entry)} (this folder)` : label(entry));
+        title.type = "button";
+        title.addEventListener("click", open);
+
+        box.append(art, title);
 
         if (!placeable(entry)) {
             const mark = make("span", "card-meta orphan", "no catalogue");
             mark.title = `${folder.name} has no system, so there is nowhere to file this`;
             box.append(mark);
-        } else if (entry.folder) {
-            box.append(make("span", "card-meta", entry.path ? "folder" : "folder art"));
+        } else {
+            box.append(chips(entry));
         }
 
         if (entry.orphan) {
@@ -262,138 +240,63 @@
             box.append(mark);
         }
 
-        if (editable) {
-            const picker = make("input");
-            picker.type = "file";
-            picker.hidden = true;
-            picker.addEventListener("change", () => {
-                if (picker.files.length) upload(entry, picker.files[0], art);
-                picker.value = "";
-            });
-
-            const what = `${file ? "Replace" : "Add"} the ${type.name.toLowerCase()} for ${label(entry)}`;
-            art.title = what;
-            art.setAttribute("aria-label", what);
-            art.addEventListener("click", () => picker.click());
-            box.append(picker);
-        }
-
-        const actions = make("span", "card-actions");
-        if (file) {
-            const download = make("a", "link", "Get");
-            download.href = mediaUrl("catalogue", artPath(entry, file));
-            download.download = file.split("/").pop();
-            actions.append(download);
-
-            if (editable) {
-                if (VIEWABLE.includes(extension(file)) && extension(file) !== "svg") {
-                    const tweak = make("button", "link", "Adjust");
-                    tweak.type = "button";
-                    tweak.title = `Crop and resize the ${type.name.toLowerCase()} for ${label(entry)}`;
-                    tweak.addEventListener("click", () => adjust(entry, file, tweak));
-                    actions.append(tweak);
-                }
-
-                const remove = make("button", "link danger", "Remove");
-                remove.type = "button";
-                remove.addEventListener("click", () => discard(entry, file, remove));
-                actions.append(remove);
-            }
-        }
-        if (actions.childElementCount) box.append(actions);
-
         return box;
     }
 
-    function addCard() {
+    function folderCard(entry) {
         const box = make("div", "card");
+        const open = () => go(entry.path, null, null);
 
-        const art = make("button", "card-art opens empty");
-        art.type = "button";
+        const art = make("div", "card-art opens empty");
+        art.title = `Open ${label(entry)}`;
+        art.addEventListener("click", open);
+        art.append(make("span", "card-mark", "/"));
 
-        const what = `Add ${type.name.toLowerCase()} for content in ${folder.name} not listed here`;
-        art.title = what;
-        art.setAttribute("aria-label", what);
-        art.append(make("span", "card-mark", "+"));
+        const title = make("button", "card-name", label(entry));
+        title.type = "button";
+        title.addEventListener("click", open);
 
-        const picker = make("input");
-        picker.type = "file";
-        picker.multiple = true;
-        picker.hidden = true;
-        picker.addEventListener("change", () => {
-            const chosen = [...picker.files];
-            picker.value = "";
-            if (chosen.length) addFiles(chosen, art);
-        });
-
-        art.addEventListener("click", () => picker.click());
-
-        box.append(art, make("span", "card-name", "Add artwork"), picker);
+        box.append(art, title, make("span", "card-meta", "folder"));
         return box;
     }
 
-    async function addFiles(files, art) {
-        let done = 0;
-        const failed = [];
-
-        const ready = [];
-        for (const file of files) {
-            const prepared = await prepare(file);
-            if (prepared) ready.push(prepared);
-        }
-        if (!ready.length) return;
-
-        await busy(art, "…", async () => {
-            for (const file of ready) {
-                try {
-                    await api(`api/catalogue/${apiPath(folder.catalogue, ...type.key.split("/"), file.name)}`, {
-                        method: "POST",
-                        body: file,
-                        type: file.type || "application/octet-stream"
-                    });
-                    done += 1;
-                } catch (error) {
-                    failed.push({name: file.name, why: error.message});
-                }
-            }
-        });
-
-        if (done) showToast(failed.length ? `Added ${done}, ${failed.length} refused` : `Added ${done}`);
-        else if (failed.length === 1) showToast(`${failed[0].name}: ${failed[0].why}`);
-        else showToast(`None of the ${failed.length} were accepted: ${failed[0].why}`);
-
-        await refresh();
+    function showContents() {
+        opened = null;
+        overlays = null;
+        shown = PAGE;
+        chrome(true);
+        renderContents();
     }
 
-    function renderCards() {
+    function renderContents() {
         const needle = search.value.trim().toLowerCase();
         let found = entries;
+
         if (needle) {
             found = found.filter((entry) =>
                 entry.stem.toLowerCase().includes(needle) ||
                 (entry.friendly || "").toLowerCase().includes(needle));
         }
-        if (missingOnly) found = found.filter((entry) => !entry.files[type.key]);
+        if (bareOnly) found = found.filter((entry) => !held(entry));
 
         const sorted = sortItems(found, order, (entry) => entry.friendly || entry.stem);
         const here = sorted.filter((entry) => entry.self);
         const content = sorted.filter((entry) => !entry.self && !entry.path);
         const directories = sorted.filter((entry) => !entry.self && entry.path);
 
-        const page = [...here, ...content.slice(0, shown)];
         body.replaceChildren();
 
         const filter = make("div", "filters");
-        const toggle = make("button", `chip-toggle${missingOnly ? " on" : ""}`, "Missing only");
+        const toggle = make("button", `chip-toggle${bareOnly ? " on" : ""}`, "No artwork");
         toggle.type = "button";
         toggle.addEventListener("click", () => {
-            missingOnly = !missingOnly;
+            bareOnly = !bareOnly;
             shown = PAGE;
-            renderCards();
+            renderContents();
         });
         filter.append(sortControl(order, (value) => {
             order = value;
-            renderCards();
+            renderContents();
         }), layoutControl("catalogue"), toggle, make("span", "note", `${content.length} shown`));
         body.append(filter);
 
@@ -402,12 +305,25 @@
         }
 
         const grid = make("div", layoutClass("catalogue"));
-        if (canManage() && folder.catalogue) grid.append(addCard());
-        page.forEach((entry) => grid.append(card(entry)));
+        here.forEach((entry) => grid.append(contentCard(entry)));
+        content.slice(0, shown).forEach((entry) => grid.append(contentCard(entry)));
         body.append(grid);
 
+        if (folder.catalogue) {
+            const group = make("div", "group");
+            const head = make("div", "group-head");
+
+            head.append(make("h3", null, "System"));
+            group.append(head);
+
+            const inside = make("div", layoutClass("catalogue", "counts"));
+            inside.append(overlayCard());
+            group.append(inside);
+            body.append(group);
+        }
+
         if (!content.length && !directories.length) {
-            body.append(make("p", "note", missingOnly ? "Every game has one." : "No games match that."));
+            body.append(make("p", "note", bareOnly ? "Everything here has artwork." : "Nothing matches that."));
             return;
         }
 
@@ -416,7 +332,7 @@
             more.type = "button";
             more.addEventListener("click", () => {
                 shown += PAGE;
-                renderCards();
+                renderContents();
             });
             body.append(more);
         }
@@ -430,34 +346,263 @@
             group.append(head);
 
             const inside = make("div", layoutClass("catalogue"));
-            directories.forEach((entry) => inside.append(card(entry)));
+            directories.forEach((entry) => inside.append(folderCard(entry)));
             group.append(inside);
             body.append(group);
         }
     }
 
-    function showType(kind, within) {
-        type = kind;
-        group = within || null;
-        shown = PAGE;
-        missingOnly = false;
-        search.value = "";
-        chrome(true);
-        renderCards();
+    function stepsDone() {
+        return STEPS.reduce((sum, kind) => sum + Object.keys(steps[kind.leaf] || {}).length, 0);
     }
 
-    function destination(entry, name) {
-        const has = entry.files[type.key] || "";
+    function overlayCard() {
+        const box = make("div", "card wide");
+        const done = stepsDone();
+        const total = STEPS.length * STEP_COUNT;
+        const open = () => go(folder.path, null, true);
+
+        const face = make("div", "card-art opens");
+        face.title = "Open the system overlays";
+        face.addEventListener("click", open);
+        if (!done) face.classList.add("empty");
+        face.append(make("span", "card-count", `${done}`));
+
+        const title = make("button", "card-name", "System overlays");
+        title.type = "button";
+        title.addEventListener("click", open);
+
+        box.append(face, title, make("span", "card-meta", `of ${total} steps\n${folder.catalogue}`));
+        return box;
+    }
+
+    function showOverlays() {
+        opened = null;
+        overlays = true;
+        chrome(false);
+        renderOverlays();
+    }
+
+    function stepEntry(kind, step) {
+        const stem = `${kind.leaf}_${step}`;
+        const file = (steps[kind.leaf] || {})[String(step)];
+        return {stem, catalogue: folder.catalogue, files: file ? {[kind.key]: file} : {}};
+    }
+
+    function renderOverlays() {
+        body.replaceChildren();
+
+        const bar = make("div", "filters");
+        bar.append(layoutControl("catalogue"),
+            make("span", "note", `${stepsDone()} of ${STEPS.length * STEP_COUNT} added`));
+        body.append(bar);
+
+        body.append(make("p", "note",
+            `These belong to ${folder.catalogue}, not to any one game. Each gauge is drawn from ten images, one per step.`));
+
+        STEPS.forEach((kind) => {
+            const done = Object.keys(steps[kind.leaf] || {}).length;
+            const group = make("div", "group");
+            const head = make("div", "group-head");
+
+            head.append(make("h3", null, kind.name), make("span", "note", `${done} of ${STEP_COUNT}`));
+            group.append(head);
+
+            const grid = make("div", layoutClass("catalogue"));
+            for (let step = 0; step < STEP_COUNT; step += 1) {
+                grid.append(typeCard(stepEntry(kind, step), kind, `Step ${step}`));
+            }
+
+            group.append(grid);
+            body.append(group);
+        });
+    }
+
+    function showItem(stem) {
+        opened = stem;
+        overlays = null;
+        chrome(false);
+        renderItem();
+    }
+
+    function renderItem() {
+        const entry = entries.find((item) => item.stem === opened);
+        body.replaceChildren();
+
+        if (!entry) {
+            body.append(problem(`${opened} is no longer here`, () => go(folder.path, null, null, false)));
+            return;
+        }
+
+        const bar = make("div", "filters");
+        bar.append(layoutControl("catalogue"),
+            make("span", "note", `${held(entry)} of ${TYPES.length} added`));
+        body.append(bar);
+
+        if (!placeable(entry)) {
+            body.append(make("p", "note",
+                `${folder.name} has no system, so there is nowhere to file artwork for ${label(entry)}.`));
+        } else if (entry.orphan) {
+            body.append(make("p", "note danger",
+                `Nothing on the card is named ${entry.stem}, so none of this is drawn.`));
+        }
+
+        const grid = make("div", layoutClass("catalogue"));
+        TYPES.forEach((kind) => grid.append(typeCard(entry, kind)));
+        body.append(grid);
+
+        if (folder.catalogue && !entry.folder) body.append(gauges());
+    }
+
+    function gauges() {
+        const group = make("div", "group");
+        const head = make("div", "group-head");
+
+        head.append(make("h3", null, "Gauges"),
+            make("span", "note", `${stepsDone()} of ${STEPS.length * STEP_COUNT}`));
+        group.append(head);
+
+        group.append(make("p", "note",
+            `Battery, brightness and volume are drawn from ${folder.catalogue}, ten images to a gauge, and are shared by everything in it.`));
+
+        const grid = make("div", layoutClass("catalogue", "counts"));
+        STEPS.forEach((kind) => {
+            const done = Object.keys(steps[kind.leaf] || {}).length;
+            const open = () => go(folder.path, null, true);
+
+            const card = make("div", "card wide");
+            const face = make("div", "card-art opens");
+            face.title = `Open the ${kind.name.toLowerCase()} gauge`;
+            face.addEventListener("click", open);
+            if (!done) face.classList.add("empty");
+            face.append(make("span", "card-count", `${done}`));
+
+            const title = make("button", "card-name", kind.name);
+            title.type = "button";
+            title.addEventListener("click", open);
+
+            card.append(face, title, make("span", "card-meta", `of ${STEP_COUNT} steps`));
+            grid.append(card);
+        });
+
+        group.append(grid);
+        return group;
+    }
+
+    function preview(art, url, file) {
+        const kind = extension(file);
+        const fallback = () => {
+            art.replaceChildren(make("span", "card-mark", kind));
+        };
+
+        if (VIEWABLE.includes(kind)) {
+            const image = make("img");
+            image.loading = "lazy";
+            image.alt = "";
+            image.src = url;
+            image.addEventListener("error", fallback);
+            art.append(image);
+            return;
+        }
+
+        if (PLAYABLE.includes(kind)) {
+            const clip = make("video");
+            clip.preload = "metadata";
+            clip.muted = true;
+            clip.playsInline = true;
+            clip.src = `${url}#t=0.1`;
+            clip.addEventListener("error", fallback);
+            art.append(clip);
+            return;
+        }
+
+        if (READABLE.includes(kind)) {
+            art.append(make("span", "card-mark", kind));
+            fetch(url, {cache: "no-store"})
+                .then((answer) => (answer.ok ? answer.text() : ""))
+                .then((words) => {
+                    const trimmed = words.trim();
+                    if (trimmed) art.replaceChildren(make("span", "card-text", trimmed.slice(0, 600)));
+                })
+                .catch(() => {});
+            return;
+        }
+
+        fallback();
+    }
+
+    function typeCard(entry, kind, naming) {
+        const file = entry.files[kind.key];
+        const box = make("div", "card");
+        const editable = canManage() && placeable(entry);
+
+        const art = make(editable ? "button" : "div", "card-art");
+        if (editable) {
+            art.type = "button";
+            art.classList.add("opens");
+        }
+
+        if (file) preview(art, mediaUrl("catalogue", artPath(entry, kind, file)), file);
+        else {
+            art.append(make("span", "card-mark", editable ? "+" : ""));
+            art.classList.add("empty");
+        }
+
+        box.append(art, make("span", "card-name", naming || kind.name));
+
+        if (editable) {
+            const picker = make("input");
+            picker.type = "file";
+            picker.hidden = true;
+            picker.accept = ACCEPTS[kind.key] || "image/*";
+            picker.addEventListener("change", () => {
+                if (picker.files.length) upload(entry, kind, picker.files[0], art);
+                picker.value = "";
+            });
+
+            const what = `${file ? "Replace" : "Add"} the ${kind.name.toLowerCase()} for ${label(entry)}`;
+            art.title = what;
+            art.setAttribute("aria-label", what);
+            art.addEventListener("click", () => picker.click());
+            box.append(picker);
+        }
+
+        const actions = make("span", "card-actions");
+        if (file) {
+            const download = make("a", "link", "Get");
+            download.href = mediaUrl("catalogue", artPath(entry, kind, file));
+            download.download = file.split("/").pop();
+            actions.append(download);
+
+            if (editable) {
+                if (VIEWABLE.includes(extension(file)) && extension(file) !== "svg") {
+                    const tweak = make("button", "link", "Adjust");
+                    tweak.type = "button";
+                    tweak.title = `Crop and resize the ${kind.name.toLowerCase()} for ${label(entry)}`;
+                    tweak.addEventListener("click", () => adjust(entry, kind, file, tweak));
+                    actions.append(tweak);
+                }
+
+                const remove = make("button", "link danger", "Remove");
+                remove.type = "button";
+                remove.addEventListener("click", () => discard(entry, kind, file, remove));
+                actions.append(remove);
+            }
+        }
+        if (actions.childElementCount) box.append(actions);
+
+        return box;
+    }
+
+    function artPath(entry, kind, file) {
+        return `${entry.catalogue}/${kind.key}/${file}`;
+    }
+
+    function destination(entry, kind, name) {
+        const has = entry.files[kind.key] || "";
         const within = has.includes("/") ? `${has.slice(0, has.lastIndexOf("/"))}/` : "";
-        return `api/catalogue/${apiPath(entry.catalogue, ...type.key.split("/"), ...`${within}${name}`.split("/"))}`;
+        return `api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...`${within}${name}`.split("/"))}`;
     }
-
-    function artPath(entry, file) {
-        return `${entry.catalogue}/${type.key}/${file}`;
-    }
-
-    const placeable = (entry) => Boolean(entry.catalogue);
-    const UPLOAD_LIMIT = 32 * 1024 * 1024;
 
     async function prepare(file) {
         if (file.size > UPLOAD_LIMIT) {
@@ -468,41 +613,40 @@
         return window.MU.cropImage(file);
     }
 
-    async function upload(entry, chosen, button) {
+    async function upload(entry, kind, chosen, button) {
         const file = await prepare(chosen);
         if (!file) return;
 
-        const has = entry.files[type.key];
+        const has = entry.files[kind.key];
         const name = `${entry.stem}.${extension(file.name)}`;
 
         try {
-            await busy(button, "Saving…", () => api(destination(entry, name), {
+            await busy(button, "Saving…", () => api(destination(entry, kind, name), {
                 method: "POST",
                 body: file,
                 type: file.type || "application/octet-stream"
             }));
 
             if (has && has.split("/").pop() !== name) {
-                await api(`api/catalogue/${apiPath(entry.catalogue, ...type.key.split("/"), ...has.split("/"))}`, {
+                await api(`api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...has.split("/"))}`, {
                     method: "DELETE"
                 });
             }
 
-            showToast(`${type.name} saved`);
+            showToast(`${kind.name} saved`);
             await refresh();
         } catch (error) {
             showToast(error.message);
         }
     }
 
-    async function adjust(entry, file, button) {
-        const path = artPath(entry, file);
+    async function adjust(entry, kind, file, button) {
         const name = file.split("/").pop();
         let edited;
 
         try {
-            const response = await fetch(mediaUrl("catalogue", path), {cache: "no-store"});
-            if (!response.ok) throw new Error(`Could not read that ${type.name.toLowerCase()}`);
+            const response = await fetch(mediaUrl("catalogue", artPath(entry, kind, file)), {cache: "no-store"});
+            if (!response.ok) throw new Error(`Could not read that ${kind.name.toLowerCase()}`);
 
             const blob = await response.blob();
             edited = await window.MU.cropImage(new File([blob], name, {type: blob.type}));
@@ -514,22 +658,22 @@
         if (!edited) return;
 
         try {
-            await busy(button, "Saving…", () => api(destination(entry, name), {
+            await busy(button, "Saving…", () => api(destination(entry, kind, name), {
                 method: "POST",
                 body: edited,
                 type: edited.type || "application/octet-stream"
             }));
-            showToast(`${type.name} adjusted`);
+            showToast(`${kind.name} adjusted`);
             await refresh();
         } catch (error) {
             showToast(error.message);
         }
     }
 
-    async function discard(entry, file, button) {
+    async function discard(entry, kind, file, button) {
         const sure = await ask({
             title: "Remove artwork",
-            message: `The ${type.name.toLowerCase()} for ${entry.stem} will be deleted.`,
+            message: `The ${kind.name.toLowerCase()} for ${entry.stem} will be deleted.`,
             confirm: "Remove",
             danger: true
         });
@@ -537,9 +681,9 @@
 
         try {
             await busy(button, "Removing…",
-                () => api(`api/catalogue/${apiPath(entry.catalogue, ...type.key.split("/"), ...file.split("/"))}`,
+                () => api(`api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...file.split("/"))}`,
                     {method: "DELETE"}));
-            showToast(`${type.name} removed`);
+            showToast(`${kind.name} removed`);
             await refresh();
         } catch (error) {
             showToast(error.message);
@@ -550,28 +694,31 @@
         const data = await api(`api/content/${pathUrl(folder.path)}`);
         showSpace("catalogue", data);
         entries = data.entries || [];
-        renderCards();
+        steps = data.overlays || {};
+        if (overlays) renderOverlays();
+        else if (opened) renderItem();
+        else renderContents();
     }
 
     search.addEventListener("input", () => {
         shown = PAGE;
-        renderCards();
+        renderContents();
     });
 
     onLayoutChange((view) => {
         if (view !== "catalogue") return;
-        if (type) renderCards();
-        else if (group) showGroup(group);
-        else if (folder) showKinds();
+        if (opened) renderItem();
+        else if (folder) renderContents();
         else showFolders();
     });
 
     onAuthChange(() => {
-        if (type) renderCards();
+        if (opened) renderItem();
+        else if (folder) renderContents();
     });
 
     register("catalogue", {
         restore,
-        load: () => render(folder && folder.path, group, type)
+        load: () => render(folder && folder.path, opened, overlays)
     });
 }());

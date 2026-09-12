@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 [ "$FACTORY_RESET" -eq 1 ] && exit 0
 
@@ -66,6 +68,31 @@ INSTALL_ARCHIVE() {
 	rm -rf "$_INST_TMP"
 }
 
+RUN_EMULATOR_MAINTENANCE() {
+	EMU_VER=$1
+	MAINTENANCE_RESULT=0
+
+	RA_DIR="$MUOS_SHARE_DIR/emulator/retroarch"
+	INSTALL_BIN "$RA_DIR/retroarch-${EMU_VER}" "$RA_DIR/retroarch-${EMU_VER}.md5" "/usr/bin/retroarch" &
+	RA_PID=$!
+
+	PPSSPP_DIR="$MUOS_SHARE_DIR/emulator/ppsspp"
+	INSTALL_ARCHIVE "${PPSSPP_DIR}/PPSSPP-${EMU_VER}.tar.gz" "${PPSSPP_DIR}/PPSSPP-${EMU_VER}.md5" \
+		"$PPSSPP_DIR" "PPSSPP-*" "${PPSSPP_DIR}/PPSSPP" &
+	PPSSPP_PID=$!
+
+	SCUMMVM_DIR="$MUOS_SHARE_DIR/emulator/scummvm"
+	INSTALL_ARCHIVE "${SCUMMVM_DIR}/scummvm-${EMU_VER}.tar.gz" "${SCUMMVM_DIR}/scummvm-${EMU_VER}.md5" \
+		"$SCUMMVM_DIR" "scummvm-*" "${SCUMMVM_DIR}/scummvm" &
+	SCUMMVM_PID=$!
+
+	for MAINTENANCE_PID in "$RA_PID" "$PPSSPP_PID" "$SCUMMVM_PID"; do
+		wait "$MAINTENANCE_PID" || MAINTENANCE_RESULT=1
+	done
+
+	return "$MAINTENANCE_RESULT"
+}
+
 DO_START() {
 	(
 		if [ "$OVERDRIVE" -eq 1 ]; then
@@ -125,14 +152,14 @@ DO_START() {
 		rk*) EMU_VER="rk" ;;
 	esac
 
-	RA_DIR="$MUOS_SHARE_DIR/emulator/retroarch"
-	INSTALL_BIN "$RA_DIR/retroarch-${EMU_VER}" "$RA_DIR/retroarch-${EMU_VER}.md5" "/usr/bin/retroarch" &
-
-	PPSSPP_DIR="$MUOS_SHARE_DIR/emulator/ppsspp"
-	INSTALL_ARCHIVE "${PPSSPP_DIR}/PPSSPP-${EMU_VER}.tar.gz" "${PPSSPP_DIR}/PPSSPP-${EMU_VER}.md5" "$PPSSPP_DIR" "PPSSPP-*" "${PPSSPP_DIR}/PPSSPP" &
-
-	SCUMMVM_DIR="$MUOS_SHARE_DIR/emulator/scummvm"
-	INSTALL_ARCHIVE "${SCUMMVM_DIR}/scummvm-${EMU_VER}.tar.gz" "${SCUMMVM_DIR}/scummvm-${EMU_VER}.md5" "$SCUMMVM_DIR" "scummvm-*" "${SCUMMVM_DIR}/scummvm" &
+	(
+		WAIT_COUNT=0
+		while [ ! -e "$MUOS_RUN_DIR/first_paint" ] && [ "$WAIT_COUNT" -lt 200 ]; do
+			sleep 0.1
+			WAIT_COUNT=$((WAIT_COUNT + 1))
+		done
+		ionice -c idle nice -n 10 "$0" maintenance "$EMU_VER"
+	) >/dev/null 2>&1 &
 }
 
 case "$1" in
@@ -145,8 +172,11 @@ case "$1" in
 	restart)
 		DO_START
 		;;
+	maintenance)
+		RUN_EMULATOR_MAINTENANCE "$2"
+		;;
 	*)
-		printf "Usage: %s {start|stop|restart}\n" "$0" >&2
+		printf "Usage: %s {start|stop|restart|maintenance EMULATOR_VARIANT}\n" "$0" >&2
 		exit 1
 		;;
 esac

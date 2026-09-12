@@ -33,6 +33,23 @@ RUN_ASYNC_START() {
 	RUN_INIT_DIR_BOUNDED start "$INIT_DIR/async" forward "S06mount.sh $MUOS_INIT_DEFERRED"
 }
 
+RUN_CRITICAL_START() {
+	RUN_INIT_RECORDED start "$INIT_DIR/S10udev.sh" ||
+		LOG_WARN "$0" 0 "BOOTING" "udev initialisation reported an error"
+	BOOT_PROGRESS 20
+
+	RUN_INIT_RECORDED start "$INIT_DIR/S30dbus.sh" ||
+		LOG_WARN "$0" 0 "BOOTING" "D-Bus initialisation reported an error"
+	BOOT_PROGRESS 35
+
+	RUN_INIT_DIR_BOUNDED start "$INIT_DIR" forward \
+		"S10udev.sh S30dbus.sh S99muos.sh" ||
+		LOG_WARN "$0" 0 "BOOTING" "Parallel service initialisation reported an error"
+	BOOT_PROGRESS 85
+
+	RUN_INIT_RECORDED start "$INIT_DIR/S99muos.sh"
+}
+
 case "${1:-start}" in
 	start | "")
 		LED_QUIET
@@ -45,7 +62,7 @@ case "${1:-start}" in
 		(RUN_ASYNC_START) >/dev/null 2>&1 &
 
 		BOOT_PROGRESS_START
-		RUN_INIT_DIR start "$INIT_DIR" forward
+		RUN_CRITICAL_START
 		;;
 esac
 

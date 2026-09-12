@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 
 CAPTURE_G350_PSTORE() {
@@ -66,6 +68,33 @@ RUN_BOOT_MAINTENANCE() {
 	return "$BOOT_RESULT"
 }
 
+RUN_FRONTEND_READY_MAINTENANCE() {
+	ROM_MOUNT=$1
+	FIRST_INIT=$2
+	RA_CACHE=$3
+	WAIT_COUNT=0
+
+	while [ ! -e "$MUOS_RUN_DIR/first_paint" ] && [ "$WAIT_COUNT" -lt 200 ]; do
+		sleep 0.1
+		WAIT_COUNT=$((WAIT_COUNT + 1))
+	done
+
+	ionice -c idle nice -n 10 "$0" maintenance "$ROM_MOUNT" "$FIRST_INIT" "$RA_CACHE"
+}
+
+WAIT_FOR_PRIORITY_STORAGE() {
+	WAIT_COUNT=0
+	while [ ! -e "$MUOS_STORE_DIR/mount_ready" ] && [ "$WAIT_COUNT" -lt 150 ]; do
+		sleep 0.1
+		WAIT_COUNT=$((WAIT_COUNT + 1))
+	done
+
+	[ -e "$MUOS_STORE_DIR/mount_ready" ] && return 0
+	LOG_ERROR "$0" 0 "BOOTING" "Priority storage did not become ready"
+	CRITICAL_FAILURE mount "priority storage"
+	return 1
+}
+
 DO_START() {
 	CAPTURE_G350_PSTORE
 
@@ -108,6 +137,8 @@ DO_START() {
 		SET_VAR "config" "boot/first_init" "1"
 	fi
 
+	WAIT_FOR_PRIORITY_STORAGE || exit 1
+
 	LOG_INFO "$0" 0 "BOOTING" "Starting Hotkey Daemon"
 	HOTKEY start
 
@@ -126,8 +157,8 @@ DO_START() {
 	fi
 
 	if [ "$FIRST_INIT" -ne 0 ]; then
-		LOG_INFO "$0" 0 "BOOTING" "Starting bounded background maintenance"
-		RUN_BOOT_MAINTENANCE "$ROM_MOUNT" "$FIRST_INIT" "${RA_CACHE:-0}" >/dev/null 2>&1 &
+		LOG_INFO "$0" 0 "BOOTING" "Starting deferred background maintenance"
+		RUN_FRONTEND_READY_MAINTENANCE "$ROM_MOUNT" "$FIRST_INIT" "${RA_CACHE:-0}" >/dev/null 2>&1 &
 	fi
 }
 
@@ -153,8 +184,11 @@ case "$1" in
 		DO_STOP
 		DO_START
 		;;
+	maintenance)
+		RUN_BOOT_MAINTENANCE "$2" "$3" "$4"
+		;;
 	*)
-		printf "Usage: %s {start|stop|restart}\n" "$0" >&2
+		printf "Usage: %s {start|stop|restart|maintenance ROM_MOUNT FIRST_INIT RA_CACHE}\n" "$0" >&2
 		exit 1
 		;;
 esac

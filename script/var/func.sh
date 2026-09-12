@@ -134,6 +134,25 @@ SET_VAR_DIRECT() {
 	fi
 }
 
+SET_VAR_DURABLE() {
+	case "$1" in
+		GLOBAL | global | CONFIG | config) NS=global ;;
+		DEVICE | device) NS=device ;;
+		KIOSK | kiosk) NS=kiosk ;;
+		SYSTEM | system) NS=system ;;
+		*) return 1 ;;
+	esac
+
+	VALID_VAR_PATH "$2" || return 1
+
+	if [ -x "$MUOS_VAR_BIN" ] && "$MUOS_VAR_BIN" set --durable "$NS" "$2" "$3" 2>/dev/null; then
+		return 0
+	fi
+
+	SET_VAR_DIRECT "$1" "$2" "$3" || return 1
+	sync
+}
+
 GET_VAR() {
 	BASE=
 	case "$1" in
@@ -903,6 +922,7 @@ LED_QUIET() {
 BOOT_PROGRESS_QUIPS="$MUOS_SHARE_DIR/loading.txt"
 BOOT_PROGRESS_DONE="$MUOS_RUN_DIR/boot/progress_done"
 LOADING_PAINT_FLAG="$MUOS_RUN_DIR/loading_paint"
+LOADING_RELEASED_FLAG="$MUOS_RUN_DIR/loading_released"
 FIRST_PAINT_FLAG="$MUOS_RUN_DIR/first_paint"
 
 BOOT_PROGRESS_FLOOR=5
@@ -1004,7 +1024,7 @@ BOOT_PROGRESS_START() {
 			exit 0
 		fi
 
-		rm -f "$MESSAGE_FINISH" "$BOOT_PROGRESS_DONE" 2>/dev/null
+		rm -f "$MESSAGE_FINISH" "$BOOT_PROGRESS_DONE" "$LOADING_RELEASED_FLAG" 2>/dev/null
 
 		PROG_QUIP=$(BOOT_PROGRESS_QUIP)
 		[ -n "$PROG_QUIP" ] || PROG_QUIP=$BOOT_PROGRESS_TEXT
@@ -1079,7 +1099,7 @@ BOOT_PROGRESS_STOP() {
 
 	PROG_WAIT=0
 	while [ "$PROG_WAIT" -lt 40 ]; do
-		pidof muxmessage >/dev/null 2>&1 || break
+		[ -e "$LOADING_RELEASED_FLAG" ] && break
 		sleep 0.05
 		PROG_WAIT=$((PROG_WAIT + 1))
 	done
@@ -1093,7 +1113,7 @@ BOOT_PROGRESS_STOP() {
 	fi
 
 	rm -f "$MESSAGE_TEXT" "$MESSAGE_PROG" "$MESSAGE_FINISH" \
-		"$BOOT_PROGRESS_TARGET" 2>/dev/null
+		"$BOOT_PROGRESS_TARGET" "$LOADING_RELEASED_FLAG" 2>/dev/null
 }
 
 SHOW_MESSAGE() {
@@ -2269,15 +2289,12 @@ BOOT_GUARD_ARM() {
 
 	BOOT_COUNT=$((BOOT_COUNT + 1))
 
-	SET_VAR_DIRECT "system" "$BOOT_ATTEMPT_KEY" "$BOOT_COUNT" || return 0
-
-	sync
+	SET_VAR_DURABLE "system" "$BOOT_ATTEMPT_KEY" "$BOOT_COUNT" || return 0
 
 	if [ "$BOOT_COUNT" -ge "$SAFE_MODE_THRESHOLD" ]; then
 		: >"$SAFE_MODE_FLAG" 2>/dev/null
 
-		SET_VAR_DIRECT "system" "$BOOT_ATTEMPT_KEY" "0"
-		sync
+		SET_VAR_DURABLE "system" "$BOOT_ATTEMPT_KEY" "0"
 
 		LOG_WARN "$0" 0 "BOOTING" "$(printf "Boot attempt %s with no confirmed frontend, this boot is safe mode" "$BOOT_COUNT")"
 	else

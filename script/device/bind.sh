@@ -261,7 +261,7 @@ LC_ALL=C awk -F'|' -v OFS='|' '$1 == "package" { sub(/\/package\/.*/, "/package"
 	"$BINDMAP" | LC_ALL=C sort -t'|' -k1,1 >"$BINDMAP.tmp" && mv "$BINDMAP.tmp" "$BINDMAP"
 
 USER_INIT="$(GET_VAR "config" "settings/advanced/user_init")"
-[  "${USER_INIT:-0}" -eq 1 ] && {
+if [ "${USER_INIT:-0}" -eq 1 ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Starting User Initialisation Scripts"
 	/opt/muos/script/system/user_init.sh &
-}
+fi

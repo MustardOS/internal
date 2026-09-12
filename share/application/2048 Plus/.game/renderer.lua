@@ -1587,6 +1587,23 @@ function renderer.getThemeDisplayName(theme_id, uppercase)
     return uppercase and name:upper() or name
 end
 
+function renderer.getModeDisplayName(mode)
+    if mode == "classic" then
+        return "Classic Mode"
+    elseif mode == "plus" then
+        return "Plus Mode"
+    elseif mode == "timeattack" then
+        return "Time Attack"
+    elseif mode == "huge" then
+        return "Huge Mode (5x5)"
+    elseif mode == "nomercy" then
+        return "No Mercy Mode"
+    elseif mode == "goose" then
+        return "Goose Mode"
+    end
+    return mode and (mode:sub(1,1):upper() .. mode:sub(2) .. " Mode") or "Classic Mode"
+end
+
 function renderer.triggerThemeMorph(theme_id)
     if not theme_id then return end
     local name = renderer.getThemeDisplayName(theme_id, true)
@@ -5582,11 +5599,15 @@ function renderer.drawOverlay(game)
             local icon_gap = math.floor(12 * scale)
 
             local font_h = font_help_label:getHeight()
+            local mode_name = renderer.getModeDisplayName(game.mode)
+            local tw_mode = font_help_label:getWidth(mode_name)
+            local mode_gap = math.floor(4 * scale)
+            local mode_h = font_h + math.floor(6 * scale)
             local track_h = has_track and (font_h + math.floor(6 * scale)) or 0
             local coins_h = font_h + math.floor(10 * scale)
             local perks_h = has_perks and (icon_sz + math.floor(12 * scale)) or 0
 
-            local total_content_h = th + track_h + coins_h + perks_h
+            local total_content_h = th + mode_gap + mode_h + track_h + coins_h + perks_h
             local pause_y = by + math.floor((bs - total_content_h) / 2)
 
             -- Draw "Paused" title
@@ -5594,8 +5615,14 @@ function renderer.drawOverlay(game)
             love.graphics.setColor(light_text)
             love.graphics.print(msg, bx + (bs - tw) / 2, pause_y)
 
+            -- Draw game mode name centered below "Paused"
+            local next_y = pause_y + th + mode_gap
+            love.graphics.setFont(font_help_label)
+            love.graphics.setColor(light_text[1], light_text[2], light_text[3], 0.8)
+            love.graphics.print(mode_name, bx + math.floor((bs - tw_mode) / 2), next_y)
+            next_y = next_y + font_h + math.floor(6 * scale)
+
             -- Draw track details centered below
-            local next_y = pause_y + th + math.floor(4 * scale)
             if has_track then
                 local track_lbl = track.title .. " - " .. track.artist
                 love.graphics.setFont(font_help_label)
@@ -5615,19 +5642,22 @@ function renderer.drawOverlay(game)
             local total_c_w = c_w + (coin_icon and (c_icon_sz + c_gap) or 0)
             local coin_start_x = bx + math.floor((bs - total_c_w) / 2)
             local coin_y = next_y
+            local row_h = math.max(font_h, c_icon_sz)
+            local text_y = coin_y + math.floor((row_h - font_h) / 2) - 1.5 * scale
+            local icon_y = coin_y + math.floor((row_h - c_icon_sz) / 2)
 
             if coin_icon then
                 love.graphics.setColor(1.0, 0.82, 0.25, 0.95)
                 love.graphics.setShader(icon_shader)
                 local sw = c_icon_sz / coin_icon:getWidth()
                 local sh = c_icon_sz / coin_icon:getHeight()
-                love.graphics.draw(coin_icon, coin_start_x, coin_y + math.floor((font_h - c_icon_sz) / 2), 0, sw, sh)
+                love.graphics.draw(coin_icon, coin_start_x, icon_y, 0, sw, sh)
                 love.graphics.setShader()
                 love.graphics.setColor(0.9, 0.9, 0.9, 0.95)
-                love.graphics.print(coin_str, coin_start_x + c_icon_sz + c_gap, coin_y)
+                love.graphics.print(coin_str, coin_start_x + c_icon_sz + c_gap, text_y)
             else
                 love.graphics.setColor(0.9, 0.9, 0.9, 0.95)
-                love.graphics.print(coin_str .. " Coins", coin_start_x, coin_y)
+                love.graphics.print(coin_str .. " Coins", coin_start_x, text_y)
             end
             next_y = next_y + font_h + math.floor(12 * scale)
 
@@ -5648,7 +5678,31 @@ function renderer.drawOverlay(game)
                 love.graphics.setShader()
             end
         else
-            love.graphics.print(msg, bx + (bs - tw) / 2, by + (bs - th) / 2)
+            if game.mode == "timeattack" and game.timesUp then
+                -- In Time Attack when time is up, "Time's Up!" is self-explanatory
+                love.graphics.setFont(font_message)
+                love.graphics.setColor(1.0, 0.95, 0.7, 1.0)
+                love.graphics.print(msg, bx + math.floor((bs - tw) / 2), by + math.floor((bs - th) / 2))
+            else
+                local mode_name = renderer.getModeDisplayName(game.mode)
+                love.graphics.setFont(font_help_label)
+                local mw = font_help_label:getWidth(mode_name)
+                local mh = font_help_label:getHeight()
+
+                local gap = math.floor(6 * scale)
+                local total_h = th + gap + mh
+                local start_y = by + math.floor((bs - total_h) / 2)
+
+                -- Draw "Game Over!"
+                love.graphics.setFont(font_message)
+                love.graphics.setColor(ui_text)
+                love.graphics.print(msg, bx + math.floor((bs - tw) / 2), start_y)
+
+                -- Draw Game Mode Name
+                love.graphics.setFont(font_help_label)
+                love.graphics.setColor(ui_text[1], ui_text[2], ui_text[3], 0.75)
+                love.graphics.print(mode_name, bx + math.floor((bs - mw) / 2), start_y + th + gap)
+            end
         end
     end
 end
@@ -7137,8 +7191,8 @@ function renderer.drawMainMenu(selection, skip_transition)
         local total_c_w = c_w + (coin_icon and (coin_sz + math.floor(4 * scale)) or 0)
         local coin_x = right_edge - total_c_w
         local coin_row_y = r1_y + icon_size + math.floor(7 * scale)
-        local text_y = coin_row_y + math.floor((row_h - font_h) / 2)
-        local icon_top = coin_row_y + math.floor((row_h - coin_sz) / 2) + math.floor(2 * scale)
+        local text_y = coin_row_y + math.floor((row_h - font_h) / 2) - 1.5 * scale
+        local icon_top = coin_row_y + math.floor((row_h - coin_sz) / 2)
 
         love.graphics.setColor(ui_text[1], ui_text[2], ui_text[3], 0.8)
         love.graphics.setFont(font_help_label)
@@ -8965,8 +9019,8 @@ local achievementsList = {
 
     -- Companions & Economy
     { id = "ach_coin_hoarder",     name = "Coin Hoarder",      desc = "Accumulate 10,000 coins at once",                                reward = "Pastel Theme",     coins = 250 },
-    { id = "ach_best_friend",      name = "Best Friend",       desc = "Play a game with all 4 dog breeds",                              reward = "Pawprint Theme",   coins = 200 },
-    { id = "ach_purrfect_run",     name = "Purrfect Run",      desc = "Create a 2048 tile with the Cat Companion active",               reward = "Neko Night Theme", coins = 250 }
+    { id = "ach_best_friend",      name = "Best Friend",       desc = "Play with all 4 dog pals",                                       reward = "Pawprint Theme",   coins = 200 },
+    { id = "ach_purrfect_run",     name = "Purrfect Run",      desc = "Create a 2048 tile with the cat companion active",               reward = "Neko Night Theme", coins = 250 }
 }
 
 function renderer.getAchievementsList()
@@ -10252,7 +10306,7 @@ function renderer.drawStoreMenu(selection, skip_transition)
     love.graphics.setLineWidth(math.floor(1.5 * scale))
     roundedRect("line", pill_x, pill_y, pill_w, pill_h, math.floor(6 * scale))
 
-    local text_y = pill_y + math.floor((pill_h - font_h) / 2) - math.floor(1 * scale)
+    local text_y = pill_y + math.floor((pill_h - font_h) / 2) - 1.5 * scale
     local icon_y = pill_y + math.floor((pill_h - c_icon_sz) / 2)
 
     love.graphics.setColor(ui_text)

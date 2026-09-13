@@ -10,19 +10,21 @@ SET_VAR "system" "foreground_process" "muxretro"
 FRESH_ARG=""
 [ -e "/tmp/ra_no_load" ] && FRESH_ARG="--fresh"
 
-F_PATH=$(dirname "$FILE")
+LOGPATH="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/ecwolf.log"
+mkdir -p "$(dirname "$LOGPATH")"
+printf "Starting Wolfenstein 3D (Pickles)\n" >"$LOGPATH"
 
-WOLF_RUNNER="$F_PATH/$NAME.wolf"
+SHOW_MESSAGE 50 "Loading Wolfenstein Content"
 
-# Compensate for Windows wild cuntery
-dos2unix -n "$WOLF_RUNNER" "$WOLF_RUNNER"
+if ! WOLF_EXE=$(/opt/muos/script/launch/wolf-provision.sh "$(dirname "$FILE")" "$NAME" "$LOGPATH" 2>&1); then
+	SHOW_MESSAGE 100 "Error Loading Wolfenstein Content\n\n$WOLF_EXE"
 
-REAL_WOLF_EXE="$F_PATH/.$NAME/$(cat "$WOLF_RUNNER")"
-FAKE_WOLF_EXE="$F_PATH/.$NAME/$(basename "$NAME").EXE"
+	MESSAGE stop
+	sleep 3
 
-# We do this so that save states are not mixed...
-cp "$REAL_WOLF_EXE" "$FAKE_WOLF_EXE"
+	exit 1
+fi
 
-/opt/muos/frontend/muxretro "$MUOS_SHARE_DIR/core/ecwolf_libretro.so" "$FAKE_WOLF_EXE" $FRESH_ARG
+MESSAGE stop
 
-rm -f "$FAKE_WOLF_EXE"
+/opt/muos/frontend/muxretro "$MUOS_SHARE_DIR/core/ecwolf_libretro.so" "$WOLF_EXE" $FRESH_ARG

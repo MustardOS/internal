@@ -6,7 +6,7 @@ corename = "DirkSimple"
 categories = "Emulator"
 license = "zlib"
 permissions = ""
-display_version = "0.2"
+display_version = "0.3"
 
 # Hardware Information
 # even within Dragon's Lair 1, the European version had a different publisher with a totally different cabinet and laserdisc player.
@@ -23,3 +23,4 @@ hw_render = "false"
 notes = "DirkSimple plays laserdisc arcade games, like Dragon's Lair. The games are not emulated ROMs, but reimplemented in Lua, and using an Ogg Theora video of the laserdisc's contents."
 
 description = "A player of laserdisc arcade games."
+

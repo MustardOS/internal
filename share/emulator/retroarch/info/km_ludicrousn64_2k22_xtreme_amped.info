@@ -1,0 +1,33 @@
+# Software Information
+display_name = "Nintendo - Nintendo 64 (LudicrousN64 Xtreme)"
+authors = "KMFDManic|mupen64plus Team|gonetz|GLideN64 Contributors|libretro Team"
+supported_extensions = "n64|v64|z64|ndd|bin|u1"
+corename = "LudicrousN64 Xtreme"
+license = "GPLv2"
+permissions = "dynarec_optional"
+display_version = "2K22-Xtreme"
+categories = "Emulator"
+
+# Hardware Information
+manufacturer = "Nintendo"
+systemname = "Nintendo 64"
+systemid = "nintendo_64"
+
+# Libretro Features
+supports_no_game = "false"
+database = "Nintendo - Nintendo 64"
+hw_render = "true"
+required_hw_api = "OpenGL Core >= 3.3 | OpenGL ES >= 2.0"
+savestate = "true"
+savestate_features = "serialized"
+cheats = "false"
+input_descriptors = "true"
+memory_descriptors = "true"
+libretro_saves = "true"
+core_options = "true"
+load_subsystem = "true"
+needs_fullpath = "false"
+disk_control = "false"
+is_experimental = "true"
+
+description = "LudicrousN64 Xtreme is a heavily modified version of the Mupen64Plus-Next core maintained by KMFDManic. It features aggressive performance tuning and custom enhancements known as 'Xtreme Additions' including Turbo Boost Mode and Xtreme OverClock. These features trade stability for speed, often resulting in visual glitches, crashes, or desyncs. Intended for advanced users and modders, this core pushes the boundaries of N64 emulation with features like unsynchronized audio/video for maximal performance. Not recommended for general use. Cheats are disabled in this core. Uses GLideN64 for video and RSP-HLE for audio."

@@ -33,6 +33,8 @@ RUN() {
 	LOG_INFO "$0" 0 "IDLE" "$(printf "Idle watcher running (PID: %s)" "$$")"
 
 	LAST_INHIBIT=-1
+	LAST_ACTIVITY=
+	ACTIVITY_FILE="$MUOS_RUN_DIR/input_activity"
 
 	while :; do
 		INHIBIT=$INHIBIT_NONE
@@ -58,6 +60,19 @@ RUN() {
 					;;
 			esac
 		done
+
+		# Content grabs the input devices, so muhotkey cannot see gameplay input and
+		# its idle timer expires while the user is actively playing. muinput is the
+		# only thing that sees every press, and publishes a counter. Inhibit while
+		# that counter is moving, and let go once input stops, so the screensaver and
+		# the idle save states that depend on it still work.
+		ACTIVITY=0
+		[ -r "$ACTIVITY_FILE" ] && read -r ACTIVITY <"$ACTIVITY_FILE" 2>/dev/null
+
+		if [ "$ACTIVITY" != "$LAST_ACTIVITY" ]; then
+			INHIBIT=$INHIBIT_BOTH
+			LAST_ACTIVITY="$ACTIVITY"
+		fi
 
 		if [ "$INHIBIT" -ne "$LAST_INHIBIT" ]; then
 			LOG_DEBUG "$0" 0 "IDLE" "$(printf "Idle inhibit state changed: %s -> %s" "$LAST_INHIBIT" "$INHIBIT")"

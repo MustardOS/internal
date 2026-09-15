@@ -152,6 +152,9 @@ STOP_SERVICES() {
 	STOP_DIR "$INIT_DIR/async" "async"
 }
 
+LOG_INFO "$0" 0 "HALT" "Running indicator LED shutdown sweep"
+/opt/muos/script/device/led.sh shutdown
+
 LOG_INFO "$0" 0 "HALT" "Stopping muX services"
 MUXCTL stop
 

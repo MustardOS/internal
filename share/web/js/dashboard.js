@@ -47,7 +47,6 @@
         mupen64plus: "Mupen64Plus",
         ppsspp: "PPSSPP",
         scummvm: "ScummVM",
-        amiberry: "Amiberry",
         muterm: "Terminal",
         external: "External application"
     };

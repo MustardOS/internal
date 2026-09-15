@@ -1,0 +1,3019 @@
+{
+  "2048": {
+    "name": "2048",
+    "namespace": "Game Engine",
+    "catalogue": "2048",
+    "lookup": 0,
+    "default": "2048",
+    "friendly": [
+      "2048"
+    ],
+    "bios": [],
+    "cores": {
+      "2048": {
+        "name": "2048",
+        "core": "2048_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Amstrad": {
+    "name": "Amstrad",
+    "namespace": "Computer",
+    "catalogue": "Amstrad",
+    "lookup": 0,
+    "default": "cpc gx4000 caprice",
+    "friendly": [
+      "amstrad",
+      "amstradcpc",
+      "cpc"
+    ],
+    "bios": [],
+    "cores": {
+      "cpc crocods": {
+        "name": "CPC CrocoDS",
+        "core": "crocods_libretro.so",
+        "bios_required": 0
+      },
+      "cpc gx4000 caprice": {
+        "name": "CPC GX4000 Caprice",
+        "core": "cap32_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Apple Macintosh": {
+    "name": "Apple Macintosh",
+    "namespace": "Computer",
+    "catalogue": "Apple Macintosh",
+    "lookup": 0,
+    "default": "minivmac",
+    "friendly": [
+      "applemacintosh",
+      "macintosh",
+      "minivmac"
+    ],
+    "bios": [],
+    "cores": {
+      "minivmac": {
+        "name": "Mini vMac",
+        "core": "minivmac_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Arcade": {
+    "name": "Arcade",
+    "namespace": "Arcade",
+    "catalogue": "Arcade",
+    "lookup": 1,
+    "default": "finalburn neo amped",
+    "friendly": [
+      "arcadehbmame",
+      "arcade",
+      "arcadevertical",
+      "cps",
+      "harcade",
+      "hbmame",
+      "horizontal",
+      "horizontalarcade",
+      "pgm",
+      "varcade",
+      "vertarcade",
+      "vertical",
+      "verticalarcade"
+    ],
+    "bios": [],
+    "cores": {
+      "daphne": {
+        "name": "Daphne",
+        "core": "daphne_libretro.so",
+        "bios_required": 0
+      },
+      "dirksimple": {
+        "name": "DirkSimple",
+        "core": "dirksimple_libretro.so"
+      },
+      "fb alpha": {
+        "name": "FB Alpha",
+        "core": "fbalpha_libretro.so",
+        "bios_required": 0
+      },
+      "fb alpha 2012": {
+        "name": "FB Alpha 2012",
+        "core": "fbalpha2012_libretro.so"
+      },
+      "fb alpha 2012 cps-1": {
+        "name": "FB Alpha 2012 CPS-1",
+        "core": "fbalpha2012_cps1_libretro.so"
+      },
+      "fb alpha 2012 cps-2": {
+        "name": "FB Alpha 2012 CPS-2",
+        "core": "fbalpha2012_cps2_libretro.so"
+      },
+      "fb alpha 2012 cps-3": {
+        "name": "FB Alpha 2012 CPS-3",
+        "core": "fbalpha2012_cps3_libretro.so"
+      },
+      "fb alpha 2012 neo geo": {
+        "name": "FB Alpha 2012 Neo Geo",
+        "core": "fbalpha2012_neogeo_libretro.so"
+      },
+      "finalburn neo": {
+        "name": "FinalBurn Neo",
+        "core": "fbneo_libretro.so"
+      },
+      "finalburn neo amped": {
+        "name": "FinalBurn Neo Amped",
+        "core": "km_fbneo_xtreme_amped_libretro.so"
+      },
+      "mame": {
+        "name": "MAME",
+        "core": "mame_libretro.so"
+      },
+      "mame 078 plus": {
+        "name": "MAME 078 Plus",
+        "core": "mame078plus_libretro.so"
+      },
+      "mame 139": {
+        "name": "MAME 139",
+        "core": "mame0139_libretro.so"
+      },
+      "mame 2000": {
+        "name": "MAME 2000",
+        "core": "mame2000_libretro.so"
+      },
+      "mame 2003": {
+        "name": "MAME 2003",
+        "core": "mame2003_libretro.so"
+      },
+      "mame 2003-midway": {
+        "name": "MAME 2003-Midway",
+        "core": "mame2003_midway_libretro.so"
+      },
+      "mame 2003-plus": {
+        "name": "MAME 2003-Plus",
+        "core": "mame2003_plus_libretro.so"
+      },
+      "mame 2003-xtreme": {
+        "name": "MAME 2003-Xtreme",
+        "core": "km_mame2003_xtreme_amped_libretro.so"
+      },
+      "mame 2010": {
+        "name": "MAME 2010",
+        "core": "mame2010_libretro.so"
+      }
+    }
+  },
+  "Arduboy": {
+    "name": "Arduboy",
+    "namespace": "Fantasy Console",
+    "catalogue": "Arduboy",
+    "lookup": 0,
+    "default": "ardens",
+    "friendly": [
+      "arduboy"
+    ],
+    "bios": [],
+    "cores": {
+      "ardens": {
+        "name": "Ardens",
+        "core": "ardens_libretro.so",
+        "bios_required": 0
+      },
+      "arduous": {
+        "name": "Arduous",
+        "core": "arduous_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Atari 2600": {
+    "name": "Atari 2600",
+    "namespace": "Atari",
+    "catalogue": "Atari 2600",
+    "lookup": 0,
+    "default": "stella 2014",
+    "friendly": [
+      "twentysixhundred",
+      "atari",
+      "atari2600",
+      "a2600",
+      "2600"
+    ],
+    "bios": [],
+    "cores": {
+      "stella": {
+        "name": "Stella",
+        "core": "stella_libretro.so",
+        "bios_required": 0
+      },
+      "stella 2014": {
+        "name": "Stella 2014",
+        "core": "stella2014_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Atari 5200": {
+    "name": "Atari 5200",
+    "namespace": "Atari",
+    "catalogue": "Atari 5200",
+    "lookup": 0,
+    "default": "a5200",
+    "friendly": [
+      "fiftytwohundred",
+      "atari5200",
+      "a5200",
+      "5200"
+    ],
+    "bios": [
+      {
+        "file": "5200.rom",
+        "hash": "281f20ea4320404ec820fb7ec0693b38"
+      },
+      {
+        "file": "ATARIXL.ROM",
+        "hash": "06daac977823773a3eea3422fd26a703"
+      },
+      {
+        "file": "ATARIBAS.ROM",
+        "hash": "0bac0c6a50104045d902df4503a4c30b"
+      },
+      {
+        "file": "ATARIOSA.ROM",
+        "hash": "eb1f32f5d9f382db1bbfb8d7f9cb343a"
+      },
+      {
+        "file": "ATARIOSB.ROM",
+        "hash": "a3e8d617c95d08031fe1b20d541434b2"
+      }
+    ],
+    "cores": {
+      "a5200": {
+        "name": "a5200",
+        "core": "a5200_libretro.so",
+        "bios_required": 0
+      },
+      "atari 800": {
+        "name": "Atari 800",
+        "core": "atari800_libretro.so",
+        "bios_required": 1
+      }
+    }
+  },
+  "Atari 7800": {
+    "name": "Atari 7800",
+    "namespace": "Atari",
+    "catalogue": "Atari 7800",
+    "lookup": 0,
+    "default": "prosystem",
+    "friendly": [
+      "seventyeighthundred",
+      "atari7800",
+      "a7800",
+      "7800"
+    ],
+    "bios": [
+      {
+        "file": "7800 BIOS (U).rom",
+        "hash": "0763f1ffb006ddbe32e52d497ee848ae"
+      }
+    ],
+    "cores": {
+      "prosystem": {
+        "name": "ProSystem",
+        "core": "prosystem_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Atari 800": {
+    "name": "Atari 800",
+    "namespace": "Atari",
+    "catalogue": "Atari 800",
+    "lookup": 0,
+    "default": "atari 800",
+    "friendly": [
+      "eighthundred",
+      "atari800",
+      "a800",
+      "800"
+    ],
+    "bios": [
+      {
+        "file": "5200.rom",
+        "hash": "281f20ea4320404ec820fb7ec0693b38"
+      },
+      {
+        "file": "ATARIXL.ROM",
+        "hash": "06daac977823773a3eea3422fd26a703"
+      },
+      {
+        "file": "ATARIBAS.ROM",
+        "hash": "0bac0c6a50104045d902df4503a4c30b"
+      },
+      {
+        "file": "ATARIOSA.ROM",
+        "hash": "eb1f32f5d9f382db1bbfb8d7f9cb343a"
+      },
+      {
+        "file": "ATARIOSB.ROM",
+        "hash": "a3e8d617c95d08031fe1b20d541434b2"
+      }
+    ],
+    "cores": {
+      "atari 800": {
+        "name": "Atari 800",
+        "core": "atari800_libretro.so",
+        "bios_required": 1
+      }
+    }
+  },
+  "Atari Jaguar": {
+    "name": "Atari Jaguar",
+    "namespace": "Atari",
+    "catalogue": "Atari Jaguar",
+    "lookup": 0,
+    "default": "virtual jaguar",
+    "governor": "performance",
+    "friendly": [
+      "atarijaguar",
+      "jaguar"
+    ],
+    "bios": [],
+    "cores": {
+      "virtual jaguar": {
+        "name": "Virtual Jaguar",
+        "core": "virtualjaguar_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Atari Lynx": {
+    "name": "Atari Lynx",
+    "namespace": "Atari",
+    "catalogue": "Atari Lynx",
+    "lookup": 0,
+    "default": "handy",
+    "friendly": [
+      "atarilynx",
+      "lynx"
+    ],
+    "bios": [
+      {
+        "file": "lynxboot.img",
+        "hash": "fcd403db69f54290b51035d82f835e7b"
+      }
+    ],
+    "cores": {
+      "beetle lynx": {
+        "name": "Beetle Lynx",
+        "core": "mednafen_lynx_libretro.so",
+        "bios_required": 1
+      },
+      "handy": {
+        "name": "Handy",
+        "core": "handy_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Atari ST-STE-TT-Falcon": {
+    "name": "Atari ST-STE-TT-Falcon",
+    "namespace": "Atari",
+    "catalogue": "Atari ST-STE-TT-Falcon",
+    "lookup": 0,
+    "default": "hatari",
+    "friendly": [
+      "atarist",
+      "atariste",
+      "ast",
+      "aste",
+      "atarifalcon",
+      "falcon",
+      "tt",
+      "ataritt",
+      "st",
+      "ste"
+    ],
+    "bios": [
+      {
+        "file": "tos.img",
+        "hash": "c1c57ce48e8ee4135885cee9e63a68a2"
+      }
+    ],
+    "cores": {
+      "hatari": {
+        "name": "Hatari",
+        "core": "hatari_libretro.so",
+        "bios_required": 1
+      },
+      "hatarib": {
+        "name": "HatariB",
+        "core": "hatarib_libretro.so",
+        "bios_required": 1
+      }
+    }
+  },
+  "Bandai WonderSwan Color": {
+    "name": "Bandai WonderSwan Color",
+    "namespace": "Handheld",
+    "catalogue": "Bandai WonderSwan Color",
+    "lookup": 0,
+    "default": "beetle cygne",
+    "friendly": [
+      "wsc",
+      "ws",
+      "wonderswancolor",
+      "wonderswan",
+      "bwsc",
+      "bws",
+      "bandaiwonderswancolor",
+      "bandaiwonderswan"
+    ],
+    "bios": [],
+    "cores": {
+      "beetle cygne": {
+        "name": "Beetle Cygne",
+        "core": "mednafen_wswan_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "BennuGD": {
+    "name": "BennuGD",
+    "namespace": "Game Engine",
+    "catalogue": "BennuGD",
+    "lookup": 0,
+    "default": "bennugd",
+    "friendly": [
+      "bennugd",
+      "BennuGD"
+    ],
+    "bios": [],
+    "cores": {
+      "bennugd": {
+        "name": "BennuGD",
+        "core": "bennugd_libretro.so"
+      }
+    }
+  },
+  "CHIP-8": {
+    "name": "CHIP-8",
+    "namespace": "Fantasy Console",
+    "catalogue": "CHIP-8",
+    "lookup": 0,
+    "default": "jaxe",
+    "friendly": [
+      "superchip",
+      "megachip8",
+      "chipeight",
+      "chip8"
+    ],
+    "bios": [],
+    "cores": {
+      "emux chip8": {
+        "name": "Emux CHIP-8",
+        "core": "emux_chip8_libretro.so",
+        "bios_required": 0
+      },
+      "jaxe": {
+        "name": "JAXE",
+        "core": "jaxe_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Cannonball": {
+    "name": "Cannonball",
+    "namespace": "Game Engine",
+    "catalogue": "Cannonball",
+    "lookup": 0,
+    "default": "cannonball",
+    "friendly": [
+      "cannonball",
+      "outrun"
+    ],
+    "bios": [],
+    "cores": {
+      "cannonball": {
+        "name": "Cannonball",
+        "core": "cannonball_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Cave Story": {
+    "name": "Cave Story",
+    "namespace": "Game Engine",
+    "catalogue": "Cave Story",
+    "lookup": 0,
+    "default": "nxengine",
+    "friendly": [
+      "cavestory"
+    ],
+    "bios": [
+      {
+        "file": "Cave Story (En).zip",
+        "hash": ""
+      }
+    ],
+    "cores": {
+      "nxengine": {
+        "name": "NXEngine",
+        "core": "nxengine_libretro.so",
+        "launcher": "nxengine.sh",
+        "bios_required": 1
+      }
+    }
+  },
+  "ChaiLove": {
+    "name": "ChaiLove",
+    "namespace": "Game Engine",
+    "catalogue": "ChaiLove",
+    "lookup": 0,
+    "default": "chailove",
+    "friendly": [
+      "chailove"
+    ],
+    "bios": [],
+    "cores": {
+      "chailove": {
+        "name": "ChaiLove",
+        "core": "chailove_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "ColecoVision": {
+    "name": "ColecoVision",
+    "namespace": "Console",
+    "catalogue": "ColecoVision",
+    "lookup": 0,
+    "default": "gearcoleco",
+    "friendly": [
+      "colecovision",
+      "coleco"
+    ],
+    "bios": [
+      {
+        "file": "colecovision.rom",
+        "hash": "2c66f5911e5b42b8ebe113403548eee7"
+      }
+    ],
+    "cores": {
+      "bluemsx": {
+        "name": "blueMSX",
+        "core": "bluemsx_libretro.so",
+        "bios_required": 1
+      },
+      "gearcoleco": {
+        "name": "Gearcoleco",
+        "core": "gearcoleco_libretro.so",
+        "bios_required": 1
+      }
+    }
+  },
+  "Commodore Amiga": {
+    "name": "Commodore Amiga",
+    "namespace": "Commodore",
+    "catalogue": "Commodore Amiga",
+    "lookup": 0,
+    "default": "puae 2021",
+    "friendly": [
+      "commodoreamiga",
+      "amiga500",
+      "amiga"
+    ],
+    "bios": [
+      {
+        "file": "kick33180.A500",
+        "hash": "85ad74194e87c08904327de1a9443b7a"
+      },
+      {
+        "file": "kick34005.A500",
+        "hash": "82a21c1890cae844b3df741f2762d48d"
+      },
+      {
+        "file": "kick37175.A500",
+        "hash": "dc10d7bdd1b6f450773dfb558477c230"
+      },
+      {
+        "file": "kick37350.A600",
+        "hash": "465646c9b6729f77eea5314d1f057951"
+      },
+      {
+        "file": "kick40063.A600",
+        "hash": "e40a5dfb3d017ba8779faba30cbd1c8e"
+      },
+      {
+        "file": "kick39106.A1200",
+        "hash": "b7cc148386aa631136f510cd29e42fc3"
+      },
+      {
+        "file": "kick40068.A1200",
+        "hash": "646773759326fbac3b2311fd8c8793ee"
+      },
+      {
+        "file": "kick39106.A4000",
+        "hash": "9b8bdd5a3fd32c2a5a6f5b1aefc799a5"
+      },
+      {
+        "file": "kick40068.A4000",
+        "hash": "9bdedde6a4f33555b4a270c8ca53297d"
+      },
+      {
+        "file": "kick34005.CDTV",
+        "hash": "89da1838a24460e4b93f4f0c5d92d48d"
+      },
+      {
+        "file": "kick40060.CD32",
+        "hash": "5f8924d013dd57a89cf349f4cdedc6b1"
+      },
+      {
+        "file": "kick40060.CD32.ext",
+        "hash": "bb72565701b1b6faece07d68ea5da639"
+      },
+      {
+        "file": "kick40060.CD32",
+        "hash": "f2f241bf094168cfb9e7805dc2856433"
+      }
+    ],
+    "cores": {
+      "puae": {
+        "name": "PUAE",
+        "core": "puae_libretro.so",
+        "bios_required": 1
+      },
+      "puae 2021": {
+        "name": "PUAE 2021",
+        "core": "puae2021_libretro.so",
+        "bios_required": 1
+      },
+      "puae xtreme": {
+        "name": "PUAE Xtreme",
+        "core": "km_puae_xtreme_amped_2k24_libretro.so",
+        "bios_required": 1
+      },
+      "uae4arm": {
+        "name": "UAE4ARM",
+        "core": "uae4arm_libretro.so",
+        "bios_required": 1
+      }
+    }
+  },
+  "Commodore C128": {
+    "name": "Commodore C128",
+    "namespace": "Commodore",
+    "catalogue": "Commodore C128",
+    "lookup": 0,
+    "default": "vice x128",
+    "friendly": [
+      "commodorec128",
+      "commodore128",
+      "c128"
+    ],
+    "bios": [],
+    "cores": {
+      "vice x128": {
+        "name": "VICE x128",
+        "core": "vice_x128_libretro.so"
+      }
+    }
+  },
+  "Commodore C64": {
+    "name": "Commodore C64",
+    "namespace": "Commodore",
+    "catalogue": "Commodore C64",
+    "lookup": 0,
+    "default": "vice x64 fast",
+    "friendly": [
+      "commodorec64",
+      "commodore64",
+      "commodore",
+      "c64"
+    ],
+    "bios": [],
+    "cores": {
+      "frodo": {
+        "name": "Frodo",
+        "core": "frodo_libretro.so",
+        "bios_required": 0
+      },
+      "vice x64 fast": {
+        "name": "VICE x64 fast",
+        "core": "vice_x64_libretro.so"
+      },
+      "vice x64dtv": {
+        "name": "VICE x64 DTV",
+        "core": "vice_x64dtv_libretro.so",
+        "bios_required": 0
+      },
+      "vice x64sc accurate": {
+        "name": "VICE x64sc accurate",
+        "core": "vice_x64sc_libretro.so"
+      },
+      "vice xscpu64": {
+        "name": "VICE xscpu64",
+        "core": "vice_xscpu64_libretro.so"
+      }
+    }
+  },
+  "Commodore CBM-II": {
+    "name": "Commodore CBM-II",
+    "namespace": "Commodore",
+    "catalogue": "Commodore CBM-II",
+    "lookup": 0,
+    "default": "vice xcbm2",
+    "friendly": [
+      "commodorecbmii",
+      "cbmii"
+    ],
+    "bios": [],
+    "cores": {
+      "vice xcbm2": {
+        "name": "VICE xcbm2",
+        "core": "vice_xcbm2_libretro.so"
+      },
+      "vice xcmb5x0": {
+        "name": "VICE xcmb5x0",
+        "core": "vice_xcbm5x0_libretro.so"
+      }
+    }
+  },
+  "Commodore PET": {
+    "name": "Commodore PET",
+    "namespace": "Commodore",
+    "catalogue": "Commodore PET",
+    "lookup": 0,
+    "default": "vice xpet",
+    "friendly": [
+      "pet",
+      "commodorepet"
+    ],
+    "bios": [],
+    "cores": {
+      "vice xpet": {
+        "name": "VICE xpet",
+        "core": "vice_xpet_libretro.so"
+      }
+    }
+  },
+  "Commodore Plus-4": {
+    "name": "Commodore Plus-4",
+    "namespace": "Commodore",
+    "catalogue": "Commodore Plus-4",
+    "lookup": 0,
+    "default": "vice xplus4",
+    "friendly": [
+      "commodoreplus4",
+      "plus4"
+    ],
+    "bios": [],
+    "cores": {
+      "vice xplus4": {
+        "name": "VICE xplus4",
+        "core": "vice_xplus4_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Commodore VIC-20": {
+    "name": "Commodore VIC-20",
+    "namespace": "Commodore",
+    "catalogue": "Commodore VIC-20",
+    "lookup": 0,
+    "default": "vice xvic",
+    "friendly": [
+      "vic20",
+      "commodorevic20"
+    ],
+    "bios": [],
+    "cores": {
+      "vice xvic": {
+        "name": "VICE xvic",
+        "core": "vice_xvic_libretro.so"
+      }
+    }
+  },
+  "Discrete Integrated Circuit Emulator": {
+    "name": "Discrete Integrated Circuit Emulator",
+    "namespace": "Arcade",
+    "catalogue": "Discrete Integrated Circuit Emulator",
+    "lookup": 0,
+    "default": "dice",
+    "friendly": [
+      "dice"
+    ],
+    "bios": [],
+    "cores": {
+      "dice": {
+        "name": "Dice",
+        "core": "dice_libretro.so"
+      }
+    }
+  },
+  "Doom": {
+    "name": "Doom",
+    "namespace": "Game Engine",
+    "catalogue": "Doom",
+    "lookup": 0,
+    "default": "prboom",
+    "friendly": [
+      "prboom",
+      "doom"
+    ],
+    "bios": [],
+    "cores": {
+      "prboom": {
+        "name": "PrBoom",
+        "core": "prboom_libretro.so",
+        "launcher": "prboom.sh"
+      }
+    }
+  },
+  "Elektronika BK": {
+    "name": "Elektronika BK",
+    "namespace": "Computer",
+    "catalogue": "Elektronika BK",
+    "lookup": 0,
+    "default": "bk",
+    "friendly": [
+      "elektronikabk",
+      "elektronika",
+      "bk"
+    ],
+    "bios": [],
+    "cores": {
+      "bk": {
+        "name": "BK",
+        "core": "bk_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Enterprise 128": {
+    "name": "Enterprise 128",
+    "namespace": "Computer",
+    "catalogue": "Enterprise 128",
+    "lookup": 0,
+    "default": "ep128emu",
+    "friendly": [
+      "enterprise128",
+      "enterprise",
+      "ep128"
+    ],
+    "bios": [],
+    "cores": {
+      "ep128emu": {
+        "name": "ep128emu",
+        "core": "ep128emu_core_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Epoch Super Cassette Vision": {
+    "name": "Epoch Super Cassette Vision",
+    "namespace": "Console",
+    "catalogue": "Epoch Super Cassette Vision",
+    "lookup": 0,
+    "default": "emuscv",
+    "friendly": [
+      "epochsupercassettevision",
+      "supercassettevision",
+      "scv"
+    ],
+    "bios": [],
+    "cores": {
+      "emuscv": {
+        "name": "EmuSCV",
+        "core": "emuscv_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Fairchild Channel F": {
+    "name": "Fairchild Channel F",
+    "namespace": "Console",
+    "catalogue": "Fairchild Channel F",
+    "lookup": 0,
+    "default": "freechaf",
+    "friendly": [
+      "fairchildchannelf",
+      "fairchild",
+      "channelf"
+    ],
+    "bios": [],
+    "cores": {
+      "freechaf": {
+        "name": "FreeChaF",
+        "core": "freechaf_libretro.so"
+      },
+      "press f": {
+        "name": "Press F",
+        "core": "press_f_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "GCE Vectrex": {
+    "name": "GCE Vectrex",
+    "namespace": "Console",
+    "catalogue": "GCE Vectrex",
+    "lookup": 0,
+    "default": "vecx",
+    "friendly": [
+      "vectrex",
+      "gcevectrex",
+      "gce"
+    ],
+    "bios": [],
+    "cores": {
+      "vecx": {
+        "name": "vecx",
+        "core": "vecx_libretro.so"
+      }
+    }
+  },
+  "Galaksija Retro Computer": {
+    "name": "Galaksija Retro Computer",
+    "namespace": "Computer",
+    "catalogue": "Galaksija Retro Computer",
+    "lookup": 0,
+    "default": "galaksija",
+    "friendly": [
+      "galaksija",
+      "galretro",
+      "retcom"
+    ],
+    "bios": [],
+    "cores": {
+      "galaksija": {
+        "name": "Galaksija",
+        "core": "galaksija_libretro.so"
+      }
+    }
+  },
+  "Game Music": {
+    "name": "Game Music",
+    "namespace": "Media",
+    "catalogue": "Game Music",
+    "lookup": 0,
+    "default": "gme",
+    "friendly": [
+      "gamemusic",
+      "gme",
+      "chiptune"
+    ],
+    "bios": [],
+    "cores": {
+      "gme": {
+        "name": "Game Music Emu",
+        "core": "gme_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Game Tank": {
+    "name": "Game Tank",
+    "namespace": "Fantasy Console",
+    "catalogue": "Game Tank",
+    "lookup": 0,
+    "default": "game tank",
+    "friendly": [
+      "libgametank",
+      "gametank"
+    ],
+    "bios": [],
+    "cores": {
+      "game tank": {
+        "name": "Game Tank",
+        "core": "libgametank_libretro.so"
+      }
+    }
+  },
+  "Handheld Electronic - Game and Watch": {
+    "name": "Handheld Electronic - Game and Watch",
+    "namespace": "Handheld",
+    "catalogue": "Handheld Electronic - Game and Watch",
+    "lookup": 0,
+    "default": "handheld electronic",
+    "friendly": [
+      "nintendogw",
+      "nintendogameandwatch",
+      "ngw",
+      "handheldelectronic",
+      "gamenwatch",
+      "gameandwatch"
+    ],
+    "bios": [],
+    "cores": {
+      "handheld electronic": {
+        "name": "Handheld Electronic",
+        "core": "gw_libretro.so"
+      }
+    }
+  },
+  "Java J2ME": {
+    "name": "Java J2ME",
+    "namespace": "Mobile",
+    "catalogue": "Java J2ME",
+    "lookup": 0,
+    "default": "freej2me - retroarch",
+    "friendly": [
+      "java",
+      "mobile"
+    ],
+    "bios": [],
+    "cores": {
+      "freej2me - retroarch": {
+        "name": "FreeJ2ME - RetroArch",
+        "core": "freej2me_libretro.so"
+      }
+    }
+  },
+  "Karaoke": {
+    "name": "Karaoke",
+    "namespace": "Media",
+    "catalogue": "Karaoke",
+    "lookup": 0,
+    "default": "pocketcdg",
+    "friendly": [
+      "cdg",
+      "pocketcdg"
+    ],
+    "bios": [],
+    "cores": {
+      "pocketcdg": {
+        "name": "PocketCDG",
+        "core": "pocketcdg_libretro.so"
+      }
+    }
+  },
+  "LowRes NX": {
+    "name": "LowRes NX",
+    "namespace": "Fantasy Console",
+    "catalogue": "LowRes NX",
+    "lookup": 0,
+    "default": "lowres nx",
+    "friendly": [
+      "lowresnx"
+    ],
+    "bios": [],
+    "cores": {
+      "lowres nx": {
+        "name": "LowRes NX",
+        "core": "lowresnx_libretro.so"
+      }
+    }
+  },
+  "Lua Engine": {
+    "name": "Lua Engine",
+    "namespace": "Game Engine",
+    "catalogue": "Lua Engine",
+    "lookup": 0,
+    "default": "lutro",
+    "friendly": [
+      "luaengine",
+      "lua"
+    ],
+    "bios": [],
+    "cores": {
+      "lutro": {
+        "name": "Lutro",
+        "core": "lutro_libretro.so"
+      }
+    }
+  },
+  "Magnavox Odyssey - VideoPac": {
+    "name": "Magnavox Odyssey - VideoPac",
+    "namespace": "Console",
+    "catalogue": "Magnavox Odyssey - VideoPac",
+    "lookup": 0,
+    "default": "odyssey2",
+    "friendly": [
+      "magnavox",
+      "magnavoxodyssey",
+      "magnavoxodyssey2",
+      "magnavoxvideopac",
+      "videopac",
+      "odyssey",
+      "odyssey2"
+    ],
+    "bios": [
+      {
+        "file": "c52.bin",
+        "hash": ""
+      },
+      {
+        "file": "g7400.bin",
+        "hash": ""
+      },
+      {
+        "file": "jopac.bin",
+        "hash": ""
+      },
+      {
+        "file": "o2rom.bin",
+        "hash": ""
+      }
+    ],
+    "cores": {
+      "odyssey2": {
+        "name": "Odyssey2",
+        "core": "o2em_libretro.so",
+        "bios_required": 1
+      }
+    }
+  },
+  "Mattel Intellivision": {
+    "name": "Mattel Intellivision",
+    "namespace": "Console",
+    "catalogue": "Mattel Intellivision",
+    "lookup": 0,
+    "default": "freeintv",
+    "friendly": [
+      "mattelintellivision",
+      "intellivision"
+    ],
+    "bios": [
+      {
+        "file": "exec.bin",
+        "hash": "62e761035cb657903761800f4437b8af"
+      },
+      {
+        "file": "grom.bin",
+        "hash": "0cd5946c6473e42e8e4c2137785e427f"
+      }
+    ],
+    "cores": {
+      "freeintv": {
+        "name": "FreeIntv",
+        "core": "freeintv_libretro.so",
+        "bios_required": 1
+      }
+    }
+  },
+  "Mega Duck - Cougar Boy": {
+    "name": "Mega Duck - Cougar Boy",
+    "namespace": "Handheld",
+    "catalogue": "Mega Duck - Cougar Boy",
+    "lookup": 0,
+    "default": "sameduck",
+    "friendly": [
+      "megaduck",
+      "cougarboy"
+    ],
+    "bios": [],
+    "cores": {
+      "sameduck": {
+        "name": "SameDuck",
+        "core": "sameduck_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "MicroW8": {
+    "name": "MicroW8",
+    "namespace": "Fantasy Console",
+    "catalogue": "MicroW8",
+    "lookup": 0,
+    "default": "uw8",
+    "friendly": [
+      "microw8",
+      "uw8"
+    ],
+    "bios": [],
+    "cores": {
+      "uw8": {
+        "name": "MicroW8",
+        "core": "uw8_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Microsoft MSX": {
+    "name": "Microsoft MSX",
+    "namespace": "Computer",
+    "catalogue": "Microsoft MSX",
+    "lookup": 0,
+    "default": "bluemsx",
+    "friendly": [
+      "msx1",
+      "msx",
+      "microsoftmsx"
+    ],
+    "bios": [],
+    "cores": {
+      "bluemsx": {
+        "name": "blueMSX",
+        "core": "bluemsx_libretro.so"
+      },
+      "fmsx": {
+        "name": "fMSX",
+        "core": "fmsx_libretro.so"
+      }
+    }
+  },
+  "NEC PC Engine": {
+    "name": "NEC PC Engine",
+    "namespace": "NEC",
+    "catalogue": "NEC PC Engine",
+    "lookup": 0,
+    "default": "beetle pce fast",
+    "friendly": [
+      "turbographix",
+      "turbografx16",
+      "turbografx",
+      "tgrafx16",
+      "tgrafx",
+      "tgfx",
+      "tg16",
+      "tg",
+      "pcengine",
+      "pce",
+      "necturbografx16",
+      "necturbografx",
+      "nectg16",
+      "necpcengine",
+      "necpce"
+    ],
+    "bios": [],
+    "cores": {
+      "beetle pce": {
+        "name": "Beetle PCE",
+        "core": "mednafen_pce_libretro.so",
+        "bios_required": 0
+      },
+      "beetle pce fast": {
+        "name": "Beetle PCE Fast",
+        "core": "mednafen_pce_fast_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "NEC PC Engine CD": {
+    "name": "NEC PC Engine CD",
+    "namespace": "NEC",
+    "catalogue": "NEC PC Engine CD",
+    "lookup": 0,
+    "default": "beetle pce fast",
+    "friendly": [
+      "turbografxcd",
+      "tgcd",
+      "pcenginecd",
+      "pcecd",
+      "necturbografxcd",
+      "nectgcd",
+      "necpcenginecd",
+      "necpcecd"
+    ],
+    "bios": [
+      {
+        "file": "syscard3.pce",
+        "hash": "38179df8f4ac870017db21ebcbf53114"
+      }
+    ],
+    "cores": {
+      "beetle pce": {
+        "name": "Beetle PCE",
+        "core": "mednafen_pce_libretro.so",
+        "bios_required": 1
+      },
+      "beetle pce fast": {
+        "name": "Beetle PCE Fast",
+        "core": "mednafen_pce_fast_libretro.so",
+        "bios_required": 1
+      }
+    }
+  },
+  "NEC PC Engine SuperGrafx": {
+    "name": "NEC PC Engine SuperGrafx",
+    "namespace": "NEC",
+    "catalogue": "NEC PC Engine SuperGrafx",
+    "lookup": 0,
+    "default": "beetle supergrafx",
+    "friendly": [
+      "supergrafx",
+      "sgfx",
+      "necsupergrafx",
+      "necsgfx"
+    ],
+    "bios": [],
+    "cores": {
+      "beetle pce": {
+        "name": "Beetle PCE",
+        "core": "mednafen_pce_libretro.so"
+      },
+      "beetle supergrafx": {
+        "name": "Beetle SuperGrafx",
+        "core": "mednafen_supergrafx_libretro.so"
+      },
+      "geargrafx": {
+        "name": "Geargrafx",
+        "core": "geargrafx_libretro.so"
+      }
+    }
+  },
+  "NEC PC-8000 - PC-8800 Series": {
+    "name": "NEC PC-8000 - PC-8800 Series",
+    "namespace": "NEC",
+    "catalogue": "NEC PC-8000 - PC-8800 Series",
+    "lookup": 0,
+    "default": "quasi8800",
+    "friendly": [
+      "pc8000",
+      "necpc8000"
+    ],
+    "bios": [],
+    "cores": {
+      "quasi8800": {
+        "name": "Quasi 8800",
+        "core": "quasi88_libretro.so"
+      }
+    }
+  },
+  "NEC PC-FX": {
+    "name": "NEC PC-FX",
+    "namespace": "NEC",
+    "catalogue": "NEC PC-FX",
+    "lookup": 0,
+    "default": "beetle pc-fx",
+    "friendly": [
+      "pcfx",
+      "necpcfx"
+    ],
+    "bios": [],
+    "cores": {
+      "beetle pc-fx": {
+        "name": "Beetle PC-FX",
+        "core": "mednafen_pcfx_libretro.so"
+      },
+      "pcfx": {
+        "name": "PC-FX",
+        "core": "pcfx_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "NEC PC98": {
+    "name": "NEC PC98",
+    "namespace": "NEC",
+    "catalogue": "NEC PC98",
+    "lookup": 0,
+    "default": "neko project ii kai",
+    "friendly": [
+      "pc98",
+      "necpc98"
+    ],
+    "bios": [],
+    "cores": {
+      "neko project ii": {
+        "name": "Neko Project II",
+        "core": "nekop2_libretro.so"
+      },
+      "neko project ii kai": {
+        "name": "Neko Project II Kai",
+        "core": "np2kai_libretro.so"
+      }
+    }
+  },
+  "Nintendo DS": {
+    "name": "Nintendo DS",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo DS",
+    "lookup": 0,
+    "default": "drastic - standalone",
+    "governor": "performance",
+    "friendly": [
+      "nintendonintendodsi",
+      "nintendodsi",
+      "nintendods",
+      "ninds",
+      "nds",
+      "dsi",
+      "ds"
+    ],
+    "bios": [],
+    "cores": {
+      "desmume 2015": {
+        "name": "DeSmuME 2015",
+        "core": "desmume2015_libretro.so"
+      },
+      "melonds": {
+        "name": "melonDS",
+        "core": "melonds_libretro.so"
+      },
+      "melonds-ds": {
+        "name": "melonDS-DS",
+        "core": "melondsds_libretro.so"
+      }
+    }
+  },
+  "Nintendo Famicom Disk System": {
+    "name": "Nintendo Famicom Disk System",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo Famicom Disk System",
+    "lookup": 0,
+    "default": "fceumm",
+    "friendly": [
+      "nintendofamicomdisksystem",
+      "fds",
+      "fcds",
+      "famicomdisksystem",
+      "famicomds"
+    ],
+    "bios": [
+      {
+        "file": "disksys.rom",
+        "hash": "ca30b50f880eb660a320674ed365ef7a"
+      }
+    ],
+    "cores": {
+      "fceumm": {
+        "name": "FCEUmm",
+        "core": "fceumm_libretro.so",
+        "bios_required": 1
+      },
+      "mesen": {
+        "name": "Mesen",
+        "core": "mesen_libretro.so",
+        "bios_required": 1
+      },
+      "nestopia": {
+        "name": "Nestopia",
+        "core": "nestopia_libretro.so",
+        "bios_required": 1
+      }
+    }
+  },
+  "Nintendo Game Boy": {
+    "name": "Nintendo Game Boy",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo Game Boy",
+    "lookup": 0,
+    "default": "gambatte",
+    "friendly": [
+      "originalgameboy",
+      "nintendogb",
+      "nintendogameboy",
+      "ngb",
+      "gbhacks",
+      "gbdmg",
+      "gb",
+      "gameboy",
+      "dmg"
+    ],
+    "bios": [],
+    "cores": {
+      "doublecherrygb": {
+        "name": "DoubleCherryGB",
+        "core": "DoubleCherryGB_libretro.so"
+      },
+      "emux gb": {
+        "name": "Emux GB",
+        "core": "emux_gb_libretro.so",
+        "bios_required": 0
+      },
+      "fixgb": {
+        "name": "FixGB",
+        "core": "fixgb_libretro.so"
+      },
+      "gambatte": {
+        "name": "Gambatte",
+        "core": "gambatte_libretro.so"
+      },
+      "gearboy": {
+        "name": "Gearboy",
+        "core": "gearboy_libretro.so"
+      },
+      "mgba": {
+        "name": "mGBA",
+        "core": "mgba_libretro.so"
+      },
+      "sameboy": {
+        "name": "SameBoy",
+        "core": "sameboy_libretro.so"
+      },
+      "tgb dual": {
+        "name": "TGB Dual",
+        "core": "tgbdual_libretro.so"
+      },
+      "vba-m": {
+        "name": "VBA-M",
+        "core": "vbam_libretro.so"
+      }
+    }
+  },
+  "Nintendo Game Boy Advance": {
+    "name": "Nintendo Game Boy Advance",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo Game Boy Advance",
+    "lookup": 0,
+    "default": "mgba",
+    "friendly": [
+      "nintendogba",
+      "nintendogameboyadvance",
+      "ningba",
+      "ngba",
+      "mgba",
+      "gbsp",
+      "gbahacks",
+      "gbadvance",
+      "gba",
+      "gameboyadvance"
+    ],
+    "bios": [
+      {
+        "file": "gba_bios.bin",
+        "hash": "a860e8c0b6d573d191e4ec7db1b1e4f6"
+      }
+    ],
+    "cores": {
+      "beetle gba": {
+        "name": "Beetle GBA",
+        "core": "mednafen_gba_libretro.so",
+        "bios_required": 0
+      },
+      "gpsp": {
+        "name": "gpSP",
+        "core": "gpsp_libretro.so",
+        "bios_required": 0
+      },
+      "mgba": {
+        "name": "mGBA",
+        "core": "mgba_libretro.so",
+        "bios_required": 0,
+        "governor": "performance"
+      },
+      "mgba rumble": {
+        "name": "mGBA Rumble",
+        "core": "mgba_rumble_libretro.so",
+        "bios_required": 0
+      },
+      "vba-m": {
+        "name": "VBA-M",
+        "core": "vbam_libretro.so",
+        "bios_required": 0
+      },
+      "vba-next": {
+        "name": "VBA-Next",
+        "core": "vba_next_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Nintendo Game Boy Color": {
+    "name": "Nintendo Game Boy Color",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo Game Boy Color",
+    "lookup": 0,
+    "default": "gambatte",
+    "friendly": [
+      "nintendogbc",
+      "nintendogameboycolor",
+      "ningbc",
+      "ngbc",
+      "gbcolor",
+      "gbchacks",
+      "gbc",
+      "bgb"
+    ],
+    "bios": [],
+    "cores": {
+      "doublecherrygb": {
+        "name": "DoubleCherryGB",
+        "core": "DoubleCherryGB_libretro.so"
+      },
+      "fixgb": {
+        "name": "FixGB",
+        "core": "fixgb_libretro.so"
+      },
+      "gambatte": {
+        "name": "Gambatte",
+        "core": "gambatte_libretro.so"
+      },
+      "gearboy": {
+        "name": "Gearboy",
+        "core": "gearboy_libretro.so"
+      },
+      "mgba": {
+        "name": "mGBA",
+        "core": "mgba_libretro.so"
+      },
+      "sameboy": {
+        "name": "SameBoy",
+        "core": "sameboy_libretro.so"
+      },
+      "tgb dual": {
+        "name": "TGB Dual",
+        "core": "tgbdual_libretro.so"
+      },
+      "vba-m": {
+        "name": "VBA-M",
+        "core": "vbam_libretro.so"
+      }
+    }
+  },
+  "Nintendo N64": {
+    "name": "Nintendo N64",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo N64",
+    "lookup": 0,
+    "default": "mupen64plus next",
+    "governor": "performance",
+    "friendly": [
+      "nintendonintendo64dd",
+      "nintendonintendo64",
+      "nintendon64",
+      "nintendo64",
+      "n64hacks",
+      "n64dd",
+      "n64",
+      "64dd",
+      "64"
+    ],
+    "bios": [],
+    "cores": {
+      "ludicrous n64 2k22 xtreme amped": {
+        "name": "Ludicrous N64 2k22 Xtreme Amped",
+        "core": "km_ludicrousn64_2k22_xtreme_amped_libretro.so"
+      },
+      "mupen64plus": {
+        "name": "Mupen64Plus",
+        "core": "mupen64plus_libretro.so"
+      },
+      "mupen64plus next": {
+        "name": "Mupen64Plus Next",
+        "core": "mupen64plus_next_libretro.so"
+      },
+      "parallel n64": {
+        "name": "ParaLLel N64",
+        "core": "parallel_n64_libretro.so"
+      }
+    }
+  },
+  "Nintendo NES - Famicom": {
+    "name": "Nintendo NES - Famicom",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo NES - Famicom",
+    "lookup": 0,
+    "default": "fceumm",
+    "friendly": [
+      "nintendonintendoentertainmentsystem",
+      "nintendones",
+      "nintendofamicom",
+      "nintendoentertainmentsystem",
+      "ninnes",
+      "neshacks",
+      "nesfc",
+      "nesds",
+      "nescd",
+      "nes",
+      "fcnes",
+      "fc",
+      "famicom"
+    ],
+    "bios": [],
+    "cores": {
+      "bnes": {
+        "name": "BNES",
+        "core": "bnes_libretro.so"
+      },
+      "emux nes": {
+        "name": "Emux NES",
+        "core": "emux_nes_libretro.so",
+        "bios_required": 0
+      },
+      "fceumm": {
+        "name": "FCEUmm",
+        "core": "fceumm_libretro.so"
+      },
+      "fceunext": {
+        "name": "FCEUNext",
+        "core": "fceunext_libretro.so",
+        "bios_required": 0
+      },
+      "mesen": {
+        "name": "Mesen",
+        "core": "mesen_libretro.so"
+      },
+      "nestopia": {
+        "name": "Nestopia",
+        "core": "nestopia_libretro.so"
+      },
+      "quicknes": {
+        "name": "QuickNES",
+        "core": "quicknes_libretro.so"
+      }
+    }
+  },
+  "Nintendo Pokemon Mini": {
+    "name": "Nintendo Pokemon Mini",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo Pokemon Mini",
+    "lookup": 0,
+    "default": "pokemini",
+    "friendly": [
+      "pokemonmini",
+      "pokemini",
+      "poke",
+      "nintendopokemonmini",
+      "nintendopokemini"
+    ],
+    "bios": [
+      {
+        "file": "bios.min",
+        "hash": "1e4fb124a3a886865acb574f388c803d"
+      }
+    ],
+    "cores": {
+      "pokemini": {
+        "name": "PokeMini",
+        "core": "pokemini_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Nintendo SNES - SFC": {
+    "name": "Nintendo SNES - SFC",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo SNES - SFC",
+    "lookup": 0,
+    "default": "snes9x",
+    "friendly": [
+      "zsnes",
+      "superpretendo",
+      "supernintendoentertainmentsystem",
+      "supernintendo",
+      "supernes",
+      "superfamicom",
+      "snesmsu1",
+      "snesmsu",
+      "sneshacks",
+      "snes9x",
+      "snes",
+      "sfc",
+      "satellaview",
+      "satella",
+      "nsv",
+      "nsnes",
+      "nintendosupernintendoentertainmentsystem",
+      "nintendosupernintendo",
+      "nintendosnesmsu1",
+      "nintendosnesmsu",
+      "nintendosnes",
+      "nintendosfc",
+      "ninsnes"
+    ],
+    "bios": [
+      {
+        "file": "BS-X.bin",
+        "hash": "fed4d8242cfbed61343d53d48432aced"
+      },
+      {
+        "file": "STBIOS.bin",
+        "hash": "d3a44ba7d42a74d3ac58cb9c14c6a5ca"
+      }
+    ],
+    "cores": {
+      "beetle supafaust": {
+        "name": "Beetle Supafaust",
+        "core": "mednafen_supafaust_libretro.so",
+        "bios_required": 0
+      },
+      "bsnes": {
+        "name": "BSNES",
+        "core": "bsnes_libretro.so",
+        "bios_required": 0
+      },
+      "bsnes 2014 performance": {
+        "name": "BSNES 2014 Performance",
+        "core": "bsnes2014_performance_libretro.so",
+        "bios_required": 0
+      },
+      "bsnes c++98": {
+        "name": "BSNES C++98",
+        "core": "bsnes_cplusplus98_libretro.so",
+        "bios_required": 0
+      },
+      "bsnes mercury": {
+        "name": "BSNES Mercury",
+        "core": "bsnes_mercury_performance_libretro.so",
+        "bios_required": 0
+      },
+      "bsnes-jg": {
+        "name": "bsnes-jg",
+        "core": "bsnes-jg_libretro.so",
+        "bios_required": 0
+      },
+      "chimerasnes": {
+        "name": "ChimeraSNES",
+        "core": "chimerasnes_libretro.so",
+        "bios_required": 0,
+        "governor": "performance"
+      },
+      "mesen-s": {
+        "name": "Mesen-S",
+        "core": "mesen-s_libretro.so"
+      },
+      "pocketsnes": {
+        "name": "PocketSNES",
+        "core": "pocketsnes_libretro.so",
+        "bios_required": 0
+      },
+      "snes9x": {
+        "name": "Snes9x",
+        "core": "snes9x_libretro.so",
+        "bios_required": 0
+      },
+      "snes9x 2002": {
+        "name": "Snes9x 2002",
+        "core": "snes9x2002_libretro.so",
+        "bios_required": 0
+      },
+      "snes9x 2005": {
+        "name": "Snes9x 2005",
+        "core": "snes9x2005_libretro.so",
+        "bios_required": 0
+      },
+      "snes9x 2005 plus": {
+        "name": "Snes9x 2005 Plus",
+        "core": "snes9x2005_plus_libretro.so",
+        "bios_required": 0
+      },
+      "snes9x 2010": {
+        "name": "Snes9x 2010",
+        "core": "snes9x2010_libretro.so",
+        "bios_required": 0
+      },
+      "snes9x next": {
+        "name": "Snes9x Next",
+        "core": "snes9x_next_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Nintendo Virtual Boy": {
+    "name": "Nintendo Virtual Boy",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo Virtual Boy",
+    "lookup": 0,
+    "default": "beetle vb",
+    "friendly": [
+      "virtualboy",
+      "virtuaboy",
+      "virtboy",
+      "vb",
+      "nvb",
+      "nintendovitrualboy",
+      "nintendovb"
+    ],
+    "bios": [],
+    "cores": {
+      "beetle vb": {
+        "name": "Beetle VB",
+        "core": "mednafen_vb_libretro.so"
+      },
+      "vb": {
+        "name": "VB",
+        "core": "vb_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Onscripter": {
+    "name": "Onscripter",
+    "namespace": "Game Engine",
+    "catalogue": "Onscripter",
+    "lookup": 0,
+    "default": "onscripter",
+    "friendly": [
+      "story",
+      "visualstory"
+    ],
+    "bios": [],
+    "cores": {
+      "onscripter": {
+        "name": "Onscripter",
+        "core": "onscripter_libretro.so"
+      },
+      "onscripter yuri": {
+        "name": "Onscripter Yuri",
+        "core": "onsyuri_libretro.so"
+      }
+    }
+  },
+  "OpenLara": {
+    "name": "OpenLara",
+    "namespace": "Game Engine",
+    "catalogue": "OpenLara",
+    "lookup": 0,
+    "default": "openlara",
+    "friendly": [
+      "openlara",
+      "tombraider"
+    ],
+    "bios": [],
+    "cores": {
+      "openlara": {
+        "name": "OpenLara",
+        "core": "openlara_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "PC DOS": {
+    "name": "PC DOS",
+    "namespace": "Computer",
+    "catalogue": "PC DOS",
+    "lookup": 0,
+    "default": "dosbox-pure",
+    "friendly": [
+      "pc",
+      "msdos",
+      "microsoftdos",
+      "dosbox",
+      "dos"
+    ],
+    "bios": [],
+    "cores": {
+      "dosbox-core": {
+        "name": "DOSBox-core",
+        "core": "dosbox_core_libretro.so"
+      },
+      "dosbox-pure": {
+        "name": "DOSBox-Pure",
+        "core": "dosbox_pure_libretro.so"
+      },
+      "dosbox-svn": {
+        "name": "DOSBox-SVN",
+        "core": "dosbox_svn_libretro.so"
+      }
+    }
+  },
+  "PICO-8": {
+    "name": "PICO-8",
+    "namespace": "Fantasy Console",
+    "catalogue": "PICO-8",
+    "lookup": 0,
+    "default": "fake-08",
+    "friendly": [
+      "pico8",
+      "pico"
+    ],
+    "bios": [],
+    "cores": {
+      "fake-08": {
+        "name": "FAKE-08",
+        "core": "fake08_libretro.so"
+      },
+      "retro8": {
+        "name": "Retro8",
+        "core": "retro8_libretro.so"
+      }
+    }
+  },
+  "Palm OS": {
+    "name": "Palm OS",
+    "namespace": "Mobile",
+    "catalogue": "Palm OS",
+    "lookup": 0,
+    "default": "mu",
+    "friendly": [
+      "palmos",
+      "palm"
+    ],
+    "bios": [],
+    "cores": {
+      "mu": {
+        "name": "Mu",
+        "core": "mu_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Philips CDi": {
+    "name": "Philips CDi",
+    "namespace": "Console",
+    "catalogue": "Philips CDi",
+    "lookup": 0,
+    "default": "same cdi",
+    "governor": "performance",
+    "friendly": [
+      "philipscdi",
+      "cdi"
+    ],
+    "bios": [
+      {
+        "file": "same_cdi/bios/cdibios.zip",
+        "hash": ""
+      },
+      {
+        "file": "same_cdi/bios/cdimono1.zip",
+        "hash": ""
+      },
+      {
+        "file": "same_cdi/bios/cdimono2.zip",
+        "hash": ""
+      }
+    ],
+    "cores": {
+      "same cdi": {
+        "name": "SAME CDi",
+        "core": "same_cdi_libretro.so",
+        "bios_required": 1
+      }
+    }
+  },
+  "PuzzleScript": {
+    "name": "PuzzleScript",
+    "namespace": "Fantasy Console",
+    "catalogue": "PuzzleScript",
+    "lookup": 0,
+    "default": "puzzlescript",
+    "friendly": [
+      "puzzlescript"
+    ],
+    "bios": [],
+    "cores": {
+      "puzzlescript": {
+        "name": "PuzzleScript",
+        "core": "puzzlescript_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Quake": {
+    "name": "Quake",
+    "namespace": "Game Engine",
+    "catalogue": "Quake",
+    "lookup": 0,
+    "default": "tyrquake",
+    "friendly": [
+      "quake",
+      "idquake"
+    ],
+    "bios": [],
+    "cores": {
+      "tyrquake": {
+        "name": "TyrQuake",
+        "core": "tyrquake_libretro.so"
+      }
+    }
+  },
+  "Quake II": {
+    "name": "Quake II",
+    "namespace": "Game Engine",
+    "catalogue": "Quake II",
+    "lookup": 0,
+    "default": "vitaquake2",
+    "friendly": [
+      "quake2",
+      "idquake2"
+    ],
+    "bios": [],
+    "cores": {
+      "vitaquake2": {
+        "name": "VitaQuake2",
+        "core": "vitaquake2_libretro.so"
+      },
+      "vitaquake2 - rogue": {
+        "name": "VitaQuake2 - Rogue Mission Pack",
+        "core": "vitaquake2-rogue_libretro.so"
+      },
+      "vitaquake2 - xatrix": {
+        "name": "VitaQuake2 - Xatrix Mission Pack",
+        "core": "vitaquake2-xatrix_libretro.so"
+      },
+      "vitaquake2 - zaero": {
+        "name": "VitaQuake2 - Zaero Mission Pack",
+        "core": "vitaquake2-zaero_libretro.so"
+      }
+    }
+  },
+  "RPG Maker 2000 - 2003": {
+    "name": "RPG Maker 2000 - 2003",
+    "namespace": "Game Engine",
+    "catalogue": "RPG Maker 2000 - 2003",
+    "lookup": 0,
+    "default": "easyrpg",
+    "friendly": [
+      "rpgmaker",
+      "easyrpg"
+    ],
+    "bios": [],
+    "cores": {
+      "easyrpg": {
+        "name": "EasyRPG",
+        "core": "easyrpg_libretro.so",
+        "launcher": "easyrpg.sh"
+      }
+    }
+  },
+  "SNK Neo Geo": {
+    "name": "SNK Neo Geo",
+    "namespace": "SNK",
+    "catalogue": "SNK Neo Geo",
+    "lookup": 1,
+    "default": "finalburn neo",
+    "friendly": [
+      "snkneogeo",
+      "sng",
+      "ng",
+      "neogeo",
+      "fbnneogeo",
+      "arcneogeo",
+      "arcadesnkneogeo",
+      "arcadesnk",
+      "arcadeneogeo"
+    ],
+    "bios": [],
+    "cores": {
+      "fb alpha 2012 neo geo": {
+        "name": "FB Alpha 2012 Neo Geo",
+        "core": "fbalpha2012_neogeo_libretro.so"
+      },
+      "finalburn neo": {
+        "name": "FinalBurn Neo",
+        "core": "fbneo_libretro.so"
+      },
+      "geolith": {
+        "name": "Geolith",
+        "core": "geolith_libretro.so"
+      }
+    }
+  },
+  "SNK Neo Geo CD": {
+    "name": "SNK Neo Geo CD",
+    "namespace": "SNK",
+    "catalogue": "SNK Neo Geo CD",
+    "lookup": 0,
+    "default": "neocd",
+    "friendly": [
+      "snkngcd",
+      "snkneogeocd",
+      "ngcd",
+      "neogeocd",
+      "neocdz",
+      "neocd",
+      "arcneogeocd",
+      "arcadeneogeocd"
+    ],
+    "bios": [],
+    "cores": {
+      "neocd": {
+        "name": "NeoCD",
+        "core": "neocd_libretro.so"
+      }
+    }
+  },
+  "SNK Neo Geo Pocket - Color": {
+    "name": "SNK Neo Geo Pocket - Color",
+    "namespace": "SNK",
+    "catalogue": "SNK Neo Geo Pocket - Color",
+    "lookup": 0,
+    "default": "beetle neopop",
+    "friendly": [
+      "snkngpc",
+      "snkngp",
+      "snkneogeopocketcolor",
+      "snkneogeopocket",
+      "ngpocketcolor",
+      "ngpocket",
+      "ngpc",
+      "ngp",
+      "neogeopocketcolor",
+      "neogeopocket"
+    ],
+    "bios": [],
+    "cores": {
+      "beetle neopop": {
+        "name": "Beetle NeoPop",
+        "core": "mednafen_ngp_libretro.so"
+      },
+      "race": {
+        "name": "RACE",
+        "core": "race_libretro.so"
+      }
+    }
+  },
+  "SVI - ColecoVision - SG1000": {
+    "name": "SVI - ColecoVision - SG1000",
+    "namespace": "Computer",
+    "catalogue": "SVI - ColecoVision - SG1000",
+    "lookup": 0,
+    "default": "bluemsx",
+    "friendly": [
+      "svi",
+      "svicoleco",
+      "svicolecovision"
+    ],
+    "bios": [],
+    "cores": {
+      "bluemsx": {
+        "name": "blueMSX",
+        "core": "bluemsx_libretro.so"
+      }
+    }
+  },
+  "ScummVM": {
+    "name": "ScummVM",
+    "namespace": "Game Engine",
+    "catalogue": "ScummVM",
+    "lookup": 0,
+    "default": "scummvm",
+    "friendly": [
+      "lucasart",
+      "lucasarts",
+      "scummvm",
+      "scumm"
+    ],
+    "bios": [],
+    "cores": {
+      "scummvm": {
+        "name": "ScummVM",
+        "core": "scummvm_libretro.so",
+        "launcher": "scummvm.sh"
+      }
+    }
+  },
+  "Sega 32X": {
+    "name": "Sega 32X",
+    "namespace": "Sega",
+    "catalogue": "Sega 32X",
+    "lookup": 0,
+    "default": "picodrive",
+    "friendly": [
+      "thirtytwox",
+      "sega32x",
+      "sega32",
+      "s32x",
+      "md32x",
+      "gen32x",
+      "32x"
+    ],
+    "bios": [],
+    "cores": {
+      "picodrive": {
+        "name": "PicoDrive",
+        "core": "picodrive_libretro.so"
+      }
+    }
+  },
+  "Sega Atomiswave Naomi": {
+    "name": "Sega Atomiswave Naomi",
+    "namespace": "Sega",
+    "catalogue": "Sega Atomiswave Naomi",
+    "lookup": 1,
+    "default": "flycast vl",
+    "governor": "performance",
+    "friendly": [
+      "seganaomi",
+      "segaatomiswave",
+      "naomi",
+      "aw",
+      "atomiswave",
+      "arcseganaomi",
+      "arcsegaatomiswave",
+      "arcnaomi",
+      "arcatomiswave",
+      "arcadeseganaomi",
+      "arcadesegaatomiswave",
+      "arcadenaomi",
+      "arcadeatomiswave"
+    ],
+    "bios": [],
+    "cores": {
+      "flycast": {
+        "name": "Flycast",
+        "core": "flycast_libretro.so"
+      },
+      "flycast vl": {
+        "name": "Flycast VL",
+        "core": "flycastvl_libretro.so"
+      },
+      "flycast xtreme": {
+        "name": "Flycast Xtreme",
+        "core": "flycast-xtreme_libretro.so"
+      },
+      "morpheuscast": {
+        "name": "Morpheuscast",
+        "core": "morpheuscast_libretro.so"
+      },
+      "morpheuscast xtreme": {
+        "name": "MorpheusCast Xtreme",
+        "core": "km_morpheuscast_xtreme_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Sega Dreamcast": {
+    "name": "Sega Dreamcast",
+    "namespace": "Sega",
+    "catalogue": "Sega Dreamcast",
+    "lookup": 0,
+    "default": "flycast vl",
+    "governor": "performance",
+    "friendly": [
+      "segadreamcast",
+      "segadc",
+      "sdc",
+      "redream",
+      "flycast",
+      "dreamcast",
+      "dc"
+    ],
+    "bios": [],
+    "cores": {
+      "flycast": {
+        "name": "Flycast",
+        "core": "flycast_libretro.so"
+      },
+      "flycast vl": {
+        "name": "Flycast VL",
+        "core": "flycastvl_libretro.so"
+      },
+      "flycast xtreme": {
+        "name": "Flycast Xtreme",
+        "core": "flycast-xtreme_libretro.so"
+      },
+      "morpheuscast": {
+        "name": "Morpheuscast",
+        "core": "morpheuscast_libretro.so"
+      },
+      "morpheuscast xtreme": {
+        "name": "MorpheusCast Xtreme",
+        "core": "km_morpheuscast_xtreme_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Sega Game Gear": {
+    "name": "Sega Game Gear",
+    "namespace": "Sega",
+    "catalogue": "Sega Game Gear",
+    "lookup": 0,
+    "default": "picodrive",
+    "friendly": [
+      "sgg",
+      "seggg",
+      "segagg",
+      "segagamegear",
+      "gg",
+      "gamegearhacks",
+      "gamegear"
+    ],
+    "bios": [],
+    "cores": {
+      "gearsystem": {
+        "name": "Gearsystem",
+        "core": "gearsystem_libretro.so"
+      },
+      "genesis plus gx": {
+        "name": "Genesis Plus GX",
+        "core": "genesis_plus_gx_libretro.so"
+      },
+      "picodrive": {
+        "name": "PicoDrive",
+        "core": "picodrive_libretro.so"
+      },
+      "sms plus gx": {
+        "name": "SMS Plus GX",
+        "core": "smsplus_libretro.so"
+      }
+    }
+  },
+  "Sega Master System": {
+    "name": "Sega Master System",
+    "namespace": "Sega",
+    "catalogue": "Sega Master System",
+    "lookup": 0,
+    "default": "sms plus gx",
+    "friendly": [
+      "smsgg",
+      "sms",
+      "segms",
+      "segasms",
+      "segams",
+      "segamastersystem",
+      "ms",
+      "mastersystemhacks",
+      "mastersystem",
+      "ggsms"
+    ],
+    "bios": [],
+    "cores": {
+      "emux sms": {
+        "name": "Emux SMS",
+        "core": "emux_sms_libretro.so",
+        "bios_required": 0
+      },
+      "gearsystem": {
+        "name": "Gearsystem",
+        "core": "gearsystem_libretro.so"
+      },
+      "genesis plus gx": {
+        "name": "Genesis Plus GX",
+        "core": "genesis_plus_gx_libretro.so"
+      },
+      "picodrive": {
+        "name": "PicoDrive",
+        "core": "picodrive_libretro.so"
+      },
+      "sms plus gx": {
+        "name": "SMS Plus GX",
+        "core": "smsplus_libretro.so"
+      }
+    }
+  },
+  "Sega Mega CD - Sega CD": {
+    "name": "Sega Mega CD - Sega CD",
+    "namespace": "Sega",
+    "catalogue": "Sega Mega CD - Sega CD",
+    "lookup": 0,
+    "default": "genesis plus gx",
+    "friendly": [
+      "segasegacd",
+      "segascd",
+      "segamegacd",
+      "segamcd",
+      "segacd",
+      "scd",
+      "megadrivecd",
+      "megacd",
+      "mdsegacd",
+      "mdcd",
+      "gensegacd",
+      "genesiscd",
+      "gencd"
+    ],
+    "bios": [
+      {
+        "file": "bios_CD_E.bin",
+        "hash": "e66fa1dc5820d254611fdcdba0662372"
+      },
+      {
+        "file": "bios_CD_U.bin",
+        "hash": "854b9150240a198070150e4566ae1290"
+      },
+      {
+        "file": "bios_CD_J.bin",
+        "hash": "278a9397d192149e84e820ac621a8edd"
+      }
+    ],
+    "cores": {
+      "genesis plus gx": {
+        "name": "Genesis Plus GX",
+        "core": "genesis_plus_gx_libretro.so",
+        "bios_required": 1
+      },
+      "genesis plus gx wide": {
+        "name": "Genesis Plus GX Wide",
+        "core": "genesis_plus_gx_wide_libretro.so",
+        "bios_required": 1
+      },
+      "picodrive": {
+        "name": "PicoDrive",
+        "core": "picodrive_libretro.so",
+        "bios_required": 1
+      }
+    }
+  },
+  "Sega Mega Drive - Genesis": {
+    "name": "Sega Mega Drive - Genesis",
+    "namespace": "Sega",
+    "catalogue": "Sega Mega Drive - Genesis",
+    "lookup": 0,
+    "default": "genesis plus gx",
+    "friendly": [
+      "segamegadrive",
+      "segamdmsu",
+      "segagenesismsu",
+      "segagenesis",
+      "megadrivehacks",
+      "megadrive",
+      "mdmsu1",
+      "mdmsu",
+      "mdgen",
+      "md",
+      "kega",
+      "gens",
+      "genmd",
+      "genesishacks",
+      "genesis",
+      "gen"
+    ],
+    "bios": [],
+    "cores": {
+      "genesis plus gx": {
+        "name": "Genesis Plus GX",
+        "core": "genesis_plus_gx_libretro.so"
+      },
+      "genesis plus gx expanded": {
+        "name": "Genesis Plus GX Expanded",
+        "core": "genesis_plus_gx_expanded_libretro.so"
+      },
+      "genesis plus gx wide": {
+        "name": "Genesis Plus GX Wide",
+        "core": "genesis_plus_gx_wide_libretro.so"
+      },
+      "picodrive": {
+        "name": "PicoDrive",
+        "core": "picodrive_libretro.so"
+      }
+    }
+  },
+  "Sega Pico": {
+    "name": "Sega Pico",
+    "namespace": "Sega",
+    "catalogue": "Sega Pico",
+    "lookup": 0,
+    "default": "picodrive",
+    "friendly": [
+      "segapico"
+    ],
+    "bios": [],
+    "cores": {
+      "genesis plus gx": {
+        "name": "Genesis Plus GX",
+        "core": "genesis_plus_gx_libretro.so"
+      },
+      "genesis plus gx wide": {
+        "name": "Genesis Plus GX Wide",
+        "core": "genesis_plus_gx_wide_libretro.so"
+      },
+      "picodrive": {
+        "name": "PicoDrive",
+        "core": "picodrive_libretro.so"
+      }
+    }
+  },
+  "Sega SG-1000": {
+    "name": "Sega SG-1000",
+    "namespace": "Sega",
+    "catalogue": "Sega SG-1000",
+    "lookup": 0,
+    "default": "genesis plus gx",
+    "friendly": [
+      "sg1000",
+      "segasgone",
+      "segasg1000"
+    ],
+    "bios": [],
+    "cores": {
+      "bluemsx": {
+        "name": "blueMSX",
+        "core": "bluemsx_libretro.so"
+      },
+      "gearsystem": {
+        "name": "Gearsystem",
+        "core": "gearsystem_libretro.so"
+      },
+      "genesis plus gx": {
+        "name": "Genesis Plus GX",
+        "core": "genesis_plus_gx_libretro.so"
+      }
+    }
+  },
+  "Sega Saturn": {
+    "name": "Sega Saturn",
+    "namespace": "Sega",
+    "catalogue": "Sega Saturn",
+    "lookup": 0,
+    "default": "yabasanshiro",
+    "governor": "performance",
+    "friendly": [
+      "ss",
+      "segasaturn",
+      "segasat",
+      "saturn",
+      "satourne",
+      "sat"
+    ],
+    "bios": [],
+    "cores": {
+      "beetle saturn": {
+        "name": "Beetle Saturn",
+        "core": "mednafen_saturn_libretro.so"
+      },
+      "yabasanshiro": {
+        "name": "YabaSanshiro",
+        "core": "yabasanshiro_libretro.so"
+      },
+      "yabause": {
+        "name": "Yabause",
+        "core": "yabause_libretro.so"
+      }
+    }
+  },
+  "Sharp X1": {
+    "name": "Sharp X1",
+    "namespace": "Computer",
+    "catalogue": "Sharp X1",
+    "lookup": 0,
+    "default": "x millennium",
+    "friendly": [
+      "x1",
+      "sharpx1"
+    ],
+    "bios": [],
+    "cores": {
+      "x millennium": {
+        "name": "X Millennium",
+        "core": "x1_libretro.so"
+      }
+    }
+  },
+  "Sharp X68000": {
+    "name": "Sharp X68000",
+    "namespace": "Computer",
+    "catalogue": "Sharp X68000",
+    "lookup": 0,
+    "default": "px68k",
+    "friendly": [
+      "x68000",
+      "sharpx68000"
+    ],
+    "bios": [],
+    "cores": {
+      "px68k": {
+        "name": "PX68k",
+        "core": "px68k_libretro.so"
+      }
+    }
+  },
+  "Sinclair ZX 81": {
+    "name": "Sinclair ZX 81",
+    "namespace": "Computer",
+    "catalogue": "Sinclair ZX 81",
+    "lookup": 0,
+    "default": "eightyone",
+    "friendly": [
+      "zx81",
+      "sinclairzx81"
+    ],
+    "bios": [],
+    "cores": {
+      "eightyone": {
+        "name": "EightyOne",
+        "core": "81_libretro.so"
+      }
+    }
+  },
+  "Sinclair ZX Spectrum": {
+    "name": "Sinclair ZX Spectrum",
+    "namespace": "Computer",
+    "catalogue": "Sinclair ZX Spectrum",
+    "lookup": 0,
+    "default": "fuse",
+    "friendly": [
+      "zxs"
+    ],
+    "bios": [],
+    "cores": {
+      "fuse": {
+        "name": "Fuse",
+        "core": "fuse_libretro.so"
+      }
+    }
+  },
+  "Sony PlayStation": {
+    "name": "Sony PlayStation",
+    "namespace": "Sony",
+    "catalogue": "Sony PlayStation",
+    "lookup": 0,
+    "default": "pcsx rearmed",
+    "friendly": [
+      "sonypsx",
+      "sonyps1",
+      "sonyps",
+      "sonyplaystation",
+      "psxpbps",
+      "psxpbp",
+      "psxisos",
+      "psxiso",
+      "psxchds",
+      "psxchd",
+      "psx",
+      "pspbps",
+      "pspbp",
+      "psisos",
+      "psiso",
+      "pschds",
+      "pschd",
+      "ps1",
+      "ps",
+      "playstationpbps",
+      "playstationchds",
+      "playstation",
+      "pcsx",
+      "pbps",
+      "pbp",
+      "epsxe"
+    ],
+    "bios": [
+      {
+        "file": "PSXONPSP660.bin",
+        "hash": "c53ca5908936d412331790f4426c6c33"
+      },
+      {
+        "file": "scph101.bin",
+        "hash": "6E3735FF4C7DC899EE98981385F6F3D0"
+      },
+      {
+        "file": "scph7001.bin",
+        "hash": "1e68c231d0896b7eadcad1d7d8e76129"
+      },
+      {
+        "file": "scph5500.bin",
+        "hash": "8dd7d5296a650fac7319bce665a6a53c"
+      },
+      {
+        "file": "scph5501.bin",
+        "hash": "490f666e1afb15b7362b406ed1cea246"
+      },
+      {
+        "file": "scph5502.bin",
+        "hash": "32736f17079d0b2b7024407c39bd3050"
+      },
+      {
+        "file": "scph1001.bin",
+        "hash": "924e392ed05558ffdb115408c263dccf"
+      },
+      {
+        "file": "ps1_rom.bin",
+        "hash": "81bbe60ba7a3d1cea1d48c14cbcc647b"
+      }
+    ],
+    "cores": {
+      "beetle psx": {
+        "name": "Beetle PSX",
+        "core": "mednafen_psx_libretro.so",
+        "bios_required": 0
+      },
+      "duckstation": {
+        "name": "DuckStation",
+        "core": "duckstation_libretro.so",
+        "bios_required": 1
+      },
+      "pcsx rearmed": {
+        "name": "PCSX ReARMed",
+        "core": "pcsx_rearmed_libretro.so",
+        "bios_required": 0
+      },
+      "swanstation": {
+        "name": "SwanStation",
+        "core": "swanstation_libretro.so",
+        "bios_required": 1
+      }
+    }
+  },
+  "Sony PlayStation Portable": {
+    "name": "Sony PlayStation Portable",
+    "namespace": "Sony",
+    "catalogue": "Sony PlayStation Portable",
+    "lookup": 0,
+    "default": "ppsspp",
+    "governor": "performance",
+    "friendly": [
+      "sonypsp",
+      "sonyplaystationportable",
+      "psp",
+      "ppsspp",
+      "playstationportable"
+    ],
+    "bios": [],
+    "cores": {
+      "ppsspp": {
+        "name": "PPSSPP",
+        "core": "ppsspp_libretro.so"
+      }
+    }
+  },
+  "Super Mario War": {
+    "name": "Super Mario War",
+    "namespace": "Game Engine",
+    "catalogue": "Super Mario War",
+    "lookup": 0,
+    "default": "superbroswar",
+    "friendly": [
+      "supermariowar",
+      "superbroswar"
+    ],
+    "bios": [],
+    "cores": {
+      "superbroswar": {
+        "name": "Super Mario War",
+        "core": "superbroswar_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "TIC-80": {
+    "name": "TIC-80",
+    "namespace": "Fantasy Console",
+    "catalogue": "TIC-80",
+    "lookup": 0,
+    "default": "tic-80",
+    "friendly": [
+      "tic80",
+      "t80"
+    ],
+    "bios": [],
+    "cores": {
+      "tic-80": {
+        "name": "TIC-80",
+        "core": "tic80_libretro.so"
+      }
+    }
+  },
+  "Texas Instruments TI-83": {
+    "name": "Texas Instruments TI-83",
+    "namespace": "Computer",
+    "catalogue": "Texas Instruments TI-83",
+    "lookup": 0,
+    "default": "numero",
+    "friendly": [
+      "ti83",
+      "texasinstrumentsti83"
+    ],
+    "bios": [],
+    "cores": {
+      "numero": {
+        "name": "Numero",
+        "core": "numero_libretro.so"
+      }
+    }
+  },
+  "The 3DO Company - 3DO": {
+    "name": "The 3DO Company - 3DO",
+    "namespace": "Console",
+    "catalogue": "The 3DO Company - 3DO",
+    "lookup": 0,
+    "default": "opera",
+    "friendly": [
+      "3d0",
+      "3do"
+    ],
+    "bios": [],
+    "cores": {
+      "opera": {
+        "name": "Opera",
+        "core": "opera_libretro.so"
+      }
+    }
+  },
+  "Thomson MO-TO": {
+    "name": "Thomson MO-TO",
+    "namespace": "Computer",
+    "catalogue": "Thomson MO-TO",
+    "lookup": 0,
+    "default": "theodore",
+    "friendly": [
+      "thomsonmoto",
+      "thomson",
+      "theodore"
+    ],
+    "bios": [],
+    "cores": {
+      "theodore": {
+        "name": "Theodore",
+        "core": "theodore_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Uzebox": {
+    "name": "Uzebox",
+    "namespace": "Fantasy Console",
+    "catalogue": "Uzebox",
+    "lookup": 0,
+    "default": "uzem",
+    "friendly": [
+      "uzebox"
+    ],
+    "bios": [],
+    "cores": {
+      "uzem": {
+        "name": "Uzem",
+        "core": "uzem_libretro.so"
+      }
+    }
+  },
+  "VeMUlator": {
+    "name": "VeMUlator",
+    "namespace": "Sega",
+    "catalogue": "VeMUlator",
+    "lookup": 0,
+    "default": "vemulator",
+    "friendly": [
+      "vemulator"
+    ],
+    "bios": [],
+    "cores": {
+      "vemulator": {
+        "name": "VeMUlator",
+        "core": "vemulator_libretro.so"
+      }
+    }
+  },
+  "Vircon32": {
+    "name": "Vircon32",
+    "namespace": "Fantasy Console",
+    "catalogue": "Vircon32",
+    "lookup": 0,
+    "default": "vircon32",
+    "friendly": [
+      "vircon32"
+    ],
+    "bios": [],
+    "cores": {
+      "vircon32": {
+        "name": "Vircon32",
+        "core": "vircon32_libretro.so"
+      }
+    }
+  },
+  "WASM-4": {
+    "name": "WASM-4",
+    "namespace": "Fantasy Console",
+    "catalogue": "WASM-4",
+    "lookup": 0,
+    "default": "wasm-4",
+    "friendly": [
+      "wasm4"
+    ],
+    "bios": [],
+    "cores": {
+      "wasm-4": {
+        "name": "WASM-4",
+        "core": "wasm4_libretro.so"
+      }
+    }
+  },
+  "Watara Supervision": {
+    "name": "Watara Supervision",
+    "namespace": "Handheld",
+    "catalogue": "Watara Supervision",
+    "lookup": 0,
+    "default": "potator",
+    "friendly": [
+      "watarasupervision",
+      "supervision"
+    ],
+    "bios": [],
+    "cores": {
+      "potator": {
+        "name": "Potator",
+        "core": "potator_libretro.so"
+      }
+    }
+  },
+  "Wolfenstein 3D": {
+    "name": "Wolfenstein 3D",
+    "namespace": "Game Engine",
+    "catalogue": "Wolfenstein 3D",
+    "lookup": 0,
+    "default": "ecwolf",
+    "friendly": [
+      "wolfenstein3d",
+      "wolfenstein",
+      "wolf3d",
+      "wolf"
+    ],
+    "bios": [],
+    "cores": {
+      "ecwolf": {
+        "name": "ECWolf",
+        "core": "ecwolf_libretro.so",
+        "launcher": "ecwolf.sh"
+      }
+    }
+  },
+  "Zelda Classic": {
+    "name": "Zelda Classic",
+    "namespace": "Game Engine",
+    "catalogue": "Zelda Classic",
+    "lookup": 0,
+    "default": "zc250x",
+    "friendly": [
+      "zeldaclassic",
+      "zeldac"
+    ],
+    "bios": [],
+    "cores": {
+      "zc210": {
+        "name": "Zelda Classic 2.10",
+        "core": "zc210_libretro.so",
+        "bios_required": 0
+      },
+      "zc250x": {
+        "name": "Zelda Classic 2.50x",
+        "core": "zc250x_libretro.so",
+        "bios_required": 0
+      }
+    }
+  }
+}

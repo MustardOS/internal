@@ -1,0 +1,516 @@
+{
+  "Book Reader": {
+    "name": "Book Reader",
+    "namespace": "Media",
+    "catalogue": "Book Reader",
+    "lookup": 0,
+    "default": "mreader landscape",
+    "friendly": [
+      "books",
+      "book"
+    ],
+    "bios": [],
+    "cores": {
+      "mreader landscape": {
+        "name": "mReader Landscape",
+        "core": "ext-mreader-landscape",
+        "launcher": "mreader.sh"
+      },
+      "mreader portrait": {
+        "name": "mReader Portrait",
+        "core": "ext-mreader-portrait",
+        "launcher": "mreader.sh"
+      }
+    }
+  },
+  "Crisp Game Lib": {
+    "name": "Crisp Game Lib",
+    "namespace": "Game Engine",
+    "catalogue": "Crisp Game Lib Portable",
+    "lookup": 0,
+    "default": "crisp game lib",
+    "friendly": [
+      "cglpsdl2",
+      "crisp"
+    ],
+    "bios": [],
+    "cores": {
+      "crisp game lib": {
+        "name": "Crisp Game Lib",
+        "core": "ext-crisp",
+        "launcher": "crisp.sh"
+      }
+    }
+  },
+  "Dragon and Tandy": {
+    "name": "Dragon and Tandy 8-bit",
+    "namespace": "Computer",
+    "catalogue": "Dragon and Tandy",
+    "lookup": 0,
+    "default": "xroar",
+    "friendly": [
+      "coco",
+      "dragon",
+      "dragon32",
+      "dragon64"
+    ],
+    "bios": [],
+    "cores": {
+      "coco 3": {
+        "name": "CoCo 3",
+        "core": "coco3",
+        "launcher": "xroar.sh",
+        "bios_required": 1
+      },
+      "dragon 32": {
+        "name": "Dragon 32",
+        "core": "dragon32",
+        "launcher": "xroar.sh",
+        "bios_required": 1
+      },
+      "dragon 64": {
+        "name": "Dragon 64",
+        "core": "dragon64",
+        "launcher": "xroar.sh",
+        "bios_required": 1
+      },
+      "xroar": {
+        "name": "XRoar",
+        "core": "xroar",
+        "launcher": "xroar.sh",
+        "bios_required": 1
+      }
+    }
+  },
+  "External - Ports": {
+    "name": "External - Ports",
+    "namespace": "Ports",
+    "catalogue": "External - Ports",
+    "lookup": 0,
+    "default": "external",
+    "friendly": [
+      "scripts",
+      "script",
+      "ports",
+      "port",
+      "externalports",
+      "externalport",
+      "external",
+      "apps",
+      "app"
+    ],
+    "bios": [],
+    "cores": {
+      "external": {
+        "name": "External",
+        "core": "external",
+        "launcher": "general.sh"
+      },
+      "frotz": {
+        "name": "Frotz",
+        "core": "ext-frotz",
+        "launcher": "frotz.sh"
+      },
+      "portoverlay": {
+        "name": "PortOverlay",
+        "core": "ext-gen-overlay",
+        "launcher": "general.sh"
+      },
+      "terminal": {
+        "name": "Terminal",
+        "core": "ext-terminal",
+        "launcher": "terminal.sh"
+      }
+    }
+  },
+  "Java J2ME": {
+    "name": "Java J2ME",
+    "namespace": "Mobile",
+    "catalogue": "Java J2ME",
+    "lookup": 0,
+    "default": "freej2me - retroarch",
+    "friendly": [
+      "java",
+      "mobile"
+    ],
+    "bios": [],
+    "cores": {
+      "freej2me - 128x128": {
+        "name": "FreeJ2ME - 128x128",
+        "core": "ext-freej2me-128",
+        "launcher": "freej2me.sh"
+      },
+      "freej2me - 176x208": {
+        "name": "FreeJ2ME - 176x208",
+        "core": "ext-freej2me-176",
+        "launcher": "freej2me.sh"
+      },
+      "freej2me - 240x320": {
+        "name": "FreeJ2ME - 240x320",
+        "core": "ext-freej2me-240",
+        "launcher": "freej2me.sh"
+      },
+      "freej2me - 320x240": {
+        "name": "FreeJ2ME - 320x240",
+        "core": "ext-freej2me-320",
+        "launcher": "freej2me.sh"
+      },
+      "freej2me - 640x360": {
+        "name": "FreeJ2ME - 640x360",
+        "core": "ext-freej2me-640",
+        "launcher": "freej2me.sh"
+      }
+    }
+  },
+  "Media Player": {
+    "name": "Media Player",
+    "namespace": "Media",
+    "catalogue": "Media Player",
+    "lookup": 0,
+    "default": "ffplay",
+    "friendly": [
+      "video",
+      "videos",
+      "music",
+      "sound",
+      "media",
+      "audio",
+      "movies",
+      "movie"
+    ],
+    "bios": [],
+    "cores": {
+      "ffplay": {
+        "name": "FFPlay",
+        "core": "ext-ffplay",
+        "launcher": "ffplay.sh"
+      },
+      "live tv": {
+        "name": "Live TV",
+        "core": "ext-mpv-livetv",
+        "launcher": "mpv.sh"
+      },
+      "mpv": {
+        "name": "MPV",
+        "core": "ext-mpv-general",
+        "launcher": "mpv.sh"
+      }
+    }
+  },
+  "Nintendo 3DS": {
+    "name": "Nintendo 3DS",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo 3DS",
+    "lookup": 0,
+    "default": "azahar - standalone",
+    "governor": "performance",
+    "friendly": [
+      "nintendo3ds",
+      "n3ds",
+      "3ds"
+    ],
+    "bios": [],
+    "cores": {
+      "azahar - standalone": {
+        "name": "Azahar - Standalone",
+        "core": "ext-azahar",
+        "launcher": "azahar.sh",
+        "require": {
+          "device": [
+            "rg-vita-pro"
+          ]
+        }
+      }
+    }
+  },
+  "Nintendo DS": {
+    "name": "Nintendo DS",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo DS",
+    "lookup": 0,
+    "default": "drastic - standalone",
+    "governor": "performance",
+    "friendly": [
+      "nintendonintendodsi",
+      "nintendodsi",
+      "nintendods",
+      "ninds",
+      "nds",
+      "dsi",
+      "ds"
+    ],
+    "bios": [],
+    "cores": {
+      "drastic - standalone": {
+        "name": "Drastic - Standalone",
+        "core": "ext-drastic",
+        "launcher": "drastic.sh"
+      },
+      "drastic legacy - standalone": {
+        "name": "Drastic Legacy - Standalone",
+        "core": "ext-drastic-legacy",
+        "launcher": "drastic-legacy.sh"
+      }
+    }
+  },
+  "Nintendo N64": {
+    "name": "Nintendo N64",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo N64",
+    "lookup": 0,
+    "default": "mupen64plus next",
+    "governor": "performance",
+    "friendly": [
+      "nintendonintendo64dd",
+      "nintendonintendo64",
+      "nintendon64",
+      "nintendo64",
+      "n64hacks",
+      "n64dd",
+      "n64",
+      "64dd",
+      "64"
+    ],
+    "bios": [],
+    "cores": {
+      "mupen64plus - standalone - glide": {
+        "name": "Mupen64Plus - Standalone - Glide",
+        "core": "ext-mupen64plus-gliden64",
+        "launcher": "mupen64plus.sh"
+      },
+      "mupen64plus - standalone - glide - full": {
+        "name": "Mupen64Plus - Standalone - Glide - Full",
+        "core": "ext-mupen64plus-gliden64-full",
+        "launcher": "mupen64plus.sh"
+      },
+      "mupen64plus - standalone - glidemk2": {
+        "name": "Mupen64Plus - Standalone - GlideMk2",
+        "core": "ext-mupen64plus-glidemk2",
+        "launcher": "mupen64plus.sh"
+      },
+      "mupen64plus - standalone - glidemk2 - full": {
+        "name": "Mupen64Plus - Standalone - GlideMk2 - Full",
+        "core": "ext-mupen64plus-glidemk2-full",
+        "launcher": "mupen64plus.sh"
+      },
+      "mupen64plus - standalone - rice": {
+        "name": "Mupen64Plus - Standalone - Rice",
+        "core": "ext-mupen64plus-rice",
+        "launcher": "mupen64plus.sh"
+      },
+      "mupen64plus - standalone - rice - full": {
+        "name": "Mupen64Plus - Standalone - Rice - Full",
+        "core": "ext-mupen64plus-rice-full",
+        "launcher": "mupen64plus.sh"
+      }
+    }
+  },
+  "OpenBOR": {
+    "name": "OpenBOR",
+    "namespace": "Game Engine",
+    "catalogue": "OpenBOR",
+    "lookup": 0,
+    "default": "openbor v7530 - standalone",
+    "friendly": [
+      "openbeatsofrage",
+      "openbor"
+    ],
+    "bios": [],
+    "cores": {
+      "openbor v4432 - standalone": {
+        "name": "OpenBOR v4432 - Standalone",
+        "core": "ext-openbor4432",
+        "launcher": "openbor.sh"
+      },
+      "openbor v6412 - standalone": {
+        "name": "OpenBOR v6412 - Standalone",
+        "core": "ext-openbor6412",
+        "launcher": "openbor.sh"
+      },
+      "openbor v7142 - standalone": {
+        "name": "OpenBOR v7142 - Standalone",
+        "core": "ext-openbor7142",
+        "launcher": "openbor.sh"
+      },
+      "openbor v7530 - standalone": {
+        "name": "OpenBOR v7530 - Standalone",
+        "core": "ext-openbor7530",
+        "launcher": "openbor.sh"
+      }
+    }
+  },
+  "PICO-8": {
+    "name": "PICO-8",
+    "namespace": "Fantasy Console",
+    "catalogue": "PICO-8",
+    "lookup": 0,
+    "default": "fake-08",
+    "friendly": [
+      "pico8",
+      "pico"
+    ],
+    "bios": [],
+    "cores": {
+      "pico-8 - pixel-perfect - standalone": {
+        "name": "PICO-8 - Pixel-Perfect - Standalone",
+        "core": "ext-pico8-pixel",
+        "launcher": "pico8.sh",
+        "control": "modern"
+      },
+      "pico-8 - standalone": {
+        "name": "PICO-8 - Standalone",
+        "core": "ext-pico8-scale",
+        "launcher": "pico8.sh",
+        "control": "modern"
+      }
+    }
+  },
+  "Pyxel": {
+    "name": "Pyxel",
+    "namespace": "Fantasy Console",
+    "catalogue": "Pyxel",
+    "lookup": 0,
+    "default": "pyxel",
+    "friendly": [
+      "pyxel"
+    ],
+    "bios": [],
+    "cores": {
+      "pyxel": {
+        "name": "Pyxel",
+        "core": "ext-pyxel",
+        "launcher": "pyxel.sh"
+      }
+    }
+  },
+  "ScummVM": {
+    "name": "ScummVM",
+    "namespace": "Game Engine",
+    "catalogue": "ScummVM",
+    "lookup": 0,
+    "default": "scummvm",
+    "friendly": [
+      "lucasart",
+      "lucasarts",
+      "scummvm",
+      "scumm"
+    ],
+    "bios": [],
+    "cores": {
+      "scummvm": {
+        "name": "ScummVM",
+        "core": "ext-scummvm",
+        "launcher": "scummvm.sh"
+      }
+    }
+  },
+  "Sega Atomiswave Naomi": {
+    "name": "Sega Atomiswave Naomi",
+    "namespace": "Sega",
+    "catalogue": "Sega Atomiswave Naomi",
+    "lookup": 1,
+    "default": "flycast vl",
+    "governor": "performance",
+    "friendly": [
+      "seganaomi",
+      "segaatomiswave",
+      "naomi",
+      "aw",
+      "atomiswave",
+      "arcseganaomi",
+      "arcsegaatomiswave",
+      "arcnaomi",
+      "arcatomiswave",
+      "arcadeseganaomi",
+      "arcadesegaatomiswave",
+      "arcadenaomi",
+      "arcadeatomiswave"
+    ],
+    "bios": [],
+    "cores": {
+      "flycast": {
+        "name": "Flycast",
+        "core": "ext-flycast",
+        "launcher": "flycast.sh"
+      }
+    }
+  },
+  "Sega Dreamcast": {
+    "name": "Sega Dreamcast",
+    "namespace": "Sega",
+    "catalogue": "Sega Dreamcast",
+    "lookup": 0,
+    "default": "flycast vl",
+    "governor": "performance",
+    "friendly": [
+      "segadreamcast",
+      "segadc",
+      "sdc",
+      "redream",
+      "flycast",
+      "dreamcast",
+      "dc"
+    ],
+    "bios": [],
+    "cores": {
+      "flycast": {
+        "name": "Flycast",
+        "core": "ext-flycast",
+        "launcher": "flycast.sh"
+      }
+    }
+  },
+  "Sega Saturn": {
+    "name": "Sega Saturn",
+    "namespace": "Sega",
+    "catalogue": "Sega Saturn",
+    "lookup": 0,
+    "default": "yabasanshiro",
+    "governor": "performance",
+    "friendly": [
+      "ss",
+      "segasaturn",
+      "segasat",
+      "saturn",
+      "satourne",
+      "sat"
+    ],
+    "bios": [],
+    "cores": {
+      "yabasanshiro": {
+        "name": "YabaSanshiro",
+        "core": "ext-yabasanshiro-bios",
+        "launcher": "yabasanshiro.sh"
+      },
+      "yabasanshiro - standalone - hle": {
+        "name": "YabaSanshiro - Standalone - HLE",
+        "core": "ext-yabasanshiro-hle",
+        "launcher": "yabasanshiro.sh"
+      }
+    }
+  },
+  "Sony PlayStation Portable": {
+    "name": "Sony PlayStation Portable",
+    "namespace": "Sony",
+    "catalogue": "Sony PlayStation Portable",
+    "lookup": 0,
+    "default": "ppsspp",
+    "governor": "performance",
+    "friendly": [
+      "sonypsp",
+      "sonyplaystationportable",
+      "psp",
+      "ppsspp",
+      "playstationportable"
+    ],
+    "bios": [],
+    "cores": {
+      "ppsspp": {
+        "name": "PPSSPP",
+        "core": "ext-ppsspp",
+        "launcher": "ppsspp.sh",
+        "control": "modern"
+      }
+    }
+  }
+}

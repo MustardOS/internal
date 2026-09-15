@@ -1,1 +1,1 @@
-/sys/class/power_supply/ac/online
+/sys/class/power_supply/usb/online

@@ -1,1 +1,1 @@
-/sys/class/power_supply/axp2202-battery/lowpwr_led
+/sys/class/gpio/gpio42/value

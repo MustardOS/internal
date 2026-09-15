@@ -115,6 +115,9 @@ DO_START() {
 	# Initialise amp for devices that need it
 	/opt/muos/script/device/amp.sh &
 
+	# Set up indicator LEDs for devices that drive bare GPIOs
+	/opt/muos/script/device/led.sh &
+
 	# Adjust headphone output for certain devices
 	/opt/muos/script/device/headphone.sh &
 

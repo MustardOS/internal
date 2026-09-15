@@ -6,6 +6,8 @@ case "${1:-start}" in
 	start | restart) IN_SAFE_MODE && exit 0 ;;
 esac
 
+INIT_SELF="/opt/muos/script/init/async/S03chrony.sh"
+
 DAEMON="/opt/muos/bin/chronyd"
 CONF="/opt/muos/share/conf/chrony.conf"
 PID_FILE="/run/chronyd.pid"
@@ -45,8 +47,8 @@ case "$1" in
 		;;
 
 	restart | reload)
-		"$0" stop
-		"$0" start
+		"$INIT_SELF" stop
+		"$INIT_SELF" start
 		;;
 
 	status)

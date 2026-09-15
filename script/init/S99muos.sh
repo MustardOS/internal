@@ -4,6 +4,8 @@
 
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 
+INIT_SELF="/opt/muos/script/init/S99muos.sh"
+
 CAPTURE_G350_PSTORE() {
 	[ "$(GET_VAR "device" "board/name")" = rk-g350-v ] || return 0
 	[ -d /sys/fs/pstore ] || return 0
@@ -79,7 +81,8 @@ RUN_FRONTEND_READY_MAINTENANCE() {
 		WAIT_COUNT=$((WAIT_COUNT + 1))
 	done
 
-	ionice -c idle nice -n 10 "$0" maintenance "$ROM_MOUNT" "$FIRST_INIT" "$RA_CACHE"
+	ionice -c idle nice -n 10 "$INIT_SELF" maintenance "$ROM_MOUNT" "$FIRST_INIT" "$RA_CACHE" ||
+		LOG_WARN "$INIT_SELF" 0 "BOOTING" "Deferred background maintenance reported an error"
 }
 
 WAIT_FOR_PRIORITY_STORAGE() {

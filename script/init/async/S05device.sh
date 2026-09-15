@@ -11,6 +11,8 @@ THERMAL=$(GET_VAR "config" "settings/advanced/thermal")
 BOARD_NAME=$(GET_VAR "device" "board/name")
 HAS_TOUCH=$(GET_VAR "device" "board/touch")
 
+INIT_SELF="/opt/muos/script/init/async/S05device.sh"
+
 # Install a flat binary if its MD5 differs from the installed copy.
 INSTALL_BIN() {
 	SRC_BIN="$1"
@@ -158,7 +160,8 @@ DO_START() {
 			sleep 0.1
 			WAIT_COUNT=$((WAIT_COUNT + 1))
 		done
-		ionice -c idle nice -n 10 "$0" maintenance "$EMU_VER"
+		ionice -c idle nice -n 10 "$INIT_SELF" maintenance "$EMU_VER" ||
+			LOG_WARN "$INIT_SELF" 0 "DEVICE" "Emulator maintenance reported an error"
 	) >/dev/null 2>&1 &
 }
 

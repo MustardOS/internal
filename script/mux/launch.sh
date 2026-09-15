@@ -139,16 +139,73 @@ APPLY_OPTIONAL_FILE "$SHD_GO" "$MUOS_RUN_DIR/overlay.shader" "Overlay Shader"
 # Set the chosen overlay alpha/anchor/scale options of content.
 APPLY_OPTIONAL_FILE "$OVO_GO" "$MUOS_RUN_DIR/overlay.options" "Overlay Options"
 
-# Construct the path to the assigned launcher INI file based on device storage,
-# assignment name ($ASSIGN), and launcher name ($LAUNCH).  This is created within
-# the launching/assigning of the system and core.
-ASSIGN_INI=$(printf '%s/info/assign/%s/%s.ini' "$MUOS_SHARE_DIR" "$ASSIGN" "$LAUNCH")
-LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Resolved assign INI: '%s'" "$ASSIGN_INI")"
+# Pickles and RetroArch run the same Libretro cores, so libretro.json describes both
+# and the tag on the stored assignment says which runtime drives the fella.
+CORE_DIR="$MUOS_SHARE_DIR/info/core"
 
-# Extract launcher stage commands from the INI file constructed above.
-# These are either the internal launch scripts or custom scripts if it
-# is a customised launch package if a user decides to create one...
-LAUNCH_PREP=$(PARSE_INI "$ASSIGN_INI" "launch" "prep") # Optional preparation step before content run
+CORE_HAS() {
+	jq -e --arg s "$ASSIGN" --arg c "$2" '.[$s].cores[$c]' "$1" >/dev/null 2>&1
+}
+
+SET_RUNTIME() {
+	CORE_RUNTIME="$1"
+	CORE_PREFIX="$2"
+	CORE_JSON="$CORE_DIR/$3"
+}
+
+case "$LAUNCH" in
+	mu-*)
+		SET_RUNTIME "pickles" "mu-" "libretro.json"
+		CORE_ID=${LAUNCH#mu-}
+		;;
+	ext-*)
+		SET_RUNTIME "external" "ext-" "external.json"
+		CORE_ID=${LAUNCH#ext-}
+		;;
+	*)
+		SET_RUNTIME "retroarch" "lr-" "libretro.json"
+		CORE_ID=$LAUNCH
+		;;
+esac
+
+if ! CORE_HAS "$CORE_JSON" "$CORE_ID"; then
+	if [ "$CORE_RUNTIME" = "external" ]; then
+		SET_RUNTIME "retroarch" "lr-" "libretro.json"
+	else
+		SET_RUNTIME "external" "ext-" "external.json"
+	fi
+
+	CORE_HAS "$CORE_JSON" "$CORE_ID" || case "$CORE_ID" in
+		*" - standalone")
+			CORE_ID=${CORE_ID% - standalone}
+			SET_RUNTIME "external" "ext-" "external.json"
+			;;
+	esac
+fi
+
+LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Resolved core '%s' as %s from '%s'" "$CORE_ID" "$CORE_RUNTIME" "$CORE_JSON")"
+
+CORE_FIELDS=$(jq -r --arg s "$ASSIGN" --arg c "$CORE_ID" \
+	'.[$s].cores[$c] // {} | [(.launcher // ""), (.prep // ""), (.done // "")] | @tsv' \
+	"$CORE_JSON" 2>/dev/null)
+
+# The launcher is stored as a stem because the prefix is simply the runtime that runs it
+CORE_LAUNCHER=$(printf '%s' "$CORE_FIELDS" | cut -f1)
+[ -n "$CORE_LAUNCHER" ] || CORE_LAUNCHER="general.sh"
+CORE_LAUNCHER="${CORE_PREFIX}${CORE_LAUNCHER}"
+
+# A launcher exist for the core so check that first then the shared launch area
+RESOLVE_LAUNCHER() {
+	for R_BASE in "/opt/muos/script/launch" "$MUOS_SHARE_DIR/script/launch"; do
+		[ -f "$R_BASE/$1" ] && {
+			printf '%s' "$R_BASE/$1"
+			return 0
+		}
+	done
+	return 1
+}
+
+LAUNCH_PREP=$(printf '%s' "$CORE_FIELDS" | cut -f2) # Optional preparation step before content run
 [ -n "$LAUNCH_PREP" ] && LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Resolved launch prep: '%s'" "$LAUNCH_PREP")"
 
 # Override launch script priority: ROM -> CORE -> DIR
@@ -164,20 +221,20 @@ elif [ -f "$OVERRIDE_ROOT/${R_DIR##*/}.sh" ]; then
 	LAUNCH_EXEC="$OVERRIDE_ROOT/${R_DIR##*/}.sh"
 	LOG_INFO "$0" 0 "LAUNCH" "$(printf "Using DIR override launcher: '%s'" "$LAUNCH_EXEC")"
 else
-	LAUNCH_EXEC=$(PARSE_INI "$ASSIGN_INI" "launch" "exec") # REQUIRED main launcher to run the content
-	LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Using INI-defined launcher: '%s'" "$LAUNCH_EXEC")"
+	LAUNCH_EXEC=$(RESOLVE_LAUNCHER "$CORE_LAUNCHER") # REQUIRED main launcher to run the content
+	LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Using core-defined launcher: '%s'" "$LAUNCH_EXEC")"
 fi
 
 ENSURE_REMOVED_SYNC "$ROM_GO"
 
-LAUNCH_DONE=$(PARSE_INI "$ASSIGN_INI" "launch" "done") # Optional cleanup script after successful run
+LAUNCH_DONE=$(printf '%s' "$CORE_FIELDS" | cut -f3) # Optional cleanup script after successful run
 [ -n "$LAUNCH_DONE" ] && LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Resolved launch done: '%s'" "$LAUNCH_DONE")"
 
 # Ensure the main launcher was provided, could probably provide some visual feedback
 # on the frontend side of things but we'll deal with that later...
 if [ -z "$LAUNCH_EXEC" ]; then
-	LOG_ERROR "$0" 0 "LAUNCH" "$(printf "Missing launcher exec in '%s'" "$ASSIGN_INI")"
-	printf 'Missing launcher exec in %s\n' "$ASSIGN_INI" >&2
+	LOG_ERROR "$0" 0 "LAUNCH" "$(printf "Unresolved launcher '%s' for core '%s' in '%s'" "$CORE_LAUNCHER" "$CORE_ID" "$CORE_JSON")"
+	printf 'Unresolved launcher %s for core %s\n' "$CORE_LAUNCHER" "$CORE_ID" >&2
 else
 	if [ -n "$LAUNCH_PREP" ]; then
 		LOG_INFO "$0" 0 "LAUNCH" "$(printf "Running prep script '%s'" "$LAUNCH_PREP")"

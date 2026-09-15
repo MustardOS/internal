@@ -2,9 +2,9 @@
 
 . /opt/muos/script/var/func.sh
 
-ASSIGN_DIR="$MUOS_SHARE_DIR/info/assign"
+CORE_DIR="$MUOS_SHARE_DIR/info/core"
 
-OUTPUT_FILE="$ASSIGN_DIR/assign.json"
+OUTPUT_FILE="$CORE_DIR/assign.json"
 LOG_FILE="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/assign_gen.txt"
 
 ASSIGN_WORK=""
@@ -32,7 +32,7 @@ done
 
 [ "$VERBOSE" -eq 1 ] && : >"$LOG_FILE"
 
-mkdir -p "$ASSIGN_DIR" || exit 1
+mkdir -p "$CORE_DIR" || exit 1
 ASSIGN_WORK=$(mktemp -d /tmp/muos-assign.XXXXXX) || exit 1
 chmod 700 "$ASSIGN_WORK" || exit 1
 
@@ -48,41 +48,42 @@ else
 fi
 
 jq -r 'keys[]' "$TMP_BASE" >"$TMP_KEYS"
-find "$ASSIGN_DIR" -type f -name "*.ini" >"$TMP_LIST"
+
+CORE_FILES=""
+for C_FILE in libretro external; do
+	[ -r "$CORE_DIR/$C_FILE.json" ] && CORE_FILES="$CORE_FILES $CORE_DIR/$C_FILE.json"
+done
+
+if [ -z "$CORE_FILES" ]; then
+	printf "No core definitions found in %s\n" "$CORE_DIR" >&2
+	exit 1
+fi
+
+# shellcheck disable=SC2086
+jq -r -s '
+	[ .[] | to_entries[] | . as $e | ($e.value.friendly // [])[] | "\(.)\t\($e.key)" ]
+	| unique[]
+' $CORE_FILES >"$TMP_LIST"
 
 set --
-while IFS= read -r INI; do
-	SECTION=0
-	DIR_NAME=$(basename "$(dirname "$INI")")
-	while IFS= read -r LINE || [ -n "$LINE" ]; do
-		case "$LINE" in
-			"[friendly]") SECTION=1 ;;
-			\[*]) SECTION=0 ;;
-			"") continue ;;
-			*)
-				if [ "$SECTION" -eq 1 ]; then
-					KEY=$(printf '%s' "$LINE" | tr -d '[:space:]')
-					[ -n "$KEY" ] || continue
-					if grep -Fxq "$KEY" "$TMP_KEYS"; then
-						[ "$VERBOSE" -eq 1 ] && printf "Ignore '%s' already exists\n" "$KEY" | tee -a "$LOG_FILE"
-						SKIPPED=$((SKIPPED + 1))
-					else
-						[ "$VERBOSE" -eq 1 ] && printf "Assign '%s' to '%s'\n" "$KEY" "$DIR_NAME" | tee -a "$LOG_FILE"
-						set -- "$@" "$KEY" "$DIR_NAME"
-						printf '%s\n' "$KEY" >>"$TMP_KEYS"
-						ADDED=$((ADDED + 1))
-					fi
-				fi
-				;;
-		esac
-	done <"$INI"
+while IFS="$(printf '\t')" read -r KEY SYSTEM || [ -n "$KEY" ]; do
+	[ -n "$KEY" ] && [ -n "$SYSTEM" ] || continue
+	if grep -Fxq "$KEY" "$TMP_KEYS"; then
+		[ "$VERBOSE" -eq 1 ] && printf "Ignore '%s' already exists\n" "$KEY" | tee -a "$LOG_FILE"
+		SKIPPED=$((SKIPPED + 1))
+	else
+		[ "$VERBOSE" -eq 1 ] && printf "Assign '%s' to '%s'\n" "$KEY" "$SYSTEM" | tee -a "$LOG_FILE"
+		set -- "$@" "$KEY" "$SYSTEM"
+		printf '%s\n' "$KEY" >>"$TMP_KEYS"
+		ADDED=$((ADDED + 1))
+	fi
 done <"$TMP_LIST"
 
 jq -n --args \
 	'$ARGS.positional as $items | reduce range(0; $items|length; 2) as $i ({}; .[$items[$i]] = $items[$i + 1])' \
 	"$@" >"$TMP_JSON" || exit 1
 
-OUTPUT_TMP=$(mktemp "$ASSIGN_DIR/.assign.json.XXXXXX") || exit 1
+OUTPUT_TMP=$(mktemp "$CORE_DIR/.assign.json.XXXXXX") || exit 1
 if ! jq -S -s '.[0] * .[1]' "$TMP_BASE" "$TMP_JSON" >"$OUTPUT_TMP" || ! chmod 644 "$OUTPUT_TMP" ||
 	! mv -f "$OUTPUT_TMP" "$OUTPUT_FILE"; then
 	rm -f "$OUTPUT_TMP"

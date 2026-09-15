@@ -191,7 +191,7 @@ MANAGE_WEBSERV() {
 					# Given the assign map and the card, the dashboard can list the content
 					# each catalogue is actually responsible for, and so say what is missing.
 					LANDING_INFO="$MUOS_SHARE_DIR/info"
-					[ -r "$LANDING_INFO/assign/assign.json" ] && set -- "$@" --info "$LANDING_INFO"
+					[ -r "$LANDING_INFO/core/assign.json" ] && set -- "$@" --info "$LANDING_INFO"
 
 					# Only the ROMS directory of each storage root: the rest of a card holds
 					# BIOS files, ports, muOS itself and whatever else has been copied on, and

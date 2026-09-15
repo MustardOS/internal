@@ -242,7 +242,7 @@ ADD_INTERNAL() {
 }
 
 ADD_INTERNAL "archive"   "ROM"      "$ROM_MOUNT/ARCHIVE"
-ADD_INTERNAL "assign"    "INTERNAL" "$MUOS_SHARE_DIR/info/assign"
+ADD_INTERNAL "core"      "INTERNAL" "$MUOS_SHARE_DIR/info/core"
 ADD_INTERNAL "cheats"    "INTERNAL" "$RA_DIR/cheats"
 ADD_INTERNAL "config"    "INTERNAL" "$MUOS_SHARE_DIR/info/config"
 ADD_INTERNAL "content"   "INTERNAL" "$MUOS_SHARE_DIR/info/content"

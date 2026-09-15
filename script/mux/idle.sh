@@ -51,8 +51,10 @@ RUN() {
 			P=
 			read -r P <"$PROC" 2>/dev/null || continue
 
+			# muxretro grabs the input devices, so muhotkey never sees gameplay
+			# input and would otherwise swap to the idle governor mid-game
 			case "$P" in
-				mucredits | muterm | muxcharge | muxmessage)
+				mucredits | muterm | muxcharge | muxmessage | muxretro)
 					INHIBIT=$INHIBIT_BOTH
 					break
 					;;

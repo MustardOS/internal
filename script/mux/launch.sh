@@ -189,7 +189,6 @@ CORE_FIELDS=$(jq -r --arg s "$ASSIGN" --arg c "$CORE_ID" \
 	'.[$s].cores[$c] // {} | [(.launcher // ""), (.prep // ""), (.done // "")] | @tsv' \
 	"$CORE_JSON" 2>/dev/null)
 
-# The launcher is stored as a stem because the prefix is simply the runtime that runs it
 CORE_LAUNCHER=$(printf '%s' "$CORE_FIELDS" | cut -f1)
 [ -n "$CORE_LAUNCHER" ] || CORE_LAUNCHER="general.sh"
 CORE_LAUNCHER="${CORE_PREFIX}${CORE_LAUNCHER}"

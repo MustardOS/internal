@@ -2,7 +2,7 @@
 # shellcheck disable=SC2034
 
 ARC_DIR="$MUOS_SHARE_DIR"
-ARC_LABEL="RetroArch Cores"
+ARC_LABEL="Libretro Cores"
 
 ARC_EXTRACT() {
 	DEST="$ARC_DIR"

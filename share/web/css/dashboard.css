@@ -258,6 +258,10 @@ button.card-name:hover, button.card-name:focus-visible { color: var(--accent); }
 .panel { padding: 12px 14px; border: 1px solid var(--line); border-radius: 4px; margin-bottom: 14px; background: var(--box-alt); }
 .panel h3 { margin: 0 0 10px; color: var(--head); font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
 
+.device-switcher { margin-bottom: 14px; }
+.device-switcher .rows { margin-top: 10px; }
+.device-switch i { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 #crop-box > .box { width: min(600px, 100%); }
 .crop-stage { position: relative; overflow: hidden; max-width: 100%; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); touch-action: none; }
 #crop-canvas { display: block; }

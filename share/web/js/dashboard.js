@@ -5,7 +5,7 @@
     const {bytes, count, duration, el, make, runtime, setBar, showToast} = MU;
     const services = runtime.services || {};
     const browserHost = window.location.hostname || runtime.localName || "muos.local";
-    const hostName = runtime.localName || browserHost;
+    const hostName = browserHost || runtime.localName || "muos.local";
     const urlHost = browserHost.includes(":") && !browserHost.startsWith("[") ? `[${browserHost}]` : browserHost;
     let enabled = 0;
 
@@ -151,6 +151,41 @@
         ]);
     }
 
+    function renderDevices(payload) {
+        const box = el("device-switcher");
+        const list = el("device-switcher-list");
+        list.replaceChildren();
+
+        const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: "base"});
+        [...((payload && payload.devices) || [])]
+            .filter((device) => /^[a-z0-9-]+\.local$/i.test(device.host || "")
+                && Number(device.port) >= 1 && Number(device.port) <= 65535)
+            .sort((a, b) => collator.compare(a.name || a.host, b.name || b.host))
+            .forEach((device) => {
+                const port = Number(device.port);
+                const target = device.address || device.host;
+                const link = make("a", "row device-switch", undefined);
+                link.href = `http://${target}${port === 80 ? "" : `:${port}`}/`;
+                link.append(
+                    make("span", null, device.name || device.host),
+                    make("i", null, device.address || device.host)
+                );
+                list.append(link);
+            });
+
+        box.hidden = list.childElementCount === 0;
+    }
+
+    async function refreshDevices() {
+        try {
+            const response = await fetch(`state/devices.json?_=${Date.now()}`, {cache: "no-store"});
+            if (!response.ok) return renderDevices(null);
+            renderDevices(await response.json());
+        } catch (_) {
+            renderDevices(null);
+        }
+    }
+
     function setLive(live) {
         el("tiles").hidden = !live;
         el("dash").hidden = !live;
@@ -175,6 +210,7 @@
         if (document.hidden || el("view-dash").hidden) return;
         try {
             await refresh();
+            await refreshDevices();
         } catch (_) {
             setLive(false);
         }

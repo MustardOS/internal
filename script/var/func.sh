@@ -1511,6 +1511,13 @@ SETUP_SDL_ENVIRONMENT() {
 			;;
 	esac
 
+	if [ ! -f "$GCDB_FILE" ]; then
+		case "$(GET_VAR "config" "settings/remap/layout")" in
+			1) GCDB_FILE="$GCDB_STORE/modern.txt" ;;
+			*) GCDB_FILE="$GCDB_STORE/retro.txt" ;;
+		esac
+	fi
+
 	# Remove and relink controller DB
 	rm -f "$GCDB_DEFAULT"
 	ln -sf "$GCDB_FILE" "$GCDB_DEFAULT"
@@ -1524,6 +1531,7 @@ SETUP_SDL_ENVIRONMENT() {
 		SDL_GAMECONTROLLERCONFIG=$(grep "$(GET_VAR "device" "sdl/name")" "$GCDB_FILE")
 		printf '%s\n' "$SDL_GAMECONTROLLERCONFIG" >"$SDL_CACHE"
 	fi
+	[ -n "$SDL_GAMECONTROLLERCONFIG" ] || SDL_GAMECONTROLLERCONFIG=$(GET_VAR "device" "board/sdl_map")
 
 	export SDL_GAMECONTROLLERCONFIG_FILE SDL_GAMECONTROLLERCONFIG
 

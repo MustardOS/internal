@@ -6,6 +6,8 @@ PROCESS_HELPER="/opt/muos/script/var/process.sh"
 LANDING_STATUS="/opt/muos/script/web/status.sh"
 LANDING_BIN="/opt/muos/frontend/muweb"
 LANDING_SECRET="$MUOS_CONF_SYSTEM/landing_secret"
+MDNS_NAME_FILE="$MUOS_RUN_DIR/mdns_name"
+MDNS_DISCOVERY_FILE="$MUOS_RUN_DIR/landing/state/devices.json"
 
 SERVICE_PROCESS_NAME() {
 	case "$1" in
@@ -22,7 +24,21 @@ VALID_LOCAL_NAME() {
 }
 
 BOOL_WEB_SETTING() {
-	[ "$(GET_VAR "config" "web/$1")" = "1" ] && printf true || printf false
+	[ "$(WEB_SETTING "$1")" = "1" ] && printf true || printf false
+}
+
+WEB_SETTING() {
+	WEB_SETTING_VALUE=$(GET_VAR "config" "web/$1")
+	case "$WEB_SETTING_VALUE" in
+		0 | 1) ;;
+		*)
+			case "$1" in
+				mdns | landing | landing_auth) WEB_SETTING_VALUE=1 ;;
+				*) WEB_SETTING_VALUE=0 ;;
+			esac
+			;;
+	esac
+	printf '%s\n' "$WEB_SETTING_VALUE"
 }
 
 # The dashboard should look like the device it is showing, so the active theme's palette
@@ -90,7 +106,10 @@ PREPARE_LANDING_ROOT() {
 	MDNS_NAME=$(GET_VAR "config" "web/mdns_name")
 	VALID_LOCAL_NAME "$MDNS_NAME" || MDNS_NAME=muos
 	LOCAL_NAME=
-	[ "$(GET_VAR "config" "web/mdns")" = "1" ] && LOCAL_NAME="$MDNS_NAME.local"
+	if [ "$(WEB_SETTING mdns)" = "1" ] && [ -s "$MDNS_NAME_FILE" ]; then
+		IFS= read -r MDNS_NAME <"$MDNS_NAME_FILE"
+		VALID_LOCAL_NAME "$MDNS_NAME" && LOCAL_NAME="$MDNS_NAME.local"
+	fi
 	LANDING_RUNTIME=$(mktemp "$LANDING_ROOT/js/.runtime.XXXXXX") || return 1
 
 	{
@@ -127,26 +146,29 @@ START_MDNS() {
 
 	MDNS_NAME=$(GET_VAR "config" "web/mdns_name")
 	VALID_LOCAL_NAME "$MDNS_NAME" || MDNS_NAME=muos
-	set -- "$MUDNS_BIN" --hostname "$MDNS_NAME"
+	mkdir -p "$MUOS_RUN_DIR/landing/state"
+	rm -f "$MDNS_NAME_FILE" "$MDNS_DISCOVERY_FILE"
+	set -- "$MUDNS_BIN" --hostname "$MDNS_NAME" --name-file "$MDNS_NAME_FILE" \
+		--discovery-file "$MDNS_DISCOVERY_FILE"
 
-	if [ "$(GET_VAR "config" "web/landing")" = "1" ]; then
+	if [ "$(WEB_SETTING landing)" = "1" ]; then
 		set -- "$@" --service "_http._tcp:$(GET_WEB_PORT "landing_port" 80):MustardOS"
 	fi
 
-	if [ "$(GET_VAR "config" "web/sftpgo")" = "1" ]; then
+	if [ "$(WEB_SETTING sftpgo)" = "1" ]; then
 		set -- "$@" --service "_http._tcp:$(GET_WEB_PORT "sftpgo_port" 9090):MustardOS Files"
 		set -- "$@" --service "_sftp-ssh._tcp:$(GET_WEB_PORT "sftpgo_sftp_port" 2022):MustardOS SFTP"
 	fi
 
-	if [ "$(GET_VAR "config" "web/ttyd")" = "1" ]; then
+	if [ "$(WEB_SETTING ttyd)" = "1" ]; then
 		set -- "$@" --service "_http._tcp:$(GET_WEB_PORT "ttyd_port" 8080):MustardOS Terminal"
 	fi
 
-	if [ "$(GET_VAR "config" "web/syncthing")" = "1" ]; then
+	if [ "$(WEB_SETTING syncthing)" = "1" ]; then
 		set -- "$@" --service "_http._tcp:$(GET_WEB_PORT "syncthing_port" 7070):MustardOS Syncthing"
 	fi
 
-	if [ "$(GET_VAR "config" "web/sshd")" = "1" ]; then
+	if [ "$(WEB_SETTING sshd)" = "1" ]; then
 		set -- "$@" --service "_ssh._tcp:$(GET_WEB_PORT "sshd_port" 22):MustardOS SSH"
 	fi
 
@@ -218,7 +240,7 @@ MANAGE_WEBSERV() {
 					# unlocks changing anything, and every change then wants the rolling code
 					# the device is showing, so two handhelds on one network cannot touch each
 					# other by accident. Without it the dashboard stays strictly read only.
-					if [ "$(GET_VAR "config" "web/landing_auth")" = "0" ]; then
+					if [ "$(WEB_SETTING landing_auth)" = "0" ]; then
 						set -- "$@" --readonly
 					else
 						set -- "$@" --secret "$LANDING_SECRET"
@@ -333,6 +355,10 @@ MANAGE_WEBSERV() {
 			;;
 		stop)
 			case "$SRV" in
+				mdns)
+					"$PROCESS_HELPER" stop-group "$PROCESS_NAME"
+					rm -f "$MDNS_NAME_FILE" "$MDNS_DISCOVERY_FILE"
+					;;
 				tailscaled) /opt/muos/script/web/tailscale.sh stop ;;
 				landing)
 					"$PROCESS_HELPER" stop-group web-landstat
@@ -358,19 +384,19 @@ case "$1" in
 		SERVICE_PROCESS_NAME "$2" >/dev/null || exit 1
 		MANAGE_WEBSERV stop "$2" || exit 1
 
-		if [ "$(GET_VAR "config" "web/$2")" = "1" ]; then
+		if [ "$(WEB_SETTING "$2")" = "1" ]; then
 			MANAGE_WEBSERV start "$2" || {
 				LOG_ERROR "$0" 0 "WEB" "$(printf "Failed to start '%s' web service" "$2")"
 				exit 1
 			}
 		fi
 
-		if [ "$2" != "mdns" ] && [ "$(GET_VAR "config" "web/mdns")" = "1" ]; then
+		if [ "$2" != "mdns" ] && [ "$(WEB_SETTING mdns)" = "1" ]; then
 			MANAGE_WEBSERV stop mdns
 			MANAGE_WEBSERV start mdns || LOG_ERROR "$0" 0 "WEB" "Failed to refresh Local DNS advertisements"
 		fi
 
-		if [ "$2" != "landing" ] && [ "$(GET_VAR "config" "web/landing")" = "1" ]; then
+		if [ "$2" != "landing" ] && [ "$(WEB_SETTING landing)" = "1" ]; then
 			MANAGE_WEBSERV stop landing
 			MANAGE_WEBSERV start landing || LOG_ERROR "$0" 0 "WEB" "Failed to refresh Web Dashboard links"
 		fi
@@ -382,7 +408,7 @@ case "$1" in
 		;;
 	*)
 		for WEBSRV in $SERVICE_LIST; do
-			if [ "$(GET_VAR "config" "web/$WEBSRV")" = "1" ]; then
+			if [ "$(WEB_SETTING "$WEBSRV")" = "1" ]; then
 				MANAGE_WEBSERV start "$WEBSRV" ||
 					LOG_ERROR "$0" 0 "WEB" "$(printf "Failed to start '%s' web service" "$WEBSRV")" &
 			else

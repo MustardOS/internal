@@ -3,13 +3,18 @@
 . /opt/muos/script/var/func.sh
 
 CORE_DIR="$MUOS_SHARE_DIR/info/core"
+USER_CORE_DIR="$MUOS_STORE_DIR/info/core"
 BASE_PATH="$MUOS_STORE_DIR/info/catalogue"
 TARGET_DIRS="box grid preview text splash manual video overlay/base overlay/battery overlay/bright overlay/volume"
 EXTRA_DIRS="Application Archive Collection Folder Root Task Theme"
 
 CORE_FILES=""
 for C_FILE in libretro external; do
-	[ -r "$CORE_DIR/$C_FILE.json" ] && CORE_FILES="$CORE_FILES $CORE_DIR/$C_FILE.json"
+	if [ -r "$USER_CORE_DIR/$C_FILE.json" ] && jq -e 'type == "object"' "$USER_CORE_DIR/$C_FILE.json" >/dev/null 2>&1; then
+		CORE_FILES="$CORE_FILES $USER_CORE_DIR/$C_FILE.json"
+	elif [ -r "$CORE_DIR/$C_FILE.json" ] && jq -e 'type == "object"' "$CORE_DIR/$C_FILE.json" >/dev/null 2>&1; then
+		CORE_FILES="$CORE_FILES $CORE_DIR/$C_FILE.json"
+	fi
 done
 
 if [ -z "$CORE_FILES" ]; then

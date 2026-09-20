@@ -24,6 +24,7 @@ LED_RGB="$(GET_VAR "device" "led/rgb")"
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
 RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
 MAX_BRIGHT=$(GET_VAR "device" "screen/bright")
+CHARGER_PATH="$(GET_VAR "device" "battery/charger")"
 
 RGB_ENABLE=$(GET_VAR "config" "settings/general/rgb")
 RUMBLE_SETTING="$(GET_VAR "config" "settings/advanced/rumble")"
@@ -38,6 +39,13 @@ USB_FUNCTION="$(GET_VAR "config" "settings/advanced/usb_function")"
 if [ "$BOARD_NAME" = rk-g350-v ] && [ "$SUSPEND_STATE" = mem ]; then
 	SUSPEND_STATE=freeze
 fi
+
+CHARGER_CONNECTED() {
+	[ -n "$CHARGER_PATH" ] && [ -r "$CHARGER_PATH" ] || return 1
+	CHARGER_STATE=0
+	IFS= read -r CHARGER_STATE <"$CHARGER_PATH" 2>/dev/null || return 1
+	[ "$CHARGER_STATE" -eq 1 ] 2>/dev/null
+}
 
 G350_PREPARE_WAKE() {
 	[ "$BOARD_NAME" = rk-g350-v ] || return 0
@@ -148,14 +156,20 @@ RUN_SUSPEND_BACKEND() {
 		[ "$REMAINING" -lt 0 ] && REMAINING=0
 	fi
 
-	if [ "$BOARD_NAME" = rk-g350-v ]; then
+	POWER_DEVICE=
+	case "$BOARD_NAME" in
+		rk-g350-v) POWER_DEVICE=rk8xx_pwrkey ;;
+		rg-vita-pro) POWER_DEVICE="rk805 pwrkey" ;;
+	esac
+
+	if [ -n "$POWER_DEVICE" ]; then
 		G350_LOG_SUSPEND userspace-wait
 
 		if [ -n "$REMAINING" ]; then
-			"$SUSPEND_HELPER" --state userspace --power-device rk8xx_pwrkey --optimise \
+			"$SUSPEND_HELPER" --state userspace --power-device "$POWER_DEVICE" --optimise \
 				--quiesce muxfrontend --quiesce muxretro --quiesce retroarch --timeout "$REMAINING"
 		else
-			"$SUSPEND_HELPER" --state userspace --power-device rk8xx_pwrkey --optimise \
+			"$SUSPEND_HELPER" --state userspace --power-device "$POWER_DEVICE" --optimise \
 				--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
 		fi
 	else
@@ -457,6 +471,11 @@ RESUME() {
 		B=$((B + 1))
 	done
 }
+
+if CHARGER_CONNECTED; then
+	LOG_INFO "$0" 0 "SUSPEND" "Ignoring suspend while external power is connected"
+	exit 0
+fi
 
 RECENT_WAKE_SET && exit 0
 

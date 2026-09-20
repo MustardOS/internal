@@ -1,2 +1,2 @@
 # Custom
-060000006d750000033500006f730000,muOS-Keys,a:b2,b:b3,x:b4,y:b5,leftshoulder:b6,rightshoulder:b7,lefttrigger:b8,righttrigger:b9,guide:b12,start:b11,back:b10,dpup:h0.1,dpleft:h0.8,dpright:h0.2,dpdown:h0.4,volumedown:b0,volumeup:b1,leftx:a0,lefty:a1,rightx:a2,righty:a3,leftstick:b13,rightstick:b14,platform:Linux,
+060000006d750000033500006f730000,muOS-Keys,a:b0,b:b1,x:b2,y:b3,leftshoulder:b4,rightshoulder:b5,lefttrigger:b6,righttrigger:b7,guide:b10,start:b9,back:b8,dpup:h0.1,dpleft:h0.8,dpright:h0.2,dpdown:h0.4,volumedown:b14,volumeup:b15,special:b13,leftx:a0,lefty:a1,rightx:a2,righty:a3,leftstick:b11,rightstick:b12,platform:Linux,

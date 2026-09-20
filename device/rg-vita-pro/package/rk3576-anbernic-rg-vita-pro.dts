@@ -3830,7 +3830,7 @@
 			pinctrl-names = "default";
 			pinctrl-0 = <0xd4 0xd5 0xd6>;
 			prepare-delay-ms = <0x32>;
-			reset-delay-ms = <0x0a>;
+			reset-delay-ms = <0xdc>;
 			init-delay-ms = <0x32>;
 			enable-delay-ms = <0x78>;
 			disable-delay-ms = <0x32>;
@@ -3840,7 +3840,7 @@
 			dsi,flags = <0xa03>;
 			dsi,format = <0x00>;
 			dsi,lanes = <0x04>;
-			panel-init-sequence = <0x5640129 0x5640111>;
+			panel-init-sequence = <0x5640111 0x5640129>;
 			panel-exit-sequence = <0x5780128 0x5780110>;
 			phandle = <0x23a>;
 
@@ -12143,7 +12143,7 @@
 		amux-count = <0x04>;
 		adc-power-ctl0 = <0x63 0x1b 0x00>;
 		button-adc-scale = <0x01>;
-		button-adc-deadzone = <0x9c4>;
+		button-adc-deadzone = <0xfa>;
 		button-adc-fuzz = <0x50>;
 		button-adc-flat = <0x50>;
 		abs_x-p-tuning = <0xc8>;

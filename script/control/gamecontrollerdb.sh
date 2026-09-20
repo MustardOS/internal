@@ -38,7 +38,9 @@ for SRC in "$DEVICE_CONTROL_DIR/gamecontrollerdb"/*.txt; do
 		else
 			cp "$SRC" "$TMP"
 		fi
-		awk -F, -v OFS=, -v name="$PORTMASTER_NAME" '!/^#/ && NF > 1 {$2 = name; print}' "$SRC" >>"$TMP"
+		if ! grep -Fq "$PORTMASTER_GUID,$PORTMASTER_NAME," "$SRC"; then
+			awk -F, -v OFS=, -v name="$PORTMASTER_NAME" '!/^#/ && NF > 1 {$2 = name; print}' "$SRC" >>"$TMP"
+		fi
 		mv -f "$TMP" "$DST"
 	fi
 done

@@ -791,7 +791,9 @@ IP_DHCP() {
 		fi
 	elif command -v udhcpc >/dev/null 2>&1; then
 		LOG_INFO "$0" 0 "NETWORK" "udhcpc was found!"
-		udhcpc -i "$IFCE" -b -q >/dev/null 2>&1
+		DHCP_HOSTNAME=$(hostname 2>/dev/null)
+		[ -n "$DHCP_HOSTNAME" ] || DHCP_HOSTNAME="muos"
+		udhcpc -i "$IFCE" -F "$DHCP_HOSTNAME" -b -q >/dev/null 2>&1
 	else
 		LOG_ERROR "$0" 0 "NETWORK" "No DHCP client found (tried dhcpcd, udhcpc)"
 		FAIL_WITH "DHCP_FAILED" "$RC_DHCP_FAILED"

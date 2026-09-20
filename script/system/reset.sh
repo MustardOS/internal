@@ -116,13 +116,15 @@ cp -a "$SRC_DIR"/. "$DST_DIR/"
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Blank Syncthing API File"
 : >"$MUOS_DIR/syncthing/api.txt"
 
+PM_DIR="/mnt/mmc/MUOS/PortMaster"
 PM_ZIP="$MUOS_SHARE_DIR/archive/muos.portmaster.zip"
 if [ -e "$PM_ZIP" ]; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Decompressing PortMaster Application"
 	unzip -oq "$PM_ZIP" -d /
+	chmod -R 755 "$PM_DIR"
 fi
 
-RT_DIR="/mnt/mmc/MUOS/PortMaster/runtimes"
+RT_DIR="$PM_DIR/runtimes"
 RT_ZIP="$MUOS_SHARE_DIR/archive/runtimes.popular.aarch64.zip"
 if [ -e "$RT_ZIP" ]; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Decompressing PortMaster Runtimes"

@@ -49,6 +49,8 @@ if ! EXTRACT_ARCHIVE "PortMaster" "$PM_ZIP" "/"; then
 	ALL_DONE 1
 fi
 
+chmod -R 755 "$PM_DIR"
+
 if [ -e "$RT_ZIP" ]; then
 	SPACE_REQ="$(GET_ARCHIVE_BYTES "$RT_ZIP" "")"
 	! CHECK_SPACE_FOR_DEST "$SPACE_REQ" "$RT_DIR" && ALL_DONE 1

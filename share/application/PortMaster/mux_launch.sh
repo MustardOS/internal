@@ -13,4 +13,4 @@ SETUP_APP "$APP_BIN" ""
 PORTMASTER_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/PortMaster"
 cd "$PORTMASTER_DIR" || exit
 
-./PortMaster.sh
+bash ./PortMaster.sh

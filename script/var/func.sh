@@ -1231,7 +1231,7 @@ fi
 
 CRITICAL_FAILURE() {
 	case "$1" in
-		mount) MESSAGE=$(printf "Mount Failure\n\n%s%s" "$1" "$2") ;;
+		mount) MESSAGE=$(printf "Mount Failure\n\n%s" "$2") ;;
 		format) MESSAGE=$(printf "Format Failure\n\nCould not create a %s filesystem on %s" "$3" "$2") ;;
 		udev) MESSAGE=$(printf "Critical Failure\n\nFailed to initialise udev!") ;;
 		*) MESSAGE=$(printf "Critical Failure\n\nAn unknown error occurred!") ;;
@@ -1483,6 +1483,7 @@ SETUP_SDL_ENVIRONMENT() {
 	done
 
 	GCDB_DEFAULT="/usr/lib/gamecontrollerdb.txt"
+	GCDB_COMPAT="/usr/lib32/gamecontrollerdb.txt"
 	GCDB_STORE="$MUOS_SHARE_DIR/info/gamecontrollerdb"
 
 	case "$REQ_STYLE" in
@@ -1521,6 +1522,10 @@ SETUP_SDL_ENVIRONMENT() {
 	# Remove and relink controller DB
 	rm -f "$GCDB_DEFAULT"
 	ln -sf "$GCDB_FILE" "$GCDB_DEFAULT"
+	if [ -d "${GCDB_COMPAT%/*}" ]; then
+		rm -f "$GCDB_COMPAT"
+		ln -sf "$GCDB_FILE" "$GCDB_COMPAT"
+	fi
 
 	# Set both the SDL controller file and configuration
 	SDL_GAMECONTROLLERCONFIG_FILE="$GCDB_FILE"

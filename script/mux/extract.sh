@@ -368,7 +368,7 @@ case "$ARCHIVE_NAME" in
 			fi
 
 			REQ="$(GET_ARCHIVE_BYTES "$ARCHIVE" "$TOP/")"
-			! CHECK_SPACE_FOR_DEST "$REQ" "$TOP" && ALL_DONE 1
+			! CHECK_SPACE_FOR_DEST "$REQ" "$TOP" "${ARC_SPACE:-}" && ALL_DONE 1
 
 			TASK_STATUS "$(printf "Extracting '%s'" "$LABEL")"
 			TASK_DETAIL "$(printf "Destination '%s'" "$DEST")"

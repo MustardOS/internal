@@ -141,14 +141,14 @@ APPLY_OPTIONAL_FILE "$OVO_GO" "$MUOS_RUN_DIR/overlay.options" "Overlay Options"
 
 # Pickles and RetroArch run the same Libretro cores, so libretro.json describes both
 # and the tag on the stored assignment says which runtime drives the fella.
-CORE_DIR="$MUOS_SHARE_DIR/info/core"
-USER_CORE_DIR="$MUOS_STORE_DIR/info/core"
+BUNDLED_MANIFEST_DIR="$MUOS_SHARE_DIR/info/manifest"
+USER_MANIFEST_DIR="$MUOS_STORE_DIR/info/manifest"
 
 CORE_JSON_PATH() {
-	if [ -r "$USER_CORE_DIR/$1" ] && jq -e 'type == "object"' "$USER_CORE_DIR/$1" >/dev/null 2>&1; then
-		printf '%s\n' "$USER_CORE_DIR/$1"
+	if [ -r "$USER_MANIFEST_DIR/$1" ] && jq -e 'type == "object"' "$USER_MANIFEST_DIR/$1" >/dev/null 2>&1; then
+		printf '%s\n' "$USER_MANIFEST_DIR/$1"
 	else
-		printf '%s\n' "$CORE_DIR/$1"
+		printf '%s\n' "$BUNDLED_MANIFEST_DIR/$1"
 	fi
 }
 

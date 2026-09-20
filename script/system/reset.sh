@@ -132,9 +132,6 @@ if [ -e "$RT_ZIP" ]; then
 	unzip -oq "$RT_ZIP" -d "$RT_DIR"
 fi
 
-LOG_INFO "$0" 0 "FACTORY RESET" "Generating Automatic Core Assign"
-/opt/muos/script/system/assign.sh -p
-
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Unique System ID"
 SET_VAR "system" "uuid" "$(uuidgen)"
 

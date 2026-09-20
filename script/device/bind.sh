@@ -2,8 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
-PRIORITY_LOCS="application bios init info/track music save theme"
-STANDARD_LOCS="info/catalogue info/name info/core info/collection info/history info/override network screenshot syncthing package/catalogue package/config"
+PRIORITY_LOCS="application bios init info/manifest info/track music save theme"
+STANDARD_LOCS="info/catalogue info/name info/collection info/history info/override network screenshot syncthing package/catalogue package/config"
 
 MOUNT_FAILURE="/tmp/muos/mount_failure"
 
@@ -52,7 +52,7 @@ LOCS_KEY() {
 	case "$1" in
 		info/catalogue*) echo "catalogue" ;;
 		info/name*) echo "name" ;;
-		info/core*) echo "coreinfo" ;;
+		info/manifest*) echo "manifest" ;;
 		info/collection*) echo "collection" ;;
 		info/history*) echo "history" ;;
 		info/track*) echo "track" ;;
@@ -61,17 +61,11 @@ LOCS_KEY() {
 	esac
 }
 
-KEYS=""
-
 HAVE_KEY() {
-	case " $KEYS " in
-		*" $1 "*) return 0 ;;
-	esac
+	while IFS='|' read -r MAP_KEY _; do
+		[ "$MAP_KEY" = "$1" ] && return 0
+	done <"$BINDMAP"
 	return 1
-}
-
-ADD_KEY() {
-	KEYS="$KEYS $1"
 }
 
 WRITE_BINDMAP() {
@@ -80,7 +74,6 @@ WRITE_BINDMAP() {
 	SRC="$3"
 
 	HAVE_KEY "$KEY" && return 0
-	ADD_KEY "$KEY"
 	printf '%s|%s|%s\n' "$KEY" "$BACKEND" "$SRC" >>"$BINDMAP"
 }
 
@@ -91,6 +84,9 @@ SAFE_BIND() {
 	mkdir -p "$TGT"
 
 	if IS_MOUNTED "$TGT"; then
+		SAFE_SRC_ID=$(stat -c '%d:%i' "$SRC" 2>/dev/null)
+		SAFE_TGT_ID=$(stat -c '%d:%i' "$TGT" 2>/dev/null)
+		[ -n "$SAFE_SRC_ID" ] && [ "$SAFE_SRC_ID" = "$SAFE_TGT_ID" ] && return 0
 		umount "$TGT" 2>/dev/null || umount -l "$TGT" 2>/dev/null || return 1
 	fi
 
@@ -171,6 +167,15 @@ FAIL_IF_ANY() {
 LOG_INFO "$0" 0 "BIND MOUNT" "Mounting PRIORITY paths"
 MOUNT_STORAGE "$PRIORITY_LOCS" "PRIORITY"
 
+ASSIGN_FILE="$MUOS_STORE_DIR/info/manifest/assign.json"
+if [ ! -s "$ASSIGN_FILE" ]; then
+	LOG_INFO "$0" 0 "BIND MOUNT" "Generating missing core assignments"
+	if ! /opt/muos/script/system/assign.sh -p; then
+		LOG_INFO "$0" 0 "BIND MOUNT" "FAILED to generate core assignments"
+		printf '%s\n' "info/manifest" >>"$MOUNT_FAILURE"
+	fi
+fi
+
 FAIL_IF_ANY
 : >"$MUOS_STORE_DIR/mount_ready"
 
@@ -238,16 +243,14 @@ ADD_INTERNAL() {
 	SRC="$3"
 
 	HAVE_KEY "$KEY" && return 0
-	ADD_KEY "$KEY"
 	printf '%s|%s|%s\n' "$KEY" "$BACKEND" "$SRC" >>"$BINDMAP"
 }
 
 ADD_INTERNAL "archive"   "ROM"      "$ROM_MOUNT/ARCHIVE"
-ADD_INTERNAL "core"      "INTERNAL" "$MUOS_SHARE_DIR/info/core"
+ADD_INTERNAL "manifest"  "INTERNAL" "$MUOS_SHARE_DIR/info/manifest"
 ADD_INTERNAL "cheats"    "INTERNAL" "$RA_DIR/cheats"
 ADD_INTERNAL "config"    "INTERNAL" "$MUOS_SHARE_DIR/info/config"
 ADD_INTERNAL "content"   "INTERNAL" "$MUOS_SHARE_DIR/info/content"
-ADD_INTERNAL "core"      "INTERNAL" "$MUOS_SHARE_DIR/core"
 ADD_INTERNAL "emulator"  "INTERNAL" "$MUOS_SHARE_DIR/emulator"
 ADD_INTERNAL "hotkey"    "INTERNAL" "$MUOS_SHARE_DIR/hotkey"
 ADD_INTERNAL "info"      "INTERNAL" "$MUOS_SHARE_DIR/info"

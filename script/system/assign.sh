@@ -2,10 +2,10 @@
 
 . /opt/muos/script/var/func.sh
 
-CORE_DIR="$MUOS_SHARE_DIR/info/core"
-USER_CORE_DIR="$MUOS_STORE_DIR/info/core"
+BUNDLED_MANIFEST_DIR="$MUOS_SHARE_DIR/info/manifest"
+USER_MANIFEST_DIR="$MUOS_STORE_DIR/info/manifest"
 
-OUTPUT_FILE="$USER_CORE_DIR/assign.json"
+OUTPUT_FILE="$USER_MANIFEST_DIR/assign.json"
 LOG_FILE="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/assign_gen.txt"
 
 ASSIGN_WORK=""
@@ -33,7 +33,7 @@ done
 
 [ "$VERBOSE" -eq 1 ] && : >"$LOG_FILE"
 
-mkdir -p "$USER_CORE_DIR" || exit 1
+mkdir -p "$USER_MANIFEST_DIR" || exit 1
 ASSIGN_WORK=$(mktemp -d /tmp/muos-assign.XXXXXX) || exit 1
 chmod 700 "$ASSIGN_WORK" || exit 1
 
@@ -50,17 +50,17 @@ fi
 
 jq -r 'keys[]' "$TMP_BASE" >"$TMP_KEYS"
 
-CORE_FILES=""
+MANIFEST_FILES=""
 for C_FILE in libretro external; do
-	if [ -r "$USER_CORE_DIR/$C_FILE.json" ] && jq -e 'type == "object"' "$USER_CORE_DIR/$C_FILE.json" >/dev/null 2>&1; then
-		CORE_FILES="$CORE_FILES $USER_CORE_DIR/$C_FILE.json"
-	elif [ -r "$CORE_DIR/$C_FILE.json" ] && jq -e 'type == "object"' "$CORE_DIR/$C_FILE.json" >/dev/null 2>&1; then
-		CORE_FILES="$CORE_FILES $CORE_DIR/$C_FILE.json"
+	if [ -r "$USER_MANIFEST_DIR/$C_FILE.json" ] && jq -e 'type == "object"' "$USER_MANIFEST_DIR/$C_FILE.json" >/dev/null 2>&1; then
+		MANIFEST_FILES="$MANIFEST_FILES $USER_MANIFEST_DIR/$C_FILE.json"
+	elif [ -r "$BUNDLED_MANIFEST_DIR/$C_FILE.json" ] && jq -e 'type == "object"' "$BUNDLED_MANIFEST_DIR/$C_FILE.json" >/dev/null 2>&1; then
+		MANIFEST_FILES="$MANIFEST_FILES $BUNDLED_MANIFEST_DIR/$C_FILE.json"
 	fi
 done
 
-if [ -z "$CORE_FILES" ]; then
-	printf "No core definitions found in %s\n" "$CORE_DIR" >&2
+if [ -z "$MANIFEST_FILES" ]; then
+	printf "No core definitions found in %s\n" "$BUNDLED_MANIFEST_DIR" >&2
 	exit 1
 fi
 
@@ -68,7 +68,7 @@ fi
 jq -r -s '
 	[ .[] | to_entries[] | . as $e | ($e.value.friendly // [])[] | "\(.)\t\($e.key)" ]
 	| unique[]
-' $CORE_FILES >"$TMP_LIST"
+' $MANIFEST_FILES >"$TMP_LIST"
 
 set --
 while IFS="$(printf '\t')" read -r KEY SYSTEM || [ -n "$KEY" ]; do
@@ -88,7 +88,7 @@ jq -n --args \
 	'$ARGS.positional as $items | reduce range(0; $items|length; 2) as $i ({}; .[$items[$i]] = $items[$i + 1])' \
 	"$@" >"$TMP_JSON" || exit 1
 
-OUTPUT_TMP=$(mktemp "$USER_CORE_DIR/.assign.json.XXXXXX") || exit 1
+OUTPUT_TMP=$(mktemp "$USER_MANIFEST_DIR/.assign.json.XXXXXX") || exit 1
 if ! jq -S -s '.[0] * .[1]' "$TMP_BASE" "$TMP_JSON" >"$OUTPUT_TMP" || ! chmod 644 "$OUTPUT_TMP" ||
 	! mv -f "$OUTPUT_TMP" "$OUTPUT_FILE"; then
 	rm -f "$OUTPUT_TMP"
@@ -102,3 +102,5 @@ OUTPUT_TMP=""
 	printf "Assign Skipped\t\t%d\n" "$SKIPPED"
 	printf "\nTotal Assign Systems\t\t%d\n\n" "$((ADDED + SKIPPED))"
 } | tee -a "$LOG_FILE"
+
+exit 0

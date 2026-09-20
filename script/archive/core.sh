@@ -3,6 +3,7 @@
 
 ARC_DIR="$MUOS_SHARE_DIR"
 ARC_LABEL="Libretro Cores"
+ARC_SPACE="$ARC_DIR/core"
 
 ARC_EXTRACT() {
 	DEST="$ARC_DIR"

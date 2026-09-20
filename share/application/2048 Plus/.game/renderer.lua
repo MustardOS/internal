@@ -10200,7 +10200,7 @@ function renderer.getStoreItems()
         {id="theme_synthwave",category="theme",    cost=2000,name="Synthwave 80s Theme",   desc="Unlock retro 80s retrowave theme"},
 
         -- Secret Master Code
-        {id="secret_key",    category="secret",    cost=10000, name="Secret Passcode Reveal",desc=(_G.stats and _G.stats.purchased_items and _G.stats.purchased_items["secret_key"]) and "Enter sequence on Main Menu to unlock Secret Menu" or "Unlock master code to access Secret Menu"}
+        {id="secret_key",    category="secret",    cost=10000, name="Secret Passcode Reveal",desc=(_G.stats and _G.stats.purchased_items and _G.stats.purchased_items["secret_key"]) and "Enter code on Main Menu" or "Unlock master code to access Secret Menu"}
     }
 
     local sort_mode = _G.store_sort_mode or 0

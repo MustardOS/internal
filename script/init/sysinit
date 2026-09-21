@@ -53,6 +53,7 @@ RUN_CRITICAL_START() {
 case "${1:-start}" in
 	start | "")
 		LED_QUIET
+		/opt/muos/script/device/led.sh boot &
 		BOOT_GUARD_ARM
 
 		timeout 10 "$MUOS_VAR_BIN" build ||

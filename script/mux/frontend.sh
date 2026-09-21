@@ -18,6 +18,10 @@ RUN_CONTENT_LOADER() {
 	LOG_INFO "$0" 0 "FRONTEND" "Content loader triggered"
 	/opt/muos/script/mux/launch.sh
 
+	# launch.sh restores the governor on the way out, but not if it crashed or was
+	# killed, so make sure nothing a session pinned outlives it.
+	SET_DEFAULT_GOVERNOR
+
 	ENSURE_REMOVED_SYNC "$ROM_GO"
 
 	[ -s "$ACT_GO" ] || SAFE_WRITE "launcher" "$ACT_GO"

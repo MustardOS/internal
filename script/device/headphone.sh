@@ -5,7 +5,7 @@
 export XDG_RUNTIME_DIR=/run
 
 case "$(GET_VAR "device" "board/name")" in
-    rk-pixel2)
+    rk-pixel-2)
         echo 86 > /sys/class/gpio/export 2>/dev/null
         LAST=""
 

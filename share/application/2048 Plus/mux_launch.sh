@@ -31,17 +31,14 @@ SET_LOVE_ENVIRONMENT() {
     export LD_LIBRARY_PATH="$APP_BINARY_DIRECTORY/libs.aarch64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 }
 
-SET_RK3576_WORKAROUND() {
-    grep -q "rk3576" /proc/device-tree/compatible 2>/dev/null || return 0
-
+SET_MALI_EGL_DRIVER() {
     for MALI_LIBRARY in /usr/lib/libmali.so /usr/lib/aarch64-linux-gnu/libmali.so; do
         if [ -e "$MALI_LIBRARY" ]; then
             export SDL_VIDEO_EGL_DRIVER="$MALI_LIBRARY"
-            break
+            export SDL_OPENGL_ES_DRIVER=1
+            return 0
         fi
     done
-
-    export SDL_OPENGL_ES_DRIVER=1
 }
 
 START_LOVE() {
@@ -62,8 +59,8 @@ if command -v SETUP_APP >/dev/null 2>&1; then
 
     SET_LOVE_ENVIRONMENT
 
-    # Workaround for RK3576 devices (Vita Pro etc.)
-    SET_RK3576_WORKAROUND
+    # Point SDL at the Mali EGL driver, past the bundled libglvnd
+    SET_MALI_EGL_DRIVER
 
     START_LOVE
 
@@ -96,8 +93,8 @@ else
 
     cd "$APP_GAME_DIRECTORY" || exit
 
-    # Workaround for RK3576 devices (Vita Pro etc.)
-    SET_RK3576_WORKAROUND
+    # Point SDL at the Mali EGL driver, past the bundled libglvnd
+    SET_MALI_EGL_DRIVER
 
     START_LOVE
 fi

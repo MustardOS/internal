@@ -2,8 +2,6 @@
 
 . /opt/muos/script/var/func.sh
 
-export XDG_RUNTIME_DIR=/run
-
 case "$(GET_VAR "device" "board/name")" in
     rk-pixel-2)
         echo 86 > /sys/class/gpio/export 2>/dev/null
@@ -17,8 +15,6 @@ case "$(GET_VAR "device" "board/name")" in
                 else
                     amixer -c 0 sset 'Playback Path' SPK
                 fi
-                wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
-                wpctl set-volume @DEFAULT_AUDIO_SINK@ 1.0
                 LAST="$VAL"
             fi
             sleep 0.3

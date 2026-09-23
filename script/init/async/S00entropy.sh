@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+
 ENTROPY_FILE="/proc/sys/kernel/random/entropy_avail"
 ENTROPY_TARGET=256
 

@@ -6,9 +6,9 @@
 SETUP_STAGE_OVERLAY
 SETUP_SDL_ENVIRONMENT
 
-SET_VAR "system" "foreground_process" "muterm"
+SET_VAR "system" "foreground_process" "muxterm"
 
 TERM_CFG_DIR="/opt/muos/share/info/config/Terminal"
 mkdir -p "$TERM_CFG_DIR"
 
-/opt/muos/bin/muterm --gl -c "$TERM_CFG_DIR"/"$NAME".conf -- "$FILE"
+/opt/muos/frontend/muxterm --gl -c "$TERM_CFG_DIR"/"$NAME".conf -- "$FILE"

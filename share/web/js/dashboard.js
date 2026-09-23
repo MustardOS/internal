@@ -47,7 +47,7 @@
         mupen64plus: "Mupen64Plus",
         ppsspp: "PPSSPP",
         scummvm: "ScummVM",
-        muterm: "Terminal",
+        muxterm: "Terminal",
         external: "External application"
     };
 

@@ -164,6 +164,10 @@ while :; do
 		info) EXEC_MUX "info" "muxfrontend" ;;
 
 		credits) /opt/muos/frontend/mucredits ;;
+		terminal)
+			/opt/muos/frontend/muxterm
+			SAFE_WRITE "appmenu" "$ACT_GO"
+			;;
 		reboot) exec /opt/muos/script/mux/quit.sh reboot frontend ;;
 		shutdown) exec /opt/muos/script/mux/quit.sh poweroff frontend ;;
 

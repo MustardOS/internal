@@ -19,7 +19,7 @@ printf "${CMD}BATTERY${DESC}  [stop | start]\tBattery services${RESET}\n"
 printf "${DESC}----------------${RESET}\n"
 printf "${CMD}CAFFEINE${DESC} [on | off] Toggle sleep functionality${RESET}\n\n"
 
-if IS_MUTERM; then
+if [ "${IS_MUTERM:-0}" -eq 1 ]; then
     printf "\033[0;33mPress Start/Enter to continue...\033[0m"
     IFS= read -r _
 

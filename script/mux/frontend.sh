@@ -164,8 +164,8 @@ while :; do
 		info) EXEC_MUX "info" "muxfrontend" ;;
 
 		credits) /opt/muos/frontend/mucredits ;;
-		reboot) /opt/muos/script/mux/quit.sh reboot frontend ;;
-		shutdown) /opt/muos/script/mux/quit.sh poweroff frontend ;;
+		reboot) exec /opt/muos/script/mux/quit.sh reboot frontend ;;
+		shutdown) exec /opt/muos/script/mux/quit.sh poweroff frontend ;;
 
 		*)
 			LOG_WARN "$0" 0 "FRONTEND" "Unknown action: $ACTION"

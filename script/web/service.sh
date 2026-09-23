@@ -403,8 +403,9 @@ case "$1" in
 		;;
 	stopall)
 		for WEBSRV in $SERVICE_LIST; do
-			MANAGE_WEBSERV stop "$WEBSRV"
+			MANAGE_WEBSERV stop "$WEBSRV" &
 		done
+		wait
 		;;
 	*)
 		for WEBSRV in $SERVICE_LIST; do

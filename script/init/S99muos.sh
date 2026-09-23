@@ -149,10 +149,10 @@ DO_START() {
 	FRONTEND start
 
 	LOG_INFO "$0" 0 "BOOTING" "Starting deferred init scripts"
-	RUN_INIT_DEFERRED "/opt/muos/script/init/async"
+	/opt/muos/script/var/process.sh start init-deferred "$INIT_SELF" deferred-init "/opt/muos/script/init/async"
 
 	LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"
-	/opt/muos/script/system/lowpower.sh &
+	/opt/muos/script/var/process.sh start lowpower /opt/muos/script/system/lowpower.sh
 
 	if [ "$USB_FUNCTION" -ne 0 ]; then
 		LOG_INFO "$0" 0 "BOOTING" "Starting USB Function"
@@ -161,11 +161,16 @@ DO_START() {
 
 	if [ "$FIRST_INIT" -ne 0 ]; then
 		LOG_INFO "$0" 0 "BOOTING" "Starting deferred background maintenance"
-		RUN_FRONTEND_READY_MAINTENANCE "$ROM_MOUNT" "$FIRST_INIT" "${RA_CACHE:-0}" >/dev/null 2>&1 &
+		/opt/muos/script/var/process.sh start boot-maintenance "$INIT_SELF" maintenance-ready \
+			"$ROM_MOUNT" "$FIRST_INIT" "${RA_CACHE:-0}"
 	fi
 }
 
 DO_STOP() {
+	/opt/muos/script/var/process.sh stop-group init-deferred >/dev/null 2>&1
+	/opt/muos/script/var/process.sh stop-group boot-maintenance >/dev/null 2>&1
+	/opt/muos/script/var/process.sh stop lowpower >/dev/null 2>&1
+
 	LOG_INFO "$0" 0 "SHUTDOWN" "Stopping USB Function"
 	/opt/muos/script/system/usb_gadget.sh stop
 
@@ -190,8 +195,14 @@ case "$1" in
 	maintenance)
 		RUN_BOOT_MAINTENANCE "$2" "$3" "$4"
 		;;
+	maintenance-ready)
+		RUN_FRONTEND_READY_MAINTENANCE "$2" "$3" "$4"
+		;;
+	deferred-init)
+		RUN_INIT_DEFERRED "$2"
+		;;
 	*)
-		printf "Usage: %s {start|stop|restart|maintenance ROM_MOUNT FIRST_INIT RA_CACHE}\n" "$0" >&2
+		printf "Usage: %s {start|stop|restart|maintenance|maintenance-ready|deferred-init}\n" "$0" >&2
 		exit 1
 		;;
 esac

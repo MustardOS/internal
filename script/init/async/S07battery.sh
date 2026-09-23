@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+
 BATTERY_USAGE_SCRIPT="/opt/muos/script/system/battery.sh"
 WATCHER_PID_FILE="$MUOS_RUN_DIR/battery_usage/watcher.pid"
 

@@ -428,16 +428,12 @@ DESTROY_DHCPCD() {
 		killall -q dhcpcd udhcpc
 		KILL_WPA TERM
 
-		WAIT_PROCESS_GONE dhcpcd 3
-		WAIT_PROCESS_GONE udhcpc 3
-		WAIT_WPA_GONE 3
+		WAIT_NETWORK_DAEMONS_GONE 3
 
 		if NETWORK_DAEMONS_RUNNING; then
 			killall -9 dhcpcd udhcpc
 			KILL_WPA KILL
-			WAIT_PROCESS_GONE dhcpcd 2
-			WAIT_PROCESS_GONE udhcpc 2
-			WAIT_WPA_GONE 2
+			WAIT_NETWORK_DAEMONS_GONE 2
 		fi
 	fi
 
@@ -559,33 +555,14 @@ KILL_WPA() {
 	done
 }
 
-WAIT_WPA_GONE() {
-	TIMEOUT="${1:-5}"
-	I=0
+WAIT_NETWORK_DAEMONS_GONE() {
+	WAIT_LIMIT=$((${1:-5} * 10))
+	WAIT_COUNT=0
 
-	while [ "$I" -lt "$TIMEOUT" ]; do
-		WPA_RUNNING || return 0
-		I=$((I + 1))
-		sleep 1
-	done
-
-	return 1
-}
-
-WAIT_PROCESS_GONE() {
-	PROC_NAME="$1"
-	TIMEOUT="${2:-5}"
-	I=0
-
-	[ -n "$PROC_NAME" ] || return 0
-
-	while [ "$I" -lt "$TIMEOUT" ]; do
-		if ! pidof "$PROC_NAME" >/dev/null 2>&1; then
-			return 0
-		fi
-
-		I=$((I + 1))
-		sleep 1
+	while [ "$WAIT_COUNT" -lt "$WAIT_LIMIT" ]; do
+		NETWORK_DAEMONS_RUNNING || return 0
+		WAIT_COUNT=$((WAIT_COUNT + 1))
+		sleep 0.1
 	done
 
 	return 1
@@ -1520,12 +1497,12 @@ DO_STOP() {
 	ip link set dev "$IFCE" down
 
 	LOG_INFO "$0" 0 "NETWORK" "Stopping Network Services"
-	/opt/muos/script/web/service.sh stopall &
+	[ "${MUOS_HALT:-0}" -eq 1 ] || /opt/muos/script/web/service.sh stopall
 
 	LOG_INFO "$0" 0 "NETWORK" "Stopping Keepalive Script"
-	killall -9 keepalive.sh &
+	killall -9 keepalive.sh 2>/dev/null
 
-	UNLOAD_MODULE
+	[ "${MUOS_HALT:-0}" -eq 1 ] || UNLOAD_MODULE
 }
 
 DO_STATUS() {

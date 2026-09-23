@@ -30,8 +30,13 @@ INSTALL_BIN() {
 	}
 
 	if [ "$CURRENT_MD5" != "$EXPECTED_MD5" ]; then
-		cp -f "$SRC_BIN" "$TGT_BIN"
-		chmod +x "$TGT_BIN"
+		TGT_TMP=$(mktemp "${TGT_BIN}.XXXXXX") || return 1
+		if cp -f "$SRC_BIN" "$TGT_TMP" && chmod +x "$TGT_TMP" && mv -f "$TGT_TMP" "$TGT_BIN"; then
+			:
+		else
+			rm -f "$TGT_TMP"
+			return 1
+		fi
 	fi
 }
 
@@ -61,8 +66,17 @@ INSTALL_ARCHIVE() {
 	SRC_BIN=$(find "$_INST_TMP" -maxdepth 1 -type f -name "$GLOB" | head -n 1)
 
 	if [ -n "$SRC_BIN" ]; then
-		cp -f "$SRC_BIN" "$TGT_BIN"
-		chmod +x "$TGT_BIN"
+		TGT_TMP=$(mktemp "${TGT_BIN}.XXXXXX") || {
+			rm -rf "$_INST_TMP"
+			return 1
+		}
+		if cp -f "$SRC_BIN" "$TGT_TMP" && chmod +x "$TGT_TMP" && mv -f "$TGT_TMP" "$TGT_BIN"; then
+			:
+		else
+			rm -f "$TGT_TMP"
+			rm -rf "$_INST_TMP"
+			return 1
+		fi
 	else
 		printf "Error: no %s binary found in %s\n" "$GLOB" "$ARCHIVE" >&2
 	fi
@@ -95,6 +109,16 @@ RUN_EMULATOR_MAINTENANCE() {
 	return "$MAINTENANCE_RESULT"
 }
 
+RUN_DEFERRED_EMULATOR_MAINTENANCE() {
+	WAIT_COUNT=0
+	while [ ! -e "$MUOS_RUN_DIR/first_paint" ] && [ "$WAIT_COUNT" -lt 200 ]; do
+		sleep 0.1
+		WAIT_COUNT=$((WAIT_COUNT + 1))
+	done
+	ionice -c idle nice -n 10 "$INIT_SELF" maintenance "$1" ||
+		LOG_WARN "$INIT_SELF" 0 "DEVICE" "Emulator maintenance reported an error"
+}
+
 DO_START() {
 	(
 		if [ "$OVERDRIVE" -eq 1 ]; then
@@ -124,7 +148,7 @@ DO_START() {
 	/opt/muos/script/device/headphone.sh &
 
 	# Follow USB-C headphones and earbuds as they come and go
-	/opt/muos/script/device/usbaudio.sh &
+	/opt/muos/script/var/process.sh start usbaudio /opt/muos/script/device/usbaudio.sh
 
 	# Swap the speaker audio if set
 	/opt/muos/script/device/speaker.sh &
@@ -157,15 +181,7 @@ DO_START() {
 		rk*) EMU_VER="rk" ;;
 	esac
 
-	(
-		WAIT_COUNT=0
-		while [ ! -e "$MUOS_RUN_DIR/first_paint" ] && [ "$WAIT_COUNT" -lt 200 ]; do
-			sleep 0.1
-			WAIT_COUNT=$((WAIT_COUNT + 1))
-		done
-		ionice -c idle nice -n 10 "$INIT_SELF" maintenance "$EMU_VER" ||
-			LOG_WARN "$INIT_SELF" 0 "DEVICE" "Emulator maintenance reported an error"
-	) >/dev/null 2>&1 &
+	/opt/muos/script/var/process.sh start device-maintenance "$INIT_SELF" maintenance-ready "$EMU_VER"
 }
 
 case "$1" in
@@ -173,7 +189,24 @@ case "$1" in
 		DO_START
 		;;
 	stop)
-		# Hardware state set during start is not reversible at runtime
+		/opt/muos/script/var/process.sh stop-group device-maintenance >/dev/null 2>&1
+		/opt/muos/script/var/process.sh stop usbaudio >/dev/null 2>&1
+		if [ -r "$MUOS_RUN_DIR/usbaudio.pid" ]; then
+			IFS= read -r USB_AUDIO_PID <"$MUOS_RUN_DIR/usbaudio.pid"
+			case "$USB_AUDIO_PID" in
+				'' | *[!0-9]*) ;;
+				*)
+					kill -TERM "$USB_AUDIO_PID" 2>/dev/null
+					USB_AUDIO_WAIT=0
+					while kill -0 "$USB_AUDIO_PID" 2>/dev/null && [ "$USB_AUDIO_WAIT" -lt 10 ]; do
+						sleep 0.1
+						USB_AUDIO_WAIT=$((USB_AUDIO_WAIT + 1))
+					done
+					kill -KILL "$USB_AUDIO_PID" 2>/dev/null
+					;;
+			esac
+			rm -f "$MUOS_RUN_DIR/usbaudio.pid"
+		fi
 		;;
 	restart)
 		DO_START
@@ -181,8 +214,11 @@ case "$1" in
 	maintenance)
 		RUN_EMULATOR_MAINTENANCE "$2"
 		;;
+	maintenance-ready)
+		RUN_DEFERRED_EMULATOR_MAINTENANCE "$2"
+		;;
 	*)
-		printf "Usage: %s {start|stop|restart|maintenance EMULATOR_VARIANT}\n" "$0" >&2
+		printf "Usage: %s {start|stop|restart|maintenance|maintenance-ready EMULATOR_VARIANT}\n" "$0" >&2
 		exit 1
 		;;
 esac

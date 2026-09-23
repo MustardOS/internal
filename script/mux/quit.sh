@@ -113,6 +113,7 @@ HALT_SYSTEM() {
 	case "$HALT_SRC" in
 		osf)
 			DISPLAY_BLANK
+			CLOSE_CONTENT
 			CLEAR_LAST_PLAY
 			;;
 		sleep)
@@ -121,8 +122,6 @@ HALT_SYSTEM() {
 			;;
 	esac
 
-	# Avoid hangups from syncthing if it's running.
-	TERMINATE_SYNCTHING
 }
 
 [ "$#" -eq 2 ] || [ "$#" -eq 3 ] || USAGE
@@ -142,7 +141,7 @@ case "$1" in
 		WAIT_ACTION
 		[ -f "/tmp/btl_go" ] && UPDATE_BOOTLOGO
 		HALT_SYSTEM "$1" "$2"
-		sync && /opt/muos/script/system/halt.sh "$1"
+		exec /opt/muos/script/system/halt.sh "$1"
 		;;
 	*) USAGE ;;
 esac

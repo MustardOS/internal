@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 GOVERNOR=$(GET_VAR "device" "cpu/governor")
 DEBUG_FS=$(GET_VAR "device" "board/debugfs")

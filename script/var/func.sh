@@ -724,6 +724,12 @@ FRONTEND() {
 
 			if FRONTEND_RUNNING; then
 				SIGNAL_FRONTEND KILL
+
+				K=20
+				while FRONTEND_RUNNING && [ "$K" -gt 0 ]; do
+					sleep 0.1
+					K=$((K - 1))
+				done
 			fi
 			;;
 		start)
@@ -2015,6 +2021,8 @@ UPDATE_BOOTLOGO() {
 
 SHOW_SPLASH() {
 	ROLE="${1:-load}"
+	READY_PATH="${2:-}"
+	EXEC_MODE="${3:-0}"
 
 	SPLASH_BIN="/opt/muos/frontend/musplash"
 	[ -x "$SPLASH_BIN" ] || return 1
@@ -2125,6 +2133,10 @@ EOF
 	[ -z "$BACKGROUND_GRADIENT_COLOUR" ] && BACKGROUND_GRADIENT_COLOUR="$BACKGROUND_COLOUR"
 
 	set -- -r "$ROTATE" -s "$SCALE" -g "${BACKGROUND_COLOUR}:${BACKGROUND_GRADIENT_COLOUR}"
+	[ -n "$READY_PATH" ] && set -- "$@" -n "$READY_PATH"
+
+	# Always leave a trace, and not as a .log since boot wipes those before it can be read
+	set -- "$@" -l "$MUOS_LOG_DIR/musplash.trace"
 
 	if [ "$PNG_RECOLOUR_ALPHA" -gt 0 ]; then
 		set -- "$@" -t "$PNG_RECOLOUR" -a "$PNG_RECOLOUR_ALPHA"
@@ -2143,6 +2155,7 @@ EOF
 		"$MUOS_SHARE_DIR/media/splash/$RES_DIR/$ROLE.png" \
 		"$MUOS_SHARE_DIR/media/splash/$ROLE.png"; do
 		if [ -f "$SRC" ]; then
+			[ "$EXEC_MODE" -eq 1 ] 2>/dev/null && exec "$SPLASH_BIN" -i "$SRC" -w "$@"
 			"$SPLASH_BIN" -i "$SRC" "$@"
 			return $?
 		fi
@@ -2232,10 +2245,10 @@ RESTORE_CPU_GOV() {
 	fi
 }
 
-IS_MUTERM() {
+IS_MUXTERM() {
 	COMM=
 	read -r COMM </proc/$PPID/comm 2>/dev/null
-	[ "$COMM" = "muterm" ]
+	[ "$COMM" = "muxterm" ]
 }
 
 FBCON_DISABLE() {
@@ -2388,24 +2401,22 @@ RUN_INIT_DEFERRED() {
 
 	[ -d "$INIT_DEFER_DIR" ] || return 0
 
-	(
-		INIT_DEFER_WAIT=0
-		while [ "$INIT_DEFER_WAIT" -lt 150 ]; do
-			pgrep -f "$FRONTEND_BIN" >/dev/null 2>&1 && break
-			pgrep -f "$LAUNCH_SCRIPT" >/dev/null 2>&1 && break
-			sleep 0.1
-			INIT_DEFER_WAIT=$((INIT_DEFER_WAIT + 1))
-		done
+	INIT_DEFER_WAIT=0
+	while [ "$INIT_DEFER_WAIT" -lt 150 ]; do
+		pgrep -f "$FRONTEND_BIN" >/dev/null 2>&1 && break
+		pgrep -f "$LAUNCH_SCRIPT" >/dev/null 2>&1 && break
+		sleep 0.1
+		INIT_DEFER_WAIT=$((INIT_DEFER_WAIT + 1))
+	done
 
-		sleep "${MUOS_INIT_DEFER_SETTLE:-3}"
+	sleep "${MUOS_INIT_DEFER_SETTLE:-3}"
 
-		for INIT_DEFER in $MUOS_INIT_DEFERRED; do
-			[ -f "$INIT_DEFER_DIR/$INIT_DEFER" ] || continue
-			(RUN_INIT_RECORDED start "$INIT_DEFER_DIR/$INIT_DEFER") >/dev/null 2>&1 &
-		done
+	for INIT_DEFER in $MUOS_INIT_DEFERRED; do
+		[ -f "$INIT_DEFER_DIR/$INIT_DEFER" ] || continue
+		(RUN_INIT_RECORDED start "$INIT_DEFER_DIR/$INIT_DEFER") >/dev/null 2>&1 &
+	done
 
-		wait
-	) &
+	wait
 }
 
 RUN_INIT_SCRIPT() {

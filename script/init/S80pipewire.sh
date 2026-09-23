@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+
 PF_INTERNAL=$(GET_VAR "device" "audio/pf_internal")
 PF_EXTERNAL=$(GET_VAR "device" "audio/pf_external")
 
@@ -75,7 +77,6 @@ RESTORE_CONF() {
 
 	cp -f "$SRC" "$DST"
 }
-
 GET_TARGET_NODE() {
 	if [ "${BOOT_CONSOLE_MODE:-0}" -eq 1 ]; then
 		printf "%s\n" "$PF_EXTERNAL"
@@ -412,6 +413,9 @@ DO_START() {
 	LOG_INFO "$0" 0 "PIPEWIRE" "Restoring ALSA Config"
 	RESTORE_CONF "$MUOS_SHARE_DIR/conf/rootfs/alsa.conf" "/usr/share/alsa/alsa.conf"
 
+	LOG_INFO "$0" 0 "PIPEWIRE" "Restoring Audio State"
+	alsactl -U -f "$DEVICE_CONTROL_DIR/asound.state" restore >/dev/null 2>&1
+
 	if ! START_PIPEWIRE; then
 		LOG_ERROR "$0" 0 "PIPEWIRE" "Failed to start"
 		[ "${ADV_AR:-0}" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
@@ -428,9 +432,6 @@ DO_START() {
 
 	LOG_SUCCESS "$0" 0 "PIPEWIRE" "$(printf "PipeWire socket is available (%s)" "$PW_SOCKET")"
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 >/dev/null 2>&1
-
-	LOG_INFO "$0" 0 "PIPEWIRE" "Restoring Audio State"
-	alsactl -U -f "$DEVICE_CONTROL_DIR/asound.state" restore >/dev/null 2>&1
 
 	ENSURE_AUDIO_OUTPUT 0
 
@@ -450,9 +451,9 @@ DO_STOP() {
 	LOG_INFO "$0" 0 "PIPEWIRE" "Audio shutdown sequence..."
 
 	if SOCKET_READY; then
+		alsactl -U -f "$DEVICE_CONTROL_DIR/asound.state" store >/dev/null 2>&1
 		wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 >/dev/null 2>&1
 		sleep 0.1
-		alsactl -U -f "$DEVICE_CONTROL_DIR/asound.state" store >/dev/null 2>&1
 	fi
 
 	STOP_PROC wireplumber

@@ -1,6 +1,8 @@
 #!/bin/sh
 # shellcheck source=/dev/null
 
+[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+
 UDEV_CONFIG="/etc/udev/udev.conf"
 test -r "$UDEV_CONFIG" || exit 6
 . "$UDEV_CONFIG"

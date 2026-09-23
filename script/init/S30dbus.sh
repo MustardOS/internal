@@ -1,5 +1,7 @@
 #!/bin/sh
 
+[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+
 PIDFILE="/run/messagebus.pid"
 LOCKFILE="/var/lock/subsys/dbus-daemon"
 BT_DBUS_CONF_SRC="/opt/muos/share/conf/rootfs/bluetooth.conf"

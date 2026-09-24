@@ -4,6 +4,14 @@
 
 PF_INTERNAL=$(GET_VAR "device" "audio/pf_internal")
 PF_EXTERNAL=$(GET_VAR "device" "audio/pf_external")
+BOARD_NAME=$(GET_VAR "device" "board/name")
+
+SPEAKER_GPIO=
+case "$BOARD_NAME" in
+	tui-brick | tui-brick-pro | tui-spoon) SPEAKER_GPIO=230 ;;
+esac
+
+SPEAKER_GPIO_PATH="/sys/class/gpio/gpio${SPEAKER_GPIO}"
 
 BOARD_HDMI=$(GET_VAR "device" "board/hdmi")
 if [ "${BOARD_HDMI:-0}" -eq 1 ]; then
@@ -63,7 +71,13 @@ WAIT_UNTIL() {
 
 WAIT_PROC_GONE() {
 	NAME=$1
-	WAIT_UNTIL PROC_RUNNING "$NAME" && return 1
+	ELAPSED=0
+
+	while PROC_RUNNING "$NAME"; do
+		[ "$ELAPSED" -ge "$TIMEOUT" ] && return 1
+		sleep 0.1
+		ELAPSED=$((ELAPSED + INTERVAL))
+	done
 
 	return 0
 }
@@ -77,6 +91,48 @@ RESTORE_CONF() {
 
 	cp -f "$SRC" "$DST"
 }
+
+PRIME_AUDIO_OUTPUT() {
+	command -v aplay >/dev/null 2>&1 || return 1
+	aplay -q -D pipewire -t raw -f S16_LE -r 48000 -c 2 -s 240000 /dev/zero >/dev/null 2>&1 &
+	AUDIO_PRIME_PID=$!
+	sleep 0.5
+	kill -0 "$AUDIO_PRIME_PID" 2>/dev/null
+}
+
+SETUP_SPEAKER_AMP() {
+	[ -n "$SPEAKER_GPIO" ] || return 0
+
+	if [ ! -d "$SPEAKER_GPIO_PATH" ]; then
+		printf "%s\n" "$SPEAKER_GPIO" >/sys/class/gpio/export 2>/dev/null || return 1
+
+		AMP_WAIT=0
+		while [ ! -d "$SPEAKER_GPIO_PATH" ] && [ "$AMP_WAIT" -lt 20 ]; do
+			sleep 0.01
+			AMP_WAIT=$((AMP_WAIT + 1))
+		done
+	fi
+
+	[ -w "$SPEAKER_GPIO_PATH/direction" ] || return 1
+	printf "low\n" >"$SPEAKER_GPIO_PATH/direction" 2>/dev/null || {
+		printf "out\n" >"$SPEAKER_GPIO_PATH/direction" 2>/dev/null || return 1
+		printf "0\n" >"$SPEAKER_GPIO_PATH/value" 2>/dev/null || return 1
+	}
+}
+
+SET_SPEAKER_AMP() {
+	[ -n "$SPEAKER_GPIO" ] || return 0
+	[ -w "$SPEAKER_GPIO_PATH/value" ] || return 1
+	printf "%s\n" "$1" >"$SPEAKER_GPIO_PATH/value"
+}
+
+DEFAULT_SINK_IS_INTERNAL() {
+	[ -n "$PF_INTERNAL" ] || return 1
+	DEFAULT_SINK_NAME=$(wpctl inspect @DEFAULT_AUDIO_SINK@ 2>/dev/null |
+		sed -n 's/.*node\.name = "\([^"]*\)".*/\1/p' | head -1)
+	[ "$DEFAULT_SINK_NAME" = "$PF_INTERNAL" ]
+}
+
 GET_TARGET_NODE() {
 	if [ "${BOOT_CONSOLE_MODE:-0}" -eq 1 ]; then
 		printf "%s\n" "$PF_EXTERNAL"
@@ -407,6 +463,8 @@ FINALISE_AUDIO() {
 DO_START() {
 	[ "${ADV_AR:-0}" -eq 1 ] && SET_VAR "device" "audio/ready" "0"
 
+	SETUP_SPEAKER_AMP || LOG_WARN "$0" 0 "PIPEWIRE" "Unable to initialise the speaker amplifier"
+
 	LOG_INFO "$0" 0 "PIPEWIRE" "Restoring Default Sound System"
 	RESTORE_CONF "$MUOS_SHARE_DIR/conf/rootfs/asound.conf" "/etc/asound.conf"
 
@@ -447,14 +505,52 @@ DO_START() {
 	exit 0
 }
 
+DO_PRIME() {
+	case "$(GET_VAR "device" "board/name")" in
+		tui*) ;;
+		*) exit 0 ;;
+	esac
+
+	if ! SOCKET_READY; then
+		LOG_WARN "$0" 0 "PIPEWIRE" "Audio output priming skipped because PipeWire is unavailable"
+		exit 1
+	fi
+
+	if ! DEFAULT_SINK_IS_INTERNAL; then
+		SET_SPEAKER_AMP 0 || LOG_WARN "$0" 0 "PIPEWIRE" "Unable to disable the speaker amplifier"
+		exit 0
+	fi
+
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 >/dev/null 2>&1
+	wpctl set-volume @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1
+	RESET_MIXER
+
+	if ! PRIME_AUDIO_OUTPUT; then
+		LOG_WARN "$0" 0 "PIPEWIRE" "Audio output priming did not complete"
+		FINALISE_AUDIO 1 >/dev/null 2>&1
+		exit 1
+	fi
+
+	SET_SPEAKER_AMP 1 || LOG_WARN "$0" 0 "PIPEWIRE" "Unable to enable the speaker amplifier"
+
+	FINALISE_AUDIO 1 || exit 1
+}
+
+DO_SPEAKER_OFF() {
+	SETUP_SPEAKER_AMP || exit 1
+	SET_SPEAKER_AMP 0
+}
+
 DO_STOP() {
 	LOG_INFO "$0" 0 "PIPEWIRE" "Audio shutdown sequence..."
 
 	if SOCKET_READY; then
 		alsactl -U -f "$DEVICE_CONTROL_DIR/asound.state" store >/dev/null 2>&1
 		wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 >/dev/null 2>&1
-		sleep 0.1
 	fi
+
+	SET_SPEAKER_AMP 0 || LOG_WARN "$0" 0 "PIPEWIRE" "Unable to disable the speaker amplifier"
+	sleep 0.1
 
 	STOP_PROC wireplumber
 	STOP_PROC pipewire
@@ -522,12 +618,14 @@ case "${1:-}" in
 		DO_START
 		;;
 	reload) DO_RELOAD ;;
+	prime) DO_PRIME ;;
+	speaker-off) DO_SPEAKER_OFF ;;
 	status)
 		PRINT_STATUS
 		exit "$?"
 		;;
 	*)
-		printf "Usage: %s {start|stop|restart|reload|status}\n" "$0"
+		printf "Usage: %s {start|stop|restart|reload|prime|speaker-off|status}\n" "$0"
 		exit 1
 		;;
 esac

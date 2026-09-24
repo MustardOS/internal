@@ -42,6 +42,13 @@ if IS_ONE "$AUDIO_READY"; then
 	WAIT_FOR_AUDIO_READY "$AUDIO_WAIT_MAX"
 fi
 
+case "$BOARD_NAME" in
+	tui*)
+		/opt/muos/script/init/S80pipewire.sh prime ||
+			LOG_WARN "$0" 0 "FRONTEND" "Audio output priming did not complete"
+		;;
+esac
+
 LED_CONTROL_CHANGE restore &
 
 if [ "$SKIP" = "0" ] && ! IN_SAFE_MODE; then

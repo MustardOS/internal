@@ -7,6 +7,23 @@ LOG_INFO "$0" 0 "AUDIOSINK" "Audio sink manager starting"
 AUDIO_SINKS="$MUOS_RUN_DIR/audio_sinks"
 AUDIO_SINKS_RAW="$MUOS_RUN_DIR/audio_sinks_raw"
 PW_SOCKET="${PIPEWIRE_RUNTIME_DIR:-/run}/pipewire-0"
+BOARD_NAME=$(GET_VAR "device" "board/name")
+
+SPEAKER_OFF() {
+	case "$BOARD_NAME" in
+		tui-brick | tui-brick-pro | tui-spoon)
+			/opt/muos/script/init/S80pipewire.sh speaker-off >/dev/null 2>&1 || :
+			;;
+	esac
+}
+
+SPEAKER_SYNC() {
+	case "$BOARD_NAME" in
+		tui-brick | tui-brick-pro | tui-spoon)
+			/opt/muos/script/init/S80pipewire.sh prime >/dev/null 2>&1 || :
+			;;
+	esac
+}
 
 PIPEWIRE_READY() {
 	[ -S "$PW_SOCKET" ] && pw-cli info 0 >/dev/null 2>&1
@@ -127,6 +144,7 @@ DO_SET() {
 	SINK_NAME=$(printf "%s" "$LINE" | cut -f2-)
 
 	LOG_INFO "$0" 0 "AUDIOSINK" "$(printf "Setting default sink to '%s' (id=%s)" "$SINK_NAME" "$NODE_ID")"
+	SPEAKER_OFF
 
 	if wpctl set-default "$NODE_ID" >/dev/null 2>&1; then
 		LOG_SUCCESS "$0" 0 "AUDIOSINK" "$(printf "Default sink set to '%s'" "$SINK_NAME")"
@@ -137,6 +155,7 @@ DO_SET() {
 
 	LOAD_SINK_VOLUME "$SINK_NAME"
 	RESTORE_AUDIO_VOLUME
+	SPEAKER_SYNC
 }
 
 DO_SET_BT() {
@@ -183,6 +202,7 @@ DO_SET_BT() {
 
 	LOG_INFO "$0" 0 "AUDIOSINK" "$(printf "Setting BT audio sink for '%s' (id=%s)" "$MAC" "$NODE_ID")"
 
+	SPEAKER_OFF
 	wpctl set-default "$NODE_ID" >/dev/null 2>&1
 	SAVE_ACTIVE_SINK "$NODE_ID"
 
@@ -192,6 +212,7 @@ DO_SET_BT() {
 	# starts at its own default level, not the configured system volume.
 	sleep 1
 	RESTORE_AUDIO_VOLUME
+	SPEAKER_SYNC
 
 	LOG_SUCCESS "$0" 0 "AUDIOSINK" "$(printf "BT audio sink active for '%s' (id=%s)" "$MAC" "$NODE_ID")"
 }
@@ -226,11 +247,13 @@ DO_SET_BUILTIN() {
 
 	LOG_INFO "$0" 0 "AUDIOSINK" "$(printf "Reverting to default sink (id=%s)" "$NODE_ID")"
 
+	SPEAKER_OFF
 	wpctl set-default "$NODE_ID" >/dev/null 2>&1
 	SAVE_ACTIVE_SINK "$NODE_ID"
 
 	LOAD_SINK_VOLUME
 	RESTORE_AUDIO_VOLUME
+	SPEAKER_SYNC
 
 	LOG_SUCCESS "$0" 0 "AUDIOSINK" "$(printf "Reverted to default sink (id=%s)" "$NODE_ID")"
 }

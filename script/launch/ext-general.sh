@@ -10,11 +10,7 @@ fi
 IS_32BIT=0
 grep -q '^[[:space:]]*[^#]*PORT_32BIT="Y"' "$FILE" && IS_32BIT=1
 
-if [ "$IS_32BIT" -eq 1 ]; then
-	SETUP_SDL_ENVIRONMENT keep_cursor
-else
-	SETUP_SDL_ENVIRONMENT
-fi
+SETUP_SDL_ENVIRONMENT keep_cursor
 
 SET_VAR "system" "foreground_process" "external"
 

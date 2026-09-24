@@ -2,6 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
+[ -z "$1" ] && exit 0
+
 mkdir -p "$MUOS_RUN_DIR"
 exec 9>"$MUOS_RUN_DIR/brightness.lock"
 flock -x 9 # of seagulls

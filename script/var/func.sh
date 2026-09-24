@@ -539,18 +539,37 @@ SYNC_CPU_IDLE() {
 		IDLE_OFF=0
 	fi
 
-	for IDLE_STATE in /sys/devices/system/cpu/cpu*/cpuidle/state*/disable; do
-		[ -w "$IDLE_STATE" ] || continue
+	for CPU_IDLE_STATE in /sys/devices/system/cpu/cpu*/cpuidle/state*/disable; do
+		[ -w "$CPU_IDLE_STATE" ] || continue
 
-		case "$IDLE_STATE" in
+		case "$CPU_IDLE_STATE" in
 			*/state0/*) continue ;;
 		esac
 
-		printf "%s" "$IDLE_OFF" >"$IDLE_STATE" 2>/dev/null
+		printf "%s" "$IDLE_OFF" >"$CPU_IDLE_STATE" 2>/dev/null
 	done
 
 	LOG_DEBUG "$0" 0 "FRONTEND" "$(printf "Deep CPU idle %s for governor '%s'" \
 		"$([ "$IDLE_OFF" -eq 1 ] && echo disabled || echo enabled)" "$GOV")"
+}
+
+# Only boards that name their memory devfreq node in board/dmc are touched.
+SYNC_DMC_FREQUENCY() {
+	GOV="$1"
+	DMC_DEV="$(GET_VAR "device" "board/dmc")"
+	DMC_SAVED="$MUOS_RUN_DIR/dmc_governor"
+
+	[ -n "$DMC_DEV" ] && [ -w "$DMC_DEV/governor" ] || return 0
+
+	if [ "$GOV" = "performance" ]; then
+		[ -s "$DMC_SAVED" ] || cat "$DMC_DEV/governor" >"$DMC_SAVED"
+		printf "performance" >"$DMC_DEV/governor"
+	elif [ -s "$DMC_SAVED" ]; then
+		cat "$DMC_SAVED" >"$DMC_DEV/governor"
+		rm -f "$DMC_SAVED"
+	fi
+
+	LOG_DEBUG "$0" 0 "FRONTEND" "$(printf "Memory governor '%s' for governor '%s'" "$(cat "$DMC_DEV/governor")" "$GOV")"
 }
 
 SYNC_CPU_CORES() {
@@ -625,6 +644,11 @@ SET_DEFAULT_GOVERNOR() {
 		printf "%s" "$DEF_GOV" >"$GOV_PATH"
 		SYNC_GPU_FREQUENCY "$DEF_GOV"
 		SYNC_CPU_IDLE "$DEF_GOV"
+		SYNC_DMC_FREQUENCY "$DEF_GOV"
+
+		# Anything a crashed or interrupted session left pinned is released above,
+		# so an idle wake must not pin it again.
+		rm -f "$MUOS_RUN_DIR/idle_devfreq"
 
 		CPU_PATH=$(dirname "$GOV_PATH")
 
@@ -1433,6 +1457,17 @@ DISPLAY_IDLE() {
 	printf 1 >"$IDLE_STATE"
 
 	: >"$IS_IDLE"
+
+	# muhotkey has dropped the CPU to the idle governor, so release the clocks a
+	# performance session pinned alongside it and remember to pin them again.
+	if [ -s "$MUOS_RUN_DIR/dmc_governor" ]; then
+		: >"$MUOS_RUN_DIR/idle_devfreq"
+		(
+			SYNC_GPU_FREQUENCY powersave
+			SYNC_CPU_IDLE powersave
+			SYNC_DMC_FREQUENCY powersave
+		)
+	fi
 }
 
 DISPLAY_ACTIVE() {
@@ -1445,6 +1480,15 @@ DISPLAY_ACTIVE() {
 	printf 0 >"$IDLE_STATE"
 
 	[ -e "$IS_IDLE" ] && rm -f "$IS_IDLE"
+
+	if [ -e "$MUOS_RUN_DIR/idle_devfreq" ]; then
+		rm -f "$MUOS_RUN_DIR/idle_devfreq"
+		(
+			SYNC_GPU_FREQUENCY performance
+			SYNC_CPU_IDLE performance
+			SYNC_DMC_FREQUENCY performance
+		)
+	fi
 }
 
 LCD_DISABLE() {

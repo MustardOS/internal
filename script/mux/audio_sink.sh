@@ -83,8 +83,11 @@ DO_LIST() {
 
 	TAB=$(printf '\t')
 	CONSOLE_MODE=$(GET_VAR "config" "boot/device_mode")
+	PF_INTERNAL=$(GET_VAR "device" "audio/pf_internal")
+	TMP_BUILTIN="$MUOS_RUN_DIR/audio_builtin.tmp.$$"
+	: >"$TMP_BUILTIN"
 
-	pw-dump 2>/dev/null | jq -r '
+	pw-dump 2>/dev/null | jq -r --arg pf "$PF_INTERNAL" '
 		.[] |
 		select(.type == "PipeWire:Interface:Node") |
 		select(.info.props["media.class"] == "Audio/Sink") |
@@ -96,10 +99,12 @@ DO_LIST() {
 			| ascii_downcase | contains("hdmi")
 		) as $is_hdmi |
 		(if $is_hdmi then "HDMI Audio" else $desc end) as $label |
-		[(.id | tostring), $label] |
+		(if (.info.props["node.name"] // "") == $pf then "1" else "0" end) as $builtin |
+		[(.id | tostring), $label, $builtin] |
 		join("\t")
-	' 2>/dev/null | while IFS="$TAB" read -r ID NAME; do
+	' 2>/dev/null | while IFS="$TAB" read -r ID NAME BUILTIN; do
 		[ -z "$ID" ] && continue
+		[ "$BUILTIN" = "1" ] && printf "%s\n" "$NAME" >"$TMP_BUILTIN"
 		# HDMI audio is only valid in console (HDMI output) mode
 		[ "${CONSOLE_MODE:-0}" -ne 1 ] && [ "$NAME" = "HDMI Audio" ] && continue
 		printf "%s\n" "$NAME" >>"$TMP_SINKS"
@@ -108,6 +113,7 @@ DO_LIST() {
 
 	mv -f "$TMP_SINKS" "$AUDIO_SINKS"
 	mv -f "$TMP_SINKS_RAW" "$AUDIO_SINKS_RAW"
+	mv -f "$TMP_BUILTIN" "$AUDIO_BUILTIN_FILE"
 
 	SYNC_ACTIVE_INDEX
 

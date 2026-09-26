@@ -150,6 +150,17 @@ mkdir -p "$SPLASH_DIR"
 chmod 700 "$SPLASH_DIR"
 rm -f "$SPLASH_READY"
 
+if [ "$BOARD_NAME" = "rk-g350-v" ]; then
+	G350_DISPLAY_HOLD="/lib/modules/$(uname -r)/extra/disphold.ko"
+	if grep -q '^disphold ' /proc/modules 2>/dev/null; then
+		LOG_INFO "$0" 0 "HALT" "G350 display shutdown hold already active"
+	elif [ -r "$G350_DISPLAY_HOLD" ] && insmod "$G350_DISPLAY_HOLD"; then
+		LOG_INFO "$0" 0 "HALT" "G350 display shutdown hold active"
+	else
+		LOG_WARN "$0" 0 "HALT" "G350 display shutdown hold unavailable"
+	fi
+fi
+
 LOG_INFO "$0" 0 "HALT" "Drawing splash"
 (SHOW_SPLASH "$SPLASH_ROLE" "$SPLASH_READY" 1) &
 SPLASH_PID=$!
@@ -184,17 +195,6 @@ if [ -z "$SPLASH_STATE" ] || [ "$SPLASH_STATE" = Z ]; then
 	wait "$SPLASH_PID" 2>/dev/null
 fi
 rm -f "$SPLASH_READY"
-
-if [ "$BOARD_NAME" = "rk-g350-v" ]; then
-	G350_DISPLAY_HOLD="/lib/modules/$(uname -r)/extra/disphold.ko"
-	if grep -q '^disphold ' /proc/modules 2>/dev/null; then
-		LOG_INFO "$0" 0 "HALT" "G350 display shutdown hold already active"
-	elif [ -r "$G350_DISPLAY_HOLD" ] && insmod "$G350_DISPLAY_HOLD"; then
-		LOG_INFO "$0" 0 "HALT" "G350 display shutdown hold active"
-	else
-		LOG_WARN "$0" 0 "HALT" "G350 display shutdown hold unavailable"
-	fi
-fi
 
 LOG_INFO "$0" 0 "HALT" "Stopping web services"
 RUN_WITH_TIMEOUT 5 1 /opt/muos/script/web/service.sh stopall >/dev/null 2>&1

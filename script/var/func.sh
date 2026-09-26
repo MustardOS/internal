@@ -373,10 +373,24 @@ SET_SAVED_AUDIO_VOLUME() {
 }
 
 AUDIO_VOLUME_DIR="/opt/muos/share/volume"
+AUDIO_BUILTIN_FILE="$MUOS_RUN_DIR/audio_builtin"
+HEADPHONE_FLAG="$MUOS_RUN_DIR/headphones"
 
 AUDIO_SINK_SLOT() {
 	[ -e "$1" ] && return 1
 	/opt/muos/bin/fnv1a "$1"
+}
+
+OUTPUT_VOLUME_NAME() {
+	OUT_NAME=$1
+
+	if [ -e "$HEADPHONE_FLAG" ] && [ -r "$AUDIO_BUILTIN_FILE" ]; then
+		BUILTIN_NAME=
+		read -r BUILTIN_NAME <"$AUDIO_BUILTIN_FILE"
+		[ -n "$OUT_NAME" ] && [ "$OUT_NAME" = "$BUILTIN_NAME" ] && OUT_NAME="$OUT_NAME (Headphones)"
+	fi
+
+	printf "%s\n" "$OUT_NAME"
 }
 
 CURRENT_SINK_NAME() {
@@ -387,7 +401,7 @@ CURRENT_SINK_NAME() {
 }
 
 SAVE_SINK_VOLUME() {
-	NAME=$(CURRENT_SINK_NAME)
+	NAME=$(OUTPUT_VOLUME_NAME "$(CURRENT_SINK_NAME)")
 	[ -n "$NAME" ] || return 1
 
 	SLOT=$(AUDIO_SINK_SLOT "$NAME")
@@ -402,6 +416,7 @@ SAVE_SINK_VOLUME() {
 LOAD_SINK_VOLUME() {
 	NAME=$1
 	[ -n "$NAME" ] || NAME=$(CURRENT_SINK_NAME)
+	NAME=$(OUTPUT_VOLUME_NAME "$NAME")
 	[ -n "$NAME" ] || return 1
 
 	SLOT=$(AUDIO_SINK_SLOT "$NAME")
@@ -2229,7 +2244,6 @@ EOF
 
 	set -- -r "$ROTATE" -s "$SCALE" -g "${BACKGROUND_COLOUR}:${BACKGROUND_GRADIENT_COLOUR}"
 	[ -n "$READY_PATH" ] && set -- "$@" -n "$READY_PATH"
-	[ "$(GET_VAR "device" "board/name")" = "rk-g350-v" ] && set -- "$@" --direct
 
 	# Always leave a trace, and not as a .log since boot wipes those before it can be read
 	set -- "$@" -l "$MUOS_LOG_DIR/musplash.trace"

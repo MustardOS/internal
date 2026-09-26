@@ -393,6 +393,18 @@ OUTPUT_VOLUME_NAME() {
 	printf "%s\n" "$OUT_NAME"
 }
 
+STOP_STRAY_GPTOKEYB() {
+	for GPTK_NAME in gptokeyb gptokeyb2; do
+		pgrep "^$GPTK_NAME\$" >/dev/null 2>&1 || continue
+
+		pkill "^$GPTK_NAME\$" 2>/dev/null
+		sleep 0.2
+		pgrep "^$GPTK_NAME\$" >/dev/null 2>&1 && pkill -9 "^$GPTK_NAME\$" 2>/dev/null
+
+		LOG_WARN "$0" 0 "INPUT" "$(printf "Stopped %s left running by the last content" "$GPTK_NAME")"
+	done
+}
+
 CURRENT_SINK_NAME() {
 	IDX=$(GET_VAR "config" "settings/general/audiosink")
 	[ -n "$IDX" ] || return 1

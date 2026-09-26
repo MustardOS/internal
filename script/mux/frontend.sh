@@ -102,6 +102,7 @@ while :; do
 	if ! /opt/muos/script/var/process.sh stop-group gptokeyb >/dev/null 2>&1; then
 		LOG_WARN "$0" 0 "FRONTEND" "The owned gptokeyb process did not stop cleanly"
 	fi
+	STOP_STRAY_GPTOKEYB
 
 	# Reset ANALOGUE<>DIGITAL switch for the DPAD
 	RESET_DPAD_MODE "$BOARD_STICK" "$BOARD_NAME" "$DPAD_SWAP"

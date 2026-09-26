@@ -63,6 +63,7 @@ CLEANUP_AFTER_LAUNCH() {
 	if ! /opt/muos/script/var/process.sh stop-group gptokeyb >/dev/null 2>&1; then
 		LOG_WARN "$0" 0 "LAUNCH" "The owned gptokeyb process did not stop cleanly"
 	fi
+	STOP_STRAY_GPTOKEYB
 
 	RESTORE_DPAD_AND_LEDS "$BOARD_NAME" "$DPAD_SWAP" "$LED_NORMAL" "$LED_STATE"
 	RESTORE_FRAMEBUFFER_MODE "$DEV_MODE" "$SCREEN_INT_W" "$SCREEN_INT_H" "$SCREEN_EXT_W" "$SCREEN_EXT_H"

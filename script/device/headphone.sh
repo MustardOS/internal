@@ -112,6 +112,38 @@ case "$(GET_VAR "device" "board/name")" in
 			sleep 0.5
 		done
 		;;
+	tui*)
+		LAST=""
+
+		while true; do
+			JACK_DEV=$(awk '
+				/^N:/ { jack = /Audio Jack/ }
+				jack && /^H:/ {
+					for (i = 1; i <= NF; i++) if ($i ~ /^event/) { print "/dev/input/" $i; exit }
+				}
+			' /proc/bus/input/devices 2>/dev/null)
+
+			if [ -z "$JACK_DEV" ] || ! command -v evtest >/dev/null 2>&1; then
+				sleep 5
+				continue
+			fi
+
+			evtest --query "$JACK_DEV" EV_SW SW_HEADPHONE_INSERT >/dev/null 2>&1
+			JACK_STATE=$?
+			HP_IN=0
+			[ "$JACK_STATE" -eq 10 ] && HP_IN=1
+
+			if [ "$HP_IN" != "$LAST" ]; then
+				FIRST=0
+				[ -z "$LAST" ] && FIRST=1
+
+				SWITCH_OUTPUT_VOLUME "$HP_IN" "$FIRST"
+				LAST="$HP_IN"
+			fi
+
+			sleep 0.5
+		done
+		;;
 	rk-g350-v)
 		while true; do
 			while ! SET_G350_PATH; do

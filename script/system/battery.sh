@@ -30,7 +30,11 @@ WRITE_ATOMIC() {
 
 READ_FILE() {
 	FILE="$1"
-	DEFAULT="${2:-0}"
+	if [ "$#" -ge 2 ]; then
+		DEFAULT="$2"
+	else
+		DEFAULT=0
+	fi
 
 	[ -r "$FILE" ] || {
 		printf "%s" "$DEFAULT"
@@ -166,6 +170,15 @@ SYNC_RUNTIME() {
 	else
 		rm -f "$RUN_DIR/unplug_capacity"
 	fi
+
+	for HISTORY_FIELD in last_shutdown_capacity last_boot_capacity last_off_capacity_delta last_off_duration; do
+		HISTORY_VALUE=$(READ_FILE "$CONF_DIR/$HISTORY_FIELD" "")
+		if [ -n "$HISTORY_VALUE" ]; then
+			WRITE_ATOMIC "$RUN_DIR/$HISTORY_FIELD" "$HISTORY_VALUE"
+		else
+			rm -f "$RUN_DIR/$HISTORY_FIELD"
+		fi
+	done
 }
 
 DO_EVENT() {
@@ -249,6 +262,22 @@ DO_INIT() {
 	NOW_TS=$(date +%s)
 	IS_UINT "$NOW_TS" || NOW_TS=0
 
+	BOOT_CAP=$(READ_CAPACITY)
+	SHUTDOWN_CAP=$(READ_FILE "$CONF_DIR/pending_shutdown_capacity" "")
+	SHUTDOWN_TS=$(READ_FILE "$CONF_DIR/pending_shutdown_timestamp" "0")
+	case "$BOOT_CAP:$SHUTDOWN_CAP" in
+		*[!0-9:]* | *::* | :* | *:) ;;
+		*)
+			if CLOCK_IS_SANE "$NOW_TS" && CLOCK_IS_SANE "$SHUTDOWN_TS" && [ "$NOW_TS" -ge "$SHUTDOWN_TS" ]; then
+				WRITE_ATOMIC "$CONF_DIR/last_shutdown_capacity" "$SHUTDOWN_CAP"
+				WRITE_ATOMIC "$CONF_DIR/last_boot_capacity" "$BOOT_CAP"
+				WRITE_ATOMIC "$CONF_DIR/last_off_capacity_delta" "$((SHUTDOWN_CAP - BOOT_CAP))"
+				WRITE_ATOMIC "$CONF_DIR/last_off_duration" "$((NOW_TS - SHUTDOWN_TS))"
+				rm -f "$CONF_DIR/pending_shutdown_capacity" "$CONF_DIR/pending_shutdown_timestamp"
+			fi
+			;;
+	esac
+
 	STORED_CHARGED=$(READ_FILE "$CONF_DIR/last_charged_timestamp" "0")
 	if [ "$STORED_CHARGED" != "0" ] && ! CLOCK_IS_SANE "$STORED_CHARGED"; then
 		LOG_WARN "$0" 0 "BATTERY_USAGE" "$(printf "Stored last_charged %s came from an unset clock - discarding" "$STORED_CHARGED")"
@@ -279,16 +308,31 @@ DO_STATUS() {
 	TIME_ON_BATT=$(READ_FILE "$RUN_DIR/time_on_battery" "0")
 	UNPLUG_CAP=$(READ_FILE "$RUN_DIR/unplug_capacity" "")
 	CURR_CAP=$(READ_CAPACITY)
+	SHUTDOWN_CAP=$(READ_FILE "$CONF_DIR/last_shutdown_capacity" "")
+	BOOT_CAP=$(READ_FILE "$CONF_DIR/last_boot_capacity" "")
+	OFF_DELTA=$(READ_FILE "$CONF_DIR/last_off_capacity_delta" "")
+	OFF_DURATION=$(READ_FILE "$CONF_DIR/last_off_duration" "")
 
 	printf "LAST_CHARGED=%s\n" "$LAST_CHARGED"
 	printf "TIME_ON_BATTERY=%s\n" "$TIME_ON_BATT"
 	[ -n "$UNPLUG_CAP" ] && printf "UNPLUG_CAPACITY=%s\n" "$UNPLUG_CAP"
 	[ -n "$CURR_CAP" ] && printf "CURRENT_CAPACITY=%s\n" "$CURR_CAP"
+	[ -n "$SHUTDOWN_CAP" ] && printf "LAST_SHUTDOWN_CAPACITY=%s\n" "$SHUTDOWN_CAP"
+	[ -n "$BOOT_CAP" ] && printf "BOOT_CAPACITY=%s\n" "$BOOT_CAP"
+	[ -n "$OFF_DELTA" ] && printf "LAST_OFF_CAPACITY_DELTA=%s\n" "$OFF_DELTA"
+	[ -n "$OFF_DURATION" ] && printf "LAST_OFF_DURATION=%s\n" "$OFF_DURATION"
 }
 
 DO_SHUTDOWN() {
 	LOG_INFO "$0" 0 "BATTERY_USAGE" "Flushing battery usage state before shutdown"
 	DO_UPDATE
+
+	SHUTDOWN_CAP=$(READ_CAPACITY)
+	if [ -n "$SHUTDOWN_CAP" ]; then
+		WRITE_ATOMIC "$CONF_DIR/pending_shutdown_capacity" "$SHUTDOWN_CAP"
+		WRITE_ATOMIC "$CONF_DIR/pending_shutdown_timestamp" "$(date +%s)"
+	fi
+
 	SYNC_RUNTIME
 	LOG_SUCCESS "$0" 0 "BATTERY_USAGE" "Battery usage state flushed"
 }

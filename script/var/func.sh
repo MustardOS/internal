@@ -1697,13 +1697,64 @@ CONFIGURE_RETROARCH() {
 	RA_CONF="$MUOS_SHARE_DIR/info/config/retroarch.cfg"
 	RA_DEF="$MUOS_SHARE_DIR/emulator/retroarch/retroarch.default.cfg"
 	RA_CONTROL="$DEVICE_CONTROL_DIR/retroarch"
-
+	RA_AUTOCONFIG_DIR="$MUOS_SHARE_DIR/emulator/retroarch/autoconfig/udev"
+	RA_AUTOCONFIG="$RA_AUTOCONFIG_DIR/muOS-Keys.cfg"
+	RA_DEVICE_AUTOCONFIG="$DEVICE_CONTROL_DIR/muOS-Keys.cfg"
 
 	# Check if the default RetroArch configuration exists.
 	[ ! -f "$RA_CONF" ] && cp "$RA_DEF" "$RA_CONF"
 
 	# Set the device specific SDL Controller Map
 	/opt/muos/script/mux/sdl_map.sh
+
+	mkdir -p "$RA_AUTOCONFIG_DIR"
+	if [ -f "$RA_DEVICE_AUTOCONFIG" ]; then
+		cp -f "$RA_DEVICE_AUTOCONFIG" "$RA_AUTOCONFIG" || rm -f "$RA_AUTOCONFIG"
+	else
+		RA_INPUT_VENDOR=
+		RA_INPUT_PRODUCT=
+
+		for RA_INPUT_EVENT in /sys/class/input/event*; do
+			[ -r "$RA_INPUT_EVENT/device/name" ] || continue
+			IFS= read -r RA_INPUT_NAME <"$RA_INPUT_EVENT/device/name"
+			[ "$RA_INPUT_NAME" = "muOS-Keys" ] || continue
+			[ -r "$RA_INPUT_EVENT/device/id/vendor" ] || continue
+			[ -r "$RA_INPUT_EVENT/device/id/product" ] || continue
+
+			IFS= read -r RA_INPUT_VENDOR_HEX <"$RA_INPUT_EVENT/device/id/vendor"
+			IFS= read -r RA_INPUT_PRODUCT_HEX <"$RA_INPUT_EVENT/device/id/product"
+			case "$RA_INPUT_VENDOR_HEX:$RA_INPUT_PRODUCT_HEX" in
+				:* | *: | *[!0-9A-Fa-f:]*) continue ;;
+			esac
+
+			RA_INPUT_VENDOR=$(printf '%d' "0x$RA_INPUT_VENDOR_HEX")
+			RA_INPUT_PRODUCT=$(printf '%d' "0x$RA_INPUT_PRODUCT_HEX")
+			break
+		done
+
+		if [ -n "$RA_INPUT_VENDOR" ] && [ -n "$RA_INPUT_PRODUCT" ]; then
+			RA_AUTOCONFIG_TMP="$RA_AUTOCONFIG.tmp.$$"
+			{
+				printf '%s\n' 'input_driver = "udev"'
+				printf '%s\n' 'input_joypad_driver = "udev"'
+				printf '%s\n' 'input_device = "muOS-Keys"'
+				printf 'input_vendor_id = "%s"\n' "$RA_INPUT_VENDOR"
+				printf 'input_product_id = "%s"\n' "$RA_INPUT_PRODUCT"
+				awk '
+					$2 == "=" && $3 != "\"nul\"" && $1 ~ /^input_player1_/ {
+						key = $1
+						sub(/^input_player1_/, "input_", key)
+						if (key ~ /^input_(a|b|x|y|select|start|up|down|left|right|l|r|l2|r2|l3|r3)_btn$/ ||
+							key ~ /^input_[lr]_[xy]_(plus|minus)_axis$/) print key " = " $3
+					}
+				' "$RA_CONTROL.device.cfg"
+			} >"$RA_AUTOCONFIG_TMP" && mv -f "$RA_AUTOCONFIG_TMP" "$RA_AUTOCONFIG" ||
+				rm -f "$RA_AUTOCONFIG"
+			rm -f "$RA_AUTOCONFIG_TMP"
+		else
+			rm -f "$RA_AUTOCONFIG"
+		fi
+	fi
 
 	# Modify the RetroArch settings for device resolution output
 	RA_WIDTH="$(GET_VAR "device" "screen/width")"
@@ -2178,6 +2229,7 @@ EOF
 
 	set -- -r "$ROTATE" -s "$SCALE" -g "${BACKGROUND_COLOUR}:${BACKGROUND_GRADIENT_COLOUR}"
 	[ -n "$READY_PATH" ] && set -- "$@" -n "$READY_PATH"
+	[ "$(GET_VAR "device" "board/name")" = "rk-g350-v" ] && set -- "$@" --direct
 
 	# Always leave a trace, and not as a .log since boot wipes those before it can be read
 	set -- "$@" -l "$MUOS_LOG_DIR/musplash.trace"
@@ -2195,6 +2247,10 @@ EOF
 		"$THEME_DIR/$RES_DIR/image/$ROLE.png" \
 		"$THEME_DIR/image/$CURR_LANG/$ROLE.png" \
 		"$THEME_DIR/image/$ROLE.png" \
+		"$MUOS_SHARE_DIR/theme/MustardOS/$RES_DIR/image/$CURR_LANG/$ROLE.png" \
+		"$MUOS_SHARE_DIR/theme/MustardOS/$RES_DIR/image/$ROLE.png" \
+		"$MUOS_SHARE_DIR/theme/MustardOS/image/$CURR_LANG/$ROLE.png" \
+		"$MUOS_SHARE_DIR/theme/MustardOS/image/$ROLE.png" \
 		"$MUOS_SHARE_DIR/media/splash/$RES_DIR/$CURR_LANG/$ROLE.png" \
 		"$MUOS_SHARE_DIR/media/splash/$RES_DIR/$ROLE.png" \
 		"$MUOS_SHARE_DIR/media/splash/$ROLE.png"; do
@@ -2784,6 +2840,35 @@ RUN_SYNCTHING_SCAN() {
 
 MUOS_MKE2FS="/opt/muos/bin/mke2fs"
 MUOS_MKE2FS_CONF="/opt/muos/share/conf/mke2fs.conf"
+
+EXFAT_NATIVE_BUILTIN() {
+	if zcat /proc/config.gz 2>/dev/null | grep -q "^CONFIG_EXFAT_FS=y"; then
+		return 0
+	fi
+
+	grep -qw exfat /proc/filesystems 2>/dev/null &&
+		! grep -q "^exfat " /proc/modules 2>/dev/null
+}
+
+EXFAT_NATIVE_READY() {
+	grep -qw exfat /proc/filesystems 2>/dev/null && return 0
+
+	modprobe -q exfat 2>/dev/null
+	grep -qw exfat /proc/filesystems 2>/dev/null
+}
+
+MOUNT_FILESYSTEM() {
+	MFS_TYPE=$1
+	MFS_OPTIONS=$2
+	MFS_DEVICE=$3
+	MFS_TARGET=$4
+
+	if [ "$MFS_TYPE" = exfat ] && EXFAT_NATIVE_READY; then
+		mount -i -t "$MFS_TYPE" -o "$MFS_OPTIONS" "$MFS_DEVICE" "$MFS_TARGET"
+	else
+		mount -t "$MFS_TYPE" -o "$MFS_OPTIONS" "$MFS_DEVICE" "$MFS_TARGET"
+	fi
+}
 
 FS_HAS_CASEFOLD() {
 	[ -e /sys/fs/ext4/features/casefold ]

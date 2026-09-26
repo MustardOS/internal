@@ -61,7 +61,7 @@ EOF
 
 	[ -d "$MOUNT_POINT" ] || mkdir -p "$MOUNT_POINT"
 
-	if mount -t "$FS_TYPE" -o "$FS_OPTS" "/dev/$DEVICE" "$MOUNT_POINT"; then
+	if MOUNT_FILESYSTEM "$FS_TYPE" "$FS_OPTS" "/dev/$DEVICE" "$MOUNT_POINT"; then
 		SET_VAR "device" "storage/$TYPE/active" "1"
 		SET_VAR "device" "storage/$TYPE/label" "${FS_LABEL:-}"
 

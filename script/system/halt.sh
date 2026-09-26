@@ -9,17 +9,26 @@ RUMBLE_SETTING="$(GET_VAR "config" "settings/advanced/rumble")"
 INIT_DIR="/opt/muos/script/init"
 
 USAGE() {
-	printf 'Usage: %s {poweroff|reboot}\n' "$0" >&2
+	printf 'Usage: %s {poweroff|reboot} [factory]\n' "$0" >&2
 	exit 1
 }
 
-[ "$#" -eq 1 ] || USAGE
+case "$#" in
+	1 | 2) ;;
+	*) USAGE ;;
+esac
 case "$1" in
 	poweroff | reboot) ;;
 	*) USAGE ;;
 esac
 
+case "${2:-}" in
+	"" | factory) ;;
+	*) USAGE ;;
+esac
+
 ACTION=$1
+HALT_MODE=${2:-normal}
 
 # Runs CMD in its own process group (via setsid) so SIGTERM/SIGKILL reach the
 # entire subtree. Falls back from TERM to KILL after the grace period.
@@ -103,6 +112,7 @@ VOLUME_RAMP down
 
 STOP_SERVICES() {
 	STOP_DIR "$INIT_DIR" "normal"
+	[ "$HALT_MODE" = factory ] && return 0
 	STOP_DIR "$INIT_DIR/async" "async" "S06mount.sh"
 	RUN_WITH_TIMEOUT 8 3 /bin/sh "$INIT_DIR/async/S06mount.sh" stop
 }
@@ -174,6 +184,17 @@ if [ -z "$SPLASH_STATE" ] || [ "$SPLASH_STATE" = Z ]; then
 	wait "$SPLASH_PID" 2>/dev/null
 fi
 rm -f "$SPLASH_READY"
+
+if [ "$BOARD_NAME" = "rk-g350-v" ]; then
+	G350_DISPLAY_HOLD="/lib/modules/$(uname -r)/extra/disphold.ko"
+	if grep -q '^disphold ' /proc/modules 2>/dev/null; then
+		LOG_INFO "$0" 0 "HALT" "G350 display shutdown hold already active"
+	elif [ -r "$G350_DISPLAY_HOLD" ] && insmod "$G350_DISPLAY_HOLD"; then
+		LOG_INFO "$0" 0 "HALT" "G350 display shutdown hold active"
+	else
+		LOG_WARN "$0" 0 "HALT" "G350 display shutdown hold unavailable"
+	fi
+fi
 
 LOG_INFO "$0" 0 "HALT" "Stopping web services"
 RUN_WITH_TIMEOUT 5 1 /opt/muos/script/web/service.sh stopall >/dev/null 2>&1

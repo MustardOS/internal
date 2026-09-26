@@ -104,7 +104,13 @@ DO_START() {
 	if [ "$FACTORY_RESET" -eq 1 ]; then
 		LED_CONTROL_CHANGE off
 		/opt/muos/script/system/factory.sh
-		/opt/muos/script/system/halt.sh reboot
+		(
+			trap '' HUP INT TERM
+			sleep 90
+			reboot -f
+		) &
+		/opt/muos/script/system/halt.sh reboot factory
+		reboot -f
 
 		exit 0
 	fi
@@ -132,6 +138,8 @@ DO_START() {
 		/opt/muos/script/device/charge.sh
 	fi
 
+	WAIT_FOR_PRIORITY_STORAGE || exit 1
+
 	if [ "$FIRST_INIT" -eq 0 ]; then
 		LOG_INFO "$0" 0 "BOOTING" "Completing first-start maintenance"
 		if ! RUN_BOOT_MAINTENANCE "$ROM_MOUNT" "$FIRST_INIT" "${RA_CACHE:-0}" >/dev/null 2>&1; then
@@ -139,8 +147,6 @@ DO_START() {
 		fi
 		SET_VAR "config" "boot/first_init" "1"
 	fi
-
-	WAIT_FOR_PRIORITY_STORAGE || exit 1
 
 	LOG_INFO "$0" 0 "BOOTING" "Starting Hotkey Daemon"
 	HOTKEY start

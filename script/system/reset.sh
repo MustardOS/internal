@@ -38,7 +38,7 @@ parted ---pretend-input-tty /dev/"$ROM_DEV" set "$ROM_NUM" hidden off
 parted ---pretend-input-tty /dev/"$ROM_DEV" set "$ROM_NUM" msftdata on
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Mounting ROM Partition"
-if mount -t "$ROM_TYPE" -o "$ROM_MOUNT_OPTS" "$ROM_PART" "$ROM_MOUNT"; then
+if MOUNT_FILESYSTEM "$ROM_TYPE" "$ROM_MOUNT_OPTS" "$ROM_PART" "$ROM_MOUNT"; then
 	SET_VAR "device" "storage/rom/active" "1"
 else
 	killall -q "mpv"
@@ -147,3 +147,12 @@ fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Syncing Partitions"
 sync
+
+LOG_INFO "$0" 0 "FACTORY RESET" "Finalising ROM Partition"
+if umount "$ROM_MOUNT"; then
+	SET_VAR "device" "storage/rom/active" "0"
+else
+	LOG_ERROR "$0" 0 "FACTORY RESET" "$(printf "Could not unmount %s" "$ROM_MOUNT")"
+	killall -q "mpv"
+	CRITICAL_FAILURE mount "Could not finalise $ROM_MOUNT"
+fi

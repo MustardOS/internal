@@ -46,25 +46,50 @@ touch "/tmp/msg_finish"
 sleep 1
 killall -q "mpv"
 
-EXFAT_NATIVE=0
-if zcat /proc/config.gz 2>/dev/null | grep -q "^CONFIG_EXFAT_FS=y"; then
-	EXFAT_NATIVE=1
-	LOG_INFO "$0" 0 "FACTORY RESET" "Built-in exFAT detected via kernel config"
-elif grep -qw exfat /proc/filesystems 2>/dev/null; then
-	EXFAT_NATIVE=1
-	LOG_INFO "$0" 0 "FACTORY RESET" "Native exFAT detected via /proc/filesystems"
-fi
-
-if [ "$EXFAT_NATIVE" = "1" ]; then
-	LOG_INFO "$0" 0 "FACTORY RESET" "Kernel mount supports exFAT, removing FUSE helper"
+if EXFAT_NATIVE_BUILTIN; then
+	LOG_INFO "$0" 0 "FACTORY RESET" "Built-in exFAT support active, removing FUSE helper"
 	# This seems crazy but it works!
 	rm -f /sbin/mount.exfat /sbin/mount.exfat-fuse
+elif EXFAT_NATIVE_READY; then
+	LOG_INFO "$0" 0 "FACTORY RESET" "Native exFAT module active"
 else
-	LOG_INFO "$0" 0 "FACTORY RESET" "Relying on FUSE mount.exfat"
+	LOG_INFO "$0" 0 "FACTORY RESET" "Using FUSE exFAT fallback"
 fi
 
-/opt/muos/frontend/mucredits
+CREDITS_DIR="/tmp/mustardos"
+CREDITS_COMPLETE="$CREDITS_DIR/mucredits.complete"
+mkdir -p "$CREDITS_DIR"
+rm -f "$CREDITS_COMPLETE"
 
-SET_VAR "config" "boot/factory_reset" "0"
-SET_VAR "config" "settings/advanced/rumble" "0"
-SET_VAR "config" "settings/power/saver_type" "1"
+/opt/muos/frontend/mucredits &
+CREDITS_PID=$!
+CREDITS_GRACE=0
+
+while [ -r "/proc/$CREDITS_PID/stat" ]; do
+	read -r _ _ CREDITS_STATE _ <"/proc/$CREDITS_PID/stat" 2>/dev/null || break
+	[ "$CREDITS_STATE" = Z ] && break
+
+	if [ -e "$CREDITS_COMPLETE" ]; then
+		CREDITS_GRACE=$((CREDITS_GRACE + 1))
+		[ "$CREDITS_GRACE" -eq 50 ] && kill -TERM "$CREDITS_PID" 2>/dev/null
+		if [ "$CREDITS_GRACE" -ge 60 ]; then
+			kill -KILL "$CREDITS_PID" 2>/dev/null
+			break
+		fi
+	fi
+
+	sleep 0.1
+done
+
+if [ ! -r "/proc/$CREDITS_PID/stat" ]; then
+	wait "$CREDITS_PID" 2>/dev/null
+else
+	read -r _ _ CREDITS_STATE _ <"/proc/$CREDITS_PID/stat" 2>/dev/null
+	[ "$CREDITS_STATE" = Z ] && wait "$CREDITS_PID" 2>/dev/null
+fi
+
+rm -f "$CREDITS_COMPLETE"
+
+SET_VAR_DURABLE "config" "boot/factory_reset" "0"
+SET_VAR_DURABLE "config" "settings/advanced/rumble" "0"
+SET_VAR_DURABLE "config" "settings/power/saver_type" "1"

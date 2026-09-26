@@ -10,10 +10,12 @@ LOG_FILE="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/assign_gen.txt"
 
 ASSIGN_WORK=""
 OUTPUT_TMP=""
+OUTPUT_STAGE=""
 
 ASSIGN_CLEANUP() {
 	[ -n "$ASSIGN_WORK" ] && [ -d "$ASSIGN_WORK" ] && rm -rf "$ASSIGN_WORK"
 	[ -n "$OUTPUT_TMP" ] && [ -f "$OUTPUT_TMP" ] && rm -f "$OUTPUT_TMP"
+	[ -n "$OUTPUT_STAGE" ] && [ -f "$OUTPUT_STAGE" ] && rm -f "$OUTPUT_STAGE"
 }
 
 trap 'ASSIGN_CLEANUP' EXIT
@@ -88,14 +90,14 @@ jq -n --args \
 	'$ARGS.positional as $items | reduce range(0; $items|length; 2) as $i ({}; .[$items[$i]] = $items[$i + 1])' \
 	"$@" >"$TMP_JSON" || exit 1
 
-OUTPUT_TMP=$(mktemp "$USER_MANIFEST_DIR/.assign.json.XXXXXX") || exit 1
-if ! jq -S -s '.[0] * .[1]' "$TMP_BASE" "$TMP_JSON" >"$OUTPUT_TMP" || ! chmod 644 "$OUTPUT_TMP" ||
-	! mv -f "$OUTPUT_TMP" "$OUTPUT_FILE"; then
-	rm -f "$OUTPUT_TMP"
-	OUTPUT_TMP=""
+OUTPUT_TMP="$ASSIGN_WORK/assign.json"
+OUTPUT_STAGE="$USER_MANIFEST_DIR/.assign.json.$$"
+if ! jq -S -s '.[0] * .[1]' "$TMP_BASE" "$TMP_JSON" >"$OUTPUT_TMP" ||
+	! cp -f "$OUTPUT_TMP" "$OUTPUT_STAGE" || ! mv -f "$OUTPUT_STAGE" "$OUTPUT_FILE"; then
 	exit 1
 fi
 OUTPUT_TMP=""
+OUTPUT_STAGE=""
 
 [ "$VERBOSE" -eq 1 ] && {
 	printf "\nAssign Added\t\t%d\n" "$ADDED"

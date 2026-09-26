@@ -326,6 +326,93 @@ CHECK_MUXRETRO_AND_SAVE() {
 	LOG_WARN "$0" 0 "SUSPEND" "Pickles save acknowledgement timed out; continuing suspend"
 }
 
+QUIET_WAKE_LIST="$MUOS_RUN_DIR/quiet_wake"
+SPEAKER_AMP_SWITCH="HpSpeaker Switch"
+WAKE_SOURCE_SNAPSHOT="$MUOS_RUN_DIR/wake_sources"
+WAKE_IRQ_SNAPSHOT="$MUOS_RUN_DIR/wake_irqs"
+WAKE_TRACE="$MUOS_LOG_DIR/wake.trace"
+WAKE_IRQ_PATTERN="axp|pek|vbus|battery|rtc|alarm|wake|wlan|bt_|nmi|key"
+
+# Can't sleep, clowns will eat me!
+QUIET_WAKE_SOURCES() {
+	: >"$QUIET_WAKE_LIST"
+
+	{
+		find /sys/devices/platform -maxdepth 4 \( -path "*btlpm*/power/wakeup" -o -path "*wlan*/power/wakeup" \) 2>/dev/null
+		for BATTERY_WAKE in /sys/class/power_supply/*battery*/power/wakeup; do
+			[ -e "$BATTERY_WAKE" ] && printf '%s\n' "$BATTERY_WAKE"
+		done
+	} |
+		while IFS= read -r WAKE_CONTROL; do
+			WAKE_VALUE=
+			read -r WAKE_VALUE <"$WAKE_CONTROL" 2>/dev/null
+			[ "$WAKE_VALUE" = enabled ] || continue
+
+			printf '%s' disabled >"$WAKE_CONTROL" 2>/dev/null && printf '%s\n' "$WAKE_CONTROL" >>"$QUIET_WAKE_LIST"
+		done
+}
+
+RESTORE_WAKE_SOURCES() {
+	[ -r "$QUIET_WAKE_LIST" ] || return 0
+
+	while IFS= read -r WAKE_CONTROL; do
+		[ -w "$WAKE_CONTROL" ] && printf '%s' enabled >"$WAKE_CONTROL"
+	done <"$QUIET_WAKE_LIST"
+
+	rm -f "$QUIET_WAKE_LIST"
+}
+
+SNAPSHOT_WAKE_SOURCES() {
+	awk 'NR > 1 { print $1, $4 }' /sys/kernel/debug/wakeup_sources >"$WAKE_SOURCE_SNAPSHOT" 2>/dev/null
+	IRQ_COUNTS >"$WAKE_IRQ_SNAPSHOT"
+}
+
+IRQ_COUNTS() {
+	awk -v pattern="$WAKE_IRQ_PATTERN" '
+		NR == 1 { cpus = NF; next }
+		{
+			total = 0
+			for (i = 2; i <= cpus + 1; i++) total += $i
+			name = $NF
+			if (tolower(name) ~ pattern) print $1, name, total
+		}
+	' /proc/interrupts 2>/dev/null
+}
+
+REPORT_WAKE_SOURCE() {
+	WAKE_IRQ=
+	read -r WAKE_IRQ </sys/power/pm_wakeup_irq 2>/dev/null
+
+	WAKE_IRQ_NAME=
+	if [ -n "$WAKE_IRQ" ]; then
+		WAKE_IRQ_NAME=$(awk -v irq="$WAKE_IRQ:" '$1 == irq { print $NF; exit }' /proc/interrupts 2>/dev/null)
+	fi
+
+	WOKEN_BY=
+	if [ -r "$WAKE_SOURCE_SNAPSHOT" ]; then
+		WOKEN_BY=$(awk 'NR == FNR { seen[$1] = $2; next } FNR > 1 && $4 > seen[$1] + 0 { printf "%s ", $1 }' \
+			"$WAKE_SOURCE_SNAPSHOT" /sys/kernel/debug/wakeup_sources 2>/dev/null)
+		rm -f "$WAKE_SOURCE_SNAPSHOT"
+	fi
+
+	FIRED_IRQS=
+	if [ -r "$WAKE_IRQ_SNAPSHOT" ]; then
+		FIRED_IRQS=$(IRQ_COUNTS | awk 'NR == FNR { seen[$1] = $3; next } $3 > seen[$1] + 0 { printf "%s ", $2 }' \
+			"$WAKE_IRQ_SNAPSHOT" - 2>/dev/null)
+		rm -f "$WAKE_IRQ_SNAPSHOT"
+	fi
+
+	WAKE_LINE=$(printf "Woke from sleep: %s(irq %s %s) fired: %s" "${WOKEN_BY:-no counted source }" \
+		"${WAKE_IRQ:-unknown}" "${WAKE_IRQ_NAME:-unnamed}" "${FIRED_IRQS:-none}")
+	LOG_INFO "$0" 0 "SUSPEND" "$WAKE_LINE"
+
+	# Always kept as a spontaneous wake is rare on most devices... but good for logging!
+	printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$WAKE_LINE" >>"$WAKE_TRACE" 2>/dev/null
+	if [ "$(wc -l <"$WAKE_TRACE" 2>/dev/null)" -gt 50 ] 2>/dev/null; then
+		tail -n 50 "$WAKE_TRACE" >"$WAKE_TRACE.tmp" && mv -f "$WAKE_TRACE.tmp" "$WAKE_TRACE"
+	fi
+}
+
 SLEEP() {
 	RECENT_WAKE_MARK
 
@@ -338,6 +425,13 @@ SLEEP() {
 
 	DISPLAY_WRITE disp0 setbl 0
 	amixer set "Master" mute >/dev/null 2>&1
+
+	# Stop the pop!
+	SPEAKER_AMP_STATE=
+	if amixer -c 0 cget name="$SPEAKER_AMP_SWITCH" >/dev/null 2>&1; then
+		SPEAKER_AMP_STATE=$(amixer -c 0 cget name="$SPEAKER_AMP_SWITCH" | sed -n 's/.*: values=//p')
+		amixer -q -c 0 cset name="$SPEAKER_AMP_SWITCH" off >/dev/null 2>&1
+	fi
 
 	STOP_SSHD_GRACEFUL
 	SAVE_CPU_GOV "$CPU_GOV_PATH"
@@ -373,6 +467,9 @@ SLEEP() {
 	G350_PREPARE_WAKE
 	G350_LOG_SUSPEND entering
 
+	QUIET_WAKE_SOURCES
+	SNAPSHOT_WAKE_SOURCES
+
 	if [ "$G350_PM_TEST_ACTIVE" -eq 1 ]; then
 		G350_LOG_SUSPEND pm-test-dispatch
 		echo "$SUSPEND_STATE" >"/sys/power/state"
@@ -383,6 +480,9 @@ SLEEP() {
 	else
 		G350_LOG_SUSPEND backend-error
 	fi
+
+	REPORT_WAKE_SOURCE
+	RESTORE_WAKE_SOURCES
 
 	G350_RESTORE_PM_DEBUG
 
@@ -442,6 +542,13 @@ RESUME() {
 
 	CHECK_MUXRETRO_AND_SAVE "$MUXRETRO_RESUME_SIGNAL"
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
+
+	# Settle the codec on silence before the amplifier comes back on, the same as the boot fella
+	if [ -n "$SPEAKER_AMP_STATE" ]; then
+		/opt/muos/script/init/S80pipewire.sh prime >/dev/null 2>&1 ||
+			LOG_WARN "$0" 0 "SUSPEND" "Audio output priming did not complete"
+		amixer -q -c 0 cset name="$SPEAKER_AMP_SWITCH" "$SPEAKER_AMP_STATE" >/dev/null 2>&1
+	fi
 
 	amixer set "Master" unmute >/dev/null 2>&1
 

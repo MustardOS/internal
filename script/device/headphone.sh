@@ -56,26 +56,61 @@ SET_G350_PATH() {
 }
 
 case "$(GET_VAR "device" "board/name")" in
-    rk-pixel-2)
-        echo 86 > /sys/class/gpio/export 2>/dev/null
-        LAST=""
+	rk-pixel-2)
+		echo 86 > /sys/class/gpio/export 2>/dev/null
+		LAST=""
 
-        while true; do
-            VAL=$(cat /sys/class/gpio/gpio86/value 2>/dev/null)
-            if [ "$VAL" != "$LAST" ]; then
-                FIRST=0
-                [ -z "$LAST" ] && FIRST=1
-                if [ "$VAL" = "1" ]; then
-                    SWITCH_OUTPUT_VOLUME 1 "$FIRST"
-                    amixer -c 0 sset 'Playback Path' HP_NO_MIC
-                else
-                    SWITCH_OUTPUT_VOLUME 0 "$FIRST"
-                    amixer -c 0 sset 'Playback Path' SPK
-                fi
-                LAST="$VAL"
-            fi
-            sleep 0.3
-        done
+		while true; do
+			VAL=$(cat /sys/class/gpio/gpio86/value 2>/dev/null)
+			if [ "$VAL" != "$LAST" ]; then
+				FIRST=0
+				[ -z "$LAST" ] && FIRST=1
+				if [ "$VAL" = "1" ]; then
+					SWITCH_OUTPUT_VOLUME 1 "$FIRST"
+					amixer -c 0 sset 'Playback Path' HP_NO_MIC
+				else
+					SWITCH_OUTPUT_VOLUME 0 "$FIRST"
+					amixer -c 0 sset 'Playback Path' SPK
+				fi
+				LAST="$VAL"
+			fi
+			sleep 0.3
+		done
+		;;
+	rg28xx-h | rg34xx-h | rg34xx-sp | rg35xx-2024 | rg35xx-h | rg35xx-plus | rg35xx-pro | rg35xx-sp | rg40xx-h | rg40xx-v | rgcubexx-h | rgsp)
+		HP_PLUGGED_LEVEL=hi
+		LAST=""
+
+		while true; do
+			LEVEL=""
+			while IFS= read -r LINE; do
+				case "$LINE" in
+					*"Headphone detection"*)
+						LINE="${LINE%"${LINE##*[! ]}"}"
+						LEVEL="${LINE##* }"
+						break
+						;;
+				esac
+			done </sys/kernel/debug/gpio 2>/dev/null
+
+			if [ -z "$LEVEL" ]; then
+				sleep 5
+				continue
+			fi
+
+			if [ "$LEVEL" != "$LAST" ]; then
+				FIRST=0
+				[ -z "$LAST" ] && FIRST=1
+
+				HP_IN=0
+				[ "$LEVEL" = "$HP_PLUGGED_LEVEL" ] && HP_IN=1
+				SWITCH_OUTPUT_VOLUME "$HP_IN" "$FIRST"
+
+				LAST="$LEVEL"
+			fi
+
+			sleep 0.5
+		done
 		;;
 	rk-g350-v)
 		while true; do

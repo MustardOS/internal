@@ -137,6 +137,32 @@ G350_COMPLETE_PM_TEST() {
 	mv "$G350_PM_TEST_RUNNING" "/opt/muos/config/g350-pm-test.$1"
 }
 
+# Pixel 2: no backlight level goes dark on this panel, so the whole display
+# pipeline is switched off while asleep. panel-off.ko runs the DRM suspend
+# helper when loaded and the resume helper when unloaded (see
+# device/rk-pixel-2/module/README.md). DRM clients are stopped around the
+# change because a commit against a suspended pipeline fails.
+PIXEL2_DISPLAY() {
+	[ "$BOARD_NAME" = rk-pixel-2 ] || return 0
+
+	# Same kernel build guard as the power key module in module.sh
+	PANEL_OFF_BUILD="#4 SMP Sun Jun 7 23:27:50 EDT 2026"
+	PANEL_OFF_KO="/opt/muos/device/module/panel-off.ko"
+	[ "$(uname -v)" = "$PANEL_OFF_BUILD" ] && [ -f "$PANEL_OFF_KO" ] || return 0
+
+	DRM_CLIENTS=$(pidof muxfrontend muxretro retroarch)
+	[ -n "$DRM_CLIENTS" ] && kill -STOP $DRM_CLIENTS
+
+	case "$1" in
+		off) grep -q '^panel_off ' /proc/modules || insmod "$PANEL_OFF_KO" ;;
+		on) grep -q '^panel_off ' /proc/modules && rmmod panel_off ;;
+	esac
+
+	# On the way down mususpend quiesces these itself, so only resume on the way back
+	[ "$1" = on ] && [ -n "$DRM_CLIENTS" ] && kill -CONT $DRM_CLIENTS
+	return 0
+}
+
 RUN_SUSPEND_BACKEND() {
 	SUSPEND_HELPER=/opt/muos/frontend/mususpend
 	if [ ! -x "$SUSPEND_HELPER" ]; then
@@ -180,6 +206,7 @@ RUN_SUSPEND_BACKEND() {
 		fi
 	fi
 	SUSPEND_RESULT=$?
+	PIXEL2_DISPLAY on
 
 	case "$SUSPEND_RESULT" in
 		0) G350_LOG_SUSPEND power-key-wake ;;
@@ -424,6 +451,7 @@ SLEEP() {
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
 	DISPLAY_WRITE disp0 setbl 0
+	PIXEL2_DISPLAY off
 	amixer set "Master" mute >/dev/null 2>&1
 
 	# Stop the pop!
@@ -490,6 +518,9 @@ SLEEP() {
 }
 
 RESUME() {
+	# Normally already back on after mususpend, this covers SLEEP returning early
+	PIXEL2_DISPLAY on
+
 	# Start module loads in the background. The LED, USB, CPU governor,
 	# and brightness restore do not depend on it.  Network reconnect does
 	# (the module needs to be loaded first), so we'll wait before that.

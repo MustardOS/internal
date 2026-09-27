@@ -68,3 +68,53 @@ set. **If you change the driver source, recheck this**, because other
 
 10 reboots, 10 sleep/wake cycles, boot gate, guard (fake `uname -v`),
 rmmod/insmod x3. No oops.
+
+## panel-off.ko: GKD Pixel 2 screen off while asleep (out-of-tree)
+
+On the Pixel 2 no backlight setting goes dark. Backlight level 0 maps to
+17/255, and `bl_power`, `fb0` blank and every PWM duty tried all leave the
+panel visibly lit. Only switching the display pipeline off does, and from
+userspace that needs the DRM master (the frontend) to set DPMS.
+
+This module does it from the kernel side, with no frontend change:
+
+- `insmod` runs `drm_mode_config_helper_suspend()` on the Rockchip DRM device
+- `rmmod` runs `drm_mode_config_helper_resume()`
+
+These are the same two calls `rockchip_drm_sys_suspend/resume` make on a real
+system suspend. Every CRTC is disabled (VOP, DSI, panel power off) and the
+saved state is restored on resume, which re-runs the panel init.
+
+`script/system/suspend.sh` (`PIXEL2_DISPLAY`) loads it right after the
+backlight goes to 0 in `SLEEP`, so the screen is black at the tap, and unloads
+it as soon as `mususpend` returns. `muxfrontend`, `muxretro` and `retroarch`
+are stopped while the module goes in or out, because a page flip against a
+suspended pipeline fails. On the way down `mususpend --quiesce` then keeps
+them stopped. Pickles has already acknowledged its save state by then.
+
+### If you rebuild or replace the Pixel 2 kernel, read this
+
+Same rule as `rk805-pwrkey.ko`: the module only matches the exact kernel it
+was built for. `suspend.sh` skips it unless `uname -v` matches
+`PANEL_OFF_BUILD`, so a new kernel falls back to the dim screen, it does not
+crash. After a kernel change either rebuild this module (source in this
+directory, same recipe as `rk805-pwrkey.ko`) and update `PANEL_OFF_BUILD`, or
+drop it if the frontend gains DPMS off.
+
+Kernel layout it depends on beyond `struct module`: `struct device.driver_data`
+(through `dev_get_drvdata`), offset 120, checked against `gpio_keys.ko` from the
+shipped kernel. Every other access is its own globals or a call to an exported
+function (`objdump -d` shows only `[x0, #120]` into kernel structures).
+
+### Why not just the panel
+
+Panel-only versions were tried first: `drm_panel_disable/unprepare`, DCS
+display-off + enter-sleep, and replaying the DT `panel-init-sequence` on wake.
+All go black, and none brings the picture back, because this panel (an ST7701
+by its init sequence) only shows the stream again after a modeset.
+
+### Tested (2606.0 4600add0)
+
+Menu and in game (Wipeout 2097, Pickles): black at the tap, clean wake,
+a modeset on every wake, no oops. Guard (fake `uname -v`) falls back to
+the dim sleep.

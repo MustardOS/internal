@@ -1331,11 +1331,6 @@ FB_SWITCH() {
 	FB_HEIGHT="${2}"
 	FB_DEPTH="${3}"
 
-	for FB_MODE in screen mux; do
-		SET_VAR "device" "${FB_MODE}/width" "${FB_WIDTH}"
-		SET_VAR "device" "${FB_MODE}/height" "${FB_HEIGHT}"
-	done
-
 	HDMI_NODE="$(GET_VAR "device" "screen/hdmi")"
 	FB_ACTUAL_WIDTH="${FB_WIDTH}"
 	FB_ACTUAL_HEIGHT="${FB_HEIGHT}"
@@ -1351,7 +1346,12 @@ FB_SWITCH() {
 		fi
 	fi
 
-	/opt/muos/frontend/mufbset -w "${FB_ACTUAL_WIDTH}" -h "${FB_ACTUAL_HEIGHT}" -d "${FB_DEPTH}"
+	/opt/muos/frontend/mufbset -w "${FB_ACTUAL_WIDTH}" -h "${FB_ACTUAL_HEIGHT}" -d "${FB_DEPTH}" || return 1
+
+	for FB_MODE in screen mux; do
+		SET_VAR "device" "${FB_MODE}/width" "${FB_WIDTH}"
+		SET_VAR "device" "${FB_MODE}/height" "${FB_HEIGHT}"
+	done
 }
 
 HDMI_SWITCH() {

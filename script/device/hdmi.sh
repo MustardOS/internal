@@ -131,14 +131,19 @@ VERIFY_SWITCH() {
 	SYS="/sys/class/disp/disp/attr/sys"
 	[ -r "$SYS" ] || return 0
 
-	while IFS= read -r LINE; do
-		case "$LINE" in
-			*"hdmi output"*)
-				LOG_INFO "hdmi" 0 "HDMI" "DE status: $LINE"
-				return 0
-				;;
-		esac
-	done <"$SYS"
+	VERIFY_ATTEMPT=0
+	while [ "$VERIFY_ATTEMPT" -lt 20 ]; do
+		while IFS= read -r LINE; do
+			case "$LINE" in
+				*"hdmi output"*)
+					LOG_INFO "hdmi" 0 "HDMI" "DE status: $LINE"
+					return 0
+					;;
+			esac
+		done <"$SYS"
+		VERIFY_ATTEMPT=$((VERIFY_ATTEMPT + 1))
+		sleep 0.1
+	done
 
 	LOG_WARN "hdmi" 0 "HDMI" "No HDMI output detected"
 	return 1
@@ -166,14 +171,18 @@ DISPLAY_WRITE disp0 switch "4 $TV_MODE"
 
 sleep "$PRE_FB"
 
-FB_SWITCH "$FB_W" "$FB_H" 32
+VERIFY_SWITCH || exit 1
+
+if ! FB_SWITCH "$FB_W" "$FB_H" 32; then
+	LOG_ERROR "hdmi" 0 "HDMI" "Framebuffer switch failed: $FB_MODE"
+	DISPLAY_WRITE disp0 switch "1 0"
+	exit 1
+fi
 
 SET_VAR "device" "screen/external/width" "$FB_W"
 SET_VAR "device" "screen/external/height" "$FB_H"
 
 sleep "$POST_FB"
-
-VERIFY_SWITCH || exit 1
 
 sleep "$PRE_FE"
 

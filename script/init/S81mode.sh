@@ -25,7 +25,7 @@ DO_START() {
 	fi
 
 	if [ "$DEVICE_MODE" -eq 1 ]; then
-		/opt/muos/script/device/hdmi.sh &
+		/opt/muos/script/device/hdmi.sh
 	else
 		/opt/muos/script/device/bright.sh R
 

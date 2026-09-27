@@ -164,12 +164,11 @@
             .forEach((device) => {
                 const port = Number(device.port);
                 const target = device.address || device.host;
-                const link = make("a", "row device-switch", undefined);
+                const link = make("a", "device-switch", undefined);
                 link.href = `http://${target}${port === 80 ? "" : `:${port}`}/`;
-                link.append(
-                    make("span", null, device.name || device.host),
-                    make("i", null, device.address || device.host)
-                );
+                link.append(make("span", "device-switch-name", device.name || device.host));
+                link.append(make("i", null, device.host));
+                if (device.address && device.address !== device.host) link.append(make("i", null, device.address));
                 list.append(link);
             });
 

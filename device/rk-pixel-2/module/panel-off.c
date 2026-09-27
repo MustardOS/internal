@@ -2,13 +2,18 @@
 /*
  * GKD Pixel 2: switch the display pipeline off while this module is loaded.
  *
- * Loading it runs drm_mode_config_helper_suspend() on the Rockchip DRM device
- * and unloading it runs drm_mode_config_helper_resume(). That is exactly what
- * rockchip_drm_sys_suspend/resume do on a real system suspend: every CRTC is
- * disabled (VOP, DSI, panel off) and the saved state is restored on resume,
- * including the panel's init sequence. muOS inserts it on sleep (frontend
- * frozen) and removes it on wake. Only the DRM master could do this from
- * userspace, and no muOS binary has DPMS code.
+ * Loading it runs drm_atomic_helper_suspend() on the Rockchip DRM device and
+ * unloading it runs drm_atomic_helper_resume() with the state it returned.
+ * That is the core of rockchip_drm_sys_suspend/resume: every CRTC is disabled
+ * (VOP, DSI, panel off) and the saved state is restored on resume, including
+ * the panel's init sequence.
+ *
+ * The state is kept here, not in mode_config.suspend_state. A kernel suspend
+ * (mem) while loaded runs rockchip_drm_sys_suspend/resume, which overwrite
+ * and then clear that slot, and the picture would not come back.
+ *
+ * muOS inserts it on sleep (frontend frozen) and removes it on wake. Only the
+ * DRM master could do this from userspace, and no muOS binary has DPMS code.
  *
  * Panel-only attempts (unprepare, DCS sleep, init replay) go black but the
  * picture never returns without a modeset.
@@ -20,10 +25,11 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
-#include <drm/drm_modeset_helper.h>
+#include <drm/drm_atomic_helper.h>
 
 static struct device *dev;
 static struct drm_device *drm;
+static struct drm_atomic_state *state;
 
 static int __init panel_off_init(void)
 {
@@ -45,8 +51,9 @@ static int __init panel_off_init(void)
 		return -ENODEV;
 	}
 
-	ret = drm_mode_config_helper_suspend(drm);
-	if (ret) {
+	state = drm_atomic_helper_suspend(drm);
+	if (IS_ERR(state)) {
+		ret = PTR_ERR(state);
 		pr_err("panel-off: suspend returned %d\n", ret);
 		put_device(dev);
 		return ret;
@@ -59,7 +66,7 @@ static void __exit panel_off_exit(void)
 {
 	int ret;
 
-	ret = drm_mode_config_helper_resume(drm);
+	ret = drm_atomic_helper_resume(drm, state);
 	if (ret)
 		pr_err("panel-off: resume returned %d\n", ret);
 

@@ -78,12 +78,19 @@ userspace that needs the DRM master (the frontend) to set DPMS.
 
 This module does it from the kernel side, with no frontend change:
 
-- `insmod` runs `drm_mode_config_helper_suspend()` on the Rockchip DRM device
-- `rmmod` runs `drm_mode_config_helper_resume()`
+- `insmod` runs `drm_atomic_helper_suspend()` on the Rockchip DRM device and
+  keeps the state it returns
+- `rmmod` runs `drm_atomic_helper_resume()` with that state
 
-These are the same two calls `rockchip_drm_sys_suspend/resume` make on a real
+This is the core of what `rockchip_drm_sys_suspend/resume` do on a real
 system suspend. Every CRTC is disabled (VOP, DSI, panel power off) and the
 saved state is restored on resume, which re-runs the panel init.
+
+The state lives in the module, not in `mode_config.suspend_state`. If the
+kernel suspends (`mem`) while the module is loaded, `rockchip_drm_sys_suspend`
+and `_resume` overwrite and then clear that slot. Using the
+`drm_mode_config_helper_*` pair instead left the screen off after a `mem`
+wake (`WARN drm_modeset_helper.c:238`).
 
 `script/system/suspend.sh` (`PIXEL2_DISPLAY`) loads it right after the
 backlight goes to 0 in `SLEEP`, so the screen is black at the tap, and unloads

@@ -15,14 +15,11 @@ AUDIO_WAIT_MAX=100
 RUN_CONTENT_LOADER() {
 	[ -s "$ROM_GO" ] || return 0
 
-	LOG_INFO "$0" 0 "FRONTEND" "Content loader triggered"
-	/opt/muos/script/mux/launch.sh
-
-	# launch.sh restores the governor on the way out, but not if it crashed or was
-	# killed, so make sure nothing a session pinned outlives it.
-	SET_DEFAULT_GOVERNOR
-
-	ENSURE_REMOVED_SYNC "$ROM_GO"
+	while [ -s "$ROM_GO" ]; do
+		LOG_INFO "$0" 0 "FRONTEND" "Content loader triggered"
+		/opt/muos/script/mux/launch.sh
+		SET_DEFAULT_GOVERNOR
+	done
 
 	[ -s "$ACT_GO" ] || SAFE_WRITE "launcher" "$ACT_GO"
 }

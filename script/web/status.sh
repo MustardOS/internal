@@ -45,7 +45,7 @@ DISK_KIB() {
 
 STORAGE_DOC() {
 	SD_OUT=
-	for SD_ENTRY in "rom:SD1" "sdcard:SD2" "usb:USB" "root:System"; do
+	for SD_ENTRY in "rom:Primary (SD1)" "sdcard:Secondary (SD2)" "usb:External (USB)" "root:System"; do
 		SD_TYPE=${SD_ENTRY%%:*}
 		SD_LABEL=${SD_ENTRY#*:}
 

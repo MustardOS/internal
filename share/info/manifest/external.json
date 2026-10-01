@@ -167,7 +167,7 @@
     "namespace": "Media",
     "catalogue": "Media Player",
     "lookup": 0,
-    "default": "ffplay",
+    "default": "wasabi",
     "friendly": [
       "video",
       "videos",
@@ -180,15 +180,15 @@
     ],
     "bios": [],
     "cores": {
+      "wasabi": {
+        "name": "Wasabi",
+        "core": "ext-video",
+        "launcher": "video.sh"
+      },
       "ffplay": {
         "name": "FFPlay",
         "core": "ext-ffplay",
         "launcher": "ffplay.sh"
-      },
-      "live tv": {
-        "name": "Live TV",
-        "core": "ext-mpv-livetv",
-        "launcher": "mpv.sh"
       },
       "mpv": {
         "name": "MPV",

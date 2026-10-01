@@ -21,6 +21,12 @@ SCREEN_INT_H=$(GET_VAR "device" "screen/internal/height")
 SCREEN_EXT_W=$(GET_VAR "device" "screen/external/width")
 SCREEN_EXT_H=$(GET_VAR "device" "screen/external/height")
 LED_STATE="$MUOS_RUN_DIR/work_led_state"
+SWITCH_GO="$MUOS_RUN_DIR/content_switch"
+SWITCH_PENDING="$MUOS_RUN_DIR/content_switch_pending"
+SWITCH_ACTIVE=0
+[ -e "$SWITCH_PENDING" ] && SWITCH_ACTIVE=1
+[ "$SWITCH_ACTIVE" -eq 1 ] && rm -f "$SWITCH_PENDING"
+LAUNCH_RC=1
 
 RUN_DISCORD_PRESENCE() {
 	DISCORD_MODE=$1
@@ -65,7 +71,9 @@ CLEANUP_AFTER_LAUNCH() {
 	fi
 	STOP_STRAY_GPTOKEYB
 
-	RESTORE_DPAD_AND_LEDS "$BOARD_NAME" "$DPAD_SWAP" "$LED_NORMAL" "$LED_STATE"
+	if [ "$LAUNCH_RC" -ne 64 ] || [ ! -s "$SWITCH_GO" ]; then
+		RESTORE_DPAD_AND_LEDS "$BOARD_NAME" "$DPAD_SWAP" "$LED_NORMAL" "$LED_STATE"
+	fi
 	RESTORE_FRAMEBUFFER_MODE "$DEV_MODE" "$SCREEN_INT_W" "$SCREEN_INT_H" "$SCREEN_EXT_W" "$SCREEN_EXT_H"
 	RUN_SYNCTHING_SCAN "$USE_SYNCTHING" "$SYNCTHING_AUTOSCAN" "$NET_STATE"
 	RUN_DISCORD_PRESENCE clear
@@ -278,5 +286,22 @@ else
 fi
 
 CLEANUP_AFTER_LAUNCH
+
+if [ "$LAUNCH_RC" -eq 64 ] && [ -s "$SWITCH_GO" ]; then
+	IFS= read -r SWITCH_PATH <"$SWITCH_GO"
+	ENSURE_REMOVED_SYNC "$SWITCH_GO"
+	if [ -n "$SWITCH_PATH" ] && /opt/muos/frontend/muswitch "$SWITCH_PATH"; then
+		: >"$SWITCH_PENDING"
+		LOG_INFO "$0" 0 "LAUNCH" "Content switch prepared"
+	else
+		LOG_ERROR "$0" 0 "LAUNCH" "Content switch preparation failed"
+		: >"$MUOS_RUN_DIR/content_switch_failed"
+	fi
+else
+	ENSURE_REMOVED_SYNC "$SWITCH_GO"
+	if [ "$SWITCH_ACTIVE" -eq 1 ] && [ "$LAUNCH_RC" -ne 0 ]; then
+		: >"$MUOS_RUN_DIR/content_switch_failed"
+	fi
+fi
 
 LOG_INFO "$0" 0 "LAUNCH" "Content launch script complete"

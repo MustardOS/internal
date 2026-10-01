@@ -9,6 +9,8 @@
     const urlHost = browserHost.includes(":") && !browserHost.startsWith("[") ? `[${browserHost}]` : browserHost;
     let enabled = 0;
 
+    el("dashboard-address").textContent = hostName;
+
     document.querySelectorAll("[data-service]").forEach((row) => {
         const service = services[row.dataset.service];
         row.hidden = !(service && service.enabled);
@@ -41,6 +43,7 @@
     const PROGRAMS = {
         muxfrontend: "MustardOS frontend",
         muxretro: "Pickles",
+        muxmedia: "Wasabi",
         retroarch: "RetroArch",
         drastic: "DraStic",
         flycast: "Flycast",
@@ -205,13 +208,18 @@
         setLive(true);
     }
 
+    let ticking = 0;
+
     async function tick() {
-        if (document.hidden || el("view-dash").hidden) return;
+        if (ticking || document.hidden || el("view-dash").hidden) return;
+        ticking = 1;
         try {
             await refresh();
             await refreshDevices();
         } catch (_) {
             setLive(false);
+        } finally {
+            ticking = 0;
         }
     }
 

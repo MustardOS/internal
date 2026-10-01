@@ -4,21 +4,77 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#1f1f1f">
+    <meta name="color-scheme" content="dark">
+    <style>html { background-color: #1f1f1f; color-scheme: dark; }</style>
     <meta name="description" content="MustardOS device dashboard">
     <title>MustardOS</title>
     <link rel="icon" href="logo.svg" type="image/svg+xml">
     <link rel="stylesheet" href="css/dashboard.css">
 </head>
-<body>
-<main class="wrap">
-    <nav class="tabs" aria-label="Sections">
-        <button class="tab" type="button" data-view="dash">Dashboard</button>
-        <button class="tab" type="button" data-view="catalogue">Catalogue</button>
-        <button class="tab" type="button" data-view="pickles">Saves</button>
-        <button class="lock" type="button" id="lock-toggle" aria-live="polite" hidden></button>
+<body class="library-tools-hidden">
+<div class="side-bar">
+    <div class="site-header">
+        <a class="site-title" href="https://muos.dev/" aria-label="MustardOS website">
+            <img class="site-logo" src="logo.svg" alt="" width="40" height="40">
+            <span>MustardOS</span>
+        </a>
+        <button class="site-button" type="button" id="menu-button" aria-label="Toggle menu" aria-controls="site-nav"
+                aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 6h18M3 12h18M3 18h18"/>
+            </svg>
+        </button>
+    </div>
+
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+        <ul class="nav-list">
+            <li class="nav-list-item">
+                <button class="nav-list-link" type="button" data-view="dash">Dashboard</button>
+            </li>
+            <li class="nav-list-item" data-library-tools>
+                <button class="nav-list-link" type="button" data-view="catalogue">Catalogue</button>
+            </li>
+            <li class="nav-list-item" data-library-tools>
+                <button class="nav-list-link" type="button" data-view="pickles">Saves</button>
+            </li>
+        </ul>
+
+        <div class="nav-category">Documentation</div>
+        <ul class="nav-list">
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/tour">Grand Tour</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/hotkeys">Hotkeys</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/systems">Systems</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/themes">Themes</a></li>
+        </ul>
+
+        <div class="nav-category">Community</div>
+        <ul class="nav-list">
+            <li class="nav-list-item">
+                <a class="nav-list-link external" href="https://discord.gg/mustardos-1152022492001603615">Discord</a>
+            </li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://community.muos.dev/">Forum</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://web.libera.chat/#MustardOS">IRC</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://shop.muos.dev/">Merch</a></li>
+        </ul>
     </nav>
 
+    <footer class="site-footer">Device Dashboard</footer>
+</div>
+
+<div class="main">
+    <div class="main-header">
+        <span class="main-address" id="dashboard-address">muos.local</span>
+        <nav class="aux-nav" aria-label="Website">
+            <button class="lock" type="button" id="lock-toggle" data-library-tools aria-live="polite" hidden></button>
+            <a href="https://muos.dev/devices">Download</a>
+            <a href="https://ko-fi.com/xonglebongle">Support</a>
+        </nav>
+    </div>
+
+<main class="main-content-wrap">
     <div class="view" id="view-dash">
+        <h1>Dashboard</h1>
+
         <p class="box offline" id="offline" hidden>No data from the device.</p>
 
         <section class="grid grid-4" id="tiles" aria-label="Summary" hidden>
@@ -71,39 +127,21 @@
             </div>
         </section>
 
-        <section class="grid grid-3">
-            <div class="box">
-                <h2>Services</h2>
-                <div class="rows">
-                    <a class="row" data-service="sftpgo" href="#"><span>Files</span><i></i></a>
-                    <a class="row" data-service="syncthing" href="#"><span>Syncthing</span><i></i></a>
-                    <a class="row" data-service="ttyd" href="#"><span>Terminal</span><i></i></a>
-                    <button class="row" data-service="sshd" type="button"><span>Secure Shell</span><i></i></button>
-                </div>
-                <p class="note" id="no-services" hidden>None enabled.</p>
+        <section class="box" aria-label="Services">
+            <h2>Services</h2>
+            <div class="rows rows-wide">
+                <a class="row" data-service="sftpgo" href="#"><span>Files</span><i></i></a>
+                <a class="row" data-service="syncthing" href="#"><span>Syncthing</span><i></i></a>
+                <a class="row" data-service="ttyd" href="#"><span>Terminal</span><i></i></a>
+                <button class="row" data-service="sshd" type="button"><span>Secure Shell</span><i></i></button>
             </div>
-            <div class="box">
-                <h2>Documentation</h2>
-                <div class="rows">
-                    <a class="row" href="https://muos.dev/tour"><span>Grand Tour</span><i>↗</i></a>
-                    <a class="row" href="https://muos.dev/hotkeys"><span>Hotkeys</span><i>↗</i></a>
-                    <a class="row" href="https://muos.dev/systems"><span>Systems</span><i>↗</i></a>
-                    <a class="row" href="https://muos.dev/themes"><span>Themes</span><i>↗</i></a>
-                </div>
-            </div>
-            <div class="box">
-                <h2>Community</h2>
-                <div class="rows">
-                    <a class="row" href="https://discord.gg/mustardos-1152022492001603615"><span>Discord</span><i>↗</i></a>
-                    <a class="row" href="https://community.muos.dev/"><span>Forum</span><i>↗</i></a>
-                    <a class="row" href="https://web.libera.chat/#MustardOS"><span>IRC</span><i>↗</i></a>
-                    <a class="row" href="https://shop.muos.dev/"><span>Merch</span><i>↗</i></a>
-                </div>
-            </div>
+            <p class="note" id="no-services" hidden>None enabled.</p>
         </section>
     </div>
 
-    <div class="view" id="view-catalogue" hidden>
+    <div class="view" id="view-catalogue" data-library-tools hidden>
+        <h1>Catalogue</h1>
+
         <div class="box" role="region" aria-label="Catalogue">
             <div class="space" id="catalogue-space" role="group" aria-label="Storage" hidden>
                 <div class="space-head">
@@ -121,7 +159,9 @@
         </div>
     </div>
 
-    <div class="view" id="view-pickles" hidden>
+    <div class="view" id="view-pickles" data-library-tools hidden>
+        <h1>Saves</h1>
+
         <div class="box" role="region" aria-label="Saves">
             <div class="space" id="pickles-space" role="group" aria-label="Storage" hidden>
                 <div class="space-head">
@@ -137,9 +177,9 @@
             </div>
             <div id="pickles-body"></div>
         </div>
-
     </div>
 </main>
+</div>
 
 <div class="modal" id="crop-box" hidden>
     <div class="box" role="dialog" aria-labelledby="crop-title" aria-modal="true">
@@ -198,9 +238,7 @@
     <script src="js/session.js" defer></script>
     <script src="js/view.js" defer></script>
     <script src="js/dashboard.js" defer></script>
-    <script src="js/crop.js" defer></script>
-    <script src="js/catalogue.js" defer></script>
-    <script src="js/pickles.js" defer></script>
+    <!-- Catalogue and save management remain available in source while hidden for this release. -->
     <script src="js/boot.js" defer></script>
 </body>
 </html>

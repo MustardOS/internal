@@ -17,15 +17,17 @@ TIMEOUT=5000
 INTERVAL=100
 
 PROC_RUNNING() {
-	pgrep "$1" >/dev/null 2>&1
+	pidof "$1" >/dev/null 2>&1
 }
 
 HCI_READY() {
-	[ -d "/sys/class/bluetooth/hci0" ]
+	[ -d "/sys/class/bluetooth/hci0" ] || return 1
+	timeout 2 hciconfig hci0 up >/dev/null 2>&1 || return 1
+	timeout 2 hciconfig hci0 2>/dev/null | grep -q "UP RUNNING"
 }
 
 BLUETOOTHD_READY() {
-	bluetoothctl show >/dev/null 2>&1
+	timeout 2 bluetoothctl show >/dev/null 2>&1
 }
 
 WAIT_UNTIL() {
@@ -119,15 +121,14 @@ DO_START() {
 	fi
 
 	if PROC_RUNNING bluetoothd; then
-		LOG_WARN "$0" 0 "BLUETOOTH" "bluetoothd already running"
-		return 0
+		LOG_INFO "$0" 0 "BLUETOOTH" "bluetoothd already running"
+	else
+		mkdir -p /var/lib/bluetooth
+
+		LOG_INFO "$0" 0 "BLUETOOTH" "Starting bluetoothd"
+		"$BT_DAEMON" -n -d >/dev/null 2>&1 &
+		printf "%s" "$!" >"$BT_PID"
 	fi
-
-	mkdir -p /var/lib/bluetooth
-
-	LOG_INFO "$0" 0 "BLUETOOTH" "Starting bluetoothd"
-	"$BT_DAEMON" -n -d >/dev/null 2>&1 &
-	printf "%s" "$!" >"$BT_PID"
 
 	LOG_SUCCESS "$0" 0 "BLUETOOTH" "Bluetooth stack started"
 

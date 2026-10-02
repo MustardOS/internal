@@ -1346,7 +1346,15 @@ FB_SWITCH() {
 		fi
 	fi
 
-	/opt/muos/frontend/mufbset -w "${FB_ACTUAL_WIDTH}" -h "${FB_ACTUAL_HEIGHT}" -d "${FB_DEPTH}" || return 1
+	FB_CURRENT_VIRTUAL=
+	FB_CURRENT_DEPTH=
+	[ -r /sys/class/graphics/fb0/virtual_size ] && IFS= read -r FB_CURRENT_VIRTUAL </sys/class/graphics/fb0/virtual_size
+	[ -r /sys/class/graphics/fb0/bits_per_pixel ] && IFS= read -r FB_CURRENT_DEPTH </sys/class/graphics/fb0/bits_per_pixel
+	FB_EXPECTED_VIRTUAL="${FB_ACTUAL_WIDTH},$((FB_ACTUAL_HEIGHT * 2))"
+
+	if [ "$FB_CURRENT_VIRTUAL" != "$FB_EXPECTED_VIRTUAL" ] || [ "$FB_CURRENT_DEPTH" != "$FB_DEPTH" ]; then
+		/opt/muos/frontend/mufbset -w "${FB_ACTUAL_WIDTH}" -h "${FB_ACTUAL_HEIGHT}" -d "${FB_DEPTH}" || return 1
+	fi
 
 	for FB_MODE in screen mux; do
 		SET_VAR "device" "${FB_MODE}/width" "${FB_WIDTH}"

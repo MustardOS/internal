@@ -181,6 +181,9 @@ DO_STOP() {
 	STOP_PROC "bluetoothd" "$BT_PID"
 	STOP_PROC "rtk_hciattach" "$HCI_PID"
 	rfkill block bluetooth 2>/dev/null
+	case "$BOARD_NAME" in
+		rg*) modprobe -qr rtl_btlpm 2>/dev/null ;;
+	esac
 	sleep 0.1
 
 	LOG_SUCCESS "$0" 0 "BLUETOOTH" "Bluetooth stack stopped"

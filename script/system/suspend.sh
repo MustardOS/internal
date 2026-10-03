@@ -137,6 +137,86 @@ G350_COMPLETE_PM_TEST() {
 	mv "$G350_PM_TEST_RUNNING" "/opt/muos/config/g350-pm-test.$1"
 }
 
+# Pixel 2: no backlight level goes dark on this panel, so the whole display
+# pipeline is switched off while asleep. panel-off.ko runs the DRM suspend
+# helper when loaded and the resume helper when unloaded (see
+# device/rk-pixel-2/module/README.md). DRM clients are stopped around the
+# change because a commit against a suspended pipeline fails.
+PIXEL2_DISPLAY() {
+	[ "$BOARD_NAME" = rk-pixel-2 ] || return 0
+
+	# Same kernel build guard as the power key module in module.sh
+	PANEL_OFF_BUILD="#4 SMP Sun Jun 7 23:27:50 EDT 2026"
+	PANEL_OFF_KO="/opt/muos/device/module/panel-off.ko"
+	[ "$(uname -v)" = "$PANEL_OFF_BUILD" ] && [ -f "$PANEL_OFF_KO" ] || return 0
+
+	DRM_CLIENTS=$(pidof muxfrontend muxretro retroarch)
+	[ -n "$DRM_CLIENTS" ] && kill -STOP $DRM_CLIENTS
+
+	case "$1" in
+		off) grep -q '^panel_off ' /proc/modules || insmod "$PANEL_OFF_KO" ;;
+		on) grep -q '^panel_off ' /proc/modules && rmmod panel_off ;;
+	esac
+
+	# On the way down mususpend quiesces these itself, so only resume on the way back
+	[ "$1" = on ] && [ -n "$DRM_CLIENTS" ] && kill -CONT $DRM_CLIENTS
+	return 0
+}
+
+# Pixel 2 host port (WiFi dongle). VBUS stays on through mem and the dongle,
+# its driver already unloaded by the network stop, keeps drawing. Drop VBUS
+# by forcing the phy to peripheral, and unbind dwc2: left bound in device mode
+# across mem it never goes back to host. On wake, back to otg and bind fresh.
+PIXEL2_USB() {
+	[ "$BOARD_NAME" = rk-pixel-2 ] || return 0
+
+	PIXEL2_PHY=/sys/devices/platform/ff2c0000.syscon/ff2c0000.syscon:usb2-phy@100
+	PIXEL2_DWC2=/sys/bus/platform/drivers/dwc2
+
+	case "$1" in
+		off)
+			PIXEL2_USB_HOST=0
+			grep -qs '^USB-HOST=1' "$PIXEL2_PHY"/extcon/extcon*/state || return 0
+			# The role change re-runs charger detection, and an ac/usb wakeup
+			# event during the freeze aborts the suspend
+			for PIXEL2_SUPPLY in ac usb; do
+				echo disabled >"/sys/class/power_supply/$PIXEL2_SUPPLY/power/wakeup"
+			done
+			echo peripheral >"$PIXEL2_PHY/otg_mode"
+			sleep 1
+			echo ff300000.usb >"$PIXEL2_DWC2/unbind"
+			PIXEL2_USB_HOST=1
+			;;
+		on)
+			[ "${PIXEL2_USB_HOST:-0}" -eq 1 ] || return 0
+			PIXEL2_USB_HOST=0
+			for PIXEL2_SUPPLY in ac usb; do
+				echo enabled >"/sys/class/power_supply/$PIXEL2_SUPPLY/power/wakeup"
+			done
+			echo otg >"$PIXEL2_PHY/otg_mode"
+			echo ff300000.usb >"$PIXEL2_DWC2/bind"
+			PIXEL2_USB_WAIT && return 0
+
+			echo ff300000.usb >"$PIXEL2_DWC2/unbind"
+			sleep 1
+			echo ff300000.usb >"$PIXEL2_DWC2/bind"
+			PIXEL2_USB_WAIT
+			;;
+	esac
+	return 0
+}
+
+# Up to 10 s for the dongle to enumerate, so the network start finds it
+PIXEL2_USB_WAIT() {
+	PIXEL2_WAIT=0
+	while [ "$PIXEL2_WAIT" -lt 100 ]; do
+		[ -e /sys/bus/usb/devices/1-1 ] && return 0
+		PIXEL2_WAIT=$((PIXEL2_WAIT + 1))
+		sleep 0.1
+	done
+	return 1
+}
+
 RUN_SUSPEND_BACKEND() {
 	SUSPEND_HELPER=/opt/muos/frontend/mususpend
 	if [ ! -x "$SUSPEND_HELPER" ]; then
@@ -162,7 +242,31 @@ RUN_SUSPEND_BACKEND() {
 		rg-vita-pro | rk-pixel-2) POWER_DEVICE="rk805 pwrkey" ;;
 	esac
 
-	if [ -n "$POWER_DEVICE" ]; then
+	# Pixel 2 kernel suspend, tested on the shipped kernel build only. The power
+	# key or the shutdown deadline (RTC) wakes it; other builds keep userspace sleep
+	if [ "$BOARD_NAME" = rk-pixel-2 ] && [ "$(uname -v)" = "#4 SMP Sun Jun 7 23:27:50 EDT 2026" ]; then
+		PIXEL2_USB off
+
+		if [ -n "$REMAINING" ]; then
+			"$SUSPEND_HELPER" --state mem --timeout "$REMAINING"
+		else
+			"$SUSPEND_HELPER" --state mem
+		fi
+		SUSPEND_RESULT=$?
+
+		# mem is refused while a wakeup source is held (the phy holds one while
+		# a PC is connected in ADB mode), so fall back to the power key wait
+		if [ "$SUSPEND_RESULT" -eq 1 ]; then
+			if [ -n "$REMAINING" ]; then
+				"$SUSPEND_HELPER" --state userspace --power-device "$POWER_DEVICE" --optimise \
+					--quiesce muxfrontend --quiesce muxretro --quiesce retroarch --timeout "$REMAINING"
+			else
+				"$SUSPEND_HELPER" --state userspace --power-device "$POWER_DEVICE" --optimise \
+					--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
+			fi
+			SUSPEND_RESULT=$?
+		fi
+	elif [ -n "$POWER_DEVICE" ]; then
 		G350_LOG_SUSPEND userspace-wait
 
 		if [ -n "$REMAINING" ]; then
@@ -172,14 +276,17 @@ RUN_SUSPEND_BACKEND() {
 			"$SUSPEND_HELPER" --state userspace --power-device "$POWER_DEVICE" --optimise \
 				--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
 		fi
+		SUSPEND_RESULT=$?
 	else
 		if [ -n "$REMAINING" ]; then
 			"$SUSPEND_HELPER" --state "$SUSPEND_STATE" --timeout "$REMAINING"
 		else
 			"$SUSPEND_HELPER" --state "$SUSPEND_STATE"
 		fi
+		SUSPEND_RESULT=$?
 	fi
-	SUSPEND_RESULT=$?
+	PIXEL2_USB on
+	PIXEL2_DISPLAY on
 
 	case "$SUSPEND_RESULT" in
 		0) G350_LOG_SUSPEND power-key-wake ;;
@@ -424,6 +531,7 @@ SLEEP() {
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
 	DISPLAY_WRITE disp0 setbl 0
+	PIXEL2_DISPLAY off
 	amixer set "Master" mute >/dev/null 2>&1
 
 	# Stop the pop!
@@ -490,6 +598,9 @@ SLEEP() {
 }
 
 RESUME() {
+	# Normally already back on after mususpend, this covers SLEEP returning early
+	PIXEL2_DISPLAY on
+
 	# Start module loads in the background. The LED, USB, CPU governor,
 	# and brightness restore do not depend on it.  Network reconnect does
 	# (the module needs to be loaded first), so we'll wait before that.

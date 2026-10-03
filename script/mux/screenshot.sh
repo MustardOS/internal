@@ -55,11 +55,38 @@ done
 
 LOG_DEBUG "$0" 0 "SCREENSHOT" "$(printf "Output file: '%s'" "$SS_FILE")"
 
-case "$(GET_VAR "device" "board/name")" in
-	mgx*) /opt/muos/frontend/mufbset -g "$SS_FILE" && convert "$SS_FILE" -rotate 270 "$SS_FILE" ;;
-	rg-vita* | rg28xx-h) /opt/muos/frontend/mufbset -g "$SS_FILE" && convert "$SS_FILE" -rotate 90 "$SS_FILE" ;;
-	*) /opt/muos/frontend/mufbset -g "$SS_FILE" ;;
-esac || {
+SS_CAPTURED=0
+SS_REQUEST="$MUOS_RUN_DIR/screenshot_request"
+SS_REQUEST_TEMP="$SS_REQUEST.$$"
+
+if [ -e "$MUOS_RUN_DIR/hdmi_mode" ]; then
+	rm -f "$SS_REQUEST" "$SS_REQUEST_TEMP"
+	printf '%s\n' "$SS_FILE" >"$SS_REQUEST_TEMP"
+	mv -f "$SS_REQUEST_TEMP" "$SS_REQUEST"
+
+	SS_WAIT=0
+	SS_CLAIMED=0
+	while [ "$SS_WAIT" -lt 320 ]; do
+		[ -s "$SS_FILE" ] && {
+			SS_CAPTURED=1
+			break
+		}
+		[ ! -e "$SS_REQUEST" ] && SS_CLAIMED=1
+		[ "$SS_CLAIMED" -eq 0 ] && [ "$SS_WAIT" -ge 20 ] && break
+		sleep 0.025
+		SS_WAIT=$((SS_WAIT + 1))
+	done
+
+	rm -f "$SS_REQUEST" "$SS_REQUEST_TEMP"
+fi
+
+if [ "$SS_CAPTURED" -eq 0 ]; then
+	case "$(GET_VAR "device" "board/name")" in
+		mgx*) /opt/muos/frontend/mufbset -g "$SS_FILE" && convert "$SS_FILE" -rotate 270 "$SS_FILE" ;;
+		rg-vita* | rg28xx-h) /opt/muos/frontend/mufbset -g "$SS_FILE" && convert "$SS_FILE" -rotate 90 "$SS_FILE" ;;
+		*) /opt/muos/frontend/mufbset -g "$SS_FILE" ;;
+	esac
+fi || {
 	LOG_ERROR "$0" 0 "SCREENSHOT" "Screenshot capture failed"
 	exit 1
 }

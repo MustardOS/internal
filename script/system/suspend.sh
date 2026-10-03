@@ -163,60 +163,6 @@ PIXEL2_DISPLAY() {
 	return 0
 }
 
-# Pixel 2 host port (WiFi dongle). VBUS stays on through mem and the dongle,
-# its driver already unloaded by the network stop, keeps drawing. Drop VBUS
-# by forcing the phy to peripheral, and unbind dwc2: left bound in device mode
-# across mem it never goes back to host. On wake, back to otg and bind fresh.
-PIXEL2_USB() {
-	[ "$BOARD_NAME" = rk-pixel-2 ] || return 0
-
-	PIXEL2_PHY=/sys/devices/platform/ff2c0000.syscon/ff2c0000.syscon:usb2-phy@100
-	PIXEL2_DWC2=/sys/bus/platform/drivers/dwc2
-
-	case "$1" in
-		off)
-			PIXEL2_USB_HOST=0
-			grep -qs '^USB-HOST=1' "$PIXEL2_PHY"/extcon/extcon*/state || return 0
-			# The role change re-runs charger detection, and an ac/usb wakeup
-			# event during the freeze aborts the suspend
-			for PIXEL2_SUPPLY in ac usb; do
-				echo disabled >"/sys/class/power_supply/$PIXEL2_SUPPLY/power/wakeup"
-			done
-			echo peripheral >"$PIXEL2_PHY/otg_mode"
-			sleep 1
-			echo ff300000.usb >"$PIXEL2_DWC2/unbind"
-			PIXEL2_USB_HOST=1
-			;;
-		on)
-			[ "${PIXEL2_USB_HOST:-0}" -eq 1 ] || return 0
-			PIXEL2_USB_HOST=0
-			for PIXEL2_SUPPLY in ac usb; do
-				echo enabled >"/sys/class/power_supply/$PIXEL2_SUPPLY/power/wakeup"
-			done
-			echo otg >"$PIXEL2_PHY/otg_mode"
-			echo ff300000.usb >"$PIXEL2_DWC2/bind"
-			PIXEL2_USB_WAIT && return 0
-
-			echo ff300000.usb >"$PIXEL2_DWC2/unbind"
-			sleep 1
-			echo ff300000.usb >"$PIXEL2_DWC2/bind"
-			PIXEL2_USB_WAIT
-			;;
-	esac
-	return 0
-}
-
-# Up to 10 s for the dongle to enumerate, so the network start finds it
-PIXEL2_USB_WAIT() {
-	PIXEL2_WAIT=0
-	while [ "$PIXEL2_WAIT" -lt 100 ]; do
-		[ -e /sys/bus/usb/devices/1-1 ] && return 0
-		PIXEL2_WAIT=$((PIXEL2_WAIT + 1))
-		sleep 0.1
-	done
-	return 1
-}
-
 RUN_SUSPEND_BACKEND() {
 	SUSPEND_HELPER=/opt/muos/frontend/mususpend
 	if [ ! -x "$SUSPEND_HELPER" ]; then
@@ -285,7 +231,7 @@ RUN_SUSPEND_BACKEND() {
 		fi
 		SUSPEND_RESULT=$?
 	fi
-	PIXEL2_USB on
+	SUSPEND_RESULT=$?
 	PIXEL2_DISPLAY on
 
 	case "$SUSPEND_RESULT" in

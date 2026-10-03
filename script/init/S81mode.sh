@@ -4,39 +4,49 @@
 
 HDMI_PATH=$(GET_VAR "device" "screen/hdmi")
 BOARD_HDMI=$(GET_VAR "device" "board/hdmi")
-DEVICE_MODE=$(GET_VAR "config" "boot/device_mode")
+
+INTERNAL_WIDTH=$(GET_VAR "device" "screen/internal/width")
+INTERNAL_HEIGHT=$(GET_VAR "device" "screen/internal/height")
 
 BRIGHT_ADV=$(GET_VAR "config" "settings/advanced/brightness")
 BRIGHT_DEF=$(GET_VAR "config" "settings/general/brightness")
 BRIGHT_MAX=$(GET_VAR "device" "screen/bright")
 
+HANDHELD_START() {
+	SET_VAR "config" "boot/device_mode" "0"
+
+	for SCREEN_MODE in screen mux; do
+		SET_VAR "device" "$SCREEN_MODE/width" "$INTERNAL_WIDTH"
+		SET_VAR "device" "$SCREEN_MODE/height" "$INTERNAL_HEIGHT"
+	done
+
+	/opt/muos/script/device/bright.sh R
+
+	case "$BRIGHT_ADV" in
+		3) /opt/muos/script/device/bright.sh "$BRIGHT_MAX" ;;
+		2) /opt/muos/script/device/bright.sh 90 ;;
+		1) /opt/muos/script/device/bright.sh 35 ;;
+		*) /opt/muos/script/device/bright.sh "$BRIGHT_DEF" ;;
+	esac
+}
+
+# This is the only place the display mode is decided, async init runs alongside it and must leave it alone
 DO_START() {
-	if [ "${BOARD_HDMI:-0}" -eq 1 ]; then
-		HDMI_VALUE=0
-		[ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ] && IFS= read -r HDMI_VALUE <"$HDMI_PATH"
+	HDMI_VALUE=0
 
-		case "$HDMI_VALUE" in
-			1) CONSOLE_MODE=1 ;;
-			*) CONSOLE_MODE=0 ;;
-		esac
-
-		SET_VAR "config" "boot/device_mode" "$CONSOLE_MODE"
-		DEVICE_MODE="$CONSOLE_MODE"
+	if [ "${BOARD_HDMI:-0}" -eq 1 ] && [ -n "$HDMI_PATH" ] && [ -f "$HDMI_PATH" ]; then
+		IFS= read -r HDMI_VALUE <"$HDMI_PATH"
 	fi
 
-	if [ "$DEVICE_MODE" -eq 1 ]; then
-		/opt/muos/script/device/hdmi.sh
+	if [ "$HDMI_VALUE" = "1" ]; then
+		SET_VAR "config" "boot/device_mode" "1"
+
+		if ! /opt/muos/script/device/hdmi.sh; then
+			LOG_WARN "$0" 0 "BOOTING" "HDMI switch failed, staying on the internal display"
+			HANDHELD_START
+		fi
 	else
-		/opt/muos/script/device/bright.sh R
-
-		case "$BRIGHT_ADV" in
-			3) /opt/muos/script/device/bright.sh "$BRIGHT_MAX" ;;
-			2) /opt/muos/script/device/bright.sh 90 ;;
-			1) /opt/muos/script/device/bright.sh 35 ;;
-			*) /opt/muos/script/device/bright.sh "$BRIGHT_DEF" ;;
-		esac
-
-		SET_VAR "config" "settings/hdmi/scan" "0"
+		HANDHELD_START
 	fi
 
 	/opt/muos/script/mux/audio_sink.sh list >/dev/null 2>&1 || :

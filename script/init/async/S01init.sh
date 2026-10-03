@@ -5,8 +5,6 @@
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 GOVERNOR=$(GET_VAR "device" "cpu/governor")
 DEBUG_FS=$(GET_VAR "device" "board/debugfs")
-WIDTH=$(GET_VAR "device" "screen/internal/width")
-HEIGHT=$(GET_VAR "device" "screen/internal/height")
 
 DO_START() {
 	LOG_INFO "$0" 0 "BOOTING" "Creating Required Run Directory"
@@ -40,7 +38,10 @@ DO_START() {
 
 	LED_CONTROL_CHANGE off &
 
-	[ "$DEBUG_FS" -eq 1 ] && mount -t debugfs debugfs /sys/kernel/debug
+	# The HDMI switch can mount this first while running alongside async init
+	if [ "$DEBUG_FS" -eq 1 ] && ! grep -q " /sys/kernel/debug debugfs " /proc/mounts; then
+		mount -t debugfs debugfs /sys/kernel/debug
+	fi
 
 	/opt/muos/script/device/module.sh load
 
@@ -53,14 +54,6 @@ DO_START() {
 
 	SET_VAR "system" "resume_uptime" "$MU_UPTIME"
 	SET_VAR "system" "idle_inhibit" "0"
-	SET_VAR "config" "boot/device_mode" "0"
-
-	(
-		SET_VAR "device" "screen/width" "$WIDTH"
-		SET_VAR "device" "screen/height" "$HEIGHT"
-		SET_VAR "device" "mux/width" "$WIDTH"
-		SET_VAR "device" "mux/height" "$HEIGHT"
-	) &
 
 	LOG_INFO "$0" 0 "BOOTING" "Setting OS Release"
 	/opt/muos/script/system/os_release.sh &

@@ -1334,10 +1334,12 @@ RUMBLE() {
 	fi
 }
 
+# Usage: FB_SWITCH WIDTH HEIGHT DEPTH [BUFFERS]
 FB_SWITCH() {
 	FB_WIDTH="${1}"
 	FB_HEIGHT="${2}"
 	FB_DEPTH="${3}"
+	FB_BUFFERS="${4:-2}"
 
 	HDMI_NODE="$(GET_VAR "device" "screen/hdmi")"
 	FB_ACTUAL_WIDTH="${FB_WIDTH}"
@@ -1358,10 +1360,11 @@ FB_SWITCH() {
 	FB_CURRENT_DEPTH=
 	[ -r /sys/class/graphics/fb0/virtual_size ] && IFS= read -r FB_CURRENT_VIRTUAL </sys/class/graphics/fb0/virtual_size
 	[ -r /sys/class/graphics/fb0/bits_per_pixel ] && IFS= read -r FB_CURRENT_DEPTH </sys/class/graphics/fb0/bits_per_pixel
-	FB_EXPECTED_VIRTUAL="${FB_ACTUAL_WIDTH},$((FB_ACTUAL_HEIGHT * 2))"
+	FB_EXPECTED_VIRTUAL="${FB_ACTUAL_WIDTH},$((FB_ACTUAL_HEIGHT * FB_BUFFERS))"
 
 	if [ "$FB_CURRENT_VIRTUAL" != "$FB_EXPECTED_VIRTUAL" ] || [ "$FB_CURRENT_DEPTH" != "$FB_DEPTH" ]; then
-		/opt/muos/frontend/mufbset -w "${FB_ACTUAL_WIDTH}" -h "${FB_ACTUAL_HEIGHT}" -d "${FB_DEPTH}" || return 1
+		/opt/muos/frontend/mufbset -w "${FB_ACTUAL_WIDTH}" -h "${FB_ACTUAL_HEIGHT}" -d "${FB_DEPTH}" -b "${FB_BUFFERS}" || return 1
+		MIRROR_REFRESH
 	fi
 
 	for FB_MODE in screen mux; do
@@ -1419,18 +1422,77 @@ IS_HANDHELD_MODE() {
 	[ "$(GET_VAR "config" "boot/device_mode")" -eq 0 ]
 }
 
-DISPLAY_SYSFS_BACKLIGHT() {
-	[ -n "${BL_PATH_CACHE-}" ] && {
-		printf "%s\n" "$BL_PATH_CACHE"
-		return 0
-	}
-	for B in /sys/class/backlight/*; do
-		[ -f "$B/brightness" ] && {
-			BL_PATH_CACHE=$B
-			printf "%s\n" "$B"
-			return 0
-		}
+MIRROR_PID_FILE="$MUOS_RUN_DIR/mirror.pid"
+
+# Starts only the mudisp mirror process, the device display must already be on
+MIRROR_DAEMON_START() {
+	[ -x /opt/muos/frontend/mudisp ] || return 1
+
+	/opt/muos/frontend/mudisp mirror 1 >/dev/null 2>&1 &
+	printf "%s" "$!" >"$MIRROR_PID_FILE"
+}
+
+MIRROR_DAEMON_STOP() {
+	[ -r "$MIRROR_PID_FILE" ] || return 0
+
+	IFS= read -r MIRROR_PID <"$MIRROR_PID_FILE"
+	rm -f "$MIRROR_PID_FILE"
+	[ -n "$MIRROR_PID" ] || return 0
+
+	kill "$MIRROR_PID" 2>/dev/null || return 0
+
+	# Give it a moment to take its layer down before the display changes under it
+	MIRROR_WAIT=0
+	while kill -0 "$MIRROR_PID" 2>/dev/null && [ "$MIRROR_WAIT" -lt 20 ]; do
+		sleep 0.05
+		MIRROR_WAIT=$((MIRROR_WAIT + 1))
 	done
+}
+
+# Mirrors the HDMI output onto the device display when it is enabled and HDMI is active
+MIRROR_START() {
+	IS_ONE "$(GET_VAR "config" "settings/hdmi/mirror")" || return 0
+	IS_ONE "$(GET_VAR "config" "boot/device_mode")" || return 0
+
+	MIRROR_STOP
+
+	DISPLAY_WRITE disp1 switch "1 0"
+	sleep 0.5
+
+	MIRROR_BRIGHT=$(GET_VAR "config" "settings/general/brightness")
+	[ "${MIRROR_BRIGHT:-0}" -le 8 ] && MIRROR_BRIGHT=16
+	DISPLAY_WRITE disp1 setbl "$MIRROR_BRIGHT"
+
+	MIRROR_DAEMON_START || LOG_WARN "$0" 0 "MIRROR" "Display tool missing, output not mirrored"
+}
+
+MIRROR_STOP() {
+	MIRROR_WAS_RUNNING=0
+	[ -r "$MIRROR_PID_FILE" ] && MIRROR_WAS_RUNNING=1
+
+	MIRROR_DAEMON_STOP
+	[ "$MIRROR_WAS_RUNNING" -eq 1 ] && DISPLAY_WRITE disp1 switch "0 0"
+	return 0
+}
+
+# Framebuffer geometry changed, so the mirror has to pick up the new size
+MIRROR_REFRESH() {
+	[ -r "$MIRROR_PID_FILE" ] || return 0
+
+	MIRROR_DAEMON_STOP
+	MIRROR_DAEMON_START
+}
+
+# Sets BL_PATH_CACHE without a subshell so the lookup is only done once
+DISPLAY_SYSFS_BACKLIGHT() {
+	[ -n "${BL_PATH_CACHE-}" ] && return 0
+
+	for B in /sys/class/backlight/*; do
+		[ -f "$B/brightness" ] || continue
+		BL_PATH_CACHE=$B
+		return 0
+	done
+
 	return 1
 }
 
@@ -1443,9 +1505,9 @@ DISPLAY_WRITE() {
 	DW_CMD="${2}"
 	DW_PARAM="${3}"
 
-	# Prefer sysfs backlight if available
-	if BL_PATH=$(DISPLAY_SYSFS_BACKLIGHT); then
-		printf "%s" "$DW_PARAM" >"$BL_PATH/brightness"
+	# Only brightness belongs on a sysfs backlight, output switching must reach the display driver
+	if [ "$DW_CMD" = "setbl" ] && DISPLAY_SYSFS_BACKLIGHT; then
+		printf "%s" "$DW_PARAM" >"$BL_PATH_CACHE/brightness"
 		return
 	fi
 
@@ -1468,8 +1530,8 @@ DISPLAY_READ() {
 	DR_NAME="${1}"
 	DR_CMD="${2}"
 
-	if BL_PATH=$(DISPLAY_SYSFS_BACKLIGHT); then
-		IFS= read -r BL_VAL <"$BL_PATH/brightness" && printf "%s\n" "$BL_VAL"
+	if [ "$DR_CMD" = "getbl" ] && DISPLAY_SYSFS_BACKLIGHT; then
+		IFS= read -r BL_VAL <"$BL_PATH_CACHE/brightness" && printf "%s\n" "$BL_VAL"
 		return
 	fi
 
@@ -2831,8 +2893,15 @@ RESTORE_FRAMEBUFFER_MODE() {
 	EXTERNAL_HEIGHT=${5:-$(GET_VAR "device" "screen/external/height")}
 
 	if IS_ONE "$DEVICE_MODE_VALUE"; then
-		LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Switching framebuffer to external %sx%s@32" "$EXTERNAL_WIDTH" "$EXTERNAL_HEIGHT")"
-		FB_SWITCH "$EXTERNAL_WIDTH" "$EXTERNAL_HEIGHT" 32
+		# Keep whatever buffering the HDMI switch settled on
+		EXTERNAL_BUFFERS=$(GET_VAR "device" "screen/external/buffers")
+		case "$EXTERNAL_BUFFERS" in
+			1 | 2 | 3 | 4) ;;
+			*) EXTERNAL_BUFFERS=2 ;;
+		esac
+
+		LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Switching framebuffer to external %sx%s@32 x%s" "$EXTERNAL_WIDTH" "$EXTERNAL_HEIGHT" "$EXTERNAL_BUFFERS")"
+		FB_SWITCH "$EXTERNAL_WIDTH" "$EXTERNAL_HEIGHT" 32 "$EXTERNAL_BUFFERS"
 	else
 		LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Switching framebuffer to internal %sx%s@32" "$INTERNAL_WIDTH" "$INTERNAL_HEIGHT")"
 		FB_SWITCH "$INTERNAL_WIDTH" "$INTERNAL_HEIGHT" 32

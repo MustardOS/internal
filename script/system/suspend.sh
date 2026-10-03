@@ -577,6 +577,7 @@ SLEEP() {
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
 	DISPLAY_WRITE disp0 setbl 0
+	MIRROR_STOP
 	PIXEL2_DISPLAY off
 	amixer set "Master" mute >/dev/null 2>&1
 
@@ -697,6 +698,8 @@ RESUME() {
 
 	CHECK_MUXRETRO_AND_SAVE "$MUXRETRO_RESUME_SIGNAL"
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
+
+	MIRROR_START &
 
 	# Settle the codec on silence before the amplifier comes back on, the same as the boot fella
 	if [ -n "$SPEAKER_AMP_STATE" ]; then

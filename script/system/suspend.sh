@@ -20,13 +20,14 @@ HAS_NETWORK=$(GET_VAR "device" "board/network")
 NET_NAME=$(GET_VAR "device" "network/name")
 CPU_GOV_PATH="$(GET_VAR "device" "cpu/governor")"
 LED_NORMAL="$(GET_VAR "device" "led/normal")"
-LED_RGB="$(GET_VAR "device" "led/rgb")"
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
 RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
 MAX_BRIGHT=$(GET_VAR "device" "screen/bright")
 CHARGER_PATH="$(GET_VAR "device" "battery/charger")"
+BATTERY_CAPACITY_PATH="$(GET_VAR "device" "battery/capacity")"
+BATTERY_VOLTAGE_PATH="$(GET_VAR "device" "battery/voltage")"
+BATTERY_PATH="${BATTERY_CAPACITY_PATH%/*}"
 
-RGB_ENABLE=$(GET_VAR "config" "settings/general/rgb")
 RUMBLE_SETTING="$(GET_VAR "config" "settings/advanced/rumble")"
 SUSPEND_STATE="$(GET_VAR "config" "danger/state")"
 DEFAULT_BRIGHTNESS="$(GET_VAR "config" "settings/general/brightness")"
@@ -440,6 +441,51 @@ WAKE_IRQ_SNAPSHOT="$MUOS_RUN_DIR/wake_irqs"
 WAKE_TRACE="$MUOS_LOG_DIR/wake.trace"
 WAKE_IRQ_PATTERN="axp|pek|vbus|battery|rtc|alarm|wake|wlan|bt_|nmi|key"
 
+READ_SUSPEND_METRIC() {
+	METRIC_VALUE=unavailable
+	[ -r "$1" ] && IFS= read -r METRIC_VALUE <"$1"
+	printf '%s\n' "${METRIC_VALUE:-unavailable}"
+}
+
+CAPTURE_SUSPEND_METRICS() {
+	SUSPEND_START_EPOCH=$(date +%s)
+	SUSPEND_START_CAPACITY=$(READ_SUSPEND_METRIC "$BATTERY_CAPACITY_PATH")
+	SUSPEND_START_CHARGE=$(READ_SUSPEND_METRIC "$BATTERY_PATH/charge_counter")
+	SUSPEND_START_VOLTAGE=$(READ_SUSPEND_METRIC "$BATTERY_VOLTAGE_PATH")
+}
+
+REPORT_SUSPEND_METRICS() {
+	SUSPEND_END_EPOCH=$(date +%s)
+	SUSPEND_END_CAPACITY=$(READ_SUSPEND_METRIC "$BATTERY_CAPACITY_PATH")
+	SUSPEND_END_CHARGE=$(READ_SUSPEND_METRIC "$BATTERY_PATH/charge_counter")
+	SUSPEND_END_VOLTAGE=$(READ_SUSPEND_METRIC "$BATTERY_VOLTAGE_PATH")
+	SUSPEND_ELAPSED=$((SUSPEND_END_EPOCH - SUSPEND_START_EPOCH))
+	SUSPEND_CAPACITY_DELTA=unavailable
+	SUSPEND_CHARGE_DELTA=unavailable
+	SUSPEND_AVERAGE_CURRENT=unavailable
+
+	case "$SUSPEND_START_CAPACITY:$SUSPEND_END_CAPACITY" in
+		*[!0-9:-]*) ;;
+		*) SUSPEND_CAPACITY_DELTA=$((SUSPEND_END_CAPACITY - SUSPEND_START_CAPACITY)) ;;
+	esac
+	case "$SUSPEND_START_CHARGE:$SUSPEND_END_CHARGE" in
+		*[!0-9:-]*) ;;
+		*)
+			SUSPEND_CHARGE_DELTA=$((SUSPEND_END_CHARGE - SUSPEND_START_CHARGE))
+			[ "$SUSPEND_ELAPSED" -gt 0 ] && \
+				SUSPEND_AVERAGE_CURRENT=$(((SUSPEND_START_CHARGE - SUSPEND_END_CHARGE) * 3600 / SUSPEND_ELAPSED))
+			;;
+	esac
+
+	SUSPEND_RESIDENCY=$(READ_SUSPEND_METRIC /sys/kernel/wakeup_reasons/last_suspend_time)
+	SUSPEND_LINE=$(printf 'Suspend metrics: elapsed=%ss capacity=%s->%s(delta=%s) charge=%s->%s(delta=%s) average_current=%suA voltage=%s->%s residency=%s' \
+		"$SUSPEND_ELAPSED" "$SUSPEND_START_CAPACITY" "$SUSPEND_END_CAPACITY" "$SUSPEND_CAPACITY_DELTA" \
+		"$SUSPEND_START_CHARGE" "$SUSPEND_END_CHARGE" "$SUSPEND_CHARGE_DELTA" "$SUSPEND_AVERAGE_CURRENT" \
+		"$SUSPEND_START_VOLTAGE" "$SUSPEND_END_VOLTAGE" "$SUSPEND_RESIDENCY")
+	LOG_INFO "$0" 0 "SUSPEND" "$SUSPEND_LINE"
+	printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$SUSPEND_LINE" >>"$WAKE_TRACE" 2>/dev/null
+}
+
 # Can't sleep, clowns will eat me!
 QUIET_WAKE_SOURCES() {
 	: >"$QUIET_WAKE_LIST"
@@ -544,10 +590,6 @@ SLEEP() {
 	STOP_SSHD_GRACEFUL
 	SAVE_CPU_GOV "$CPU_GOV_PATH"
 
-	if [ "$RGB_ENABLE" -eq 1 ] && [ "$LED_RGB" -eq 1 ]; then
-		LED_CONTROL_CHANGE off
-	fi
-
 	case "$BOARD_NAME" in
 		rg*) echo "0" >"$LED_NORMAL" ;;
 	esac
@@ -577,6 +619,7 @@ SLEEP() {
 
 	QUIET_WAKE_SOURCES
 	SNAPSHOT_WAKE_SOURCES
+	CAPTURE_SUSPEND_METRICS
 
 	if [ "$G350_PM_TEST_ACTIVE" -eq 1 ]; then
 		G350_LOG_SUSPEND pm-test-dispatch
@@ -589,6 +632,7 @@ SLEEP() {
 		G350_LOG_SUSPEND backend-error
 	fi
 
+	REPORT_SUSPEND_METRICS
 	REPORT_WAKE_SOURCE
 	RESTORE_WAKE_SOURCES
 

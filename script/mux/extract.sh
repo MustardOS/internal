@@ -393,7 +393,7 @@ case "$ARCHIVE_NAME" in
 
 		# Special case for core downloads - we run the control script
 		# to initialise any control based changes for emulators
-		if [ "$FRONTEND_START_PROGRAM" = "coredown" ]; then
+		if [ "$FRONTEND_START_PROGRAM" = "core" ]; then
 			/opt/muos/script/device/control.sh || {
 				LOG_ERROR "$0" 0 "EXTRACT" "Failed to initialise control script after core download"
 				TASK_ERROR "control_failed" "Control initialisation failed after the core download."

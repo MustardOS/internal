@@ -23,6 +23,23 @@ VALID_LOCAL_NAME() {
 	[ "${#1}" -le 63 ]
 }
 
+REMOTE_VIEW_PUBLIC() {
+	[ "$(GET_VAR "config" "web/remote_privacy")" = "0" ]
+}
+
+REMOTE_VIEW_SECONDS() {
+	REMOTE_VIEW_PUBLIC || [ "$(WEB_SETTING landing_auth)" = "1" ] || return 0
+
+	case "$(GET_VAR "config" "web/remote_view")" in
+		0) ;;
+		1) printf '30' ;;
+		3) printf '180' ;;
+		4) printf '300' ;;
+		5) printf '600' ;;
+		*) printf '60' ;;
+	esac
+}
+
 BOOL_WEB_SETTING() {
 	[ "$(WEB_SETTING "$1")" = "1" ] && printf true || printf false
 }
@@ -96,7 +113,7 @@ PREPARE_LANDING_ROOT() {
 	cp -f "$LANDING_SOURCE"/index.html "$LANDING_SOURCE"/logo.svg "$LANDING_ROOT"/ || return 1
 	cp -f "$LANDING_SOURCE"/css/dashboard.css "$LANDING_ROOT/css"/ || return 1
 
-	for LANDING_PART in core theme dialog session view dashboard crop catalogue pickles boot; do
+	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists snapshot remote crop catalogue pickles boot; do
 		cp -f "$LANDING_SOURCE/js/$LANDING_PART.js" "$LANDING_ROOT/js"/ || return 1
 	done
 
@@ -115,6 +132,16 @@ PREPARE_LANDING_ROOT() {
 	{
 		printf 'window.MUOS_RUNTIME = {\n'
 		printf '    localName: "%s",\n' "$LOCAL_NAME"
+		if [ -n "$(REMOTE_VIEW_SECONDS)" ]; then
+			printf '    remoteView: true,\n'
+		else
+			printf '    remoteView: false,\n'
+		fi
+		if REMOTE_VIEW_PUBLIC; then
+			printf '    remotePublic: true,\n'
+		else
+			printf '    remotePublic: false,\n'
+		fi
 		printf '    theme: {\n'
 		THEME_PALETTE
 		printf '    },\n'
@@ -215,6 +242,9 @@ MANAGE_WEBSERV() {
 					LANDING_INFO="$MUOS_STORE_DIR/info"
 					[ -r "$LANDING_INFO/manifest/assign.json" ] && set -- "$@" --info "$LANDING_INFO"
 
+					mkdir -p "$LANDING_INFO/history" "$LANDING_INFO/collection"
+					set -- "$@" --history "$LANDING_INFO/history" --collection "$LANDING_INFO/collection"
+
 					# Only the ROMS directory of each storage root: the rest of a card holds
 					# BIOS files, ports, muOS itself and whatever else has been copied on, and
 					# none of that is content the catalogue is responsible for. The device's
@@ -244,6 +274,15 @@ MANAGE_WEBSERV() {
 						set -- "$@" --readonly
 					else
 						set -- "$@" --secret "$LANDING_SECRET"
+					fi
+
+					LANDING_SCREEN=$(REMOTE_VIEW_SECONDS)
+					if [ -n "$LANDING_SCREEN" ]; then
+						set -- "$@" --screen-script /opt/muos/script/web/screen.sh \
+							--screen-image "$MUOS_RUN_DIR/dash_screenshot.png" --screen-interval "$LANDING_SCREEN"
+						REMOTE_VIEW_PUBLIC && set -- "$@" --screen-public
+					else
+						rm -f "$MUOS_RUN_DIR/dash_screenshot.png" "$MUOS_RUN_DIR/dash_screenshot.png.state"
 					fi
 
 					"$PROCESS_HELPER" start "$PROCESS_NAME" "$@" || return 1

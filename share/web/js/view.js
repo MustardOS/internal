@@ -40,9 +40,20 @@
         });
     }
 
+    const menuButton = document.getElementById("menu-button");
+    const siteNav = document.getElementById("site-nav");
+
+    function openMenu(open) {
+        siteNav.classList.toggle("nav-open", open);
+        menuButton.setAttribute("aria-expanded", String(open));
+    }
+
+    menuButton.addEventListener("click", () => openMenu(!siteNav.classList.contains("nav-open")));
+
     function show(name, push = true) {
         current = name;
         paintTabs(name);
+        openMenu(false);
         if (push) navigate(null);
 
         const view = views[name];

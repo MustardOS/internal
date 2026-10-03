@@ -1,9 +1,9 @@
 (function () {
     "use strict";
 
-    const {ready, show} = window.MU;
+    const {loadLanguage, ready, show} = window.MU;
 
-    ready().then(() => {
+    loadLanguage().then(ready).then(() => {
         try {
             history.replaceState({view: "dash", where: null}, "");
         } catch (_) {

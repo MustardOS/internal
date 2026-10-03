@@ -2,7 +2,7 @@
     "use strict";
 
     const MU = window.MU = window.MU || {};
-    const {el, holdFocus, onDismiss, showToast} = MU;
+    const {el, holdFocus, onDismiss, showToast, t} = MU;
     const codeBox = el("code-box");
     const codeInput = el("code-input");
     const codeNote = el("code-note");
@@ -21,13 +21,13 @@
         codeBar.style.width = `${Math.max(0, Math.min(100, (span / auth.step) * 100))}%`;
         codeBar.classList.toggle("warn", span <= 5);
 
-        codeExpiry.textContent = seconds <= 1 ? "A new code now" : `Changes in ${seconds}s`;
+        codeExpiry.textContent = seconds <= 1 ? t("A new code now") : t("Changes in %ss", seconds);
     }
 
     async function askCode(message) {
         if (codePrompt) return codePrompt.promise;
 
-        codeNote.textContent = message || "";
+        codeNote.textContent = message ? t(message) : "";
         codeInput.value = "";
         const restore = holdFocus();
         codeBox.hidden = false;
@@ -93,8 +93,18 @@
             announce();
         }
 
-        if (!response.ok) throw new Error((payload && payload.error) || `Request failed (${response.status})`);
+        if (!response.ok) throw new Error(t((payload && payload.error) || "Request failed (%s)", response.status));
         return payload;
+    }
+
+    async function fetchAuthed(path) {
+        const response = await fetch(path, {headers: session ? {"X-muOS-Session": session} : {}, cache: "no-store"});
+        if (response.status === 401) {
+            session = "";
+            auth.unlocked = 0;
+            announce();
+        }
+        return response;
     }
 
     const lockButton = el("lock-toggle");
@@ -108,7 +118,7 @@
 
     function paintLock() {
         lockButton.hidden = !auth.required || Boolean(auth.readonly);
-        lockButton.textContent = auth.unlocked ? "Lock" : "Unlock to manage";
+        lockButton.textContent = auth.unlocked ? t("Lock") : t("Unlock to manage");
         lockButton.classList.toggle("open", Boolean(auth.unlocked));
     }
 
@@ -135,13 +145,13 @@
                 cache: "no-store"
             })).json();
 
-            if (!opened.token) throw new Error(opened.error || "That code was not accepted");
+            if (!opened.token) throw new Error(t(opened.error || "That code was not accepted"));
 
             session = opened.token;
             auth.unlocked = 1;
-            showToast("Unlocked");
+            showToast(t("Unlocked"), "good");
         } catch (error) {
-            showToast(error.message);
+            showToast(error.message, "bad");
         }
 
         announce();
@@ -157,7 +167,7 @@
             await fetch("api/session", {method: "DELETE", headers: {"X-muOS-Session": held}, cache: "no-store"});
         } catch (_) {
         }
-        showToast("Locked");
+        showToast(t("Locked"));
     }
 
     lockButton.addEventListener("click", () => (auth.unlocked ? lock() : unlock()));
@@ -167,10 +177,13 @@
     }
 
     MU.canManage = () => !auth.readonly && Boolean(auth.unlocked);
+    MU.canManageLists = () => Boolean(auth.lists_open) || MU.canManage();
     MU.onAuthChange = (fn) => listeners.push(fn);
 
     Object.assign(MU, {
         api,
+        fetchAuthed,
+        unlock: () => unlock(),
         ready
     });
 }());

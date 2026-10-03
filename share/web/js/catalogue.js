@@ -606,7 +606,7 @@
 
     async function prepare(file) {
         if (file.size > UPLOAD_LIMIT) {
-            showToast(`${file.name} is ${bytes(file.size)}, over the ${bytes(UPLOAD_LIMIT)} limit`);
+            showToast(`${file.name} is ${bytes(file.size)}, over the ${bytes(UPLOAD_LIMIT)} limit`, "bad");
             return null;
         }
         if (!VIEWABLE.includes(extension(file.name)) || extension(file.name) === "svg") return file;
@@ -633,10 +633,10 @@
                 });
             }
 
-            showToast(`${kind.name} saved`);
+            showToast(`${kind.name} saved`, "good");
             await refresh();
         } catch (error) {
-            showToast(error.message);
+            showToast(error.message, "bad");
         }
     }
 
@@ -651,7 +651,7 @@
             const blob = await response.blob();
             edited = await window.MU.cropImage(new File([blob], name, {type: blob.type}));
         } catch (error) {
-            showToast(error.message);
+            showToast(error.message, "bad");
             return;
         }
 
@@ -663,10 +663,10 @@
                 body: edited,
                 type: edited.type || "application/octet-stream"
             }));
-            showToast(`${kind.name} adjusted`);
+            showToast(`${kind.name} adjusted`, "good");
             await refresh();
         } catch (error) {
-            showToast(error.message);
+            showToast(error.message, "bad");
         }
     }
 
@@ -683,10 +683,10 @@
             await busy(button, "Removing…",
                 () => api(`api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...file.split("/"))}`,
                     {method: "DELETE"}));
-            showToast(`${kind.name} removed`);
+            showToast(`${kind.name} removed`, "good");
             await refresh();
         } catch (error) {
-            showToast(error.message);
+            showToast(error.message, "bad");
         }
     }
 

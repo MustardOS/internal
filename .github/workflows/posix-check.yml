@@ -1,0 +1,25 @@
+name: POSIX Shell Check
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  posix:
+    name: Bashism check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check changed shell scripts
+        if: github.event_name == 'pull_request'
+        run: sh .github/scripts/posix-check.sh "origin/${{ github.base_ref }}"
+
+      - name: Check every shell script
+        if: github.event_name != 'pull_request'
+        run: sh .github/scripts/posix-check.sh

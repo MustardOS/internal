@@ -10,15 +10,15 @@ BT_PAIRED="$BT_DIR/paired"
 BT_SCAN_LOCK="$BT_DIR/scan.lock"
 BT_SCAN_TIMEOUT=$(GET_VAR "config" "settings/advanced/bt_scan_timeout")
 SCAN_TIMEOUT=${BT_SCAN_TIMEOUT:-20}
+SHOW_RAW=$(GET_VAR "config" "settings/advanced/bt_raw")
 
 mkdir -p "$BT_DIR"
 
 DEVICE_READY() {
 	READY_INFO=$(timeout 5 bluetoothctl info "$1" 2>/dev/null)
 	READY_CONNECTED=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tConnected:/ { print $2; exit }')
-	READY_SERVICES=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tServicesResolved:/ { print $2; exit }')
 
-	[ "$READY_CONNECTED" = "yes" ] && [ "$READY_SERVICES" != "no" ]
+	[ "$READY_CONNECTED" = "yes" ]
 }
 
 WAIT_FOR_DEVICE() {
@@ -39,11 +39,11 @@ WAIT_FOR_DEVICE() {
 }
 
 CONNECT_DEVICE() {
-	WAIT_FOR_DEVICE "$1" && return 0
+	DEVICE_READY "$1" && return 0
 
 	CONNECT_ATTEMPT=0
 	while [ "$CONNECT_ATTEMPT" -lt 2 ]; do
-		timeout 20 bluetoothctl connect "$1" >/dev/null 2>&1
+		timeout 15 bluetoothctl connect "$1" >/dev/null 2>&1
 		WAIT_FOR_DEVICE "$1" && return 0
 		CONNECT_ATTEMPT=$((CONNECT_ATTEMPT + 1))
 	done
@@ -115,6 +115,7 @@ WRITE_SCAN_RESULTS() {
 			"" | "$MAC" | \
 				[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F] | \
 				[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F])
+				[ "${SHOW_RAW:-0}" -eq 1 ] || continue
 				VENDOR=$(OUI_LOOKUP "$MAC")
 				printf "%s %s\n" "$MAC" "${VENDOR:-$MAC}" >>"$TMP_UNKNOWN"
 				;;
@@ -227,7 +228,9 @@ DO_CONNECT() {
 
 	LOG_INFO "$0" 0 "BTSCAN" "$(printf "Pairing and connecting to '%s'" "$MAC")"
 
-	timeout 30 bluetoothctl pair "$MAC" >/dev/null 2>&1
+	timeout 5 bluetoothctl power on >/dev/null 2>&1
+	timeout 5 bluetoothctl unblock "$MAC" >/dev/null 2>&1
+	timeout 30 bluetoothctl --agent NoInputNoOutput pair "$MAC" >/dev/null 2>&1
 	BT_RAW=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
 	IS_PAIRED=$(printf "%s" "$BT_RAW" | awk -F': ' '/^\tPaired:/ { print $2; exit }')
 	if [ "$IS_PAIRED" != "yes" ]; then

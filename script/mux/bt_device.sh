@@ -13,9 +13,8 @@ mkdir -p "$BT_DIR"
 DEVICE_READY() {
 	READY_INFO=$(timeout 5 bluetoothctl info "$1" 2>/dev/null)
 	READY_CONNECTED=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tConnected:/ { print $2; exit }')
-	READY_SERVICES=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tServicesResolved:/ { print $2; exit }')
 
-	[ "$READY_CONNECTED" = "yes" ] && [ "$READY_SERVICES" != "no" ]
+	[ "$READY_CONNECTED" = "yes" ]
 }
 
 WAIT_FOR_DEVICE() {
@@ -36,11 +35,11 @@ WAIT_FOR_DEVICE() {
 }
 
 CONNECT_DEVICE() {
-	WAIT_FOR_DEVICE "$1" && return 0
+	DEVICE_READY "$1" && return 0
 
 	CONNECT_ATTEMPT=0
 	while [ "$CONNECT_ATTEMPT" -lt 2 ]; do
-		timeout 20 bluetoothctl connect "$1" >/dev/null 2>&1
+		timeout 15 bluetoothctl connect "$1" >/dev/null 2>&1
 		WAIT_FOR_DEVICE "$1" && return 0
 		CONNECT_ATTEMPT=$((CONNECT_ATTEMPT + 1))
 	done
@@ -158,7 +157,7 @@ DO_CONNECT() {
 	BT_INFO=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
 	IS_PAIRED=$(printf "%s" "$BT_INFO" | awk -F': ' '/^\tPaired:/ { print $2; exit }')
 	if [ "${IS_PAIRED}" != "yes" ]; then
-		timeout 30 bluetoothctl pair "$MAC" >/dev/null 2>&1
+		timeout 30 bluetoothctl --agent NoInputNoOutput pair "$MAC" >/dev/null 2>&1
 		BT_INFO=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
 		IS_PAIRED=$(printf "%s" "$BT_INFO" | awk -F': ' '/^\tPaired:/ { print $2; exit }')
 		if [ "$IS_PAIRED" != "yes" ]; then

@@ -34,8 +34,7 @@ PROC_RUNNING() {
 
 HCI_READY() {
 	[ -d "/sys/class/bluetooth/hci0" ] || return 1
-	timeout 2 hciconfig hci0 up >/dev/null 2>&1 || return 1
-	timeout 2 hciconfig hci0 2>/dev/null | grep -q "UP RUNNING"
+	timeout 2 hciconfig hci0 >/dev/null 2>&1
 }
 
 BLUETOOTHD_READY() {
@@ -86,6 +85,8 @@ DO_START() {
 				LOG_INFO "$0" 0 "BLUETOOTH" "Loading network module required..."
 				/opt/muos/script/init/async/S02network.sh load
 			fi
+			rfkill unblock bluetooth 2>/dev/null
+			sleep 0.1
 			LOG_INFO "$0" 0 "BLUETOOTH" "Attaching Realtek HCI (rg variant)"
 			modprobe /lib/modules/4.9.170/kernel/drivers/bluetooth/rtl_btlpm.ko
 			rtk_hciattach -n -s 115200 /dev/ttyS1 rtk_h5 >/dev/null 2>&1 &
@@ -128,7 +129,6 @@ DO_START() {
 		SET_STATE unavailable
 		return 1
 	fi
-
 	LOG_SUCCESS "$0" 0 "BLUETOOTH" "HCI device ready"
 
 	if [ ! -x "$BT_DAEMON" ]; then
@@ -160,7 +160,11 @@ DO_START() {
 			exit 0
 		fi
 
-		timeout 5 bluetoothctl power on >/dev/null 2>&1
+		if ! timeout 5 bluetoothctl power on >/dev/null 2>&1; then
+			LOG_WARN "$0" 0 "BLUETOOTH" "HCI device could not be powered"
+			SET_STATE unavailable
+			exit 0
+		fi
 		/opt/muos/script/mux/bt_device.sh list
 		/opt/muos/script/mux/bt_monitor.sh start
 		SET_STATE ready
@@ -176,6 +180,8 @@ DO_STOP() {
 
 	STOP_PROC "bluetoothd" "$BT_PID"
 	STOP_PROC "rtk_hciattach" "$HCI_PID"
+	rfkill block bluetooth 2>/dev/null
+	sleep 0.1
 
 	LOG_SUCCESS "$0" 0 "BLUETOOTH" "Bluetooth stack stopped"
 }

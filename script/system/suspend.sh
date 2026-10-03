@@ -188,7 +188,31 @@ RUN_SUSPEND_BACKEND() {
 		rg-vita-pro | rk-pixel-2) POWER_DEVICE="rk805 pwrkey" ;;
 	esac
 
-	if [ -n "$POWER_DEVICE" ]; then
+	# Pixel 2 kernel suspend, tested on the shipped kernel build only. The power
+	# key or the shutdown deadline (RTC) wakes it; other builds keep userspace sleep
+	if [ "$BOARD_NAME" = rk-pixel-2 ] && [ "$(uname -v)" = "#4 SMP Sun Jun 7 23:27:50 EDT 2026" ]; then
+		PIXEL2_USB off
+
+		if [ -n "$REMAINING" ]; then
+			"$SUSPEND_HELPER" --state mem --timeout "$REMAINING"
+		else
+			"$SUSPEND_HELPER" --state mem
+		fi
+		SUSPEND_RESULT=$?
+
+		# mem is refused while a wakeup source is held (the phy holds one while
+		# a PC is connected in ADB mode), so fall back to the power key wait
+		if [ "$SUSPEND_RESULT" -eq 1 ]; then
+			if [ -n "$REMAINING" ]; then
+				"$SUSPEND_HELPER" --state userspace --power-device "$POWER_DEVICE" --optimise \
+					--quiesce muxfrontend --quiesce muxretro --quiesce retroarch --timeout "$REMAINING"
+			else
+				"$SUSPEND_HELPER" --state userspace --power-device "$POWER_DEVICE" --optimise \
+					--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
+			fi
+			SUSPEND_RESULT=$?
+		fi
+	elif [ -n "$POWER_DEVICE" ]; then
 		G350_LOG_SUSPEND userspace-wait
 
 		if [ -n "$REMAINING" ]; then
@@ -198,12 +222,14 @@ RUN_SUSPEND_BACKEND() {
 			"$SUSPEND_HELPER" --state userspace --power-device "$POWER_DEVICE" --optimise \
 				--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
 		fi
+		SUSPEND_RESULT=$?
 	else
 		if [ -n "$REMAINING" ]; then
 			"$SUSPEND_HELPER" --state "$SUSPEND_STATE" --timeout "$REMAINING"
 		else
 			"$SUSPEND_HELPER" --state "$SUSPEND_STATE"
 		fi
+		SUSPEND_RESULT=$?
 	fi
 	SUSPEND_RESULT=$?
 	PIXEL2_DISPLAY on

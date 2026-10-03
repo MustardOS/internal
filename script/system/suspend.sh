@@ -159,7 +159,7 @@ RUN_SUSPEND_BACKEND() {
 	POWER_DEVICE=
 	case "$BOARD_NAME" in
 		rk-g350-v) POWER_DEVICE=rk8xx_pwrkey ;;
-		rg-vita-pro) POWER_DEVICE="rk805 pwrkey" ;;
+		rg-vita-pro | rk-pixel-2) POWER_DEVICE="rk805 pwrkey" ;;
 	esac
 
 	if [ -n "$POWER_DEVICE" ]; then

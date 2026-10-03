@@ -95,6 +95,25 @@ case "$1" in
 				fi
 				;;
 			rk*)
+				if [ "$BOARD_NAME" = rk-pixel-2 ]; then
+					# Out-of-tree power key driver, see device/rk-pixel-2/module/README.md.
+					# Only valid for the exact kernel build below. If the kernel is rebuilt,
+					# this is skipped (no crash) and the power key goes dead until the
+					# module is rebuilt or the kernel ships CONFIG_INPUT_RK805_PWRKEY.
+					PWRKEY_BUILD="#4 SMP Sun Jun 7 23:27:50 EDT 2026"
+					PWRKEY_KO="/opt/muos/device/module/rk805-pwrkey.ko"
+
+					if [ "$(uname -v)" = "$PWRKEY_BUILD" ] && [ -f "$PWRKEY_KO" ]; then
+						grep -q '^rk805_pwrkey ' /proc/modules || insmod "$PWRKEY_KO"
+					else
+						LOG_WARN "$0" 0 "MODULE" "rk805-pwrkey skipped: kernel build does not match"
+					fi
+
+					# Started here rather than S05device so it is not queued behind S02network
+					pgrep -f /opt/muos/script/device/pwrkey.sh >/dev/null 2>&1 ||
+						/opt/muos/script/device/pwrkey.sh &
+				fi
+
 				if ! pidof muinput >/dev/null 2>&1; then
 					/opt/muos/frontend/muinput &
 				fi

@@ -1391,18 +1391,11 @@ HDMI_SWITCH() {
 			HS_WIDTH=1280
 			HS_HEIGHT=720
 			;; # 720p (50 or 60 Hz)
-		6 | 7)
-			HS_WIDTH=1920
-			HS_HEIGHT=1080
-			;; # 1080i (50 or 60 Hz)
-		8 | 9 | 10)
-			HS_WIDTH=1920
-			HS_HEIGHT=1080
-			;; # 1080p (24, 50, or 60 Hz)
 		*)
-			# Unknown index - fall back to internal panel size
-			HS_WIDTH="$(GET_VAR "device" "screen/internal/width")"
-			HS_HEIGHT="$(GET_VAR "device" "screen/internal/height")"
+			HS_RES=2
+			HS_WIDTH=720
+			HS_HEIGHT=480
+			SET_VAR "config" "settings/hdmi/resolution" "${HS_RES}"
 			;;
 	esac
 

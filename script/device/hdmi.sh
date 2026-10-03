@@ -8,6 +8,14 @@ HDMI_DEPTH=$(GET_VAR "config" "settings/hdmi/depth")
 HDMI_RANGE=$(GET_VAR "config" "settings/hdmi/range")
 HDMI_SCAN=$(GET_VAR "config" "settings/hdmi/scan")
 
+case "$HDMI_RESOLUTION" in
+	0 | 1 | 2 | 3 | 4 | 5) ;;
+	*)
+		HDMI_RESOLUTION=2
+		SET_VAR "config" "settings/hdmi/resolution" "$HDMI_RESOLUTION"
+		;;
+esac
+
 REFRESH_HDMI() {
 	printf "1" >"$MUOS_RUN_DIR/hdmi_refresh"
 	printf "%s" "$1" >"$MUOS_RUN_DIR/hdmi_mode"
@@ -22,11 +30,6 @@ GET_TV_MODE() {
 		3) printf "3" ;; # DISP_TV_MOD_576P
 		4) printf "4" ;; # DISP_TV_MOD_720P_50HZ
 		5) printf "5" ;; # DISP_TV_MOD_720P_60HZ
-		6) printf "6" ;; # DISP_TV_MOD_1080I_50HZ
-		7) printf "7" ;; # DISP_TV_MOD_1080I_60HZ
-		8) printf "8" ;; # DISP_TV_MOD_1080P_24HZ
-		9) printf "9" ;; # DISP_TV_MOD_1080P_50HZ
-		10) printf "10" ;; # DISP_TV_MOD_1080P_60HZ
 		*) printf "2" ;; # default: 480P
 	esac
 }
@@ -36,8 +39,7 @@ GET_FB_DIMENSIONS() {
 		0 | 1 | 2) printf "720x480" ;;
 		3) printf "720x576" ;;
 		4 | 5) printf "1280x720" ;;
-		6 | 7 | 8 | 9 | 10 | 26 | 27) printf "1920x1080" ;;
-		*) printf "1920x1080" ;;
+		*) printf "720x480" ;;
 	esac
 }
 
@@ -75,21 +77,6 @@ GET_SCAN_MODE() {
 		0) printf "overscan" ;;
 		1) printf "underscan" ;;
 		*) printf "underscan" ;;
-	esac
-}
-
-GET_DELAYS() {
-	case "$1" in
-		1920x1080)
-			PRE_FB=0.35
-			POST_FB=0.20
-			PRE_FE=0.35
-			;;
-		*)
-			PRE_FB=0.20
-			POST_FB=0.10
-			PRE_FE=0.10
-			;;
 	esac
 }
 
@@ -161,7 +148,9 @@ COLOUR_DEPTH=$(GET_COLOUR_DEPTH)
 COLOUR_RANGE=$(GET_COLOUR_RANGE)
 SCAN_MODE=$(GET_SCAN_MODE)
 
-GET_DELAYS "$FB_MODE"
+PRE_FB=0.20
+POST_FB=0.10
+PRE_FE=0.10
 
 LOG_INFO "hdmi" 0 "HDMI" "Switching HDMI: mode=$TV_MODE res=$FB_MODE space=$COLOUR_SPACE depth=${COLOUR_DEPTH}bit range=$COLOUR_RANGE scan=$SCAN_MODE"
 

@@ -5796,6 +5796,7 @@
 			pinctrl-names = "default\0pmic-power-off";
 			pinctrl-0 = <0x13b 0x13c 0x13d 0x13e>;
 			pinctrl-1 = <0x13f>;
+			rockchip,system-power-controller;
 			low_voltage_threshold = <0xbb8>;
 			shutdown_voltage_threshold = <0xa8c>;
 			shutdown_temperture_threshold = <0xa0>;

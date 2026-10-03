@@ -2,8 +2,20 @@
 
 [ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
 
+BT_STATE="$MUOS_RUN_DIR/bluetooth_state"
+BT_CONF="$MUOS_SHARE_DIR/conf/bluetooth.conf"
+
+SET_STATE() {
+	printf '%s\n' "$1" >"$BT_STATE.tmp" && mv -f "$BT_STATE.tmp" "$BT_STATE"
+}
+
 case "${1:-start}" in
-	start | restart) IN_SAFE_MODE && exit 0 ;;
+	start | restart)
+		if IN_SAFE_MODE; then
+			SET_STATE unavailable
+			exit 0
+		fi
+		;;
 esac
 
 BOARD_NAME=$(GET_VAR "device" "board/name")
@@ -17,15 +29,16 @@ TIMEOUT=5000
 INTERVAL=100
 
 PROC_RUNNING() {
-	pgrep "$1" >/dev/null 2>&1
+	pidof "$1" >/dev/null 2>&1
 }
 
 HCI_READY() {
-	[ -d "/sys/class/bluetooth/hci0" ]
+	[ -d "/sys/class/bluetooth/hci0" ] || return 1
+	timeout 2 hciconfig hci0 >/dev/null 2>&1
 }
 
 BLUETOOTHD_READY() {
-	bluetoothctl show >/dev/null 2>&1
+	timeout 2 bluetoothctl show >/dev/null 2>&1
 }
 
 WAIT_UNTIL() {
@@ -61,6 +74,8 @@ STOP_PROC() {
 }
 
 DO_START() {
+	SET_STATE starting
+
 	case "$BOARD_NAME" in
 		rg-vita*) ;; # Add this at some stage...
 		rg*)
@@ -70,6 +85,8 @@ DO_START() {
 				LOG_INFO "$0" 0 "BLUETOOTH" "Loading network module required..."
 				/opt/muos/script/init/async/S02network.sh load
 			fi
+			rfkill unblock bluetooth 2>/dev/null
+			sleep 0.1
 			LOG_INFO "$0" 0 "BLUETOOTH" "Attaching Realtek HCI (rg variant)"
 			modprobe /lib/modules/4.9.170/kernel/drivers/bluetooth/rtl_btlpm.ko
 			rtk_hciattach -n -s 115200 /dev/ttyS1 rtk_h5 >/dev/null 2>&1 &
@@ -101,6 +118,7 @@ DO_START() {
 			;;
 		*)
 			LOG_INFO "$0" 0 "BLUETOOTH" "$(printf "No Bluetooth HCI attachment needed for board '%s'" "$BOARD_NAME")"
+			SET_STATE unavailable
 			return 0
 			;;
 	esac
@@ -108,45 +126,62 @@ DO_START() {
 	LOG_INFO "$0" 0 "BLUETOOTH" "Waiting for HCI device to become ready"
 	if ! WAIT_UNTIL HCI_READY; then
 		LOG_WARN "$0" 0 "BLUETOOTH" "HCI device did not appear within timeout"
+		SET_STATE unavailable
 		return 1
 	fi
-
 	LOG_SUCCESS "$0" 0 "BLUETOOTH" "HCI device ready"
 
 	if [ ! -x "$BT_DAEMON" ]; then
 		LOG_WARN "$0" 0 "BLUETOOTH" "$(printf "bluetoothd not found at '%s' - skipping" "$BT_DAEMON")"
+		SET_STATE unavailable
 		return 0
 	fi
 
 	if PROC_RUNNING bluetoothd; then
-		LOG_WARN "$0" 0 "BLUETOOTH" "bluetoothd already running"
-		return 0
+		LOG_INFO "$0" 0 "BLUETOOTH" "bluetoothd already running"
+	else
+		mkdir -p /var/lib/bluetooth
+
+		LOG_INFO "$0" 0 "BLUETOOTH" "Starting bluetoothd"
+		if [ -r "$BT_CONF" ]; then
+			"$BT_DAEMON" -n -d -f "$BT_CONF" >/dev/null 2>&1 &
+		else
+			"$BT_DAEMON" -n -d >/dev/null 2>&1 &
+		fi
+		printf "%s" "$!" >"$BT_PID"
 	fi
-
-	mkdir -p /var/lib/bluetooth
-
-	LOG_INFO "$0" 0 "BLUETOOTH" "Starting bluetoothd"
-	"$BT_DAEMON" -n -d >/dev/null 2>&1 &
-	printf "%s" "$!" >"$BT_PID"
 
 	LOG_SUCCESS "$0" 0 "BLUETOOTH" "Bluetooth stack started"
 
 	(
-		WAIT_UNTIL BLUETOOTHD_READY || exit 0
-		sleep 2
+		if ! WAIT_UNTIL BLUETOOTHD_READY; then
+			LOG_WARN "$0" 0 "BLUETOOTH" "bluetoothd did not respond within timeout"
+			SET_STATE unavailable
+			exit 0
+		fi
+
+		if ! timeout 5 bluetoothctl power on >/dev/null 2>&1; then
+			LOG_WARN "$0" 0 "BLUETOOTH" "HCI device could not be powered"
+			SET_STATE unavailable
+			exit 0
+		fi
 		/opt/muos/script/mux/bt_device.sh list
-		/opt/muos/script/mux/bt_device.sh autoconnect
 		/opt/muos/script/mux/bt_monitor.sh start
+		SET_STATE ready
+		LOG_SUCCESS "$0" 0 "BLUETOOTH" "Bluetooth is ready"
 	) &
 }
 
 DO_STOP() {
 	LOG_INFO "$0" 0 "BLUETOOTH" "Stopping Bluetooth stack"
+	rm -f "$BT_STATE"
 
 	/opt/muos/script/mux/bt_monitor.sh stop
 
 	STOP_PROC "bluetoothd" "$BT_PID"
 	STOP_PROC "rtk_hciattach" "$HCI_PID"
+	rfkill block bluetooth 2>/dev/null
+	sleep 0.1
 
 	LOG_SUCCESS "$0" 0 "BLUETOOTH" "Bluetooth stack stopped"
 }

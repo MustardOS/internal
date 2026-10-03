@@ -19,6 +19,23 @@ APPLY_TEMP() {
 	[ -n "$COLOUR_DEV" ] && [ -e "$COLOUR_DEV" ] && printf "%s" "$1" >"$COLOUR_DEV"
 }
 
+APPLY_TEMP_BOOT() {
+	COLOUR_DEV=$(GET_VAR "device" "screen/colour")
+	[ -n "$COLOUR_DEV" ] && [ -e "$COLOUR_DEV" ] || return
+	START_TEMP=$(cat "$COLOUR_DEV" 2>/dev/null)
+	TARGET_TEMP=$1
+	case "$START_TEMP:$TARGET_TEMP" in
+		*[!0-9:-]*) APPLY_TEMP "$TARGET_TEMP"; return ;;
+	esac
+	STEP=1
+	while [ "$STEP" -le 16 ]; do
+		TEMP=$((START_TEMP + (TARGET_TEMP - START_TEMP) * STEP / 16))
+		printf "%s" "$TEMP" >"$COLOUR_DEV"
+		STEP=$((STEP + 1))
+		sleep 0.04
+	done
+}
+
 CURRENT_TEMP() {
 	SUNRISE_TEMP=$(GET_VAR "config" "settings/colour/sunrise_temp")
 	SUNSET_TEMP=$(GET_VAR "config" "settings/colour/sunset_temp")
@@ -52,16 +69,30 @@ CURRENT_TEMP() {
 }
 
 DAEMON_LOOP() {
-	while true; do
+	if [ "${1:-0}" = "1" ]; then
+		APPLY_TEMP_BOOT "$(CURRENT_TEMP)"
+	else
 		APPLY_TEMP "$(CURRENT_TEMP)"
+	fi
+	while true; do
 		sleep 60
+		APPLY_TEMP "$(CURRENT_TEMP)"
 	done
 }
 
 DO_START() {
 	SCHEDULE_MODE=$(GET_VAR "config" "settings/colour/schedule_mode")
 	if [ "${SCHEDULE_MODE:-0}" = "1" ]; then
-		DO_STOP
+		if IS_RUNNING; then
+			kill "$_PID" 2>/dev/null
+			rm -f "$PID_FILE"
+		fi
+		SUNRISE_TEMP=$(GET_VAR "config" "settings/colour/sunrise_temp")
+		if [ "${1:-0}" = "1" ]; then
+			APPLY_TEMP_BOOT "${SUNRISE_TEMP:-30}"
+		else
+			APPLY_TEMP "${SUNRISE_TEMP:-30}"
+		fi
 		exit 0
 	fi
 
@@ -70,7 +101,7 @@ DO_START() {
 		exit 0
 	fi
 
-	DAEMON_LOOP &
+	DAEMON_LOOP "${1:-0}" &
 	printf "%s\n" "$!" >"$PID_FILE"
 }
 
@@ -86,11 +117,11 @@ DO_STOP() {
 }
 
 case "$1" in
-	start) DO_START ;;
+	start) DO_START 1 ;;
 	stop) DO_STOP ;;
 	restart)
 		DO_STOP
-		DO_START
+		DO_START 0
 		;;
 	*)
 		printf "Usage: %s {start|stop|restart}\n" "$0" >&2

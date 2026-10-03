@@ -10,22 +10,28 @@ BT_PAIRED="$BT_DIR/paired"
 BT_SCAN_LOCK="$BT_DIR/scan.lock"
 BT_SCAN_TIMEOUT=$(GET_VAR "config" "settings/advanced/bt_scan_timeout")
 SCAN_TIMEOUT=${BT_SCAN_TIMEOUT:-20}
+SHOW_RAW=$(GET_VAR "config" "settings/advanced/bt_raw")
 
 mkdir -p "$BT_DIR"
 
 DEVICE_READY() {
 	READY_INFO=$(timeout 5 bluetoothctl info "$1" 2>/dev/null)
 	READY_CONNECTED=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tConnected:/ { print $2; exit }')
-	READY_SERVICES=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tServicesResolved:/ { print $2; exit }')
 
-	[ "$READY_CONNECTED" = "yes" ] && [ "$READY_SERVICES" != "no" ]
+	[ "$READY_CONNECTED" = "yes" ]
 }
 
 WAIT_FOR_DEVICE() {
 	WAIT_COUNT=0
+	READY_COUNT=0
 	while [ "$WAIT_COUNT" -lt 10 ]; do
-		DEVICE_READY "$1" && return 0
-		sleep 1
+		if DEVICE_READY "$1"; then
+			READY_COUNT=$((READY_COUNT + 1))
+			[ "$READY_COUNT" -ge 2 ] && return 0
+		else
+			READY_COUNT=0
+		fi
+		sleep 0.5
 		WAIT_COUNT=$((WAIT_COUNT + 1))
 	done
 
@@ -37,7 +43,7 @@ CONNECT_DEVICE() {
 
 	CONNECT_ATTEMPT=0
 	while [ "$CONNECT_ATTEMPT" -lt 2 ]; do
-		timeout 20 bluetoothctl connect "$1" >/dev/null 2>&1
+		timeout 15 bluetoothctl connect "$1" >/dev/null 2>&1
 		WAIT_FOR_DEVICE "$1" && return 0
 		CONNECT_ATTEMPT=$((CONNECT_ATTEMPT + 1))
 	done
@@ -89,7 +95,7 @@ WRITE_SCAN_RESULTS() {
 		done
 	)
 
-	bluetoothctl devices 2>/dev/null | while IFS= read -r LINE; do
+	timeout 5 bluetoothctl devices 2>/dev/null | while IFS= read -r LINE; do
 		# Format: "Device AA:BB:CC:DD:EE:FF Device Name"
 		MAC=$(printf "%s" "$LINE" | awk '{print $2}')
 		NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
@@ -109,6 +115,7 @@ WRITE_SCAN_RESULTS() {
 			"" | "$MAC" | \
 				[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F] | \
 				[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F])
+				[ "${SHOW_RAW:-0}" -eq 1 ] || continue
 				VENDOR=$(OUI_LOOKUP "$MAC")
 				printf "%s %s\n" "$MAC" "${VENDOR:-$MAC}" >>"$TMP_UNKNOWN"
 				;;
@@ -159,19 +166,19 @@ DO_LIST() {
 	printf "%s" "$$" >"$BT_SCAN_LOCK"
 	rm -f "$BT_SCAN_STOP"
 	trap 'rm -f "$BT_SCAN_LOCK" "$BT_SCAN_STOP"' EXIT
+	: >"$BT_SCAN"
 
 	LOG_INFO "$0" 0 "BTSCAN" "$(printf "Scan starting (%ss)" "$SCAN_TIMEOUT")"
-	bluetoothctl power on >/dev/null 2>&1
+	timeout 5 bluetoothctl power on >/dev/null 2>&1
 
 	TMP_NAMES="$BT_DIR/scan_names.tmp.$$"
 	: >"$TMP_NAMES"
 
 	(
 		printf "scan on\n"
-		while [ ! -f "$BT_SCAN_STOP" ]; do sleep 2; done
+		while [ ! -f "$BT_SCAN_STOP" ]; do sleep 0.25; done
 		printf "scan off\n"
-		sleep 2
-	) | timeout 3610 bluetoothctl 2>/dev/null | while IFS= read -r LINE; do
+	) | timeout $((SCAN_TIMEOUT + 8)) bluetoothctl 2>/dev/null | while IFS= read -r LINE; do
 		MAC=""
 		NAME=""
 		case "$LINE" in
@@ -204,6 +211,12 @@ DO_LIST() {
 DO_STOP() {
 	LOG_INFO "$0" 0 "BTSCAN" "Stopping scan"
 	touch "$BT_SCAN_STOP"
+	STOP_WAIT=0
+	while [ -f "$BT_SCAN_LOCK" ] && [ "$STOP_WAIT" -lt 50 ]; do
+		sleep 0.1
+		STOP_WAIT=$((STOP_WAIT + 1))
+	done
+	[ ! -f "$BT_SCAN_LOCK" ]
 }
 
 DO_CONNECT() {
@@ -215,7 +228,9 @@ DO_CONNECT() {
 
 	LOG_INFO "$0" 0 "BTSCAN" "$(printf "Pairing and connecting to '%s'" "$MAC")"
 
-	timeout 30 bluetoothctl pair "$MAC" >/dev/null 2>&1
+	timeout 5 bluetoothctl power on >/dev/null 2>&1
+	timeout 5 bluetoothctl unblock "$MAC" >/dev/null 2>&1
+	timeout 30 bluetoothctl --agent NoInputNoOutput pair "$MAC" >/dev/null 2>&1
 	BT_RAW=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
 	IS_PAIRED=$(printf "%s" "$BT_RAW" | awk -F': ' '/^\tPaired:/ { print $2; exit }')
 	if [ "$IS_PAIRED" != "yes" ]; then
@@ -224,15 +239,12 @@ DO_CONNECT() {
 		return 1
 	fi
 
-	AUTOCONNECT=$(GET_VAR "config" "bluetooth/autoconnect")
-	if [ "${AUTOCONNECT:-0}" -eq 1 ]; then
-		timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
-	fi
+	timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
 
 	if CONNECT_DEVICE "$MAC"; then
 		LOG_SUCCESS "$0" 0 "BTSCAN" "$(printf "Connected to '%s'" "$MAC")"
 
-		BT_ICON=$(bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
+		BT_ICON=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
 		case "$BT_ICON" in
 			audio-*) "$(dirname "$0")/audio_sink.sh" set-bt "$MAC" & ;;
 		esac
@@ -255,7 +267,7 @@ DO_INFO() {
 	LOG_INFO "$0" 0 "BTSCAN" "$(printf "Fetching info for '%s'" "$MAC")"
 
 	BT_INFO="$MUOS_RUN_DIR/bt_info"
-	BT_RAW=$(bluetoothctl info "$MAC" 2>/dev/null)
+	BT_RAW=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
 
 	if [ -z "$BT_RAW" ]; then
 		printf "Address: %s\nNo additional information available.\n" "$MAC" >"$BT_INFO"

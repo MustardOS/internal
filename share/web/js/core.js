@@ -3,6 +3,61 @@
 
     const runtime = window.MUOS_RUNTIME || {};
     const el = (id) => document.getElementById(id);
+    let strings = {};
+
+    function t(text, ...values) {
+        const own = typeof text === "string" && Object.prototype.hasOwnProperty.call(strings, text);
+        let index = 0;
+        return String(own ? strings[text] : text).replace(/%s/g, () => (index < values.length ? String(values[index++]) : "%s"));
+    }
+
+    const TRANSLATED_ATTRIBUTES = ["placeholder", "aria-label", "title", "alt"];
+
+    function translatePage(root) {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+            const text = node.nodeValue.trim();
+            if (!text || node.parentElement.closest("script, style")) continue;
+            const translated = t(text);
+            if (translated !== text) node.nodeValue = node.nodeValue.replace(text, translated);
+        }
+
+        root.querySelectorAll("[placeholder], [aria-label], [title], [alt]").forEach((element) => {
+            TRANSLATED_ATTRIBUTES.forEach((name) => {
+                const value = element.getAttribute(name);
+                if (value) element.setAttribute(name, t(value));
+            });
+        });
+    }
+
+    const RTL_SCRIPT = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
+
+    function flatten(data) {
+        const sections = Object.keys(data).filter((key) => key !== "generic" && key !== "muweb");
+        const merged = {};
+        [...sections, "generic", "muweb"].forEach((key) => {
+            const section = data[key];
+            if (!section || typeof section !== "object") return;
+            Object.entries(section).forEach(([english, value]) => {
+                if (typeof value === "string" && value && value !== english) merged[english] = value;
+            });
+        });
+        return merged;
+    }
+
+    async function loadLanguage() {
+        try {
+            const response = await fetch(`state/lang.json?_=${Date.now()}`, {cache: "no-store"});
+            strings = response.ok ? flatten(await response.json()) : {};
+        } catch (_) {
+            strings = {};
+        }
+
+        const sample = Object.values(strings).slice(0, 40).join("");
+        if (sample) document.documentElement.removeAttribute("lang");
+        if (RTL_SCRIPT.test(sample)) document.documentElement.dir = "rtl";
+        if (Object.keys(strings).length) translatePage(document.body);
+    }
 
     function make(tag, className, text) {
         const node = document.createElement(tag);
@@ -61,10 +116,10 @@
 
     function sortControl(current, onChange) {
         const select = make("select", "sort");
-        select.setAttribute("aria-label", "Sort by");
+        select.setAttribute("aria-label", t("Sort by"));
 
         SORTS.forEach(([value, text]) => {
-            const option = make("option", null, text);
+            const option = make("option", null, t(text));
             option.value = value;
             if (value === current) option.selected = true;
             select.append(option);
@@ -101,10 +156,10 @@
 
     function layoutControl(view) {
         const select = make("select", "sort");
-        select.setAttribute("aria-label", "Layout");
+        select.setAttribute("aria-label", t("Layout"));
 
         LAYOUTS.forEach(([value, text]) => {
-            const option = make("option", null, text);
+            const option = make("option", null, t(text));
             option.value = value;
             if (value === layouts[view]) option.selected = true;
             select.append(option);
@@ -125,11 +180,13 @@
     const toast = el("toast");
     let toastTimer;
 
-    function showToast(text) {
-        toast.textContent = text;
+    function showToast(text, kind = "info") {
+        toast.textContent = t(text);
+        toast.dataset.kind = kind;
+        toast.setAttribute("role", kind === "bad" ? "alert" : "status");
         toast.classList.add("visible");
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.remove("visible"), 1800);
+        toastTimer = setTimeout(() => toast.classList.remove("visible"), kind === "bad" ? 4500 : 2600);
     }
 
     const dismissers = [];
@@ -232,16 +289,16 @@
         const bar = make("div", "loading-bar");
         bar.append(make("span"));
 
-        box.append(make("p", "loading-note", message || "Reading the card…"), bar);
+        box.append(make("p", "loading-note", t(message || "Reading the card…")), bar);
         return box;
     }
 
     function problem(message, retry) {
         const block = make("div", "problem");
-        block.append(make("p", "note danger", message));
+        block.append(make("p", "note danger", t(message)));
 
         if (retry) {
-            const again = make("button", "link", "Try again");
+            const again = make("button", "link", t("Try again"));
             again.type = "button";
             again.addEventListener("click", retry);
             block.append(again);
@@ -256,6 +313,8 @@
 
     Object.assign(MU, {
         el,
+        t,
+        loadLanguage,
         make,
         bytes,
         duration,

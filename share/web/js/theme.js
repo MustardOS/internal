@@ -2,7 +2,6 @@
     "use strict";
 
     const MU = window.MU = window.MU || {};
-    const {runtime} = MU;
     const hex = (value) => {
         const m = /^#?([\da-f]{6})$/i.exec(String(value || ""));
         return m ? [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16)) : null;
@@ -73,7 +72,7 @@
         if (meta) meta.setAttribute("content", toHex(page));
     }
 
-    applyTheme(runtime.theme);
+    // The page keeps the website palette, so the device theme is no longer applied on load
 
     Object.assign(MU, {
         applyTheme

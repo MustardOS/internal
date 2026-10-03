@@ -13,16 +13,21 @@ mkdir -p "$BT_DIR"
 DEVICE_READY() {
 	READY_INFO=$(timeout 5 bluetoothctl info "$1" 2>/dev/null)
 	READY_CONNECTED=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tConnected:/ { print $2; exit }')
-	READY_SERVICES=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tServicesResolved:/ { print $2; exit }')
 
-	[ "$READY_CONNECTED" = "yes" ] && [ "$READY_SERVICES" != "no" ]
+	[ "$READY_CONNECTED" = "yes" ]
 }
 
 WAIT_FOR_DEVICE() {
 	WAIT_COUNT=0
+	READY_COUNT=0
 	while [ "$WAIT_COUNT" -lt 10 ]; do
-		DEVICE_READY "$1" && return 0
-		sleep 1
+		if DEVICE_READY "$1"; then
+			READY_COUNT=$((READY_COUNT + 1))
+			[ "$READY_COUNT" -ge 2 ] && return 0
+		else
+			READY_COUNT=0
+		fi
+		sleep 0.5
 		WAIT_COUNT=$((WAIT_COUNT + 1))
 	done
 
@@ -34,7 +39,7 @@ CONNECT_DEVICE() {
 
 	CONNECT_ATTEMPT=0
 	while [ "$CONNECT_ATTEMPT" -lt 2 ]; do
-		timeout 20 bluetoothctl connect "$1" >/dev/null 2>&1
+		timeout 15 bluetoothctl connect "$1" >/dev/null 2>&1
 		WAIT_FOR_DEVICE "$1" && return 0
 		CONNECT_ATTEMPT=$((CONNECT_ATTEMPT + 1))
 	done
@@ -146,13 +151,13 @@ DO_CONNECT() {
 	LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Connecting to '%s'" "$MAC")"
 
 	# The adapter is not always powered on after boot so ensure it is awake!
-	bluetoothctl power on >/dev/null 2>&1
-	bluetoothctl unblock "$MAC" >/dev/null 2>&1
+	timeout 5 bluetoothctl power on >/dev/null 2>&1
+	timeout 5 bluetoothctl unblock "$MAC" >/dev/null 2>&1
 
 	BT_INFO=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
 	IS_PAIRED=$(printf "%s" "$BT_INFO" | awk -F': ' '/^\tPaired:/ { print $2; exit }')
 	if [ "${IS_PAIRED}" != "yes" ]; then
-		timeout 30 bluetoothctl pair "$MAC" >/dev/null 2>&1
+		timeout 30 bluetoothctl --agent NoInputNoOutput pair "$MAC" >/dev/null 2>&1
 		BT_INFO=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
 		IS_PAIRED=$(printf "%s" "$BT_INFO" | awk -F': ' '/^\tPaired:/ { print $2; exit }')
 		if [ "$IS_PAIRED" != "yes" ]; then
@@ -162,10 +167,7 @@ DO_CONNECT() {
 		fi
 	fi
 
-	AUTOCONNECT=$(GET_VAR "config" "bluetooth/autoconnect")
-	if [ "${AUTOCONNECT:-0}" -eq 1 ]; then
-		timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
-	fi
+	timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
 
 	if CONNECT_DEVICE "$MAC"; then
 		LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Connected to '%s'" "$MAC")"
@@ -209,7 +211,7 @@ DO_DISCONNECT() {
 	if [ -n "$STORED_TYPE" ]; then
 		case "$STORED_TYPE" in audio-*) IS_AUDIO=1 ;; esac
 	else
-		BT_ICON=$(bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
+		BT_ICON=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
 		case "$BT_ICON" in audio-*) IS_AUDIO=1 ;; esac
 	fi
 
@@ -222,7 +224,7 @@ DO_DISCONNECT() {
 	# Trusted devices autoreconnect themselves so block until the user reconnects
 	# so if we manually disconnect just block the device, it will clear on reboot
 	# or a device restart...
-	bluetoothctl block "$MAC" >/dev/null 2>&1
+	timeout 5 bluetoothctl block "$MAC" >/dev/null 2>&1
 
 	[ "$IS_AUDIO" -eq 1 ] && "$(dirname "$0")/audio_sink.sh" set-builtin &
 
@@ -247,11 +249,11 @@ DO_FORGET() {
 	if [ -n "$STORED_TYPE" ]; then
 		case "$STORED_TYPE" in audio-*) IS_AUDIO=1 ;; esac
 	else
-		BT_ICON=$(bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
+		BT_ICON=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
 		case "$BT_ICON" in audio-*) IS_AUDIO=1 ;; esac
 	fi
 
-	bluetoothctl untrust "$MAC" >/dev/null 2>&1
+	timeout 5 bluetoothctl untrust "$MAC" >/dev/null 2>&1
 	if ! timeout 5 bluetoothctl disconnect "$MAC" >/dev/null 2>&1; then
 		LOG_WARN "$0" 0 "BTDEVICE" "The Bluetooth device was already disconnected or did not respond"
 	fi
@@ -358,69 +360,6 @@ DO_ALIAS() {
 	LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Alias saved for '%s'" "$MAC")"
 }
 
-DO_AUTOCONNECT() {
-	AUTOCONNECT=$(GET_VAR "config" "bluetooth/autoconnect")
-
-	if [ "${AUTOCONNECT:-0}" -ne 1 ]; then
-		if [ -f "$BT_PAIRED" ]; then
-			LOG_INFO "$0" 0 "BTDEVICE" "Auto-connect disabled - untrusting paired devices"
-			while IFS= read -r LINE; do
-				MAC=$(printf "%s" "$LINE" | awk '{ print $1 }')
-				[ -z "$MAC" ] && continue
-				bluetoothctl untrust "$MAC" >/dev/null 2>&1
-			done <"$BT_PAIRED"
-		fi
-		bluetoothctl power on >/dev/null 2>&1
-		return 0
-	fi
-
-	bluetoothctl power on >/dev/null 2>&1
-
-	[ -f "$BT_PAIRED" ] || {
-		LOG_INFO "$0" 0 "BTDEVICE" "No managed devices to auto-connect"
-		return 0
-	}
-
-	LOG_INFO "$0" 0 "BTDEVICE" "Auto-connecting to trusted paired devices"
-
-	while IFS= read -r LINE; do
-		MAC=$(printf "%s" "$LINE" | awk '{ print $1 }')
-		[ -z "$MAC" ] && continue
-		bluetoothctl unblock "$MAC" >/dev/null 2>&1
-		bluetoothctl trust "$MAC" >/dev/null 2>&1
-	done <"$BT_PAIRED"
-
-	(
-		printf "scan on\n"
-		sleep 8
-		printf "scan off\n"
-	) | timeout 15 bluetoothctl >/dev/null 2>&1
-
-	while IFS= read -r LINE; do
-		MAC=$(printf "%s" "$LINE" | awk '{ print $1 }')
-		[ -z "$MAC" ] && continue
-		LOG_DEBUG "$0" 0 "BTDEVICE" "$(printf "Auto-connecting to '%s'" "$MAC")"
-		(
-			if timeout 15 bluetoothctl connect "$MAC" >/dev/null 2>&1; then
-				MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
-				STORED_TYPE=$(cat "$BT_DIR/type_$MAC_CLEAN" 2>/dev/null)
-				IS_AUDIO=0
-
-				if [ -n "$STORED_TYPE" ]; then
-					case "$STORED_TYPE" in audio-*) IS_AUDIO=1 ;; esac
-				else
-					BT_ICON=$(bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
-					case "$BT_ICON" in audio-*) IS_AUDIO=1 ;; esac
-				fi
-
-				[ "$IS_AUDIO" -eq 1 ] && "$(dirname "$0")/audio_sink.sh" set-bt "$MAC"
-			fi
-		) &
-	done <"$BT_PAIRED"
-
-	LOG_SUCCESS "$0" 0 "BTDEVICE" "Auto-connect sequence initiated"
-}
-
 case "${1:-}" in
 	list) DO_LIST ;;
 	connect) DO_CONNECT "$2" ;;
@@ -428,9 +367,8 @@ case "${1:-}" in
 	forget) DO_FORGET "$2" ;;
 	info) DO_INFO "$2" ;;
 	alias) DO_ALIAS "$2" "$3" ;;
-	autoconnect) DO_AUTOCONNECT ;;
 	*)
-		printf "Usage: %s {list|connect <mac>|disconnect <mac>|forget <mac>|info <mac>|alias <mac> <name>|autoconnect}\n" "$0"
+		printf "Usage: %s {list|connect <mac>|disconnect <mac>|forget <mac>|info <mac>|alias <mac> <name>}\n" "$0"
 		exit 1
 		;;
 esac

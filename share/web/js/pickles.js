@@ -408,10 +408,10 @@
         try {
             await busy(button, "Removing…",
                 () => api(`api/pickles/state/${apiPath(...game.path.split("/"), slot.id)}`, {method: "DELETE"}));
-            showToast("Save state removed");
+            showToast("Save state removed", "good");
             await load();
         } catch (error) {
-            showToast(error.message);
+            showToast(error.message, "bad");
         }
     }
 
@@ -430,10 +430,10 @@
                 body: file,
                 type: "application/octet-stream"
             }));
-            showToast("Save game replaced");
+            showToast("Save game replaced", "good");
             await load();
         } catch (error) {
-            showToast(error.message);
+            showToast(error.message, "bad");
         }
     }
 
@@ -450,10 +450,10 @@
             await busy(button, "Restoring…",
                 () => api(`api/pickles/backup/${backup.index}/${apiPath(...item.path.split("/"))}`,
                     {method: "POST"}));
-            showToast("Save game restored");
+            showToast("Save game restored", "good");
             await load();
         } catch (error) {
-            showToast(error.message);
+            showToast(error.message, "bad");
         }
     }
 

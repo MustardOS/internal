@@ -45,6 +45,11 @@ GET_DEFAULT_SINK_ID() {
 		.value.name // empty
 	' 2>/dev/null | head -1)
 
+	if [ -z "$DEF_NAME" ]; then
+		DEF_NAME=$(wpctl inspect @DEFAULT_AUDIO_SINK@ 2>/dev/null |
+			sed -n 's/.*node\.name = "\([^"]*\)".*/\1/p' | head -1)
+	fi
+
 	[ -z "$DEF_NAME" ] && return 1
 
 	pw-dump 2>/dev/null | jq -r --arg name "$DEF_NAME" '
@@ -84,19 +89,23 @@ DO_LIST() {
 	TAB=$(printf '\t')
 	CONSOLE_MODE=$(GET_VAR "config" "boot/device_mode")
 	PF_INTERNAL=$(GET_VAR "device" "audio/pf_internal")
+	PF_EXTERNAL=$(GET_VAR "device" "audio/pf_external")
 	TMP_BUILTIN="$MUOS_RUN_DIR/audio_builtin.tmp.$$"
 	: >"$TMP_BUILTIN"
 
-	pw-dump 2>/dev/null | jq -r --arg pf "$PF_INTERNAL" '
+	pw-dump 2>/dev/null | jq -r --arg pf "$PF_INTERNAL" --arg pfe "$PF_EXTERNAL" '
 		.[] |
 		select(.type == "PipeWire:Interface:Node") |
 		select(.info.props["media.class"] == "Audio/Sink") |
 		(.info.props["node.description"] // .info.props["node.name"] // "Unknown") as $desc |
 		(
-			(.info.props["node.name"] // "") +
-			(.info.props["api.alsa.path"] // "") +
-			(.info.props["api.alsa.card.name"] // "")
-			| ascii_downcase | contains("hdmi")
+			((.info.props["node.name"] // "") == $pfe and $pfe != "") or
+			(
+				(.info.props["node.name"] // "") +
+				(.info.props["api.alsa.path"] // "") +
+				(.info.props["api.alsa.card.name"] // "")
+				| ascii_downcase | contains("hdmi")
+			)
 		) as $is_hdmi |
 		(if $is_hdmi then "HDMI Audio" else $desc end) as $label |
 		(if (.info.props["node.name"] // "") == $pf then "1" else "0" end) as $builtin |

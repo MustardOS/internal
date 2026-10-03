@@ -4,14 +4,18 @@
 
 . /opt/muos/script/var/func.sh
 
-JQ_BIN=/usr/bin/jq
+JQ_BIN=/opt/muos/bin/jq
+[ -x "$JQ_BIN" ] || JQ_BIN=/usr/bin/jq
 STATUS_CR=$(printf '\r')
 
 LANDING_STATE="$MUOS_RUN_DIR/landing/state"
 STATUS_FILE="$LANDING_STATE/status.json"
 ACTIVITY_FILE="$LANDING_STATE/activity.json"
+TRACKER_FILE="$LANDING_STATE/tracker.json"
+LANGUAGE_FILE="$LANDING_STATE/lang.json"
+LANGUAGE_CACHED=""
 BATTERY_DIR="$MUOS_RUN_DIR/battery"
-TRACK_JSON="$MUOS_STORE_DIR/info/track/playtime_data.json"
+TRACK_DIR="$MUOS_STORE_DIR/info/track"
 
 FAST_SLEEP=5
 SLOW_EVERY=12
@@ -45,7 +49,7 @@ DISK_KIB() {
 
 STORAGE_DOC() {
 	SD_OUT=
-	for SD_ENTRY in "rom:SD1" "sdcard:SD2" "usb:USB" "root:System"; do
+	for SD_ENTRY in "rom:Primary (SD1)" "sdcard:Secondary (SD2)" "usb:External (USB)" "root:System"; do
 		SD_TYPE=${SD_ENTRY%%:*}
 		SD_LABEL=${SD_ENTRY#*:}
 
@@ -76,29 +80,27 @@ STORAGE_DOC() {
 }
 
 ACTIVITY_DOC() {
-	[ -r "$TRACK_JSON" ] || {
+	[ -r "$TRACKER_FILE" ] || {
 		printf 'null'
 		return 0
 	}
 
 	AD_OUT=$("$JQ_BIN" -c --argjson top "$ACTIVITY_TOP" '
-		[to_entries[] | select(.value | type == "object")] as $all
-		| {
-			"titles": ($all | length),
-			"launches": ($all | map(.value.launches // 0) | add // 0),
-			"total_time": ($all | map(.value.total_time // 0) | add // 0),
+		{
+			"titles": length,
+			"launches": (map(.launches // 0) | add // 0),
+			"total_time": (map(.total_time // 0) | add // 0),
 			"top": (
-				$all
-				| map({
-					"name": (.value.name // (.key | split("/") | last // .key)),
-					"time": (.value.total_time // 0),
-					"launches": (.value.launches // 0)
+				map({
+					"name": (if (.name // "") == "" then (.path | split("/") | last) else .name end),
+					"time": (.total_time // 0),
+					"launches": (.launches // 0)
 				})
 				| sort_by(-.time)
 				| .[0:$top]
 			)
 		}
-	' "$TRACK_JSON" 2>/dev/null) || AD_OUT=
+	' "$TRACKER_FILE" 2>/dev/null) || AD_OUT=
 	[ -n "$AD_OUT" ] || AD_OUT=null
 
 	printf '%s' "$AD_OUT"
@@ -109,26 +111,26 @@ ACTIVITY_DOC() {
 # stem. Written beside the status reading and refreshed on the slow tick, since play
 # figures do not move while nothing is running.
 ACTIVITY_INDEX() {
-	[ -r "$TRACK_JSON" ] || {
+	[ -r "$TRACKER_FILE" ] || {
 		printf '{}'
 		return 0
 	}
 
 	AI_OUT=$("$JQ_BIN" -c '
-		[to_entries[] | select(.value | type == "object") | {
-			"key": (.key | split("/") | last | sub("\\.[^.]*$"; "")),
+		[.[] | {
+			"key": (.path | split("/") | last | split(".") | if length > 1 then .[:-1] | join(".") else .[0] end),
 			"value": {
-				"name": (.value.name // ""),
-				"time": (.value.total_time // 0),
-				"launches": (.value.launches // 0),
-				"average": (.value.avg_time // 0),
-				"session": (.value.last_session // 0),
-				"core": (.value.last_core // ""),
-				"device": (.value.last_device // "")
+				"name": (.name // ""),
+				"time": (.total_time // 0),
+				"launches": (.launches // 0),
+				"average": (if (.launches // 0) > 0 then ((.total_time // 0) / .launches | floor) else 0 end),
+				"session": (.last_session // 0),
+				"core": (.last_core // ""),
+				"device": (.last_device // "")
 			}
 		}]
 		| from_entries
-	' "$TRACK_JSON" 2>/dev/null) || AI_OUT=
+	' "$TRACKER_FILE" 2>/dev/null) || AI_OUT=
 	[ -n "$AI_OUT" ] || AI_OUT='{}'
 
 	printf '%s' "$AI_OUT"
@@ -143,6 +145,32 @@ WRITE_ACTIVITY() {
 	fi
 
 	rm -f "$WA_TMP"
+	return 1
+}
+
+WRITE_TRACKER() {
+	if [ -e "$TRACK_DIR/playtime_data.json" ] || [ ! -e "$TRACK_DIR/.runtime_backfill_v1" ]; then
+		/opt/muos/script/mux/track.sh migrate
+	fi
+
+	set -- "$TRACK_DIR"/[0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F].json
+	[ -e "$1" ] || {
+		rm -f "$TRACKER_FILE"
+		return 0
+	}
+
+	[ -s "$TRACKER_FILE" ] && [ -z "$(find "$TRACK_DIR" -prune -newer "$TRACKER_FILE" 2>/dev/null)" ] && return 0
+
+	WT_TMP=$(mktemp "$LANDING_STATE/.tracker.XXXXXX") || return 1
+
+	if cat "$@" 2>/dev/null | "$JQ_BIN" -c -n '
+		[inputs | select(type == "object" and (.key // "") != "") | del(.active, .migrated)]
+	' >"$WT_TMP" 2>/dev/null; then
+		chmod 0644 "$WT_TMP"
+		mv -f "$WT_TMP" "$TRACKER_FILE" && return 0
+	fi
+
+	rm -f "$WT_TMP"
 	return 1
 }
 
@@ -271,11 +299,41 @@ WRITE_STATUS() {
 	return 1
 }
 
+WRITE_LANGUAGE() {
+	WL_NAME=$(GET_VAR "config" "settings/general/language")
+	[ -n "$WL_NAME" ] || WL_NAME=English
+	[ "$WL_NAME" = "$LANGUAGE_CACHED" ] && [ -e "$LANGUAGE_FILE" ] && return 0
+
+	WL_SOURCE="$MUOS_SHARE_DIR/language/$WL_NAME.json"
+	if [ -r "$WL_SOURCE" ]; then
+		WL_TMP=$(mktemp "$LANDING_STATE/.lang.XXXXXX") || return 1
+		if cp "$WL_SOURCE" "$WL_TMP" && chmod 0644 "$WL_TMP" && mv -f "$WL_TMP" "$LANGUAGE_FILE"; then
+			LANGUAGE_CACHED=$WL_NAME
+			return 0
+		fi
+		rm -f "$WL_TMP"
+		return 1
+	fi
+
+	rm -f "$LANGUAGE_FILE"
+	LANGUAGE_CACHED=$WL_NAME
+}
+
 REFRESH_SLOW() {
 	STORAGE_CACHE=$(STORAGE_DOC)
+	WRITE_LANGUAGE || LOG_WARN "$0" 0 "WEB" "Web Dashboard could not write the language strings"
+	WRITE_TRACKER || LOG_WARN "$0" 0 "WEB" "Web Dashboard could not write the activity history"
 	ACTIVITY_CACHE=$(ACTIVITY_DOC)
 	WRITE_ACTIVITY || LOG_WARN "$0" 0 "WEB" "Web Dashboard could not write the activity index"
+	DETAIL_REFRESH_STATIC
 }
+
+REFRESH_FAST() {
+	WRITE_STATUS || return 1
+	DETAIL_WRITE || LOG_WARN "$0" 0 "WEB" "Web Dashboard could not write the system information"
+}
+
+. /opt/muos/script/web/detail.sh
 
 [ -x "$JQ_BIN" ] || {
 	LOG_ERROR "$0" 0 "WEB" "Web Dashboard needs jq, which is unavailable"
@@ -290,13 +348,13 @@ ACTIVITY_CACHE=null
 case "${1:-watch}" in
 	once)
 		REFRESH_SLOW
-		WRITE_STATUS || exit 1
+		REFRESH_FAST || exit 1
 		;;
 	watch)
 		TICK=0
 		while :; do
 			[ "$((TICK % SLOW_EVERY))" -eq 0 ] && REFRESH_SLOW
-			WRITE_STATUS
+			REFRESH_FAST
 			TICK=$((TICK + 1))
 			sleep "$FAST_SLEEP"
 		done

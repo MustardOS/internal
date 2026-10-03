@@ -2,7 +2,7 @@
     "use strict";
 
     const MU = window.MU = window.MU || {};
-    const {bytes, count, duration, el, make, runtime, setBar, showToast} = MU;
+    const {bytes, count, duration, el, make, runtime, setBar, showToast, t} = MU;
     const services = runtime.services || {};
     const browserHost = window.location.hostname || runtime.localName || "muos.local";
     const hostName = browserHost || runtime.localName || "muos.local";
@@ -26,7 +26,7 @@
             row.addEventListener("click", async () => {
                 try {
                     await navigator.clipboard.writeText(command);
-                    showToast("Copied");
+                    showToast(t("Copied"), "good");
                 } catch (_) {
                     showToast(command);
                 }
@@ -62,7 +62,7 @@
     function fillKv(target, rows) {
         target.replaceChildren();
         rows.forEach(([label, value]) => {
-            if (value) target.append(make("dt", null, label), make("dd", null, value));
+            if (value) target.append(make("dt", null, t(label)), make("dd", null, value));
         });
         return target.childElementCount > 0;
     }
@@ -71,7 +71,7 @@
         const battery = status.battery || {};
         const capacity = Number.isFinite(battery.capacity) ? battery.capacity : null;
         const volts = Number.isFinite(battery.voltage) ? `${(battery.voltage / 1000).toFixed(2)}V` : "";
-        const state = battery.charging === 1 ? "Charging" : battery.charging === 0 ? "On battery" : "";
+        const state = battery.charging === 1 ? t("Charging") : battery.charging === 0 ? t("On battery") : "";
 
         el("battery-value").textContent = capacity === null ? "-" : `${capacity}%`;
         el("battery-note").textContent = [state, volts].filter(Boolean).join(" · ");
@@ -81,12 +81,12 @@
         el("clock-note").textContent = [status.day, status.zone].filter(Boolean).join(" ");
 
         el("uptime-value").textContent = duration(status.uptime, true);
-        el("uptime-note").textContent = status.boot ? `Booted ${status.boot}` : "";
+        el("uptime-note").textContent = status.boot ? t("Booted %s", status.boot) : "";
 
         const activity = status.activity;
         el("playtime-value").textContent = activity ? duration(activity.total_time) : "-";
         el("playtime-note").textContent = activity
-            ? `${count(activity.launches)} launches · ${count(activity.titles)} titles`
+            ? `${t("%s launches", count(activity.launches))} · ${t("%s titles", count(activity.titles))}`
             : "";
     }
 
@@ -100,7 +100,7 @@
             const percent = total ? Math.round((used / total) * 100) : 0;
 
             const head = make("div", "meter-head");
-            head.append(make("b", null, entry.label), make("span", null, `${percent}%`));
+            head.append(make("b", null, t(entry.label)), make("span", null, `${percent}%`));
 
             const bar = make("div", "bar");
             const fill = make("span");
@@ -108,7 +108,7 @@
             bar.append(fill);
 
             const row = make("div");
-            row.append(head, bar, make("p", "meter-foot", `${bytes(total - used)} free of ${bytes(total)}`));
+            row.append(head, bar, make("p", "meter-foot", t("%s free of %s", bytes(total - used), bytes(total))));
             list.append(row);
         });
 
@@ -121,7 +121,7 @@
 
         ((activity && activity.top) || []).forEach((item) => {
             const label = make("span", "rank-name", item.name);
-            if (playing && item.name === playing) label.append(make("em", null, "playing"));
+            if (playing && item.name === playing) label.append(make("em", null, t("playing")));
             const row = make("li");
             row.append(label, make("span", "rank-time", duration(item.time)));
             list.append(row);
@@ -134,7 +134,7 @@
         const program = (running && running.process) || "";
         const content = (running && running.content) || {};
         el("now-box").hidden = !fillKv(el("now-facts"), [
-            ["Program", PROGRAMS[program.toLowerCase()] || program],
+            ["Program", t(PROGRAMS[program.toLowerCase()] || program)],
             ["Content", content.name],
             ["System", content.system],
             ["Core", content.core ? core(content.core) : ""],

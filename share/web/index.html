@@ -27,9 +27,25 @@
     </div>
 
     <nav class="site-nav" id="site-nav" aria-label="Main">
+        <div class="nav-category">Device</div>
         <ul class="nav-list">
             <li class="nav-list-item">
                 <button class="nav-list-link" type="button" data-view="dash">Dashboard</button>
+            </li>
+            <li class="nav-list-item">
+                <button class="nav-list-link" type="button" data-view="activity">Activity Tracker</button>
+            </li>
+            <li class="nav-list-item">
+                <button class="nav-list-link" type="button" data-view="system">System Information</button>
+            </li>
+            <li class="nav-list-item">
+                <button class="nav-list-link" type="button" data-view="history">History</button>
+            </li>
+            <li class="nav-list-item">
+                <button class="nav-list-link" type="button" data-view="collections">Collections</button>
+            </li>
+            <li class="nav-list-item" id="nav-remote" hidden>
+                <button class="nav-list-link" type="button" data-view="remote">Remote View</button>
             </li>
             <li class="nav-list-item" data-library-tools>
                 <button class="nav-list-link" type="button" data-view="catalogue">Catalogue</button>
@@ -65,7 +81,7 @@
     <div class="main-header">
         <span class="main-address" id="dashboard-address">muos.local</span>
         <nav class="aux-nav" aria-label="Website">
-            <button class="lock" type="button" id="lock-toggle" data-library-tools aria-live="polite" hidden></button>
+            <button class="lock" type="button" id="lock-toggle" aria-live="polite" hidden></button>
             <a href="https://muos.dev/devices">Download</a>
             <a href="https://ko-fi.com/xonglebongle">Support</a>
         </nav>
@@ -139,6 +155,138 @@
         </section>
     </div>
 
+    <div class="view" id="view-activity" hidden>
+        <div class="view-head">
+            <h1>Activity Tracker</h1>
+            <button class="link" type="button" id="tracker-save" hidden>Save as image</button>
+        </div>
+
+        <p class="box offline" id="tracker-empty">No activity recorded.</p>
+
+        <div class="stack" id="tracker-report" hidden>
+            <section class="grid grid-4" aria-label="Overall activity">
+                <div class="box stat">
+                    <h2>Play time</h2>
+                    <p class="stat-value" id="tracker-total">-</p>
+                    <p class="stat-note" id="tracker-total-note"></p>
+                </div>
+                <div class="box stat">
+                    <h2>Launches</h2>
+                    <p class="stat-value" id="tracker-launches">-</p>
+                </div>
+                <div class="box stat">
+                    <h2>Titles</h2>
+                    <p class="stat-value" id="tracker-titles">-</p>
+                </div>
+                <div class="box stat">
+                    <h2>Play style</h2>
+                    <p class="stat-value stat-text" id="tracker-style">-</p>
+                </div>
+            </section>
+
+            <section class="box">
+                <h2>Summary</h2>
+                <dl class="kv" id="tracker-summary"></dl>
+            </section>
+
+            <section class="grid grid-4" id="tracker-groups" role="group" aria-label="Activity groups"></section>
+
+            <p class="box offline" id="tracker-group-empty" hidden></p>
+
+            <div class="stack" id="tracker-group-report">
+                <section class="box" aria-label="Content statistics">
+                    <div class="head">
+                        <h2>Content <span class="note" id="tracker-count"></span></h2>
+                        <input class="search" type="search" id="tracker-search" placeholder="Search" aria-label="Search">
+                    </div>
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                            <tr id="tracker-columns"></tr>
+                            </thead>
+                            <tbody id="tracker-rows"></tbody>
+                        </table>
+                    </div>
+                    <p class="note" id="tracker-no-match" hidden>No content matches that search.</p>
+                </section>
+
+                <section class="box" id="tracker-sessions-box" aria-label="Recent sessions" hidden>
+                    <h2>Recent sessions</h2>
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead>
+                            <tr id="tracker-session-columns"></tr>
+                            </thead>
+                            <tbody id="tracker-sessions"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div class="view" id="view-system" hidden>
+        <div class="view-head">
+            <h1>System Information</h1>
+            <button class="link" type="button" id="system-save" hidden>Save as image</button>
+        </div>
+
+        <p class="box offline" id="system-offline" hidden>No data from the device.</p>
+
+        <div class="grid grid-2 system-grid" id="system-sections"></div>
+    </div>
+
+    <div class="view" id="view-history" hidden>
+        <h1>History</h1>
+
+        <div class="box" role="region" aria-label="History">
+            <div class="head">
+                <h2>Recently played <span class="note" id="history-count"></span></h2>
+                <input class="search" type="search" id="history-search" placeholder="Search" aria-label="Search">
+            </div>
+            <p class="note list-hint" id="history-hint"></p>
+            <div id="history-body"></div>
+        </div>
+    </div>
+
+    <div class="view" id="view-collections" hidden>
+        <h1>Collections</h1>
+
+        <div class="box" role="region" aria-label="Collections">
+            <div class="head">
+                <nav class="crumbs" id="collections-crumbs" aria-label="Breadcrumb"></nav>
+                <input class="search" type="search" id="collections-search" placeholder="Search" aria-label="Search">
+            </div>
+            <p class="note list-hint" id="collections-hint"></p>
+            <div id="collections-folders"></div>
+        </div>
+
+        <div class="box" role="region" aria-labelledby="collections-items-title">
+            <h2 id="collections-items-title">Not in a collection</h2>
+            <div id="collections-body"></div>
+        </div>
+    </div>
+
+    <div class="view" id="view-remote" hidden>
+        <div class="view-head">
+            <h1>Remote View</h1>
+            <div class="list-tools">
+                <button class="link" type="button" id="remote-refresh" hidden>Refresh now</button>
+                <button class="link" type="button" id="remote-save" hidden>Save image</button>
+            </div>
+        </div>
+
+        <div class="box remote-box">
+            <p class="note" id="remote-note"></p>
+            <button class="link" type="button" id="remote-unlock" hidden>Unlock to manage</button>
+            <canvas class="remote-screen" id="remote-screen" hidden></canvas>
+            <div class="remote-progress" id="remote-progress" hidden>
+                <div class="bar"><span id="remote-bar"></span></div>
+                <p class="note" id="remote-next"></p>
+            </div>
+        </div>
+    </div>
+
     <div class="view" id="view-catalogue" data-library-tools hidden>
         <h1>Catalogue</h1>
 
@@ -207,6 +355,8 @@
     <div class="box" role="alertdialog" aria-labelledby="ask-title" aria-describedby="ask-message">
         <h2 id="ask-title"></h2>
         <p class="note" id="ask-message"></p>
+        <input class="ask-field" id="ask-input" type="text" autocomplete="off" spellcheck="false" aria-labelledby="ask-title" hidden>
+        <select class="ask-field" id="ask-select" aria-labelledby="ask-title" hidden></select>
         <div class="code-actions">
             <button class="link" type="button" id="ask-cancel">Cancel</button>
             <button class="link" type="button" id="ask-confirm"></button>
@@ -238,6 +388,12 @@
     <script src="js/session.js" defer></script>
     <script src="js/view.js" defer></script>
     <script src="js/dashboard.js" defer></script>
+    <script src="js/activity.js" defer></script>
+    <script src="js/tracker.js" defer></script>
+    <script src="js/system.js" defer></script>
+    <script src="js/lists.js" defer></script>
+    <script src="js/snapshot.js" defer></script>
+    <script src="js/remote.js" defer></script>
     <!-- Catalogue and save management remain available in source while hidden for this release. -->
     <script src="js/boot.js" defer></script>
 </body>

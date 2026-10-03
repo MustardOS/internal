@@ -2,8 +2,20 @@
 
 [ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
 
+BT_STATE="$MUOS_RUN_DIR/bluetooth_state"
+BT_CONF="$MUOS_SHARE_DIR/conf/bluetooth.conf"
+
+SET_STATE() {
+	printf '%s\n' "$1" >"$BT_STATE.tmp" && mv -f "$BT_STATE.tmp" "$BT_STATE"
+}
+
 case "${1:-start}" in
-	start | restart) IN_SAFE_MODE && exit 0 ;;
+	start | restart)
+		if IN_SAFE_MODE; then
+			SET_STATE unavailable
+			exit 0
+		fi
+		;;
 esac
 
 BOARD_NAME=$(GET_VAR "device" "board/name")
@@ -63,6 +75,8 @@ STOP_PROC() {
 }
 
 DO_START() {
+	SET_STATE starting
+
 	case "$BOARD_NAME" in
 		rg-vita*) ;; # Add this at some stage...
 		rg*)
@@ -103,6 +117,7 @@ DO_START() {
 			;;
 		*)
 			LOG_INFO "$0" 0 "BLUETOOTH" "$(printf "No Bluetooth HCI attachment needed for board '%s'" "$BOARD_NAME")"
+			SET_STATE unavailable
 			return 0
 			;;
 	esac
@@ -110,6 +125,7 @@ DO_START() {
 	LOG_INFO "$0" 0 "BLUETOOTH" "Waiting for HCI device to become ready"
 	if ! WAIT_UNTIL HCI_READY; then
 		LOG_WARN "$0" 0 "BLUETOOTH" "HCI device did not appear within timeout"
+		SET_STATE unavailable
 		return 1
 	fi
 
@@ -117,6 +133,7 @@ DO_START() {
 
 	if [ ! -x "$BT_DAEMON" ]; then
 		LOG_WARN "$0" 0 "BLUETOOTH" "$(printf "bluetoothd not found at '%s' - skipping" "$BT_DAEMON")"
+		SET_STATE unavailable
 		return 0
 	fi
 
@@ -126,23 +143,34 @@ DO_START() {
 		mkdir -p /var/lib/bluetooth
 
 		LOG_INFO "$0" 0 "BLUETOOTH" "Starting bluetoothd"
-		"$BT_DAEMON" -n -d >/dev/null 2>&1 &
+		if [ -r "$BT_CONF" ]; then
+			"$BT_DAEMON" -n -d -f "$BT_CONF" >/dev/null 2>&1 &
+		else
+			"$BT_DAEMON" -n -d >/dev/null 2>&1 &
+		fi
 		printf "%s" "$!" >"$BT_PID"
 	fi
 
 	LOG_SUCCESS "$0" 0 "BLUETOOTH" "Bluetooth stack started"
 
 	(
-		WAIT_UNTIL BLUETOOTHD_READY || exit 0
-		sleep 2
+		if ! WAIT_UNTIL BLUETOOTHD_READY; then
+			LOG_WARN "$0" 0 "BLUETOOTH" "bluetoothd did not respond within timeout"
+			SET_STATE unavailable
+			exit 0
+		fi
+
+		timeout 5 bluetoothctl power on >/dev/null 2>&1
 		/opt/muos/script/mux/bt_device.sh list
-		/opt/muos/script/mux/bt_device.sh autoconnect
 		/opt/muos/script/mux/bt_monitor.sh start
+		SET_STATE ready
+		LOG_SUCCESS "$0" 0 "BLUETOOTH" "Bluetooth is ready"
 	) &
 }
 
 DO_STOP() {
 	LOG_INFO "$0" 0 "BLUETOOTH" "Stopping Bluetooth stack"
+	rm -f "$BT_STATE"
 
 	/opt/muos/script/mux/bt_monitor.sh stop
 

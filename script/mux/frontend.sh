@@ -68,6 +68,11 @@ if [ "$(GET_DEBUG)" -gt 0 ]; then
 	cp "$MUOS_LOG_DIR"/*.log "$BL_PATH"/. 2>/dev/null
 fi
 
+if [ -e "$MUOS_STORE_DIR/info/track/playtime_data.json" ] || [ ! -e "$MUOS_STORE_DIR/info/track/.runtime_backfill_v1" ]; then
+	LOG_INFO "$0" 0 "FRONTEND" "Migrating legacy activity data"
+	ionice -c idle /opt/muos/script/mux/track.sh migrate &
+fi
+
 LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Launcher"
 
 BOOT_PROGRESS 100

@@ -279,7 +279,7 @@ ACTIVITY_TRACKER() {
 
 	[ -n "$T_ROM" ] || return 0
 
-	/opt/muos/script/mux/track.sh "$T_NAME" "$T_CORE" "$T_ROM" "$1"
+	TRACK_END=${2-} /opt/muos/script/mux/track.sh "$T_NAME" "$T_CORE" "$T_ROM" "$1"
 }
 
 CHECK_RA_AND_SAVE() {
@@ -606,7 +606,7 @@ case "$SHUTDOWN_TIME_SETTING" in
 
 		CURRENT_TIME=$(cat "$S_EPOCH")
 		if [ "$CURRENT_TIME" -ge "$WAKE_EPOCH" ]; then
-			ACTIVITY_TRACKER stop
+			ACTIVITY_TRACKER stop poweroff
 			CHECK_RA_AND_SAVE "CLOSE_CONTENT"
 			/opt/muos/script/mux/quit.sh poweroff sleep
 		else

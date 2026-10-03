@@ -361,55 +361,6 @@ DO_ALIAS() {
 	LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Alias saved for '%s'" "$MAC")"
 }
 
-DO_AUTOCONNECT() {
-	AUTOCONNECT=$(GET_VAR "config" "bluetooth/autoconnect")
-
-	if [ "${AUTOCONNECT:-0}" -ne 1 ]; then
-		LOG_INFO "$0" 0 "BTDEVICE" "Auto-connect disabled"
-		timeout 5 bluetoothctl power on >/dev/null 2>&1
-		return 0
-	fi
-
-	timeout 5 bluetoothctl power on >/dev/null 2>&1
-
-	[ -f "$BT_PAIRED" ] || {
-		LOG_INFO "$0" 0 "BTDEVICE" "No managed devices to auto-connect"
-		return 0
-	}
-
-	LOG_INFO "$0" 0 "BTDEVICE" "Auto-connecting to trusted paired devices"
-
-	while IFS= read -r LINE; do
-		MAC=$(printf "%s" "$LINE" | awk '{ print $1 }')
-		[ -z "$MAC" ] && continue
-		timeout 5 bluetoothctl unblock "$MAC" >/dev/null 2>&1
-		timeout 5 bluetoothctl trust "$MAC" >/dev/null 2>&1
-	done <"$BT_PAIRED"
-
-	while IFS= read -r LINE; do
-		MAC=$(printf "%s" "$LINE" | awk '{ print $1 }')
-		[ -z "$MAC" ] && continue
-		LOG_DEBUG "$0" 0 "BTDEVICE" "$(printf "Auto-connecting to '%s'" "$MAC")"
-		if timeout 8 bluetoothctl connect "$MAC" >/dev/null 2>&1 && WAIT_FOR_DEVICE "$MAC"; then
-			MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
-			STORED_TYPE=$(cat "$BT_DIR/type_$MAC_CLEAN" 2>/dev/null)
-			IS_AUDIO=0
-
-			if [ -n "$STORED_TYPE" ]; then
-				case "$STORED_TYPE" in audio-*) IS_AUDIO=1 ;; esac
-			else
-				BT_ICON=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
-				case "$BT_ICON" in audio-*) IS_AUDIO=1 ;; esac
-			fi
-
-			[ "$IS_AUDIO" -eq 1 ] && "$(dirname "$0")/audio_sink.sh" set-bt "$MAC"
-		fi
-	done <"$BT_PAIRED"
-
-	DO_LIST
-	LOG_SUCCESS "$0" 0 "BTDEVICE" "Auto-connect sequence complete"
-}
-
 case "${1:-}" in
 	list) DO_LIST ;;
 	connect) DO_CONNECT "$2" ;;
@@ -417,9 +368,8 @@ case "${1:-}" in
 	forget) DO_FORGET "$2" ;;
 	info) DO_INFO "$2" ;;
 	alias) DO_ALIAS "$2" "$3" ;;
-	autoconnect) DO_AUTOCONNECT ;;
 	*)
-		printf "Usage: %s {list|connect <mac>|disconnect <mac>|forget <mac>|info <mac>|alias <mac> <name>|autoconnect}\n" "$0"
+		printf "Usage: %s {list|connect <mac>|disconnect <mac>|forget <mac>|info <mac>|alias <mac> <name>}\n" "$0"
 		exit 1
 		;;
 esac

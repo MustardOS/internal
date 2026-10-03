@@ -261,7 +261,7 @@ else
 
 	if IS_ONE "$USE_ACTIVITY"; then
 		LOG_INFO "$0" 0 "LAUNCH" "$(printf "Activity tracker start for '%s'" "$NAME")"
-		/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" start
+		TRACK_SYSTEM="$ASSIGN" TRACK_RUNTIME="$CORE_RUNTIME" /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" start
 	fi
 
 	LOG_INFO "$0" 0 "LAUNCH" "$(printf "Executing launcher '%s' for '%s'" "$LAUNCH_EXEC" "$NAME")"
@@ -276,7 +276,7 @@ else
 
 	if IS_ONE "$USE_ACTIVITY"; then
 		LOG_INFO "$0" 0 "LAUNCH" "$(printf "Activity tracker stop for '%s'" "$NAME")"
-		/opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" stop
+		TRACK_EXIT="$LAUNCH_RC" /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" stop
 	fi
 
 	if [ -n "$LAUNCH_DONE" ]; then

@@ -178,15 +178,6 @@ DO_RUN() {
 		CHECK "$WARN" "bt_monitor PID file not found - monitor may not be running"
 	fi
 
-	SECTION "Configuration"
-
-	AUTOCONNECT=$(GET_VAR "config" "bluetooth/autoconnect")
-	if [ "${AUTOCONNECT:-0}" -eq 1 ]; then
-		CHECK "$INFO" "Auto Connect: enabled"
-	else
-		CHECK "$INFO" "Auto Connect: disabled"
-	fi
-
 	SECTION "Paired devices"
 	LOG_INFO "$0" 0 "BTDIAG" "Checking paired devices"
 

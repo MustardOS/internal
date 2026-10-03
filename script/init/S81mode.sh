@@ -38,6 +38,8 @@ DO_START() {
 
 		SET_VAR "config" "settings/hdmi/scan" "0"
 	fi
+
+	/opt/muos/script/mux/audio_sink.sh list >/dev/null 2>&1 || :
 }
 
 case "$1" in

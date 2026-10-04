@@ -153,7 +153,7 @@ function splash.load()
     end
 
     -- =============================================
-    -- PHASE 1: Background tiles cascade in (staggered pop-in)
+    -- Animate background tiles cascade
     -- =============================================
     for _, tile in ipairs(anim.tile_data) do
         timer.after(tile.delay, function()
@@ -208,7 +208,7 @@ function splash.load()
 end
 
 -- ============================================================================
--- Helper: draw a rounded rect (with optional rotation)
+-- Draw rounded rectangle with rotation
 -- ============================================================================
 local function roundedRect(mode, x, y, w, h, r)
     r = r or 0
@@ -262,7 +262,7 @@ function splash.draw()
         local logo_sx = (logo_display_size / logo_w) * anim.logo_scale
         local logo_sy = (logo_display_size / logo_h) * anim.logo_scale
 
-        -- Subtle floating bob
+        -- Floating bob offset
         local bob = math.sin(love.timer.getTime() * 2.5) * 3 * scale
 
         love.graphics.draw(logo,

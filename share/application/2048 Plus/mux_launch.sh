@@ -48,7 +48,7 @@ START_LOVE() {
     [ -n "$CAFFEINE" ] && "$CAFFEINE" off
 }
 
-# Check for SETUP_APP (Jacaranda or newer)
+# Check for SETUP_APP
 if command -v SETUP_APP >/dev/null 2>&1; then
     # --- Jacaranda Logic ---
     SETUP_STAGE_OVERLAY
@@ -65,7 +65,7 @@ if command -v SETUP_APP >/dev/null 2>&1; then
     START_LOVE
 
 else
-    # --- Legacy Logic (Loose Goose / Older) ---
+    # Legacy support
 
     STOP_MUSIC
 
@@ -74,7 +74,7 @@ else
     SETUP_SDL_ENVIRONMENT
     SET_LOVE_ENVIRONMENT
 
-    # Mirror glyphs (Legacy requirement)
+    # Mirror glyphs
     PRIMARY_APP_DIRECTORY="$ROM_MOUNT/MUOS/application"
     CURRENT_APP_DIRECTORY="$APP_DIRECTORY"
     SOURCE_GLYPH_DIRECTORY="$CURRENT_APP_DIRECTORY/glyph"

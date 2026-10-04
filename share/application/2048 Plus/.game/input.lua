@@ -127,7 +127,7 @@ function love.keypressed(key)
         end
     end
 
-    -- Support Backspace (and 'b') for B / BACK on PC & Web
+    -- Back key bindings for PC and Web
     if not triggered and use_fallback then
         if key == "backspace" or key == "b" then
             local k = input.events.BACK
@@ -139,7 +139,7 @@ function love.keypressed(key)
         end
     end
 
-    -- Support fallback keys for SELECT on PC & Web (Tab, Shift, V, S)
+    -- Select key fallbacks
     if not triggered and use_fallback then
         if key == "tab" or key == "rshift" or key == "lshift" or key == "v" or key == "s" then
             local k = input.events.SELECT
@@ -150,7 +150,7 @@ function love.keypressed(key)
         end
     end
 
-    -- Support fallback keys for START on PC & Web (P, Space)
+    -- Start key fallbacks
     if not triggered and use_fallback then
         if key == "p" or key == "space" then
             local k = input.events.START
@@ -170,9 +170,11 @@ function love.keypressed(key)
 end
 
 function love.keyreleased(key)
+    input.state[key] = false
+
     for _, k in pairs(input.events) do
         if key == k then
-            input.state[key] = false
+            input.state[k] = false
         end
     end
 
@@ -182,12 +184,32 @@ function love.keyreleased(key)
             input.state["backspace"] = false
             input.state["b"] = false
             input.state[k] = false
+        elseif key == "tab" or key == "rshift" or key == "lshift" or key == "v" or key == "s" then
+            local k = input.events.SELECT
+            input.state["tab"] = false
+            input.state["rshift"] = false
+            input.state["lshift"] = false
+            input.state["v"] = false
+            input.state["s"] = false
+            input.state[k] = false
+        elseif key == "p" or key == "space" then
+            local k = input.events.START
+            input.state["p"] = false
+            input.state["space"] = false
+            input.state[k] = false
         end
     end
 
     if key == holding.dir then
         holding.dir = nil
         holding.started = false
+    end
+
+    if _G.appState == "DINO" then
+        local dg = package.loaded["dino_game"]
+        if dg and dg.keyreleased then
+            dg.keyreleased(key)
+        end
     end
 end
 
@@ -213,6 +235,13 @@ function love.gamepadreleased(js, button)
         if event == holding.dir then
             holding.dir = nil
             holding.started = false
+        end
+    end
+
+    if _G.appState == "DINO" then
+        local dg = package.loaded["dino_game"]
+        if dg and dg.gamepadreleased then
+            dg.gamepadreleased(button)
         end
     end
 end
@@ -249,7 +278,7 @@ function love.touchreleased(id, x, y, dx, dy, pressure)
     local tap_threshold = 15
 
     if abs_x > swipe_threshold or abs_y > swipe_threshold then
-        -- It's a swipe (D-Pad)
+        -- D-Pad swipe gesture
         if abs_x > abs_y then
             if diff_x > 0 then emit(input.events.RIGHT, false)
             else emit(input.events.LEFT, false) end
@@ -273,14 +302,14 @@ function love.touchreleased(id, x, y, dx, dy, pressure)
         if y < h * 0.2 then
             -- Top 20% of screen
             if duration > 0.4 then
-                -- Long press top = Switch Theme (Y button)
+                -- Theme toggle shortcut
                 emit(input.events.Y, false)
             else
                 if x < w * 0.5 then
-                    -- Top Left tap = BACK / UNDO (B button)
+                    -- Back shortcut
                     emit(input.events.BACK, false)
                 else
-                    -- Top Right tap = START / PAUSE (Start button)
+                    -- Pause shortcut
                     emit(input.events.START, false)
                 end
             end
@@ -288,14 +317,14 @@ function love.touchreleased(id, x, y, dx, dy, pressure)
             -- Bottom 80% of screen
             if duration > 0.4 then
                 if x < w * 0.5 then
-                    -- Bottom Left Long press = Swap (L1/Z button)
+                    -- Swap powerup shortcut
                     emit(input.events.L1, false)
                 else
-                    -- Bottom Right Long press = Bomb (X button)
+                    -- Bomb powerup shortcut
                     emit(input.events.X, false)
                 end
             else
-                -- Short tap = CONFIRM (A button)
+                -- Confirm shortcut
                 emit(input.events.CONFIRM, false)
             end
         end

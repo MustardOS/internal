@@ -541,6 +541,15 @@ DO_SPEAKER_OFF() {
 	SET_SPEAKER_AMP 0
 }
 
+QUIESCE_AUDIO_HARDWARE() {
+	case "$BOARD_NAME" in
+		rg-vita-pro)
+			amixer -q -c rockchipes8388 cset name='Speaker Switch' off >/dev/null 2>&1
+			amixer -q -c rockchipes8388 cset name='spk switch' off >/dev/null 2>&1
+			;;
+	esac
+}
+
 DO_STOP() {
 	LOG_INFO "$0" 0 "PIPEWIRE" "Audio shutdown sequence..."
 
@@ -549,6 +558,7 @@ DO_STOP() {
 		wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 >/dev/null 2>&1
 	fi
 
+	QUIESCE_AUDIO_HARDWARE
 	SET_SPEAKER_AMP 0 || LOG_WARN "$0" 0 "PIPEWIRE" "Unable to disable the speaker amplifier"
 	sleep 0.1
 

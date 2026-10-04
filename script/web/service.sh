@@ -113,7 +113,7 @@ PREPARE_LANDING_ROOT() {
 	cp -f "$LANDING_SOURCE"/index.html "$LANDING_SOURCE"/logo.svg "$LANDING_ROOT"/ || return 1
 	cp -f "$LANDING_SOURCE"/css/dashboard.css "$LANDING_ROOT/css"/ || return 1
 
-	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists snapshot remote crop catalogue pickles boot; do
+	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists snapshot remote player crop catalogue pickles boot; do
 		cp -f "$LANDING_SOURCE/js/$LANDING_PART.js" "$LANDING_ROOT/js"/ || return 1
 	done
 

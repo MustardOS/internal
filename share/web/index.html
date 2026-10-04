@@ -117,6 +117,40 @@
             </div>
         </section>
 
+        <section class="box player-box" id="player-box" aria-label="Wasabi" hidden>
+            <h2 id="player-heading">Now playing in Wasabi</h2>
+            <p class="player-title" id="player-title"></p>
+            <p class="note" id="player-detail"></p>
+            <div class="player-seek" id="player-seek-row">
+                <span class="player-time" id="player-position">0:00</span>
+                <input type="range" id="player-seek" min="0" max="1000" step="1" value="0" aria-label="Position">
+                <span class="player-time" id="player-duration">0:00</span>
+            </div>
+            <div class="player-controls">
+                <button class="player-button" type="button" id="player-previous" aria-label="Previous">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
+                </button>
+                <button class="player-button player-skip" type="button" id="player-back" aria-label="Back 10 seconds">-10</button>
+                <button class="player-button player-main" type="button" id="player-toggle" aria-label="Pause">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" id="player-pause-icon"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" id="player-play-icon" hidden><path d="M7 5v14l12-7z"/></svg>
+                </button>
+                <button class="player-button player-skip" type="button" id="player-forward" aria-label="Forward 10 seconds">+10</button>
+                <button class="player-button" type="button" id="player-next" aria-label="Next">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
+                </button>
+            </div>
+            <div class="player-footer">
+                <div class="player-volume" role="group" aria-label="Wasabi volume">
+                    <button class="player-button player-small" type="button" id="player-quieter" aria-label="Volume down">-</button>
+                    <span class="player-time" id="player-volume">100%</span>
+                    <button class="player-button player-small" type="button" id="player-louder" aria-label="Volume up">+</button>
+                </div>
+                <button class="link danger" type="button" id="player-stop">Stop playback</button>
+                <button class="link" type="button" id="player-unlock" hidden>Unlock to control playback</button>
+            </div>
+        </section>
+
         <section class="box device-switcher" id="device-switcher" aria-label="Other MustardOS devices" hidden>
             <h2>Other MustardOS devices</h2>
             <div class="device-grid" id="device-switcher-list"></div>
@@ -394,6 +428,7 @@
     <script src="js/lists.js" defer></script>
     <script src="js/snapshot.js" defer></script>
     <script src="js/remote.js" defer></script>
+    <script src="js/player.js" defer></script>
     <!-- Catalogue and save management remain available in source while hidden for this release. -->
     <script src="js/boot.js" defer></script>
 </body>

@@ -930,7 +930,7 @@ function love.update(dt)
                                 if game.saveGameState then game:saveGameState() end
                             end
                             save.saveStats(_G.stats)
-                            renderer.showToast("Purchased! " .. sel_item.name .. " (" .. _G.stats[stat_key] .. " owned)")
+                            renderer.showToast("Purchased!")
                         else
                             renderer.showToast("Not enough Coins!")
                         end

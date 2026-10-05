@@ -524,10 +524,10 @@ VOLUME_RAMP() {
 SYNC_GPU_FREQUENCY() {
 	GOV="$1"
 
-	GPU_CAP="$(GET_VAR "device" "gpu/max_freq_default")"
-	case "$(GET_VAR "config" "danger/gpuoverclock")" in
-		'' | 0) ;;
-		*) GPU_CAP= ;;
+	# Zero or unset uses every frequency the GPU offers, otherwise it is the chosen ceiling
+	GPU_CAP="$(GET_VAR "config" "danger/gpu_max")"
+	case "$GPU_CAP" in
+		'' | 0 | *[!0-9]*) GPU_CAP= ;;
 	esac
 
 	for GPU_DEV in /sys/class/devfreq/*/; do
@@ -691,18 +691,20 @@ SET_DEFAULT_GOVERNOR() {
 		MAX_PATH="$(GET_VAR "device" "cpu/max_freq")"
 
 		[ -f "$MIN_PATH" ] && GET_VAR "device" "cpu/min_freq_default" >"$MIN_PATH"
-		[ -f "$MAX_PATH" ] && GET_VAR "device" "cpu/max_freq_default" >"$MAX_PATH"
 
-		CPU_OC="$(GET_VAR "config" "danger/overclock")"
-		CPU_STOCK="$(GET_VAR "device" "cpu/max_freq_default")"
-		case "$CPU_OC" in
-			'' | 0 | *[!0-9]*) ;;
-			*)
-				if [ -f "$MAX_PATH" ] && [ "$CPU_OC" -gt "${CPU_STOCK:-0}" ]; then
-					printf "%s" "$CPU_OC" >"$MAX_PATH"
-				fi
-				;;
+		# Zero or unset uses the highest frequency the CPU offers, otherwise it is the chosen ceiling
+		CPU_FREQ_DIR=$(dirname "$MAX_PATH")
+		CPU_TOP=$(tr ' ' '\n' <"$CPU_FREQ_DIR/scaling_available_frequencies" 2>/dev/null | grep -v '^$' | sort -n | tail -1)
+		[ -n "$CPU_TOP" ] || CPU_TOP=$(cat "$CPU_FREQ_DIR/cpuinfo_max_freq" 2>/dev/null)
+		[ -n "$CPU_TOP" ] || CPU_TOP="$(GET_VAR "device" "cpu/max_freq_default")"
+
+		CPU_CAP="$(GET_VAR "config" "danger/cpu_max")"
+		case "$CPU_CAP" in
+			'' | 0 | *[!0-9]*) CPU_CAP="$CPU_TOP" ;;
 		esac
+		[ "$CPU_CAP" -gt "${CPU_TOP:-0}" ] 2>/dev/null && CPU_CAP="$CPU_TOP"
+
+		[ -f "$MAX_PATH" ] && [ -n "$CPU_CAP" ] && printf "%s" "$CPU_CAP" >"$MAX_PATH"
 
 		if [ "$DEF_GOV" = "ondemand" ]; then
 			# Detect differing kernel version layout

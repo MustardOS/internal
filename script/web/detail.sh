@@ -143,7 +143,7 @@ DETAIL_REFRESH_STATIC() {
 	[ -n "$DR_MODEL" ] || DR_MODEL=$(lscpu 2>/dev/null | sed -n 's/^Model name:[ \t]*//p')
 
 	DR_CPU_MIN=$(DETAIL_FIRST /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_min_freq /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq)
-	DR_CPU_MAX=$(DETAIL_FIRST /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
+	DR_CPU_MAX=$(DETAIL_FIRST /sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
 
 	DR_GPU_RANGE=
 	DR_GPU_LIST=$(DETAIL_GLOB "/sys/class/devfreq/*gpu*/available_frequencies")

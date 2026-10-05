@@ -38,9 +38,18 @@ case "$1" in
 
 				if [ "$(GET_VAR "config" "settings/advanced/maxgpu")" -eq 1 ]; then
 					GPU_PATH="/sys/devices/platform/gpu"
+					GPU_FREQ="$(GET_VAR "config" "danger/gpu_max")"
+					case "$GPU_FREQ" in
+						'' | 0 | *[!0-9]*)
+							GPU_FREQ=$(tr ' ' '\n' <"$GPU_PATH/devfreq/gpu/available_frequencies" 2>/dev/null | grep -v '^$' | sort -n | tail -1)
+							;;
+					esac
+					[ -n "$GPU_FREQ" ] || GPU_FREQ=648000000
+
+					# The maximum goes first so a raised minimum is never refused for sitting above it
 					printf "always_on" >"$GPU_PATH/power_policy"
-					printf "648000000" >"$GPU_PATH/devfreq/gpu/min_freq"
-					printf "648000000" >"$GPU_PATH/devfreq/gpu/max_freq"
+					printf "%s" "$GPU_FREQ" >"$GPU_PATH/devfreq/gpu/max_freq"
+					printf "%s" "$GPU_FREQ" >"$GPU_PATH/devfreq/gpu/min_freq"
 				fi
 
 				case "$BOARD_NAME" in

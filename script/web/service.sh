@@ -108,9 +108,10 @@ PREPARE_LANDING_ROOT() {
 	LANDING_ROOT="$MUOS_RUN_DIR/landing"
 	LANDING_SOURCE=/opt/muos/share/web
 	[ -d "$LANDING_SOURCE" ] || return 1
-	mkdir -p "$LANDING_ROOT/js" "$LANDING_ROOT/css" || return 1
+	mkdir -p "$LANDING_ROOT/js" "$LANDING_ROOT/css" "$LANDING_ROOT/icon" || return 1
 
-	cp -f "$LANDING_SOURCE"/index.html "$LANDING_SOURCE"/logo.svg "$LANDING_ROOT"/ || return 1
+	cp -f "$LANDING_SOURCE"/index.html "$LANDING_SOURCE"/logo.svg "$LANDING_SOURCE"/manifest.json "$LANDING_ROOT"/ || return 1
+	cp -f "$LANDING_SOURCE"/icon/*.png "$LANDING_ROOT/icon"/ || return 1
 	cp -f "$LANDING_SOURCE"/css/dashboard.css "$LANDING_ROOT/css"/ || return 1
 
 	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists snapshot remote player crop catalogue pickles boot; do
@@ -269,7 +270,8 @@ MANAGE_WEBSERV() {
 					# Browsing and downloading are always available. Authentication is what
 					# unlocks changing anything, and every change then wants the rolling code
 					# the device is showing, so two handhelds on one network cannot touch each
-					# other by accident. Without it the dashboard stays strictly read only.
+					# other by accident. Without it the dashboard is read only, apart from History,
+					# Collections, and the Wasabi Now Playing controls which stay open to use.
 					if [ "$(WEB_SETTING landing_auth)" = "0" ]; then
 						set -- "$@" --readonly
 					else

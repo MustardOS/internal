@@ -21,16 +21,16 @@
     const forward = el("player-forward");
     const previous = el("player-previous");
     const next = el("player-next");
-    const quieter = el("player-quieter");
-    const louder = el("player-louder");
+    const volume = el("player-volume-slider");
     const volumeText = el("player-volume");
     const stop = el("player-stop");
     const unlock = el("player-unlock");
-    const controls = [toggle, back, forward, previous, next, quieter, louder, stop, seek];
+    const controls = [toggle, back, forward, previous, next, stop, seek, volume];
 
     let state = null;
     let receivedAt = 0;
     let dragging = false;
+    let adjusting = false;
     let pollTimer = 0;
     let sending = false;
 
@@ -65,7 +65,7 @@
         }
 
         box.hidden = false;
-        const canControl = MU.canManage();
+        const canControl = MU.canControlPlayer();
         unlock.hidden = canControl;
         controls.forEach((control) => {
             control.disabled = !canControl || sending;
@@ -98,10 +98,13 @@
         next.setAttribute("aria-label", state.channels ? t("Next channel") : t("Next"));
 
         toggle.hidden = Boolean(state.live);
-        pauseIcon.hidden = Boolean(state.paused);
-        playIcon.hidden = !state.paused;
+        pauseIcon.toggleAttribute("hidden", Boolean(state.paused));
+        playIcon.toggleAttribute("hidden", !state.paused);
         toggle.setAttribute("aria-label", state.paused ? t("Play") : t("Pause"));
-        volumeText.textContent = `${t("Playback volume")}: ${state.volume}%`;
+        if (!adjusting) {
+            volume.value = String(state.volume);
+            volumeText.textContent = `${state.volume}%`;
+        }
         MU.playerState = state;
         window.dispatchEvent(new CustomEvent("muos-player-state", {detail: state}));
     }
@@ -156,8 +159,20 @@
     forward.addEventListener("click", () => send("skip", 10));
     previous.addEventListener("click", () => send("previous"));
     next.addEventListener("click", () => send("next"));
-    quieter.addEventListener("click", () => send("volume", -5));
-    louder.addEventListener("click", () => send("volume", 5));
+    volume.addEventListener("input", () => {
+        adjusting = true;
+        volumeText.textContent = `${volume.value}%`;
+    });
+    volume.addEventListener("change", async () => {
+        const target = Number(volume.value);
+        const change = state ? target - Number(state.volume) : 0;
+        if (change) {
+            state = {...state, volume: target};
+            await send("volume", change);
+        }
+        adjusting = false;
+        paint();
+    });
     stop.addEventListener("click", () => send("stop"));
     unlock.addEventListener("click", () => MU.unlock());
 

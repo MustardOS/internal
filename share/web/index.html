@@ -9,12 +9,18 @@
     <meta name="description" content="MustardOS device dashboard">
     <title>MustardOS</title>
     <link rel="icon" href="logo.svg" type="image/svg+xml">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon/apple-touch-icon.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="MustardOS">
     <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body class="library-tools-hidden">
 <div class="side-bar">
     <div class="site-header">
-        <a class="site-title" href="https://muos.dev/" aria-label="MustardOS website">
+        <a class="site-title" href="./" aria-label="MustardOS Dashboard">
             <img class="site-logo" src="logo.svg" alt="" width="40" height="40">
             <span>MustardOS</span>
         </a>
@@ -82,6 +88,7 @@
         <span class="main-address" id="dashboard-address">muos.local</span>
         <nav class="aux-nav" aria-label="Website">
             <button class="lock" type="button" id="lock-toggle" aria-live="polite" hidden></button>
+            <a href="https://muos.dev/">Website</a>
             <a href="https://muos.dev/devices">Download</a>
             <a href="https://ko-fi.com/xonglebongle">Support</a>
         </nav>
@@ -139,14 +146,16 @@
                 <button class="player-button" type="button" id="player-next" aria-label="Next">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
                 </button>
+                <button class="player-button player-stop" type="button" id="player-stop" aria-label="Stop playback">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg>
+                </button>
             </div>
             <div class="player-footer">
-                <div class="player-volume" role="group" aria-label="Wasabi volume">
-                    <button class="player-button player-small" type="button" id="player-quieter" aria-label="Volume down">-</button>
+                <label class="player-volume">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+                    <input type="range" id="player-volume-slider" min="0" max="200" step="5" value="100" aria-label="Playback volume">
                     <span class="player-time" id="player-volume">100%</span>
-                    <button class="player-button player-small" type="button" id="player-louder" aria-label="Volume up">+</button>
-                </div>
-                <button class="link danger" type="button" id="player-stop">Stop playback</button>
+                </label>
                 <button class="link" type="button" id="player-unlock" hidden>Unlock to control playback</button>
             </div>
         </section>

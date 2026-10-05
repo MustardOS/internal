@@ -173,11 +173,12 @@
     lockButton.addEventListener("click", () => (auth.unlocked ? lock() : unlock()));
 
     function ready() {
-        return readAuth().then(paintLock);
+        return readAuth().then(announce);
     }
 
     MU.canManage = () => !auth.readonly && Boolean(auth.unlocked);
     MU.canManageLists = () => Boolean(auth.lists_open) || MU.canManage();
+    MU.canControlPlayer = () => Boolean(auth.player_open) || MU.canManage();
     MU.onAuthChange = (fn) => listeners.push(fn);
 
     Object.assign(MU, {

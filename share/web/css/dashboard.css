@@ -508,7 +508,13 @@ button.card-name:hover, button.card-name:focus-visible { color: var(--accent); }
 .player-main svg { width: 26px; height: 26px; }
 .player-small { min-width: 36px; height: 36px; border-radius: 18px; padding: 0 10px; }
 .player-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
-.player-volume { display: inline-flex; align-items: center; gap: 8px; }
+.player-volume { display: flex; flex: 1; min-width: 200px; align-items: center; gap: 10px; }
+.player-volume svg { width: 20px; height: 20px; flex: none; fill: var(--muted); stroke: var(--muted); stroke-width: 1.6; stroke-linecap: round; }
+.player-volume svg path:first-child { stroke: none; }
+.player-volume input { flex: 1; min-width: 0; accent-color: var(--accent); }
+.player-volume input:disabled { opacity: .45; }
+.player-volume .player-time { min-width: 4.5ch; text-align: end; }
+.player-stop:hover:not(:disabled) { border-color: var(--warn); color: var(--warn); }
 .player-footer .link[hidden] { display: none; }
 .list-hint { margin: 10px 0 0; }
 .list-hint:empty { display: none; }

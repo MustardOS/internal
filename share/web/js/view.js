@@ -64,6 +64,13 @@
         tab.addEventListener("click", () => show(tab.dataset.view));
     });
 
+    document.querySelector(".site-title").addEventListener("click", (event) => {
+        if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        show("dash");
+        window.scrollTo(0, 0);
+    });
+
     Object.assign(MU, {
         register,
         show,

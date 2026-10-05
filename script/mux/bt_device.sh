@@ -13,18 +13,25 @@ mkdir -p "$BT_DIR"
 DEVICE_READY() {
 	READY_INFO=$(timeout 5 bluetoothctl info "$1" 2>/dev/null)
 	READY_CONNECTED=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tConnected:/ { print $2; exit }')
+	READY_PAIRED=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tPaired:/ { print $2; exit }')
+	READY_TRUSTED=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tTrusted:/ { print $2; exit }')
+	READY_SERVICES=$(printf "%s" "$READY_INFO" | awk -F': ' '/^\tServicesResolved:/ { print $2; exit }')
 
-	[ "$READY_CONNECTED" = "yes" ]
+	[ "$READY_CONNECTED" = "yes" ] &&
+		[ "$READY_PAIRED" = "yes" ] &&
+		[ "$READY_TRUSTED" = "yes" ] &&
+		[ "$READY_SERVICES" != "no" ]
 }
 
 WAIT_FOR_DEVICE() {
 	WAIT_COUNT=0
 	READY_COUNT=0
-	while [ "$WAIT_COUNT" -lt 10 ]; do
+	while [ "$WAIT_COUNT" -lt 20 ]; do
 		if DEVICE_READY "$1"; then
 			READY_COUNT=$((READY_COUNT + 1))
-			[ "$READY_COUNT" -ge 2 ] && return 0
+			[ "$READY_COUNT" -ge 6 ] && return 0
 		else
+			[ "$READY_COUNT" -gt 0 ] && return 1
 			READY_COUNT=0
 		fi
 		sleep 0.5
@@ -35,8 +42,6 @@ WAIT_FOR_DEVICE() {
 }
 
 CONNECT_DEVICE() {
-	DEVICE_READY "$1" && return 0
-
 	CONNECT_ATTEMPT=0
 	while [ "$CONNECT_ATTEMPT" -lt 2 ]; do
 		timeout 15 bluetoothctl connect "$1" >/dev/null 2>&1

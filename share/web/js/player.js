@@ -101,7 +101,9 @@
         pauseIcon.hidden = Boolean(state.paused);
         playIcon.hidden = !state.paused;
         toggle.setAttribute("aria-label", state.paused ? t("Play") : t("Pause"));
-        volumeText.textContent = `${state.volume}%`;
+        volumeText.textContent = `${t("Playback volume")}: ${state.volume}%`;
+        MU.playerState = state;
+        window.dispatchEvent(new CustomEvent("muos-player-state", {detail: state}));
     }
 
     async function refresh() {
@@ -127,6 +129,10 @@
     async function send(command, value) {
         if (sending) return;
         sending = true;
+        if (command === "toggle" && state) {
+            state = {...state, paused: !Boolean(state.paused)};
+            receivedAt = Date.now();
+        }
         paint();
         try {
             await MU.api(`api/player/${command}`, {
@@ -134,7 +140,9 @@
                 type: "text/plain",
                 body: value === undefined ? "" : String(value)
             });
+            await new Promise((resolve) => setTimeout(resolve, 200));
             await refresh();
+            setTimeout(refresh, 500);
         } catch (error) {
             showToast(error.message, "bad");
         } finally {

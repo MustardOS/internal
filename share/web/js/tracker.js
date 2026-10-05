@@ -118,7 +118,7 @@
     function renderSessions() {
         const columns = A.sessionColumnsFor(group);
         const sessions = A.recentSessions(all, Infinity)
-            .filter((session) => session.runtime === group)
+            .filter((session) => group === "all" || session.runtime === group)
             .slice(0, RECENT);
         const head = el("tracker-session-columns");
         const body = el("tracker-sessions");

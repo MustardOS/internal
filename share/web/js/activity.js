@@ -274,6 +274,7 @@
     };
 
     const GROUPS = [
+        {key: "all", label: "All Media"},
         {key: "pickles", label: "Pickles"},
         {key: "wasabi", label: "Wasabi"},
         {key: "retroarch", label: "RetroArch"},
@@ -281,7 +282,7 @@
     ];
 
     function runtimeOf(runtime, core) {
-        if (GROUPS.some((group) => group.key === runtime)) return runtime;
+        if (runtime !== "all" && GROUPS.some((group) => group.key === runtime)) return runtime;
         if (core === "ext-video") return "wasabi";
         if (core.startsWith("ext-")) return "external";
         return "retroarch";
@@ -610,6 +611,7 @@
 
     function groupItems(items) {
         const groups = new Map(GROUPS.map((group) => [group.key, []]));
+        groups.set("all", items.slice());
         items.forEach((entry) => groups.get(entry.runtime).push(entry));
         return groups;
     }

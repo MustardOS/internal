@@ -8,6 +8,7 @@
     const hostName = browserHost || runtime.localName || "muos.local";
     const urlHost = browserHost.includes(":") && !browserHost.startsWith("[") ? `[${browserHost}]` : browserHost;
     let enabled = 0;
+    let runningState = null;
 
     el("dashboard-address").textContent = hostName;
 
@@ -133,9 +134,10 @@
     function renderNow(running) {
         const program = (running && running.process) || "";
         const content = (running && running.content) || {};
+        const player = program.toLowerCase() === "muxmedia" ? MU.playerState : null;
         el("now-box").hidden = !fillKv(el("now-facts"), [
             ["Program", t(PROGRAMS[program.toLowerCase()] || program)],
-            ["Content", content.name],
+            ["Content", (player && player.title) || content.name],
             ["System", content.system],
             ["Core", content.core ? core(content.core) : ""],
             ["For", Number.isFinite(running && running.elapsed) ? duration(running.elapsed) : ""]
@@ -200,6 +202,7 @@
         if (!response.ok) throw new Error(`status returned ${response.status}`);
 
         const status = await response.json();
+        runningState = status.running;
         renderTiles(status);
         renderNow(status.running);
         renderDevice(status);
@@ -228,6 +231,7 @@
     setInterval(tick, 5000);
 
     document.addEventListener("visibilitychange", tick);
+    window.addEventListener("muos-player-state", () => renderNow(runningState));
 
     Object.assign(MU, {
         fillKv

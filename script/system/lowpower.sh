@@ -53,5 +53,5 @@ done
 
 while :; do
 	LOW_BATTERY_WARNING
-	sleep 30
+	sleep 10
 done

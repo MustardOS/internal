@@ -532,6 +532,8 @@ button.entry-name:hover, button.entry-name:focus-visible { color: var(--accent);
 .folder-name::before { margin-inline-end: 8px; color: var(--accent); content: "▸"; }
 .folder-count { color: var(--muted); font-family: var(--mono); font-size: .74rem; white-space: nowrap; }
 .folder-actions { display: flex; width: 100%; justify-content: flex-end; gap: 12px; }
+.folder-results { display: grid; margin-top: 12px; gap: 14px; }
+.folder-group .entries { margin-inline-start: 14px; padding-inline-start: 12px; border-inline-start: 2px solid var(--line); }
 #collections-folders[hidden] { display: none; }
 .list-tools:empty { display: none; }
 

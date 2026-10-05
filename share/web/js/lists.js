@@ -161,6 +161,7 @@
         const search = el("collections-search");
         let data = {items: [], collections: []};
         let opened = null;
+        let crumbsFor;
 
         function folderItems(name) {
             const folder = data.collections.find((entry) => entry.name === name);
@@ -172,6 +173,8 @@
         }
 
         function paintCrumbs() {
+            if (crumbsFor === opened) return;
+            crumbsFor = opened;
             const trail = [{label: t("Collections"), go: opened === null ? null : () => open(null)}];
             if (opened !== null) trail.push({label: opened});
             crumbs(el("collections-crumbs"), trail);
@@ -185,14 +188,16 @@
             ], manage));
         }
 
-        function folderCard(folder, manage) {
+        function folderCard(folder, manage, shown) {
             const card = make("div", "folder-card");
             const name = make("button", "folder-name", folder.name);
             name.type = "button";
             name.addEventListener("click", () => open(folder.name));
 
-            const meta = make("span", "folder-count",
-                t(folder.items.length === 1 ? "%s item" : "%s items", folder.items.length));
+            const total = folder.items.length;
+            const meta = make("span", "folder-count", shown === undefined
+                ? t(total === 1 ? "%s item" : "%s items", total)
+                : t("%s of %s", shown, total));
             card.append(name, meta);
 
             if (manage) {
@@ -219,17 +224,35 @@
             let items;
 
             if (opened === null) {
-                const folders = data.collections.filter((folder) => !needle
-                    || folder.name.toLocaleLowerCase().includes(needle)
-                    || folder.items.some((item) => matches(item, needle)));
-
                 const tools = make("div", "list-tools");
                 if (manage) tools.append(action("New collection", create));
 
-                const grid = make("div", "folder-grid");
-                grid.append(...folders.map((folder) => folderCard(folder, manage)));
-                folderHolder.replaceChildren(tools,
-                    folders.length ? grid : emptyNote(needle ? "No collections match that search." : "No collections yet."));
+                if (needle) {
+                    const groups = data.collections.map((folder) => {
+                        const named = folder.name.toLocaleLowerCase().includes(needle);
+                        const hits = named ? folder.items : folder.items.filter((item) => matches(item, needle));
+                        return {folder, named, hits};
+                    }).filter((group) => group.named || group.hits.length);
+
+                    const results = make("div", "folder-results");
+                    results.append(...groups.map(({folder, hits}) => {
+                        const group = make("div", "folder-group");
+                        group.append(folderCard(folder, manage, hits.length));
+                        if (hits.length) {
+                            const list = make("div", "entries");
+                            list.append(...itemRows(hits, "", manage));
+                            group.append(list);
+                        }
+                        return group;
+                    }));
+                    folderHolder.replaceChildren(tools,
+                        groups.length ? results : emptyNote("No collections match that search."));
+                } else {
+                    const grid = make("div", "folder-grid");
+                    grid.append(...data.collections.map((folder) => folderCard(folder, manage)));
+                    folderHolder.replaceChildren(tools,
+                        data.collections.length ? grid : emptyNote("No collections yet."));
+                }
                 folderHolder.hidden = false;
 
                 title.textContent = t("Not in a collection");
@@ -259,7 +282,6 @@
 
         function open(name) {
             opened = name;
-            search.value = "";
             MU.navigate(name);
             render();
         }

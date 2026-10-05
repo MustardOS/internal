@@ -243,9 +243,23 @@ RUN_SUSPEND_BACKEND() {
 		rg-vita-pro | rk-pixel-2) POWER_DEVICE="rk805 pwrkey" ;;
 	esac
 
+	# Plugged in, so stay out of the kernel power state and wait in userspace
+	# instead.  The power key, pulling the charger, or the shutdown deadline wakes it.
+	if [ "${FAKE_SLEEP:-0}" -eq 1 ]; then
+		LOG_INFO "$0" 0 "SUSPEND" "External power connected, entering userspace sleep"
+
+		set -- --state userspace --charger "$CHARGER_PATH" --optimise \
+			--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
+		[ -n "$POWER_DEVICE" ] && set -- "$@" --power-device "$POWER_DEVICE"
+		[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
+
+		"$SUSPEND_HELPER" "$@"
+		SUSPEND_RESULT=$?
+
+		[ "$SUSPEND_RESULT" -eq 3 ] && LOG_INFO "$0" 0 "SUSPEND" "External power removed, waking from userspace sleep"
 	# Pixel 2 kernel suspend, tested on the shipped kernel build only. The power
 	# key or the shutdown deadline (RTC) wakes it; other builds keep userspace sleep
-	if [ "$BOARD_NAME" = rk-pixel-2 ] && [ "$(uname -v)" = "#4 SMP Sun Jun 7 23:27:50 EDT 2026" ]; then
+	elif [ "$BOARD_NAME" = rk-pixel-2 ] && [ "$(uname -v)" = "#4 SMP Sun Jun 7 23:27:50 EDT 2026" ]; then
 		PIXEL2_USB off
 
 		if [ -n "$REMAINING" ]; then
@@ -290,7 +304,7 @@ RUN_SUSPEND_BACKEND() {
 	PIXEL2_DISPLAY on
 
 	case "$SUSPEND_RESULT" in
-		0) G350_LOG_SUSPEND power-key-wake ;;
+		0 | 3) G350_LOG_SUSPEND power-key-wake ;;
 		2) G350_LOG_SUSPEND shutdown-deadline ;;
 		*)
 			G350_LOG_SUSPEND suspend-backend-failed
@@ -738,9 +752,15 @@ RESUME() {
 	done
 }
 
-if CHARGER_CONNECTED; then
-	LOG_INFO "$0" 0 "SUSPEND" "Ignoring suspend while external power is connected"
-	exit 0
+FAKE_SLEEP=0
+CHARGER_CONNECTED && FAKE_SLEEP=1
+
+# Plugged in, so the sleep and shutdown timer is ignored and we stay asleep until woken
+if [ "$FAKE_SLEEP" -eq 1 ]; then
+	case "$SHUTDOWN_TIME_SETTING" in
+		-2 | -1 | 2) ;;
+		*) SHUTDOWN_TIME_SETTING=-1 ;;
+	esac
 fi
 
 RECENT_WAKE_SET && exit 0

@@ -58,9 +58,15 @@
         seek.value = String(state.duration > 0 ? Math.round((position / state.duration) * 1000) : 0);
     }
 
+    function publish() {
+        MU.playerState = state;
+        window.dispatchEvent(new CustomEvent("muos-player-state", {detail: state}));
+    }
+
     function paint() {
         if (!state) {
             box.hidden = true;
+            if (MU.playerState) publish();
             return;
         }
 
@@ -105,8 +111,7 @@
             volume.value = String(state.volume);
             volumeText.textContent = `${state.volume}%`;
         }
-        MU.playerState = state;
-        window.dispatchEvent(new CustomEvent("muos-player-state", {detail: state}));
+        publish();
     }
 
     async function refresh() {

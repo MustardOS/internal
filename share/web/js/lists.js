@@ -37,9 +37,14 @@
         return row;
     }
 
+    function contentPath(path) {
+        return (path || "").replace(/^\/mnt\/[^/]+\/(ROMS\/)?/i, "");
+    }
+
     function matches(item, needle) {
         if (!needle) return true;
-        return [item.name, item.path, item.system].some((value) => (value || "").toLocaleLowerCase().includes(needle));
+        return [item.name, contentPath(item.path), item.system]
+            .some((value) => (value || "").toLocaleLowerCase().includes(needle));
     }
 
     function emptyNote(text) {

@@ -265,6 +265,7 @@ h1 { margin: 18px 0 9px; color: var(--head); font-size: 36px; font-weight: 700; 
 .tracker-group:hover { border-color: var(--muted); }
 .tracker-group[aria-pressed="true"] { border-color: var(--accent); background: var(--box-alt); }
 .tracker-group[aria-pressed="true"] h2 { color: var(--accent); }
+.tracker-group:first-child { grid-column: 1 / -1; }
 
 .system-grid { grid-auto-rows: 1fr; }
 
@@ -535,7 +536,7 @@ button.entry-name:hover, button.entry-name:focus-visible { color: var(--accent);
 .folder-card { display: flex; flex-wrap: wrap; align-items: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--box-alt); gap: 4px 10px; transition: border-color .15s; }
 .folder-card:hover, .folder-card:focus-within { border-color: var(--accent); }
 .folder-name { min-width: 0; flex: 1; overflow: hidden; padding: 0; border: 0; background: none; color: var(--head); cursor: pointer; font: inherit; font-weight: 600; text-align: start; text-overflow: ellipsis; white-space: nowrap; }
-.folder-name::before { margin-inline-end: 8px; color: var(--accent); content: "▸"; }
+.folder-count::after { margin-inline-start: 8px; color: var(--accent); content: "›"; font-family: var(--sans); font-size: 1rem; }
 .folder-count { color: var(--muted); font-family: var(--mono); font-size: .74rem; white-space: nowrap; }
 .folder-actions { display: flex; width: 100%; justify-content: flex-end; gap: 12px; }
 .folder-results { display: grid; margin-top: 12px; gap: 14px; }

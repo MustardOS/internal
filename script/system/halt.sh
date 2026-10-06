@@ -291,7 +291,35 @@ LOG_INFO "$0" 0 "HALT" "Remounting filesystems read only"
 REMOUNT_READ_ONLY
 RUN_WITH_TIMEOUT 5 1 sync || LOG_WARN "$0" 0 "HALT" "Final disk sync did not complete"
 
+# The Vita Pro kernel has no power off handler for its RK806 PMIC, because the device
+# tree property that would add one stops the board booting.  Without it poweroff only
+# halts the CPU and the board keeps drawing from the battery, so once everything is
+# read only and synced the PMIC is told to switch off directly (SYS_CFG3, DEV_OFF bit)
+#
+# The AW87391 speaker amplifiers run straight from the battery and outlive the PMIC,
+# hissing until they drain it, so both are powered down first (SYSCTRL to zero)
+PMIC_POWER_OFF() {
+	[ "$ACTION" = poweroff ] || return 0
+	[ "$BOARD_NAME" = rg-vita-pro ] || return 0
+
+	for AMP_ADDRESS in 0x58 0x5b; do
+		[ -e "/sys/bus/i2c/devices/3-00${AMP_ADDRESS#0x}" ] || continue
+		i2cset -f -y 3 "$AMP_ADDRESS" 0x01 0x00 2>/dev/null
+	done
+
+	PMIC_BUS=1
+	PMIC_ADDRESS=0x23
+	PMIC_REGISTER=0x72
+
+	[ -e "/sys/bus/i2c/devices/$PMIC_BUS-0023" ] || return 0
+	PMIC_VALUE=$(i2cget -f -y "$PMIC_BUS" "$PMIC_ADDRESS" "$PMIC_REGISTER" 2>/dev/null) || return 0
+	case "$PMIC_VALUE" in 0x[0-9a-fA-F][0-9a-fA-F]) ;; *) return 0 ;; esac
+
+	i2cset -f -y "$PMIC_BUS" "$PMIC_ADDRESS" "$PMIC_REGISTER" "$(printf '0x%02x' $((PMIC_VALUE | 0x01)))"
+}
+
 LOG_INFO "$0" 0 "HALT" "$(printf "Handing off to %s -f" "$ACTION")"
+PMIC_POWER_OFF
 "$ACTION" -f
 
 case "$BOARD_NAME" in

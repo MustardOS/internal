@@ -28,7 +28,7 @@ if [ "$(GET_VAR "device" "board/stick")" -eq 0 ] && [ "$(GET_VAR "config" "setti
 					;;
 			esac
 			;;
-		tui*)
+		rk-pixel-2 | tui*)
 			if [ -e "$DPAD_SWAP" ]; then
 				LOG_INFO "$0" 0 "SWAP_DPAD" "Switching DPAD to default (tui)"
 				rm -f "$DPAD_SWAP"

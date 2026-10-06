@@ -6,6 +6,7 @@
     const runtime = window.MUOS_RUNTIME || {};
     const POLL = 10000;
     const CATCH_UP = 2000;
+    const REQUEST_WAIT = 30000;
 
     const canvas = el("remote-screen");
     const note = el("remote-note");
@@ -23,6 +24,7 @@
     let ticking = 0;
     let pollTimer = 0;
     let barTimer = 0;
+    let requestedAt = 0;
 
     el("nav-remote").hidden = !runtime.remoteView;
 
@@ -56,7 +58,8 @@
         const span = lastStatus.interval * 1000;
         const left = remaining();
         setBar(bar, Math.max(0, Math.min(100, ((span - left) / span) * 100)), false);
-        next.textContent = left > 0 ? t("Next refresh in about %s", every(Math.ceil(left / 1000))) : t("Refreshing…");
+        next.textContent = left > 0 && !requestedAt
+            ? t("Next refresh in about %s", every(Math.ceil(left / 1000))) : t("Refreshing…");
         progress.hidden = false;
     }
 
@@ -103,6 +106,9 @@
             return;
         }
 
+        if (method === "POST") requestedAt = Date.now();
+        if (requestedAt && (status.captured !== shownCapture || Date.now() - requestedAt > REQUEST_WAIT)) requestedAt = 0;
+
         lastStatus = status;
         capturedAt = status.captured && status.age >= 0 ? Date.now() - status.age * 1000 : 0;
         unlockButton.hidden = true;
@@ -126,7 +132,7 @@
         if (!open()) return;
 
         const left = remaining();
-        const wait = !lastStatus || left <= 0 ? CATCH_UP : Math.min(POLL, left + 500);
+        const wait = !lastStatus || left <= 0 || requestedAt ? CATCH_UP : Math.min(POLL, left + 500);
         pollTimer = setTimeout(() => tick("GET"), wait);
     }
 

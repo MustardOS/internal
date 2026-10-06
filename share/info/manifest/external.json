@@ -131,7 +131,8 @@
     "default": "freej2me - retroarch",
     "friendly": [
       "java",
-      "mobile"
+      "mobile",
+      "j2me"
     ],
     "bios": [],
     "cores": {
@@ -176,7 +177,8 @@
       "media",
       "audio",
       "movies",
-      "movie"
+      "movie",
+      "iptv"
     ],
     "bios": [],
     "cores": {

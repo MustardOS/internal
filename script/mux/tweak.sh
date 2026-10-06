@@ -9,6 +9,7 @@ HK_COMBO() {
 
 	case "$(GET_VAR "device" "board/name")" in
 		rg*) COMBO_FILE="$MUOS_SHARE_DIR/hotkey/rg.ini" ;;
+		rk*) COMBO_FILE="$MUOS_SHARE_DIR/hotkey/rk.ini" ;;
 		tui*) COMBO_FILE="$MUOS_SHARE_DIR/hotkey/tui.ini" ;;
 		*) return 0 ;;
 	esac

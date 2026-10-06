@@ -81,7 +81,13 @@
       "varcade",
       "vertarcade",
       "vertical",
-      "verticalarcade"
+      "verticalarcade",
+      "cps1",
+      "cps2",
+      "cps3",
+      "fba",
+      "fbneo",
+      "mame"
     ],
     "bios": [],
     "cores": {
@@ -1005,7 +1011,8 @@
       "ngw",
       "handheldelectronic",
       "gamenwatch",
-      "gameandwatch"
+      "gameandwatch",
+      "gw"
     ],
     "bios": [],
     "cores": {
@@ -1023,7 +1030,8 @@
     "default": "freej2me - retroarch",
     "friendly": [
       "java",
-      "mobile"
+      "mobile",
+      "j2me"
     ],
     "bios": [],
     "cores": {
@@ -1135,7 +1143,8 @@
     "default": "freeintv",
     "friendly": [
       "mattelintellivision",
-      "intellivision"
+      "intellivision",
+      "intv"
     ],
     "bios": [
       {
@@ -1202,7 +1211,8 @@
     "friendly": [
       "msx1",
       "msx",
-      "microsoftmsx"
+      "microsoftmsx",
+      "msx2"
     ],
     "bios": [],
     "cores": {
@@ -1578,7 +1588,8 @@
       "gbcolor",
       "gbchacks",
       "gbc",
-      "bgb"
+      "bgb",
+      "gameboycolor"
     ],
     "bios": [],
     "cores": {
@@ -1765,7 +1776,8 @@
       "nintendosnesmsu",
       "nintendosnes",
       "nintendosfc",
-      "ninsnes"
+      "ninsnes",
+      "sufami"
     ],
     "bios": [
       {
@@ -2503,7 +2515,8 @@
       "genmd",
       "genesishacks",
       "genesis",
-      "gen"
+      "gen",
+      "nomad"
     ],
     "bios": [],
     "cores": {
@@ -2634,7 +2647,8 @@
     "default": "px68k",
     "friendly": [
       "x68000",
-      "sharpx68000"
+      "sharpx68000",
+      "x68k"
     ],
     "bios": [],
     "cores": {
@@ -2669,7 +2683,8 @@
     "lookup": 0,
     "default": "fuse",
     "friendly": [
-      "zxs"
+      "zxs",
+      "spectrum"
     ],
     "bios": [],
     "cores": {

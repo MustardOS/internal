@@ -17,7 +17,7 @@ trap 'rm -f "$SCREEN_TEMP"; rmdir "$SCREEN_LOCK" 2>/dev/null' 0 HUP INT TERM
 
 case "$(GET_VAR "device" "board/name")" in
 	mgx*) SCREEN_ROTATE=270 ;;
-	rg-vita* | rg28xx-h) SCREEN_ROTATE=90 ;;
+	rg-vita* | rg28xx-h | rk-pixel-2) SCREEN_ROTATE=90 ;;
 	*) SCREEN_ROTATE=0 ;;
 esac
 

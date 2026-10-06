@@ -871,15 +871,26 @@
 
 		opp-1512000000 {
 			opp-hz = <0x00 0x5a1f4a00>;
-			opp-microvolt = <0x118c30 0x118c30 0x118c30>;
-			opp-microvolt-L0 = <0x118c30 0x118c30 0x118c30>;
-			opp-microvolt-L1 = <0x112a88 0x112a88 0x118c30>;
-			opp-microvolt-L2 = <0x10c8e0 0x10c8e0 0x118c30>;
-			opp-microvolt-L3 = <0x106738 0x106738 0x118c30>;
-			opp-microvolt-L4 = <0x100590 0x100590 0x118c30>;
+			opp-microvolt = <0x12b128 0x12b128 0x137478>;
+			opp-microvolt-L0 = <0x12b128 0x12b128 0x137478>;
+			opp-microvolt-L1 = <0x124f80 0x124f80 0x137478>;
+			opp-microvolt-L2 = <0x11edd8 0x11edd8 0x137478>;
+			opp-microvolt-L3 = <0x118c30 0x118c30 0x137478>;
+			opp-microvolt-L4 = <0x112a88 0x112a88 0x137478>;
 			clock-latency-ns = <0x9c40>;
 		};
-	};
+	
+		opp-1608000000 {
+			opp-hz = <0x00 0x5fd82200>;
+			opp-microvolt = <0x13d620 0x13d620 0x149970>;
+			opp-microvolt-L0 = <0x13d620 0x13d620 0x149970>;
+			opp-microvolt-L1 = <0x137478 0x137478 0x149970>;
+			opp-microvolt-L2 = <0x1312d0 0x1312d0 0x149970>;
+			opp-microvolt-L3 = <0x12b128 0x12b128 0x149970>;
+			opp-microvolt-L4 = <0x124f80 0x124f80 0x149970>;
+			clock-latency-ns = <0x9c40>;
+		};
+};
 
 	arm-pmu {
 		compatible = "arm,cortex-a35-pmu";
@@ -2465,7 +2476,37 @@
 			opp-microvolt-L3 = <0xe7ef0>;
 			opp-microvolt-L4 = <0xe7ef0>;
 		};
-	};
+	
+		opp-600000000 {
+			opp-hz = <0x00 0x23c34600>;
+			opp-microvolt = <0x100590>;
+			opp-microvolt-L0 = <0x100590>;
+			opp-microvolt-L1 = <0x100590>;
+			opp-microvolt-L2 = <0xfa3e8>;
+			opp-microvolt-L3 = <0xf4240>;
+			opp-microvolt-L4 = <0xf4240>;
+		};
+
+		opp-700000000 {
+			opp-hz = <0x00 0x29b92700>;
+			opp-microvolt = <0x10c8e0>;
+			opp-microvolt-L0 = <0x10c8e0>;
+			opp-microvolt-L1 = <0x10c8e0>;
+			opp-microvolt-L2 = <0x106738>;
+			opp-microvolt-L3 = <0x100590>;
+			opp-microvolt-L4 = <0x100590>;
+		};
+
+		opp-800000000 {
+			opp-hz = <0x00 0x2faf0800>;
+			opp-microvolt = <0x124f80>;
+			opp-microvolt-L0 = <0x124f80>;
+			opp-microvolt-L1 = <0x124f80>;
+			opp-microvolt-L2 = <0x11edd8>;
+			opp-microvolt-L3 = <0x118c30>;
+			opp-microvolt-L4 = <0x118c30>;
+		};
+};
 
 	mpp-srv {
 		compatible = "rockchip,mpp-service";

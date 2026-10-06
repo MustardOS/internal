@@ -312,6 +312,7 @@ LOAD_MODULE() {
 			fi
 			;;
 		rk*)
+			SET_PIXEL_USB_ROLE
 			modprobe -q cfg80211
 			if [ -n "$NET_NAME" ] && ! MODULE_LOADED "$NET_NAME"; then
 				modprobe -q "$NET_NAME"

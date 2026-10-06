@@ -2762,6 +2762,27 @@ ENSURE_REMOVED_SYNC() {
 	done
 }
 
+SET_PIXEL_USB_ROLE() {
+	[ "$(GET_VAR "device" "board/name")" = "rk-pixel-2" ] || return 0
+
+	case "${1:-$(GET_VAR "config" "settings/advanced/usb_function")}" in
+		0) USB_ROLE="host" ;;
+		1 | 2) USB_ROLE="peripheral" ;;
+		*) return 0 ;;
+	esac
+
+	for OTG_MODE in /sys/devices/platform/*/*usb2-phy*/otg_mode; do
+		[ -w "$OTG_MODE" ] || continue
+		[ "$(cat "$OTG_MODE" 2>/dev/null)" = "$USB_ROLE" ] && return 0
+		printf "%s" "$USB_ROLE" >"$OTG_MODE" || return 1
+		LOG_INFO "$0" 0 "USB" "$(printf "Pixel 2 USB role set: %s" "$USB_ROLE")"
+		return 0
+	done
+
+	LOG_WARN "$0" 0 "USB" "Pixel 2 USB role control not found"
+	return 1
+}
+
 REMOVE_RUNTIME_FILES() {
 	for RUNTIME_FILE in ra_no_load ra_autoload_once.cfg; do
 		ENSURE_REMOVED_SYNC "/tmp/$RUNTIME_FILE"

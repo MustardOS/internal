@@ -15,6 +15,7 @@ PROFILE_OEM="$PROFILE_SHARE/oem"
 PROFILE_USAGE() {
 	printf 'Usage: %s apply FILE merge|replace\n' "$0" >&2
 	printf '       %s undo\n' "$0" >&2
+	printf '       %s reset\n' "$0" >&2
 	printf '       %s save FILE NAME [DESCRIPTION]\n' "$0" >&2
 	printf '       %s import-oem SOURCE\n' "$0" >&2
 	printf '       %s import-wifi SOURCE\n' "$0" >&2
@@ -339,6 +340,13 @@ PROFILE_APPLY() {
 	LOG_INFO "$0" 0 "PROFILE" "$(printf "Applied '%s' (%s)" "${PA_NAME:-$PA_FILE}" "$PA_MODE")"
 }
 
+PROFILE_RESET() {
+	PROFILE_KNOWN "$PROFILE_DEFAULT" | PROFILE_APPLY_LINES
+	rm -f "$PROFILE_PREVIOUS" "$PROFILE_ACTIVE"
+
+	LOG_INFO "$0" 0 "PROFILE" "Reset every profile setting to its default"
+}
+
 PROFILE_UNDO() {
 	[ -r "$PROFILE_PREVIOUS" ] || {
 		LOG_WARN "$0" 0 "PROFILE" "There are no previous settings to restore"
@@ -473,6 +481,10 @@ case "${1:-}" in
 	undo)
 		[ "$#" -eq 1 ] || PROFILE_USAGE
 		PROFILE_UNDO
+		;;
+	reset)
+		[ "$#" -eq 1 ] || PROFILE_USAGE
+		PROFILE_RESET
 		;;
 	save)
 		[ "$#" -ge 3 ] || PROFILE_USAGE

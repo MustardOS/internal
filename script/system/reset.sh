@@ -68,11 +68,13 @@ info/name
 info/track
 init
 log/boot
+log/profile
 log/dmesg
 log/retroarch
 network
 package/catalogue
 package/config
+profile
 save/drastic/backup
 save/drastic/savestates
 save/drastic-legacy/backup
@@ -93,6 +95,8 @@ syncthing
 for D in $DIRS; do
 	mkdir -p "$MUOS_DIR/$D"
 done
+
+/opt/muos/script/system/profile.sh flush "$MUOS_DIR/log/profile"
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Default RetroArch Config Archive"
 ARCHIVE="$MUOS_DIR/package/config/MustardOS Default.muxcfg"

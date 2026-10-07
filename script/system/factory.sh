@@ -11,6 +11,41 @@ while pgrep "muwarn" >/dev/null 2>&1; do sleep 0.25; done
 /opt/muos/script/device/amp.sh
 /opt/muos/script/device/speaker.sh
 
+IMPORT_OEM_PROFILE() {
+	OEM_PART="/dev/$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")"
+	[ -b "$OEM_PART" ] || return 0
+
+	OEM_MOUNT=$(mktemp -d /tmp/oem-profile.XXXXXX) || return 0
+	OEM_MOUNTED=0
+	for OEM_TYPE in exfat vfat; do
+		if MOUNT_FILESYSTEM "$OEM_TYPE" ro "$OEM_PART" "$OEM_MOUNT" 2>/dev/null; then
+			OEM_MOUNTED=1
+			break
+		fi
+	done
+
+	if [ "$OEM_MOUNTED" -eq 1 ]; then
+		WIFI_FILE=$(find "$OEM_MOUNT" -maxdepth 1 -type f -iname wifi.conf | head -n 1)
+		if [ -n "$WIFI_FILE" ]; then
+			LOG_INFO "$0" 0 "FACTORY RESET" "Importing OEM network settings"
+			/opt/muos/script/system/profile.sh import-wifi "$WIFI_FILE" ||
+				LOG_WARN "$0" 0 "FACTORY RESET" "OEM network settings could not be applied"
+		fi
+
+		OEM_FILE=$(find "$OEM_MOUNT" -maxdepth 1 -type f -iname profile.conf | head -n 1)
+		if [ -n "$OEM_FILE" ]; then
+			LOG_INFO "$0" 0 "FACTORY RESET" "Importing OEM profile"
+			/opt/muos/script/system/profile.sh import-oem "$OEM_FILE" ||
+				LOG_WARN "$0" 0 "FACTORY RESET" "OEM profile could not be applied"
+		fi
+		umount "$OEM_MOUNT" 2>/dev/null
+	fi
+
+	rmdir "$OEM_MOUNT" 2>/dev/null
+}
+
+IMPORT_OEM_PROFILE
+
 printf "installer" >"$ACT_GO"
 /opt/muos/script/mux/install.sh
 

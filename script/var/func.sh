@@ -2841,7 +2841,7 @@ RESET_DPAD_MODE() {
 
 	case "$BOARD_NAME_VALUE" in
 		rg*) printf "0" >"$DPAD_SWAP_PATH" ;;
-		tui*) ENSURE_REMOVED_SYNC "$DPAD_SWAP_PATH" ;;
+		rk-pixel-2 | tui*) ENSURE_REMOVED_SYNC "$DPAD_SWAP_PATH" ;;
 	esac
 }
 
@@ -2901,7 +2901,7 @@ RESTORE_DPAD_AND_LEDS() {
 			printf "1" >"$RESTORE_LED_NORMAL"
 			printf "1" >"$RESTORE_LED_STATE"
 			;;
-		tui*)
+		rk-pixel-2 | tui*)
 			ENSURE_REMOVED_SYNC "$RESTORE_DPAD_SWAP"
 			;;
 		*) ;;

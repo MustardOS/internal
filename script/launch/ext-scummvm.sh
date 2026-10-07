@@ -82,7 +82,7 @@ DPAD_SWAP=$(GET_VAR "device" "board/swap")
 [ "$(GET_VAR "device" "board/stick")" -eq 0 ] && STICK_ROT=2 || STICK_ROT=0
 case "$(GET_VAR "device" "board/name")" in
 	rg*) printf "%s" "$STICK_ROT" >"$DPAD_SWAP" ;;
-	tui*) [ ! -f "$DPAD_SWAP" ] && touch "$DPAD_SWAP" ;;
+	rk-pixel-2 | tui*) [ ! -f "$DPAD_SWAP" ] && touch "$DPAD_SWAP" ;;
 	*) ;;
 esac
 

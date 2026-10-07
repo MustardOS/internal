@@ -46,6 +46,8 @@ IMPORT_OEM_PROFILE() {
 
 IMPORT_OEM_PROFILE
 
+/opt/muos/script/device/amp.sh &
+
 printf "installer" >"$ACT_GO"
 /opt/muos/script/mux/install.sh
 

@@ -42,12 +42,22 @@ if [ "$WAS_ACTIVE" -eq 0 ]; then
 fi
 
 LOG_INFO "$0" 0 "SSID-SCAN" "Scanning for networks..."
+SCAN_TYPE=$(GET_VAR "device" "network/type")
 SCAN_DATA=""
-case "$(GET_VAR "device" "network/type")" in
-	wext) SCAN_DATA=$(timeout 15 iwlist "$IFCE" scan 2>/dev/null) ;;
-	nl80211) SCAN_DATA=$(timeout 15 iw dev "$IFCE" scan 2>/dev/null) ;;
-	*) SCAN_DATA="" ;;
-esac
+SCAN_ATTEMPT=1
+while :; do
+	case "$SCAN_TYPE" in
+		wext) SCAN_DATA=$(timeout 15 iwlist "$IFCE" scan 2>/dev/null) ;;
+		nl80211) SCAN_DATA=$(timeout 15 iw dev "$IFCE" scan 2>/dev/null) ;;
+		*) break ;;
+	esac
+
+	[ -n "$SCAN_DATA" ] || [ "$SCAN_ATTEMPT" -ge 3 ] && break
+
+	LOG_WARN "$0" 0 "SSID-SCAN" "$(printf "Scan attempt %s found nothing, trying again" "$SCAN_ATTEMPT")"
+	SCAN_ATTEMPT=$((SCAN_ATTEMPT + 1))
+	sleep 2
+done
 
 : >"$NET_SCAN"
 if [ -z "$SCAN_DATA" ]; then

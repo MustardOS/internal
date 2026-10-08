@@ -273,7 +273,7 @@ MANAGE_WEBSERV() {
 					# other by accident. Without it the dashboard is read only, apart from History,
 					# Collections, and the Wasabi Now Playing controls which stay open to use.
 					if [ "$(WEB_SETTING landing_auth)" = "0" ]; then
-						set -- "$@" --readonly
+						set -- "$@" --readonly --public-lists
 					else
 						set -- "$@" --secret "$LANDING_SECRET"
 					fi

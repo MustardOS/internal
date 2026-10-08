@@ -27,8 +27,8 @@
     "Filter": "Filtrer",
     "Friday": "Vendredi",
     "Hidden": "Masqué",
-    "Hold L2 and press X to confirm removal!": "Maintenez L2 enfoncé et appuyez sur X pour confirmer la suppression !",
-    "Hold L2 and press X to confirm reset!": "Maintenez L2 enfoncé et appuyez sur X pour confirmer la réinitialisation !",
+    "Hold L2 and press X to confirm removal!": "Maintenez L2 enfoncé et appuyez sur X pour confirmer la suppression !",
+    "Hold L2 and press X to confirm reset!": "Maintenez L2 enfoncé et appuyez sur X pour confirmer la réinitialisation !",
     "Included": "Inclus",
     "Info": "Info",
     "Information": "Informations",
@@ -72,7 +72,7 @@
     "Storage": "Storage",
     "Sunday": "Dimanche",
     "Sync to SD1": "Synchroniser avec SD1",
-    "This is disabled in kiosk mode!": "Cette fonctionnalité est désactivée en mode kiosk !",
+    "This is disabled in kiosk mode!": "Cette fonctionnalité est désactivée en mode kiosk !",
     "Thursday": "Jeudi",
     "Toggle All": "Tout activer/désactiver",
     "Top": "Haut",
@@ -450,9 +450,9 @@
     "Toggles HDMI integration on device": "Active l'intégration HDMI sur l'appareil",
     "Toggles Network integration on device": "Active/désactive l'intégration réseau sur l'appareil",
     "Toggles RGB LED integration on device": "Active/désactive l'intégration des LED RVB sur l'appareil",
-    "Toggles hall switch (lid) support on device\n\nDo not enable this on non-lid devices!": "Active/désactive la prise en charge des consoles avec clapet (modèle SP).\n\nNe pas activer cette option sur les consoles sans clapet !",
+    "Toggles hall switch (lid) support on device\n\nDo not enable this on non-lid devices!": "Active/désactive la prise en charge des consoles avec clapet (modèle SP).\n\nNe pas activer cette option sur les consoles sans clapet !",
     "Toggles internal Portmaster support on device": "Active/désactive la prise en charge interne de Portmaster sur l'appareil",
-    "Toggles kernel level DebugFS mount on startup\n\nBest to leave this enabled unless otherwise advised!": "Active/désactive le montage DebugFS au niveau du noyau au démarrage\n\nIl est préférable de laisser cette option activée, sauf avis contraire !"
+    "Toggles kernel level DebugFS mount on startup\n\nBest to leave this enabled unless otherwise advised!": "Active/désactive le montage DebugFS au niveau du noyau au démarrage\n\nIl est préférable de laisser cette option activée, sauf avis contraire !"
   },
   "muxdownload": {
     "APP DOWNLOADER": "TÉLÉCHARGEUR D'APPLICATIONS",
@@ -605,7 +605,7 @@
     "Permit tagging and metadata changes": "Autoriser le marquage et les modifications des métadonnées",
     "Power Settings": "Paramètres d'alimentation",
     "Remove Config": "Supprimer la configuration",
-    "Restrict to specific 'kiosk' directory within collections": "Restreindre à un répertoire « kiosk » spécifique au sein des collections",
+    "Restrict to specific 'kiosk' directory within collections": "Restreindre à un répertoire « kiosk » spécifique au sein des collections",
     "Restricted Messages": "Messages restreints",
     "RetroArch Settings": "Paramètres RetroArch",
     "Storage": "Stockage",
@@ -651,7 +651,7 @@
   "muxnetadv": {
     "Adjusts how many retries the network connection script goes through before giving up": "Modifie le nombre de tentatives de connexion réseau effectuées par le script avant d'abandonner",
     "Adjusts the maximum amount of attempts at loading the network module with Module Compatibility enabled. Increase this setting if you are still unable to connect to wifi.\n\nIncreasing this setting may increase boot times importantly.": "Ajuste le nombre maximal de tentatives de chargement du module réseau lorsque la compatibilité des modules est activée. Augmentez ce paramètre si vous ne parvenez toujours pas à vous connecter au Wi-Fi.\n\nL'augmentation de ce paramètre peut augmenter considérablement les temps de démarrage.",
-    "Adjusts the maximum amount of time waiting for the network interface to appear.\n\nWARNING:\nIf you enable Module Compatibility, it is not advisable to increase this setting as it will increase boot times!": "Ajuste le délai maximal d'attente avant l'affichage de l'interface réseau.\n\nAVERTISSEMENT :\nSi vous activez la compatibilité des modules, il est déconseillé d'augmenter ce paramètre, car cela augmenterait les temps de démarrage !",
+    "Adjusts the maximum amount of time waiting for the network interface to appear.\n\nWARNING:\nIf you enable Module Compatibility, it is not advisable to increase this setting as it will increase boot times!": "Ajuste le délai maximal d'attente avant l'affichage de l'interface réseau.\n\nAVERTISSEMENT :\nSi vous activez la compatibilité des modules, il est déconseillé d'augmenter ce paramètre, car cela augmenterait les temps de démarrage !",
     "Connection Monitor": "Moniteur de connexion",
     "Connection Retry": "Nouvelle tentative de connexion",
     "Enable device compatibility with network module loading via the Linux kernel\n\nIncreases boot times moderately": "Activer la compatibilité des appareils avec le chargement des modules réseau via le noyau Linux\n\nAugmente modérément les temps de démarrage",
@@ -670,8 +670,8 @@
   "muxnetinfo": {
     "Access Point": "Point d'accès",
     "Accumulated Traffic": "Trafic cumulé",
-    "Cannot change if network is active!": "Changement impossible lorsque le réseau est actif  !",
-    "Cannot edit if network is active!": "Modification impossible lorsque le réseau est actif  !",
+    "Cannot change if network is active!": "Changement impossible lorsque le réseau est actif  !",
+    "Cannot edit if network is active!": "Modification impossible lorsque le réseau est actif  !",
     "Changing MAC Address": "Modification de l'adresse MAC",
     "Channel": "Canal",
     "DNS": "DNS",
@@ -780,7 +780,7 @@
     "Removing Content Config…": "Suppression de la configuration du contenu…",
     "Removing Core Config…": "Suppression de la configuration de l'émulateur…",
     "Removing Directory Config…": "Suppression de la configuration du répertoire…",
-    "Select a colour filter that will change the display output of the running content. May not work with everything!": "Sélectionnez un filtre de couleur pour modifier l'affichage du contenu en cours. Peut ne pas fonctionner avec tous les contenus !",
+    "Select a colour filter that will change the display output of the running content. May not work with everything!": "Sélectionnez un filtre de couleur pour modifier l'affichage du contenu en cours. Peut ne pas fonctionner avec tous les contenus !",
     "Select a shader that will affect the look and feel of the running content. May not work with everything!": "Select a shader that will affect the look and feel of the running content. May not work with everything!",
     "Set the CPU governor for the selected content or directory": "Définissez le gouverneur du processeur pour le contenu ou le répertoire sélectionné",
     "Set the control scheme for the selected content or directory": "Définir le schéma de contrôle pour le contenu ou le répertoire sélectionné",
@@ -794,7 +794,7 @@
     "Threaded Video": "Vidéo multithread",
     "Time Played": "Temps joué",
     "Times Launched": "Nombre de lancements",
-    "Until RetroArch sorts their issue out with the threaded video option, you can toggle it here instead\n\nThis also may turn into a larger set of options in the future!": "En attendant que RetroArch résolve son problème avec l'option vidéo multithread, vous pouvez l'activer/désactiver ici.\n\nIl est possible que d'autres options soient ajoutées ultérieurement !"
+    "Until RetroArch sorts their issue out with the threaded video option, you can toggle it here instead\n\nThis also may turn into a larger set of options in the future!": "En attendant que RetroArch résolve son problème avec l'option vidéo multithread, vous pouvez l'activer/désactiver ici.\n\nIl est possible que d'autres options soient ajoutées ultérieurement !"
   },
   "muxoverlay": {
     "Bottom Left": "En bas à gauche",
@@ -850,8 +850,8 @@
     "No Theme Packages Found": "Aucun pack de thème disponible",
     "THEME PICKER": "THÈMES MUSTARDOS",
     "Theme Download": "Téléchargement des thèmes",
-    "There are no attributed credits!": "Il n'y a pas de crédits attribués !",
-    "This theme is protected from deletion!": "Ce thème est protégé contre la suppression !"
+    "There are no attributed credits!": "Il n'y a pas de crédits attribués !",
+    "This theme is protected from deletion!": "Ce thème est protégé contre la suppression !"
   },
   "muxplore": {
     "Content is not associated with system or core": "Le jeu n'est pas associé au système ou à un émulateur",
@@ -906,7 +906,7 @@
   },
   "muxraopt": {
     "THREADED VIDEO": "VIDEO MULTITHREAD",
-    "Until RetroArch sorts their issue out with the threaded video option, you can toggle it here instead\n\nThis also may turn into a larger set of options in the future!": "En attendant que RetroArch résolve son problème avec l'option vidéo multithread, vous pouvez l'activer/désactiver ici.\n\nIl est possible que d'autres options soient ajoutées ultérieurement !"
+    "Until RetroArch sorts their issue out with the threaded video option, you can toggle it here instead\n\nThis also may turn into a larger set of options in the future!": "En attendant que RetroArch résolve son problème avec l'option vidéo multithread, vous pouvez l'activer/désactiver ici.\n\nIl est possible que d'autres options soient ajoutées ultérieurement !"
   },
   "muxrtc": {
     "12 Hour": "12 heures",
@@ -924,7 +924,7 @@
   "muxsearch": {
     "Enter in the name of the content you are looking for": "Entrez le nom du jeu que vous recherchez",
     "Lookup": "Rechercher",
-    "Lookup has to be 3 characters or more!": "La recherche doit comporter au minimum 3 caractères !",
+    "Lookup has to be 3 characters or more!": "La recherche doit comporter au minimum 3 caractères !",
     "SEARCH CONTENT": "RECHERCHE DE CONTENU",
     "Search Global": "Recherche globale",
     "Search Local": "Recherche locale",
@@ -1054,7 +1054,7 @@
     "INPUT TESTER": "TESTEUR DE COMMANDES",
     "Press DOWN + A to finish testing": "Appuyez sur BAS + A pour terminer le test",
     "Press DOWN + B to finish testing": "Appuyez sur BAS + B pour quitter le test",
-    "Press any button to start input testing!": "Appuyez sur une touche pour démarrer le test !"
+    "Press any button to start input testing!": "Appuyez sur une touche pour démarrer le test !"
   },
   "muxthemedown": {
     "Download": "Télécharger",
@@ -1196,7 +1196,7 @@
     "Screenshot Hotkey": "Raccourci capture d'écran",
     "Setting Device Brightness": "Réglage de la luminosité de la console",
     "Setting Device Volume": "Réglage du volume de la console",
-    "Settings that should only be changed by those who know what they are doing!": "Des paramètres qui ne devraient être modifiés que par ceux qui savent ce qu’ils font !",
+    "Settings that should only be changed by those who know what they are doing!": "Des paramètres qui ne devraient être modifiés que par ceux qui savent ce qu’ils font !",
     "Settings to change the HDMI output of the device": "Paramètres pour modifier la sortie HDMI de la console",
     "Switch between different hotkeys for taking a screenshot": "Modifier la touche de raccourci pour les captures d'écran",
     "Switch between different hotkeys for toggling DPAD swap": "Modifier le raccourci pour l'inversion de la croix directionnelle (DPAD) et joysticks",

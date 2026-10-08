@@ -16,7 +16,7 @@
     "Content": "Content",
     "Details": "Details",
     "Directory": "فهرست",
-    "Disabled": "غیر‌فعال",
+    "Disabled": "غیرفعال",
     "Download": "Download",
     "Edit": "Edit",
     "Enabled": "فعال",
@@ -167,7 +167,7 @@
   },
   "muxarchive": {
     "ARCHIVE MANAGER": "مدیریت بایگانی",
-    "Archive items can be found and installed here - Save games and states, updates, themes etc": "آیتم های بایگانی را می‌توان در اینجا یافت و نصب کرد - سیو بازی ها و موقعیت های سیو شده, آپدیت ها, تم ها و غیره",
+    "Archive items can be found and installed here - Save games and states, updates, themes etc": "آیتم های بایگانی را میتوان در اینجا یافت و نصب کرد - سیو بازی ها و موقعیت های سیو شده, آپدیت ها, تم ها و غیره",
     "INSTALLED": "نصب شده",
     "No Archives Found": "هیچ آرشیو بایگانی پیدا نشد"
   },

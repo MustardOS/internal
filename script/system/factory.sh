@@ -34,6 +34,7 @@ IMPORT_OEM_PROFILE() {
 
 		OEM_FILE=$(find "$OEM_MOUNT" -maxdepth 1 -type f -iname profile.conf | head -n 1)
 		if [ -n "$OEM_FILE" ]; then
+			: >"$MUOS_RUN_DIR/oem_profile"
 			LOG_INFO "$0" 0 "FACTORY RESET" "Importing OEM profile"
 			/opt/muos/script/system/profile.sh import-oem "$OEM_FILE" ||
 				LOG_WARN "$0" 0 "FACTORY RESET" "OEM profile could not be applied"

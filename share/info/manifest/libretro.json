@@ -1419,7 +1419,8 @@
         "name": "melonDS-DS",
         "core": "melondsds_libretro.so"
       }
-    }
+    },
+    "runtime": "external"
   },
   "Nintendo Famicom Disk System": {
     "name": "Nintendo Famicom Disk System",
@@ -1633,6 +1634,7 @@
     "catalogue": "Nintendo N64",
     "lookup": 0,
     "default": "mupen64plus next",
+    "runtime": "external",
     "governor": "performance",
     "friendly": [
       "nintendonintendo64dd",
@@ -2236,6 +2238,7 @@
     "catalogue": "ScummVM",
     "lookup": 0,
     "default": "scummvm",
+    "runtime": "external",
     "friendly": [
       "lucasart",
       "lucasarts",
@@ -2596,6 +2599,7 @@
     "catalogue": "Sega Saturn",
     "lookup": 0,
     "default": "yabasanshiro",
+    "runtime": "external",
     "governor": "performance",
     "friendly": [
       "ss",
@@ -2805,7 +2809,8 @@
         "name": "PPSSPP",
         "core": "ppsspp_libretro.so"
       }
-    }
+    },
+    "runtime": "external"
   },
   "Super Mario War": {
     "name": "Super Mario War",

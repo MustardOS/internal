@@ -149,63 +149,61 @@ APPLY_OPTIONAL_FILE "$SHD_GO" "$MUOS_RUN_DIR/overlay.shader" "Overlay Shader"
 # Set the chosen overlay alpha/anchor/scale options of content.
 APPLY_OPTIONAL_FILE "$OVO_GO" "$MUOS_RUN_DIR/overlay.options" "Overlay Options"
 
-# Pickles and RetroArch run the same Libretro cores, so libretro.json describes both
+# Pickles and RetroArch run the same Libretro cores, so both read the libretro group in core.json
 # and the tag on the stored assignment says which runtime drives the fella.
 BUNDLED_MANIFEST_DIR="$MUOS_SHARE_DIR/info/manifest"
 USER_MANIFEST_DIR="$MUOS_STORE_DIR/info/manifest"
 
-CORE_JSON_PATH() {
-	if [ -r "$USER_MANIFEST_DIR/$1" ] && jq -e 'type == "object"' "$USER_MANIFEST_DIR/$1" >/dev/null 2>&1; then
-		printf '%s\n' "$USER_MANIFEST_DIR/$1"
-	else
-		printf '%s\n' "$BUNDLED_MANIFEST_DIR/$1"
-	fi
-}
+if [ -r "$USER_MANIFEST_DIR/core.json" ] && jq -e 'type == "object"' "$USER_MANIFEST_DIR/core.json" >/dev/null 2>&1; then
+	CORE_JSON="$USER_MANIFEST_DIR/core.json"
+else
+	CORE_JSON="$BUNDLED_MANIFEST_DIR/core.json"
+fi
 
 CORE_HAS() {
-	jq -e --arg s "$ASSIGN" --arg c "$2" '.[$s].cores[$c]' "$1" >/dev/null 2>&1
+	jq -e --arg s "$ASSIGN" --arg g "$CORE_GROUP" --arg c "$1" '.[$s][$g][$c]' "$CORE_JSON" >/dev/null 2>&1
 }
 
 SET_RUNTIME() {
 	CORE_RUNTIME="$1"
 	CORE_PREFIX="$2"
-	CORE_JSON=$(CORE_JSON_PATH "$3")
+	CORE_GROUP="$3"
 }
 
 case "$LAUNCH" in
 	mu-*)
-		SET_RUNTIME "pickles" "mu-" "libretro.json"
+		SET_RUNTIME "pickles" "mu-" "libretro"
 		CORE_ID=${LAUNCH#mu-}
 		;;
 	ext-*)
-		SET_RUNTIME "external" "ext-" "external.json"
+		SET_RUNTIME "external" "ext-" "external"
 		CORE_ID=${LAUNCH#ext-}
 		;;
 	*)
-		SET_RUNTIME "retroarch" "lr-" "libretro.json"
+		SET_RUNTIME "retroarch" "lr-" "libretro"
 		CORE_ID=$LAUNCH
 		;;
 esac
 
-if ! CORE_HAS "$CORE_JSON" "$CORE_ID"; then
+if ! CORE_HAS "$CORE_ID"; then
 	if [ "$CORE_RUNTIME" = "external" ]; then
-		SET_RUNTIME "retroarch" "lr-" "libretro.json"
+		SET_RUNTIME "retroarch" "lr-" "libretro"
 	else
-		SET_RUNTIME "external" "ext-" "external.json"
+		SET_RUNTIME "external" "ext-" "external"
 	fi
 
-	CORE_HAS "$CORE_JSON" "$CORE_ID" || case "$CORE_ID" in
+	CORE_HAS "$CORE_ID" || case "$CORE_ID" in
 		*" - standalone")
 			CORE_ID=${CORE_ID% - standalone}
-			SET_RUNTIME "external" "ext-" "external.json"
+			SET_RUNTIME "external" "ext-" "external"
 			;;
 	esac
 fi
 
 LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Resolved core '%s' as %s from '%s'" "$CORE_ID" "$CORE_RUNTIME" "$CORE_JSON")"
 
-CORE_FIELDS=$(jq -r --arg s "$ASSIGN" --arg c "$CORE_ID" \
-	'.[$s].cores[$c] // {} | [(.launcher // ""), (.prep // ""), (.done // "")] | @tsv' \
+CORE_FIELDS=$(jq -r --arg s "$ASSIGN" --arg g "$CORE_GROUP" --arg c "$CORE_ID" \
+	'.[$s][$g][$c] // {} | [(.launcher // ""), (.prep // ""), (.done // "")] | @tsv' \
 	"$CORE_JSON" 2>/dev/null)
 
 CORE_LAUNCHER=$(printf '%s' "$CORE_FIELDS" | cut -f1)

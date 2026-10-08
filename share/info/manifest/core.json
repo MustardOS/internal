@@ -9,7 +9,7 @@
       "2048"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "2048": {
         "name": "2048",
         "core": "2048_libretro.so",
@@ -29,7 +29,7 @@
       "cpc"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "cpc crocods": {
         "name": "CPC CrocoDS",
         "core": "crocods_libretro.so",
@@ -54,7 +54,7 @@
       "minivmac"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "minivmac": {
         "name": "Mini vMac",
         "core": "minivmac_libretro.so",
@@ -90,7 +90,7 @@
       "mame"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "daphne": {
         "name": "Daphne",
         "core": "daphne_libretro.so",
@@ -181,7 +181,7 @@
       "arduboy"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "ardens": {
         "name": "Ardens",
         "core": "ardens_libretro.so",
@@ -208,7 +208,7 @@
       "2600"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "stella": {
         "name": "Stella",
         "core": "stella_libretro.so",
@@ -255,7 +255,7 @@
         "hash": "a3e8d617c95d08031fe1b20d541434b2"
       }
     ],
-    "cores": {
+    "libretro": {
       "a5200": {
         "name": "a5200",
         "core": "a5200_libretro.so",
@@ -286,7 +286,7 @@
         "hash": "0763f1ffb006ddbe32e52d497ee848ae"
       }
     ],
-    "cores": {
+    "libretro": {
       "prosystem": {
         "name": "ProSystem",
         "core": "prosystem_libretro.so",
@@ -328,7 +328,7 @@
         "hash": "a3e8d617c95d08031fe1b20d541434b2"
       }
     ],
-    "cores": {
+    "libretro": {
       "atari 800": {
         "name": "Atari 800",
         "core": "atari800_libretro.so",
@@ -348,7 +348,7 @@
       "jaguar"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "virtual jaguar": {
         "name": "Virtual Jaguar",
         "core": "virtualjaguar_libretro.so",
@@ -372,7 +372,7 @@
         "hash": "fcd403db69f54290b51035d82f835e7b"
       }
     ],
-    "cores": {
+    "libretro": {
       "beetle lynx": {
         "name": "Beetle Lynx",
         "core": "mednafen_lynx_libretro.so",
@@ -409,7 +409,7 @@
         "hash": "c1c57ce48e8ee4135885cee9e63a68a2"
       }
     ],
-    "cores": {
+    "libretro": {
       "hatari": {
         "name": "Hatari",
         "core": "hatari_libretro.so",
@@ -439,7 +439,7 @@
       "bandaiwonderswan"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "beetle cygne": {
         "name": "Beetle Cygne",
         "core": "mednafen_wswan_libretro.so",
@@ -458,36 +458,35 @@
       "BennuGD"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "bennugd": {
         "name": "BennuGD",
         "core": "bennugd_libretro.so"
       }
     }
   },
-  "CHIP-8": {
-    "name": "CHIP-8",
-    "namespace": "Fantasy Console",
-    "catalogue": "CHIP-8",
+  "Book Reader": {
+    "name": "Book Reader",
+    "namespace": "Media",
+    "catalogue": "Book Reader",
     "lookup": 0,
-    "default": "jaxe",
+    "default": "mreader landscape",
+    "runtime": "external",
     "friendly": [
-      "superchip",
-      "megachip8",
-      "chipeight",
-      "chip8"
+      "books",
+      "book"
     ],
     "bios": [],
-    "cores": {
-      "emux chip8": {
-        "name": "Emux CHIP-8",
-        "core": "emux_chip8_libretro.so",
-        "bios_required": 0
+    "external": {
+      "mreader landscape": {
+        "name": "mReader Landscape",
+        "core": "ext-mreader-landscape",
+        "launcher": "mreader.sh"
       },
-      "jaxe": {
-        "name": "JAXE",
-        "core": "jaxe_libretro.so",
-        "bios_required": 0
+      "mreader portrait": {
+        "name": "mReader Portrait",
+        "core": "ext-mreader-portrait",
+        "launcher": "mreader.sh"
       }
     }
   },
@@ -502,7 +501,7 @@
       "outrun"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "cannonball": {
         "name": "Cannonball",
         "core": "cannonball_libretro.so",
@@ -525,7 +524,7 @@
         "hash": ""
       }
     ],
-    "cores": {
+    "libretro": {
       "nxengine": {
         "name": "NXEngine",
         "core": "nxengine_libretro.so",
@@ -544,10 +543,36 @@
       "chailove"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "chailove": {
         "name": "ChaiLove",
         "core": "chailove_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "CHIP-8": {
+    "name": "CHIP-8",
+    "namespace": "Fantasy Console",
+    "catalogue": "CHIP-8",
+    "lookup": 0,
+    "default": "jaxe",
+    "friendly": [
+      "superchip",
+      "megachip8",
+      "chipeight",
+      "chip8"
+    ],
+    "bios": [],
+    "libretro": {
+      "emux chip8": {
+        "name": "Emux CHIP-8",
+        "core": "emux_chip8_libretro.so",
+        "bios_required": 0
+      },
+      "jaxe": {
+        "name": "JAXE",
+        "core": "jaxe_libretro.so",
         "bios_required": 0
       }
     }
@@ -568,7 +593,7 @@
         "hash": "2c66f5911e5b42b8ebe113403548eee7"
       }
     ],
-    "cores": {
+    "libretro": {
       "bluemsx": {
         "name": "blueMSX",
         "core": "bluemsx_libretro.so",
@@ -646,7 +671,7 @@
         "hash": "f2f241bf094168cfb9e7805dc2856433"
       }
     ],
-    "cores": {
+    "libretro": {
       "puae": {
         "name": "PUAE",
         "core": "puae_libretro.so",
@@ -681,7 +706,7 @@
       "c128"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "vice x128": {
         "name": "VICE x128",
         "core": "vice_x128_libretro.so"
@@ -701,7 +726,7 @@
       "c64"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "frodo": {
         "name": "Frodo",
         "core": "frodo_libretro.so",
@@ -737,7 +762,7 @@
       "cbmii"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "vice xcbm2": {
         "name": "VICE xcbm2",
         "core": "vice_xcbm2_libretro.so"
@@ -759,7 +784,7 @@
       "commodorepet"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "vice xpet": {
         "name": "VICE xpet",
         "core": "vice_xpet_libretro.so"
@@ -777,7 +802,7 @@
       "plus4"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "vice xplus4": {
         "name": "VICE xplus4",
         "core": "vice_xplus4_libretro.so",
@@ -796,10 +821,30 @@
       "commodorevic20"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "vice xvic": {
         "name": "VICE xvic",
         "core": "vice_xvic_libretro.so"
+      }
+    }
+  },
+  "Crisp Game Lib": {
+    "name": "Crisp Game Lib",
+    "namespace": "Game Engine",
+    "catalogue": "Crisp Game Lib Portable",
+    "lookup": 0,
+    "default": "crisp game lib",
+    "runtime": "external",
+    "friendly": [
+      "cglpsdl2",
+      "crisp"
+    ],
+    "bios": [],
+    "external": {
+      "crisp game lib": {
+        "name": "Crisp Game Lib",
+        "core": "ext-crisp",
+        "launcher": "crisp.sh"
       }
     }
   },
@@ -813,7 +858,7 @@
       "dice"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "dice": {
         "name": "Dice",
         "core": "dice_libretro.so"
@@ -831,11 +876,52 @@
       "doom"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "prboom": {
         "name": "PrBoom",
         "core": "prboom_libretro.so",
         "launcher": "prboom.sh"
+      }
+    }
+  },
+  "Dragon and Tandy": {
+    "name": "Dragon and Tandy 8-bit",
+    "namespace": "Computer",
+    "catalogue": "Dragon and Tandy",
+    "lookup": 0,
+    "default": "xroar",
+    "runtime": "external",
+    "friendly": [
+      "coco",
+      "dragon",
+      "dragon32",
+      "dragon64"
+    ],
+    "bios": [],
+    "external": {
+      "coco 3": {
+        "name": "CoCo 3",
+        "core": "coco3",
+        "launcher": "xroar.sh",
+        "bios_required": 1
+      },
+      "dragon 32": {
+        "name": "Dragon 32",
+        "core": "dragon32",
+        "launcher": "xroar.sh",
+        "bios_required": 1
+      },
+      "dragon 64": {
+        "name": "Dragon 64",
+        "core": "dragon64",
+        "launcher": "xroar.sh",
+        "bios_required": 1
+      },
+      "xroar": {
+        "name": "XRoar",
+        "core": "xroar",
+        "launcher": "xroar.sh",
+        "bios_required": 1
       }
     }
   },
@@ -851,7 +937,7 @@
       "bk"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "bk": {
         "name": "BK",
         "core": "bk_libretro.so",
@@ -871,7 +957,7 @@
       "ep128"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "ep128emu": {
         "name": "ep128emu",
         "core": "ep128emu_core_libretro.so",
@@ -891,11 +977,53 @@
       "scv"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "emuscv": {
         "name": "EmuSCV",
         "core": "emuscv_libretro.so",
         "bios_required": 0
+      }
+    }
+  },
+  "External - Ports": {
+    "name": "External - Ports",
+    "namespace": "Ports",
+    "catalogue": "External - Ports",
+    "lookup": 0,
+    "default": "external",
+    "runtime": "external",
+    "friendly": [
+      "scripts",
+      "script",
+      "ports",
+      "port",
+      "externalports",
+      "externalport",
+      "external",
+      "apps",
+      "app"
+    ],
+    "bios": [],
+    "external": {
+      "external": {
+        "name": "External",
+        "core": "external",
+        "launcher": "general.sh"
+      },
+      "frotz": {
+        "name": "Frotz",
+        "core": "ext-frotz",
+        "launcher": "frotz.sh"
+      },
+      "portoverlay": {
+        "name": "PortOverlay",
+        "core": "ext-gen-overlay",
+        "launcher": "general.sh"
+      },
+      "terminal": {
+        "name": "Terminal",
+        "core": "ext-terminal",
+        "launcher": "terminal.sh"
       }
     }
   },
@@ -911,7 +1039,7 @@
       "channelf"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "freechaf": {
         "name": "FreeChaF",
         "core": "freechaf_libretro.so"
@@ -920,25 +1048,6 @@
         "name": "Press F",
         "core": "press_f_libretro.so",
         "bios_required": 0
-      }
-    }
-  },
-  "GCE Vectrex": {
-    "name": "GCE Vectrex",
-    "namespace": "Console",
-    "catalogue": "GCE Vectrex",
-    "lookup": 0,
-    "default": "vecx",
-    "friendly": [
-      "vectrex",
-      "gcevectrex",
-      "gce"
-    ],
-    "bios": [],
-    "cores": {
-      "vecx": {
-        "name": "vecx",
-        "core": "vecx_libretro.so"
       }
     }
   },
@@ -954,7 +1063,7 @@
       "retcom"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "galaksija": {
         "name": "Galaksija",
         "core": "galaksija_libretro.so"
@@ -973,7 +1082,7 @@
       "chiptune"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "gme": {
         "name": "Game Music Emu",
         "core": "gme_libretro.so",
@@ -992,10 +1101,29 @@
       "gametank"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "game tank": {
         "name": "Game Tank",
         "core": "libgametank_libretro.so"
+      }
+    }
+  },
+  "GCE Vectrex": {
+    "name": "GCE Vectrex",
+    "namespace": "Console",
+    "catalogue": "GCE Vectrex",
+    "lookup": 0,
+    "default": "vecx",
+    "friendly": [
+      "vectrex",
+      "gcevectrex",
+      "gce"
+    ],
+    "bios": [],
+    "libretro": {
+      "vecx": {
+        "name": "vecx",
+        "core": "vecx_libretro.so"
       }
     }
   },
@@ -1015,7 +1143,7 @@
       "gw"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "handheld electronic": {
         "name": "Handheld Electronic",
         "core": "gw_libretro.so"
@@ -1034,10 +1162,37 @@
       "j2me"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "freej2me - retroarch": {
         "name": "FreeJ2ME - RetroArch",
         "core": "freej2me_libretro.so"
+      }
+    },
+    "external": {
+      "freej2me - 128x128": {
+        "name": "FreeJ2ME - 128x128",
+        "core": "ext-freej2me-128",
+        "launcher": "freej2me.sh"
+      },
+      "freej2me - 176x208": {
+        "name": "FreeJ2ME - 176x208",
+        "core": "ext-freej2me-176",
+        "launcher": "freej2me.sh"
+      },
+      "freej2me - 240x320": {
+        "name": "FreeJ2ME - 240x320",
+        "core": "ext-freej2me-240",
+        "launcher": "freej2me.sh"
+      },
+      "freej2me - 320x240": {
+        "name": "FreeJ2ME - 320x240",
+        "core": "ext-freej2me-320",
+        "launcher": "freej2me.sh"
+      },
+      "freej2me - 640x360": {
+        "name": "FreeJ2ME - 640x360",
+        "core": "ext-freej2me-640",
+        "launcher": "freej2me.sh"
       }
     }
   },
@@ -1052,7 +1207,7 @@
       "pocketcdg"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "pocketcdg": {
         "name": "PocketCDG",
         "core": "pocketcdg_libretro.so"
@@ -1069,7 +1224,7 @@
       "lowresnx"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "lowres nx": {
         "name": "LowRes NX",
         "core": "lowresnx_libretro.so"
@@ -1087,7 +1242,7 @@
       "lua"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "lutro": {
         "name": "Lutro",
         "core": "lutro_libretro.so"
@@ -1127,7 +1282,7 @@
         "hash": ""
       }
     ],
-    "cores": {
+    "libretro": {
       "odyssey2": {
         "name": "Odyssey2",
         "core": "o2em_libretro.so",
@@ -1156,11 +1311,48 @@
         "hash": "0cd5946c6473e42e8e4c2137785e427f"
       }
     ],
-    "cores": {
+    "libretro": {
       "freeintv": {
         "name": "FreeIntv",
         "core": "freeintv_libretro.so",
         "bios_required": 1
+      }
+    }
+  },
+  "Media Player": {
+    "name": "Media Player",
+    "namespace": "Media",
+    "catalogue": "Media Player",
+    "lookup": 0,
+    "default": "wasabi",
+    "runtime": "external",
+    "friendly": [
+      "video",
+      "videos",
+      "music",
+      "sound",
+      "media",
+      "audio",
+      "movies",
+      "movie",
+      "iptv"
+    ],
+    "bios": [],
+    "external": {
+      "wasabi": {
+        "name": "Wasabi",
+        "core": "ext-video",
+        "launcher": "video.sh"
+      },
+      "ffplay": {
+        "name": "FFPlay",
+        "core": "ext-ffplay",
+        "launcher": "ffplay.sh"
+      },
+      "mpv": {
+        "name": "MPV",
+        "core": "ext-mpv-general",
+        "launcher": "mpv.sh"
       }
     }
   },
@@ -1175,29 +1367,10 @@
       "cougarboy"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "sameduck": {
         "name": "SameDuck",
         "core": "sameduck_libretro.so",
-        "bios_required": 0
-      }
-    }
-  },
-  "MicroW8": {
-    "name": "MicroW8",
-    "namespace": "Fantasy Console",
-    "catalogue": "MicroW8",
-    "lookup": 0,
-    "default": "uw8",
-    "friendly": [
-      "microw8",
-      "uw8"
-    ],
-    "bios": [],
-    "cores": {
-      "uw8": {
-        "name": "MicroW8",
-        "core": "uw8_libretro.so",
         "bios_required": 0
       }
     }
@@ -1215,7 +1388,7 @@
       "msx2"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "bluemsx": {
         "name": "blueMSX",
         "core": "bluemsx_libretro.so"
@@ -1223,6 +1396,25 @@
       "fmsx": {
         "name": "fMSX",
         "core": "fmsx_libretro.so"
+      }
+    }
+  },
+  "MicroW8": {
+    "name": "MicroW8",
+    "namespace": "Fantasy Console",
+    "catalogue": "MicroW8",
+    "lookup": 0,
+    "default": "uw8",
+    "friendly": [
+      "microw8",
+      "uw8"
+    ],
+    "bios": [],
+    "libretro": {
+      "uw8": {
+        "name": "MicroW8",
+        "core": "uw8_libretro.so",
+        "bios_required": 0
       }
     }
   },
@@ -1250,7 +1442,7 @@
       "necpce"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "beetle pce": {
         "name": "Beetle PCE",
         "core": "mednafen_pce_libretro.so",
@@ -1285,7 +1477,7 @@
         "hash": "38179df8f4ac870017db21ebcbf53114"
       }
     ],
-    "cores": {
+    "libretro": {
       "beetle pce": {
         "name": "Beetle PCE",
         "core": "mednafen_pce_libretro.so",
@@ -1311,7 +1503,7 @@
       "necsgfx"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "beetle pce": {
         "name": "Beetle PCE",
         "core": "mednafen_pce_libretro.so"
@@ -1337,7 +1529,7 @@
       "necpc8000"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "quasi8800": {
         "name": "Quasi 8800",
         "core": "quasi88_libretro.so"
@@ -1355,7 +1547,7 @@
       "necpcfx"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "beetle pc-fx": {
         "name": "Beetle PC-FX",
         "core": "mednafen_pcfx_libretro.so"
@@ -1378,7 +1570,7 @@
       "necpc98"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "neko project ii": {
         "name": "Neko Project II",
         "core": "nekop2_libretro.so"
@@ -1389,12 +1581,40 @@
       }
     }
   },
+  "Nintendo 3DS": {
+    "name": "Nintendo 3DS",
+    "namespace": "Nintendo",
+    "catalogue": "Nintendo 3DS",
+    "lookup": 0,
+    "default": "azahar - standalone",
+    "runtime": "external",
+    "governor": "performance",
+    "friendly": [
+      "nintendo3ds",
+      "n3ds",
+      "3ds"
+    ],
+    "bios": [],
+    "external": {
+      "azahar - standalone": {
+        "name": "Azahar - Standalone",
+        "core": "ext-azahar",
+        "launcher": "azahar.sh",
+        "require": {
+          "device": [
+            "rg-vita-pro"
+          ]
+        }
+      }
+    }
+  },
   "Nintendo DS": {
     "name": "Nintendo DS",
     "namespace": "Nintendo",
     "catalogue": "Nintendo DS",
     "lookup": 0,
     "default": "drastic - standalone",
+    "runtime": "external",
     "governor": "performance",
     "friendly": [
       "nintendonintendodsi",
@@ -1406,7 +1626,7 @@
       "ds"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "desmume 2015": {
         "name": "DeSmuME 2015",
         "core": "desmume2015_libretro.so"
@@ -1420,7 +1640,18 @@
         "core": "melondsds_libretro.so"
       }
     },
-    "runtime": "external"
+    "external": {
+      "drastic - standalone": {
+        "name": "Drastic - Standalone",
+        "core": "ext-drastic",
+        "launcher": "drastic.sh"
+      },
+      "drastic legacy - standalone": {
+        "name": "Drastic Legacy - Standalone",
+        "core": "ext-drastic-legacy",
+        "launcher": "drastic-legacy.sh"
+      }
+    }
   },
   "Nintendo Famicom Disk System": {
     "name": "Nintendo Famicom Disk System",
@@ -1441,7 +1672,7 @@
         "hash": "ca30b50f880eb660a320674ed365ef7a"
       }
     ],
-    "cores": {
+    "libretro": {
       "fceumm": {
         "name": "FCEUmm",
         "core": "fceumm_libretro.so",
@@ -1477,7 +1708,7 @@
       "dmg"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "doublecherrygb": {
         "name": "DoubleCherryGB",
         "core": "DoubleCherryGB_libretro.so"
@@ -1541,7 +1772,7 @@
         "hash": "a860e8c0b6d573d191e4ec7db1b1e4f6"
       }
     ],
-    "cores": {
+    "libretro": {
       "beetle gba": {
         "name": "Beetle GBA",
         "core": "mednafen_gba_libretro.so",
@@ -1593,7 +1824,7 @@
       "gameboycolor"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "doublecherrygb": {
         "name": "DoubleCherryGB",
         "core": "DoubleCherryGB_libretro.so"
@@ -1633,7 +1864,7 @@
     "namespace": "Nintendo",
     "catalogue": "Nintendo N64",
     "lookup": 0,
-    "default": "mupen64plus next",
+    "default": "mupen64plus - standalone - glidemk2 - full",
     "runtime": "external",
     "governor": "performance",
     "friendly": [
@@ -1648,7 +1879,7 @@
       "64"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "ludicrous n64 2k22 xtreme amped": {
         "name": "Ludicrous N64 2k22 Xtreme Amped",
         "core": "km_ludicrousn64_2k22_xtreme_amped_libretro.so"
@@ -1664,6 +1895,38 @@
       "parallel n64": {
         "name": "ParaLLel N64",
         "core": "parallel_n64_libretro.so"
+      }
+    },
+    "external": {
+      "mupen64plus - standalone - glide": {
+        "name": "Mupen64Plus - Standalone - Glide",
+        "core": "ext-mupen64plus-gliden64",
+        "launcher": "mupen64plus.sh"
+      },
+      "mupen64plus - standalone - glide - full": {
+        "name": "Mupen64Plus - Standalone - Glide - Full",
+        "core": "ext-mupen64plus-gliden64-full",
+        "launcher": "mupen64plus.sh"
+      },
+      "mupen64plus - standalone - glidemk2": {
+        "name": "Mupen64Plus - Standalone - GlideMk2",
+        "core": "ext-mupen64plus-glidemk2",
+        "launcher": "mupen64plus.sh"
+      },
+      "mupen64plus - standalone - glidemk2 - full": {
+        "name": "Mupen64Plus - Standalone - GlideMk2 - Full",
+        "core": "ext-mupen64plus-glidemk2-full",
+        "launcher": "mupen64plus.sh"
+      },
+      "mupen64plus - standalone - rice": {
+        "name": "Mupen64Plus - Standalone - Rice",
+        "core": "ext-mupen64plus-rice",
+        "launcher": "mupen64plus.sh"
+      },
+      "mupen64plus - standalone - rice - full": {
+        "name": "Mupen64Plus - Standalone - Rice - Full",
+        "core": "ext-mupen64plus-rice-full",
+        "launcher": "mupen64plus.sh"
       }
     }
   },
@@ -1689,7 +1952,7 @@
       "famicom"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "bnes": {
         "name": "BNES",
         "core": "bnes_libretro.so"
@@ -1741,7 +2004,7 @@
         "hash": "1e4fb124a3a886865acb574f388c803d"
       }
     ],
-    "cores": {
+    "libretro": {
       "pokemini": {
         "name": "PokeMini",
         "core": "pokemini_libretro.so",
@@ -1791,7 +2054,7 @@
         "hash": "d3a44ba7d42a74d3ac58cb9c14c6a5ca"
       }
     ],
-    "cores": {
+    "libretro": {
       "beetle supafaust": {
         "name": "Beetle Supafaust",
         "core": "mednafen_supafaust_libretro.so",
@@ -1885,7 +2148,7 @@
       "nintendovb"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "beetle vb": {
         "name": "Beetle VB",
         "core": "mednafen_vb_libretro.so"
@@ -1908,7 +2171,7 @@
       "visualstory"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "onscripter": {
         "name": "Onscripter",
         "core": "onscripter_libretro.so"
@@ -1916,6 +2179,41 @@
       "onscripter yuri": {
         "name": "Onscripter Yuri",
         "core": "onsyuri_libretro.so"
+      }
+    }
+  },
+  "OpenBOR": {
+    "name": "OpenBOR",
+    "namespace": "Game Engine",
+    "catalogue": "OpenBOR",
+    "lookup": 0,
+    "default": "openbor v7530 - standalone",
+    "runtime": "external",
+    "friendly": [
+      "openbeatsofrage",
+      "openbor"
+    ],
+    "bios": [],
+    "external": {
+      "openbor v4432 - standalone": {
+        "name": "OpenBOR v4432 - Standalone",
+        "core": "ext-openbor4432",
+        "launcher": "openbor.sh"
+      },
+      "openbor v6412 - standalone": {
+        "name": "OpenBOR v6412 - Standalone",
+        "core": "ext-openbor6412",
+        "launcher": "openbor.sh"
+      },
+      "openbor v7142 - standalone": {
+        "name": "OpenBOR v7142 - Standalone",
+        "core": "ext-openbor7142",
+        "launcher": "openbor.sh"
+      },
+      "openbor v7530 - standalone": {
+        "name": "OpenBOR v7530 - Standalone",
+        "core": "ext-openbor7530",
+        "launcher": "openbor.sh"
       }
     }
   },
@@ -1930,10 +2228,29 @@
       "tombraider"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "openlara": {
         "name": "OpenLara",
         "core": "openlara_libretro.so",
+        "bios_required": 0
+      }
+    }
+  },
+  "Palm OS": {
+    "name": "Palm OS",
+    "namespace": "Mobile",
+    "catalogue": "Palm OS",
+    "lookup": 0,
+    "default": "mu",
+    "friendly": [
+      "palmos",
+      "palm"
+    ],
+    "bios": [],
+    "libretro": {
+      "mu": {
+        "name": "Mu",
+        "core": "mu_libretro.so",
         "bios_required": 0
       }
     }
@@ -1952,7 +2269,7 @@
       "dos"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "dosbox-core": {
         "name": "DOSBox-core",
         "core": "dosbox_core_libretro.so"
@@ -1964,47 +2281,6 @@
       "dosbox-svn": {
         "name": "DOSBox-SVN",
         "core": "dosbox_svn_libretro.so"
-      }
-    }
-  },
-  "PICO-8": {
-    "name": "PICO-8",
-    "namespace": "Fantasy Console",
-    "catalogue": "PICO-8",
-    "lookup": 0,
-    "default": "fake-08",
-    "friendly": [
-      "pico8",
-      "pico"
-    ],
-    "bios": [],
-    "cores": {
-      "fake-08": {
-        "name": "FAKE-08",
-        "core": "fake08_libretro.so"
-      },
-      "retro8": {
-        "name": "Retro8",
-        "core": "retro8_libretro.so"
-      }
-    }
-  },
-  "Palm OS": {
-    "name": "Palm OS",
-    "namespace": "Mobile",
-    "catalogue": "Palm OS",
-    "lookup": 0,
-    "default": "mu",
-    "friendly": [
-      "palmos",
-      "palm"
-    ],
-    "bios": [],
-    "cores": {
-      "mu": {
-        "name": "Mu",
-        "core": "mu_libretro.so",
-        "bios_required": 0
       }
     }
   },
@@ -2033,11 +2309,47 @@
         "hash": ""
       }
     ],
-    "cores": {
+    "libretro": {
       "same cdi": {
         "name": "SAME CDi",
         "core": "same_cdi_libretro.so",
         "bios_required": 1
+      }
+    }
+  },
+  "PICO-8": {
+    "name": "PICO-8",
+    "namespace": "Fantasy Console",
+    "catalogue": "PICO-8",
+    "lookup": 0,
+    "default": "fake-08",
+    "friendly": [
+      "pico8",
+      "pico"
+    ],
+    "bios": [],
+    "libretro": {
+      "fake-08": {
+        "name": "FAKE-08",
+        "core": "fake08_libretro.so"
+      },
+      "retro8": {
+        "name": "Retro8",
+        "core": "retro8_libretro.so"
+      }
+    },
+    "external": {
+      "pico-8 - pixel-perfect - standalone": {
+        "name": "PICO-8 - Pixel-Perfect - Standalone",
+        "core": "ext-pico8-pixel",
+        "launcher": "pico8.sh",
+        "control": "modern"
+      },
+      "pico-8 - standalone": {
+        "name": "PICO-8 - Standalone",
+        "core": "ext-pico8-scale",
+        "launcher": "pico8.sh",
+        "control": "modern"
       }
     }
   },
@@ -2051,11 +2363,30 @@
       "puzzlescript"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "puzzlescript": {
         "name": "PuzzleScript",
         "core": "puzzlescript_libretro.so",
         "bios_required": 0
+      }
+    }
+  },
+  "Pyxel": {
+    "name": "Pyxel",
+    "namespace": "Fantasy Console",
+    "catalogue": "Pyxel",
+    "lookup": 0,
+    "default": "pyxel",
+    "runtime": "external",
+    "friendly": [
+      "pyxel"
+    ],
+    "bios": [],
+    "external": {
+      "pyxel": {
+        "name": "Pyxel",
+        "core": "ext-pyxel",
+        "launcher": "pyxel.sh"
       }
     }
   },
@@ -2070,7 +2401,7 @@
       "idquake"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "tyrquake": {
         "name": "TyrQuake",
         "core": "tyrquake_libretro.so"
@@ -2088,7 +2419,7 @@
       "idquake2"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "vitaquake2": {
         "name": "VitaQuake2",
         "core": "vitaquake2_libretro.so"
@@ -2118,117 +2449,11 @@
       "easyrpg"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "easyrpg": {
         "name": "EasyRPG",
         "core": "easyrpg_libretro.so",
         "launcher": "easyrpg.sh"
-      }
-    }
-  },
-  "SNK Neo Geo": {
-    "name": "SNK Neo Geo",
-    "namespace": "SNK",
-    "catalogue": "SNK Neo Geo",
-    "lookup": 1,
-    "default": "finalburn neo",
-    "friendly": [
-      "snkneogeo",
-      "sng",
-      "ng",
-      "neogeo",
-      "fbnneogeo",
-      "arcneogeo",
-      "arcadesnkneogeo",
-      "arcadesnk",
-      "arcadeneogeo"
-    ],
-    "bios": [],
-    "cores": {
-      "fb alpha 2012 neo geo": {
-        "name": "FB Alpha 2012 Neo Geo",
-        "core": "fbalpha2012_neogeo_libretro.so"
-      },
-      "finalburn neo": {
-        "name": "FinalBurn Neo",
-        "core": "fbneo_libretro.so"
-      },
-      "geolith": {
-        "name": "Geolith",
-        "core": "geolith_libretro.so"
-      }
-    }
-  },
-  "SNK Neo Geo CD": {
-    "name": "SNK Neo Geo CD",
-    "namespace": "SNK",
-    "catalogue": "SNK Neo Geo CD",
-    "lookup": 0,
-    "default": "neocd",
-    "friendly": [
-      "snkngcd",
-      "snkneogeocd",
-      "ngcd",
-      "neogeocd",
-      "neocdz",
-      "neocd",
-      "arcneogeocd",
-      "arcadeneogeocd"
-    ],
-    "bios": [],
-    "cores": {
-      "neocd": {
-        "name": "NeoCD",
-        "core": "neocd_libretro.so"
-      }
-    }
-  },
-  "SNK Neo Geo Pocket - Color": {
-    "name": "SNK Neo Geo Pocket - Color",
-    "namespace": "SNK",
-    "catalogue": "SNK Neo Geo Pocket - Color",
-    "lookup": 0,
-    "default": "beetle neopop",
-    "friendly": [
-      "snkngpc",
-      "snkngp",
-      "snkneogeopocketcolor",
-      "snkneogeopocket",
-      "ngpocketcolor",
-      "ngpocket",
-      "ngpc",
-      "ngp",
-      "neogeopocketcolor",
-      "neogeopocket"
-    ],
-    "bios": [],
-    "cores": {
-      "beetle neopop": {
-        "name": "Beetle NeoPop",
-        "core": "mednafen_ngp_libretro.so"
-      },
-      "race": {
-        "name": "RACE",
-        "core": "race_libretro.so"
-      }
-    }
-  },
-  "SVI - ColecoVision - SG1000": {
-    "name": "SVI - ColecoVision - SG1000",
-    "namespace": "Computer",
-    "catalogue": "SVI - ColecoVision - SG1000",
-    "lookup": 0,
-    "default": "bluemsx",
-    "friendly": [
-      "svi",
-      "svicoleco",
-      "svicolecovision"
-    ],
-    "bios": [],
-    "cores": {
-      "bluemsx": {
-        "name": "blueMSX",
-        "core": "bluemsx_libretro.so"
       }
     }
   },
@@ -2246,10 +2471,17 @@
       "scumm"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "scummvm": {
         "name": "ScummVM",
         "core": "scummvm_libretro.so",
+        "launcher": "scummvm.sh"
+      }
+    },
+    "external": {
+      "scummvm": {
+        "name": "ScummVM",
+        "core": "ext-scummvm",
         "launcher": "scummvm.sh"
       }
     }
@@ -2270,7 +2502,7 @@
       "32x"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "picodrive": {
         "name": "PicoDrive",
         "core": "picodrive_libretro.so"
@@ -2300,7 +2532,7 @@
       "arcadeatomiswave"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "flycast": {
         "name": "Flycast",
         "core": "flycast_libretro.so"
@@ -2321,6 +2553,13 @@
         "name": "MorpheusCast Xtreme",
         "core": "km_morpheuscast_xtreme_libretro.so",
         "bios_required": 0
+      }
+    },
+    "external": {
+      "flycast": {
+        "name": "Flycast",
+        "core": "ext-flycast",
+        "launcher": "flycast.sh"
       }
     }
   },
@@ -2341,7 +2580,7 @@
       "dc"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "flycast": {
         "name": "Flycast",
         "core": "flycast_libretro.so"
@@ -2363,6 +2602,13 @@
         "core": "km_morpheuscast_xtreme_libretro.so",
         "bios_required": 0
       }
+    },
+    "external": {
+      "flycast": {
+        "name": "Flycast",
+        "core": "ext-flycast",
+        "launcher": "flycast.sh"
+      }
     }
   },
   "Sega Game Gear": {
@@ -2381,7 +2627,7 @@
       "gamegear"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "gearsystem": {
         "name": "Gearsystem",
         "core": "gearsystem_libretro.so"
@@ -2419,7 +2665,7 @@
       "ggsms"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "emux sms": {
         "name": "Emux SMS",
         "core": "emux_sms_libretro.so",
@@ -2478,7 +2724,7 @@
         "hash": "278a9397d192149e84e820ac621a8edd"
       }
     ],
-    "cores": {
+    "libretro": {
       "genesis plus gx": {
         "name": "Genesis Plus GX",
         "core": "genesis_plus_gx_libretro.so",
@@ -2522,7 +2768,7 @@
       "nomad"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "genesis plus gx": {
         "name": "Genesis Plus GX",
         "core": "genesis_plus_gx_libretro.so"
@@ -2551,7 +2797,7 @@
       "segapico"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "genesis plus gx": {
         "name": "Genesis Plus GX",
         "core": "genesis_plus_gx_libretro.so"
@@ -2563,33 +2809,6 @@
       "picodrive": {
         "name": "PicoDrive",
         "core": "picodrive_libretro.so"
-      }
-    }
-  },
-  "Sega SG-1000": {
-    "name": "Sega SG-1000",
-    "namespace": "Sega",
-    "catalogue": "Sega SG-1000",
-    "lookup": 0,
-    "default": "genesis plus gx",
-    "friendly": [
-      "sg1000",
-      "segasgone",
-      "segasg1000"
-    ],
-    "bios": [],
-    "cores": {
-      "bluemsx": {
-        "name": "blueMSX",
-        "core": "bluemsx_libretro.so"
-      },
-      "gearsystem": {
-        "name": "Gearsystem",
-        "core": "gearsystem_libretro.so"
-      },
-      "genesis plus gx": {
-        "name": "Genesis Plus GX",
-        "core": "genesis_plus_gx_libretro.so"
       }
     }
   },
@@ -2610,7 +2829,7 @@
       "sat"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "beetle saturn": {
         "name": "Beetle Saturn",
         "core": "mednafen_saturn_libretro.so"
@@ -2622,6 +2841,45 @@
       "yabause": {
         "name": "Yabause",
         "core": "yabause_libretro.so"
+      }
+    },
+    "external": {
+      "yabasanshiro": {
+        "name": "YabaSanshiro",
+        "core": "ext-yabasanshiro-bios",
+        "launcher": "yabasanshiro.sh"
+      },
+      "yabasanshiro - standalone - hle": {
+        "name": "YabaSanshiro - Standalone - HLE",
+        "core": "ext-yabasanshiro-hle",
+        "launcher": "yabasanshiro.sh"
+      }
+    }
+  },
+  "Sega SG-1000": {
+    "name": "Sega SG-1000",
+    "namespace": "Sega",
+    "catalogue": "Sega SG-1000",
+    "lookup": 0,
+    "default": "genesis plus gx",
+    "friendly": [
+      "sg1000",
+      "segasgone",
+      "segasg1000"
+    ],
+    "bios": [],
+    "libretro": {
+      "bluemsx": {
+        "name": "blueMSX",
+        "core": "bluemsx_libretro.so"
+      },
+      "gearsystem": {
+        "name": "Gearsystem",
+        "core": "gearsystem_libretro.so"
+      },
+      "genesis plus gx": {
+        "name": "Genesis Plus GX",
+        "core": "genesis_plus_gx_libretro.so"
       }
     }
   },
@@ -2636,7 +2894,7 @@
       "sharpx1"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "x millennium": {
         "name": "X Millennium",
         "core": "x1_libretro.so"
@@ -2655,7 +2913,7 @@
       "x68k"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "px68k": {
         "name": "PX68k",
         "core": "px68k_libretro.so"
@@ -2673,7 +2931,7 @@
       "sinclairzx81"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "eightyone": {
         "name": "EightyOne",
         "core": "81_libretro.so"
@@ -2691,10 +2949,97 @@
       "spectrum"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "fuse": {
         "name": "Fuse",
         "core": "fuse_libretro.so"
+      }
+    }
+  },
+  "SNK Neo Geo": {
+    "name": "SNK Neo Geo",
+    "namespace": "SNK",
+    "catalogue": "SNK Neo Geo",
+    "lookup": 1,
+    "default": "finalburn neo",
+    "friendly": [
+      "snkneogeo",
+      "sng",
+      "ng",
+      "neogeo",
+      "fbnneogeo",
+      "arcneogeo",
+      "arcadesnkneogeo",
+      "arcadesnk",
+      "arcadeneogeo"
+    ],
+    "bios": [],
+    "libretro": {
+      "fb alpha 2012 neo geo": {
+        "name": "FB Alpha 2012 Neo Geo",
+        "core": "fbalpha2012_neogeo_libretro.so"
+      },
+      "finalburn neo": {
+        "name": "FinalBurn Neo",
+        "core": "fbneo_libretro.so"
+      },
+      "geolith": {
+        "name": "Geolith",
+        "core": "geolith_libretro.so"
+      }
+    }
+  },
+  "SNK Neo Geo CD": {
+    "name": "SNK Neo Geo CD",
+    "namespace": "SNK",
+    "catalogue": "SNK Neo Geo CD",
+    "lookup": 0,
+    "default": "neocd",
+    "friendly": [
+      "snkngcd",
+      "snkneogeocd",
+      "ngcd",
+      "neogeocd",
+      "neocdz",
+      "neocd",
+      "arcneogeocd",
+      "arcadeneogeocd"
+    ],
+    "bios": [],
+    "libretro": {
+      "neocd": {
+        "name": "NeoCD",
+        "core": "neocd_libretro.so"
+      }
+    }
+  },
+  "SNK Neo Geo Pocket - Color": {
+    "name": "SNK Neo Geo Pocket - Color",
+    "namespace": "SNK",
+    "catalogue": "SNK Neo Geo Pocket - Color",
+    "lookup": 0,
+    "default": "beetle neopop",
+    "friendly": [
+      "snkngpc",
+      "snkngp",
+      "snkneogeopocketcolor",
+      "snkneogeopocket",
+      "ngpocketcolor",
+      "ngpocket",
+      "ngpc",
+      "ngp",
+      "neogeopocketcolor",
+      "neogeopocket"
+    ],
+    "bios": [],
+    "libretro": {
+      "beetle neopop": {
+        "name": "Beetle NeoPop",
+        "core": "mednafen_ngp_libretro.so"
+      },
+      "race": {
+        "name": "RACE",
+        "core": "race_libretro.so"
       }
     }
   },
@@ -2766,7 +3111,7 @@
         "hash": "81bbe60ba7a3d1cea1d48c14cbcc647b"
       }
     ],
-    "cores": {
+    "libretro": {
       "beetle psx": {
         "name": "Beetle PSX",
         "core": "mednafen_psx_libretro.so",
@@ -2795,6 +3140,7 @@
     "catalogue": "Sony PlayStation Portable",
     "lookup": 0,
     "default": "ppsspp",
+    "runtime": "external",
     "governor": "performance",
     "friendly": [
       "sonypsp",
@@ -2804,13 +3150,20 @@
       "playstationportable"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "ppsspp": {
         "name": "PPSSPP",
         "core": "ppsspp_libretro.so"
       }
     },
-    "runtime": "external"
+    "external": {
+      "ppsspp": {
+        "name": "PPSSPP",
+        "core": "ext-ppsspp",
+        "launcher": "ppsspp.sh",
+        "control": "modern"
+      }
+    }
   },
   "Super Mario War": {
     "name": "Super Mario War",
@@ -2823,7 +3176,7 @@
       "superbroswar"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "superbroswar": {
         "name": "Super Mario War",
         "core": "superbroswar_libretro.so",
@@ -2831,21 +3184,22 @@
       }
     }
   },
-  "TIC-80": {
-    "name": "TIC-80",
-    "namespace": "Fantasy Console",
-    "catalogue": "TIC-80",
+  "SVI - ColecoVision - SG1000": {
+    "name": "SVI - ColecoVision - SG1000",
+    "namespace": "Computer",
+    "catalogue": "SVI - ColecoVision - SG1000",
     "lookup": 0,
-    "default": "tic-80",
+    "default": "bluemsx",
     "friendly": [
-      "tic80",
-      "t80"
+      "svi",
+      "svicoleco",
+      "svicolecovision"
     ],
     "bios": [],
-    "cores": {
-      "tic-80": {
-        "name": "TIC-80",
-        "core": "tic80_libretro.so"
+    "libretro": {
+      "bluemsx": {
+        "name": "blueMSX",
+        "core": "bluemsx_libretro.so"
       }
     }
   },
@@ -2860,7 +3214,7 @@
       "texasinstrumentsti83"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "numero": {
         "name": "Numero",
         "core": "numero_libretro.so"
@@ -2878,7 +3232,7 @@
       "3do"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "opera": {
         "name": "Opera",
         "core": "opera_libretro.so"
@@ -2897,11 +3251,29 @@
       "theodore"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "theodore": {
         "name": "Theodore",
         "core": "theodore_libretro.so",
         "bios_required": 0
+      }
+    }
+  },
+  "TIC-80": {
+    "name": "TIC-80",
+    "namespace": "Fantasy Console",
+    "catalogue": "TIC-80",
+    "lookup": 0,
+    "default": "tic-80",
+    "friendly": [
+      "tic80",
+      "t80"
+    ],
+    "bios": [],
+    "libretro": {
+      "tic-80": {
+        "name": "TIC-80",
+        "core": "tic80_libretro.so"
       }
     }
   },
@@ -2915,7 +3287,7 @@
       "uzebox"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "uzem": {
         "name": "Uzem",
         "core": "uzem_libretro.so"
@@ -2932,7 +3304,7 @@
       "vemulator"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "vemulator": {
         "name": "VeMUlator",
         "core": "vemulator_libretro.so"
@@ -2949,7 +3321,7 @@
       "vircon32"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "vircon32": {
         "name": "Vircon32",
         "core": "vircon32_libretro.so"
@@ -2966,7 +3338,7 @@
       "wasm4"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "wasm-4": {
         "name": "WASM-4",
         "core": "wasm4_libretro.so"
@@ -2984,7 +3356,7 @@
       "supervision"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "potator": {
         "name": "Potator",
         "core": "potator_libretro.so"
@@ -3004,7 +3376,7 @@
       "wolf"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "ecwolf": {
         "name": "ECWolf",
         "core": "ecwolf_libretro.so",
@@ -3023,7 +3395,7 @@
       "zeldac"
     ],
     "bios": [],
-    "cores": {
+    "libretro": {
       "zc210": {
         "name": "Zelda Classic 2.10",
         "core": "zc210_libretro.so",

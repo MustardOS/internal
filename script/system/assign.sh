@@ -52,25 +52,22 @@ fi
 
 jq -r 'keys[]' "$TMP_BASE" >"$TMP_KEYS"
 
-MANIFEST_FILES=""
-for C_FILE in libretro external; do
-	if [ -r "$USER_MANIFEST_DIR/$C_FILE.json" ] && jq -e 'type == "object"' "$USER_MANIFEST_DIR/$C_FILE.json" >/dev/null 2>&1; then
-		MANIFEST_FILES="$MANIFEST_FILES $USER_MANIFEST_DIR/$C_FILE.json"
-	elif [ -r "$BUNDLED_MANIFEST_DIR/$C_FILE.json" ] && jq -e 'type == "object"' "$BUNDLED_MANIFEST_DIR/$C_FILE.json" >/dev/null 2>&1; then
-		MANIFEST_FILES="$MANIFEST_FILES $BUNDLED_MANIFEST_DIR/$C_FILE.json"
-	fi
-done
+MANIFEST_FILE=""
+if [ -r "$USER_MANIFEST_DIR/core.json" ] && jq -e 'type == "object"' "$USER_MANIFEST_DIR/core.json" >/dev/null 2>&1; then
+	MANIFEST_FILE="$USER_MANIFEST_DIR/core.json"
+elif [ -r "$BUNDLED_MANIFEST_DIR/core.json" ] && jq -e 'type == "object"' "$BUNDLED_MANIFEST_DIR/core.json" >/dev/null 2>&1; then
+	MANIFEST_FILE="$BUNDLED_MANIFEST_DIR/core.json"
+fi
 
-if [ -z "$MANIFEST_FILES" ]; then
+if [ -z "$MANIFEST_FILE" ]; then
 	printf "No core definitions found in %s\n" "$BUNDLED_MANIFEST_DIR" >&2
 	exit 1
 fi
 
-# shellcheck disable=SC2086
-jq -r -s '
-	[ .[] | to_entries[] | . as $e | ($e.value.friendly // [])[] | "\(.)\t\($e.key)" ]
+jq -r '
+	[ to_entries[] | . as $e | ($e.value.friendly // [])[] | "\(.)\t\($e.key)" ]
 	| unique[]
-' $MANIFEST_FILES >"$TMP_LIST"
+' "$MANIFEST_FILE" >"$TMP_LIST"
 
 set --
 while IFS="$(printf '\t')" read -r KEY SYSTEM || [ -n "$KEY" ]; do

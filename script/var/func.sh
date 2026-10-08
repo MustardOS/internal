@@ -1741,7 +1741,7 @@ SETUP_APP() {
 	printf "app\n" >"$ACT_GO"
 
 	GOV_GO="$MUOS_RUN_DIR/governor"
-	[ -e "$GOV_GO" ] && cp -f "$GOV_GO" "$(GET_VAR "device" "cpu/governor")"
+	[ -e "$GOV_GO" ] && cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
 
 	HOME="$(GET_VAR "device" "board/home")"
 	export HOME

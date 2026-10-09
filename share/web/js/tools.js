@@ -10,7 +10,7 @@
     function row(tool) {
         const link = document.createElement("a");
         link.className = "tool-row";
-        link.href = `tools/${encodeURIComponent(tool.slug)}.html`;
+        link.href = `tools/${encodeURIComponent(tool.slug)}`;
 
         if (tool.icon) {
             const icon = document.createElement("img");
@@ -60,7 +60,7 @@
                 item.className = "nav-list-item";
                 const link = document.createElement("a");
                 link.className = "nav-list-link";
-                link.href = `tools/${encodeURIComponent(tool.slug)}.html`;
+                link.href = `tools/${encodeURIComponent(tool.slug)}`;
                 link.textContent = tool.title;
                 item.append(link);
                 holder.append(item);

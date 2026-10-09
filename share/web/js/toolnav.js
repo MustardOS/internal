@@ -3,7 +3,7 @@
 
     const nav = document.getElementById("site-nav");
     const menuButton = document.getElementById("menu-button");
-    const current = location.pathname.split("/").pop();
+    const current = location.pathname.split("/").pop().replace(/\.html$/, "");
 
     if (menuButton && nav) {
         menuButton.addEventListener("click", () => {
@@ -22,6 +22,17 @@
         return anchor;
     }
 
+    function runtimeSettings() {
+        if (window.MUOS_RUNTIME) return Promise.resolve(window.MUOS_RUNTIME);
+        return new Promise((resolve) => {
+            const script = document.createElement("script");
+            script.src = "../js/runtime.js";
+            script.onload = () => resolve(window.MUOS_RUNTIME || {});
+            script.onerror = () => resolve({});
+            document.head.append(script);
+        });
+    }
+
     async function build() {
         const response = await fetch("../index.html", {cache: "no-store"});
         if (!response.ok) return;
@@ -30,6 +41,9 @@
         if (!source) return;
 
         source.querySelectorAll("[data-library-tools]").forEach((node) => node.remove());
+
+        const remote = source.querySelector("#nav-remote");
+        if (remote) remote.hidden = !(await runtimeSettings()).remoteView;
         source.querySelectorAll("button[data-view]").forEach((button) => {
             button.replaceWith(link(button.className, `../#${button.dataset.view}`, button.textContent.trim()));
         });
@@ -41,8 +55,8 @@
                 for (const tool of listed) {
                     const item = document.createElement("li");
                     item.className = "nav-list-item";
-                    const anchor = link("nav-list-link", `${encodeURIComponent(tool.slug)}.html`, tool.title);
-                    if (`${tool.slug}.html` === current) {
+                    const anchor = link("nav-list-link", encodeURIComponent(tool.slug), tool.title);
+                    if (tool.slug === current) {
                         anchor.classList.add("active");
                         anchor.setAttribute("aria-current", "page");
                     }

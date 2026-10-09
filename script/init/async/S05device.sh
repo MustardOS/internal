@@ -115,7 +115,7 @@ RUN_DEFERRED_EMULATOR_MAINTENANCE() {
 		sleep 0.1
 		WAIT_COUNT=$((WAIT_COUNT + 1))
 	done
-	ionice -c idle nice -n 10 "$INIT_SELF" maintenance "$1" ||
+	ionice -c 3 nice -n 10 "$INIT_SELF" maintenance "$1" ||
 		LOG_WARN "$INIT_SELF" 0 "DEVICE" "Emulator maintenance reported an error"
 }
 

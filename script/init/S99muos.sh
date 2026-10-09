@@ -48,7 +48,7 @@ RUN_BOOT_MAINTENANCE() {
 
 	/opt/muos/script/mux/sdl_map.sh &
 	BOOT_MAP=$!
-	ionice -c idle /opt/muos/script/system/catalogue.sh &
+	ionice -c 3 /opt/muos/script/system/catalogue.sh &
 	BOOT_CATALOGUE=$!
 	LOG_CLEANER &
 	BOOT_LOGS=$!
@@ -57,12 +57,12 @@ RUN_BOOT_MAINTENANCE() {
 	done
 
 	if [ "$RA_CACHE" -eq 1 ]; then
-		ionice -c idle /opt/muos/bin/vmtouch -tfb "$MUOS_SHARE_DIR/conf/preload.txt" &
+		ionice -c 3 /opt/muos/bin/vmtouch -tfb "$MUOS_SHARE_DIR/conf/preload.txt" &
 		BOOT_CACHE=$!
 	else
 		BOOT_CACHE=
 	fi
-	ionice -c idle sh -c 'dmesg >"$1"' sh "$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
+	ionice -c 3 sh -c 'dmesg >"$1"' sh "$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
 	BOOT_DMESG=$!
 	[ -z "$BOOT_CACHE" ] || wait "$BOOT_CACHE" || BOOT_RESULT=1
 	wait "$BOOT_DMESG" || BOOT_RESULT=1
@@ -81,7 +81,7 @@ RUN_FRONTEND_READY_MAINTENANCE() {
 		WAIT_COUNT=$((WAIT_COUNT + 1))
 	done
 
-	ionice -c idle nice -n 10 "$INIT_SELF" maintenance "$ROM_MOUNT" "$FIRST_INIT" "$RA_CACHE" ||
+	ionice -c 3 nice -n 10 "$INIT_SELF" maintenance "$ROM_MOUNT" "$FIRST_INIT" "$RA_CACHE" ||
 		LOG_WARN "$INIT_SELF" 0 "BOOTING" "Deferred background maintenance reported an error"
 }
 

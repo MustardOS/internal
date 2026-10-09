@@ -70,7 +70,7 @@ fi
 
 if [ -e "$MUOS_STORE_DIR/info/track/playtime_data.json" ] || [ ! -e "$MUOS_STORE_DIR/info/track/.runtime_backfill_v1" ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Migrating legacy activity data"
-	ionice -c idle /opt/muos/script/mux/track.sh migrate &
+	ionice -c 3 /opt/muos/script/mux/track.sh migrate &
 fi
 
 LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Launcher"

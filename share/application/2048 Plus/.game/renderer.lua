@@ -13,8 +13,11 @@ local transition_timer = 0
 local transition_duration = 0.5
 local transition_center_x = 0
 local transition_center_y = 0
+local transition_direction = 1
 renderer.theme_button_x = nil
 renderer.theme_button_y = nil
+renderer.theme_prev_button_x = nil
+renderer.theme_prev_button_y = nil
 
 -- Menu selection animation state
 local menu_anim_y = nil
@@ -32,6 +35,16 @@ local store_icon = nil
 local coin_icon = nil
 local sort_icon = nil
 local vinyl_record_img = nil
+local music_manager_icon = nil
+local dino_icon = nil
+local playlist_icon = nil
+local jukebox_modal_state = "closed"
+local jukebox_modal_timer = 0
+local jukebox_modal_anim = 0
+local jukebox_modal_duration_open = 0.22
+local jukebox_modal_duration_close = 0.18
+local jukebox_modal_close_cb = nil
+local prev_jukebox_web_modal = false
 local item_icons = {}
 local icon_shader = nil
 local font_bgm = nil
@@ -1682,6 +1695,33 @@ function renderer.applyTheme(skip_morph)
     if not skip_morph and _G.theme then
         renderer.triggerThemeMorph(_G.theme)
     end
+
+    -- Sync active theme to web server
+    if _G.theme then
+        local work_dir = _G.WORK_DIR or "."
+        local theme_file = work_dir .. "/static/theme_state.json"
+        local f = io.open(theme_file, "w")
+        if f then
+            local theme_name = renderer.getThemeDisplayName and renderer.getThemeDisplayName(_G.theme, false) or _G.theme
+            local function toHex(c)
+                if not c then return nil end
+                local r = math.max(0, math.min(255, math.floor((c[1] or 0) * 255 + 0.5)))
+                local g = math.max(0, math.min(255, math.floor((c[2] or 0) * 255 + 0.5)))
+                local b = math.max(0, math.min(255, math.floor((c[3] or 0) * 255 + 0.5)))
+                return string.format("#%02x%02x%02x", r, g, b)
+            end
+            local bg_hex = toHex(t.bg_color) or "#121212"
+            local board_hex = toHex(t.board_color) or "#2c2621"
+            local accent_hex = toHex(t.overlay_win or (t.tile_colors and t.tile_colors[2048])) or "#edc22e"
+            local text_hex = toHex(t.ui_text or t.dark_text) or "#ffffff"
+            local r, g, b = (t.bg_color and t.bg_color[1] or 0), (t.bg_color and t.bg_color[2] or 0), (t.bg_color and t.bg_color[3] or 0)
+            local is_dark = (0.299 * r + 0.587 * g + 0.114 * b) < 0.55
+
+            f:write(string.format('{"theme":"%s","name":"%s","timestamp":%d,"bg":"%s","board":"%s","accent":"%s","text":"%s","is_dark":%s}',
+                _G.theme, theme_name, os.time(), bg_hex, board_hex, accent_hex, text_hex, is_dark and "true" or "false"))
+            f:close()
+        end
+    end
 end
 
 -- Initialize theme immediately (skip morph on startup)
@@ -2193,8 +2233,6 @@ function renderer.drawDynamicBackground(themeName)
                     if j == col.length then
                         love.graphics.setColor(0.7, 1.0, 0.7, 0.95)
                         love.graphics.print(col.chars[j], col.x, cy)
-                        love.graphics.setColor(0.0, 1.0, 0.0, 0.2)
-                        love.graphics.circle("fill", col.x + col_w/2, cy + char_h/2, 6 * scale)
                     else
                         local r = 0.0
                         local g = 0.3 + 0.7 * alpha
@@ -3324,6 +3362,9 @@ function renderer.init()
     font_help_key   = love.graphics.newFont(font_path, math.floor(16 * scale * text_scale))
     font_help_label = love.graphics.newFont(font_path, math.floor(16 * scale * text_scale))
     font_bgm        = love.graphics.newFont(font_path, math.floor(13 * scale))
+    renderer.font_help_key   = font_help_key
+    renderer.font_help_label = font_help_label
+    renderer.font_bgm        = font_bgm
     logo_2048 = love.graphics.newImage("assets/logo/logo_2048.png")
 
     -- Load UI header icons directly from assets/icon/
@@ -3338,6 +3379,16 @@ function renderer.init()
 
     local ok_music, m_img = pcall(love.graphics.newImage, "assets/icon/music.png")
     if ok_music then music_icon = m_img end
+
+    local ok_playlist, pl_img = pcall(love.graphics.newImage, "assets/icon/playlist.png")
+    if ok_playlist then playlist_icon = pl_img end
+
+    local ok_mm, mm_img = pcall(love.graphics.newImage, "assets/icon/music_manager.png")
+    if not ok_mm then ok_mm, mm_img = pcall(love.graphics.newImage, "assets/music_manager.png") end
+    if ok_mm then music_manager_icon = mm_img end
+
+    local ok_dino, d_img = pcall(love.graphics.newImage, "assets/icon/dino.png")
+    if ok_dino then dino_icon = d_img end
 
     local ok_vinyl, v_img = pcall(love.graphics.newImage, "assets/icon/vinyl_record.png")
     if ok_vinyl then vinyl_record_img = v_img end
@@ -3461,7 +3512,7 @@ function renderer.init()
     -- Load store item icons & achievement icons
     item_icons = {}
     achievement_icons = {}
-    local item_names = { "undo", "swap", "bomb", "cosmic", "cherry", "jukebox", "music", "128", "256", "512", "bounce", "glow", "multiplier", "powerup_undo", "powerup_swap", "powerup_bomb", "shield", "gold_luxe", "cyber_grid", "synthwave", "key", "skin_wood", "skin_glass", "skin_matrix", "skin_marble", "skin_bamboo", "coin_rush", "ticket", "cat", "dog" }
+    local item_names = { "undo", "swap", "bomb", "cosmic", "cherry", "jukebox", "music", "128", "256", "512", "multiplier", "powerup_undo", "powerup_swap", "powerup_bomb", "shield", "gold_luxe", "cyber_grid", "synthwave", "key", "skin_wood", "skin_glass", "skin_matrix", "skin_marble", "skin_bamboo", "coin_rush", "ticket", "cat", "dog" }
     for _, name in ipairs(item_names) do
         local ok_item, item_img = pcall(love.graphics.newImage, "assets/icon/" .. name .. ".png")
         if ok_item then
@@ -4032,46 +4083,12 @@ function renderer.drawTile(tile, slideProgress, popProgress)
         tileScaleX = popProgress
         tileScaleY = popProgress
     elseif tile.isMerged and popProgress < 1 then
-        if _G.merge_fx == "bounce" then
-            -- ═══ BOUNCE POP FX ═══
-            -- Clean 3-phase elastic squash-and-stretch. No jitter, no wobble.
-            -- The asymmetric X/Y deformation is what makes this visually distinct.
-            local p = popProgress
-            if p < 0.30 then
-                -- Phase 1: STRETCH UP — tile squeezes narrow and tall (like pulling taffy)
-                local t = p / 0.30
-                local ease = math.sin(t * math.pi * 0.5)  -- smooth ease-out
-                tileScaleX = 1.0 - 0.30 * ease   -- narrow to 0.70
-                tileScaleY = 1.0 + 0.40 * ease   -- tall to 1.40
-            elseif p < 0.60 then
-                -- Phase 2: SQUASH DOWN — tile slams flat and wide (like a pancake landing)
-                local t = (p - 0.30) / 0.30
-                local ease = math.sin(t * math.pi * 0.5)
-                tileScaleX = 0.70 + 0.55 * ease   -- widen to 1.25
-                tileScaleY = 1.40 - 0.55 * ease   -- flatten to 0.85
-            else
-                -- Phase 3: SETTLE — smooth glide back to 1.0 (no oscillation)
-                local t = (p - 0.60) / 0.40
-                local ease = t * t * (3 - 2 * t)  -- smoothstep
-                tileScaleX = 1.25 - 0.25 * ease   -- back to 1.0
-                tileScaleY = 0.85 + 0.15 * ease   -- back to 1.0
-            end
-        elseif _G.merge_fx == "glow" then
-            -- ═══ GLOW PULSE FX ═══
-            -- UNIFORM scale only — NO squash, NO stretch, NO wobble.
-            -- Just a gentle smooth pulse. All the drama comes from the light effects.
-            local p = popProgress
-            local ease = math.sin(p * math.pi)  -- single smooth arc: 0→1→0
-            tileScaleX = 1.0 + 0.18 * ease
-            tileScaleY = 1.0 + 0.18 * ease
+        if popProgress < 0.5 then
+            tileScaleX = 1 + 0.25 * (popProgress / 0.5)
+            tileScaleY = tileScaleX
         else
-            if popProgress < 0.5 then
-                tileScaleX = 1 + 0.25 * (popProgress / 0.5)
-                tileScaleY = tileScaleX
-            else
-                tileScaleX = 1.25 - 0.25 * ((popProgress - 0.5) / 0.5)
-                tileScaleY = tileScaleX
-            end
+            tileScaleX = 1.25 - 0.25 * ((popProgress - 0.5) / 0.5)
+            tileScaleY = tileScaleX
         end
     end
 
@@ -4122,63 +4139,7 @@ function renderer.drawTile(tile, slideProgress, popProgress)
         end
     end
 
-    -- ═══ GLOW PULSE FX: Energy corona and orbiting sparks ═══
-    if tile.isMerged and _G.merge_fx == "glow" and popProgress < 1 then
-        local p = popProgress
-        local tile_col_g = getTileColor(tile.value)
 
-        -- 1. OUTER CORONA BLOOM — multi-layer expanding neon halo
-        if p > 0.08 then
-            local bloom_p = math.min(1, (p - 0.08) / 0.55)
-            local bloom_alpha_base = (1 - bloom_p) * 0.8
-            for layer = 4, 1, -1 do
-                local expand = (layer * 5.5 * scale) * (0.3 + bloom_p * 1.2)
-                local layer_alpha = bloom_alpha_base * (0.18 / layer)
-                love.graphics.setColor(tile_col_g[1], tile_col_g[2], tile_col_g[3], layer_alpha)
-                roundedRect("fill", sx - expand, sy - expand, scaledW + expand * 2, scaledH + expand * 2, (cr * ((tileScaleX + tileScaleY) / 2)) + expand * 0.5)
-            end
-        end
-
-        -- 2. PULSING AURA RING — neon energy ring that expands and fades
-        if p > 0.05 and p < 0.75 then
-            local ring_p = (p - 0.05) / 0.70
-            local ring_radius = cs * 0.25 + cs * 0.65 * ring_p
-            local ring_alpha = math.sin(ring_p * math.pi) * 0.65
-            local ring_width = math.max(1.5, math.floor((4.0 - ring_p * 3.0) * scale))
-            -- Bright neon border ring
-            love.graphics.setColor(tile_col_g[1] * 0.5 + 0.5, tile_col_g[2] * 0.5 + 0.5, tile_col_g[3] * 0.5 + 0.5, ring_alpha)
-            love.graphics.setLineWidth(ring_width)
-            love.graphics.circle("line", cx, cy, ring_radius)
-            -- Inner brighter ring
-            love.graphics.setColor(1, 1, 1, ring_alpha * 0.4)
-            love.graphics.setLineWidth(math.max(1, ring_width * 0.4))
-            love.graphics.circle("line", cx, cy, ring_radius * 0.92)
-        end
-
-        -- 3. ORBITING ENERGY SPARKS — 4 bright sparks spiral around the tile
-        if p > 0.05 and p < 0.80 then
-            local spark_p = (p - 0.05) / 0.75
-            local spark_alpha = (1 - spark_p) * 0.95
-            local orbit_radius = cs * 0.35 + cs * 0.35 * spark_p
-            local spark_count = 4
-            for i = 1, spark_count do
-                local base_angle = (i - 1) * (math.pi * 2 / spark_count)
-                local spin_speed = 4.5 + i * 0.5  -- each spark spins at slightly different speed
-                local angle = base_angle + spark_p * spin_speed
-                local spx = cx + math.cos(angle) * orbit_radius
-                local spy = cy + math.sin(angle) * orbit_radius
-                local spark_size = math.max(1.5, (3.5 - spark_p * 2.5) * scale)
-
-                -- Spark glow (soft halo)
-                love.graphics.setColor(tile_col_g[1], tile_col_g[2], tile_col_g[3], spark_alpha * 0.35)
-                love.graphics.circle("fill", spx, spy, spark_size * 2.5)
-
-                -- Bright spark core
-                love.graphics.setColor(1, 1, 1, spark_alpha * 0.9)
-                love.graphics.circle("fill", spx, spy, spark_size)
-            end
-        end
-    end
 
     -- Tile background
     if tile.value == "goose" then
@@ -4192,42 +4153,7 @@ function renderer.drawTile(tile, slideProgress, popProgress)
     love.graphics.setColor(color)
     roundedRect("fill", sx, sy, scaledW, scaledH, cr * ((tileScaleX + tileScaleY) / 2))
 
-    -- ═══ GLOW PULSE FX: Chromatic surface energy ═══
-    -- Multi-phase surface flash with neon edge glow and chromatic highlight sweep
-    if tile.isMerged and _G.merge_fx == "glow" and popProgress < 1 then
-        local p = popProgress
-        local glow_col = getTileColor(tile.value)
 
-        -- Phase 2: Explosive bright flash (intense white/color wash)
-        if p > 0.10 and p < 0.50 then
-            local flash_p = (p - 0.10) / 0.40
-            local flash_a = math.sin(flash_p * math.pi) * 0.55
-            love.graphics.setColor(1, 1, 1, flash_a)
-            roundedRect("fill", sx, sy, scaledW, scaledH, cr * ((tileScaleX + tileScaleY) / 2))
-        end
-
-        -- Phase 3: Neon edge glow (pulsing bright border)
-        if p > 0.08 and p < 0.70 then
-            local edge_p = (p - 0.08) / 0.62
-            local edge_a = math.sin(edge_p * math.pi) * 0.75
-            love.graphics.setColor(glow_col[1] * 0.3 + 0.7, glow_col[2] * 0.3 + 0.7, glow_col[3] * 0.3 + 0.7, edge_a)
-            love.graphics.setLineWidth(math.max(2, math.floor(3.0 * (_G.scale or 1))))
-            roundedRect("line", sx, sy, scaledW, scaledH, cr * ((tileScaleX + tileScaleY) / 2))
-        end
-
-        -- Phase 4: Chromatic diagonal sweep (light streak crossing the tile)
-        if p > 0.15 and p < 0.65 then
-            local sweep_p = (p - 0.15) / 0.50
-            local sweep_a = math.sin(sweep_p * math.pi) * 0.35
-            local sweep_x = sx + sweep_p * scaledW * 1.4 - scaledW * 0.2
-            love.graphics.setColor(1, 1, 1, sweep_a)
-            love.graphics.push()
-            love.graphics.translate(sweep_x, sy)
-            local sw = math.floor(10 * (_G.scale or 1))
-            love.graphics.polygon("fill", 0, 0, sw, 0, sw * 0.5, scaledH, -sw * 0.5, scaledH)
-            love.graphics.pop()
-        end
-    end
 
     -- ── High-Tile Booster Visual FX: Border glow & light sweep ─────
     if is_booster_active then
@@ -4308,16 +4234,7 @@ function renderer.drawTiles(game)
         slideProgress = p
         gooseProgress = p
         spawnProgress = p
-        -- When a merge FX is active, use a slower ease-out curve so the
-        -- animation phases are readable instead of trembling blur
-        if _G.merge_fx == "bounce" or _G.merge_fx == "glow" then
-            -- Square root curve: spends more time in early phases (the visually
-            -- dramatic part) and less time settling. At 60fps with 0.12s duration,
-            -- this gives ~5 frames in the first 30% of progress instead of ~2.
-            mergePopProgress = math.sqrt(p)
-        else
-            mergePopProgress = p
-        end
+        mergePopProgress = p
     end
 
     game.grid:eachCell(function(x, y, tile)
@@ -4917,17 +4834,19 @@ end
 -- ============================================================================
 -- Draw a key badge (rounded rectangle with text inside)
 -- ============================================================================
-local function drawKeyBadge(text, x, y, w, h)
+local function drawKeyBadge(text, x, y, w, h, alpha_override)
     local scale = _G.scale
     local visual_offset_y = -math.max(1, math.floor(1.5 * scale))
     local original_text = text
     text = renderer.getButtonPrompt(text)
     local letter_offset_y = (text == "Y" or text == "C") and visual_offset_y or (visual_offset_y - math.max(1, math.floor(1 * scale)))
 
-    -- Save dynamically tracked coordinates for the Theme Y button
-    if text == "Y" then
+    if original_text == "Y" or text == "Y" then
         renderer.theme_button_x = x + w / 2
         renderer.theme_button_y = y + h / 2
+    elseif original_text == "X" or text == "X" then
+        renderer.theme_prev_button_x = x + w / 2
+        renderer.theme_prev_button_y = y + h / 2
     end
 
     -- Determine if this button is currently pressed for visual feedback
@@ -4952,6 +4871,8 @@ local function drawKeyBadge(text, x, y, w, h)
         else
             if original_text == "START" then
                 is_pressed = (Input.state["space"] == true) or (Input.state["rshift"] == true) or (Input.state["return"] == true)
+            elseif original_text == "DOWN" then
+                is_pressed = (Input.state["down"] == true) or (Input.state["dpdown"] == true) or (Input.state["s"] == true) or (Input.state["v"] == true) or (Input.events and Input.state[Input.events.DOWN] == true)
             else
                 local event_map = {
                     A = Input.events and Input.events.CONFIRM,
@@ -5050,20 +4971,21 @@ local function drawKeyBadge(text, x, y, w, h)
         if text == "A" or text == "B" or text == "X" or text == "Y" then
             local cx, cy = x + w/2, y + h/2
             local r = h * 0.45
+            local badge_a = alpha_override or 1.0
 
             if _G.theme == "matrix" then
                 -- Black background circle
-                love.graphics.setColor(0, 0, 0, 1)
+                love.graphics.setColor(0, 0, 0, badge_a)
                 love.graphics.circle("fill", cx, cy + press_shift_y, r)
 
                 -- Green outline circle
-                love.graphics.setColor(help_key_color)
+                love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], (help_key_color[4] or 1.0) * badge_a)
                 love.graphics.setLineWidth(math.max(1, math.floor(1 * scale)))
                 love.graphics.circle("line", cx, cy + press_shift_y, r)
 
                 -- Text letter
                 love.graphics.setFont(font_help_key)
-                love.graphics.setColor(help_key_text)
+                love.graphics.setColor(help_key_text[1], help_key_text[2], help_key_text[3], (help_key_text[4] or 1.0) * badge_a)
                 local tw = font_help_key:getWidth(text)
                 local th = font_help_key:getHeight()
                 love.graphics.print(text, cx - tw/2, cy - th/2 + letter_offset_y + press_shift_y)
@@ -5071,29 +4993,29 @@ local function drawKeyBadge(text, x, y, w, h)
             end
 
             -- Button shadow (shrinks when depressed)
-            love.graphics.setColor(0, 0, 0, 0.25)
+            love.graphics.setColor(0, 0, 0, 0.25 * badge_a)
             local sh = math.max(1, math.floor(1.5 * scale)) * shadow_shrink
             love.graphics.circle("fill", cx, cy + sh, r)
 
             -- Button body (shifted by press_shift_y)
-            love.graphics.setColor(help_key_color)
+            love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], (help_key_color[4] or 1.0) * badge_a)
             love.graphics.circle("fill", cx, cy + press_shift_y, r)
 
             -- Button border
-            love.graphics.setColor(1, 1, 1, 0.15)
+            love.graphics.setColor(1, 1, 1, 0.15 * badge_a)
             love.graphics.setLineWidth(math.max(1, math.floor(1 * scale)))
             love.graphics.circle("line", cx, cy + press_shift_y, r)
 
             -- Text letter
             love.graphics.setFont(font_help_key)
-            love.graphics.setColor(help_key_text)
+            love.graphics.setColor(help_key_text[1], help_key_text[2], help_key_text[3], (help_key_text[4] or 1.0) * badge_a)
             local tw = font_help_key:getWidth(text)
             local th = font_help_key:getHeight()
             love.graphics.print(text, cx - tw/2, cy - th/2 + letter_offset_y + press_shift_y)
             return
         end
 
-        if original_text == "L1" or original_text == "R1" or original_text == "L" or original_text == "R" or original_text == "START" or original_text == "SELECT" or (love.system.getOS() == "Web" and string.len(text) > 1) then
+        if original_text == "L1" or original_text == "R1" or original_text == "L" or original_text == "R" or original_text == "START" or original_text == "SELECT" or original_text == "DOWN" or (love.system.getOS() == "Web" and string.len(text) > 1) then
             local cr = math.floor(h * 0.4)
 
             if _G.theme == "matrix" then
@@ -5216,6 +5138,8 @@ local function drawKeyBadge(text, x, y, w, h)
     love.graphics.draw(badge_canvas, badge_quad, x - pad, y - pad, 0, 0.5, 0.5)
     love.graphics.setBlendMode("alpha", "alphamultiply")
 end
+
+renderer.drawKeyBadge = drawKeyBadge
 
 -- ============================================================================
 -- Draw controls help section
@@ -5345,7 +5269,7 @@ function renderer.drawHelp(game)
         elseif game.state == Game.STATE_TARGETING_SHIELD then
             table.insert(actions, 1, {key = "A", label = "Clear Target"})
             table.insert(actions, 1, {key = "B", label = "Cancel"})
-            table.insert(actions, 1, {key = "DPAD", label = "Row/Col"})
+            table.insert(actions, 1, {key = "DPAD", label = "Row/Column"})
         elseif game.state == Game.STATE_TARGETING_BOMB or game.state == Game.STATE_TARGETING_SWAP_1 or game.state == Game.STATE_TARGETING_SWAP_2 then
             table.insert(actions, 1, {key = "A", label = "Confirm"})
             table.insert(actions, 1, {key = "B", label = "Cancel"})
@@ -5712,16 +5636,19 @@ end
 -- ============================================================================
 local function drawStencilCircle()
     local progress = 1 - (transition_timer / transition_duration)
-    -- Ease out cubic: 1 - (1 - t)^3
     local p = 1 - math.pow(1 - progress, 3)
+    if transition_direction < 0 then
+        p = 1 - p
+    end
     local w, h = love.graphics.getDimensions()
-    -- Max radius needs to cover the entire screen from the bottom right
-    local max_radius = math.sqrt(w*w + h*h)
+    local dx = math.max(transition_center_x, w - transition_center_x)
+    local dy = math.max(transition_center_y, h - transition_center_y)
+    local max_radius = math.sqrt(dx*dx + dy*dy) + 20
     local radius = max_radius * p
     love.graphics.circle("fill", transition_center_x, transition_center_y, radius)
 end
 
-function renderer.startThemeTransition(drawTarget)
+function renderer.startThemeTransition(drawTarget, direction)
     if not _G.screen_transitions then
         return
     end
@@ -5729,20 +5656,25 @@ function renderer.startThemeTransition(drawTarget)
     if not transition_canvas then
         transition_canvas = love.graphics.newCanvas(w, h)
     end
-    -- Capture current screen to canvas
     love.graphics.setCanvas({transition_canvas, stencil = true})
     love.graphics.clear()
     if type(drawTarget) == "function" then
         drawTarget()
     else
-        renderer.draw(drawTarget, true) -- Pass true to skip transition drawing inside
+        renderer.draw(drawTarget, true)
     end
     love.graphics.setCanvas()
 
     transition_timer = transition_duration
-    -- The Y button coordinates are tracked dynamically!
-    transition_center_x = renderer.theme_button_x or (w - math.floor(90 * _G.scale))
-    transition_center_y = renderer.theme_button_y or (h - math.floor(30 * _G.scale))
+    local dir = direction or 1
+    transition_direction = dir
+    if dir < 0 then
+        transition_center_x = renderer.theme_prev_button_x or (w - math.floor(180 * _G.scale))
+        transition_center_y = renderer.theme_prev_button_y or (h - math.floor(30 * _G.scale))
+    else
+        transition_center_x = renderer.theme_button_x or (w - math.floor(90 * _G.scale))
+        transition_center_y = renderer.theme_button_y or (h - math.floor(30 * _G.scale))
+    end
 end
 
 function renderer.updateTransition(dt)
@@ -5907,6 +5839,145 @@ function renderer.updateTransition(dt)
             table.remove(toast_particles, i)
         end
     end
+
+    if _G.jukebox_web_modal then
+        if not prev_jukebox_web_modal then
+            prev_jukebox_web_modal = true
+            if _G.screen_transitions then
+                jukebox_modal_state = "opening"
+                jukebox_modal_timer = 0
+                jukebox_modal_anim = 0
+            else
+                jukebox_modal_state = "open"
+                jukebox_modal_timer = jukebox_modal_duration_open
+                jukebox_modal_anim = 1
+            end
+        end
+    else
+        prev_jukebox_web_modal = false
+        if jukebox_modal_state ~= "closing" then
+            jukebox_modal_state = "closed"
+            jukebox_modal_timer = 0
+            jukebox_modal_anim = 0
+        end
+    end
+
+    if not _G.screen_transitions then
+        if jukebox_modal_state == "closing" then
+            jukebox_modal_state = "closed"
+            jukebox_modal_timer = 0
+            jukebox_modal_anim = 0
+            _G.jukebox_web_modal = false
+            if jukebox_modal_close_cb then
+                local cb = jukebox_modal_close_cb
+                jukebox_modal_close_cb = nil
+                cb()
+            end
+        elseif jukebox_modal_state == "opening" or _G.jukebox_web_modal then
+            jukebox_modal_state = "open"
+            jukebox_modal_timer = jukebox_modal_duration_open
+            jukebox_modal_anim = 1
+        else
+            jukebox_modal_state = "closed"
+            jukebox_modal_timer = 0
+            jukebox_modal_anim = 0
+        end
+    else
+        if jukebox_modal_state == "opening" then
+            jukebox_modal_timer = jukebox_modal_timer + dt
+            local p = math.min(1, jukebox_modal_timer / jukebox_modal_duration_open)
+            local inv = 1 - p
+            jukebox_modal_anim = 1 - inv * inv * inv
+            if p >= 1 then
+                jukebox_modal_state = "open"
+                jukebox_modal_anim = 1
+            end
+        elseif jukebox_modal_state == "closing" then
+            jukebox_modal_timer = jukebox_modal_timer + dt
+            local p = math.min(1, jukebox_modal_timer / jukebox_modal_duration_close)
+            local inv = 1 - p
+            jukebox_modal_anim = inv * inv
+            if p >= 1 then
+                jukebox_modal_state = "closed"
+                jukebox_modal_anim = 0
+                _G.jukebox_web_modal = false
+                if jukebox_modal_close_cb then
+                    local cb = jukebox_modal_close_cb
+                    jukebox_modal_close_cb = nil
+                    cb()
+                end
+            end
+        elseif jukebox_modal_state == "open" then
+            jukebox_modal_anim = 1
+        elseif jukebox_modal_state == "closed" then
+            jukebox_modal_anim = 0
+        end
+    end
+end
+
+function renderer.isJukeboxModalClosing()
+    return jukebox_modal_state == "closing"
+end
+
+function renderer.resetJukeboxModalAnim()
+    jukebox_modal_state = "closed"
+    jukebox_modal_timer = 0
+    jukebox_modal_anim = 0
+    jukebox_modal_close_cb = nil
+    prev_jukebox_web_modal = false
+end
+
+function renderer.openJukeboxModal()
+    _G.jukebox_web_modal = true
+    prev_jukebox_web_modal = true
+    jukebox_modal_close_cb = nil
+    if not _G.screen_transitions then
+        jukebox_modal_state = "open"
+        jukebox_modal_timer = jukebox_modal_duration_open
+        jukebox_modal_anim = 1
+    else
+        if jukebox_modal_state == "closing" then
+            local rem = math.max(0, math.min(1, 1 - jukebox_modal_anim))
+            local tau = 1 - (rem ^ (1/3))
+            jukebox_modal_timer = tau * jukebox_modal_duration_open
+        else
+            jukebox_modal_timer = 0
+            jukebox_modal_anim = 0
+        end
+        jukebox_modal_state = "opening"
+    end
+end
+
+function renderer.closeJukeboxModal(cb)
+    jukebox_modal_close_cb = cb
+    if not _G.screen_transitions then
+        jukebox_modal_state = "closed"
+        jukebox_modal_timer = 0
+        jukebox_modal_anim = 0
+        prev_jukebox_web_modal = false
+        _G.jukebox_web_modal = false
+        if cb then
+            jukebox_modal_close_cb = nil
+            cb()
+        end
+        return
+    end
+    if jukebox_modal_state == "closed" then
+        prev_jukebox_web_modal = false
+        _G.jukebox_web_modal = false
+        if cb then
+            jukebox_modal_close_cb = nil
+            cb()
+        end
+        return
+    end
+    if jukebox_modal_state == "opening" then
+        local tau = 1 - math.sqrt(math.max(0, math.min(1, jukebox_modal_anim)))
+        jukebox_modal_timer = tau * jukebox_modal_duration_close
+    else
+        jukebox_modal_timer = 0
+    end
+    jukebox_modal_state = "closing"
 end
 
 function renderer.triggerNowPlayingNotification()
@@ -6549,12 +6620,12 @@ function renderer.drawTutorial(page, skip_transition, static_only)
         end
 
         if dir == 1 then
-            -- Forward transition: New page slides in on top from right (w -> 0)
-            -- Old page slides out underneath to the left at 30% speed (0 -> -0.3*w)
+            -- Forward page slide
+            -- Parallax shift for old page
             local old_x = math.floor(-0.3 * w * p)
             local new_x = math.floor(w * (1 - p))
 
-            -- 1. Draw old page (underneath)
+            -- Draw old page
             if tutorial_old_canvas then
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
@@ -6573,7 +6644,7 @@ function renderer.drawTutorial(page, skip_transition, static_only)
                 love.graphics.rectangle("fill", new_x - shadow_w + i, 0, 1, h)
             end
 
-            -- 3. Draw new page (on top)
+            -- Draw new page
             if tutorial_new_canvas then
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
@@ -6581,12 +6652,12 @@ function renderer.drawTutorial(page, skip_transition, static_only)
                 love.graphics.setBlendMode("alpha", "alphamultiply")
             end
         else
-            -- Backward transition: Old page slides out on top to the right (0 -> w)
-            -- New page slides in underneath from the left at 30% speed (-0.3*w -> 0)
+            -- Backward page slide
+            -- Parallax shift for new page
             local new_x = math.floor(-0.3 * w * (1 - p))
             local old_x = math.floor(w * p)
 
-            -- 1. Draw new page (underneath)
+            -- Draw new page
             if tutorial_new_canvas then
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
@@ -6598,7 +6669,7 @@ function renderer.drawTutorial(page, skip_transition, static_only)
             love.graphics.setColor(0, 0, 0, 0.5 * (1 - p))
             love.graphics.rectangle("fill", new_x, 0, w, h)
 
-            -- 2. Draw shadow to the left of the old page (sliding on top)
+            -- Draw edge shadow
             if tutorial_old_canvas then
                 for i = 0, shadow_w - 1 do
                     local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
@@ -6606,7 +6677,7 @@ function renderer.drawTutorial(page, skip_transition, static_only)
                     love.graphics.rectangle("fill", old_x - shadow_w + i, 0, 1, h)
                 end
 
-                -- 3. Draw old page (on top)
+                -- Draw old page
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
                 love.graphics.draw(tutorial_old_canvas, old_x, 0)
@@ -6619,7 +6690,7 @@ function renderer.drawTutorial(page, skip_transition, static_only)
         drawSlide(page, 0, 1.0)
     end
 
-    -- Page indicator (dots) — dynamically contrast-matched to active theme
+    -- Page indicator dots
     local active_dot_color = (ui_text and ui_text ~= dark_text) and ui_text or help_key_color
     local r_bg, g_bg, b_bg = (bg_color and bg_color[1] or 0), (bg_color and bg_color[2] or 0), (bg_color and bg_color[3] or 0)
     local bg_lum = 0.299 * r_bg + 0.587 * g_bg + 0.114 * b_bg
@@ -6643,7 +6714,7 @@ function renderer.drawTutorial(page, skip_transition, static_only)
             love.graphics.setColor(active_dot_color[1], active_dot_color[2], active_dot_color[3], 1.0)
             roundedRect("fill", px, py, pill_w, pill_h, pill_h / 2)
         else
-            -- Inactive page: subtle dot indicator
+            -- Inactive page dot
             love.graphics.setColor(ui_text[1], ui_text[2], ui_text[3], 0.35)
             love.graphics.circle("fill", dx, dots_y, dot_r)
         end
@@ -6698,7 +6769,7 @@ function renderer.drawTutorial(page, skip_transition, static_only)
 
     if not skip_transition and transition_timer > 0 and transition_canvas then
         love.graphics.stencil(drawStencilCircle, "replace", 1)
-        love.graphics.setStencilTest("equal", 0)
+        love.graphics.setStencilTest(transition_direction < 0 and "greater" or "equal", 0)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("replace", "premultiplied")
         love.graphics.draw(transition_canvas, 0, 0)
@@ -6759,11 +6830,6 @@ function renderer.getSettingsOptions()
     local ta_lbl = "Time Attack Max Limit: " .. _G.time_attack_time .. "s"
     local crt_lbl = "CRT Shader: " .. (_G.crt_filter and "On" or "Off")
 
-    local merge_fx_disp = "Default"
-    if _G.merge_fx == "bounce" then merge_fx_disp = "Bounce Pop"
-    elseif _G.merge_fx == "glow" then merge_fx_disp = "Glow Pulse" end
-    local merge_fx_lbl = "Merge Visual FX: " .. merge_fx_disp
-
     return {
         "Audio & Haptics",
         "Text Size: " .. (_G.text_size == "large" and "Large" or "Normal"),
@@ -6772,7 +6838,6 @@ function renderer.getSettingsOptions()
         undo_lbl,
         ta_lbl,
         crt_lbl,
-        merge_fx_lbl,
         "Back"
     }
 end
@@ -6792,7 +6857,7 @@ function renderer.drawSettings(selection, skip_transition)
     local badge_h = math.floor(28 * scale)
     local badge_y = h - badge_h - math.floor(7 * scale)
 
-    -- Style the Settings title header (smaller than main menu to avoid squeezing options)
+    -- Settings header style
     local header_h = math.floor((_G.text_size == "large" and 70 or 85) * scale)
     local total_h = header_h + math.floor(12 * scale) + menu_h
     local available_h = badge_y - math.floor(10 * scale)
@@ -6830,7 +6895,6 @@ function renderer.drawSettings(selection, skip_transition)
             "Undo Limit (Classic/Huge): Unlimited",
             "Time Attack Max Limit: 90s",
             "CRT Shader: Off",
-            "Merge Visual FX: Bounce Pop",
             "Back"
         }
     end
@@ -6886,7 +6950,7 @@ function renderer.drawSettings(selection, skip_transition)
         love.graphics.setColor(ui_text)
         love.graphics.print("Navigate", dpad_x, badge_y + (badge_h - font_help_label:getHeight()) / 2)
 
-        -- Right side actions: A (Select), B (Back), Y (Switch Theme)
+        -- Action buttons: A Select, B Back, Y Theme
         local right_x = w - math.floor(20 * scale)
         local actions = {
             {key = "A", label = "Select"},
@@ -6914,7 +6978,7 @@ function renderer.drawSettings(selection, skip_transition)
     -- Theme transition overlay
     if not skip_transition and transition_timer > 0 and transition_canvas then
         love.graphics.stencil(drawStencilCircle, "replace", 1)
-        love.graphics.setStencilTest("equal", 0)
+        love.graphics.setStencilTest(transition_direction < 0 and "greater" or "equal", 0)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("replace", "premultiplied")
         love.graphics.draw(transition_canvas, 0, 0)
@@ -6973,7 +7037,7 @@ function renderer.drawMainMenu(selection, skip_transition)
         love.graphics.translate(-tile_x, -tile_y)
         love.graphics.setLineWidth(math.max(2, math.floor((_G.scale or 1) * 2)))
 
-        -- Draw tile background (using 2048 tile color from active theme!)
+        -- Draw tile background
         love.graphics.setColor(getTileColor(2048))
         roundedRect("fill", tile_x, tile_y, tile_size, tile_size, tile_size * 0.12)
 
@@ -7088,7 +7152,7 @@ function renderer.drawMainMenu(selection, skip_transition)
         love.graphics.setColor(ui_text)
         love.graphics.print("Navigate", dpad_x, badge_y + (badge_h - font_help_label:getHeight()) / 2)
 
-        -- Right side actions: A (Select), Y (Theme)
+        -- Action buttons: A Select, Y Theme
         local right_x = w - math.floor(20 * scale)
         local actions = {
             {key = "A", label = "Select"},
@@ -7123,7 +7187,7 @@ function renderer.drawMainMenu(selection, skip_transition)
 
     if not skip_transition and transition_timer > 0 and transition_canvas then
         love.graphics.stencil(drawStencilCircle, "replace", 1)
-        love.graphics.setStencilTest("equal", 0)
+        love.graphics.setStencilTest(transition_direction < 0 and "greater" or "equal", 0)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("replace", "premultiplied")
         love.graphics.draw(transition_canvas, 0, 0)
@@ -7243,7 +7307,7 @@ local function drawStopwatch(cx, cy, scale, select_factor, r_acc, g_acc, b_acc)
 
     -- Top crown
     love.graphics.rectangle("fill", cx - math.floor(3 * scale), cy - r - math.floor(4 * scale), math.floor(6 * scale), math.floor(3 * scale))
-    -- Left button (rotated)
+    -- Left button
     love.graphics.push()
     love.graphics.translate(cx, cy)
     love.graphics.rotate(-math.pi / 4)
@@ -7254,11 +7318,11 @@ local function drawStopwatch(cx, cy, scale, select_factor, r_acc, g_acc, b_acc)
     love.graphics.circle("fill", cx, cy, math.floor(3 * scale))
 
     -- Clock hands
-    -- Minute hand (pointing slightly offset)
+    -- Minute hand
     love.graphics.setLineWidth(math.floor(1.5 * scale))
     love.graphics.line(cx, cy, cx, cy - r + math.floor(6 * scale))
 
-    -- Second hand (rotates full circle every 8 seconds when selected)
+    -- Second hand
     local active_angle = -math.pi / 2 + (t % 8) * (2 * math.pi / 8)
     local angle = -math.pi / 2 + (active_angle - (-math.pi / 2)) * select_factor
     local hand_len = r - math.floor(4 * scale)
@@ -7289,7 +7353,7 @@ local function drawLock(cx, cy, scale)
     love.graphics.setLineWidth(math.floor(2 * scale))
     love.graphics.setColor(0.35, 0.38, 0.45, 0.7)
 
-    -- Lock shackle (top arch)
+    -- Lock shackle arch
     love.graphics.arc("line", "open", cx, cy - h/2 + math.floor(3 * scale), r, math.pi, 2 * math.pi)
     love.graphics.line(cx - r, cy - h/2 + math.floor(3 * scale), cx - r, cy - h/2 + math.floor(6 * scale))
     love.graphics.line(cx + r, cy - h/2 + math.floor(3 * scale), cx + r, cy - h/2 + math.floor(6 * scale))
@@ -7371,7 +7435,7 @@ local function drawClassicIcon(cx, cy, scale, select_factor, r_acc, g_acc, b_acc
     -- Draw grid box
     love.graphics.rectangle("line", cx - r, cy - r, r * 2, r * 2, math.floor(3 * scale))
 
-    -- Grid lines (4x4)
+    -- 4x4 grid lines
     local step = (r * 2) / 4
     for i = 1, 3 do
         love.graphics.line(cx - r + step * i, cy - r, cx - r + step * i, cy + r)
@@ -7513,7 +7577,7 @@ local function drawPlusIcon(cx, cy, scale, select_factor, r_acc, g_acc, b_acc)
     -- Draw grid box
     love.graphics.rectangle("line", cx - r, cy - r, r * 2, r * 2, math.floor(3 * scale))
 
-    -- Grid lines (4x4)
+    -- 4x4 grid lines
     local step = (r * 2) / 4
     for i = 1, 3 do
         love.graphics.line(cx - r + step * i, cy - r, cx - r + step * i, cy + r)
@@ -7658,7 +7722,7 @@ local function drawArcadeIcon(cx, cy, scale, select_factor, r_acc, g_acc, b_acc)
         tilt_angle = 0.25 * math.sin(t * 8) * select_factor
     end
 
-    -- Joystick Base (drawn with rounded rectangle outline and filled body)
+    -- Joystick base
     local rb_base, gb_base, bb_base, ab_base = 0.3, 0.35, 0.4, 0.6
     local rb_target, gb_target, bb_target, ab_target = 0.4, 0.45, 0.55, 0.85
     love.graphics.setColor(
@@ -7733,7 +7797,7 @@ local function drawHugeGrid(cx, cy, scale, select_factor, r_acc, g_acc, b_acc)
     -- Outer box
     love.graphics.rectangle("line", cx - r, cy - r, r * 2, r * 2, math.floor(3 * scale))
 
-    -- Grid lines (5x5)
+    -- 5x5 grid lines
     local step = (r * 2) / 5
     for i = 1, 4 do
         love.graphics.line(cx - r + step * i, cy - r, cx - r + step * i, cy + r)
@@ -7866,7 +7930,7 @@ local function drawSkull(cx, cy, scale, select_factor, r_acc, g_acc, b_acc)
     love.graphics.circle("fill", cx - 10 * scale, cy + 9 * scale, 2 * scale)
     love.graphics.circle("fill", cx - 9 * scale, cy + 10 * scale, 2 * scale)
 
-    -- Skull main head (drawn on top to cover crossbones intersection)
+    -- Skull head
     love.graphics.setColor(0.04, 0.04, 0.08, 1.0) -- background color to mask
     love.graphics.circle("fill", cx, cy - 2 * scale, 7 * scale)
     love.graphics.rectangle("fill", cx - 4 * scale, cy + 2 * scale, 8 * scale, 4 * scale)
@@ -7883,7 +7947,7 @@ local function drawSkull(cx, cy, scale, select_factor, r_acc, g_acc, b_acc)
     love.graphics.circle("fill", cx - 2.5 * scale, cy - 2 * scale, 1.8 * scale)
     love.graphics.circle("fill", cx + 2.5 * scale, cy - 2 * scale, 1.8 * scale)
 
-    -- Nose (triangle)
+    -- Nose triangle
     love.graphics.polygon("fill",
         cx, cy + 1 * scale,
         cx - 1.2 * scale, cy + 2.5 * scale,
@@ -7902,7 +7966,7 @@ function renderer.drawPlaySelectMenu(play_select_selection, arcade_selection, sk
     local w, h = love.graphics.getDimensions()
     local scale = _G.scale
 
-    -- 1. Draw the main menu underneath (dimmed)
+    -- Draw dimmed main menu
     renderer.drawMainMenu(current_menu_selection or 1, true)
 
     -- 2. Dim overlay
@@ -8497,7 +8561,7 @@ function renderer.drawPlaySelectMenu(play_select_selection, arcade_selection, sk
     -- Transition Overlay if needed
     if not skip_transition and transition_timer > 0 and transition_canvas then
         love.graphics.stencil(drawStencilCircle, "replace", 1)
-        love.graphics.setStencilTest("equal", 0)
+        love.graphics.setStencilTest(transition_direction < 0 and "greater" or "equal", 0)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("replace", "premultiplied")
         love.graphics.draw(transition_canvas, 0, 0)
@@ -8609,7 +8673,7 @@ function renderer.drawSecretMenu(selection, skip_transition)
         love.graphics.setColor(ui_text)
         love.graphics.print("Navigate", dpad_x, badge_y + (badge_h - font_help_label:getHeight()) / 2)
 
-        -- Right side actions: B (Back), A (Toggle), Y (Theme)
+        -- Action buttons: B Back, A Toggle, Y Theme
         local right_x = w - math.floor(20 * scale)
         local actions = {
             {key = "B", label = "Back"},
@@ -8636,7 +8700,7 @@ function renderer.drawSecretMenu(selection, skip_transition)
 
     if not skip_transition and transition_timer > 0 and transition_canvas then
         love.graphics.stencil(drawStencilCircle, "replace", 1)
-        love.graphics.setStencilTest("equal", 0)
+        love.graphics.setStencilTest(transition_direction < 0 and "greater" or "equal", 0)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("replace", "premultiplied")
         love.graphics.draw(transition_canvas, 0, 0)
@@ -8665,7 +8729,7 @@ function renderer.drawThemeSelect(skip_transition)
     local title_y = h * 0.04
     love.graphics.print(title, (w - tw) / 2, title_y)
 
-    -- Subtitle showing Theme Name (index/total)
+    -- Theme subtitle
     local cur_t = type(_G.theme) == "string" and _G.theme or "light"
     local theme_disp = renderer.getThemeDisplayName(cur_t, false)
     local current_idx = 1
@@ -8680,7 +8744,7 @@ function renderer.drawThemeSelect(skip_transition)
     local subtitle_y = title_y + font_cheats_title:getHeight() + math.floor(5 * scale)
     love.graphics.print(subtitle, (w - sw) / 2, subtitle_y)
 
-    -- Draw preview swatches (2x2 palette card) and horizontal color strip
+    -- Palette swatches
     local badge_h = math.floor(28 * scale)
     local badge_y = h - badge_h - math.floor(7 * scale)
     local board_top = subtitle_y + font_help_label:getHeight() + math.floor(10 * scale)
@@ -8711,7 +8775,7 @@ function renderer.drawThemeSelect(skip_transition)
     local cell_size = math.floor((board_size - cell_gap * 3) / 2)
     local cr = math.floor(cell_size * 0.06)
 
-    -- Draw board background (representing theme board_color)
+    -- Board background preview
     love.graphics.setColor(board_color)
     roundedRect("fill", board_x, board_y, board_size, board_size, cr * 2)
 
@@ -8760,10 +8824,10 @@ function renderer.drawThemeSelect(skip_transition)
     end
 
     -- Draw horizontal color palette strip representing all tile colors with a glassy background card
-    -- Glassy dark backing card (0, 0, 0, 0.4) that provides gorgeous contrast against theme backgrounds
+    -- Dark card backing
     love.graphics.setColor(0, 0, 0, 0.4)
     roundedRect("fill", strip_x, strip_y, board_size, panel_h, cr)
-    -- Glassy light outline (ui_text with 0.15 opacity) for a clean, professional frosted look
+    -- Light card border
     love.graphics.setColor(ui_text[1], ui_text[2], ui_text[3], 0.15)
     love.graphics.setLineWidth(math.floor(1 * scale))
     roundedRect("line", strip_x, strip_y, board_size, panel_h, cr)
@@ -8786,12 +8850,12 @@ function renderer.drawThemeSelect(skip_transition)
     local item_gap = math.floor(10 * scale)
     local label_gap = math.floor(4 * scale)
 
-    -- Right side actions: B (Cancel), A (Select), Y (Switch Theme)
     local right_x = w - math.floor(20 * scale)
     local actions = {
         {key = "B", label = "Cancel"},
         {key = "A", label = "Select"},
-        {key = "Y", label = "Switch Theme"}
+        {key = "Y", label = "Next"},
+        {key = "X", label = "Previous"}
     }
     for _, action in ipairs(actions) do
         -- Label
@@ -8812,7 +8876,7 @@ function renderer.drawThemeSelect(skip_transition)
 
     if not skip_transition and transition_timer > 0 and transition_canvas then
         love.graphics.stencil(drawStencilCircle, "replace", 1)
-        love.graphics.setStencilTest("equal", 0)
+        love.graphics.setStencilTest(transition_direction < 0 and "greater" or "equal", 0)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("replace", "premultiplied")
         love.graphics.draw(transition_canvas, 0, 0)
@@ -8830,7 +8894,7 @@ local function drawBgmNowPlaying()
     local w, h = love.graphics.getDimensions()
     local scale = _G.scale
 
-    -- Card dimensions (increased to prevent text spill)
+    -- Card dimensions
     local card_w = math.floor(230 * scale)
     local card_h = math.floor(66 * scale)
     local padding = math.floor(10 * scale)
@@ -8858,21 +8922,21 @@ local function drawBgmNowPlaying()
     love.graphics.setColor(0, 0, 0, 0.12 * alpha)
     love.graphics.rectangle("fill", x + math.floor(2 * scale), y + math.floor(2 * scale), card_w, card_h, math.floor(6 * scale), math.floor(6 * scale))
 
-    -- Draw container box using the theme's score box background color (with high opacity)
+    -- Container box
     local bg = score_bg_color or board_color or {0.18, 0.18, 0.22}
     love.graphics.setColor(bg[1], bg[2], bg[3], 0.94 * alpha)
     love.graphics.rectangle("fill", x, y, card_w, card_h, math.floor(6 * scale), math.floor(6 * scale))
 
-    -- Add a subtle thin border using the theme's label color
+    -- Border stroke
     local lbl = score_label or ui_text or {0.8, 0.8, 0.8}
     love.graphics.setColor(lbl[1], lbl[2], lbl[3], 0.15 * alpha)
     love.graphics.rectangle("line", x, y, card_w, card_h, math.floor(6 * scale), math.floor(6 * scale))
 
-    -- Draw animated equalizer visualizer (3 simple bouncing bars)
+    -- Equalizer visualizer
     local viz_w = math.floor(14 * scale)
     local viz_x = x + padding
 
-    -- Draw visualizer using the theme's value color (high-contrast highlight)
+    -- Visualizer color
     local val = score_value or ui_text or {1.0, 1.0, 1.0}
     love.graphics.setColor(val[1], val[2], val[3], 0.85 * alpha)
 
@@ -8890,7 +8954,7 @@ local function drawBgmNowPlaying()
     love.graphics.rectangle("fill", viz_x + bar_w + bar_gap, base_y - bar2_h, bar_w, bar2_h, 1.5 * scale, 1.5 * scale)
     love.graphics.rectangle("fill", viz_x + (bar_w + bar_gap) * 2, base_y - bar3_h, bar_w, bar3_h, 1.5 * scale, 1.5 * scale)
 
-    -- Draw Text labels (Song Title and Artist Name)
+    -- Track title and artist labels
     local text_x = viz_x + viz_w + math.floor(8 * scale)
     local text_y = y + padding - math.floor(2 * scale)
 
@@ -8955,9 +9019,9 @@ function renderer.draw(game, skip_transition)
     end
 
     if not skip_transition and transition_timer > 0 and transition_canvas then
-        -- We want to draw the OLD screen (transition_canvas) everywhere EXCEPT where the stencil is.
+        -- Draw old screen outside stencil
         love.graphics.stencil(drawStencilCircle, "replace", 1)
-        love.graphics.setStencilTest("equal", 0) -- Draw where stencil is 0
+        love.graphics.setStencilTest(transition_direction < 0 and "greater" or "equal", 0) -- Draw where stencil is 0
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("replace", "premultiplied")
         love.graphics.draw(transition_canvas, 0, 0)
@@ -9066,11 +9130,11 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
 
         if dir == 1 then
             -- Forward transition (Tab 1 -> Tab 2): New page slides in on top from right (w -> 0)
-            -- Old page slides out underneath to the left at 30% speed (0 -> -0.3*w)
+            -- Parallax shift for old page
             local old_x = math.floor(-0.3 * w * p)
             local new_x = math.floor(w * (1 - p))
 
-            -- 1. Draw old page (underneath)
+            -- Draw old page
             if achievements_old_canvas then
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
@@ -9089,7 +9153,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
                 love.graphics.rectangle("fill", new_x - shadow_w + i, 0, 1, h)
             end
 
-            -- 3. Draw new page (on top)
+            -- Draw new page
             if achievements_new_canvas then
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
@@ -9098,11 +9162,11 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
             end
         else
             -- Backward transition (Tab 2 -> Tab 1): Old page slides out on top to the right (0 -> w)
-            -- New page slides in underneath from the left at 30% speed (-0.3*w -> 0)
+            -- Parallax shift for new page
             local new_x = math.floor(-0.3 * w * (1 - p))
             local old_x = math.floor(w * p)
 
-            -- 1. Draw new page (underneath)
+            -- Draw new page
             if achievements_new_canvas then
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
@@ -9114,7 +9178,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
             love.graphics.setColor(0, 0, 0, 0.5 * (1 - p))
             love.graphics.rectangle("fill", new_x, 0, w, h)
 
-            -- 2. Draw shadow to the left of the old page (sliding on top)
+            -- Draw edge shadow
             if achievements_old_canvas then
                 for i = 0, shadow_w - 1 do
                     local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
@@ -9122,7 +9186,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
                     love.graphics.rectangle("fill", old_x - shadow_w + i, 0, 1, h)
                 end
 
-                -- 3. Draw old page (on top)
+                -- Draw old page
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
                 love.graphics.draw(achievements_old_canvas, old_x, 0)
@@ -9133,7 +9197,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
         -- Theme transition overlay
         if not skip_transition and transition_timer > 0 and transition_canvas then
             love.graphics.stencil(drawStencilCircle, "replace", 1)
-            love.graphics.setStencilTest("equal", 0)
+            love.graphics.setStencilTest(transition_direction < 0 and "greater" or "equal", 0)
             love.graphics.draw(transition_canvas, 0, 0)
             love.graphics.setStencilTest()
         end
@@ -9242,7 +9306,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
                 love.graphics.setLineWidth(math.floor(2 * scale))
                 roundedRect("line", padding, current_y, w - padding * 2, item_h - math.floor(10 * scale), math.floor(12 * scale))
 
-                -- Icon Area (centered vertically in card)
+                -- Icon container
                 local icon_s = math.floor(48 * scale)
                 local card_h = item_h - math.floor(10 * scale)
                 local icon_x = padding + math.floor(12 * scale)
@@ -9278,7 +9342,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
                     roundedRect("line", icon_x, icon_y, icon_s, icon_s)
 
                     if isUnlocked then
-                        -- Matrix checkmark [X]
+                        -- Matrix checkmark
                         love.graphics.setFont(font_message)
                         love.graphics.setColor(ui_text)
                         local txt = "X"
@@ -9337,7 +9401,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
                         love.graphics.setLineWidth(math.max(1, math.floor(1.5 * scale)))
                         love.graphics.circle("line", cx, cy, r)
 
-                        -- Draw Padlock using ui_text color (always visible)
+                        -- Draw padlock icon
                         love.graphics.setColor(ui_text[1], ui_text[2], ui_text[3], 0.7)
                         local lock_w = math.floor(20 * scale)
                         local lock_h = math.floor(15 * scale)
@@ -9352,7 +9416,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
                         love.graphics.circle("fill", lock_x + lock_w/2, lock_y + lock_h * 0.4, math.max(1, math.floor(2 * scale)))
                         love.graphics.rectangle("fill", lock_x + lock_w/2 - math.floor(1 * scale), lock_y + lock_h * 0.4, math.floor(2 * scale), math.floor(5 * scale))
 
-                        -- Lock shackle (arc + vertical lines)
+                        -- Lock shackle lines
                         love.graphics.setColor(ui_text[1], ui_text[2], ui_text[3], 0.7)
                         local shackle_r = math.floor(7 * scale)
                         local shackle_cy = lock_y - math.floor(1 * scale)
@@ -9522,14 +9586,14 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
         local swaps = s.swaps_used or 0
         local powerups_str = string.format("Bombs: %s | Swaps: %s", formatNum(bombs), formatNum(swaps))
 
-        -- Left Column (Overall Profile)
+        -- Left profile column
         local x1 = padding
         drawStatCard(x1, list_y + row_h * 0, col_w, row_h - card_gap, "HIGHEST SCORE", formatNum(s.highest_score or 0))
         drawStatCard(x1, list_y + row_h * 1, col_w, row_h - card_gap, "HIGHEST TILE REACHED", tile_str)
         drawStatCard(x1, list_y + row_h * 2, col_w, row_h - card_gap, "TOTAL TIME PLAYED", formatTime(s.time_played or 0))
         drawStatCard(x1, list_y + row_h * 3, col_w, row_h - card_gap, "GAMES STARTED", games_str)
 
-        -- Right Column (Gameplay & Powerups)
+        -- Right gameplay column
         local x2 = padding * 2 + col_w
         drawStatCard(x2, list_y + row_h * 0, col_w, row_h - card_gap, "TOTAL MOVES MADE", formatNum(s.moves_made or 0))
         drawStatCard(x2, list_y + row_h * 1, col_w, row_h - card_gap, "TOTAL TILES MERGED", formatNum(s.tiles_merged or 0))
@@ -9544,7 +9608,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
     local label_gap = math.floor(4 * scale)
 
     if love.system.getOS() ~= "Web" then
-        -- Left side: DPAD (Scroll / Switch Tab)
+        -- Left D-pad navigation
         local left_x = padding
         local dpad_size = math.floor(24 * scale)
 
@@ -9555,7 +9619,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
         local label = (active_tab == 1) and "Scroll / Switch Tab" or "Switch Tab"
         love.graphics.print(label, left_x, badge_y + (badge_h - font_help_label:getHeight()) / 2)
 
-        -- Right side actions: B (Back), Y (Theme)
+        -- Action buttons: B Back, Y Theme
         local right_x = w - padding
         local actions = {
             {key = "B", label = "Back"},
@@ -9582,7 +9646,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
     -- Theme transition overlay
     if not skip_transition and transition_timer > 0 and transition_canvas then
         love.graphics.stencil(drawStencilCircle, "replace", 1)
-        love.graphics.setStencilTest("equal", 0)
+        love.graphics.setStencilTest(transition_direction < 0 and "greater" or "equal", 0)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("replace", "premultiplied")
         love.graphics.draw(transition_canvas, 0, 0)
@@ -9603,7 +9667,7 @@ function renderer.drawAbout(skip_transition)
     local scale = _G.scale
     local padding = math.floor(10 * scale)
 
-    -- Fixed Header (Title + Version)
+    -- Header with version
     love.graphics.setFont(font_title)
     love.graphics.setColor(ui_text)
     local title = "About 2048 Plus"
@@ -9701,7 +9765,13 @@ function renderer.drawAbout(skip_transition)
     local _, lines_icons = font_help_label:getWrap(s_icons, w)
     cur_y = cur_y + #lines_icons * font_help_label:getHeight() + section_gap
 
-    -- Section 4: Special Thanks (Playtesters)
+    -- Section 3d: Easter egg credit
+    local s_dino = "Easter Egg mini-game by SLAYKIN6_TTV"
+    love.graphics.printf(s_dino, 0, cur_y, w, "center")
+    local _, lines_dino = font_help_label:getWrap(s_dino, w)
+    cur_y = cur_y + #lines_dino * font_help_label:getHeight() + section_gap
+
+    -- Special thanks section
     local s_thanks = "Special Thanks to Egggdoggo & d98jay\nfor early feedback, playtesting & incredible support!"
     love.graphics.printf(s_thanks, 0, cur_y, w, "center")
     local _, lines_t = font_help_label:getWrap(s_thanks, w)
@@ -9807,7 +9877,7 @@ function renderer.drawAbout(skip_transition)
 
     if not skip_transition and transition_timer > 0 and transition_canvas then
         love.graphics.stencil(drawStencilCircle, "replace", 1)
-        love.graphics.setStencilTest("equal", 0)
+        love.graphics.setStencilTest(transition_direction < 0 and "greater" or "equal", 0)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("replace", "premultiplied")
         love.graphics.draw(transition_canvas, 0, 0)
@@ -9877,16 +9947,16 @@ local function drawStoreItemIcon(item_id, cx, cy, radius, is_selected)
         local r = radius * 0.46
         love.graphics.setLineWidth(math.max(1.8, math.floor(2 * scale)))
         
-        -- Top arc (left to right)
+        -- Top arc
         love.graphics.arc("line", "open", cx, cy, r, math.pi * 1.15, math.pi * 1.85)
-        -- Arrowhead for top arc (right)
+        -- Top arrowhead
         local ax1 = cx + r * math.cos(math.pi * 1.85)
         local ay1 = cy + r * math.sin(math.pi * 1.85)
         love.graphics.polygon("fill", ax1 + 2 * scale, ay1 + 3 * scale, ax1 + 4 * scale, ay1 - 4 * scale, ax1 - 3 * scale, ay1 - 2 * scale)
 
-        -- Bottom arc (right to left)
+        -- Bottom arc
         love.graphics.arc("line", "open", cx, cy, r, math.pi * 0.15, math.pi * 0.85)
-        -- Arrowhead for bottom arc (left)
+        -- Bottom arrowhead
         local ax2 = cx + r * math.cos(math.pi * 0.85)
         local ay2 = cy + r * math.sin(math.pi * 0.85)
         love.graphics.polygon("fill", ax2 - 2 * scale, ay2 - 3 * scale, ax2 - 4 * scale, ay2 + 4 * scale, ax2 + 3 * scale, ay2 + 2 * scale)
@@ -9924,7 +9994,7 @@ local function drawStoreItemIcon(item_id, cx, cy, radius, is_selected)
         -- Planet Body
         love.graphics.circle("fill", cx, cy, p_r)
 
-        -- Orbital Ring (ellipse)
+        -- Orbital ellipse
         love.graphics.setLineWidth(math.max(1.5, math.floor(2 * scale)))
         love.graphics.push()
         love.graphics.translate(cx, cy)
@@ -9978,18 +10048,6 @@ local function drawStoreItemIcon(item_id, cx, cy, radius, is_selected)
         love.graphics.circle("line", cx, cy, sr)
         love.graphics.line(cx - sr, cy + sr * 0.2, cx + sr, cy + sr * 0.2)
         love.graphics.line(cx - sr * 0.8, cy + sr * 0.5, cx + sr * 0.8, cy + sr * 0.5)
-    elseif item_id == "anim_bounce" then
-        -- Bouncing Spring Arrow
-        love.graphics.setLineWidth(math.max(1.8, math.floor(2 * scale)))
-        love.graphics.arc("line", "open", cx, cy + 2 * scale, radius * 0.45, math.pi * 0.2, math.pi * 1.8)
-        love.graphics.polygon("fill", cx - 2 * scale, cy - radius * 0.45 - 2 * scale, cx + 4 * scale, cy - radius * 0.45 + 1 * scale, cx - 2 * scale, cy - radius * 0.45 + 4 * scale)
-    elseif item_id == "anim_glow" then
-        -- Radiant 4-Point Star Spark
-        local sr = radius * 0.5
-        love.graphics.setLineWidth(math.max(1.8, math.floor(2 * scale)))
-        love.graphics.line(cx - sr, cy, cx + sr, cy)
-        love.graphics.line(cx, cy - sr, cx, cy + sr)
-        love.graphics.circle("fill", cx, cy, sr * 0.35)
     elseif item_id == "jukebox" then
         -- Musical Eighth Note
         local nr = radius * 0.22
@@ -10122,7 +10180,7 @@ local function drawAnimatedButtonSequence(start_x, start_y, btn_seq, active_step
         local is_dpad = (btn_type == "UP" or btn_type == "DOWN" or btn_type == "LEFT" or btn_type == "RIGHT")
         local is_active = (idx == active_step)
 
-        -- D-pad uses NEUTRAL (unpressed CONTROLPAD.png) when inactive, and directional prompt when active
+        -- D-pad prompt state
         local img_key = (is_dpad and not is_active) and "NEUTRAL" or btn_type
         local img = button_prompt_images[img_key]
 
@@ -10168,36 +10226,34 @@ function renderer.getStoreItems()
         {id="extra_undo",    category="upgrade",   cost=200,  name="Extra Starting Undo",  desc="Permanently start Plus Mode with +1 Undo"},
         {id="extra_swap",    category="upgrade",   cost=350,  name="Extra Starting Swap",  desc="Permanently start Plus Mode with +1 Swap"},
         {id="extra_bomb",    category="upgrade",   cost=500,  name="Extra Starting Bomb",  desc="Permanently start Plus Mode with +1 Bomb"},
-        {id="jukebox",       category="upgrade",   cost=1000, name="Jukebox",               desc="Unlock Music Player & Jukebox Control"},
-        {id="coin_multiplier",category="upgrade",  cost=1200,name="2x Coin Multiplier",   desc="Permanently double all earned Coins"},
+        {id="jukebox",       category="upgrade",   cost=1000, name="Jukebox",              desc="Music Player & Manager"},
+        {id="coin_multiplier",category="upgrade",  cost=1200,name="2x Coin Multiplier",    desc="Permanently double all earned Coins"},
 
         -- Boosters & Powerups
-        {id="powerup_undo",  category="booster",   cost=40,   name="Purchase Undo (x" .. pu_undo .. " owned)",          desc="+1 Undo charge for Plus Mode", consumable=true, ckey="powerup_undo_count"},
-        {id="powerup_swap",  category="booster",   cost=50,   name="Purchase Swap (x" .. pu_swap .. " owned)",          desc="+1 Swap charge for Plus Mode", consumable=true, ckey="powerup_swap_count"},
-        {id="powerup_bomb",  category="booster",   cost=60,   name="Purchase Bomb (x" .. pu_bomb .. " owned)",          desc="+1 Bomb charge for Plus Mode", consumable=true, ckey="powerup_bomb_count"},
+        {id="powerup_undo",  category="booster",   cost=40,   name="Purchase Undo (x" .. pu_undo .. " owned)",             desc="+1 Undo charge for Plus Mode", consumable=true, ckey="powerup_undo_count"},
+        {id="powerup_swap",  category="booster",   cost=50,   name="Purchase Swap (x" .. pu_swap .. " owned)",             desc="+1 Swap charge for Plus Mode", consumable=true, ckey="powerup_swap_count"},
+        {id="powerup_bomb",  category="booster",   cost=60,   name="Purchase Bomb (x" .. pu_bomb .. " owned)",             desc="+1 Bomb charge for Plus Mode", consumable=true, ckey="powerup_bomb_count"},
         {id="start_128",     category="booster",   cost=60,   name="128 High-Tile Booster (x" .. booster_128 .. " owned)", desc="Next game starts with a 128 tile", consumable=true, ckey="start_128_count"},
         {id="start_256",     category="booster",   cost=120,  name="256 High-Tile Booster (x" .. booster_256 .. " owned)", desc="Next game starts with a 256 tile", consumable=true, ckey="start_256_count"},
         {id="start_512",     category="booster",   cost=250,  name="512 High-Tile Booster (x" .. booster_512 .. " owned)", desc="Next game starts with a 512 tile", consumable=true, ckey="start_512_count"},
-        {id="coin_rush",     category="booster",   cost=100,  name="Coin Rush Ticket (x" .. coin_rush_count .. " owned)",     desc="Doubles all Coins earned in your next game", consumable=true, ckey="coin_rush_count"},
+        {id="coin_rush",     category="booster",   cost=100,  name="Coin Rush Ticket (x" .. coin_rush_count .. " owned)",  desc="Doubles all Coins earned in your next game", consumable=true, ckey="coin_rush_count"},
         {id="second_chance", category="booster",   cost=200,  name="Second Chance Shield (x" .. shield_count .. " owned)", desc="Clear any row or col on demand", consumable=true, ckey="second_chance_count"},
 
         -- Board Grid Skins
         {id="skin_wood",     category="skin",      cost=100,  name="Wood Board",           desc="Classic arcade cabinet wooden grid texture"},
         {id="skin_bamboo",   category="skin",      cost=150,  name="Bamboo Board",         desc="Natural woven bamboo grid texture"},
-        {id="skin_glass",    category="skin",      cost=200,  name="Glassmorphism Board", desc="Sleek translucent glass grid"},
+        {id="skin_glass",    category="skin",      cost=200,  name="Glassmorphism Board",  desc="Sleek translucent glass grid"},
         {id="skin_marble",   category="skin",      cost=200,  name="Marble Board",         desc="Polished white marble texture"},
         {id="skin_matrix",   category="skin",      cost=250,  name="Matrix Board",         desc="Animated green digital code grid"},
 
-        -- Visual FX
-        {id="anim_bounce",   category="fx",        cost=300,  name="Bounce Pop FX",        desc="Unlock Bounce Pop Merge FX"},
-        {id="anim_glow",     category="fx",        cost=400,  name="Glow Pulse FX",        desc="Unlock Glow Pulse Merge FX"},
+
 
         -- Themes
-        {id="theme_cosmic",  category="theme",     cost=1000, name="Cosmic Theme",          desc="Unlock deep space theme"},
-        {id="theme_cherry",  category="theme",     cost=1000, name="Cherry Theme",          desc="Unlock sakura blossom theme"},
-        {id="theme_gold_luxe",category="theme",    cost=1500,name="Gold Luxe Theme",       desc="Unlock ultra-luxurious gold theme"},
-        {id="theme_cyber_grid",category="theme",   cost=1800,name="Cyber Neon Grid Theme",desc="Unlock futuristic cyber grid theme"},
-        {id="theme_synthwave",category="theme",    cost=2000,name="Synthwave 80s Theme",   desc="Unlock retro 80s retrowave theme"},
+        {id="theme_cosmic",  category="theme",     cost=1000, name="Cosmic Theme",           desc="Unlock deep space theme"},
+        {id="theme_cherry",  category="theme",     cost=1000, name="Cherry Theme",           desc="Unlock sakura blossom theme"},
+        {id="theme_gold_luxe",category="theme",    cost=1500,name="Gold Luxe Theme",         desc="Unlock ultra-luxurious gold theme"},
+        {id="theme_cyber_grid",category="theme",   cost=1800,name="Cyber Neon Grid Theme",   desc="Unlock futuristic cyber grid theme"},
+        {id="theme_synthwave",category="theme",    cost=2000,name="Synthwave 80s Theme",     desc="Unlock retro 80s retrowave theme"},
 
         -- Secret Master Code
         {id="secret_key",    category="secret",    cost=10000, name="Secret Passcode Reveal",desc=(_G.stats and _G.stats.purchased_items and _G.stats.purchased_items["secret_key"]) and "Enter code on Main Menu" or "Unlock master code to access Secret Menu"}
@@ -10259,14 +10315,9 @@ function renderer.getStoreItems()
         for _, itm in ipairs(items) do if itm.category == "booster" then table.insert(filtered, itm) end end
         items = filtered
     elseif sort_mode == 8 then
-        -- Visual FX Only
-        local filtered = {}
-        for _, itm in ipairs(items) do if itm.category == "fx" then table.insert(filtered, itm) end end
-        items = filtered
-    elseif sort_mode == 9 then
         -- Price Low -> High
         table.sort(items, function(a, b) return a.cost < b.cost end)
-    elseif sort_mode == 10 then
+    elseif sort_mode == 9 then
         -- Price High -> Low
         table.sort(items, function(a, b) return a.cost > b.cost end)
     end
@@ -10288,7 +10339,7 @@ function renderer.drawStoreMenu(selection, skip_transition)
     local title_y = math.floor(18 * scale)
     love.graphics.print(title, (w - tw) / 2, title_y)
 
-    -- Available Coins Pill (Top Right)
+    -- Coins pill
     love.graphics.setFont(font_help_label)
     local coins = _G.stats and _G.stats.coins or 0
     local coin_str = tostring(coins)
@@ -10321,7 +10372,7 @@ function renderer.drawStoreMenu(selection, skip_transition)
         love.graphics.setShader()
     end
 
-    -- Sort & Filter Mode Pill (Top Left)
+    -- Filter mode pill
     local sort_mode = _G.store_sort_mode or 0
     local mode_labels = {
         [0] = "Default",
@@ -10332,9 +10383,8 @@ function renderer.drawStoreMenu(selection, skip_transition)
         [5] = "Companions",
         [6] = "Upgrades",
         [7] = "Boosters",
-        [8] = "Visual FX",
-        [9] = "Low → High",
-        [10] = "High → Low"
+        [8] = "Low → High",
+        [9] = "High → Low"
     }
     local mode_txt = mode_labels[sort_mode] or "Default"
     local sort_tw = font_help_label:getWidth(mode_txt)
@@ -10438,7 +10488,7 @@ function renderer.drawStoreMenu(selection, skip_transition)
                 roundedRect("fill", padding, y, w - padding * 2, card_h, math.floor(10 * scale))
             end
 
-            -- Card border: solid border for selected card, subtle border for unselected
+            -- Selected card border
             if is_sel then
                 love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], 1.0)
                 love.graphics.setLineWidth(math.floor(2.5 * scale))
@@ -10506,7 +10556,7 @@ function renderer.drawStoreMenu(selection, skip_transition)
                         roundedRect("line", px, pill_y, pill_w, pill_h, math.floor(8 * scale))
                     end
 
-                    -- Draw Mini Dog Idle Sprite in Pill (Prominent & vertically centered)
+                    -- Mini dog sprite
                     local b_frames = pet_dog_breed_frames[breed.id]
                     local mini_img = b_frames and ((b_frames.idle1 and b_frames.idle1[1]) or (b_frames.idle2 and b_frames.idle2[1]))
                     local sprite_cx = px + pad_left + icon_w / 2
@@ -10527,7 +10577,7 @@ function renderer.drawStoreMenu(selection, skip_transition)
                         )
                     end
 
-                    -- Draw Dog Name (Pixel-perfect aligned & high contrast across all themes!)
+                    -- Dog name label
                     local name_x = px + pad_left + icon_w + icon_text_gap
                     local name_y = pill_y + math.floor((pill_h - font_h) / 2)
 
@@ -10560,7 +10610,7 @@ function renderer.drawStoreMenu(selection, skip_transition)
                 drawAnimatedButtonSequence(start_px, prompt_y, btn_seq, active_step, scale)
             end
 
-            -- Right Tag (Price / Purchased)
+            -- Price and purchase tag
             love.graphics.setFont(font_help_label)
             local r_bg, g_bg, b_bg = board_color[1] or 0, board_color[2] or 0, board_color[3] or 0
             local bg_lum = 0.299 * r_bg + 0.587 * g_bg + 0.114 * b_bg
@@ -10686,7 +10736,7 @@ function renderer.drawStoreMenu(selection, skip_transition)
     love.graphics.setColor(ui_text)
     love.graphics.print("Navigate", left_x, badge_y + (badge_h - font_help_label:getHeight()) / 2)
 
-    -- Right side actions: B (Back), A (Select), X (Filter)
+    -- Action buttons: B Back, A Select, X Filter
     local right_x = w - padding
     local actions = {
         {key = "B", label = "Back"},
@@ -10711,7 +10761,7 @@ function renderer.drawStoreMenu(selection, skip_transition)
     -- Theme transition overlay
     if not skip_transition and transition_timer > 0 and transition_canvas then
         love.graphics.stencil(drawStencilCircle, "replace", 1)
-        love.graphics.setStencilTest("equal", 0)
+        love.graphics.setStencilTest(transition_direction < 0 and "greater" or "equal", 0)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("replace", "premultiplied")
         love.graphics.draw(transition_canvas, 0, 0)
@@ -10732,6 +10782,22 @@ function renderer.drawJukebox(selection, skip_transition)
     -- Global animation state for vinyl rotation and peak caps
     if not _G.jukebox_peaks then _G.jukebox_peaks = {} end
 
+    -- ── Sound state ─────────────────────────────────────────────────────────
+    local sound_mod = require("sound")
+    local playlist           = sound_mod.getBgmPlaylist and sound_mod.getBgmPlaylist() or {}
+    local current_track      = sound_mod.getCurrentTrack and sound_mod.getCurrentTrack()
+    local curr_idx           = sound_mod.getCurrentBgmIndex and sound_mod.getCurrentBgmIndex() or 0
+    local pos, dur           = 0, 0
+    if sound_mod.getBgmProgress then pos, dur = sound_mod.getBgmProgress() end
+    local is_actively_playing = sound_mod.isBgmPlaying and sound_mod.isBgmPlaying() or false
+    local is_playing          = current_track ~= nil
+
+    local base_text_col = renderer.getContrastTextColor(board_color, ui_text, dark_text)
+
+    -- Dynamic card layout
+    local card_w  = w - math.floor(32 * scale)
+    local card_x  = math.floor(16 * scale)
+
     -- Title Header
     love.graphics.setFont(font_title)
     love.graphics.setColor(ui_text)
@@ -10740,14 +10806,51 @@ function renderer.drawJukebox(selection, skip_transition)
     local title_y = math.floor(14 * scale)
     love.graphics.print(title, (w - tw) / 2, title_y)
 
-    -- ── Sound state ─────────────────────────────────────────────────────────
-    local sound_mod = require("sound")
-    local current_track      = sound_mod.getCurrentTrack and sound_mod.getCurrentTrack()
-    local curr_idx           = sound_mod.getCurrentBgmIndex and sound_mod.getCurrentBgmIndex() or 0
-    local pos, dur           = 0, 0
-    if sound_mod.getBgmProgress then pos, dur = sound_mod.getBgmProgress() end
-    local is_actively_playing = sound_mod.isBgmPlaying and sound_mod.isBgmPlaying() or false
-    local is_playing          = current_track ~= nil
+    -- Song count pill badge in header
+    local total_songs = #playlist
+    local count_str = tostring(total_songs) .. (total_songs == 1 and " Song" or " Songs")
+    local count_font = font_bgm or font_help_label
+    love.graphics.setFont(count_font)
+    local text_w = count_font:getWidth(count_str)
+    local p_icon = playlist_icon or music_icon
+    if not p_icon then
+        local ok_pl, pl_img = pcall(love.graphics.newImage, "assets/icon/playlist.png")
+        if ok_pl then
+            playlist_icon = pl_img
+            p_icon = pl_img
+        end
+    end
+
+    local icon_sz = math.floor(13 * scale)
+    local has_icon = p_icon ~= nil
+    local pill_pad_h = math.floor(9 * scale)
+    local icon_gap = math.floor(5 * scale)
+    local pill_w = pill_pad_h * 2 + text_w + (has_icon and (icon_sz + icon_gap) or 0)
+    local pill_h = math.floor(22 * scale)
+    local pill_x = card_x + card_w - pill_w
+    local pill_y = title_y + math.floor((font_title:getHeight() - pill_h) / 2)
+
+    love.graphics.setColor(board_color[1], board_color[2], board_color[3], 0.85)
+    roundedRect("fill", pill_x, pill_y, pill_w, pill_h, math.floor(6 * scale))
+    love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], 0.70)
+    love.graphics.setLineWidth(math.floor(1 * scale))
+    roundedRect("line", pill_x, pill_y, pill_w, pill_h, math.floor(6 * scale))
+
+    if has_icon then
+        local icon_x = pill_x + pill_pad_h
+        local icon_y = pill_y + math.floor((pill_h - icon_sz) / 2)
+        if icon_shader then love.graphics.setShader(icon_shader) end
+        love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.90)
+        local sw = icon_sz / p_icon:getWidth()
+        local sh = icon_sz / p_icon:getHeight()
+        love.graphics.draw(p_icon, icon_x, icon_y, 0, sw, sh)
+        if icon_shader then love.graphics.setShader() end
+    end
+
+    local count_text_x = has_icon and (pill_x + pill_pad_h + icon_sz + icon_gap) or (pill_x + pill_pad_h)
+    local count_text_y = pill_y + math.floor((pill_h - count_font:getHeight()) / 2) - math.max(1, math.floor(1 * scale))
+    love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.95)
+    love.graphics.print(count_str, count_text_x, count_text_y)
 
     -- Update vinyl rotation angle
     if is_actively_playing then
@@ -10772,9 +10875,6 @@ function renderer.drawJukebox(selection, skip_transition)
     local prev_track    = _G.jukebox_prev_track
     local current_track = sound_mod.getCurrentTrack and sound_mod.getCurrentTrack()
 
-    -- ── Card: computed layout (no hardcoded px) ──────────────────────────────
-    local card_w  = w - math.floor(32 * scale)
-    local card_x  = math.floor(16 * scale)
     local card_y  = title_y + font_title:getHeight() + math.floor(8 * scale)
     local pad_v   = math.floor(8  * scale)   -- vertical padding top/bottom
     local pad_h   = math.floor(14 * scale)   -- horizontal padding sides
@@ -10805,9 +10905,9 @@ function renderer.drawJukebox(selection, skip_transition)
     love.graphics.setLineWidth(math.floor(1.5 * scale))
     roundedRect("line", card_x, card_y, card_w, card_h, math.floor(10 * scale))
 
-    local base_text_col = renderer.getContrastTextColor(board_color, ui_text, dark_text)
+    base_text_col = renderer.getContrastTextColor(board_color, ui_text, dark_text)
 
-    -- ── 💿 Spinning Vinyl Disc (top-left) ────────────────────────────────────
+    -- Vinyl disc
     local disc_r  = math.floor(18 * scale)
     local disc_cx = card_x + pad_h + disc_r
     local disc_cy = card_y + y_title + title_fh / 2 + math.floor(8 * scale)
@@ -10841,7 +10941,7 @@ function renderer.drawJukebox(selection, skip_transition)
     
     love.graphics.pop()
 
-    -- ── 1. Old track title & artist (slides UPWARDS and fades OUT) ───────────
+    -- Fade out previous track
     if prev_track and progress < 1.0 then
         local old_alpha   = math.max(0, (1.0 - progress * 1.5))
         local old_slide_y = -math.floor(progress * 22 * scale)
@@ -10864,7 +10964,7 @@ function renderer.drawJukebox(selection, skip_transition)
             card_y + y_artist + old_slide_y)
     end
 
-    -- ── 2. New track title & artist (emerges from visualizer: slides UP from below and fades IN) ──
+    -- Slide in new track
     local track_title  = current_track and current_track.title  or "No Track"
     local track_artist = current_track and current_track.artist or "Select a track below"
 
@@ -10891,7 +10991,7 @@ function renderer.drawJukebox(selection, skip_transition)
         card_y + y_artist + new_slide_y)
 
     -- ── 🎚️ Modern High-Contrast 32-Band Spectrum Analyzer ────────────────────────
-    local num_bands  = 16 -- 16 calculated bands, mirrored left and right (32 total)
+    local num_bands  = 16 -- 16 mirrored visualizer bands
     local bw         = math.floor(3 * scale)
     local bgap       = math.floor(2 * scale)
     local total_eq_w = (num_bands * 2) * bw + ((num_bands * 2) - 1) * bgap
@@ -10966,14 +11066,14 @@ function renderer.drawJukebox(selection, skip_transition)
         end
         local peak_val = _G.jukebox_peaks[b] or 0
         
-        -- Mirroring columns (Left & Right)
+        -- Mirrored columns
         local left_b  = num_bands - b + 1
         local right_b = num_bands + b
         local left_bx  = eq_x + (left_b - 1) * (bw + bgap)
         local right_bx = eq_x + (right_b - 1) * (bw + bgap)
         
         for _, bx in ipairs({left_bx, right_bx}) do
-            -- 1. Unlit Column Guide Track (Subtle vertical line for crisp structure)
+            -- Column guide track
             love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.12)
             roundedRect("fill", bx, eq_bot - max_bar_h, bw, max_bar_h, math.floor(1.5 * scale))
 
@@ -11018,7 +11118,7 @@ function renderer.drawJukebox(selection, skip_transition)
         end
     end
 
-    -- ── Time labels (below progress bar, INSIDE card) ────────────────────────
+    -- Time labels
     local function fmt_time(s)
         s = math.max(0, math.floor(s))
         return string.format("%d:%02d", math.floor(s/60), s%60)
@@ -11031,8 +11131,7 @@ function renderer.drawJukebox(selection, skip_transition)
     love.graphics.print(pos_str, pbar_x, time_y)
     love.graphics.print(dur_str, pbar_x + pbar_w - font_help_label:getWidth(dur_str), time_y)
 
-    -- Playlist Section
-    local playlist = sound_mod.getBgmPlaylist and sound_mod.getBgmPlaylist() or {}
+    playlist = sound_mod.getBgmPlaylist and sound_mod.getBgmPlaylist() or {}
     local playlist_y = card_y + card_h + math.floor(10 * scale)
     local row_h = math.floor(34 * scale)
     local row_inner_h = math.floor(28 * scale)
@@ -11091,7 +11190,7 @@ function renderer.drawJukebox(selection, skip_transition)
     local menu_anim_x = card_x
     local menu_anim_w = card_w
 
-    -- Scissor clip: expanded slightly vertically (-4px top, +8px height) so top border stroke of song 1 is never cut off
+    -- Scissor clip with top padding
     love.graphics.setScissor(0, playlist_y - math.floor(4 * scale), w, avail_h + math.floor(8 * scale))
 
     -- 1. Draw static row backgrounds for visible playlist items
@@ -11110,7 +11209,7 @@ function renderer.drawJukebox(selection, skip_transition)
             love.graphics.setLineWidth(math.floor(1.5 * scale))
             roundedRect("line", card_x, ry, card_w, row_inner_h, math.floor(6 * scale))
         elseif is_curr and is_actively_playing then
-            -- PLAYING track row: Subtle active tint fill
+            -- Active track row fill
             love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], 0.10)
             roundedRect("fill", card_x, ry, card_w, row_inner_h, math.floor(6 * scale))
         else
@@ -11209,7 +11308,7 @@ function renderer.drawJukebox(selection, skip_transition)
                 local ar, ag, ab = help_key_color[1], help_key_color[2], help_key_color[3]
                 local accent_lum = 0.299 * ar + 0.587 * ag + 0.114 * ab
 
-                -- Enforce a minimum contrast of 0.35 (much stricter than before)
+                -- Minimum contrast threshold
                 local contrast = math.abs(accent_lum - bg_lum)
                 if contrast < 0.35 then
                     if bg_lum > 0.5 then
@@ -11217,7 +11316,7 @@ function renderer.drawJukebox(selection, skip_transition)
                         local scale_d = math.max(0.01, accent_lum)
                         local target_lum = bg_lum - 0.40
                         local factor = target_lum / scale_d
-                        -- Preserve relative channel ratios (hue) while darkening
+                        -- Preserve hue while darkening
                         local max_ch = math.max(ar, ag, ab, 0.001)
                         ar = ar / max_ch * math.min(1, ar * factor)
                         ag = ag / max_ch * math.min(1, ag * factor)
@@ -11287,7 +11386,7 @@ function renderer.drawJukebox(selection, skip_transition)
                 love.graphics.setScissor(0, playlist_y - math.floor(4 * scale), w, avail_h + math.floor(8 * scale))
             end
 
-            -- Snapshot bar heights when transitioning to paused (so bars "freeze" in place)
+            -- Freeze visualizer on pause
             if this_paused and (not eqs.freeze_phase) then
                 local speeds  = {3.1, 5.7, 4.3, 7.2, 2.8, 6.1, 4.9}
                 local offsets = {0.0, 1.3, 2.7, 0.8, 2.1, 1.7, 0.4}
@@ -11299,9 +11398,42 @@ function renderer.drawJukebox(selection, skip_transition)
                 eqs.freeze_phase = nil
             end
 
-            -- ── Song title (slides right as equalizer comes in) ────────────────
+            -- "PAUSED" badge position on the right
+            local pause_w = 0
+            local pause_x = 0
+            if badge_p > 0.005 then
+                pause_w = font_help_label:getWidth("PAUSED")
+                pause_x = card_x + card_w - pause_w - math.floor(12 * scale)
+            end
+
+            -- Song title animation & text truncation
             local eq_push = (eq_zone_w - math.floor(4 * scale)) * slide_p
             local text_x  = card_x + math.floor(12 * scale) + eq_push
+
+            local b_font = font_bgm or font_help_label
+            local custom_w = b_font:getWidth("CUSTOM") + math.floor(10 * scale)
+            local custom_h = math.floor(17 * scale)
+            local custom_y = ry + math.floor((row_inner_h - custom_h) / 2)
+
+            local right_limit = card_x + card_w - math.floor(12 * scale)
+            if badge_p > 0.005 then
+                right_limit = math.min(right_limit, pause_x - math.floor(8 * scale))
+            end
+
+            local max_label_w = right_limit - text_x - (track.is_custom and (custom_w + math.floor(8 * scale)) or 0)
+            local label = track.title .. " — " .. track.artist
+            local display_label = label
+            if max_label_w > 0 and font_help_label:getWidth(display_label) > max_label_w then
+                while #display_label > 1 and font_help_label:getWidth(display_label .. "...") > max_label_w do
+                    local last = display_label:byte(#display_label)
+                    while #display_label > 1 and last >= 128 and last < 192 do
+                        display_label = display_label:sub(1, -2)
+                        last = display_label:byte(#display_label)
+                    end
+                    display_label = display_label:sub(1, -2)
+                end
+                display_label = display_label .. "..."
+            end
 
             love.graphics.setFont(font_help_label)
             if is_sel then
@@ -11312,15 +11444,29 @@ function renderer.drawJukebox(selection, skip_transition)
             else
                 love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.80)
             end
-            local label = track.title .. " — " .. track.artist
-            love.graphics.print(label, text_x, text_y)
+            love.graphics.print(display_label, text_x, text_y)
+
+            -- Custom track badge (positioned directly along with song name, vertically centered in row)
+            if track.is_custom then
+                local label_w = font_help_label:getWidth(display_label)
+                local custom_x = text_x + label_w + math.floor(8 * scale)
+                local badge_txt = "CUSTOM"
+
+                love.graphics.setFont(b_font)
+                love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], 0.25)
+                roundedRect("fill", custom_x, custom_y, custom_w, custom_h, math.floor(4 * scale))
+                love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], 0.85)
+                love.graphics.setLineWidth(math.floor(1 * scale))
+                roundedRect("line", custom_x, custom_y, custom_w, custom_h, math.floor(4 * scale))
+                love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.95)
+                local txt_y = custom_y + math.floor((custom_h - b_font:getHeight()) / 2)
+                love.graphics.printf(badge_txt, custom_x, txt_y, custom_w, "center")
+                love.graphics.setFont(font_help_label)
+            end
 
             -- ── "PAUSED" badge fades in/out on the right ──────────────────────
             if badge_p > 0.005 then
-                -- Slight vertical float: drops down 3px as it fades in
                 local badge_txt = "PAUSED"
-                local bw  = font_help_label:getWidth(badge_txt)
-                local bx  = card_x + card_w - bw - math.floor(12 * scale)
                 local by2 = text_y - math.floor((1 - badge_p) * 4 * scale)
                 local badge_col = renderer.getContrastTextColor(board_color, help_key_color, dark_text)
                 love.graphics.setColor(
@@ -11329,7 +11475,7 @@ function renderer.drawJukebox(selection, skip_transition)
                     badge_col[3],
                     0.95 * badge_p
                 )
-                love.graphics.print(badge_txt, bx, by2)
+                love.graphics.print(badge_txt, pause_x, by2)
             end
         end
     end
@@ -11366,7 +11512,7 @@ function renderer.drawJukebox(selection, skip_transition)
     local actions = {
         {key = "B", label = "Back"},
         {key = "Y", label = "Theme"},
-        {key = "X", label = "Next"},
+        {key = "X", label = "Music Manager"},
         {key = "A", label = a_label}
     }
     for _, action in ipairs(actions) do
@@ -11378,13 +11524,380 @@ function renderer.drawJukebox(selection, skip_transition)
         right_x = right_x - label_gap
         local key_w = math.max(math.floor(28 * scale), font_help_key:getWidth(action.key) + math.floor(12 * scale))
         right_x = right_x - key_w
+        if action.key == "Y" then
+            renderer.theme_button_x = right_x + key_w / 2
+            renderer.theme_button_y = badge_y + badge_h / 2
+        end
         drawKeyBadge(action.key, right_x, badge_y, key_w, badge_h)
         right_x = right_x - item_gap
     end
 
+    -- Wireless manager modal
+    if _G.jukebox_web_modal or jukebox_modal_state ~= "closed" or jukebox_modal_anim > 0 then
+        local t = _G.screen_transitions and jukebox_modal_anim or 1
+        if t > 0 then
+            local mw = math.min(w - math.floor(24 * scale), math.floor(552 * scale))
+            local mh = math.min(h - math.floor(20 * scale), math.floor(276 * scale))
+            local mx = math.floor((w - mw) / 2)
+            local my = math.floor((h - mh) / 2)
+            local cr = math.floor(14 * scale)
+
+            love.graphics.setColor(0, 0, 0, 0.72 * t)
+            love.graphics.rectangle("fill", 0, 0, w, h)
+
+            local cur_y = (1 - t) * math.floor(14 * scale)
+
+            love.graphics.push()
+            love.graphics.translate(0, cur_y)
+
+        -- Text color setup
+        local br = (board_color and board_color[1]) or 0.20
+        local bg = (board_color and board_color[2]) or 0.20
+        local bb = (board_color and board_color[3]) or 0.20
+        local board_lum = 0.299 * br + 0.587 * bg + 0.114 * bb
+        local is_light_theme = board_lum > 0.45
+
+        local hr = (help_key_color and help_key_color[1]) or 0.93
+        local hg = (help_key_color and help_key_color[2]) or 0.76
+        local hb = (help_key_color and help_key_color[3]) or 0.18
+        local hr_lum = 0.299 * hr + 0.587 * hg + 0.114 * hb
+
+        local card_alpha = _G.screen_transitions and t or 1.0
+        local function with_a(col_tbl, base_a)
+            return {col_tbl[1], col_tbl[2], col_tbl[3], (base_a or col_tbl[4] or 1.0) * card_alpha}
+        end
+
+        local text_title, text_body, text_muted, divider_col, inner_box_bg, inner_box_border, url_text_col
+
+        if is_light_theme then
+            text_title       = with_a({0.12, 0.10, 0.08}, 1.0)
+            text_body        = with_a({0.18, 0.16, 0.13}, 1.0)
+            text_muted       = with_a({0.30, 0.26, 0.22}, 1.0)
+            divider_col      = with_a({0.12, 0.10, 0.08}, 0.22)
+            inner_box_bg     = with_a({1.0, 1.0, 1.0}, 0.95)
+            inner_box_border = with_a({0.12, 0.10, 0.08}, 0.25)
+            if hr_lum > 0.42 then
+                url_text_col = with_a({math.max(0, hr * 0.62), math.max(0, hg * 0.50), math.max(0, hb * 0.30)}, 1.0)
+            else
+                url_text_col = with_a({hr, hg, hb}, 1.0)
+            end
+        else
+            text_title       = with_a({0.98, 0.98, 1.0}, 1.0)
+            text_body        = with_a({0.90, 0.92, 0.96}, 1.0)
+            text_muted       = with_a({0.76, 0.79, 0.84}, 1.0)
+            divider_col      = with_a({1.0, 1.0, 1.0}, 0.18)
+            inner_box_bg     = with_a({0.08, 0.09, 0.12}, 0.88)
+            inner_box_border = with_a({hr, hg, hb}, 0.45)
+            if hr_lum < 0.52 then
+                url_text_col = with_a({math.min(1.0, hr + 0.35), math.min(1.0, hg + 0.35), math.min(1.0, hb + 0.35)}, 1.0)
+            else
+                url_text_col = with_a({hr, hg, hb}, 1.0)
+            end
+        end
+
+        -- Outer soft shadow
+        love.graphics.setColor(0, 0, 0, 0.38 * card_alpha)
+        roundedRect("fill", mx + math.floor(3 * scale), my + math.floor(4 * scale), mw, mh, cr)
+
+        -- Card background
+        love.graphics.setColor(br, bg, bb, 0.98 * math.min(1.0, card_alpha * 1.5))
+        roundedRect("fill", mx, my, mw, mh, cr)
+
+        -- Theme accent outline
+        love.graphics.setColor(hr, hg, hb, (is_light_theme and 0.50 or 0.70) * card_alpha)
+        love.graphics.setLineWidth(math.max(1, math.floor(2 * scale)))
+        roundedRect("line", mx, my, mw, mh, cr)
+
+        -- Header
+        local mgr_img = music_manager_icon
+        if not mgr_img then
+            local ok, img = pcall(love.graphics.newImage, "assets/icon/music_manager.png")
+            if not ok then ok, img = pcall(love.graphics.newImage, "assets/music_manager.png") end
+            if ok and img then
+                music_manager_icon = img
+                mgr_img = img
+            else
+                mgr_img = music_icon
+            end
+        end
+
+        local title_txt = "Wireless Music Manager"
+        local title_font = font_score or font_title
+        love.graphics.setFont(title_font)
+
+        local icon_h  = math.floor(48 * scale)
+        local icon_x  = mx + math.floor(18 * scale)
+        local icon_y  = my + math.floor(6 * scale)
+        local icon_w  = icon_h
+
+        if mgr_img then
+            local miw, mih = mgr_img:getDimensions()
+            local s = icon_h / mih
+            icon_w = math.floor(miw * s)
+            if icon_shader then
+                love.graphics.setShader(icon_shader)
+            end
+            love.graphics.setColor(text_title)
+            love.graphics.draw(mgr_img, icon_x, icon_y, 0, s, s)
+            if icon_shader then
+                love.graphics.setShader()
+            end
+        end
+
+        local title_x = icon_x + icon_w + math.floor(10 * scale)
+        local title_y = my + math.floor(6 * scale)
+        love.graphics.setFont(title_font)
+        love.graphics.setColor(text_title)
+        love.graphics.print(title_txt, title_x, title_y)
+
+        local subtitle_txt = "Upload custom tracks from your Phone or PC"
+        love.graphics.setFont(font_bgm or font_help_label)
+        love.graphics.setColor(text_muted)
+        love.graphics.print(subtitle_txt, title_x, my + math.floor(32 * scale))
+
+        -- Divider line
+        love.graphics.setColor(divider_col)
+        love.graphics.setLineWidth(math.max(1, math.floor(1 * scale)))
+        love.graphics.line(mx + math.floor(16 * scale), my + math.floor(54 * scale), mx + mw - math.floor(16 * scale), my + math.floor(54 * scale))
+
+        -- Connection details
+        local has_wifi, ip = false, "127.0.0.1"
+        if sound_mod.has_wifi then
+            has_wifi, ip = sound_mod.has_wifi()
+        elseif sound_mod.get_ip_address then
+            ip = sound_mod.get_ip_address()
+            has_wifi = sound_mod.isValidLanIp and sound_mod.isValidLanIp(ip) or (ip and ip ~= "127.0.0.1" and not ip:match("^127%.") and not ip:match("^169%.254%.") and not ip:match("^192%.168%.7%.1$"))
+        end
+        local url = has_wifi and ("http://" .. ip .. ":8048") or nil
+        local qr_img = has_wifi and sound_mod.getQrImage and sound_mod.getQrImage(url) or nil
+        local content_y = my + math.floor(58 * scale)
+
+        local qr_box_size = math.floor(136 * scale)
+        local qr_pad = math.floor(7 * scale)
+        local qr_x = mx + math.floor(18 * scale)
+        local qr_y = content_y + math.floor(3 * scale)
+
+        if has_wifi then
+            -- QR code card background
+            love.graphics.setColor(1, 1, 1, card_alpha)
+            roundedRect("fill", qr_x, qr_y, qr_box_size, qr_box_size, math.floor(8 * scale))
+            love.graphics.setColor(0, 0, 0, 0.12 * card_alpha)
+            love.graphics.setLineWidth(math.max(1, math.floor(1 * scale)))
+            roundedRect("line", qr_x, qr_y, qr_box_size, qr_box_size, math.floor(8 * scale))
+
+            if qr_img then
+                local qw, qh = qr_img:getDimensions()
+                love.graphics.setColor(1, 1, 1, card_alpha)
+                love.graphics.draw(qr_img, qr_x + qr_pad, qr_y + qr_pad, 0, (qr_box_size - qr_pad * 2) / qw, (qr_box_size - qr_pad * 2) / qh)
+            else
+                love.graphics.setFont(font_help_label)
+                love.graphics.setColor(text_muted)
+                love.graphics.printf("Loading QR...", qr_x, qr_y + math.floor((qr_box_size - font_help_label:getHeight()) / 2), qr_box_size, "center")
+            end
+        else
+            -- Offline warning card with dino icon
+            love.graphics.setColor(inner_box_bg)
+            roundedRect("fill", qr_x, qr_y, qr_box_size, qr_box_size, math.floor(8 * scale))
+            love.graphics.setColor(inner_box_border)
+            love.graphics.setLineWidth(math.max(1, math.floor(1.5 * scale)))
+            roundedRect("line", qr_x, qr_y, qr_box_size, qr_box_size, math.floor(8 * scale))
+
+            local dino_img = dino_icon
+            if not dino_img then
+                local ok, img = pcall(love.graphics.newImage, "assets/icon/dino.png")
+                if ok and img then
+                    dino_icon = img
+                    dino_img = img
+                end
+            end
+
+            if dino_img then
+                local dw, dh = dino_img:getDimensions()
+                local target_sz = qr_box_size - math.floor(52 * scale)
+                local s = target_sz / dw
+                local cx = qr_x + math.floor(qr_box_size / 2)
+                local cy = qr_y + math.floor(46 * scale)
+
+                if icon_shader then
+                    love.graphics.setShader(icon_shader)
+                end
+                love.graphics.setColor(text_title[1], text_title[2], text_title[3], 0.90 * card_alpha)
+                love.graphics.draw(dino_img, cx, cy, 0, s, s, dw / 2, dh / 2)
+                if icon_shader then
+                    love.graphics.setShader()
+                end
+
+                local prompt_font = font_bgm or font_help_label
+                love.graphics.setFont(prompt_font)
+                local pref = "Press "
+                local suff = " to Play"
+                local pw = prompt_font:getWidth(pref)
+                local sw = prompt_font:getWidth(suff)
+                local badge_h = math.floor(26 * scale)
+                local key_w = badge_h
+                local total_w = pw + key_w + math.floor(8 * scale) + sw
+                local start_x = qr_x + math.floor((qr_box_size - total_w) / 2)
+                local badge_y = qr_y + math.floor(96 * scale)
+                local text_y = badge_y + math.floor((badge_h - prompt_font:getHeight()) / 2)
+
+                love.graphics.setColor(text_body)
+                love.graphics.print(pref, start_x, text_y)
+                drawKeyBadge("A", start_x + pw + math.floor(4 * scale), badge_y, key_w, badge_h, card_alpha)
+                love.graphics.setFont(prompt_font)
+                love.graphics.setColor(text_body)
+                love.graphics.print(suff, start_x + pw + math.floor(4 * scale) + key_w + math.floor(4 * scale), text_y)
+            else
+                love.graphics.setFont(font_help_label)
+                love.graphics.setColor(0.96, 0.37, 0.23, 0.95 * card_alpha)
+                love.graphics.printf("No Wi-Fi", qr_x, qr_y + math.floor(qr_box_size * 0.36), qr_box_size, "center")
+                love.graphics.setFont(font_bgm or font_help_label)
+                love.graphics.setColor(text_muted)
+                love.graphics.printf("Disconnected", qr_x, qr_y + math.floor(qr_box_size * 0.54), qr_box_size, "center")
+            end
+        end
+
+        local right_x = qr_x + qr_box_size + math.floor(16 * scale)
+        local right_w = mx + mw - right_x - math.floor(18 * scale)
+        local url_box_h = math.floor(50 * scale)
+        local url_pad_x = math.floor(10 * scale)
+        local max_url_w = right_w - url_pad_x * 2
+
+        -- Address box panel
+        love.graphics.setColor(inner_box_bg)
+        roundedRect("fill", right_x, qr_y, right_w, url_box_h, math.floor(8 * scale))
+        love.graphics.setColor(inner_box_border)
+        love.graphics.setLineWidth(math.max(1, math.floor(1.5 * scale)))
+        roundedRect("line", right_x, qr_y, right_w, url_box_h, math.floor(8 * scale))
+
+        love.graphics.setFont(font_bgm or font_help_label)
+        love.graphics.setColor(text_muted)
+
+        if has_wifi then
+            love.graphics.print("Scan QR code or enter in browser:", right_x + url_pad_x, qr_y + math.floor(4 * scale))
+            local url_font = font_score
+            local url_w = url_font:getWidth(url)
+            local u_scale = math.min(1.0, max_url_w / math.max(1, url_w))
+            love.graphics.setColor(url_text_col)
+            if u_scale < 1.0 then
+                love.graphics.push()
+                love.graphics.translate(right_x + url_pad_x, qr_y + math.floor(20 * scale))
+                love.graphics.scale(u_scale, u_scale)
+                love.graphics.setFont(url_font)
+                love.graphics.print(url, 0, 0)
+                love.graphics.pop()
+            else
+                love.graphics.setFont(url_font)
+                love.graphics.print(url, right_x + url_pad_x, qr_y + math.floor(20 * scale))
+            end
+        else
+            love.graphics.print("Wi-Fi Status:", right_x + url_pad_x, qr_y + math.floor(4 * scale))
+            love.graphics.setFont(font_score)
+            love.graphics.setColor(0.96, 0.37, 0.23, 0.95 * card_alpha)
+            love.graphics.print("Wi-Fi Not Available", right_x + url_pad_x, qr_y + math.floor(20 * scale))
+        end
+
+        -- Instructions
+        local step_y = qr_y + url_box_h + math.floor(7 * scale)
+        local steps
+        if has_wifi then
+            steps = {
+                "Connect Phone/PC to same Wi-Fi",
+                "Drag & drop songs into browser",
+                "Preview & edit custom tracks"
+            }
+        else
+            steps = {
+                "Open Wi-Fi in device settings",
+                "Connect to your local network",
+                "Re-open Music Manager"
+            }
+        end
+
+        love.graphics.setFont(font_help_label)
+        local step_line_h = math.floor(18 * scale)
+
+        for i, st in ipairs(steps) do
+            local line_y = step_y + (i - 1) * step_line_h
+            love.graphics.setColor(text_body)
+            love.graphics.print(st, right_x, line_y)
+        end
+
+        -- Supported format badges
+        local fmt_y = step_y + #steps * step_line_h + math.floor(10 * scale)
+        local fmt_font = font_bgm or font_help_label
+        love.graphics.setFont(fmt_font)
+        local fh = fmt_font:getHeight()
+        local badge_h_mini = math.max(fh + math.floor(2 * scale), math.floor(17 * scale))
+
+        -- Unified vertical centerline for text and format badges
+        local row_mid_y = fmt_y + math.floor(badge_h_mini / 2)
+        local text_y_aligned = row_mid_y - math.floor(fh / 2)
+
+        love.graphics.setColor(text_muted)
+        love.graphics.print("Supported formats:", right_x, text_y_aligned)
+
+        local fw = fmt_font:getWidth("Supported formats:") + math.floor(6 * scale)
+        local cur_bx = right_x + fw
+        local format_badges = {
+            {ext = "MP3", bg = getTileColor(2048), fg = getTileTextColor(2048)},
+            {ext = "OGG", bg = getTileColor(1024), fg = getTileTextColor(1024)},
+            {ext = "WAV", bg = getTileColor(512), fg = getTileTextColor(512)},
+        }
+        for _, b in ipairs(format_badges) do
+            local bw = fmt_font:getWidth(b.ext) + math.floor(10 * scale)
+            love.graphics.setColor(b.bg[1], b.bg[2], b.bg[3], (b.bg[4] or 1.0) * card_alpha)
+            roundedRect("fill", cur_bx, fmt_y, bw, badge_h_mini, math.floor(4 * scale))
+            love.graphics.setColor(b.fg[1], b.fg[2], b.fg[3], (b.fg[4] or 1.0) * card_alpha)
+            love.graphics.printf(b.ext, cur_bx, text_y_aligned, bw, "center")
+            cur_bx = cur_bx + bw + math.floor(5 * scale)
+        end
+
+        -- Close button
+        local btn_w = math.floor(136 * scale)
+        local btn_h = math.floor(32 * scale)
+        local btn_x = mx + math.floor((mw - btn_w) / 2)
+        local btn_y = my + mh - btn_h - math.floor(12 * scale)
+
+        if is_light_theme then
+            love.graphics.setColor(1.0, 1.0, 1.0, 0.70 * card_alpha)
+            roundedRect("fill", btn_x, btn_y, btn_w, btn_h, math.floor(btn_h / 2))
+            love.graphics.setColor(0.12, 0.10, 0.08, 0.28 * card_alpha)
+            love.graphics.setLineWidth(math.max(1, math.floor(1.5 * scale)))
+            roundedRect("line", btn_x, btn_y, btn_w, btn_h, math.floor(btn_h / 2))
+        else
+            love.graphics.setColor(hr, hg, hb, 0.18 * card_alpha)
+            roundedRect("fill", btn_x, btn_y, btn_w, btn_h, math.floor(btn_h / 2))
+            love.graphics.setColor(hr, hg, hb, 0.85 * card_alpha)
+            love.graphics.setLineWidth(math.max(1, math.floor(1.5 * scale)))
+            roundedRect("line", btn_x, btn_y, btn_w, btn_h, math.floor(btn_h / 2))
+        end
+
+        local k_sz = math.floor(24 * scale)
+        local ky = btn_y + math.floor((btn_h - k_sz) / 2)
+        local pill_center_y = btn_y + math.floor(btn_h / 2)
+
+        local btn_label = "Close"
+        love.graphics.setFont(font_help_label)
+        local btn_label_w = font_help_label:getWidth(btn_label)
+        local gap = math.floor(8 * scale)
+        local total_content_w = k_sz + gap + btn_label_w
+        local start_btn_x = btn_x + math.floor((btn_w - total_content_w) / 2)
+
+        drawKeyBadge("B", start_btn_x, ky, k_sz, k_sz, card_alpha)
+
+        local label_fh = font_help_label:getHeight()
+        local label_y = pill_center_y - math.floor(label_fh / 2) - math.max(1, math.floor(1 * scale))
+        love.graphics.setFont(font_help_label)
+        love.graphics.setColor(text_title)
+        love.graphics.print(btn_label, start_btn_x + k_sz + gap, label_y)
+
+        love.graphics.pop()
+    end
+end
+
     if not skip_transition and transition_timer > 0 and transition_canvas then
         love.graphics.stencil(drawStencilCircle, "replace", 1)
-        love.graphics.setStencilTest("equal", 0)
+        love.graphics.setStencilTest(transition_direction < 0 and "greater" or "equal", 0)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("replace", "premultiplied")
         love.graphics.draw(transition_canvas, 0, 0)
@@ -11446,7 +11959,7 @@ function renderer.drawCatCompanion(cx, cy, scale, game)
     local is_won = (game and game.state == Game.STATE_WON)
     local is_excited = is_won or (_G.pet_excited_timer and _G.pet_excited_timer > 0)
 
-    -- Ground ledge position (anchored right on top of main 2048 board grid!)
+    -- Ground ledge position
     local bs = layout.board_size or 300
     local ground_y = layout.board_y
     if not cat_phys.x or math.abs(cat_phys.y - ground_y) > 120 * scale then
@@ -11454,7 +11967,7 @@ function renderer.drawCatCompanion(cx, cy, scale, game)
         cat_phys.y = ground_y
     end
 
-    -- Physics boundary bounds (Entire top edge of the board grid)
+    -- Physics boundary bounds
     local min_x = layout.board_x + math.floor(24 * scale)
     local max_x = layout.board_x + bs - math.floor(24 * scale)
 
@@ -11482,7 +11995,7 @@ function renderer.drawCatCompanion(cx, cy, scale, game)
         })
     end
 
-    -- Handle excited celebration jump trigger (always triggers on victory!)
+    -- Victory celebration jump trigger
     if (is_won or (is_excited and cat_phys.jump_cooldown <= 0)) and cat_phys.is_grounded and cat_phys.vy == 0 then
         cat_phys.vy = -190 * scale
         cat_phys.is_grounded = false
@@ -11494,7 +12007,7 @@ function renderer.drawCatCompanion(cx, cy, scale, game)
         end
     end
 
-    -- Strictly enforce zero velocity when in stationary states (sleep, idle, sit) BEFORE position update
+    -- Reset velocity for stationary states
     if cat_phys.state == "sleep" or cat_phys.state == "idle" or cat_phys.state == "sit" then
         cat_phys.vx = 0
     end
@@ -11571,7 +12084,7 @@ function renderer.drawCatCompanion(cx, cy, scale, game)
         else
             -- 35% walk, 10% sit, 10% stretch, 35% idle, 10% sleep
             if roll < 0.35 then
-                -- Stroll to a new spot (3.0 - 5.0s)
+                -- Stroll timer
                 local dir = (love.math.random() < 0.5 and 1 or -1)
                 cat_phys.vx = dir * 18 * scale
                 cat_phys.facing = dir
@@ -11589,13 +12102,13 @@ function renderer.drawCatCompanion(cx, cy, scale, game)
                 cat_phys.state = "stretch"
                 cat_phys.action_timer = 1.35
             elseif roll < 0.90 then
-                -- Tail Wag Idle (6.0 - 12.0s)
+                -- Tail wag idle timer
                 cat_phys.vx = 0
                 cat_phys.state = "idle"
                 cat_phys.idle_type = love.math.random(1, 4)
                 cat_phys.action_timer = 6.0 + love.math.random() * 6.0
             else
-                -- Cozy Flat Nap (25.0 - 35.0s)
+                -- Nap timer
                 cat_phys.vx = 0
                 cat_phys.state = "sleep"
                 cat_phys.action_timer = 25.0 + love.math.random() * 10.0
@@ -11636,7 +12149,7 @@ function renderer.drawCatCompanion(cx, cy, scale, game)
         frames = (#pet_cat_sleep_frames > 0) and pet_cat_sleep_frames or pet_cat_idle_down_frames
         fps = 4
     else
-        -- Directional Idle (Randomly picked on state entry)
+        -- Directional idle state
         if cat_phys.idle_type == 2 and #pet_cat_idle_left_frames > 0 then
             frames = pet_cat_idle_left_frames
         elseif cat_phys.idle_type == 3 and #pet_cat_idle_right_frames > 0 then
@@ -11653,7 +12166,7 @@ function renderer.drawCatCompanion(cx, cy, scale, game)
     local frame_idx = 1
 
     if is_single_play then
-        -- Single-play actions (1 paw lick or 1 stretch at a time!)
+        -- Single-play animation actions
         local raw_idx = math.floor(cat_phys.anim_time * fps) + 1
         frame_idx = math.min(#frames, raw_idx)
         if raw_idx > #frames and (cat_phys.state == "sit" or cat_phys.state == "stretch") then
@@ -11661,18 +12174,18 @@ function renderer.drawCatCompanion(cx, cy, scale, game)
             cat_phys.anim_time = 0
         end
     else
-        -- Continuous looping actions (walk, sleep, idle)
+        -- Continuous looping actions
         frame_idx = (math.floor(cat_phys.anim_time * fps) % #frames) + 1
     end
     local img = frames[frame_idx]
 
     if img then
-        -- CRISP DISPLAY SIZE (56px scale)
+        -- 56px sprite display scale
         local target_h = math.floor(56 * scale)
         local s = target_h / img:getHeight()
         
         love.graphics.setColor(1, 1, 1, 1)
-        -- Anchored cleanly at feet (img:getWidth() / 2, img:getHeight()) sitting ON TOP of board grid!
+        -- Foot anchor offset
         love.graphics.draw(
             img, 
             cat_phys.x, 
@@ -11701,8 +12214,8 @@ function renderer.drawCatCompanion(cx, cy, scale, game)
 end
 
 -- Grounded Real-Physics Dog Companion Engine
--- Behaviors: walk (casual), run (fast sprint), sit (rest with tail wag), sniff (stationary ground sniff),
---            sniff_walk (sniffing while wandering), idle (2 variations: calm & alert), jump (excited celebration)
+-- Pet behaviors
+-- Pet movement states
 local dog_phys = {
     x = nil,
     y = nil,
@@ -11727,7 +12240,7 @@ function renderer.drawDogCompanion(cx, cy, scale, game)
     local is_won = (game and game.state == Game.STATE_WON)
     local is_excited = is_won or (_G.pet_excited_timer and _G.pet_excited_timer > 0)
 
-    -- Ground ledge position (anchored right on top of main 2048 board grid!)
+    -- Ground ledge position
     local bs = layout.board_size or 300
     local ground_y = layout.board_y
     if not dog_phys.x or math.abs(dog_phys.y - ground_y) > 120 * scale then
@@ -11982,7 +12495,7 @@ function renderer.drawDogCompanion(cx, cy, scale, game)
         is_single_play = true
 
     else
-        -- idle: alternate between IDLE1 (calm) and IDLE2 (alert)
+        -- Alternate between calm and alert idle
         if dog_phys.idle_type == 2 and #breed_frames.idle2 > 0 then
             frames = breed_frames.idle2
         else
@@ -12018,7 +12531,7 @@ function renderer.drawDogCompanion(cx, cy, scale, game)
         )
     end
 
-    -- Floating hearts (warm amber for dog)
+    -- Floating heart particles
     for i = #dog_phys.particles, 1, -1 do
         local p = dog_phys.particles[i]
         p.life = p.life - dt

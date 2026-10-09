@@ -9,6 +9,7 @@ local renderer = require("renderer")
 local save     = require("save")
 local splash   = require("splash")
 local sound    = require("sound")
+local dino_game = require("dino_game")
 
 _G.appState = "MENU" -- "MENU", "GAME", "ARCADE_MENU", "SERVER_ACTIVE", etc.
 local menuSelection = 1 -- 1: Classic, 2: Plus, 3: Theme Selection, 4: Achievements, 5: Tutorial, 6: Text, 7: About, 8: Quit
@@ -49,6 +50,8 @@ local STATE_DEPTH = {
     THEME_SELECT  = 1,
     CHEATS_MENU   = 1,
     SETTINGS      = 1,
+    JUKEBOX       = 1,
+    DINO          = 2,
 }
 
 -- Forward declaration (defined later in the file, after love.update's helper logic)
@@ -350,7 +353,7 @@ function love.load(args)
     end
 
     function _G.cycleStoreSortMode()
-        _G.store_sort_mode = ((_G.store_sort_mode or 0) + 1) % 11
+        _G.store_sort_mode = ((_G.store_sort_mode or 0) + 1) % 10
         _G.store_selection = 1
         _G.store_scroll = 0
         if _G.stats then
@@ -360,7 +363,8 @@ function love.load(args)
         if sound and sound.playMenuMove then sound.playMenuMove() end
     end
 
-    function _G.cycleTheme()
+    function _G.cycleTheme(direction)
+        local dir = direction or 1
         local function getCurrentDrawTarget()
             if _G.appState == "GAME" and game then
                 return game
@@ -382,12 +386,14 @@ function love.load(args)
                 return function() renderer.drawStoreMenu(_G.store_selection or 1, true) end
             elseif _G.appState == "JUKEBOX" then
                 return function() renderer.drawJukebox(_G.jukebox_selection or 1, true) end
+            elseif _G.appState == "MENU" then
+                return function() renderer.drawMainMenu(menuSelection, true) end
             end
             return function() end
         end
 
         local drawTarget = getCurrentDrawTarget()
-        renderer.startThemeTransition(drawTarget)
+        renderer.startThemeTransition(drawTarget, dir)
 
         local current_idx = 1
         for i, t in ipairs(_G.unlocked_themes or {"light", "dark"}) do
@@ -396,7 +402,13 @@ function love.load(args)
                 break
             end
         end
-        local next_idx = (current_idx % #_G.unlocked_themes) + 1
+        local total_themes = #_G.unlocked_themes
+        local next_idx = current_idx + dir
+        if next_idx > total_themes then
+            next_idx = 1
+        elseif next_idx < 1 then
+            next_idx = total_themes
+        end
         _G.theme = _G.unlocked_themes[next_idx]
         if renderer and renderer.applyTheme then renderer.applyTheme() end
         if _G.appState ~= "THEME_SELECT" then
@@ -428,7 +440,7 @@ function love.load(args)
     _G.time_attack_time = save.loadTimeAttackTime() or 60
     _G.vibration = save.loadVibration()
     _G.crt_filter = save.loadCrtFilter()
-    _G.merge_fx = save.loadMergeFX() or "default"
+    _G.merge_fx = "default"
     _G.board_skin = save.loadBoardSkin() or "default"
 
     -- Load and initialize global stats
@@ -441,6 +453,7 @@ function love.load(args)
     _G.stats.purchased_items = _G.stats.purchased_items or {}
     _G.stats.claimed_achievements = _G.stats.claimed_achievements or {}
     _G.store_sort_mode = _G.stats.store_sort_mode or 0
+    if _G.store_sort_mode > 9 then _G.store_sort_mode = 0 end
 
     -- Check Coin Hoarder & Best Friend on startup
     if _G.stats.coins >= 10000 and _G.unlockAchievement then
@@ -501,6 +514,11 @@ function love.load(args)
     local w, h = love.graphics.getDimensions()
     screen_canvas = love.graphics.newCanvas(w, h)
 
+    -- Initialize dino game
+    if dino_game and dino_game.init then
+        dino_game.init()
+    end
+
     -- Load splash screen
     splash.load()
 end
@@ -549,7 +567,7 @@ function love.update(dt)
         end
     end
 
-    -- Update timer system (drives splash animations)
+    -- Update timer system
     timer.update(dt)
 
     -- Update BGM playback and playlist states
@@ -564,7 +582,7 @@ function love.update(dt)
         if transition_delay_timer <= 0 then
             transition_delay_timer = 0
             if transition_delay_action then
-                -- Capture the current (old) screen BEFORE state changes
+                -- Snapshot previous screen for transition
                 if _G.screen_transitions then
                     captureOldScreen()
                 end
@@ -579,6 +597,9 @@ function love.update(dt)
         end
         if game then
             game:update(dt)
+        end
+        if _G.appState == "DINO" and dino_game and dino_game.update then
+            dino_game.update(dt)
         end
         renderer.updateTransition(dt)
         input.update(dt)
@@ -627,6 +648,27 @@ function love.update(dt)
         return
     end
 
+    if _G.appState == "DINO" then
+        input.update(dt)
+        input.processEvents(function(event)
+            local is_back = (event == input.events.BACK or event == "b" or event == "backspace")
+            if is_back then
+                sound.playMenuBack()
+                queueTransitionAction("B", 0.08, function()
+                    _G.appState = _G.last_dino_return_state or "JUKEBOX"
+                    if _G.last_dino_return_modal then
+                        _G.last_dino_return_modal = nil
+                        _G.jukebox_web_modal = true
+                    end
+                end)
+                return
+            end
+            dino_game.handleEvent(event)
+        end)
+        dino_game.update(dt)
+        return
+    end
+
     -- Update game animations
     if game then
         game:update(dt)
@@ -643,57 +685,17 @@ function love.update(dt)
         action()
     end
 
-    -- Update input (hold-to-repeat)
+    -- Update input repeat timers
     input.update(dt)
 
     -- Process input events
     input.processEvents(function(event)
         if event == input.events.Y then
-            local function getCurrentDrawTarget()
-                if _G.appState == "MENU" then
-                    return function() renderer.drawMainMenu(menuSelection, true) end
-                elseif _G.appState == "GAME" and game then
-                    return game
-                elseif _G.appState == "ACHIEVEMENTS" then
-                    return function() renderer.drawAchievements(_G.achievements_scroll or 0, true) end
-                elseif _G.appState == "TUTORIAL" then
-                    return function() renderer.drawTutorial(_G.tutorial_page or 1, true) end
-                elseif _G.appState == "ABOUT" then
-                    return function() renderer.drawAbout(true) end
-                elseif _G.appState == "CHEATS_MENU" then
-                    return function() renderer.drawSecretMenu(_G.cheats_selection or 1, true) end
-                elseif _G.appState == "THEME_SELECT" then
-                    return function() renderer.drawThemeSelect(true) end
-                elseif _G.appState == "SETTINGS" then
-                    return function() renderer.drawSettings(_G.settings_selection or 1, true) end
-                elseif _G.appState == "PLAY_SELECT" then
-                    return function() renderer.drawPlaySelectMenu(_G.play_select_selection or 1, _G.arcade_selection or 1, true, menuSelection) end
-                elseif _G.appState == "ARCADE_MENU" then
-                    return function() renderer.drawPlaySelectMenu(_G.play_select_selection or 1, _G.arcade_selection or 1, true, menuSelection) end
-                elseif _G.appState == "STORE" then
-                    return function() renderer.drawStoreMenu(_G.store_selection or 1, true) end
-                elseif _G.appState == "JUKEBOX" then
-                    return function() renderer.drawJukebox(_G.jukebox_selection or 1, true) end
-                end
-                return function() end
+            if _G.appState == "THEME_SELECT" and sound and sound.playMenuMove then
+                sound.playMenuMove()
             end
-
-            local drawTarget = getCurrentDrawTarget()
-            renderer.startThemeTransition(drawTarget)
-
-            local current_idx = 1
-            for i, t in ipairs(_G.unlocked_themes) do
-                if t == _G.theme then
-                    current_idx = i
-                    break
-                end
-            end
-            local next_idx = (current_idx % #_G.unlocked_themes) + 1
-            _G.theme = _G.unlocked_themes[next_idx]
-            renderer.applyTheme()
-            if _G.appState ~= "THEME_SELECT" then
-                save.saveTheme(_G.theme)
-                if game then game:saveGameState() end
+            if _G.cycleTheme then
+                _G.cycleTheme(1)
             end
             return
         end
@@ -909,7 +911,7 @@ function love.update(dt)
                         return
                     end
 
-                    -- Consumables (boosters, powerup charges, shields)
+                    -- Consumables
                     if sel_item.consumable then
                         local stat_key = sel_item.ckey or (sel_item.id .. "_count")
                         local current = _G.stats[stat_key] or 0
@@ -928,7 +930,7 @@ function love.update(dt)
                                 if game.saveGameState then game:saveGameState() end
                             end
                             save.saveStats(_G.stats)
-                            renderer.showToast("Purchased! " .. sel_item.name .. " (" .. _G.stats[stat_key] .. " owned)")
+                            renderer.showToast("Purchased!")
                         else
                             renderer.showToast("Not enough Coins!")
                         end
@@ -994,6 +996,54 @@ function love.update(dt)
             end
             return
         elseif _G.appState == "JUKEBOX" then
+            if _G.jukebox_web_modal or (renderer.isJukeboxModalClosing and renderer.isJukeboxModalClosing()) then
+                if event == input.events.BACK then
+                    if not (renderer.isJukeboxModalClosing and renderer.isJukeboxModalClosing()) then
+                        sound.playMenuSelect()
+                        transition_delay_key = "B"
+                        transition_delay_timer = 0.08
+                        if _G.screen_transitions and renderer.closeJukeboxModal then
+                            renderer.closeJukeboxModal(function()
+                                _G.jukebox_web_modal = false
+                                if sound.stopWebServer then
+                                    sound.stopWebServer()
+                                end
+                            end)
+                        else
+                            _G.jukebox_web_modal = false
+                            if renderer.resetJukeboxModalAnim then
+                                renderer.resetJukeboxModalAnim()
+                            end
+                            if sound.stopWebServer then
+                                sound.stopWebServer()
+                            end
+                        end
+                    end
+                elseif event == input.events.CONFIRM or event == "return" or event == "a" or event == "space" then
+                    if not (renderer.isJukeboxModalClosing and renderer.isJukeboxModalClosing()) then
+                        local has_wifi, ip = false, "127.0.0.1"
+                        if sound.has_wifi then
+                            has_wifi, ip = sound.has_wifi()
+                        elseif sound.get_ip_address then
+                            ip = sound.get_ip_address()
+                            has_wifi = sound.isValidLanIp and sound.isValidLanIp(ip) or (ip and ip ~= "127.0.0.1" and not ip:match("^127%.") and not ip:match("^169%.254%.") and not ip:match("^192%.168%.7%.1$"))
+                        end
+                        if not has_wifi then
+                            sound.playMenuSelect()
+                            queueTransitionAction("A", 0.08, function()
+                                _G.last_dino_return_state = "JUKEBOX"
+                                _G.last_dino_return_modal = true
+                                _G.appState = "DINO"
+                                if dino_game and dino_game.start then
+                                    dino_game.start()
+                                end
+                            end)
+                        end
+                    end
+                end
+                return
+            end
+
             local playlist = sound.getBgmPlaylist and sound.getBgmPlaylist() or {}
             local total_tracks = math.max(1, #playlist)
             _G.jukebox_selection = _G.jukebox_selection or 1
@@ -1028,10 +1078,30 @@ function love.update(dt)
                 if _G.cycleTheme then
                     _G.cycleTheme()
                 end
-            elseif event == input.events.X then
+            elseif event == input.events.X or event == input.events.SELECT then
+                if not _G.jukebox_web_modal and not (renderer.isJukeboxModalClosing and renderer.isJukeboxModalClosing()) then
+                    sound.playMenuSelect()
+                    transition_delay_key = (event == input.events.SELECT) and "SELECT" or "X"
+                    transition_delay_timer = 0.08
+                    if renderer.openJukeboxModal then
+                        renderer.openJukeboxModal()
+                    else
+                        _G.jukebox_web_modal = true
+                    end
+                    if sound.startWebServer then
+                        sound.startWebServer(8048)
+                    end
+                end
+            elseif event == input.events.R1 then
                 sound.playMenuSelect()
                 sound.playNextBgm()
-                -- sync selection to now-playing track
+                local new_idx = sound.getCurrentBgmIndex and sound.getCurrentBgmIndex() or 1
+                _G.jukebox_selection = new_idx
+            elseif event == input.events.L1 then
+                sound.playMenuSelect()
+                if sound.playPrevBgm then
+                    sound.playPrevBgm()
+                end
                 local new_idx = sound.getCurrentBgmIndex and sound.getCurrentBgmIndex() or 1
                 _G.jukebox_selection = new_idx
             elseif event == input.events.BACK then
@@ -1315,6 +1385,16 @@ function love.update(dt)
                     renderer.applyTheme()
                     _G.appState = _G.themeSelectPrevState or "MENU"
                 end)
+            elseif event == input.events.X or event == input.events.LEFT or event == input.events.UP then
+                if sound and sound.playMenuMove then sound.playMenuMove() end
+                if _G.cycleTheme then
+                    _G.cycleTheme(-1)
+                end
+            elseif event == input.events.RIGHT or event == input.events.DOWN then
+                if sound and sound.playMenuMove then sound.playMenuMove() end
+                if _G.cycleTheme then
+                    _G.cycleTheme(1)
+                end
             end
             return
         elseif _G.appState == "SETTINGS" then
@@ -1432,24 +1512,7 @@ function love.update(dt)
                         _G.crt_filter = not _G.crt_filter
                         save.saveCrtFilter(_G.crt_filter)
                         sound.playMenuSelect()
-                    elseif sel:match("^Merge Visual FX") then
-                        sound.playMenuSelect()
-                        local bounce_unlocked = _G.stats and _G.stats.purchased_items and _G.stats.purchased_items["anim_bounce"]
-                        local glow_unlocked = _G.stats and _G.stats.purchased_items and _G.stats.purchased_items["anim_glow"]
-                        if not bounce_unlocked and not glow_unlocked then
-                            renderer.showToast("Unlock Bounce Pop or Glow Pulse in Store first!")
-                        else
-                            local options_list = {"default"}
-                            if bounce_unlocked then table.insert(options_list, "bounce") end
-                            if glow_unlocked then table.insert(options_list, "glow") end
-                            local curr_idx = 1
-                            for i, opt in ipairs(options_list) do
-                                if opt == _G.merge_fx then curr_idx = i break end
-                            end
-                            local next_idx = (curr_idx % #options_list) + 1
-                            _G.merge_fx = options_list[next_idx]
-                            save.saveMergeFX(_G.merge_fx)
-                        end
+
                     elseif sel == "Back" then
                         sound.playMenuBack()
                         queueTransitionAction(event, 0.08, function()
@@ -1576,12 +1639,12 @@ function love.update(dt)
                         game:undo()
                     end)
                 end
-            -- Pause menu (START button)
+            -- Pause menu hotkey
             elseif event == input.events.START then
                 queueTransitionAction(event, 0.08, function()
                     game:togglePause()
                 end)
-            -- Trigger footer coin notification (SELECT button)
+            -- Coin notification hotkey
             elseif event == input.events.SELECT then
                 if renderer and renderer.triggerCoinFooterToast then
                     renderer.triggerCoinFooterToast()
@@ -1776,6 +1839,8 @@ drawCurrentScreen = function()
         renderer.drawStoreMenu(_G.store_selection or 1)
     elseif _G.appState == "JUKEBOX" then
         renderer.drawJukebox(_G.jukebox_selection or 1)
+    elseif _G.appState == "DINO" then
+        dino_game.draw()
     elseif _G.appState == "GAME" and game then
         renderer.draw(game)
     end
@@ -1785,29 +1850,29 @@ local crt_shader_code = [[
     extern vec2 screen_size;
 
     vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
-        // 1. CRT Curved Glass Barrel Distortion with Auto-Fill (Zero Blank Space Outlines!)
+        // CRT barrel distortion
         vec2 cc = texture_coords - 0.5;
         float dist = dot(cc, cc);
         
-        // Curved screen profile scaled so UV coordinates stay strictly within [0, 1]
+        // Scale UV coordinates within screen bounds
         // This eliminates all black blank corner cutouts while preserving retro glass curvature!
         vec2 distorted_coords = cc * (1.0 + dist * 0.05) * 0.965 + 0.5;
         distorted_coords = clamp(distorted_coords, 0.0, 1.0);
 
-        // 2. Chromatic Aberration (Trinitron RGB glass separation near edges)
+        // Chromatic aberration
         float ca = 0.0012 * (1.0 + dist * 1.5);
         float r = Texel(texture, distorted_coords - vec2(ca, 0.0)).r;
         float g = Texel(texture, distorted_coords).g;
         float b = Texel(texture, distorted_coords + vec2(ca, 0.0)).b;
         vec4 tex_color = vec4(r, g, b, 1.0);
 
-        // 3. Scanlines (subtle TV line raster effect)
+        // Scanline raster effect
         float scanline = sin(distorted_coords.y * screen_size.y * 1.2) * 0.045 + 0.955;
 
-        // 4. Phosphor Mask (subtle RGB triad grille effect)
+        // Phosphor triad mask
         float mask = sin(distorted_coords.x * screen_size.x * 1.5) * 0.025 + 0.975;
 
-        // 5. Smooth CRT Glass Corner Vignette (replaces ugly black cutouts with soft vintage screen falloff)
+        // Corner vignette falloff
         float vig = smoothstep(0.70, 0.30, length(cc));
         float vignette = 0.90 + 0.10 * vig;
 
@@ -1860,7 +1925,7 @@ function love.draw()
         end
 
         if screen_transition_timer > 0 then
-            -- Cubic ease-out progress (0 → 1) - starts fast, slows down smoothly
+            -- Ease-out transition curve
             local t_progress = 1 - (screen_transition_timer / screen_transition_duration)
             local p = 1 - math.pow(1 - t_progress, 3)
 
@@ -1884,19 +1949,19 @@ function love.draw()
             local shadow_w = math.floor(20 * (_G.scale or 1))
 
             if dir == 1 then
-                -- Forward transition: New screen slides in on top from right (w -> 0)
-                -- Old screen slides out underneath to the left at 30% speed (0 -> -0.3*w)
+                -- Forward screen slide
+                -- Parallax shift for old screen
                 local old_x = math.floor(-0.3 * w * p)
                 local new_x = math.floor(w * (1 - p))
 
-                -- 1. Draw old screen (underneath)
+                -- Draw old screen
                 if old_screen_canvas then
                     love.graphics.setColor(1, 1, 1, 1)
                     love.graphics.setBlendMode("replace", "premultiplied")
                     love.graphics.draw(old_screen_canvas, old_x, 0)
                     love.graphics.setBlendMode("alpha", "alphamultiply")
 
-                    -- Dim the old screen (dimming fades in from 0% to 50% opacity)
+                    -- Dim old screen overlay
                     love.graphics.setColor(0, 0, 0, 0.5 * p)
                     love.graphics.rectangle("fill", old_x, 0, w, h)
                 end
@@ -1908,36 +1973,36 @@ function love.draw()
                     love.graphics.rectangle("fill", new_x - shadow_w + i, 0, 1, h)
                 end
 
-                -- 3. Draw new screen (on top)
+                -- Draw new screen
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
                 love.graphics.draw(screen_canvas, new_x, 0)
                 love.graphics.setBlendMode("alpha", "alphamultiply")
             else
-                -- Backward transition: Old screen slides out on top to the right (0 -> w)
-                -- New screen slides in underneath from the left at 30% speed (-0.3*w -> 0)
+                -- Backward screen slide
+                -- Parallax shift for new screen
                 local new_x = math.floor(-0.3 * w * (1 - p))
                 local old_x = math.floor(w * p)
 
-                -- 1. Draw new screen (underneath)
+                -- Draw new screen
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
                 love.graphics.draw(screen_canvas, new_x, 0)
                 love.graphics.setBlendMode("alpha", "alphamultiply")
 
-                -- Dim the new screen (dimming fades out from 50% to 0% opacity)
+                -- Dim overlay
                 love.graphics.setColor(0, 0, 0, 0.5 * (1 - p))
                 love.graphics.rectangle("fill", new_x, 0, w, h)
 
                 if old_screen_canvas then
-                    -- 2. Draw shadow to the left of the old screen (sliding on top)
+                    -- Draw edge shadow
                     for i = 0, shadow_w - 1 do
                         local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
                         love.graphics.setColor(0, 0, 0, alpha)
                         love.graphics.rectangle("fill", old_x - shadow_w + i, 0, 1, h)
                     end
 
-                    -- 3. Draw old screen (on top)
+                    -- Draw old screen
                     love.graphics.setColor(1, 1, 1, 1)
                     love.graphics.setBlendMode("replace", "premultiplied")
                     love.graphics.draw(old_screen_canvas, old_x, 0)
@@ -1985,6 +2050,11 @@ function love.mousereleased(x, y, button, istouch, presses)
 end
 
 function love.quit()
+    if sound and sound.stopWebServer then
+        pcall(sound.stopWebServer)
+    else
+        os.execute("pkill -9 -f jukebox_server.py 2>/dev/null")
+    end
     if game then
         pcall(function() game:saveGameState() end)
     end

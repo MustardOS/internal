@@ -3,9 +3,9 @@
 _G.timer = require("timer")
 
 local sem_ver = {
-    major = 6,
+    major = 7,
     minor = 0,
-    patch = 3,
+    patch = 0,
     extra = ""
 }
 
@@ -30,7 +30,7 @@ function _G.update_ui_scale()
     _G.sy = h / _G.design_h
     _G.scale = math.min(_G.sx, _G.sy)
 
-    -- Snap to 1.0 if very close (prevents tiny rounding errors on 640x480)
+    -- Snap scale to 1.0 for standard resolution
     if math.abs(_G.scale - 1) < 0.01 then
         _G.scale = 1
         _G.sx = 1
@@ -43,10 +43,10 @@ function _G.g(val)
     return val * _G.scale
 end
 
--- Working directory (set after love.load)
+-- Working directory path
 _G.WORK_DIR = ""
 
--- Current visual theme (light / dark / oled / neon / retro / peach / ocean / forest / sunset / candy)
+-- Current theme ID
 _G.theme = "light"
 _G.text_size = "normal"
 _G.animation_speed = "normal"
@@ -58,13 +58,13 @@ _G.merge_fx = "default"
 
 -- Achievements and Unlockables
 _G.achievements = {
-    -- Simple achievements (color-only themes, no custom tiles)
+    -- Palette achievements
     ach_first_game = false,  -- First Steps -> unlocks 'ocean'
     ach_score_1k = false,    -- Getting Started -> unlocks 'forest'
     ach_score_5k = false,    -- Rising Star -> unlocks 'sunset'
     ach_merge_512 = false,   -- Half Way There -> unlocks 'candy'
 
-    -- Premium achievements (full custom tile themes)
+    -- Custom tile achievements
     ach_2048 = false,        -- 2048 Master -> unlocks 'oled'
     ach_score_10k = false,   -- High Roller -> unlocks 'neon'
     ach_demolition = false,  -- Demolition Expert (10 bombs used) -> unlocks 'retro'
@@ -76,7 +76,7 @@ _G.achievements = {
     ach_score_100k = false,  -- Midas Touch -> unlocks 'gold'
     ach_untouchable_2048 = false, -- Zen Master (2048 without powerups) -> unlocks 'matcha'
 
-    -- Dark simple achievements (color-only dark themes)
+    -- Dark palette achievements
     ach_merge_1024 = false,  -- Almost There -> unlocks 'midnight'
     ach_score_2k = false,    -- Gaining Momentum -> unlocks 'volcano'
     ach_score_7k = false,    -- High Scorer -> unlocks 'abyss'
@@ -123,7 +123,7 @@ _G.DOG_BREEDS = {
 }
 _G.active_dog_breed = "roxy"
 
--- Store Filter & Sort Mode (0: Default, 1: Unpurchased First, 2: Repeatable, 3: Permanent, 4: Price Low-High, 5: Price High-Low)
+-- Store filter and sort mode
 _G.store_sort_mode = 0
 
 

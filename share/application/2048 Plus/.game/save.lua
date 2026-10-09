@@ -1,4 +1,4 @@
--- High score persistence (file-based)
+-- Save file persistence
 
 local save = {}
 
@@ -21,7 +21,7 @@ end
 
 function save.init(dir)
     SAVE_DIR = dir or ""
-    -- Ensure directory exists (only on non-Web)
+    -- Ensure save directory exists
     if SAVE_DIR ~= "" and SAVE_DIR ~= "/" and love.system.getOS() ~= "Web" then
         os.execute('mkdir -p "' .. SAVE_DIR .. '"')
     end
@@ -103,24 +103,9 @@ end
 local MERGE_FX_FILE = "merge_fx.dat"
 
 function save.saveMergeFX(fx)
-    local path = getFilePath(MERGE_FX_FILE)
-    local file = io.open(path, "w")
-    if file then
-        file:write(fx or "default")
-        file:close()
-    end
 end
 
 function save.loadMergeFX()
-    local path = getFilePath(MERGE_FX_FILE)
-    local file = io.open(path, "r")
-    if file then
-        local content = file:read("*all")
-        file:close()
-        if content and content ~= "" then
-            return content
-        end
-    end
     return "default"
 end
 
@@ -446,7 +431,7 @@ function save.loadState(mode)
     if file then
         local content = file:read("*all")
         file:close()
-        -- Warning: load() evaluates the string. In a real environment, you'd use a safe JSON parser
+        -- Parse saved state
         -- But for a local game save, this works as long as the file isn't tampered with maliciously.
         local chunk = (loadstring or load)(content)
         if chunk then

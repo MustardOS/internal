@@ -26,7 +26,7 @@ Game.DIR_RIGHT = 1
 Game.DIR_DOWN  = 2
 Game.DIR_LEFT  = 3
 
--- Direction vectors (dx, dy)
+-- Direction vectors
 local vectors = {
     [0] = {x =  0, y = -1},  -- up
     [1] = {x =  1, y =  0},  -- right
@@ -139,6 +139,11 @@ function Game.new(mode)
         if self.mode == "timeattack" then
             self.timeLeft = savedState.timeLeft or 60.0
             self.totalTime = savedState.totalTime or 60.0
+            if savedState.timesUp ~= nil then
+                self.timesUp = savedState.timesUp
+            else
+                self.timesUp = (self.timeLeft <= 0)
+            end
         end
 
         local saved_undo = savedState.undo_used_this_run
@@ -157,6 +162,11 @@ function Game.new(mode)
 
         self.coin_rush_active = savedState.coin_rush_active or false
         self.start_booster_val = savedState.start_booster_val
+        self.runTime = savedState.runTime or 0
+        self.powerups_used_this_run = savedState.powerups_used_this_run or 0
+        if _G.achievements then
+            _G.achievements.powerups_used_this_run = self.powerups_used_this_run
+        end
     else
         -- Start a fresh game if no save state exists
         self:addStartTiles()
@@ -185,6 +195,7 @@ function Game.new(mode)
             _G.recordDogBreedPlayed(_G.active_dog_breed)
         end
 
+        self.powerups_used_this_run = 0
         if _G.achievements then
             _G.achievements.powerups_used_this_run = 0
             save.saveAchievements(_G.achievements)
@@ -249,6 +260,7 @@ function Game:saveGameState()
         runTime = self.runTime,
         undo_used_this_run = self.undo_used_this_run,
         swap_used_this_run = self.swap_used_this_run,
+        powerups_used_this_run = self.powerups_used_this_run,
         coin_rush_active = self.coin_rush_active or false,
         start_booster_val = self.start_booster_val
     }
@@ -256,6 +268,7 @@ function Game:saveGameState()
     if self.mode == "timeattack" then
         stateTable.timeLeft = self.timeLeft
         stateTable.totalTime = self.totalTime
+        stateTable.timesUp = self.timesUp
     end
     save.saveState(stateTable, self.mode)
 end
@@ -311,7 +324,7 @@ function Game:addStartTiles()
         end
     end
 
-    -- High-Tile Boosters: 512, 256, or 128 (consumable)
+    -- High-tile boosters
     local b512 = _G.stats and (_G.stats.start_512_count or 0) or 0
     local b256 = _G.stats and (_G.stats.start_256_count or 0) or 0
     local b128 = _G.stats and (_G.stats.start_128_count or 0) or 0
@@ -491,7 +504,7 @@ function Game:move(direction)
                         save.saveHighScore(self.highScore, self.mode)
                     end
 
-                    -- Check milestones for powerup replenishment (Plus Mode) - once per milestone value per run
+                    -- Check powerup milestone unlocks
                     if self.mode == "plus" and merged.value >= 128 then
                         local m_str = tostring(merged.value)
                         if not self.milestonesReached[m_str] then
@@ -542,7 +555,7 @@ function Game:move(direction)
                         end
                     end
 
-                    -- Check for win (target tile!)
+                    -- Check win condition
                     if merged.value == self.targetValue and self.state == Game.STATE_PLAYING and self.mode ~= "timeattack" then
                         self.won = true
                         self.state = Game.STATE_WON
@@ -570,7 +583,7 @@ function Game:move(direction)
                         _G.unlockAchievement("ach_4096")
                     end
 
-                    if merged.value >= 1024 and _G.achievements.powerups_used_this_run == 0 and _G.unlockAchievement and self.mode ~= "huge" then
+                    if merged.value >= 1024 and (self.powerups_used_this_run or 0) == 0 and _G.unlockAchievement and self.mode ~= "huge" then
                         _G.unlockAchievement("ach_untouchable")
                     end
 
@@ -578,7 +591,7 @@ function Game:move(direction)
                         _G.unlockAchievement("ach_2048_plus")
                     end
 
-                    if merged.value >= 2048 and _G.achievements.powerups_used_this_run == 0 and _G.unlockAchievement and self.mode ~= "huge" then
+                    if merged.value >= 2048 and (self.powerups_used_this_run or 0) == 0 and _G.unlockAchievement and self.mode ~= "huge" then
                         _G.unlockAchievement("ach_untouchable_2048")
                     end
 
@@ -592,7 +605,7 @@ function Game:move(direction)
                         _G.unlockAchievement("ach_goose_2048")
                     end
 
-                    -- Trigger pet companion excitement on high tile merges (512+)
+                    -- Trigger pet excitement on high merge
                     if merged.value >= 512 then
                         _G.pet_excited_timer = 2.0
                     end
@@ -605,12 +618,12 @@ function Game:move(direction)
                         _G.unlockAchievement("ach_speedrun_2048")
                     end
 
-                    if self.mode == "plus" and merged.value >= 2048 and _G.achievements.powerups_used_this_run == 0 and _G.unlockAchievement then
+                    if self.mode == "plus" and merged.value >= 2048 and (self.powerups_used_this_run or 0) == 0 and _G.unlockAchievement then
                         _G.unlockAchievement("ach_hardcore_2048")
                     end
 
 
-                    -- Time Attack: add bonus time for merges (challenging balance)
+                    -- Add time attack merge bonus
                     if self.mode == "timeattack" and self.timeLeft then
                         local bonus = 0
                         if merged.value == 32 then
@@ -629,7 +642,7 @@ function Game:move(direction)
                             bonus = 50
                         end
                         -- Special: hitting 2048 gives a massive bonus + achievement
-                        if merged.value == 2048 then
+                        if merged.value >= 2048 then
                             if _G.unlockAchievement then
                                 _G.unlockAchievement("ach_timeattack_2048")
                             end
@@ -659,7 +672,7 @@ function Game:move(direction)
                 _G.stats.highest_score = self.score
             end
         end
-        -- Apply accumulated time attack bonus (capped at 30s per move for balance)
+        -- Apply move time bonus
         if self.mode == "timeattack" and self.timeLeft and (self.timeAttackBonus or 0) > 0 then
             local cap = 30.0
             -- 2048 merge bypasses cap
@@ -667,7 +680,7 @@ function Game:move(direction)
             local bonus = merged_2048 and self.timeAttackBonus or math.min(self.timeAttackBonus, cap)
             self.timeLeft = math.min(self.totalTime, self.timeLeft + bonus)
 
-            -- Trigger visual feedback (floating text + flash timer)
+            -- Show floating bonus text and flash timer
             self.timePopups = self.timePopups or {}
             table.insert(self.timePopups, {
                 text = "+" .. tostring(math.floor(bonus)) .. "s",
@@ -720,7 +733,10 @@ function Game:move(direction)
         else
             self.animationTimer = self.animationDuration
         end
-        if _G.achievements.powerups_used_this_run == nil then
+        if self.powerups_used_this_run == nil then
+            self.powerups_used_this_run = 0
+        end
+        if _G.achievements and _G.achievements.powerups_used_this_run == nil then
             _G.achievements.powerups_used_this_run = 0
         end
         if _G.unlockAchievement and self.mode ~= "huge" then
@@ -827,9 +843,9 @@ function Game:undo()
         end
     end
 
-    if _G.achievements.powerups_used_this_run then
-
-        _G.achievements.powerups_used_this_run = _G.achievements.powerups_used_this_run + 1
+    self.powerups_used_this_run = (self.powerups_used_this_run or 0) + 1
+    if _G.achievements then
+        _G.achievements.powerups_used_this_run = self.powerups_used_this_run
         save.saveAchievements(_G.achievements)
     end
     if _G.stats then
@@ -926,7 +942,7 @@ function Game:undo()
 end
 
 function Game:continueGame()
-    -- Continue playing after winning (endless mode)
+    -- Endless mode continuation
     if self.state == Game.STATE_WON then
         self.state = Game.STATE_ENDLESS
         self:saveGameState()
@@ -987,10 +1003,14 @@ function Game:restart()
         end
         save.saveStats(_G.stats)
     end
+    self.powerups_used_this_run = 0
     if _G.achievements then
         _G.achievements.powerups_used_this_run = 0
         save.saveAchievements(_G.achievements)
     end
+    self.runTime = 0
+    self.undo_used_this_run = 0
+    self.swap_used_this_run = 0
     self:saveGameState()
 end
 
@@ -1094,10 +1114,11 @@ function Game:confirmTarget()
                 end
             end
 
-            if _G.achievements.powerups_used_this_run then
-                _G.achievements.powerups_used_this_run = _G.achievements.powerups_used_this_run + 1
+            self.powerups_used_this_run = (self.powerups_used_this_run or 0) + 1
+            if _G.achievements then
+                _G.achievements.powerups_used_this_run = self.powerups_used_this_run
+                save.saveAchievements(_G.achievements)
             end
-            save.saveAchievements(_G.achievements)
 
             self.state = self.won and Game.STATE_ENDLESS or Game.STATE_PLAYING
             self:saveGameState()
@@ -1167,10 +1188,11 @@ function Game:confirmTarget()
 
 
 
-            if _G.achievements.powerups_used_this_run then
-                _G.achievements.powerups_used_this_run = _G.achievements.powerups_used_this_run + 1
+            self.powerups_used_this_run = (self.powerups_used_this_run or 0) + 1
+            if _G.achievements then
+                _G.achievements.powerups_used_this_run = self.powerups_used_this_run
+                save.saveAchievements(_G.achievements)
             end
-            save.saveAchievements(_G.achievements)
 
             self.state = self.won and Game.STATE_ENDLESS or Game.STATE_PLAYING
             self:saveGameState()

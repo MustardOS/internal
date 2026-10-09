@@ -108,6 +108,7 @@ STOP_DIR() {
 	done
 }
 
+/opt/muos/script/init/S80pipewire.sh store
 VOLUME_RAMP down
 
 STOP_SERVICES() {

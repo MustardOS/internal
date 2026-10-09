@@ -473,6 +473,7 @@ DO_START() {
 
 	LOG_INFO "$0" 0 "PIPEWIRE" "Restoring Audio State"
 	alsactl -U -f "$DEVICE_CONTROL_DIR/asound.state" restore >/dev/null 2>&1
+	RECOVER_AUDIO_HARDWARE
 
 	if ! START_PIPEWIRE; then
 		LOG_ERROR "$0" 0 "PIPEWIRE" "Failed to start"
@@ -541,6 +542,32 @@ DO_SPEAKER_OFF() {
 	SET_SPEAKER_AMP 0
 }
 
+RECOVER_AUDIO_HARDWARE() {
+	case "$BOARD_NAME" in
+		rg-vita-pro)
+			amixer -q -c rockchipes8388 cset name='Speaker Switch' on >/dev/null 2>&1
+			amixer -q -c rockchipes8388 cset name='spk switch' on >/dev/null 2>&1
+			case "$(amixer -c rockchipes8388 cget name='PCM Volume' 2>/dev/null)" in
+				*": values=0,0"*)
+					LOG_WARN "$0" 0 "PIPEWIRE" "Saved audio state was silent, restoring the speaker level"
+					amixer -q -c rockchipes8388 cset name='PCM Volume' 100% >/dev/null 2>&1
+					;;
+			esac
+			;;
+	esac
+}
+
+STORE_AUDIO_STATE() {
+	SOCKET_READY || return 0
+
+	# A muted sink means the shutdown ramp already ran, so the hardware no longer holds the user's levels
+	case "$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null)" in
+		*MUTED*) return 0 ;;
+	esac
+
+	alsactl -U -f "$DEVICE_CONTROL_DIR/asound.state" store >/dev/null 2>&1
+}
+
 QUIESCE_AUDIO_HARDWARE() {
 	case "$BOARD_NAME" in
 		rg-vita-pro)
@@ -553,10 +580,8 @@ QUIESCE_AUDIO_HARDWARE() {
 DO_STOP() {
 	LOG_INFO "$0" 0 "PIPEWIRE" "Audio shutdown sequence..."
 
-	if SOCKET_READY; then
-		alsactl -U -f "$DEVICE_CONTROL_DIR/asound.state" store >/dev/null 2>&1
-		wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 >/dev/null 2>&1
-	fi
+	STORE_AUDIO_STATE
+	SOCKET_READY && wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 >/dev/null 2>&1
 
 	QUIESCE_AUDIO_HARDWARE
 	SET_SPEAKER_AMP 0 || LOG_WARN "$0" 0 "PIPEWIRE" "Unable to disable the speaker amplifier"
@@ -630,12 +655,13 @@ case "${1:-}" in
 	reload) DO_RELOAD ;;
 	prime) DO_PRIME ;;
 	speaker-off) DO_SPEAKER_OFF ;;
+	store) STORE_AUDIO_STATE ;;
 	status)
 		PRINT_STATUS
 		exit "$?"
 		;;
 	*)
-		printf "Usage: %s {start|stop|restart|reload|prime|speaker-off|status}\n" "$0"
+		printf "Usage: %s {start|stop|restart|reload|prime|speaker-off|store|status}\n" "$0"
 		exit 1
 		;;
 esac

@@ -7,17 +7,19 @@ FORCE_COPY=0
 
 MP64_DIR="$MUOS_SHARE_DIR/emulator/mupen64plus"
 
-mkdir -p "$MP64_DIR"
-MP64_TARGET="${MP64_DIR}/mupen64plus-device.cfg"
+COPY_CONTROL() {
+	SRC="$1"
+	DST="$2"
 
-if [ "$FORCE_COPY" -eq 1 ] || [ ! -f "$MP64_TARGET" ]; then
-	cp -f "$DEVICE_CONTROL_DIR/mupen64plus-device.cfg" "$MP64_TARGET"
-fi
+	# Not every device ships every Mupen64Plus control file
+	[ -f "$SRC" ] || return 0
 
-mkdir -p "${MP64_DIR}/configs"
-SRC_INI="${DEVICE_CONTROL_DIR}/Default-InputAutoCfg.ini"
-DST_INI="${MP64_DIR}/configs/Default-InputAutoCfg.ini"
+	if [ "$FORCE_COPY" -eq 1 ] || [ ! -f "$DST" ]; then
+		cp -f "$SRC" "$DST"
+	fi
+}
 
-if [ "$FORCE_COPY" -eq 1 ] || [ ! -f "$DST_INI" ]; then
-	cp -f "$SRC_INI" "$DST_INI"
-fi
+mkdir -p "$MP64_DIR/configs"
+
+COPY_CONTROL "$DEVICE_CONTROL_DIR/mupen64plus-device.cfg" "$MP64_DIR/mupen64plus-device.cfg"
+COPY_CONTROL "$DEVICE_CONTROL_DIR/Default-InputAutoCfg.ini" "$MP64_DIR/configs/Default-InputAutoCfg.ini"

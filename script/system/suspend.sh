@@ -747,7 +747,13 @@ RESUME() {
 
 		[ "$E_BRIGHT" -gt "$MAX_BRIGHT" ] && E_BRIGHT="$((MAX_BRIGHT - 16))"
 
-		/opt/muos/script/device/bright.sh "$E_BRIGHT"
+		# The first nudge only wakes the panel, so it is not saved and nothing
+		# watching the brightness setting sees a change that is about to undo itself
+		if [ "$B" -eq 0 ]; then
+			/opt/muos/script/device/bright.sh "$E_BRIGHT" transient
+		else
+			/opt/muos/script/device/bright.sh "$E_BRIGHT"
+		fi
 		B=$((B + 1))
 	done
 }

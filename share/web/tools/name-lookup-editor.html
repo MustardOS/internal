@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="mustardos-device" content="1">
+    <title>Name Lookup Editor | MustardOS Web Dashboard</title>
+    <link rel="icon" href="../logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="device-page">
+<header class="side-bar">
+    <div class="site-header">
+        <a href="../" class="site-title lh-tight"><img class="site-logo" src="../logo.svg" alt="" width="48" height="48"> MustardOS</a>
+        <button id="menu-button" class="site-button btn-reset" type="button" aria-label="Menu" aria-controls="site-nav" aria-expanded="false">
+            <svg viewBox="0 0 24 24" class="icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+    </div>
+    <nav aria-label="Main" id="site-nav" class="site-nav"></nav>
+</header>
+<div class="main" id="top">
+    <div class="main-content-wrap">
+        <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb-nav-list">
+                <li class="breadcrumb-nav-list-item"><a href="../#tools">Editors and Tools</a></li>
+                <li class="breadcrumb-nav-list-item"><span>Name Lookup Editor</span></li>
+            </ol>
+        </nav>
+        <div id="main-content" class="main-content">
+            <main>
+<h1> <strong>Name Lookup Editor</strong> </h1> <p>Create and edit friendly folder names and custom content-name lookup JSON in your browser, with files opened and the finished JSON downloaded locally.</p> <p class="note">Install the result under <code>MUOS/info/name</code> on SD1, SD2 or USB storage. Keep a backup before replacing an existing lookup.</p> <div class="tool"> <div class="toolbar"> <label class="file-button"> Open JSON <input id="open" class="sr-only" type="file" accept="application/json,.json"> </label> <button id="new">New</button> <button id="download" class="primary">Download</button> </div> <section class="panel"> <div class="setup"> <label><span>Lookup type</span> <select id="kind"> <option value="folder">Friendly folders</option> <option value="global">Global game names</option> <option value="specific">Names for one content folder</option> </select> </label> <label><span>Download filename</span><input id="filename" value="folder.json"></label> </div> <p id="kind-help" class="help"></p> <div class="controls"> <label><span>Filter entries</span><input id="filter" type="search" autocomplete="off"></label> <button id="add">Add entry</button> <label> <span class="sr-only">Add content files</span> <button id="choose-files" type="button">Add content files</button> <input id="content-files" class="sr-only" type="file" multiple> </label> </div> <div class="section-head"> <h2>  Entries <span id="count" class="count"></span> </h2> <button id="sort">Sort A-Z</button> </div> <div id="entries" class="entries"></div> <div id="empty" class="empty">No entries yet.</div> <details class="section"> <summary>Raw JSON</summary> <p class="help">The file must be one JSON object containing string keys and string values.</p> <textarea id="raw" spellcheck="false"></textarea> <button id="apply">Apply JSON</button> </details> <section class="section"> <div class="section-head"> <h2>  Validation </h2> <span id="status" class="status" role="status" aria-live="polite"></span> </div> <ul id="issues" class="validation"></ul> </section> </section> <script src="assets/js/tool-storage.js"></script> <script src="assets/js/name-lookup-editor.js"></script> </div>
+            </main>
+        </div>
+    </div>
+</div>
+<script src="../js/toolnav.js" defer></script>
+</body>
+</html>

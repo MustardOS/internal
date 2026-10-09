@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="mustardos-device" content="1">
+    <title>BIOS Checker | MustardOS Web Dashboard</title>
+    <link rel="icon" href="../logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="device-page">
+<header class="side-bar">
+    <div class="site-header">
+        <a href="../" class="site-title lh-tight"><img class="site-logo" src="../logo.svg" alt="" width="48" height="48"> MustardOS</a>
+        <button id="menu-button" class="site-button btn-reset" type="button" aria-label="Menu" aria-controls="site-nav" aria-expanded="false">
+            <svg viewBox="0 0 24 24" class="icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+    </div>
+    <nav aria-label="Main" id="site-nav" class="site-nav"></nav>
+</header>
+<div class="main" id="top">
+    <div class="main-content-wrap">
+        <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb-nav-list">
+                <li class="breadcrumb-nav-list-item"><a href="../#tools">Editors and Tools</a></li>
+                <li class="breadcrumb-nav-list-item"><span>BIOS Checker</span></li>
+            </ol>
+        </nav>
+        <div id="main-content" class="main-content">
+            <main>
+<h1> <strong>BIOS Checker</strong> </h1> <p>Open the <code>MUOS/bios</code> folder from your SD card to see which BIOS files are present, which are the wrong version, which have the wrong name, and which are missing. Every file is checked in your browser and nothing is uploaded.</p> <p class="note">Each file is compared against the MD5 checksums in the MustardOS core manifests. Some systems accept several regional BIOS files, so a system only needs the ones its games use, and each name must match exactly, including capital letters.</p> <div class="tool" id="bios-tool"> <div class="toolbar"> <label class="file-button"> Open BIOS Folder <input id="bios-folder" class="sr-only" type="file" webkitdirectory multiple> </label> <label class="file-button"> Open Files <input id="bios-files" class="sr-only" type="file" multiple> </label> <label class="bios-toggle"><input id="bios-problems" type="checkbox"> <span>Show systems with no files</span></label> <span id="bios-status" class="status" role="status" aria-live="polite">Open your BIOS folder or drop it here.</span> </div> <div id="bios-empty" class="empty">No BIOS files checked yet.</div> <dl id="bios-summary" class="summary bios-summary" hidden></dl> <div id="bios-results" class="bios-results"></div> </div> <script src="assets/js/tool-storage.js"></script> <script src="assets/js/vendor/spark-md5.min.js"></script> <script src="assets/js/bios-checker.js"></script>
+            </main>
+        </div>
+    </div>
+</div>
+<script src="../js/toolnav.js" defer></script>
+</body>
+</html>

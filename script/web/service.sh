@@ -32,7 +32,7 @@ REMOTE_VIEW_SECONDS() {
 
 	case "$(GET_VAR "config" "web/remote_view")" in
 		0) ;;
-		1) printf '30' ;;
+		1 | 6) printf '30' ;;
 		3) printf '180' ;;
 		4) printf '300' ;;
 		5) printf '600' ;;
@@ -111,12 +111,17 @@ PREPARE_LANDING_ROOT() {
 	mkdir -p "$LANDING_ROOT/js" "$LANDING_ROOT/css" "$LANDING_ROOT/icon" || return 1
 
 	cp -f "$LANDING_SOURCE"/index.html "$LANDING_SOURCE"/logo.svg "$LANDING_SOURCE"/manifest.json "$LANDING_ROOT"/ || return 1
-	cp -f "$LANDING_SOURCE"/icon/*.png "$LANDING_ROOT/icon"/ || return 1
+	cp -f "$LANDING_SOURCE"/icon/*.png "$LANDING_SOURCE"/icon/*.svg "$LANDING_ROOT/icon"/ || return 1
 	cp -f "$LANDING_SOURCE"/css/dashboard.css "$LANDING_ROOT/css"/ || return 1
 
-	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists snapshot remote player crop catalogue pickles boot; do
+	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists snapshot remote player crop catalogue pickles tools toolnav boot; do
 		cp -f "$LANDING_SOURCE/js/$LANDING_PART.js" "$LANDING_ROOT/js"/ || return 1
 	done
+
+	if [ -d "$LANDING_SOURCE/tools" ]; then
+		mkdir -p "$LANDING_ROOT/tools" || return 1
+		cp -rf "$LANDING_SOURCE/tools/." "$LANDING_ROOT/tools/" || return 1
+	fi
 
 	mkdir -p "$LANDING_ROOT/state" || return 1
 	"$LANDING_STATUS" once || LOG_WARN "$0" 0 "WEB" "Web Dashboard could not gather its first reading"
@@ -246,6 +251,10 @@ MANAGE_WEBSERV() {
 					mkdir -p "$LANDING_INFO/history" "$LANDING_INFO/collection"
 					set -- "$@" --history "$LANDING_INFO/history" --collection "$LANDING_INFO/collection"
 
+					# The editors and tools open and save names, profiles, equaliser profiles, activity and
+					# core assignments under storage, and read the bundled core assignments from share.
+					set -- "$@" --storage "$MUOS_STORE_DIR" --share "$MUOS_SHARE_DIR"
+
 					# Only the ROMS directory of each storage root: the rest of a card holds
 					# BIOS files, ports, muOS itself and whatever else has been copied on, and
 					# none of that is content the catalogue is responsible for. The device's
@@ -282,6 +291,14 @@ MANAGE_WEBSERV() {
 					if [ -n "$LANDING_SCREEN" ]; then
 						set -- "$@" --screen-script /opt/muos/script/web/screen.sh \
 							--screen-image "$MUOS_RUN_DIR/dash_screenshot.png" --screen-interval "$LANDING_SCREEN"
+
+						# Live streams the screen through muscreen instead of a picture every interval,
+						# which stays as the fallback when the stream cannot start.
+						LANDING_LIVE=/opt/muos/frontend/muscreen
+						if [ "$(GET_VAR "config" "web/remote_view")" = "6" ] && [ -x "$LANDING_LIVE" ]; then
+							set -- "$@" --screen-live "$LANDING_LIVE"
+						fi
+
 						REMOTE_VIEW_PUBLIC && set -- "$@" --screen-public
 					else
 						rm -f "$MUOS_RUN_DIR/dash_screenshot.png" "$MUOS_RUN_DIR/dash_screenshot.png.state"

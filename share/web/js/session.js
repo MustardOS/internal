@@ -89,6 +89,7 @@
 
         if (response.status === 401) {
             session = "";
+            remember("");
             auth.unlocked = 0;
             announce();
         }
@@ -97,10 +98,14 @@
         return payload;
     }
 
-    async function fetchAuthed(path) {
-        const response = await fetch(path, {headers: session ? {"X-muOS-Session": session} : {}, cache: "no-store"});
+    async function fetchAuthed(path, options) {
+        const response = await fetch(path, Object.assign({
+            headers: session ? {"X-muOS-Session": session} : {},
+            cache: "no-store"
+        }, options || {}));
         if (response.status === 401) {
             session = "";
+            remember("");
             auth.unlocked = 0;
             announce();
         }
@@ -108,7 +113,21 @@
     }
 
     const lockButton = el("lock-toggle");
+    const SESSION_KEY = "muos-session";
     let session = "";
+    try {
+        session = sessionStorage.getItem(SESSION_KEY) || "";
+    } catch (_) {
+        session = "";
+    }
+
+    function remember(token) {
+        try {
+            if (token) sessionStorage.setItem(SESSION_KEY, token);
+            else sessionStorage.removeItem(SESSION_KEY);
+        } catch (_) {
+        }
+    }
     const listeners = [];
 
     function announce() {
@@ -148,6 +167,7 @@
             if (!opened.token) throw new Error(t(opened.error || "That code was not accepted"));
 
             session = opened.token;
+            remember(session);
             auth.unlocked = 1;
             showToast(t("Unlocked"), "good");
         } catch (error) {
@@ -160,6 +180,7 @@
     async function lock() {
         const held = session;
         session = "";
+        remember("");
         auth.unlocked = 0;
         announce();
 

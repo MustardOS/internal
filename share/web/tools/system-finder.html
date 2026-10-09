@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="mustardos-device" content="1">
+    <title>System Finder | MustardOS Web Dashboard</title>
+    <link rel="icon" href="../logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="device-page">
+<header class="side-bar">
+    <div class="site-header">
+        <a href="../" class="site-title lh-tight"><img class="site-logo" src="../logo.svg" alt="" width="48" height="48"> MustardOS</a>
+        <button id="menu-button" class="site-button btn-reset" type="button" aria-label="Menu" aria-controls="site-nav" aria-expanded="false">
+            <svg viewBox="0 0 24 24" class="icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+    </div>
+    <nav aria-label="Main" id="site-nav" class="site-nav"></nav>
+</header>
+<div class="main" id="top">
+    <div class="main-content-wrap">
+        <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb-nav-list">
+                <li class="breadcrumb-nav-list-item"><a href="../#tools">Editors and Tools</a></li>
+                <li class="breadcrumb-nav-list-item"><span>System Finder</span></li>
+            </ol>
+        </nav>
+        <div id="main-content" class="main-content">
+            <main>
+<h1 id="system-finder">  <strong>System Finder</strong> </h1> <p>Explore Content does not depend on any naming convention. Your content and folders can use any names you like and can sit as many subfolders deep as you want, because the only thing MustardOS needs is a system and core assigned to the content or to a folder that holds it. See <a href="https://muos.dev/systems/cores">Core Assignment</a> for how to assign them from the device.</p> <blockquote class="note"> <p>The folder names listed below are optional shortcuts. When a folder uses one of them, MustardOS assigns the system and its default core automatically, matching without regard to case, spaces, hyphens, underscores or plus signs, so <code class="language-plaintext highlighter-rouge">Game Boy Advance</code> and <code class="language-plaintext highlighter-rouge">gameboyadvance</code> both work. Any other name works just as well once it has an assignment.</p> </blockquote> <p>Type a system, console or folder name to see the folder names MustardOS assigns automatically, the cores that run the system, and any BIOS files it needs.</p> <div class="tool" id="files-tool"> <label class="files-search"><span>System or folder name</span> <input id="files-query" type="search" autocomplete="off" placeholder="For example: gba, PlayStation, megadrive" /> </label> <p id="files-status" class="help" role="status" aria-live="polite">Loading the system list…</p> <div id="files-results" class="files-results"></div> </div> <p class="note">BIOS files go in <code>MUOS/bios</code> on SD1 or SD2. Use the <a href="https://muos.dev/tools/bios-checker">BIOS Checker</a> to confirm yours are correct.</p> <script src="assets/js/tool-storage.js"></script> <script src="assets/js/where-files.js"></script>
+            </main>
+        </div>
+    </div>
+</div>
+<script src="../js/toolnav.js" defer></script>
+</body>
+</html>

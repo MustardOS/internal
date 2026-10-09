@@ -8,6 +8,8 @@
             history.replaceState({view: "dash", where: null}, "");
         } catch (_) {
         }
-        show("dash", false);
+        const requested = location.hash.slice(1);
+        const start = requested && document.querySelector(`[data-view="${CSS.escape(requested)}"]`) ? requested : "dash";
+        show(start, false);
     });
 }());

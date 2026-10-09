@@ -61,6 +61,13 @@
             </li>
         </ul>
 
+        <div class="nav-category">Editors and Tools</div>
+        <ul class="nav-list" id="nav-tools">
+            <li class="nav-list-item">
+                <button class="nav-list-link" type="button" data-view="tools">All Editors and Tools</button>
+            </li>
+        </ul>
+
         <div class="nav-category">Documentation</div>
         <ul class="nav-list">
             <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/tour">Grand Tour</a></li>
@@ -96,7 +103,7 @@
 
 <main class="main-content-wrap">
     <div class="view" id="view-dash">
-        <h1>Dashboard</h1>
+        <h1><strong>Dashboard</strong></h1>
 
         <p class="box offline" id="offline" hidden>No data from the device.</p>
 
@@ -200,7 +207,7 @@
 
     <div class="view" id="view-activity" hidden>
         <div class="view-head">
-            <h1>Activity Tracker</h1>
+            <h1><strong>Activity Tracker</strong></h1>
             <button class="link" type="button" id="tracker-save" hidden>Save as image</button>
         </div>
 
@@ -270,7 +277,7 @@
 
     <div class="view" id="view-system" hidden>
         <div class="view-head">
-            <h1>System Information</h1>
+            <h1><strong>System Information</strong></h1>
             <button class="link" type="button" id="system-save" hidden>Save as image</button>
         </div>
 
@@ -279,8 +286,17 @@
         <div class="grid grid-2 system-grid" id="system-sections"></div>
     </div>
 
+    <div class="view" id="view-tools" hidden>
+        <h1><strong>Editors and Tools</strong></h1>
+        <p class="note">The editors and tools from the MustardOS website, set up to open and save files on this device
+            directly, so they work without an internet connection. Saving needs the dashboard unlocked, and the
+            previous copy of a file is kept beside it as a .bak file.</p>
+        <div class="tool-list" id="tools-list"></div>
+        <p class="note" id="tools-empty" hidden>The tools are not installed on this device.</p>
+    </div>
+
     <div class="view" id="view-history" hidden>
-        <h1>History</h1>
+        <h1><strong>History</strong></h1>
 
         <div class="box" role="region" aria-label="History">
             <div class="head">
@@ -293,7 +309,7 @@
     </div>
 
     <div class="view" id="view-collections" hidden>
-        <h1>Collections</h1>
+        <h1><strong>Collections</strong></h1>
 
         <div class="box" role="region" aria-label="Collections">
             <div class="head">
@@ -312,7 +328,7 @@
 
     <div class="view" id="view-remote" hidden>
         <div class="view-head">
-            <h1>Remote View</h1>
+            <h1><strong>Remote View</strong></h1>
             <div class="list-tools">
                 <button class="link" type="button" id="remote-refresh" hidden>Refresh now</button>
                 <button class="link" type="button" id="remote-save" hidden>Save image</button>
@@ -331,7 +347,7 @@
     </div>
 
     <div class="view" id="view-catalogue" data-library-tools hidden>
-        <h1>Catalogue</h1>
+        <h1><strong>Catalogue</strong></h1>
 
         <div class="box" role="region" aria-label="Catalogue">
             <div class="space" id="catalogue-space" role="group" aria-label="Storage" hidden>
@@ -351,7 +367,7 @@
     </div>
 
     <div class="view" id="view-pickles" data-library-tools hidden>
-        <h1>Saves</h1>
+        <h1><strong>Saves</strong></h1>
 
         <div class="box" role="region" aria-label="Saves">
             <div class="space" id="pickles-space" role="group" aria-label="Storage" hidden>
@@ -438,6 +454,7 @@
     <script src="js/snapshot.js" defer></script>
     <script src="js/remote.js" defer></script>
     <script src="js/player.js" defer></script>
+    <script src="js/tools.js" defer></script>
     <!-- Catalogue and save management remain available in source while hidden for this release. -->
     <script src="js/boot.js" defer></script>
 </body>

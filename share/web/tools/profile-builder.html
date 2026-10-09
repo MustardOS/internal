@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="mustardos-device" content="1">
+    <title>Profile Builder | MustardOS Web Dashboard</title>
+    <link rel="icon" href="../logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="device-page">
+<header class="side-bar">
+    <div class="site-header">
+        <a href="../" class="site-title lh-tight"><img class="site-logo" src="../logo.svg" alt="" width="48" height="48"> MustardOS</a>
+        <button id="menu-button" class="site-button btn-reset" type="button" aria-label="Menu" aria-controls="site-nav" aria-expanded="false">
+            <svg viewBox="0 0 24 24" class="icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+    </div>
+    <nav aria-label="Main" id="site-nav" class="site-nav"></nav>
+</header>
+<div class="main" id="top">
+    <div class="main-content-wrap">
+        <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb-nav-list">
+                <li class="breadcrumb-nav-list-item"><a href="../#tools">Editors and Tools</a></li>
+                <li class="breadcrumb-nav-list-item"><span>Profile Builder</span></li>
+            </ol>
+        </nav>
+        <div id="main-content" class="main-content">
+            <main>
+<h1> <strong>Profile Builder</strong> </h1> <p>Choose the settings you want and download them as a settings profile. Copy it to <code>MUOS/profile</code> and it appears under <a href="https://muos.dev/tour/modules/muxprofile">Profiles</a>, ready to apply. To set up a freshly flashed card before its first start, save it as <code>profile.conf</code> on the card's <code>ROMS</code> partition, and the device applies it before the installer appears.</p> <p>Profiles never contain wireless network details, kiosk restrictions, Danger Settings or your passcode, so they are safe to share. To connect a new card to wifi, see <a href="#network-settings-profile">Network Settings Profile</a> below.</p> <div class="tool" id="profile-tool"> <div class="toolbar"> <label class="file-button"> Open Profile <input id="profile-open" class="sr-only" type="file" accept=".conf,text/plain"> </label> <button id="profile-clear" type="button">Clear</button> <button id="profile-download" class="primary" type="button">Download Profile</button> <button id="profile-download-oem" type="button">Download for New Devices</button> <span id="profile-status" class="status" role="status" aria-live="polite"></span> </div> <section class="panel"> <div class="setup"> <label><span>Start from a built-in profile</span> <select id="profile-preset"></select> </label> <label><span>Profile name</span><input id="profile-name" value="My Profile" autocomplete="off" maxlength="48"></label> <label class="wide"><span>Description</span><input id="profile-description" autocomplete="off" maxlength="200"></label> </div> <div id="profile-unknown" class="validation" hidden></div> </section> <section class="panel"> <div class="section-head"> <h2> Settings </h2> <span class="count" id="profile-count"></span> </div> <div class="toolbar"> <input id="profile-search" type="search" placeholder="Search settings" aria-label="Search settings" autocomplete="off"> <label class="profile-only"><input id="profile-only" type="checkbox"> <span>Included only</span></label> </div> <div id="profile-groups" class="profile-groups"></div> </section> </div> <div class="tool"> <details class="panel profile-section" id="network-settings-profile"> <summary> <h2> Network Settings Profile </h2> </summary> <p>For your security, the builder never handles network details. To have a freshly flashed card join a wifi network from its first start, create a plain text file named <code>wifi.conf</code> next to <code>profile.conf</code> on the card's <code>ROMS</code> partition. Most networks only need two lines:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssid=My Network
+pass=my wifi password</code></pre></div></div> <p>To use a fixed address instead of one given by the router, add the address lines as well:</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssid=My Network
+pass=my wifi password
+type=static
+address=192.168.0.123
+subnet=24
+gateway=192.168.0.1
+dns=1.1.1.1</code></pre></div></div> <p>Write each setting on its own line as <code>name=value</code>. Lines starting with <code>#</code> are ignored. The file works without a <code>profile.conf</code> beside it.</p> <p>The device reads <code>wifi.conf</code> once, before the installer appears, and keeps the details only in its own network settings. The file itself is removed when the card is prepared. If any line has a mistake, nothing from the file is used and <code>MUOS/log/profile/wifi_error.txt</code> explains what to fix, with the password left out. Network lines in any other profile are refused.</p> <div class="table-wrapper"><table class="profile-wifi"> <thead> <tr><th>Name</th><th>Accepts</th><th>What it sets</th></tr> </thead> <tbody id="profile-wifi-keys"></tbody> </table></div> </details> </div> <script src="assets/js/tool-storage.js"></script> <script src="assets/js/profile-builder.js"></script>
+            </main>
+        </div>
+    </div>
+</div>
+<script src="../js/toolnav.js" defer></script>
+</body>
+</html>

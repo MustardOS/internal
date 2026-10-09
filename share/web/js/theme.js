@@ -51,8 +51,8 @@
         const raised = mix(panel, lift, 0.05);
         const line = mix(panel, lift, 0.15);
 
-        const heading = readable(hex(palette.heading) || [255, 255, 255], panel, 7);
-        const text = readable(hex(palette.text) || mix(heading, panel, 0.25), panel, 4.5);
+        const heading = readable(hex(palette.heading) || [255, 255, 255], raised, 7);
+        const text = readable(hex(palette.text) || mix(heading, panel, 0.25), raised, 4.5);
         const accent = hex(palette.accent);
 
         const set = (name, value) => document.documentElement.style.setProperty(name, value);
@@ -63,10 +63,10 @@
         set("--line", toHex(line));
         set("--head", toHex(heading));
         set("--text", toHex(text));
-        set("--muted", toHex(readable(mix(text, panel, 0.45), panel, 3)));
-        if (accent) set("--accent", toHex(readable(accent, panel, 3.5)));
-        if (hex(palette.warn)) set("--warn", toHex(readable(hex(palette.warn), panel, 3.5)));
-        if (hex(palette.good)) set("--good", toHex(readable(hex(palette.good), panel, 3.5)));
+        set("--muted", toHex(readable(mix(text, panel, 0.45), raised, 4.5)));
+        if (accent) set("--accent", toHex(readable(accent, raised, 4.5)));
+        if (hex(palette.warn)) set("--warn", toHex(readable(hex(palette.warn), raised, 4.5)));
+        if (hex(palette.good)) set("--good", toHex(readable(hex(palette.good), raised, 4.5)));
 
         const meta = document.querySelector('meta[name="theme-color"]');
         if (meta) meta.setAttribute("content", toHex(page));

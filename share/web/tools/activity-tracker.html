@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="mustardos-device" content="1">
+    <title>Activity Tracker Importer | MustardOS Web Dashboard</title>
+    <link rel="icon" href="../logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="device-page">
+<header class="side-bar">
+    <div class="site-header">
+        <a href="../" class="site-title lh-tight"><img class="site-logo" src="../logo.svg" alt="" width="48" height="48"> MustardOS</a>
+        <button id="menu-button" class="site-button btn-reset" type="button" aria-label="Menu" aria-controls="site-nav" aria-expanded="false">
+            <svg viewBox="0 0 24 24" class="icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+    </div>
+    <nav aria-label="Main" id="site-nav" class="site-nav"></nav>
+</header>
+<div class="main" id="top">
+    <div class="main-content-wrap">
+        <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb-nav-list">
+                <li class="breadcrumb-nav-list-item"><a href="../#tools">Editors and Tools</a></li>
+                <li class="breadcrumb-nav-list-item"><span>Activity Tracker Importer</span></li>
+            </ol>
+        </nav>
+        <div id="main-content" class="main-content">
+            <main>
+<h1> <strong>Activity Tracker Importer</strong> </h1> <p>Open the play history your device records to see the same statistics as the <a href="https://muos.dev/tour/modules/muxactivity">Activity Tracker</a>, with the files read in your browser and nothing uploaded.</p> <p class="note">Activity lives in <code>MUOS/info/track</code> on the storage MustardOS uses for its data, either SD1, SD2 or USB. Each title has its own record, so open the whole <code>track</code> folder or pick several records at once. A <code>playtime_data.json</code> from an older release opens too. A device on your network can show the same report without copying anything, from Activity Tracker in the <a href="https://muos.dev/web/dashboard">Web Dashboard</a>.</p> <p>Select a title in the table to change its name, launches, play time or dates, or to remove it. <strong>Download</strong> saves your changes in the same form you opened them: one file keeps its name, and several records download as a zip to copy back into <code>MUOS/info/track</code>, replacing the files that are there. Removed titles are emptied rather than deleted, so copying them back clears them on the device too.</p> <div class="tool" id="activity-tool"> <div class="toolbar"> <label class="file-button"> Open Folder <input id="open-folder" class="sr-only" type="file" webkitdirectory multiple> </label> <label class="file-button"> Open Files <input id="open" class="sr-only" type="file" accept="application/json,.json" multiple> </label> <button id="download" class="primary" disabled>Download</button> <span id="status" class="status" role="status" aria-live="polite">Open the track folder or its records, or drop them here.</span> </div> <div id="empty" class="empty">No activity loaded yet.</div> <div id="report" hidden> <section class="panel"> <div class="section-head"> <h2> Global Summary </h2> <span id="source" class="help"></span> </div> <dl id="summary" class="summary"></dl> </section> <section class="panel activity-panel" id="review-panel" hidden> <div class="section-head"> <h2> Year in Review </h2> <div class="row-actions"> <label class="review-year"><span class="sr-only">Year</span><select id="review-year"></select></label> <button id="review-save" type="button">Save Image</button> </div> </div> <div id="review-cards" class="review-cards"></div> <p class="help">Built from each title's recent session history, which keeps the last 50 sessions per title.</p> <canvas id="review-canvas" width="1080" height="1350" hidden></canvas> </section> <section class="panel activity-panel"> <div class="section-head"> <h2>  Content Statistics <span id="count" class="count"></span> </h2> </div> <label class="activity-filter"><span>Filter content</span> <input id="filter" type="search" autocomplete="off"> </label> <div class="table-wrapper"> <div class="table-wrapper"><table class="activity-table"> <thead> <tr id="columns"></tr> </thead> <tbody id="rows"></tbody> </table></div> </div> <div id="no-match" class="empty" hidden>No content matches that filter.</div> </section> <section class="panel" id="edit-panel" hidden> <div class="section-head"> <h2>  Edit <span id="edit-title"></span> </h2> <span id="edit-path" class="help"></span> </div> <div class="form-grid"> <label><span>Name</span><input id="edit-name" autocomplete="off"></label> <label><span>Launches</span><input id="edit-launches" type="number" min="0" step="1"></label> <label><span>Play time hours</span><input id="edit-hours" type="number" min="0" step="1"></label> <label><span>Play time minutes</span><input id="edit-minutes" type="number" min="0" max="59" step="1"></label> <label><span>First played</span><input id="edit-first" type="datetime-local"></label> <label><span>Last played</span><input id="edit-last" type="datetime-local"></label> </div> <div class="row-actions"> <button id="edit-apply" class="primary">Apply</button> <button id="edit-cancel">Cancel</button> <button id="edit-remove" class="danger">Remove title</button> </div> </section> <section class="panel activity-panel" id="sessions-panel" hidden> <div class="section-head"> <h2>  Recent Sessions </h2> </div> <div class="table-wrapper"> <div class="table-wrapper"><table class="activity-table"> <thead> <tr id="session-columns"></tr> </thead> <tbody id="sessions"></tbody> </table></div> </div> </section> </div> <script src="assets/js/tool-storage.js"></script> <script src="assets/js/activity.js"></script> <script src="assets/js/activity-tracker.js"></script> <script src="assets/js/year-review.js"></script> </div>
+            </main>
+        </div>
+    </div>
+</div>
+<script src="../js/toolnav.js" defer></script>
+</body>
+</html>

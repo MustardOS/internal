@@ -25,6 +25,9 @@
     let pollTimer = 0;
     let barTimer = 0;
     let requestedAt = 0;
+    let live = null;
+    let liveRetry = 0;
+    let liveUnavailable = false;
 
     el("nav-remote").hidden = !runtime.remoteView;
 
@@ -50,7 +53,7 @@
     }
 
     function paintBar() {
-        if (!lastStatus || !capturedAt) {
+        if (live || !lastStatus || !capturedAt) {
             progress.hidden = true;
             return;
         }
@@ -92,8 +95,109 @@
         capturedAt = 0;
     }
 
+    function stopLive() {
+        clearTimeout(liveRetry);
+        if (live) live.abort();
+        live = null;
+    }
+
+    function joined(a, b) {
+        const out = new Uint8Array(a.length + b.length);
+        out.set(a);
+        out.set(b, a.length);
+        return out;
+    }
+
+    function headerEnd(bytes) {
+        for (let i = 0; i + 3 < bytes.length; i++) {
+            if (bytes[i] === 13 && bytes[i + 1] === 10 && bytes[i + 2] === 13 && bytes[i + 3] === 10) return i;
+        }
+        return -1;
+    }
+
+    async function startLive(rotate) {
+        if (live) return;
+        const controller = new AbortController();
+        live = controller;
+        note.textContent = t("Connecting to the live screen…");
+
+        let latest = null;
+        let drawing = false;
+        const show = async () => {
+            if (drawing) return;
+            drawing = true;
+            while (latest) {
+                const blob = latest;
+                latest = null;
+                try {
+                    await draw(blob, rotate);
+                    shownBlob = blob;
+                    capturedAt = Date.now();
+                    saveButton.hidden = false;
+                } catch (_) {
+                }
+            }
+            drawing = false;
+        };
+
+        try {
+            const response = await MU.fetchAuthed("api/screen/live", {signal: controller.signal});
+            if (!response.ok || !response.body) {
+                if (response.status === 404) liveUnavailable = true;
+                throw new Error(String(response.status));
+            }
+
+            note.textContent = t("Live. The screen streams while this page is open.");
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let pending = new Uint8Array(0);
+
+            for (;;) {
+                const {value, done} = await reader.read();
+                if (done) break;
+                pending = joined(pending, value);
+
+                for (;;) {
+                    const end = headerEnd(pending);
+                    if (end < 0) break;
+                    const head = decoder.decode(pending.subarray(0, end));
+                    const size = /Content-Length:\s*(\d+)/i.exec(head);
+                    const type = /Content-Type:\s*([^\r\n;]+)/i.exec(head);
+                    const start = end + 4;
+                    if (!size) {
+                        pending = pending.slice(start);
+                        continue;
+                    }
+                    const length = Number(size[1]);
+                    if (pending.length < start + length + 2) break;
+
+                    const body = pending.slice(start, start + length);
+                    pending = pending.slice(start + length + 2);
+
+                    if (type && type[1].trim() === "image/jpeg") {
+                        note.textContent = t("Live. The screen streams while this page is open.");
+                        latest = new Blob([body], {type: "image/jpeg"});
+                        show();
+                    } else {
+                        canvas.hidden = true;
+                        note.textContent = t("A private screen is open on the device, so it is not shown.");
+                    }
+                }
+            }
+        } catch (_) {
+        }
+
+        if (live !== controller) return;
+        live = null;
+        if (open() && allowed() && !liveUnavailable) liveRetry = setTimeout(() => tick("GET"), 2000);
+        else if (liveUnavailable) tick("GET");
+    }
+
     async function refresh(method) {
-        if (!allowed()) return showLocked(t("Unlock with the Web Dashboard Code to see the screen."));
+        if (!allowed()) {
+            stopLive();
+            return showLocked(t("Unlock with the Web Dashboard Code to see the screen."));
+        }
 
         let status;
         try {
@@ -108,6 +212,15 @@
 
         if (method === "POST") requestedAt = Date.now();
         if (requestedAt && (status.captured !== shownCapture || Date.now() - requestedAt > REQUEST_WAIT)) requestedAt = 0;
+
+        if (status.live && !liveUnavailable) {
+            unlockButton.hidden = true;
+            refreshButton.hidden = true;
+            progress.hidden = true;
+            lastStatus = null;
+            startLive(status.rotate || 0);
+            return "live";
+        }
 
         lastStatus = status;
         capturedAt = status.captured && status.age >= 0 ? Date.now() - status.age * 1000 : 0;
@@ -137,15 +250,20 @@
     }
 
     async function tick(method) {
-        if (ticking || !open()) return;
+        if (!open()) {
+            stopLive();
+            return;
+        }
+        if (ticking || live) return;
         ticking = 1;
+        let mode = "";
         try {
-            await refresh(method);
+            mode = await refresh(method);
         } catch (_) {
             note.textContent = t("Could not reach the device.");
         } finally {
             ticking = 0;
-            schedule();
+            if (mode !== "live") schedule();
         }
     }
 
@@ -180,7 +298,11 @@
     unlockButton.addEventListener("click", () => MU.unlock());
 
     document.addEventListener("visibilitychange", () => tick("GET"));
+    new MutationObserver(() => {
+        if (el("view-remote").hidden) stopLive();
+    }).observe(el("view-remote"), {attributes: true, attributeFilter: ["hidden"]});
     MU.onAuthChange(() => {
+        if (!allowed()) stopLive();
         if (!el("view-remote").hidden) tick("GET");
     });
 

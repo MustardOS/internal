@@ -23,6 +23,10 @@ CHARGER="/tmp/charger_bright"
 
 SAFE_BRIGHT=10
 
+# A second argument of "transient" applies a value to the display without saving it
+TRANSIENT=0
+[ "${2:-}" = transient ] && TRANSIENT=1
+
 # This is the most stupidest thing yet, some devices actually invert
 # their brightness method, so now we have to invert our calculations
 INVERT_BRIGHT=0
@@ -100,8 +104,9 @@ SET_CURRENT() {
 		[ "$PERSIST" -lt 1 ] && PERSIST=1
 		[ "$PERSIST" -gt "$MAX_BRIGHT" ] && PERSIST="$MAX_BRIGHT"
 
-		# Set the new value regardless of previous brightness value!
-		SET_VAR "config" "settings/general/brightness" "$PERSIST"
+		# Set the new value regardless of previous brightness value, unless
+		# this is a transient nudge that should only reach the display
+		[ "$TRANSIENT" -eq 1 ] || SET_VAR "config" "settings/general/brightness" "$PERSIST"
 	fi
 }
 

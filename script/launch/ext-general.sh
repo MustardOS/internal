@@ -15,6 +15,7 @@ SETUP_SDL_ENVIRONMENT keep_cursor
 SET_VAR "system" "foreground_process" "external"
 
 if [ "$IS_32BIT" -eq 1 ]; then
+	unset LD_PRELOAD
 	export PIPEWIRE_MODULE_DIR="/usr/lib32/pipewire-0.3"
 	export SPA_PLUGIN_DIR="/usr/lib32/spa-0.2"
 fi

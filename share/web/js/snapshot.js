@@ -21,7 +21,7 @@
             line: read("--line", "#44434d"),
             text: read("--text", "#b8b8b8"),
             head: read("--head", "#ffffff"),
-            muted: read("--muted", "#959396"),
+            muted: read("--muted", "#989699"),
             accent: read("--accent", "#c7af26"),
             sans: read("--sans", "system-ui, sans-serif"),
             mono: read("--mono", "monospace")

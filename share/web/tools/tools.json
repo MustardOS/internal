@@ -1,0 +1,56 @@
+[
+  {
+    "slug": "system-finder",
+    "title": "System Finder",
+    "description": "See which folder names are assigned automatically, the cores for each system and the BIOS files it needs.",
+    "icon": "assets/icons/tour-assets-glyphs-muxlaunch-explore.svg"
+  },
+  {
+    "slug": "bios-checker",
+    "title": "BIOS Checker",
+    "description": "Check your BIOS folder for missing, misnamed and wrong version files.",
+    "icon": "assets/icons/tour-assets-glyphs-muxinfo-sysinfo.svg"
+  },
+  {
+    "slug": "core-assign-editor",
+    "title": "Core Assign Editor",
+    "description": "Edit the systems, Libretro cores, External emulators, BIOS files and requirements in core.json.",
+    "icon": "assets/icons/tour-assets-glyphs-muxconfig-core.svg"
+  },
+  {
+    "slug": "name-lookup-editor",
+    "title": "Name Lookup Editor",
+    "description": "Create friendly folder names and custom content names for Explore Content.",
+    "icon": "assets/icons/tour-assets-glyphs-muxcontent-font.svg"
+  },
+  {
+    "slug": "playlist-builder",
+    "title": "Playlist Builder",
+    "description": "Build multi-disc game playlists, and Wasabi media playlists and channel lists.",
+    "icon": "assets/icons/tour-assets-glyphs-muxmedia-folder.svg"
+  },
+  {
+    "slug": "activity-tracker",
+    "title": "Activity Tracker Importer",
+    "description": "Read and edit your play history, and save a Year in Review to share.",
+    "icon": "assets/icons/tour-assets-glyphs-muxinfo-activity.svg"
+  },
+  {
+    "slug": "profile-builder",
+    "title": "Profile Builder",
+    "description": "Choose settings and download them as a profile to apply on your device or set up a new one.",
+    "icon": "assets/icons/tour-assets-glyphs-muxconfig-access.svg"
+  },
+  {
+    "slug": "theme-validator",
+    "title": "Theme Validator",
+    "description": "Check a theme's structure, scheme files, glyphs and images before you share it.",
+    "icon": "assets/icons/tour-assets-glyphs-muxconfig-theme.svg"
+  },
+  {
+    "slug": "equaliser-editor",
+    "title": "Equaliser Profile Editor",
+    "description": "Shape and hear an equaliser profile, then download it for the Wasabi Equaliser.",
+    "icon": "assets/icons/tour-assets-glyphs-muxmedia-audiofilter.svg"
+  }
+]

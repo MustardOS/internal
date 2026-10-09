@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="mustardos-device" content="1">
+    <title>Equaliser Profile Editor | MustardOS Web Dashboard</title>
+    <link rel="icon" href="../logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="device-page">
+<header class="side-bar">
+    <div class="site-header">
+        <a href="../" class="site-title lh-tight"><img class="site-logo" src="../logo.svg" alt="" width="48" height="48"> MustardOS</a>
+        <button id="menu-button" class="site-button btn-reset" type="button" aria-label="Menu" aria-controls="site-nav" aria-expanded="false">
+            <svg viewBox="0 0 24 24" class="icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+    </div>
+    <nav aria-label="Main" id="site-nav" class="site-nav"></nav>
+</header>
+<div class="main" id="top">
+    <div class="main-content-wrap">
+        <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb-nav-list">
+                <li class="breadcrumb-nav-list-item"><a href="../#tools">Editors and Tools</a></li>
+                <li class="breadcrumb-nav-list-item"><span>Equaliser Profile Editor</span></li>
+            </ol>
+        </nav>
+        <div id="main-content" class="main-content">
+            <main>
+<h1> <strong>Equaliser Profile Editor</strong> </h1> <p>Shape a profile for the <a href="https://muos.dev/tour/modules/muxmedia">Wasabi</a> Equaliser, hear it on your own music in the browser, and download it as an <code>.eq</code> file that appears under your saved profiles once copied to <code>MUOS/save/wasabi/equaliser</code>.</p> <div class="tool" id="eq-tool"> <div class="toolbar"> <label class="file-button"> Open Profile <input id="eq-open" class="sr-only" type="file" accept=".eq,text/plain"> </label> <button id="eq-reset" type="button">Reset to Flat</button> <button id="eq-download" class="primary" type="button">Download</button> <span id="eq-status" class="status" role="status" aria-live="polite"></span> </div> <section class="panel"> <div class="setup"> <label><span>Start from a built-in profile</span> <select id="eq-preset"></select> </label> <label><span>Profile name</span><input id="eq-name" value="My Profile" autocomplete="off"></label> </div> <canvas id="eq-curve" class="eq-curve" width="900" height="180" aria-label="Frequency response"></canvas> <div class="eq-sliders" id="eq-sliders"></div> </section> <section class="panel eq-listen"> <div class="section-head"> <h2> Listen </h2> <span class="help">Play a song from your computer through the equaliser</span> </div> <div class="toolbar"> <label class="file-button"> Choose Audio <input id="eq-audio" class="sr-only" type="file" accept="audio/*"> </label> <button id="eq-bypass" type="button" aria-pressed="false" disabled>Compare with Flat</button> <audio id="eq-player" controls hidden></audio> </div> </section> </div> <script src="assets/js/tool-storage.js"></script> <script src="assets/js/equaliser-editor.js"></script>
+            </main>
+        </div>
+    </div>
+</div>
+<script src="../js/toolnav.js" defer></script>
+</body>
+</html>

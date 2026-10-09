@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="mustardos-device" content="1">
+    <title>Playlist Builder | MustardOS Web Dashboard</title>
+    <link rel="icon" href="../logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body class="device-page">
+<header class="side-bar">
+    <div class="site-header">
+        <a href="../" class="site-title lh-tight"><img class="site-logo" src="../logo.svg" alt="" width="48" height="48"> MustardOS</a>
+        <button id="menu-button" class="site-button btn-reset" type="button" aria-label="Menu" aria-controls="site-nav" aria-expanded="false">
+            <svg viewBox="0 0 24 24" class="icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+    </div>
+    <nav aria-label="Main" id="site-nav" class="site-nav"></nav>
+</header>
+<div class="main" id="top">
+    <div class="main-content-wrap">
+        <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+            <ol class="breadcrumb-nav-list">
+                <li class="breadcrumb-nav-list-item"><a href="../#tools">Editors and Tools</a></li>
+                <li class="breadcrumb-nav-list-item"><span>Playlist Builder</span></li>
+            </ol>
+        </nav>
+        <div id="main-content" class="main-content">
+            <main>
+<h1> <strong>Playlist Builder</strong> </h1> <p>Build a disc playlist for a multi-disc game, or a media playlist or channel list for <a href="https://muos.dev/tour/modules/muxmedia">Wasabi</a>, in your browser, then download it ready to copy to your device.</p> <div class="playlist-types"> <p><strong>Multi-disc game</strong> lists every disc of one game in order, so the game launches from a single entry and you can swap discs from the Disk Control menu while playing. Place the playlist beside the disc images, or beside a folder that holds them, and launch the playlist.</p> <p><strong>Media playlist</strong> plays its entries in Wasabi in order, like the episodes of a series or the tracks of an album.</p> <p><strong>Channel list</strong> becomes a list of live channels in Wasabi that you can flip through with Up and Down, using each entry's name and logo.</p> </div> <p class="note">File paths are read relative to the folder the playlist sits in.</p> <div class="tool" id="playlist-tool"> <div class="toolbar"> <label class="file-button"> Open Playlist <input id="playlist-open" class="sr-only" type="file" accept=".m3u,.m3u8,audio/x-mpegurl,application/vnd.apple.mpegurl"> </label> <button id="playlist-new" type="button">New</button> <button id="playlist-download" class="primary" type="button">Download</button> <span id="playlist-status" class="status" role="status" aria-live="polite"></span> </div> <section class="panel"> <div class="setup"> <label><span>Playlist type</span> <select id="playlist-kind"> <option value="discs">Multi-disc game (.m3u)</option> <option value="media">Media playlist (.m3u)</option> <option value="channels">Channel list (.m3u8)</option> </select> </label> <label><span>File name</span><input id="playlist-name" value="Game.m3u" autocomplete="off"></label> <label id="playlist-folder-field"><span>Disc folder (optional)</span> <input id="playlist-folder" autocomplete="off" placeholder=".Game Name"> </label> </div> <p class="help" id="playlist-folder-help">Leave the disc folder empty when the playlist sits beside the disc images. When the discs are kept in a folder next to the playlist, enter that folder's name and every disc path is written as <code>folder/disc</code>. A folder name starting with <code>.</code> or <code>_</code> is hidden from Explore Content, so only the playlist shows.</p> <p class="help" id="playlist-hide-help">When the discs sit beside the playlist instead, Explore Content hides each disc the playlist names, so only the playlist shows. Write each disc exactly as its file is named, and use disc labels rather than the <code>file|label</code> form, which stops that disc being hidden. Turn on <strong>Show Hidden Content</strong> in Customisation to see every file again.</p> <div class="section"> <div class="section-head"> <h2>  Entries <span id="playlist-count" class="count">(0)</span> </h2> <div class="section-actions"> <label class="file-button" id="playlist-discs-pick"> Add disc files <input id="playlist-discs" class="sr-only" type="file" multiple> </label> <label class="file-button" id="playlist-folder-pick"> Add disc folder <input id="playlist-folder-open" class="sr-only" type="file" webkitdirectory> </label> <button id="playlist-add" type="button">Add entry</button> </div> </div> <div id="playlist-entries" class="entries"></div> <div id="playlist-empty" class="empty">No entries yet. Add one to begin.</div> </div> <details class="section"> <summary>Playlist text</summary> <textarea id="playlist-text" readonly aria-label="Playlist text"></textarea> </details> </section> </div> <script src="assets/js/tool-storage.js"></script> <script src="assets/js/playlist-builder.js"></script>
+            </main>
+        </div>
+    </div>
+</div>
+<script src="../js/toolnav.js" defer></script>
+</body>
+</html>

@@ -6,10 +6,10 @@
     --line: #44434d;
     --text: #b8b8b8;
     --head: #fff;
-    --muted: #959396;
+    --muted: #989699;
     --accent: #c7af26;
-    --warn: #d1603d;
-    --good: #4f9d69;
+    --warn: #da8064;
+    --good: #55a971;
 
     --card: 160px;
     --card-wide: 300px;
@@ -32,6 +32,8 @@
 }
 
 * { box-sizing: border-box; }
+
+html, .site-nav { scrollbar-color: var(--line) transparent; }
 
 :where(a, button, input, select, summary):focus-visible {
     border-radius: 3px;
@@ -569,7 +571,7 @@ button.entry-name:hover, button.entry-name:focus-visible { color: var(--accent);
     transition: opacity .18s ease, transform .18s ease;
 }
 #toast.visible { opacity: 1; transform: translate(-50%, 0); }
-#toast[data-kind="good"] { background: #2e8b57; color: #fff; }
+#toast[data-kind="good"] { background: #267a4b; color: #fff; }
 #toast[data-kind="bad"] { background: #c0392b; color: #fff; }
 
 [hidden] { display: none !important; }
@@ -600,4 +602,33 @@ button.entry-name:hover, button.entry-name:focus-visible { color: var(--accent);
     .crumb, .lock, .chip-toggle, .link { padding-inline: 12px; }
     .chip-toggle, .sort { font-size: .8rem; }
     .filters { gap: 10px; }
+}
+
+.tool-list { display: grid; gap: 8px; margin-top: 18px; }
+.tool-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--box);
+    color: var(--text);
+    gap: 14px;
+}
+.tool-row:hover, .tool-row:focus-visible { border-color: var(--accent); background: var(--box-alt); }
+.tool-row img { flex: none; width: 40px; height: 40px; filter: invert(100%); }
+.tool-row-text { display: grid; gap: 2px; min-width: 0; }
+.tool-row-title { color: var(--head); font-weight: 700; }
+.tool-row-desc { color: var(--muted); }
+
+a[href^="http://"]::after, a[href^="https://"]::after {
+    display: inline-block;
+    width: .8em;
+    height: .8em;
+    margin-left: .3em;
+    background-color: currentColor;
+    content: "";
+    content: "" / " (external site)";
+    mask: url("../icon/external.svg") no-repeat center / contain;
+    vertical-align: -.05em;
 }

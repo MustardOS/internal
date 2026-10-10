@@ -12,7 +12,7 @@ Never unload it on suspend: it is the wake source.
 
 The stock muhotkey has no power event for this board (`board.c` `pwr_event =
 nop`, and the event index changes between boots), so `module.sh` also starts
-`script/device/pwrkey.sh`. It finds the key by name and sends `SLEEP_SHORT`
+`script/device/rk-pixel-2/pwrkey.sh`. It finds the key by name and sends `SLEEP_SHORT`
 to the hotkey FIFO on release. It starts from `module.sh` rather than
 `S05device.sh` because the async init pool runs three scripts at a time and
 `S05device.sh` queues behind `S02network.sh`, which put the listener about

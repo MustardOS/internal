@@ -61,6 +61,23 @@ SAFE_QUIT="$MUOS_RUN_DIR/safe_quit"
 # Module-level CR literal used by GET_VAR to strip trailing carriage returns
 CR=$(printf '\r')
 
+DEVICE_SCRIPT_DIR="/opt/muos/script/device"
+
+# Prints the path of a device script, preferring the board's own folder over the global one
+DEVICE_SCRIPT() {
+	DEVICE_SCRIPT_PATH="$DEVICE_SCRIPT_DIR/$(GET_VAR "device" "board/name")/$1"
+	[ -f "$DEVICE_SCRIPT_PATH" ] || DEVICE_SCRIPT_PATH="$DEVICE_SCRIPT_DIR/$1"
+	[ -f "$DEVICE_SCRIPT_PATH" ] || return 1
+	printf '%s\n' "$DEVICE_SCRIPT_PATH"
+}
+
+# Runs a device script if this board has one, otherwise does nothing
+RUN_DEVICE_SCRIPT() {
+	RUN_DEVICE_SCRIPT_PATH=$(DEVICE_SCRIPT "$1") || return 0
+	shift
+	"$RUN_DEVICE_SCRIPT_PATH" "$@"
+}
+
 CONTENT_UNSET() {
 	unset LD_PRELOAD STAGE_OVERLAY SDL_ASSERT SDL_HQ_SCALER SDL_ROTATION SDL_BLITTER_DISABLED
 }

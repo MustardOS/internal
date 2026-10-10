@@ -40,8 +40,6 @@ TRACE() {
 	fi
 }
 
-[ "$(GET_VAR "device" "board/name")" = "rk-pixel-2" ] || exit 0
-
 # module.sh loads the module just before starting this; wait for the input device.
 TRY=0
 until DEV=$(FIND_EVENT); do

@@ -8,7 +8,7 @@ hwclock -w
 
 while pgrep "muwarn" >/dev/null 2>&1; do sleep 0.25; done
 
-/opt/muos/script/device/amp.sh
+RUN_DEVICE_SCRIPT amp.sh
 /opt/muos/script/device/speaker.sh
 
 IMPORT_OEM_PROFILE() {
@@ -47,7 +47,7 @@ IMPORT_OEM_PROFILE() {
 
 IMPORT_OEM_PROFILE
 
-/opt/muos/script/device/amp.sh &
+RUN_DEVICE_SCRIPT amp.sh &
 
 printf "installer" >"$ACT_GO"
 /opt/muos/script/mux/install.sh

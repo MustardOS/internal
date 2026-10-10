@@ -119,8 +119,8 @@ case "$1" in
 					fi
 
 					# Started here rather than S05device so it is not queued behind S02network
-					pgrep -f /opt/muos/script/device/pwrkey.sh >/dev/null 2>&1 ||
-						/opt/muos/script/device/pwrkey.sh &
+					pgrep -f "$DEVICE_SCRIPT_DIR/rk-pixel-2/pwrkey.sh" >/dev/null 2>&1 ||
+						RUN_DEVICE_SCRIPT pwrkey.sh &
 				fi
 
 				if ! pidof muinput >/dev/null 2>&1; then

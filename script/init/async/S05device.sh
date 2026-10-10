@@ -139,10 +139,10 @@ DO_START() {
 	rfkill unblock all 2>/dev/null
 
 	# Initialise amp for devices that need it
-	/opt/muos/script/device/amp.sh &
+	RUN_DEVICE_SCRIPT amp.sh &
 
 	# Set up indicator LEDs for devices that drive bare GPIOs
-	/opt/muos/script/device/led.sh &
+	RUN_DEVICE_SCRIPT led.sh &
 
 	# Adjust headphone output for certain devices
 	/opt/muos/script/device/headphone.sh &

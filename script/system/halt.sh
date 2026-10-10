@@ -119,7 +119,7 @@ STOP_SERVICES() {
 }
 
 LOG_INFO "$0" 0 "HALT" "Running indicator LED shutdown sweep"
-/opt/muos/script/device/led.sh shutdown
+RUN_DEVICE_SCRIPT led.sh shutdown
 
 case "$ACTION" in
 	poweroff | shutdown) SPLASH_ROLE=shutdown ;;

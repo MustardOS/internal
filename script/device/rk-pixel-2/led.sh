@@ -96,22 +96,18 @@ LED_SWEEP() {
 	LED_ALL_OFF
 }
 
-case "$(GET_VAR "device" "board/name")" in
-	rk-pixel-2)
-		LED_SETUP
+LED_SETUP
 
-		case "${1:-init}" in
-			boot) LED_SWEEP "$LED_SWEEP_UP" "$LED_BOOT_MAX_CYCLE" "$BOOT_PROGRESS_DONE" ;;
-			shutdown)
-				LED_SWEEP "$LED_SWEEP_DOWN" "$LED_SHUTDOWN_CYCLE" ""
+case "${1:-init}" in
+	boot) LED_SWEEP "$LED_SWEEP_UP" "$LED_BOOT_MAX_CYCLE" "$BOOT_PROGRESS_DONE" ;;
+	shutdown)
+		LED_SWEEP "$LED_SWEEP_DOWN" "$LED_SHUTDOWN_CYCLE" ""
 
-				# Leave the charge light latched. Nothing runs once the system is
-				# down - no scripts and no kernel, since this board has no charge
-				# boot mode - so this latched line is the only off state charge
-				# indication there can be, and it is what the hardware default
-				# gave before muOS started driving these lines.
-				LED_SET "$LED_RED" 1
-				;;
-		esac
+		# Leave the charge light latched. Nothing runs once the system is
+		# down - no scripts and no kernel, since this board has no charge
+		# boot mode - so this latched line is the only off state charge
+		# indication there can be, and it is what the hardware default
+		# gave before muOS started driving these lines.
+		LED_SET "$LED_RED" 1
 		;;
 esac

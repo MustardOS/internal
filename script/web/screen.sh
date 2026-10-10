@@ -7,7 +7,7 @@ SCREEN_SCOPE=${2:-private}
 SCREEN_STATE="$SCREEN_IMAGE.state"
 SCREEN_LOCK="$SCREEN_IMAGE.lock"
 SCREEN_TEMP="$SCREEN_IMAGE.tmp.png"
-SCREEN_PRIVATE="muxwebcode muxpass muxnetprofile muxwebserv"
+SCREEN_PRIVATE="muxwebcode muxpass muxpasscfg muxnetprofile muxnetproxy muxwebserv"
 
 if [ -d "$SCREEN_LOCK" ] && [ -n "$(find "$SCREEN_LOCK" -prune -mmin +1 2>/dev/null)" ]; then
 	rmdir "$SCREEN_LOCK" 2>/dev/null
@@ -25,13 +25,27 @@ WRITE_STATE() {
 	printf '%s %s\n' "$1" "$SCREEN_ROTATE" >"$SCREEN_STATE.tmp" && mv -f "$SCREEN_STATE.tmp" "$SCREEN_STATE"
 }
 
-if [ "$SCREEN_SCOPE" != all ]; then
-	for SCREEN_MODULE in $SCREEN_PRIVATE; do
-		if pgrep -x "$SCREEN_MODULE" >/dev/null 2>&1; then
-			WRITE_STATE hidden
-			exit 0
-		fi
+# A finished child can linger as a zombie under a private module name, so only running processes count.
+PRIVATE_RUNNING() {
+	for SCREEN_PID in $(pgrep -x "$1" 2>/dev/null); do
+		SCREEN_STAT=$(cat "/proc/$SCREEN_PID/stat" 2>/dev/null) || continue
+		SCREEN_STAT=${SCREEN_STAT##*) }
+		[ "${SCREEN_STAT%% *}" = "Z" ] || return 0
 	done
+	return 1
+}
+
+PRIVATE_OPEN() {
+	[ "$SCREEN_SCOPE" = all ] && return 1
+	for SCREEN_MODULE in $SCREEN_PRIVATE; do
+		PRIVATE_RUNNING "$SCREEN_MODULE" && return 0
+	done
+	return 1
+}
+
+if PRIVATE_OPEN; then
+	WRITE_STATE hidden
+	exit 0
 fi
 
 if command -v ionice >/dev/null 2>&1; then
@@ -41,6 +55,11 @@ else
 fi
 
 if "$@" /opt/muos/frontend/mufbset -g "$SCREEN_TEMP" >/dev/null 2>&1 && [ -s "$SCREEN_TEMP" ]; then
+	# A private screen may have opened while the picture was being taken, so check again before keeping it.
+	if PRIVATE_OPEN; then
+		WRITE_STATE hidden
+		exit 0
+	fi
 	mv -f "$SCREEN_TEMP" "$SCREEN_IMAGE"
 	WRITE_STATE ok
 else

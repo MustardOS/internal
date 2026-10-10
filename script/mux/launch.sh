@@ -185,7 +185,11 @@ case "$LAUNCH" in
 		;;
 esac
 
-if ! CORE_HAS "$CORE_ID"; then
+# Only swap runtimes when the manifest can be read, otherwise a missing core.json would turn every
+# External assignment into RetroArch and every Libretro one into an External launcher.
+if [ ! -r "$CORE_JSON" ]; then
+	LOG_ERROR "$0" 0 "LAUNCH" "$(printf "Core Assign file '%s' is missing, keeping the %s runtime" "$CORE_JSON" "$CORE_RUNTIME")"
+elif ! CORE_HAS "$CORE_ID"; then
 	if [ "$CORE_RUNTIME" = "external" ]; then
 		SET_RUNTIME "retroarch" "lr-" "libretro"
 	else

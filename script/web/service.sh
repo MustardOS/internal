@@ -40,6 +40,21 @@ REMOTE_VIEW_SECONDS() {
 	esac
 }
 
+# Without Authentication the controls are only offered on a public Live view, where whoever
+# can use them can already see everything on the screen.
+REMOTE_CONTROL_PUBLIC() {
+	[ "$(GET_VAR "config" "web/remote_control")" = "1" ] &&
+		[ "$(WEB_SETTING landing_auth)" != "1" ] &&
+		REMOTE_VIEW_PUBLIC &&
+		[ "$(GET_VAR "config" "web/remote_view")" = "6" ]
+}
+
+REMOTE_CONTROL_ON() {
+	[ "$(GET_VAR "config" "web/remote_control")" = "1" ] &&
+		[ -n "$(REMOTE_VIEW_SECONDS)" ] &&
+		{ [ "$(WEB_SETTING landing_auth)" = "1" ] || REMOTE_CONTROL_PUBLIC; }
+}
+
 BOOL_WEB_SETTING() {
 	[ "$(WEB_SETTING "$1")" = "1" ] && printf true || printf false
 }
@@ -114,7 +129,7 @@ PREPARE_LANDING_ROOT() {
 	cp -f "$LANDING_SOURCE"/icon/*.png "$LANDING_SOURCE"/icon/*.svg "$LANDING_ROOT/icon"/ || return 1
 	cp -f "$LANDING_SOURCE"/css/dashboard.css "$LANDING_ROOT/css"/ || return 1
 
-	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists snapshot remote player crop catalogue pickles tools toolnav boot; do
+	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists snapshot remote controls player crop catalogue pickles tools toolnav boot; do
 		cp -f "$LANDING_SOURCE/js/$LANDING_PART.js" "$LANDING_ROOT/js"/ || return 1
 	done
 
@@ -147,6 +162,16 @@ PREPARE_LANDING_ROOT() {
 			printf '    remotePublic: true,\n'
 		else
 			printf '    remotePublic: false,\n'
+		fi
+		if REMOTE_CONTROL_ON; then
+			printf '    remoteControl: true,\n'
+		else
+			printf '    remoteControl: false,\n'
+		fi
+		if REMOTE_CONTROL_PUBLIC; then
+			printf '    remoteControlPublic: true,\n'
+		elif [ "$(GET_VAR "config" "web/remote_control")" = "1" ] && ! REMOTE_CONTROL_ON; then
+			printf '    remoteControlNeedsAuth: true,\n'
 		fi
 		printf '    theme: {\n'
 		THEME_PALETTE
@@ -297,9 +322,14 @@ MANAGE_WEBSERV() {
 						LANDING_LIVE=/opt/muos/frontend/muscreen
 						if [ "$(GET_VAR "config" "web/remote_view")" = "6" ] && [ -x "$LANDING_LIVE" ]; then
 							set -- "$@" --screen-live "$LANDING_LIVE"
+							set -- "$@" --live-fps "$(GET_VAR "config" "web/live_fps")" \
+								--live-quality "$(GET_VAR "config" "web/live_quality")"
 						fi
 
 						REMOTE_VIEW_PUBLIC && set -- "$@" --screen-public
+						[ "$(GET_VAR "config" "web/remote_view")" = "7" ] && set -- "$@" --screen-manual
+						REMOTE_CONTROL_ON && set -- "$@" --remote-input
+						REMOTE_CONTROL_PUBLIC && set -- "$@" --remote-public
 					else
 						rm -f "$MUOS_RUN_DIR/dash_screenshot.png" "$MUOS_RUN_DIR/dash_screenshot.png.state"
 					fi

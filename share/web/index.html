@@ -70,6 +70,7 @@
 
         <div class="nav-category">Documentation</div>
         <ul class="nav-list">
+            <li class="nav-list-item"><a class="nav-list-link" href="tools/api">Dashboard API</a></li>
             <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/tour">Grand Tour</a></li>
             <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/hotkeys">Hotkeys</a></li>
             <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/systems">Systems</a></li>
@@ -330,7 +331,14 @@
         <div class="view-head">
             <h1><strong>Remote View</strong></h1>
             <div class="list-tools">
+                <div class="remote-layout" role="group" aria-label="Layout" id="remote-layout">
+                    <button class="remote-layout-option" type="button" data-layout="desktop" aria-pressed="true">Desktop</button>
+                    <button class="remote-layout-option" type="button" data-layout="mobile" aria-pressed="false">Mobile</button>
+                </div>
+                <button class="remote-layout-option remote-screen-toggle" type="button" id="remote-screen-toggle" aria-pressed="false">Hide Live View</button>
+                <button class="link" type="button" id="remote-pause" hidden>Pause</button>
                 <button class="link" type="button" id="remote-refresh" hidden>Refresh now</button>
+                <button class="link" type="button" id="remote-popout" hidden>Pop out</button>
                 <button class="link" type="button" id="remote-save" hidden>Save image</button>
             </div>
         </div>
@@ -342,6 +350,56 @@
             <div class="remote-progress" id="remote-progress" hidden>
                 <div class="bar"><span id="remote-bar"></span></div>
                 <p class="note" id="remote-next"></p>
+            </div>
+            <p class="note remote-pad-note" id="remote-pad-note" hidden></p>
+            <div class="remote-pad" id="remote-pad" role="group" aria-label="Remote Controls" hidden>
+                <div class="pad-shoulders">
+                    <div class="pad-pair">
+                        <button class="pad-button pad-shoulder" type="button" data-button="l2">L2</button>
+                        <button class="pad-button pad-shoulder" type="button" data-button="l1">L1</button>
+                    </div>
+                    <div class="pad-pair">
+                        <button class="pad-button pad-shoulder" type="button" data-button="r1">R1</button>
+                        <button class="pad-button pad-shoulder" type="button" data-button="r2">R2</button>
+                    </div>
+                </div>
+                <div class="pad-body">
+                    <div class="pad-dpad">
+                        <button class="pad-button pad-up" type="button" data-button="up" aria-label="Up">&#9650;</button>
+                        <button class="pad-button pad-left" type="button" data-button="left" aria-label="Left">&#9664;</button>
+                        <button class="pad-button pad-right" type="button" data-button="right" aria-label="Right">&#9654;</button>
+                        <button class="pad-button pad-down" type="button" data-button="down" aria-label="Down">&#9660;</button>
+                    </div>
+                    <div class="pad-centre">
+                        <div class="pad-row">
+                            <button class="pad-button pad-small" type="button" data-button="select">Select</button>
+                            <button class="pad-button pad-small" type="button" data-button="menu">Menu</button>
+                            <button class="pad-button pad-small" type="button" data-button="start">Start</button>
+                        </div>
+                        <div class="pad-row">
+                            <button class="pad-button pad-small" type="button" data-button="l3">L3</button>
+                            <button class="pad-button pad-small" type="button" data-button="r3">R3</button>
+                        </div>
+                    </div>
+                    <div class="pad-face">
+                        <button class="pad-button pad-round pad-x" type="button" data-button="x">X</button>
+                        <button class="pad-button pad-round pad-y" type="button" data-button="y">Y</button>
+                        <button class="pad-button pad-round pad-a" type="button" data-button="a">A</button>
+                        <button class="pad-button pad-round pad-b" type="button" data-button="b">B</button>
+                    </div>
+                </div>
+                <div class="pad-levels">
+                    <div class="pad-level">
+                        <span>Volume</span>
+                        <button class="pad-button pad-small" type="button" data-level="volume/down" aria-label="Volume down">&minus;</button>
+                        <button class="pad-button pad-small" type="button" data-level="volume/up" aria-label="Volume up">+</button>
+                    </div>
+                    <div class="pad-level">
+                        <span>Brightness</span>
+                        <button class="pad-button pad-small" type="button" data-level="brightness/down" aria-label="Brightness down">&minus;</button>
+                        <button class="pad-button pad-small" type="button" data-level="brightness/up" aria-label="Brightness up">+</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -453,6 +511,7 @@
     <script src="js/lists.js" defer></script>
     <script src="js/snapshot.js" defer></script>
     <script src="js/remote.js" defer></script>
+    <script src="js/controls.js" defer></script>
     <script src="js/player.js" defer></script>
     <script src="js/tools.js" defer></script>
     <!-- Catalogue and save management remain available in source while hidden for this release. -->

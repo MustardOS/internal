@@ -8484,30 +8484,90 @@ h1 strong {
   gap: 0.5rem;
   margin-top: 0.6rem;
 }
-.tool .picker .panel + .panel, .tool#profile-tool .panel + .panel {
+.tool.picker .panel + .panel, .tool#profile-tool .panel + .panel {
   margin-top: 0.75rem;
 }
-.tool button.picker-device {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  min-width: 7.5rem;
-  text-align: center;
+.tool #picker-clear[hidden], .tool #picker-thumb[hidden] {
+  display: none;
 }
-.tool button.picker-device img {
-  width: 64px;
-  height: 64px;
+.tool .picker-filters {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.tool .picker-filter {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  align-items: center;
+  gap: 0.75rem;
+}
+.tool .picker-filter .picker-options {
+  margin-top: 0;
+}
+@media (max-width: 40rem) {
+  .tool .picker-filter {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+}
+.tool .picker-filter-label {
+  color: #FFFFFF;
+  font-weight: 700;
+}
+.tool .picker-devices {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
+.tool button.picker-device {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
+}
+.tool .picker-thumb {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, rgba(199, 175, 38, 0.55), rgba(199, 175, 38, 0.18) 38%, transparent 70%), radial-gradient(circle at 50% 40%, #57525f, #2c2a31 75%);
+  border: 1px solid rgba(199, 175, 38, 0.35);
+  border-radius: 10px;
+}
+.tool .picker-thumb img {
+  width: 90%;
+  height: 90%;
   object-fit: contain;
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.35)) drop-shadow(0 4px 5px rgba(0, 0, 0, 0.65));
+  transition: transform 0.15s ease;
+}
+.tool button.picker-device:hover .picker-thumb img,
+.tool button.picker-device.active .picker-thumb img {
+  transform: scale(1.06);
+}
+.tool .picker-result-head .picker-thumb {
+  width: 112px;
+  height: 112px;
+  border-radius: 14px;
+}
+.tool .picker-device-text {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.tool .picker-device-tags {
+  color: #989699;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  white-space: normal;
 }
 .tool .picker-result-head {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
-}
-.tool .picker-result-head img {
-  object-fit: contain;
 }
 .tool .picker-download {
   margin-bottom: 0.75rem;
@@ -9075,98 +9135,6 @@ h4 a[title] svg {
   font-size: 0.9rem;
 }
 
-.device-jump {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 1.25rem 0 0.25rem;
-}
-
-.device-jump a {
-  border: 1.35px solid #C7AF26;
-  border-radius: 999px;
-  padding: 0.2rem 0.75rem;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-.device-jump a span {
-  opacity: 0.7;
-  margin-left: 0.25rem;
-}
-
-.device-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem;
-  margin-top: 0.75rem;
-}
-
-.device-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  border: 1.35px solid #C7AF26;
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-  transition: transform 0.15s ease;
-}
-
-.device-card:hover {
-  transform: scale(1.02);
-}
-
-.device-thumb {
-  flex: 0 0 96px;
-  height: 96px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  background: rgba(127, 127, 127, 0.08);
-  overflow: hidden;
-}
-
-.device-thumb img {
-  width: 96px;
-  height: 96px;
-  object-fit: contain;
-  border-radius: 6px;
-}
-
-.device-info {
-  min-width: 0;
-}
-
-.device-info h3 {
-  margin: 0;
-}
-
-.device-desc {
-  margin: 0.2rem 0 0.5rem;
-  font-size: 0.9rem;
-  line-height: 1.35;
-}
-
-.device-download {
-  padding: 0.2rem 0.75rem;
-  font-size: 0.85rem;
-}
-
-@media (max-width: 560px) {
-  .device-grid {
-    grid-template-columns: 1fr;
-  }
-  .device-thumb {
-    flex-basis: 72px;
-    height: 72px;
-  }
-  .device-thumb img {
-    width: 72px;
-    height: 72px;
-  }
-}
 .menu-mock {
   width: 100%;
   max-width: 360px;
@@ -9806,4 +9774,114 @@ html, .side-bar, .site-nav {
   width: 48px;
   height: 48px;
   object-fit: contain;
+}
+
+.press-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.press-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin: 0;
+  background-color: #27262b;
+  border: 1px solid #44434d;
+  border-radius: 4px;
+}
+.press-card img {
+  width: 100%;
+  height: 9rem;
+  object-fit: contain;
+}
+.press-card figcaption {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+}
+.press-card.press-feature {
+  max-width: 28rem;
+  margin: 1rem 0;
+}
+.press-card.press-feature img {
+  height: 18rem;
+}
+.press-card.press-dark img {
+  padding: 0.75rem;
+  background-color: #1F1F1F;
+}
+.press-card.press-light img {
+  padding: 0.75rem;
+  background-color: #FFFFFF;
+}
+
+.press-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.press-swatch {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background-color: #27262b;
+  border: 1px solid #44434d;
+  border-radius: 4px;
+}
+.press-swatch span:last-child {
+  color: #989699;
+  font-size: 0.75rem;
+}
+
+.press-chip {
+  display: block;
+  height: 3rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #44434d;
+  border-radius: 4px;
+}
+
+.press-logo-yellow {
+  background-color: #E2BF0E;
+}
+
+.press-mustard {
+  background-color: #C7AF26;
+}
+
+.press-badge-light {
+  background-color: #EDD415;
+}
+
+.press-badge-dark {
+  background-color: #CC9E00;
+}
+
+.press-badge-black {
+  background-color: #100708;
+}
+
+.press-charcoal {
+  background-color: #1F1F1F;
+}
+
+.press-slate {
+  background-color: #27262B;
+}
+
+.press-raised {
+  background-color: #302D36;
+}
+
+.press-text {
+  background-color: #B8B8B8;
+}
+
+.press-white {
+  background-color: #FFFFFF;
 }

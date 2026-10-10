@@ -13,6 +13,16 @@
     const nameInput = byId("profile-name");
     const descriptionInput = byId("profile-description");
     const unknownBox = byId("profile-unknown");
+    const installAuto = byId("profile-install-auto");
+    const installFilesystem = byId("profile-install-filesystem");
+    const installAbout = byId("profile-install-about");
+
+    const filesystemAbout = {
+        exfat: "Recommended. Handles files of any size and works straight away on Windows, macOS and Linux.",
+        vfat: "Works on nearly any computer, but no single file can be larger than 4GB. Choose this only if the others give you trouble.",
+        ext4: "Copes best if the console loses power suddenly, but only Linux can read it without extra software.",
+    };
+    const filesystemNames = {exfat: "exfat", vfat: "vfat", fat32: "vfat", fat: "vfat", ext4: "ext4"};
 
     let schema = null;
     const rows = new Map();
@@ -203,6 +213,21 @@
         else setStatus("");
     }
 
+    function installEnabled() {
+        return installAuto.value === "1";
+    }
+
+    function refreshInstall() {
+        installFilesystem.disabled = !installEnabled();
+        installAbout.textContent = installEnabled() ? filesystemAbout[installFilesystem.value] : "";
+    }
+
+    function setInstall(auto, filesystem) {
+        installAuto.value = auto ? "1" : "0";
+        installFilesystem.value = filesystem || "exfat";
+        refreshInstall();
+    }
+
     function clearAll() {
         for (const row of rows.values()) {
             row.include.checked = false;
@@ -216,6 +241,7 @@
 
     function startOver() {
         clearAll();
+        setInstall(false, "exfat");
         onlyIncluded.checked = false;
         wasFiltering = false;
         for (const details of groupsHost.children) details.open = false;
@@ -229,8 +255,11 @@
         }
         const unknown = [];
         const network = [];
+        const install = [];
         let name = "";
         let description = "";
+        let autoInstall = false;
+        let filesystem = "exfat";
 
         for (let line of text.replace(/^﻿/, "").split(/\r?\n/)) {
             if (!line || /^\s*#/.test(line) || !line.includes("=")) continue;
@@ -240,6 +269,19 @@
             if (!key.includes("/")) {
                 if (key === "name") name = value;
                 if (key === "description") description = value;
+                continue;
+            }
+
+            const installKey = key.trim().toLowerCase();
+            if (installKey.startsWith("install/")) {
+                const installValue = value.trim().toLowerCase();
+                if (installKey === "install/auto" && ["0", "1", "yes", "no", "true", "false", "on", "off"].includes(installValue)) {
+                    autoInstall = ["1", "yes", "true", "on"].includes(installValue);
+                } else if (installKey === "install/filesystem" && filesystemNames[installValue]) {
+                    filesystem = filesystemNames[installValue];
+                } else {
+                    install.push(key + "=" + value);
+                }
                 continue;
             }
 
@@ -257,6 +299,7 @@
             if (wasFiltering) openBeforeFilter.set(row.details, true);
         }
 
+        setInstall(autoInstall, filesystem);
         nameInput.value = name || fallbackName || "My Profile";
         descriptionInput.value = description;
         onlyIncluded.checked = [...rows.values()].some((row) => row.include.checked);
@@ -265,6 +308,10 @@
         if (network.length) {
             notes.push("Network lines were left out, because the builder never keeps network details: "
                 + network.join(", ") + ". Put them in wifi.conf instead, as described at the bottom of this page.");
+        }
+        if (install.length) {
+            notes.push("These install lines are not valid and were left out: " + install.join(", ")
+                + ". Use New Device Install to set them again.");
         }
         if (unknown.length) {
             notes.push("These lines are not settings a profile can change, so the device would refuse the profile: "
@@ -278,7 +325,7 @@
         refresh();
     }
 
-    function profileText() {
+    function profileText(forNewDevices) {
         const lines = [
             "name=" + nameInput.value.replace(/[\r\n]/g, " ").trim(),
             "description=" + descriptionInput.value.replace(/[\r\n]/g, " ").trim(),
@@ -288,12 +335,15 @@
             const row = rows.get(setting.key);
             if (row && row.include.checked) lines.push(setting.key + "=" + row.control.value);
         }
+        if (forNewDevices && installEnabled()) {
+            lines.push("install/auto=1", "install/filesystem=" + installFilesystem.value);
+        }
         return lines.join("\n") + "\n";
     }
 
-    function readyToSave() {
+    function readyToSave(forNewDevices) {
         const included = [...rows.values()].filter((row) => row.include.checked);
-        if (!included.length) {
+        if (!included.length && !(forNewDevices && installEnabled())) {
             setStatus("Include at least one setting first", "bad");
             return false;
         }
@@ -304,10 +354,10 @@
         return true;
     }
 
-    function download(fileName) {
-        if (!readyToSave()) return;
+    function download(fileName, forNewDevices) {
+        if (!readyToSave(forNewDevices)) return;
 
-        const blob = new Blob([profileText()], {type: "text/plain"});
+        const blob = new Blob([profileText(forNewDevices)], {type: "text/plain"});
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         link.download = fileName;
@@ -370,7 +420,10 @@
             refresh();
         });
         byId("profile-download").addEventListener("click", () => download(safeFileName(nameInput.value)));
-        byId("profile-download-oem").addEventListener("click", () => download("profile.conf"));
+        byId("profile-download-oem").addEventListener("click", () => download("profile.conf", true));
+        installAuto.addEventListener("change", refreshInstall);
+        installFilesystem.addEventListener("change", refreshInstall);
+        refreshInstall();
         search.addEventListener("input", refresh);
 
         onlyIncluded.addEventListener("change", refresh);

@@ -11,6 +11,8 @@ while pgrep "muwarn" >/dev/null 2>&1; do sleep 0.25; done
 RUN_DEVICE_SCRIPT amp.sh
 /opt/muos/script/device/speaker.sh
 
+AUTO_INSTALL_FS=""
+
 IMPORT_OEM_PROFILE() {
 	OEM_PART="/dev/$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")"
 	[ -b "$OEM_PART" ] || return 0
@@ -33,6 +35,12 @@ IMPORT_OEM_PROFILE() {
 		fi
 
 		OEM_FILE=$(find "$OEM_MOUNT" -maxdepth 1 -type f -iname profile.conf | head -n 1)
+		if [ -n "$OEM_FILE" ] && AUTO_INSTALL_FS=$(/opt/muos/script/system/profile.sh oem-install "$OEM_FILE"); then
+			LOG_INFO "$0" 0 "FACTORY RESET" "$(printf "OEM profile requests an automatic install on %s" "$AUTO_INSTALL_FS")"
+		else
+			AUTO_INSTALL_FS=""
+		fi
+
 		if [ -n "$OEM_FILE" ]; then
 			: >"$MUOS_RUN_DIR/oem_profile"
 			LOG_INFO "$0" 0 "FACTORY RESET" "Importing OEM profile"
@@ -49,7 +57,13 @@ IMPORT_OEM_PROFILE
 
 RUN_DEVICE_SCRIPT amp.sh &
 
-printf "installer" >"$ACT_GO"
+if [ -n "$AUTO_INSTALL_FS" ]; then
+	SET_VAR "device" "storage/rom/type" "$AUTO_INSTALL_FS"
+	LOG_INFO "$0" 0 "FACTORY RESET" "$(printf "Skipping the installer, the storage will be formatted as %s" "$AUTO_INSTALL_FS")"
+	printf "install" >"$ACT_GO"
+else
+	printf "installer" >"$ACT_GO"
+fi
 /opt/muos/script/mux/install.sh
 
 printf 0 >"/tmp/msg_progress"

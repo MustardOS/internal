@@ -19,6 +19,7 @@ PROFILE_USAGE() {
 	printf '       %s save FILE NAME [DESCRIPTION]\n' "$0" >&2
 	printf '       %s import-oem SOURCE\n' "$0" >&2
 	printf '       %s import-wifi SOURCE\n' "$0" >&2
+	printf '       %s oem-install SOURCE\n' "$0" >&2
 	printf '       %s check FILE\n' "$0" >&2
 	printf '       %s flush [DIRECTORY]\n' "$0" >&2
 	exit 2
@@ -378,12 +379,49 @@ PROFILE_SAVE() {
 	LOG_INFO "$0" 0 "PROFILE" "$(printf "Saved current settings as '%s'" "$PS_NAME")"
 }
 
+# Blanks the install/ lines so line numbers in any error log still match the original file
+PROFILE_WITHOUT_INSTALL() {
+	awk '
+		NR == 1 { sub(/^\357\273\277/, "") }
+		{
+			LINE = $0
+			sub(/\r$/, "", LINE)
+			KEY = tolower(LINE)
+			gsub(/^[ \t]+/, "", KEY)
+			if (index(KEY, "install/") == 1) print ""
+			else print LINE
+		}
+	' "$1"
+}
+
+PROFILE_HAS_SETTINGS() {
+	awk '
+		/^[ \t]*(#|$)/ { next }
+		index($0, "=") > 0 && index(substr($0, 1, index($0, "=") - 1), "/") > 0 { FOUND = 1; exit }
+		END { exit !FOUND }
+	' "$1"
+}
+
 PROFILE_IMPORT_OEM() {
 	PIO_SOURCE=$1
 	[ -r "$PIO_SOURCE" ] || return 0
 
+	PIO_DIR="$MUOS_RUN_DIR/profile.oem.dir.$$"
+	mkdir -p "$PIO_DIR" || return 1
+	PIO_CLEAN="$PIO_DIR/${PIO_SOURCE##*/}"
+	PROFILE_WITHOUT_INSTALL "$PIO_SOURCE" >"$PIO_CLEAN" || return 1
+
+	if ! PROFILE_HAS_SETTINGS "$PIO_CLEAN"; then
+		rm -rf "$PIO_DIR"
+		LOG_INFO "$0" 0 "PROFILE" "OEM profile has install options only, no settings to import"
+		return 0
+	fi
+
 	PIO_LINES="$MUOS_RUN_DIR/profile.oem.$$"
-	PROFILE_CHECKED "$PIO_SOURCE" "$PIO_LINES" || return
+	PROFILE_CHECKED "$PIO_CLEAN" "$PIO_LINES"
+	PIO_RESULT=$?
+	rm -rf "$PIO_DIR"
+	[ "$PIO_RESULT" -eq 0 ] || return "$PIO_RESULT"
 
 	PIO_NAME=$(PROFILE_FIELD "$PIO_SOURCE" name)
 	PIO_DESC=$(PROFILE_FIELD "$PIO_SOURCE" description)
@@ -402,6 +440,77 @@ PROFILE_IMPORT_OEM() {
 
 	LOG_INFO "$0" 0 "PROFILE" "$(printf "Imported OEM profile '%s'" "$PIO_NAME")"
 	PROFILE_APPLY "$PIO_TARGET" merge
+}
+
+PROFILE_INSTALL_VALUE() {
+	awk -v WANT="install/$2" '
+		NR == 1 { sub(/^\357\273\277/, "") }
+		{ sub(/\r$/, "") }
+		/^[ \t]*(#|$)/ || index($0, "=") == 0 { next }
+		{
+			KEY = tolower(substr($0, 1, index($0, "=") - 1))
+			VALUE = tolower(substr($0, index($0, "=") + 1))
+			gsub(/^[ \t]+|[ \t]+$/, "", KEY)
+			gsub(/^[ \t]+|[ \t]+$/, "", VALUE)
+			if (KEY == WANT) { print VALUE; exit }
+		}
+	' "$1"
+}
+
+PROFILE_MKFS_READY() {
+	case "$1" in
+		ext4) [ -x /opt/muos/bin/mke2fs ] && return 0 ;;
+	esac
+	for PMR_DIR in /sbin /usr/sbin /bin /usr/bin; do
+		[ -x "$PMR_DIR/mkfs.$1" ] && return 0
+	done
+	return 1
+}
+
+PROFILE_INSTALL_PROBLEM() {
+	PIP_TARGET=$(PROFILE_LOG_TARGET "install.conf")
+	{
+		printf 'File: %s\n' "${PIP_SOURCE##*/}"
+		printf 'Checked: %s\n\n' "$(date '+%Y-%m-%d %H:%M')"
+		printf 'The install was not started automatically, so the installer screen was shown instead.\n\n'
+		printf '%s\n' "$1"
+	} >"$PIP_TARGET"
+	LOG_WARN "$0" 0 "PROFILE" "$1"
+}
+
+# Prints the ROMS filesystem and succeeds only when the OEM profile asks for an unattended install
+PROFILE_OEM_INSTALL() {
+	PIP_SOURCE=$1
+	[ -r "$PIP_SOURCE" ] || return 1
+	rm -f "$PROFILE_LOG_DIR/install_error.txt" "$PROFILE_PENDING/install_error.txt"
+
+	POI_AUTO=$(PROFILE_INSTALL_VALUE "$PIP_SOURCE" auto)
+	case "$POI_AUTO" in
+		1 | yes | true | on) ;;
+		"" | 0 | no | false | off) return 1 ;;
+		*)
+			PROFILE_INSTALL_PROBLEM "install/auto=$POI_AUTO is not valid. Use 1 to install automatically or 0 to show the installer."
+			return 1
+			;;
+	esac
+
+	POI_FS=$(PROFILE_INSTALL_VALUE "$PIP_SOURCE" filesystem)
+	case "$POI_FS" in
+		"" | exfat) POI_FS=exfat ;;
+		vfat | fat32 | fat) POI_FS=vfat ;;
+		ext4) ;;
+		*)
+			PROFILE_INSTALL_PROBLEM "install/filesystem=$POI_FS is not valid. Use vfat (or fat32), exfat or ext4."
+			return 1
+			;;
+	esac
+
+	if ! PROFILE_MKFS_READY "$POI_FS"; then
+		PROFILE_INSTALL_PROBLEM "install/filesystem=$POI_FS cannot be used because this device has no tool to format $POI_FS."
+		return 1
+	fi
+
+	printf '%s\n' "$POI_FS"
 }
 
 PROFILE_WIFI_KEYS() {
@@ -497,6 +606,10 @@ case "${1:-}" in
 	import-wifi)
 		[ "$#" -eq 2 ] || PROFILE_USAGE
 		PROFILE_IMPORT_WIFI "$2"
+		;;
+	oem-install)
+		[ "$#" -eq 2 ] || PROFILE_USAGE
+		PROFILE_OEM_INSTALL "$2"
 		;;
 	check)
 		[ "$#" -eq 2 ] || PROFILE_USAGE

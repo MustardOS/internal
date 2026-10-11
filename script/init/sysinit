@@ -54,6 +54,7 @@ case "${1:-start}" in
 	start | "")
 		LED_QUIET
 		RUN_DEVICE_SCRIPT led.sh boot &
+		RUN_DEVICE_SCRIPT display.sh recover &
 		BOOT_GUARD_ARM
 
 		timeout 10 "$MUOS_VAR_BIN" build ||

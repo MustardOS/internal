@@ -2400,7 +2400,7 @@
         "namespace": "Fantasy Console",
         "catalogue": "PICO-8",
         "lookup": 0,
-        "default": "fake-08",
+        "default": "picante8",
         "friendly": [
             "pico8",
             "pico"

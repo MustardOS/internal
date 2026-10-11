@@ -315,7 +315,8 @@ MANAGE_WEBSERV() {
 					LANDING_SCREEN=$(REMOTE_VIEW_SECONDS)
 					if [ -n "$LANDING_SCREEN" ]; then
 						set -- "$@" --screen-script /opt/muos/script/web/screen.sh \
-							--screen-image "$MUOS_RUN_DIR/dash_screenshot.png" --screen-interval "$LANDING_SCREEN"
+							--screen-image "$MUOS_RUN_DIR/dash_screenshot.png" --screen-interval "$LANDING_SCREEN" \
+							--screen-rotate "$(SCREEN_CAPTURE_ROTATION)"
 
 						# Live streams the screen through muscreen instead of a picture every interval,
 						# which stays as the fallback when the stream cannot start.

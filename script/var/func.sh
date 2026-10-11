@@ -1991,6 +1991,15 @@ LED_CONTROL_CHANGE() {
 	[ "$(GET_VAR "device" "led/rgb")" -eq 1 ] && "$MUOS_RGB_BIN" "$1"
 }
 
+# Degrees a raw screen capture is turned to be upright, for panels mounted sideways
+SCREEN_CAPTURE_ROTATION() {
+	case "$(GET_VAR "device" "board/name")" in
+		mgx*) printf '270' ;;
+		rg-vita* | rg28xx-h | rk-pixel-2) printf '90' ;;
+		*) printf '0' ;;
+	esac
+}
+
 DEVICE_THEME_FIX() {
 	ROLE="$1"
 	IMAGE="$2"
@@ -2218,9 +2227,18 @@ UPDATE_BOOTLOGO() {
 	THEME_DIR="$MUOS_STORE_DIR/theme/$ACTIVE"
 	RES_DIR="${DEVICE_W}x${DEVICE_H}"
 
-	if ! UPDATE_IMAGE_ROLE "bootlogo" "bootlogo.bmp"; then
-		cp -f "$MUOS_SHARE_DIR/bootlogo/${DEVICE_W}x${DEVICE_H}/bootlogo.bmp" "$BOOT_MOUNT/bootlogo.bmp"
+	DEFAULT_LOGO="$MUOS_SHARE_DIR/bootlogo/${DEVICE_W}x${DEVICE_H}/bootlogo.bmp"
+
+	# Some devices keep their boot logo outside the boot partition, so the device
+	# gets a chance to copy it to wherever its bootloader reads it from
+	if UPDATE_IMAGE_ROLE "bootlogo" "bootlogo.bmp"; then
+		RUN_DEVICE_SCRIPT bootlogo.sh apply "$BOOT_MOUNT/bootlogo.bmp"
+	elif [ -f "$DEFAULT_LOGO" ]; then
+		cp -f "$DEFAULT_LOGO" "$BOOT_MOUNT/bootlogo.bmp"
 		DEVICE_THEME_FIX "bootlogo" "$BOOT_MOUNT/bootlogo.bmp"
+		RUN_DEVICE_SCRIPT bootlogo.sh apply "$BOOT_MOUNT/bootlogo.bmp"
+	else
+		RUN_DEVICE_SCRIPT bootlogo.sh restore
 	fi
 
 	if ! UPDATE_IMAGE_ROLE "charge" "bat/battery_charge.bmp"; then

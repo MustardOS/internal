@@ -15,11 +15,7 @@ fi
 mkdir "$SCREEN_LOCK" 2>/dev/null || exit 0
 trap 'rm -f "$SCREEN_TEMP"; rmdir "$SCREEN_LOCK" 2>/dev/null' 0 HUP INT TERM
 
-case "$(GET_VAR "device" "board/name")" in
-	mgx*) SCREEN_ROTATE=270 ;;
-	rg-vita* | rg28xx-h | rk-pixel-2) SCREEN_ROTATE=90 ;;
-	*) SCREEN_ROTATE=0 ;;
-esac
+SCREEN_ROTATE=$(SCREEN_CAPTURE_ROTATION)
 
 WRITE_STATE() {
 	printf '%s %s\n' "$1" "$SCREEN_ROTATE" >"$SCREEN_STATE.tmp" && mv -f "$SCREEN_STATE.tmp" "$SCREEN_STATE"

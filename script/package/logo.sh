@@ -48,6 +48,11 @@ SET_LOGO() {
 	APPLY_LOGO_IMAGE "$IMAGE" "$BOOT_MOUNT/bootlogo.bmp" "$MODE"
 
 	TASK_STATUS "Writing Boot Logo"
+	TASK_PROGRESS 70 100
+
+	RUN_DEVICE_SCRIPT bootlogo.sh apply "$BOOT_MOUNT/bootlogo.bmp" ||
+		ALL_DONE 1 "Boot logo could not be written to the bootloader"
+
 	TASK_PROGRESS 100 100
 
 	ALL_DONE 0 "Completed"

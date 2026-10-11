@@ -570,6 +570,7 @@
         const actions = make("span", "card-actions");
         if (file) {
             const download = make("a", "link", "Get");
+            download.dataset.glyph = "download";
             download.href = mediaUrl("catalogue", artPath(entry, kind, file));
             download.download = file.split("/").pop();
             actions.append(download);
@@ -578,6 +579,7 @@
                 if (VIEWABLE.includes(extension(file)) && extension(file) !== "svg") {
                     const tweak = make("button", "link", "Adjust");
                     tweak.type = "button";
+                    tweak.dataset.glyph = "sliders";
                     tweak.title = `Crop and resize the ${kind.name.toLowerCase()} for ${label(entry)}`;
                     tweak.addEventListener("click", () => adjust(entry, kind, file, tweak));
                     actions.append(tweak);
@@ -585,6 +587,7 @@
 
                 const remove = make("button", "link danger", "Remove");
                 remove.type = "button";
+                remove.dataset.glyph = "trash";
                 remove.addEventListener("click", () => discard(entry, kind, file, remove));
                 actions.append(remove);
             }

@@ -64,6 +64,7 @@
 
     function download(text, path, name) {
         const link = make("a", "link", text);
+        link.dataset.glyph = "download";
         link.href = mediaPath(path);
         link.download = name;
         return link;
@@ -132,9 +133,12 @@
         return input;
     }
 
+    const GLYPHS = {Remove: "trash", Replace: "upload", Restore: "restore"};
+
     function action(label, className, onClick) {
         const button = make("button", className, label);
         button.type = "button";
+        if (GLYPHS[label]) button.dataset.glyph = GLYPHS[label];
         button.addEventListener("click", () => onClick(button));
         return button;
     }

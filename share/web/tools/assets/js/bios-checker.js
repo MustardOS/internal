@@ -18,6 +18,20 @@
     $("#bios-status").className = `status ${kind}`.trim();
   }
 
+  // Scan progress shows in the empty results area, where the eye already is
+  const emptyText = $("#bios-empty").textContent;
+
+  function setProgress(text) {
+    const empty = $("#bios-empty");
+    if (text) {
+      $("#bios-summary").hidden = true;
+      $("#bios-results").replaceChildren();
+    }
+    empty.textContent = text || emptyText;
+    empty.classList.toggle("busy", Boolean(text));
+    empty.hidden = false;
+  }
+
   function relativePath(file) {
     const path = file.webkitRelativePath || file.relativePath || file.name;
     const parts = path.split("/");
@@ -130,10 +144,12 @@
     if (!files.length) return;
     const found = [];
     for (let index = 0; index < files.length; index++) {
-      setStatus(`Checking ${index + 1} of ${files.length}: ${files[index].name}`);
+      setProgress(`Checking ${index + 1} of ${files.length}: ${files[index].name}`);
       found.push({path: relativePath(files[index]), hash: await md5(files[index])});
     }
     check(found);
+    $("#bios-empty").textContent = emptyText;
+    $("#bios-empty").classList.remove("busy");
     setStatus(`Checked ${files.length} ${files.length === 1 ? "file" : "files"}.`, "good");
   }
 
@@ -192,21 +208,23 @@
     device.bar($("#bios-tool .toolbar"), [
       ["Check This Device", async () => {
         try {
-          setStatus("Reading MUOS/bios on the device");
+          setProgress("Reading MUOS/bios on the device");
           const listed = await device.list("bios");
           if (!listed.length) {
+            setProgress("");
             setStatus("MUOS/bios on the device is empty.", "bad");
             return;
           }
           const files = [];
           for (let index = 0; index < listed.length; index++) {
-            setStatus(`Reading ${index + 1} of ${listed.length}: ${listed[index].path}`);
+            setProgress(`Reading ${index + 1} of ${listed.length}: ${listed[index].path}`);
             const file = await device.file("bios", listed[index].path);
             file.relativePath = `bios/${listed[index].path}`;
             files.push(file);
           }
           await load(files);
         } catch (error) {
+          setProgress("");
           setStatus(`Could not read MUOS/bios on the device: ${error.message}`, "bad");
         }
       }, true]

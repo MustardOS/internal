@@ -11,9 +11,12 @@
         return MU.canManageLists() ? "" : t(LOCKED_HINT);
     }
 
+    const GLYPHS = {"New collection": "plus", "Update path": "edit", "Add to collection": "folder-plus", "Remove": "trash"};
+
     function action(label, handler, danger) {
         const button = make("button", danger ? "link danger" : "link", t(label));
         button.type = "button";
+        if (GLYPHS[label]) button.dataset.glyph = GLYPHS[label];
         button.addEventListener("click", () => handler(button));
         return button;
     }

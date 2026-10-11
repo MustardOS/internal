@@ -42,17 +42,54 @@ REMOTE_VIEW_SECONDS() {
 
 # Without Authentication the controls are only offered on a public Live view, where whoever
 # can use them can already see everything on the screen.
+# Remote Controls is 0 for off, 1 for buttons and 2 for buttons with the analogue sticks
+REMOTE_CONTROL_SET() {
+	case "$(GET_VAR "config" "web/remote_control")" in
+		1 | 2) return 0 ;;
+		*) return 1 ;;
+	esac
+}
+
 REMOTE_CONTROL_PUBLIC() {
-	[ "$(GET_VAR "config" "web/remote_control")" = "1" ] &&
+	REMOTE_CONTROL_SET &&
 		[ "$(WEB_SETTING landing_auth)" != "1" ] &&
 		REMOTE_VIEW_PUBLIC &&
 		[ "$(GET_VAR "config" "web/remote_view")" = "6" ]
 }
 
 REMOTE_CONTROL_ON() {
-	[ "$(GET_VAR "config" "web/remote_control")" = "1" ] &&
+	REMOTE_CONTROL_SET &&
 		[ -n "$(REMOTE_VIEW_SECONDS)" ] &&
 		{ [ "$(WEB_SETTING landing_auth)" = "1" ] || REMOTE_CONTROL_PUBLIC; }
+}
+
+# Sound rides along with the Live picture, so it follows the same access rules
+REMOTE_SOUND_ON() {
+	case "$(GET_VAR "config" "web/remote_sound")" in
+		1 | 2 | 3) ;;
+		*) return 1 ;;
+	esac
+	[ "$(GET_VAR "config" "web/remote_view")" = "6" ] &&
+		[ -n "$(REMOTE_VIEW_SECONDS)" ] &&
+		[ -x /opt/muos/frontend/muscreen ] &&
+		command -v pw-record >/dev/null 2>&1
+}
+
+# Low, Medium and High trade network use against how soon and how well the sound plays
+REMOTE_SOUND_RATE() {
+	case "$(GET_VAR "config" "web/remote_sound")" in
+		1) printf 16000 ;;
+		3) printf 48000 ;;
+		*) printf 24000 ;;
+	esac
+}
+
+REMOTE_SOUND_BUFFER() {
+	case "$(GET_VAR "config" "web/remote_sound")" in
+		1) printf 250 ;;
+		3) printf 80 ;;
+		*) printf 150 ;;
+	esac
 }
 
 BOOL_WEB_SETTING() {
@@ -129,7 +166,7 @@ PREPARE_LANDING_ROOT() {
 	cp -f "$LANDING_SOURCE"/icon/*.png "$LANDING_SOURCE"/icon/*.svg "$LANDING_ROOT/icon"/ || return 1
 	cp -f "$LANDING_SOURCE"/css/dashboard.css "$LANDING_ROOT/css"/ || return 1
 
-	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists snapshot remote controls player game crop catalogue pickles tools toolnav boot; do
+	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists snapshot remote controls sound player game crop catalogue pickles tools toolnav boot; do
 		cp -f "$LANDING_SOURCE/js/$LANDING_PART.js" "$LANDING_ROOT/js"/ || return 1
 	done
 
@@ -168,9 +205,14 @@ PREPARE_LANDING_ROOT() {
 		else
 			printf '    remoteControl: false,\n'
 		fi
+		if REMOTE_SOUND_ON; then
+			printf '    remoteSound: {rate: %s, buffer: %s},\n' "$(REMOTE_SOUND_RATE)" "$(REMOTE_SOUND_BUFFER)"
+		else
+			printf '    remoteSound: false,\n'
+		fi
 		if REMOTE_CONTROL_PUBLIC; then
 			printf '    remoteControlPublic: true,\n'
-		elif [ "$(GET_VAR "config" "web/remote_control")" = "1" ] && ! REMOTE_CONTROL_ON; then
+		elif REMOTE_CONTROL_SET && ! REMOTE_CONTROL_ON; then
 			printf '    remoteControlNeedsAuth: true,\n'
 		fi
 		printf '    theme: {\n'
@@ -325,12 +367,16 @@ MANAGE_WEBSERV() {
 							set -- "$@" --screen-live "$LANDING_LIVE"
 							set -- "$@" --live-fps "$(GET_VAR "config" "web/live_fps")" \
 								--live-quality "$(GET_VAR "config" "web/live_quality")"
+							REMOTE_SOUND_ON && set -- "$@" --screen-audio /opt/muos/script/web/audio.sh \
+								--audio-rate "$(REMOTE_SOUND_RATE)"
 						fi
 
 						REMOTE_VIEW_PUBLIC && set -- "$@" --screen-public
 						[ "$(GET_VAR "config" "web/remote_view")" = "7" ] && set -- "$@" --screen-manual
 						REMOTE_CONTROL_ON && set -- "$@" --remote-input
 						REMOTE_CONTROL_PUBLIC && set -- "$@" --remote-public
+						REMOTE_CONTROL_ON && [ "$(GET_VAR "config" "web/remote_control")" = "2" ] &&
+							set -- "$@" --remote-sticks
 					else
 						rm -f "$MUOS_RUN_DIR/dash_screenshot.png" "$MUOS_RUN_DIR/dash_screenshot.png.state"
 					fi

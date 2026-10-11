@@ -9045,6 +9045,32 @@ h1 strong {
   mask: url("/icon/external.svg") no-repeat center/contain;
   vertical-align: -0.05em;
 }
+.device-page .aux-nav {
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+}
+.device-page .aux-nav a {
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+  padding: 16px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.device-page .main-header {
+  align-items: center;
+}
+.device-page .main-address {
+  padding-inline-start: 32px;
+  overflow: hidden;
+  color: #989699;
+  font-family: "SFMono-Regular", menlo, consolas, monospace;
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 @media (hover: hover) and (pointer: fine) {
   h4 a[title] {

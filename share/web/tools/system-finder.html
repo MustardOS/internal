@@ -17,9 +17,79 @@
             <svg viewBox="0 0 24 24" class="icon" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
         </button>
     </div>
-    <nav aria-label="Main" id="site-nav" class="site-nav"></nav>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+        <div class="nav-category">Device</div>
+        <ul class="nav-list">
+            <li class="nav-list-item">
+                <a class="nav-list-link" href="../#dash">Dashboard</a>
+            </li>
+            <li class="nav-list-item">
+                <a class="nav-list-link" href="../#playing">Now Playing</a>
+            </li>
+            <li class="nav-list-item">
+                <a class="nav-list-link" href="../#activity">Activity Tracker</a>
+            </li>
+            <li class="nav-list-item">
+                <a class="nav-list-link" href="../#system">System Information</a>
+            </li>
+            <li class="nav-list-item">
+                <a class="nav-list-link" href="../#history">History</a>
+            </li>
+            <li class="nav-list-item">
+                <a class="nav-list-link" href="../#collections">Collections</a>
+            </li>
+            <li class="nav-list-item" id="nav-remote" hidden>
+                <a class="nav-list-link" href="../#remote">Remote View</a>
+            </li>
+        </ul>
+
+        <div class="nav-category">Editors and Tools</div>
+        <ul class="nav-list" id="nav-tools">
+            <li class="nav-list-item">
+                <a class="nav-list-link" href="../#tools">All Editors and Tools</a>
+            </li>
+            <li class="nav-list-item"><a class="nav-list-link active" href="system-finder" aria-current="page">System Finder</a></li>
+            <li class="nav-list-item"><a class="nav-list-link" href="bios-checker">BIOS Checker</a></li>
+            <li class="nav-list-item"><a class="nav-list-link" href="core-assign-editor">Core Assign Editor</a></li>
+            <li class="nav-list-item"><a class="nav-list-link" href="name-lookup-editor">Name Lookup Editor</a></li>
+            <li class="nav-list-item"><a class="nav-list-link" href="playlist-builder">Playlist Builder</a></li>
+            <li class="nav-list-item"><a class="nav-list-link" href="activity-tracker">Activity Tracker Importer</a></li>
+            <li class="nav-list-item"><a class="nav-list-link" href="profile-builder">Profile Builder</a></li>
+            <li class="nav-list-item"><a class="nav-list-link" href="theme-validator">Theme Validator</a></li>
+            <li class="nav-list-item"><a class="nav-list-link" href="equaliser-editor">Equaliser Profile Editor</a></li>
+        </ul>
+
+        <div class="nav-category">Documentation</div>
+        <ul class="nav-list">
+            <li class="nav-list-item"><a class="nav-list-link" href="api">Dashboard API</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/tour">Grand Tour</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/hotkeys">Hotkeys</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/systems">Systems</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/themes">Themes</a></li>
+        </ul>
+
+        <div class="nav-category">Community</div>
+        <ul class="nav-list">
+            <li class="nav-list-item">
+                <a class="nav-list-link external" href="https://discord.gg/mustardos-1152022492001603615">Discord</a>
+            </li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://community.muos.dev/">Forum</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://web.libera.chat/#MustardOS">IRC</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://shop.muos.dev/">Merch</a></li>
+        </ul>
+    </nav>
+    <footer class="site-footer">MustardOS Device Dashboard</footer>
 </header>
 <div class="main" id="top">
+    <div class="main-header">
+        <span class="main-address" id="dashboard-address">muos.local</span>
+        <nav class="aux-nav" aria-label="Website">
+            <button class="lock" type="button" id="lock-toggle" aria-live="polite" hidden></button>
+            <a href="https://muos.dev/">Website</a>
+            <a href="https://muos.dev/devices">Download</a>
+            <a href="https://ko-fi.com/xonglebongle">Support</a>
+        </nav>
+    </div>
     <div class="main-content-wrap">
         <nav aria-label="Breadcrumb" class="breadcrumb-nav">
             <ol class="breadcrumb-nav-list">

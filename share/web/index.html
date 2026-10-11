@@ -91,7 +91,7 @@
         </ul>
     </nav>
 
-    <footer class="site-footer">Device Dashboard</footer>
+    <footer class="site-footer">MustardOS Device Dashboard</footer>
 </div>
 
 <div class="main">
@@ -384,6 +384,7 @@
                     <button class="remote-layout-option" type="button" data-layout="mobile" aria-pressed="false">Mobile</button>
                 </div>
                 <button class="remote-layout-option remote-screen-toggle icon-link" type="button" id="remote-screen-toggle" aria-pressed="false"><svg class="glyph" data-when="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A10 10 0 0 1 12 5c5 0 9 5 9 7a11 11 0 0 1-2.2 3.2M6.1 6.1C4.2 7.5 3 9.7 3 12c0 2 4 7 9 7a9 9 0 0 0 4-.9"/></svg><svg class="glyph" data-when="off" hidden viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg><span class="btn-label">Hide Live View</span></button>
+                <button class="remote-layout-option remote-sound-toggle icon-link" type="button" id="remote-sound" aria-pressed="false" hidden><svg class="glyph" data-when="on" hidden viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><svg class="glyph" data-when="off" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4V5zM22 9l-6 6M16 9l6 6"/></svg><span class="btn-label">Sound</span></button>
                 <button class="link icon-link" type="button" id="remote-pause" hidden><svg class="glyph" data-when="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg><svg class="glyph" data-when="off" hidden viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg><span class="btn-label">Pause</span></button>
                 <button class="link icon-link" type="button" id="remote-refresh" hidden><svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg><span class="btn-label">Refresh now</span></button>
                 <button class="link icon-link" type="button" id="remote-popout" hidden><svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-8 8M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="btn-label">Pop out</span></button>
@@ -403,12 +404,12 @@
             <div class="remote-pad" id="remote-pad" role="group" aria-label="Remote Controls" hidden>
                 <div class="pad-shoulders">
                     <div class="pad-pair">
-                        <button class="pad-button pad-shoulder" type="button" data-button="l2">L2</button>
                         <button class="pad-button pad-shoulder" type="button" data-button="l1">L1</button>
+                        <button class="pad-button pad-shoulder" type="button" data-button="l2">L2</button>
                     </div>
                     <div class="pad-pair">
-                        <button class="pad-button pad-shoulder" type="button" data-button="r1">R1</button>
                         <button class="pad-button pad-shoulder" type="button" data-button="r2">R2</button>
+                        <button class="pad-button pad-shoulder" type="button" data-button="r1">R1</button>
                     </div>
                 </div>
                 <div class="pad-body">
@@ -436,6 +437,11 @@
                         <button class="pad-button pad-round pad-b" type="button" data-button="b">B</button>
                     </div>
                 </div>
+                <div class="pad-sticks">
+                    <div class="pad-stick" data-stick="l" role="group" aria-label="Left stick" hidden><span class="pad-stick-knob"></span></div>
+                    <div class="pad-stick" data-stick="r" role="group" aria-label="Right stick" hidden><span class="pad-stick-knob"></span></div>
+                </div>
+                <p class="note pad-gamepad" id="remote-gamepad" hidden></p>
                 <div class="pad-levels">
                     <div class="pad-level">
                         <span>Volume</span>
@@ -560,6 +566,7 @@
     <script src="js/snapshot.js" defer></script>
     <script src="js/remote.js" defer></script>
     <script src="js/controls.js" defer></script>
+    <script src="js/sound.js" defer></script>
     <script src="js/player.js" defer></script>
     <script src="js/game.js" defer></script>
     <script src="js/tools.js" defer></script>

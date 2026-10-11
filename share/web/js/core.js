@@ -300,6 +300,7 @@
         if (retry) {
             const again = make("button", "link", t("Try again"));
             again.type = "button";
+            again.dataset.glyph = "refresh";
             again.addEventListener("click", retry);
             block.append(again);
         }

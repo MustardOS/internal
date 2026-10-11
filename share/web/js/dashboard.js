@@ -42,7 +42,7 @@
     el("no-services").hidden = enabled > 0;
 
     const PROGRAMS = {
-        muxfrontend: "MustardOS frontend",
+        muxfrontend: "MustardOS Frontend",
         muxretro: "Pickles",
         muxmedia: "Wasabi",
         retroarch: "RetroArch",
@@ -52,7 +52,7 @@
         ppsspp: "PPSSPP",
         scummvm: "ScummVM",
         muxterm: "Terminal",
-        external: "External application"
+        external: "External Application"
     };
 
     function core(value) {
@@ -131,12 +131,17 @@
         el("activity-empty").hidden = list.childElementCount > 0;
     }
 
+    function programName(program, module) {
+        const name = t(PROGRAMS[program.toLowerCase()] || program);
+        return module ? `${name} (${module})` : name;
+    }
+
     function renderNow(running) {
         const program = (running && running.process) || "";
         const content = (running && running.content) || {};
         const player = program.toLowerCase() === "muxmedia" ? MU.playerState : null;
         el("now-box").hidden = !fillKv(el("now-facts"), [
-            ["Program", t(PROGRAMS[program.toLowerCase()] || program)],
+            ["Program", programName(program, running && running.module)],
             ["Content", (player && player.title) || content.name],
             ["System", content.system],
             ["Core", content.core ? core(content.core) : ""],

@@ -222,12 +222,34 @@ DEVICE_ADDRESS() {
 		awk 'NR == 1 { sub(/\/.*/, "", $4); print $4 }'
 }
 
+# The frontend writes the proper board name once it knows the board
+DEVICE_TITLE() {
+	[ -s /run/muos/board_title ] && IFS= read -r DT_TITLE </run/muos/board_title && [ -n "$DT_TITLE" ] && {
+		printf '%s' "$DT_TITLE"
+		return 0
+	}
+
+	GET_VAR "device" "board/name"
+}
+
+# The frontend renames itself after the module it is showing
+FRONTEND_MODULE() {
+	[ "$1" = "muxfrontend" ] || return 0
+
+	FM_PID=$(pgrep -f "^/opt/muos/frontend/muxfrontend" 2>/dev/null | head -n 1)
+	[ -n "$FM_PID" ] && [ -r "/proc/$FM_PID/comm" ] || return 0
+
+	IFS= read -r FM_NAME <"/proc/$FM_PID/comm"
+	[ "$FM_NAME" = "muxfrontend" ] || printf '%s' "$FM_NAME"
+}
+
 WRITE_STATUS() {
 	IFS=' ' read -r WS_UPTIME _ </proc/uptime 2>/dev/null || WS_UPTIME=0
 	WS_UPTIME=${WS_UPTIME%%.*}
 	case "$WS_UPTIME" in '' | *[!0-9]*) WS_UPTIME=0 ;; esac
 
 	WS_NOW=$(date '+%s')
+	WS_PROCESS=$(GET_VAR "system" "foreground_process")
 	case "$WS_NOW" in '' | *[!0-9]*) WS_NOW=0 ;; esac
 
 	WS_BOOT=
@@ -252,7 +274,7 @@ WRITE_STATUS() {
 		--arg zone "$(date '+%Z')" \
 		--argjson epoch "$WS_NOW" \
 		--argjson uptime "$WS_UPTIME" \
-		--arg device "$(GET_VAR "device" "board/name")" \
+		--arg device "$(DEVICE_TITLE)" \
 		--arg version "$(GET_VAR "system" "version")" \
 		--arg build "$(GET_VAR "system" "build")" \
 		--arg kernel "$(uname -sr 2>/dev/null)" \
@@ -262,7 +284,8 @@ WRITE_STATUS() {
 		--argjson charging "${WS_CHARGING:-null}" \
 		--arg boot "$WS_BOOT" \
 		--arg address "$(DEVICE_ADDRESS)" \
-		--arg process "$(GET_VAR "system" "foreground_process")" \
+		--arg process "$WS_PROCESS" \
+		--arg module "$(FRONTEND_MODULE "$WS_PROCESS")" \
 		--argjson elapsed "${WS_ELAPSED:-null}" \
 		--argjson content "$(CONTENT_DOC)" \
 		--argjson storage "$STORAGE_CACHE" \
@@ -283,7 +306,7 @@ WRITE_STATUS() {
 				"screen": $screen
 			},
 			"battery": {"capacity": $capacity, "voltage": $voltage, "charging": $charging},
-			"running": {"process": $process, "elapsed": $elapsed, "content": $content},
+			"running": {"process": $process, "module": $module, "elapsed": $elapsed, "content": $content},
 			"storage": $storage,
 			"activity": $activity
 		}' >"$WS_TMP" 2>/dev/null; then

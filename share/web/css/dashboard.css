@@ -677,7 +677,7 @@ a[href^="http://"]::after, a[href^="https://"]::after {
 .pad-sticks { display: flex; justify-content: center; gap: clamp(48px, 16vw, 132px); margin-block-start: -4px; }
 .pad-stick { position: relative; width: 104px; height: 104px; flex: none; border: 1px solid var(--line); border-radius: 50%; background: var(--box-alt); cursor: grab; touch-action: none; }
 .pad-stick[hidden], .pad-gamepad[hidden] { display: none; }
-.pad-stick-knob { position: absolute; inset-block-start: 50%; inset-inline-start: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border: 1px solid var(--line); border-radius: 50%; background: var(--box); pointer-events: none; }
+.pad-stick-knob { --knob: 44px; position: absolute; inset-block-start: 50%; inset-inline-start: 50%; width: var(--knob); height: var(--knob); margin: calc(var(--knob) / -2) 0 0 calc(var(--knob) / -2); border: 1px solid var(--line); border-radius: 50%; background: var(--box); pointer-events: none; }
 .pad-stick.down .pad-stick-knob { border-color: var(--accent); background: var(--accent); }
 .pad-stick.disabled { opacity: .35; cursor: default; }
 .pad-gamepad { margin: 0; font-size: .82rem; text-align: center; }
@@ -706,7 +706,7 @@ body.remote-mobile #view-remote .view-head { position: absolute; inset-block-sta
 body.remote-mobile #view-remote .view-head h1, body.remote-mobile #view-remote .list-tools > .link { display: none; }
 body.remote-mobile #view-remote .list-tools { margin: 0; }
 body.remote-mobile .remote-box { display: grid; height: 100%; padding: 0; border: 0; background: none; gap: 6px 14px; align-items: center; justify-items: center;
-    grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) minmax(var(--centre-row), auto);
     grid-template-areas: "ls . rs" "dpad screen face" "lstick screen rstick" "vol centre bright"; }
 body.remote-mobile #remote-note, body.remote-mobile .remote-progress { display: none; }
 body.remote-mobile #remote-unlock { grid-area: centre; }
@@ -714,7 +714,10 @@ body.remote-mobile .remote-screen { grid-area: screen; width: 100%; height: 100%
 body.remote-mobile .remote-pad:not([hidden]), body.remote-mobile .pad-body, body.remote-mobile .pad-shoulders, body.remote-mobile .pad-levels, body.remote-mobile .pad-sticks { display: contents; }
 body.remote-mobile .pad-stick[data-stick="l"] { grid-area: lstick; justify-self: end; }
 body.remote-mobile .pad-stick[data-stick="r"] { grid-area: rstick; justify-self: start; }
-body.remote-mobile .pad-stick { width: 96px; height: 96px; }
+body.remote-mobile { --pad-cell: 46px; --stick-size: 96px; --pad-tall: 44px; --pad-small: max(calc(var(--pad-tall) * .73), 24px); --centre-row: calc(var(--pad-small) * 2 + 6px); }
+body.remote-mobile .pad-stick { width: var(--stick-size); height: var(--stick-size); }
+body.remote-mobile .pad-stick-knob { --knob: calc(var(--stick-size) * .44); }
+body.remote-mobile .pad-shoulder { min-height: var(--pad-tall); }
 body.remote-mobile .pad-gamepad { display: none; }
 body.remote-mobile .remote-pad-note { grid-area: screen; z-index: 1; align-self: end; padding: 4px 10px; border-radius: 6px; background: var(--box); text-align: center; }
 body.remote-mobile .pad-pair:first-child { grid-area: ls; justify-self: start; }
@@ -724,13 +727,23 @@ body.remote-mobile .pad-face { grid-area: face; }
 body.remote-mobile .pad-centre { grid-area: centre; gap: 6px; }
 body.remote-mobile .pad-level:first-child { grid-area: vol; }
 body.remote-mobile .pad-level:last-child { grid-area: bright; }
-body.remote-mobile .pad-dpad, body.remote-mobile .pad-face { grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px); }
-body.remote-mobile .pad-small { min-height: 32px; }
+body.remote-mobile .pad-dpad, body.remote-mobile .pad-face { grid-template-columns: repeat(3, var(--pad-cell)); grid-template-rows: repeat(3, var(--pad-cell)); }
+body.remote-mobile .pad-small { min-height: var(--pad-small); }
+@media (orientation: landscape) and (max-height: 560px) {
+    body.remote-mobile { --pad-cell: clamp(22px, 10.5dvh, 46px); --stick-size: clamp(44px, 21dvh, 96px); --pad-tall: clamp(24px, 9dvh, 44px); }
+    body.remote-mobile .remote-box { gap: 4px 12px; grid-template-rows: auto minmax(calc(var(--pad-cell) * 3 + 8px), 1fr) minmax(var(--stick-size), 1fr) minmax(var(--centre-row), auto); }
+    body.remote-mobile .pad-level { gap: 2px 6px; }
+    body.remote-mobile .pad-level span { font-size: .75rem; }
+    body.remote-mobile .pad-button { font-size: .8rem; }
+    body.remote-mobile #view-remote .view-head { width: max-content; }
+    body.remote-mobile #view-remote .list-tools { flex-wrap: nowrap; gap: 6px; }
+    body.remote-mobile #view-remote .list-tools button { font-size: .75rem; }
+}
 @media (orientation: portrait) {
     body.remote-mobile #view-remote { display: flex; flex-direction: column; gap: 10px; }
     body.remote-mobile #view-remote .view-head { position: static; display: flex; justify-content: center; transform: none; }
     body.remote-mobile #view-remote .list-tools { flex-wrap: wrap; justify-content: center; }
-    body.remote-mobile .remote-box { flex: 1; min-height: 0; grid-template-columns: 1fr auto 1fr; grid-template-rows: auto auto auto auto auto 1fr;
+    body.remote-mobile .remote-box { flex: 1; min-height: 0; grid-template-columns: 1fr auto 1fr; grid-template-rows: auto auto auto auto minmax(var(--centre-row), auto) 1fr;
         grid-template-areas: "ls . rs" "screen screen screen" "dpad . face" "lstick . rstick" "centre centre centre" "vol . bright"; }
     body.remote-mobile .remote-screen { height: auto; }
 }
@@ -742,9 +755,10 @@ body.remote-has-pad .remote-screen-toggle { display: inline-flex; }
 #view-remote.screen-off .remote-screen, #view-remote.screen-off #remote-note, #view-remote.screen-off .remote-progress,
 #view-remote.screen-off #remote-popout, #view-remote.screen-off #remote-save, #view-remote.screen-off #remote-pause, #view-remote.screen-off #remote-refresh { display: none; }
 body.remote-mobile #view-remote .list-tools { display: flex; gap: 8px; }
-body.remote-mobile #view-remote.screen-off .remote-box { grid-template-columns: auto 1fr auto; grid-template-rows: auto auto auto auto; grid-template-areas: "ls . rs" "dpad centre face" "lstick . rstick" "vol . bright"; }
+body.remote-mobile #view-remote.screen-off .pad-centre { grid-area: screen; align-self: center; z-index: 1; }
+body.remote-mobile #view-remote.screen-off .remote-screen:not([hidden]) { display: block; visibility: hidden; }
 @media (orientation: portrait) {
-    body.remote-mobile #view-remote.screen-off .remote-box { grid-template-rows: auto auto auto auto auto 1fr; grid-template-areas: "ls . rs" "dpad . face" "lstick . rstick" "centre centre centre" "vol . bright"; }
+
 }
 .remote-pad.paused .pad-button { opacity: .35; cursor: default; }
 .glyph { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }

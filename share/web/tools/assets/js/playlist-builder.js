@@ -236,7 +236,7 @@
 
   function openText(fileName, source) {
     entries = parse(source);
-    const isChannels = /\.m3u8$/i.test(file.name) || entries.some(entry => entry.logo || /^https?:/i.test(entry.location));
+    const isChannels = /\.m3u8$/i.test(fileName) || entries.some(entry => entry.logo || /^https?:/i.test(entry.location));
     const isDiscs = !isChannels && !/^#EXTM3U/i.test(source.trim()) && entries.length > 0
       && entries.every(entry => discPattern.test(entry.location));
     if (/#EXT-X-/i.test(source)) setStatus("This file is a single HLS stream, not a playlist. Add its address as one channel instead.", "bad");

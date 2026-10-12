@@ -110,8 +110,8 @@
     });
   }
 
-  async function unlock(message) {
-    const code = await ask("Unlock the dashboard", "Code shown on the device", "", message || "Saving to the device needs the code shown on its screen.");
+  async function unlock() {
+    const code = await ask("Unlock the dashboard", "Web Dashboard Code", "", "Saving to the device needs the six digit code from Configuration > Connectivity > Web Dashboard Code on the device.");
     if (!code) return false;
     const response = await fetch("/api/session", { method: "POST", headers: { "X-muOS-Code": code }, cache: "no-store" });
     let payload = {};
@@ -128,9 +128,7 @@
     const response = await fetch(path, { method: options.method || "GET", body: options.body, headers, cache: "no-store" });
     if (response.status === 401 && !retried) {
       remember("");
-      let payload = {};
-      try { payload = await response.clone().json(); } catch (error) { payload = {}; }
-      if (await unlock(payload.error)) return request(path, options, true);
+      if (await unlock()) return request(path, options, true);
       throw new Error("Not saved, the dashboard is still locked");
     }
     if (!response.ok) {

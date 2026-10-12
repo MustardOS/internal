@@ -236,7 +236,7 @@ PROFILE_CHECKED() {
 }
 
 PROFILE_CURRENT() {
-	awk -v BASE="$MUOS_CONF_GLOBAL" '
+	awk -v BASE="$MUOS_CONF_GLOBAL" -v CHANGED="${1:-0}" '
 		index($0, "=") > 0 {
 			KEY = substr($0, 1, index($0, "=") - 1)
 			if (index(KEY, "/") == 0) next
@@ -244,8 +244,9 @@ PROFILE_CURRENT() {
 			VALUE = ""
 			FOUND = (getline VALUE <FILE)
 			close(FILE)
-			if (FOUND >= 0) print KEY "=" VALUE
-			else print
+			if (FOUND < 0) VALUE = substr($0, index($0, "=") + 1)
+			if (CHANGED && KEY "=" VALUE == $0) next
+			print KEY "=" VALUE
 		}
 	' "$PROFILE_DEFAULT"
 }
@@ -255,6 +256,7 @@ PROFILE_WRITE_CURRENT() {
 	PWC_NAME=$2
 	PWC_DESC=$3
 	PWC_TYPE=$4
+	PWC_CHANGED=${5:-0}
 
 	case "$PWC_TARGET" in
 		*/*) mkdir -p "${PWC_TARGET%/*}" || return 1 ;;
@@ -264,7 +266,7 @@ PROFILE_WRITE_CURRENT() {
 		printf 'name=%s\n' "$PWC_NAME"
 		printf 'description=%s\n' "$PWC_DESC"
 		printf 'type=%s\n' "$PWC_TYPE"
-		PROFILE_CURRENT
+		PROFILE_CURRENT "$PWC_CHANGED"
 	} >"$PWC_TEMP" && mv -f "$PWC_TEMP" "$PWC_TARGET" && return 0
 
 	rm -f "$PWC_TEMP"
@@ -375,7 +377,7 @@ PROFILE_SAVE() {
 '*) return 1 ;;
 	esac
 
-	PROFILE_WRITE_CURRENT "$PS_TARGET" "$PS_NAME" "$PS_DESC" "user" || return 1
+	PROFILE_WRITE_CURRENT "$PS_TARGET" "$PS_NAME" "$PS_DESC" "user" 1 || return 1
 	LOG_INFO "$0" 0 "PROFILE" "$(printf "Saved current settings as '%s'" "$PS_NAME")"
 }
 

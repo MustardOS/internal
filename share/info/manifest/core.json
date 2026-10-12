@@ -54,7 +54,12 @@
             "macintosh",
             "minivmac"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "MacII.ROM",
+                "hash": "66223be1497460f1e60885eeb35e03cc"
+            }
+        ],
         "libretro": {
             "minivmac": {
                 "name": "Mini vMac",
@@ -1000,7 +1005,12 @@
             "supercassettevision",
             "scv"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "upd7801g.s01",
+                "hash": "635a978fd40db9a18ee44eff449fc126"
+            }
+        ],
         "libretro": {
             "emuscv": {
                 "name": "EmuSCV",
@@ -1063,7 +1073,20 @@
             "fairchild",
             "channelf"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "sl31253.bin",
+                "hash": "ac9804d4c0e9d07e33472e3726ed15c3"
+            },
+            {
+                "file": "sl31254.bin",
+                "hash": "da98f4bb3242ab80d76629021bb27585"
+            },
+            {
+                "file": "sl90025.bin",
+                "hash": "95d339631d867c8f1d15a5f2ec26069d"
+            }
+        ],
         "libretro": {
             "freechaf": {
                 "name": "FreeChaF",
@@ -1191,7 +1214,12 @@
             "mobile",
             "j2me"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "freej2me-lr.jar",
+                "hash": ""
+            }
+        ],
         "libretro": {
             "freej2me - retroarch": {
                 "name": "FreeJ2ME - RetroArch",
@@ -1426,7 +1454,28 @@
             "microsoftmsx",
             "msx2"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "MSX.ROM",
+                "hash": "364a1a579fe5cb8dba54519bcfcdac0d"
+            },
+            {
+                "file": "MSX2.ROM",
+                "hash": "ec3a01c91f24fbddcbcab0ad301bc9ef"
+            },
+            {
+                "file": "MSX2EXT.ROM",
+                "hash": "2183c2aff17cf4297bdb496de78c2e8a"
+            },
+            {
+                "file": "MSX2P.ROM",
+                "hash": "847cc025ffae665487940ff2639540e5"
+            },
+            {
+                "file": "MSX2PEXT.ROM",
+                "hash": "7c8243c71d8f143b2531f01afa6a05dc"
+            }
+        ],
         "libretro": {
             "bluemsx": {
                 "name": "blueMSX",
@@ -1568,7 +1617,32 @@
             "pc8000",
             "necpc8000"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "quasi88/n88.rom",
+                "hash": ""
+            },
+            {
+                "file": "quasi88/n88_0.rom",
+                "hash": ""
+            },
+            {
+                "file": "quasi88/n88_1.rom",
+                "hash": ""
+            },
+            {
+                "file": "quasi88/n88_2.rom",
+                "hash": ""
+            },
+            {
+                "file": "quasi88/n88_3.rom",
+                "hash": ""
+            },
+            {
+                "file": "quasi88/disk.rom",
+                "hash": ""
+            }
+        ],
         "libretro": {
             "quasi8800": {
                 "name": "Quasi 8800",
@@ -1586,7 +1660,12 @@
             "pcfx",
             "necpcfx"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "pcfx.rom",
+                "hash": "08e36edbea28a017f79f8d4f7ff9b6d7"
+            }
+        ],
         "libretro": {
             "beetle pc-fx": {
                 "name": "Beetle PC-FX",
@@ -1609,7 +1688,24 @@
             "pc98",
             "necpc98"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "np2kai/bios.rom",
+                "hash": ""
+            },
+            {
+                "file": "np2kai/FONT.ROM",
+                "hash": ""
+            },
+            {
+                "file": "np2kai/itf.rom",
+                "hash": ""
+            },
+            {
+                "file": "np2kai/sound.rom",
+                "hash": ""
+            }
+        ],
         "libretro": {
             "neko project ii": {
                 "name": "Neko Project II",
@@ -1665,7 +1761,20 @@
             "dsi",
             "ds"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "bios7.bin",
+                "hash": "df692a80a5b1bc90728bc3dfc76cd948"
+            },
+            {
+                "file": "bios9.bin",
+                "hash": "a392174eb3e572fed6447e956bde4b25"
+            },
+            {
+                "file": "firmware.bin",
+                "hash": ""
+            }
+        ],
         "libretro": {
             "desmume 2015": {
                 "name": "DeSmuME 2015",
@@ -2320,7 +2429,12 @@
             "palmos",
             "palm"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "palmos41-en-m515.rom",
+                "hash": ""
+            }
+        ],
         "libretro": {
             "mu": {
                 "name": "Mu",
@@ -2612,7 +2726,20 @@
             "arcadenaomi",
             "arcadeatomiswave"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "dc/naomi.zip",
+                "hash": ""
+            },
+            {
+                "file": "dc/naomi2.zip",
+                "hash": ""
+            },
+            {
+                "file": "dc/awbios.zip",
+                "hash": ""
+            }
+        ],
         "libretro": {
             "flycast": {
                 "name": "Flycast",
@@ -2660,7 +2787,16 @@
             "dreamcast",
             "dc"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "dc/dc_boot.bin",
+                "hash": "e10c53c2f8b90bab96ead2d368858623"
+            },
+            {
+                "file": "dc/dc_flash.bin",
+                "hash": "0a93f7940c455905bea6e392dfde92a4"
+            }
+        ],
         "libretro": {
             "flycast": {
                 "name": "Flycast",
@@ -2910,7 +3046,20 @@
             "satourne",
             "sat"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "saturn_bios.bin",
+                "hash": "af5828fdff51384f99b3c4926be27762"
+            },
+            {
+                "file": "sega_101.bin",
+                "hash": "85ec9ca47d8f6807718151cbcca8b964"
+            },
+            {
+                "file": "mpr-17933.bin",
+                "hash": "3240872c70984b6cbfda1586cab68dbe"
+            }
+        ],
         "libretro": {
             "beetle saturn": {
                 "name": "Beetle Saturn",
@@ -2977,7 +3126,16 @@
             "x1",
             "sharpx1"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "xmil/IPLROM.X1",
+                "hash": "eeeea1cd29c6e0e8b094790ae969bfa7"
+            },
+            {
+                "file": "xmil/IPLROM.X1T",
+                "hash": "851e4a5936f17d13f8c39a980cf00d77"
+            }
+        ],
         "libretro": {
             "x millennium": {
                 "name": "X Millennium",
@@ -2997,7 +3155,16 @@
             "sharpx68000",
             "x68k"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "keropi/iplrom.dat",
+                "hash": ""
+            },
+            {
+                "file": "keropi/cgrom.dat",
+                "hash": ""
+            }
+        ],
         "libretro": {
             "px68k": {
                 "name": "PX68k",
@@ -3061,7 +3228,12 @@
             "arcadesnk",
             "arcadeneogeo"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "neogeo.zip",
+                "hash": ""
+            }
+        ],
         "libretro": {
             "fb alpha 2012 neo geo": {
                 "name": "FB Alpha 2012 Neo Geo",
@@ -3094,7 +3266,56 @@
             "arcneogeocd",
             "arcadeneogeocd"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "neocd/neocd_f.rom",
+                "hash": ""
+            },
+            {
+                "file": "neocd/neocd_sf.rom",
+                "hash": ""
+            },
+            {
+                "file": "neocd/front-sp1.bin",
+                "hash": ""
+            },
+            {
+                "file": "neocd/neocd_t.rom",
+                "hash": ""
+            },
+            {
+                "file": "neocd/neocd_st.rom",
+                "hash": ""
+            },
+            {
+                "file": "neocd/top-sp1.bin",
+                "hash": ""
+            },
+            {
+                "file": "neocd/neocd_z.rom",
+                "hash": ""
+            },
+            {
+                "file": "neocd/neocd_sz.rom",
+                "hash": ""
+            },
+            {
+                "file": "neocd/neocd.bin",
+                "hash": ""
+            },
+            {
+                "file": "neocd/uni-bioscd.rom",
+                "hash": ""
+            },
+            {
+                "file": "neocd/ng-lo.rom",
+                "hash": ""
+            },
+            {
+                "file": "neocd/000-lo.lo",
+                "hash": ""
+            }
+        ],
         "libretro": {
             "neocd": {
                 "name": "NeoCD",
@@ -3305,7 +3526,20 @@
             "ti83",
             "texasinstrumentsti83"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "ti83se.rom",
+                "hash": "c6ff8204c5c81b7be34614dbbd690c8b"
+            },
+            {
+                "file": "ti83plus.rom",
+                "hash": "8011181f810b5ec4e9d6a03f0e14257a"
+            },
+            {
+                "file": "ti83.rom",
+                "hash": "d4448d09bbfde687c04f9e3310e023ab"
+            }
+        ],
         "libretro": {
             "numero": {
                 "name": "Numero",
@@ -3324,7 +3558,60 @@
             "3d0",
             "3do"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "panafz1.bin",
+                "hash": "f47264dd47fe30f73ab3c010015c155b"
+            },
+            {
+                "file": "panafz10.bin",
+                "hash": "51f2f43ae2f3508a14d9f56597e2d3ce"
+            },
+            {
+                "file": "panafz10-norsa.bin",
+                "hash": "1477bda80dc33731a65468c1f5bcbee9"
+            },
+            {
+                "file": "panafz10e-anvil.bin",
+                "hash": "a48e6746bd7edec0f40cff078f0bb19f"
+            },
+            {
+                "file": "panafz10e-anvil-norsa.bin",
+                "hash": "cf11bbb5a16d7af9875cca9de9a15e09"
+            },
+            {
+                "file": "panafz1j.bin",
+                "hash": "a496cfdded3da562759be3561317b605"
+            },
+            {
+                "file": "panafz1j-norsa.bin",
+                "hash": "f6c71de7470d16abe4f71b1444883dc8"
+            },
+            {
+                "file": "goldstar.bin",
+                "hash": "8639fd5e549bd6238cfee79e3e749114"
+            },
+            {
+                "file": "sanyotry.bin",
+                "hash": "35fa1a1ebaaeea286dc5cd15487c13ea"
+            },
+            {
+                "file": "3do_arcade_saot.bin",
+                "hash": "8970fc987ab89a7f64da9f8a8c4333ff"
+            },
+            {
+                "file": "panafz1-kanji.bin",
+                "hash": "b8dc97f778a6245c58e064b0312e8281"
+            },
+            {
+                "file": "panafz1j-kanji.bin",
+                "hash": "c23fb5d5e6bb1c240d02cf968972be37"
+            },
+            {
+                "file": "panafz10ja-anvil-kanji.bin",
+                "hash": "428577250f43edc902ea239c50d2240d"
+            }
+        ],
         "libretro": {
             "opera": {
                 "name": "Opera",
@@ -3417,7 +3704,12 @@
         "friendly": [
             "vircon32"
         ],
-        "bios": [],
+        "bios": [
+            {
+                "file": "Vircon32Bios.v32",
+                "hash": ""
+            }
+        ],
         "libretro": {
             "vircon32": {
                 "name": "Vircon32",

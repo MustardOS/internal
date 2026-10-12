@@ -6,6 +6,7 @@
 . /opt/muos/script/var/func.sh
 
 GADGET="/sys/kernel/config/usb_gadget/muos"
+LINK_GADGET="/sys/kernel/config/usb_gadget/mulink"
 
 GCFG="$GADGET/configs/c.1"
 GFUN="$GADGET/functions"
@@ -87,6 +88,11 @@ UNBIND_UDC() {
 		printf '' >"$GADGET/UDC" 2>/dev/null
 		sleep 0.1
 	fi
+}
+
+LINK_ACTIVE() {
+	# Direct Link owns the controller while its USB cable is enabled and starts this service again afterwards
+	[ -d "$LINK_GADGET" ]
 }
 
 BIND_UDC() {
@@ -383,11 +389,20 @@ WATCHDOG_LOOP() {
 	STALL_REBIND_SECS="10"
 	STALL_COUNT=0
 
+	while LINK_ACTIVE; do
+		sleep "$INTERVAL"
+	done
+
 	ENSURE_DESIRED_STATE
 	ENSURE_RESULT=$?
 	[ "$ENSURE_RESULT" -ne 2 ] || exit 1
 
 	while :; do
+		LINK_ACTIVE && {
+			sleep "$INTERVAL"
+			continue
+		}
+
 		RESOLVE_UDC || {
 			sleep "$INTERVAL"
 			continue
@@ -518,6 +533,7 @@ CMD_STATUS() {
 
 CMD_RESUME() {
 	[ -n "$UDC" ] || exit 0
+	LINK_ACTIVE && exit 0
 	REPAIR_AFTER_RESUME
 }
 

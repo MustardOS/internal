@@ -16,6 +16,8 @@ systemid = "pico8"
 # Libretro Features
 database = "PICO-8"
 supports_no_game = "false"
-savestate = "false"
+savestate = "true"
+runahead_support = "false"
+netplay_support = "false"
 
 description = "The MustardOS PICO-8 core, a fork of Retro8. It loads p8 and png carts and adds the newer PICO-8 Lua syntax, 16.16 fixed point bitwise operators, P8SCII print codes and the missing API calls."

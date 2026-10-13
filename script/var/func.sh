@@ -2576,25 +2576,29 @@ BOOT_CONFIRMED() {
 BOOT_GUARD_CONFIRM_LATER() {
 	(
 		WATCH_PID=
-		ELAPSED=0
+		STABLE_SECONDS=0
 
-		while [ "$ELAPSED" -lt "$BOOT_CONFIRM_GRACE" ]; do
+		while [ "$STABLE_SECONDS" -lt "$BOOT_CONFIRM_GRACE" ]; do
 			sleep 1
-			ELAPSED=$((ELAPSED + 1))
 
 			NOW_PID=$(pgrep -f "$FRONTEND_BIN" 2>/dev/null | head -n 1)
 
 			if [ -z "$NOW_PID" ]; then
-				pgrep -f "$LAUNCH_SCRIPT" >/dev/null 2>&1 || return 0
+				WATCH_PID=
+				STABLE_SECONDS=0
 				continue
 			fi
 
 			if [ -z "$WATCH_PID" ]; then
 				WATCH_PID="$NOW_PID"
 			elif [ "$NOW_PID" != "$WATCH_PID" ]; then
-				LOG_WARN "$0" 0 "BOOTING" "Frontend restarted inside grace window, not confirming this boot"
-				return 0
+				LOG_INFO "$0" 0 "BOOTING" "Frontend changed inside grace window, restarting stability check"
+				WATCH_PID="$NOW_PID"
+				STABLE_SECONDS=0
+				continue
 			fi
+
+			STABLE_SECONDS=$((STABLE_SECONDS + 1))
 		done
 
 		BOOT_GUARD_CONFIRM

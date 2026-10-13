@@ -36,6 +36,15 @@ CONNECT_ON_WAKE=$(GET_VAR "config" "settings/network/wake")
 USE_ACTIVITY="$(GET_VAR "config" "settings/advanced/activity")"
 USB_FUNCTION="$(GET_VAR "config" "settings/advanced/usb_function")"
 
+# H700 firmware drops into "super standby", where only the memory is kept powered, when nothing
+# else is armed to wake the device.  The "Sleep Until Wake" suspend option has no shutdown alarm,
+# so on these boards the SoC alarm and the charger wake are cleared too, leaving the power key as
+# the only way back.  It already had the functionality, this is simply a coding placebo!
+SUPER_STANDBY=0
+case "$BOARD_NAME" in
+	rg28xx-h | rg34xx-h | rg34xx-sp | rg35xx-* | rg40xx-* | rgcubexx-h | rgsp) [ "$SHUTDOWN_TIME_SETTING" = -1 ] && SUPER_STANDBY=1 ;;
+esac
+
 # We'll keep the suspend state for the G350 at freeze for now, not that it even works!
 if [ "$BOARD_NAME" = rk-g350-v ] && [ "$SUSPEND_STATE" = mem ]; then
 	SUSPEND_STATE=freeze
@@ -509,6 +518,11 @@ QUIET_WAKE_SOURCES() {
 		for BATTERY_WAKE in /sys/class/power_supply/*battery*/power/wakeup; do
 			[ -e "$BATTERY_WAKE" ] && printf '%s\n' "$BATTERY_WAKE"
 		done
+		if [ "$SUPER_STANDBY" -eq 1 ] && [ "${FAKE_SLEEP:-0}" -eq 0 ]; then
+			for USB_WAKE in /sys/class/power_supply/*usb*/power/wakeup; do
+				[ -e "$USB_WAKE" ] && printf '%s\n' "$USB_WAKE"
+			done
+		fi
 	} |
 		while IFS= read -r WAKE_CONTROL; do
 			WAKE_VALUE=
@@ -773,7 +787,14 @@ RECENT_WAKE_SET && exit 0
 
 case "$SHUTDOWN_TIME_SETTING" in
 	-2) ;;
-	-1) SLEEP && RESUME ;;
+	-1)
+		if [ "$SUPER_STANDBY" -eq 1 ] && [ "$FAKE_SLEEP" -eq 0 ]; then
+			[ -w "$RTC_WAKE_PATH/wakealarm" ] && echo 0 >"$RTC_WAKE_PATH/wakealarm"
+			LOG_INFO "$0" 0 "SUSPEND" "Sleep Until Wake! Going into SuPeR sTaNdBy!"
+		fi
+
+		SLEEP && RESUME
+		;;
 	2)
 		CHECK_RA_AND_SAVE "CLOSE_CONTENT"
 		/opt/muos/script/mux/quit.sh poweroff sleep

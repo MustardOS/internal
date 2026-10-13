@@ -288,7 +288,7 @@
       ["Open from Device", async () => {
         try {
           const items = (await device.list("equaliser")).map(file => ({label: file.path.replace(/\.eq$/i, ""), value: file.path}));
-          const picked = await device.choose("Open a saved equaliser profile", items, "Profiles saved in Wasabi live in MUOS/save/wasabi/equaliser.");
+          const picked = await device.choose("Open a saved equaliser profile", items, "Profiles saved in Wasabi live in MUOS/wasabi/equaliser.");
           if (!picked) return;
           gains = parse(await device.text("equaliser", picked));
           $("#eq-name").value = picked.replace(/\.eq$/i, "");

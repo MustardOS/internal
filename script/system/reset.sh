@@ -19,9 +19,13 @@ case "$ROM_TYPE" in
 	*) ROM_MOUNT_OPTS="rw,noatime,nofail" ;;
 esac
 
-LOG_INFO "$0" 0 "FACTORY RESET" "Expanding ROM Partition"
-printf "w\nw\n" | fdisk /dev/"$ROM_DEV"
-parted ---pretend-input-tty /dev/"$ROM_DEV" resizepart "$ROM_NUM" 100%
+if [ -n "$ROM_NUM" ]; then
+	LOG_INFO "$0" 0 "FACTORY RESET" "Expanding ROM Partition"
+	printf "w\nw\n" | fdisk /dev/"$ROM_DEV"
+	parted ---pretend-input-tty /dev/"$ROM_DEV" resizepart "$ROM_NUM" 100%
+else
+	LOG_INFO "$0" 0 "FACTORY RESET" "Using Whole-Device ROM Storage"
+fi
 
 mkdir -p "$ROM_MOUNT"
 
@@ -32,10 +36,12 @@ if ! MAKE_FILESYSTEM "$ROM_TYPE" "$ROM_PART" "ROMS"; then
 	CRITICAL_FAILURE format "$ROM_PART" "$ROM_TYPE"
 fi
 
-LOG_INFO "$0" 0 "FACTORY RESET" "Setting ROM Partition Flags"
-parted ---pretend-input-tty /dev/"$ROM_DEV" set "$ROM_NUM" boot off
-parted ---pretend-input-tty /dev/"$ROM_DEV" set "$ROM_NUM" hidden off
-parted ---pretend-input-tty /dev/"$ROM_DEV" set "$ROM_NUM" msftdata on
+if [ -n "$ROM_NUM" ]; then
+	LOG_INFO "$0" 0 "FACTORY RESET" "Setting ROM Partition Flags"
+	parted ---pretend-input-tty /dev/"$ROM_DEV" set "$ROM_NUM" boot off
+	parted ---pretend-input-tty /dev/"$ROM_DEV" set "$ROM_NUM" hidden off
+	parted ---pretend-input-tty /dev/"$ROM_DEV" set "$ROM_NUM" msftdata on
+fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Mounting ROM Partition"
 if MOUNT_FILESYSTEM "$ROM_TYPE" "$ROM_MOUNT_OPTS" "$ROM_PART" "$ROM_MOUNT"; then
@@ -64,6 +70,7 @@ application
 info/catalogue
 info/collection
 info/history
+info/launch
 info/name
 info/track
 init
@@ -74,6 +81,7 @@ log/retroarch
 network
 package/catalogue
 package/config
+pickles
 profile
 save/drastic/backup
 save/drastic/savestates
@@ -90,6 +98,7 @@ save/state/PPSSPP-Ext
 save/state/YabaSanshiro-Ext
 screenshot
 syncthing
+wasabi
 '
 
 for D in $DIRS; do
@@ -140,8 +149,12 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Generating Unique System ID"
 SET_VAR "system" "uuid" "$(uuidgen)"
 
 if [ "$NETWORK_ENABLED" -eq 1 ]; then
-	LOG_INFO "$0" 0 "FACTORY RESET" "Changing Network MAC Address"
-	macchanger -r "$NET_IFACE"
+	if command -v macchanger >/dev/null 2>&1; then
+		LOG_INFO "$0" 0 "FACTORY RESET" "Changing Network MAC Address"
+		macchanger -r "$NET_IFACE"
+	else
+		LOG_INFO "$0" 0 "FACTORY RESET" "Keeping Existing Network MAC Address"
+	fi
 
 	LOG_INFO "$0" 0 "FACTORY RESET" "Setting Hostname"
 	HN="$(hostname)-$(/opt/muos/script/system/serial.sh | tail -c 6)"

@@ -302,7 +302,7 @@ MANAGE_WEBSERV() {
 					# Both trees are made on demand elsewhere, so make sure they exist before
 					# the server resolves them, otherwise a fresh device has nothing to open.
 					LANDING_CATALOGUE="$MUOS_STORE_DIR/info/catalogue"
-					LANDING_PICKLES="$MUOS_STORE_DIR/save/pickles"
+					LANDING_PICKLES="$MUOS_STORE_DIR/pickles"
 					mkdir -p "$LANDING_CATALOGUE" "$LANDING_PICKLES"
 
 					set -- "$LANDING_BIN" --root "$LANDING_ROOT" --port "$LANDING_PORT" \

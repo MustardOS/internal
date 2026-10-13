@@ -2,8 +2,8 @@
 
 . /opt/muos/script/var/func.sh
 
-PRIORITY_LOCS="application bios init info/manifest info/track music save theme"
-STANDARD_LOCS="info/catalogue info/name info/collection info/history info/override network profile screenshot syncthing package/catalogue package/config"
+PRIORITY_LOCS="application bios init info/manifest info/track music pickles save theme wasabi"
+STANDARD_LOCS="info/catalogue info/name info/launch info/collection info/history info/override network profile screenshot syncthing package/catalogue package/config"
 
 MOUNT_FAILURE="/tmp/muos/mount_failure"
 
@@ -52,6 +52,7 @@ LOCS_KEY() {
 	case "$1" in
 		info/catalogue*) echo "catalogue" ;;
 		info/name*) echo "name" ;;
+		info/launch*) echo "launch" ;;
 		info/manifest*) echo "manifest" ;;
 		info/collection*) echo "collection" ;;
 		info/history*) echo "history" ;;

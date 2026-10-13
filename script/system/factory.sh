@@ -74,7 +74,11 @@ HOTKEY start
 
 /opt/muos/frontend/muxmessage 0 "$MUOS_SHARE_DIR/message.txt" -d 5
 
-/usr/bin/mpv --really-quiet "$MUOS_SHARE_DIR/media/factory.mp3" &
+FACTORY_AUDIO_PID=
+if command -v mpv >/dev/null 2>&1; then
+	mpv --really-quiet "$MUOS_SHARE_DIR/media/factory.mp3" &
+	FACTORY_AUDIO_PID=$!
+fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating SSH Host Keys"
 if [ -x /opt/openssh/sbin/sshd ]; then
@@ -96,7 +100,9 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Initialising Factory Reset Script"
 
 touch "/tmp/msg_finish"
 sleep 1
-killall -q "mpv"
+if [ -n "$FACTORY_AUDIO_PID" ]; then
+	kill "$FACTORY_AUDIO_PID" 2>/dev/null || true
+fi
 
 if EXFAT_NATIVE_BUILTIN; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Built-in exFAT support active, removing FUSE helper"

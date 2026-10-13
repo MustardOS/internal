@@ -223,6 +223,11 @@ IS_STATION_INTERFACE() {
 	[ -d "$SCN_PATH/$I_NAME/wireless" ] || [ -L "$SCN_PATH/$I_NAME/phy80211" ]
 }
 
+IS_WIRELESS_INTERFACE() {
+	[ -n "$1" ] &&
+		{ [ -d "$SCN_PATH/$1/wireless" ] || [ -L "$SCN_PATH/$1/phy80211" ]; }
+}
+
 INTERFACE_USES_CONFIGURED_DRIVER() {
 	[ -n "$NET_NAME" ] || return 0
 	I_EXPECTED=$(NORMALISE_MODULE_NAME "$NET_NAME")
@@ -354,10 +359,12 @@ UNLOAD_MODULE() {
 	[ "${HAS_NETWORK:-0}" -eq 0 ] && return 0
 
 	if [ -n "$IFCE" ] && [ -d "$SCN_PATH/$IFCE" ]; then
-		iw dev "$IFCE" disconnect
-		iw dev "$IFCE" set power_save off
+		if IS_WIRELESS_INTERFACE "$IFCE"; then
+			iw dev "$IFCE" disconnect
+			iw dev "$IFCE" set power_save off
+		fi
 		ip addr flush dev "$IFCE"
-		ip route del default dev "$IFCE"
+		ip route del default dev "$IFCE" 2>/dev/null
 		ip link set "$IFCE" down
 	fi
 
@@ -1177,16 +1184,16 @@ TRY_CONNECT() {
 	DESTROY_DHCPCD
 
 	if [ -d "/sys/class/net/$IFCE" ]; then
-		iw dev "$IFCE" disconnect
+		IS_WIRELESS_INTERFACE "$IFCE" && iw dev "$IFCE" disconnect
 		ip addr flush dev "$IFCE"
-		ip route del default dev "$IFCE"
+		ip route del default dev "$IFCE" 2>/dev/null
 
 		ip link set dev "$IFCE" up || {
 			FAIL_WITH "FAILED" "$RC_FAIL"
 			return $?
 		}
 
-		iw dev "$IFCE" set power_save off
+		IS_WIRELESS_INTERFACE "$IFCE" && iw dev "$IFCE" set power_save off
 	else
 		FAIL_WITH "FAILED" "$RC_FAIL"
 		return $?
@@ -1488,13 +1495,13 @@ DO_STOP() {
 	NET_STATUS_CLEAR
 	CLEAR_ACTIVE
 
-	iw dev "$IFCE" disconnect
+	IS_WIRELESS_INTERFACE "$IFCE" && iw dev "$IFCE" disconnect
 	: >"$WPA_CONFIG"
 	chmod 0600 "$WPA_CONFIG"
 
 	LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting '%s' device down" "$IFCE")"
 	ip addr flush dev "$IFCE"
-	ip route del default dev "$IFCE"
+	ip route del default dev "$IFCE" 2>/dev/null
 	ip link set dev "$IFCE" down
 
 	LOG_INFO "$0" 0 "NETWORK" "Stopping Network Services"

@@ -861,6 +861,9 @@ BATTERY() {
 	case "$1" in
 		stop) /opt/muos/script/var/process.sh stop battery ;;
 		start)
+			BATTERY_CAPACITY=$(GET_VAR "device" "battery/capacity")
+			BATTERY_VOLTAGE=$(GET_VAR "device" "battery/voltage")
+			[ -n "$BATTERY_CAPACITY" ] || [ -n "$BATTERY_VOLTAGE" ] || return 0
 			/opt/muos/script/var/process.sh start battery /opt/muos/frontend/mubattery
 			;;
 		restart)

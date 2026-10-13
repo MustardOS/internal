@@ -4,7 +4,10 @@
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Setting date time to default"
 date 010100002026
-hwclock -w
+RTC_CLOCK=$(GET_VAR "device" "board/rtc_clock")
+if command -v hwclock >/dev/null 2>&1 && [ -n "$RTC_CLOCK" ] && [ -e "$RTC_CLOCK" ]; then
+	hwclock -f "$RTC_CLOCK" -w || LOG_WARN "$0" 0 "FACTORY RESET" "Unable to update the hardware clock"
+fi
 
 while pgrep "muwarn" >/dev/null 2>&1; do sleep 0.25; done
 
@@ -89,11 +92,13 @@ fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Setting ARMHF Requirements"
 ARMHF="ld-linux-armhf.so.3"
-if [ ! -f "/lib/${ARMHF}" ]; then
+if [ ! -e "/lib/${ARMHF}" ] && [ -e "/lib32/${ARMHF}" ]; then
 	LOG_INFO "$0" 0 "BOOTING" "Configuring Dynamic Linker Run Time Bindings"
 	ln -s "/lib32/${ARMHF}" "/lib/${ARMHF}"
 fi
-ldconfig -v >"/opt/muos/ldconfig.log"
+if command -v ldconfig >/dev/null 2>&1; then
+	ldconfig -v >"/opt/muos/ldconfig.log"
+fi
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Initialising Factory Reset Script"
 /opt/muos/script/system/reset.sh

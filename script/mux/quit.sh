@@ -95,8 +95,11 @@ HALT_SYSTEM() {
 	LOG_INFO "$0" 0 "QUIT" "$(printf "Quitting system (cmd: %s) (src: %s)" "$HALT_CMD" "$HALT_SRC")"
 
 	# Turn on power LED for visual feedback on halt success.
-	LOG_INFO "$0" 0 "QUIT" "Switching on normal LED"
-	echo 1 >"$(GET_VAR "device" "led/normal")"
+	NORMAL_LED=$(GET_VAR "device" "led/normal")
+	if [ -n "$NORMAL_LED" ] && [ -w "$NORMAL_LED" ]; then
+		LOG_INFO "$0" 0 "QUIT" "Switching on normal LED"
+		echo 1 >"$NORMAL_LED"
+	fi
 
 	# Clear last-played content per Device Startup setting.
 	#

@@ -210,8 +210,11 @@ LOG_INFO "$0" 0 "HALT" "Disabling swap"
 RUN_WITH_TIMEOUT 5 1 swapoff -a || LOG_WARN "$0" 0 "HALT" "Swap disable did not complete"
 
 # hwclock can hang if the RTC I2C bus is in a bad state apparently
-LOG_INFO "$0" 0 "HALT" "Syncing RTC to hardware"
-RUN_WITH_TIMEOUT 5 2 hwclock --systohc --utc
+RTC_CLOCK=$(GET_VAR "device" "board/rtc_clock")
+if command -v hwclock >/dev/null 2>&1 && [ -n "$RTC_CLOCK" ] && [ -e "$RTC_CLOCK" ]; then
+	LOG_INFO "$0" 0 "HALT" "Syncing RTC to hardware"
+	RUN_WITH_TIMEOUT 5 2 hwclock -f "$RTC_CLOCK" --systohc --utc
+fi
 
 LOG_INFO "$0" 0 "HALT" "Resetting used_reset variable"
 SET_VAR "system" "used_reset" 0

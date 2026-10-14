@@ -321,7 +321,7 @@ function love.touchreleased(id, x, y, dx, dy, pressure)
                     emit(input.events.L1, false)
                 else
                     -- Bomb powerup shortcut
-                    emit(input.events.X, false)
+                    emit(input.events.R1, false)
                 end
             else
                 -- Confirm shortcut

@@ -87,7 +87,7 @@ WRITE_SCAN_RESULTS() {
 	: >"$TMP_NAMED"
 	: >"$TMP_UNKNOWN"
 
-	CONNECTED_MACS=$(timeout 5 bluetoothctl devices Connected 2>/dev/null | awk '{print $2}')
+	CONNECTED_MACS=$(awk '$2 == 1 { print $1 }' "$BT_PAIRED" 2>/dev/null)
 	TRUSTED_MACS=$(
 		for ADAPTER_DIR in /var/lib/bluetooth/??:??:??:??:??:??/; do
 			[ -d "$ADAPTER_DIR" ] || continue
@@ -100,21 +100,24 @@ WRITE_SCAN_RESULTS() {
 		done
 	)
 
-	timeout 5 bluetoothctl devices 2>/dev/null | while IFS= read -r LINE; do
-		# Format: "Device AA:BB:CC:DD:EE:FF Device Name"
-		MAC=$(printf "%s" "$LINE" | awk '{print $2}')
-		NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
+	awk -F '\t' '
+		NF >= 2 {
+			name = $0
+			sub(/^[^\t]*\t/, "", name)
+			latest[$1] = name
+		}
+		END {
+			for (mac in latest) print mac " " latest[mac]
+		}
+	' "$TMP_NAMES_FILE" 2>/dev/null | while IFS= read -r LINE; do
+		MAC=${LINE%% *}
+		NAME=${LINE#* }
 		[ -z "$MAC" ] && continue
 
 		# Skip paired, trusted, and connected devices
 		grep -q "^$MAC " "$BT_PAIRED" 2>/dev/null && continue
 		printf "%s\n" "$TRUSTED_MACS" | grep -qxF "$MAC" 2>/dev/null && continue
 		printf "%s\n" "$CONNECTED_MACS" | grep -qxF "$MAC" 2>/dev/null && continue
-
-		if [ -n "$TMP_NAMES_FILE" ] && [ -f "$TMP_NAMES_FILE" ]; then
-			RESOLVED=$(awk -F'\t' -v mac="$MAC" '$1==mac{name=$2} END{if(name) print name}' "$TMP_NAMES_FILE" 2>/dev/null)
-			[ -n "$RESOLVED" ] && NAME="$RESOLVED"
-		fi
 
 		case "$NAME" in
 			"" | "$MAC" | \
@@ -179,21 +182,35 @@ DO_LIST() {
 	TMP_NAMES="$BT_DIR/scan_names.tmp.$$"
 	: >"$TMP_NAMES"
 
+	# Seed the scan with BlueZ's current cache. Newly observed devices and name
+	# changes are merged into this file by the live discovery client below.
+	timeout 5 bluetoothctl devices 2>/dev/null | while IFS= read -r LINE; do
+		MAC=$(printf "%s" "$LINE" | awk '{ print $2 }')
+		NAME=$(printf "%s" "$LINE" | cut -d' ' -f3-)
+		[ -n "$MAC" ] && [ -n "$NAME" ] && printf "%s\t%s\n" "$MAC" "$NAME"
+	done >>"$TMP_NAMES"
+
 	(
-		printf "scan on\n"
+		printf "agent off\nscan on\n"
 		while [ ! -f "$BT_SCAN_STOP" ]; do sleep 0.25; done
 		printf "scan off\n"
-	) | timeout $((SCAN_TIMEOUT + 8)) bluetoothctl 2>/dev/null | while IFS= read -r LINE; do
+		sleep 0.2
+		printf "quit\n"
+	) | timeout $((SCAN_TIMEOUT + 8)) bluetoothctl 2>/dev/null |
+		awk '{ gsub(/\033\[[0-9;]*m/, ""); gsub(/[\001\002\r]/, ""); print; fflush() }' |
+		while IFS= read -r LINE; do
 		MAC=""
 		NAME=""
 		case "$LINE" in
 			*"[NEW] Device "*)
-				MAC=$(printf "%s" "$LINE" | awk '{print $3}')
-				NAME=$(printf "%s" "$LINE" | cut -d' ' -f4-)
+				DEVICE_INFO=${LINE#*"[NEW] Device "}
+				MAC=${DEVICE_INFO%% *}
+				NAME=${DEVICE_INFO#* }
 				;;
 			*"[CHG] Device "*"Name: "*)
-				MAC=$(printf "%s" "$LINE" | awk '{print $3}')
-				NAME=$(printf "%s" "$LINE" | awk -F'Name: ' '{print $2}')
+				DEVICE_INFO=${LINE#*"[CHG] Device "}
+				MAC=${DEVICE_INFO%% *}
+				NAME=${DEVICE_INFO#*"Name: "}
 				;;
 		esac
 		[ -n "$MAC" ] && [ -n "$NAME" ] && [ "$NAME" != "$MAC" ] &&
@@ -209,6 +226,7 @@ DO_LIST() {
 
 	touch "$BT_SCAN_STOP"
 	wait
+	WRITE_SCAN_RESULTS "$TMP_NAMES"
 	rm -f "$TMP_NAMES"
 	LOG_INFO "$0" 0 "BTSCAN" "Scan finished"
 }

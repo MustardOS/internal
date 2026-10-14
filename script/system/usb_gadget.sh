@@ -7,12 +7,15 @@
 
 GADGET="/sys/kernel/config/usb_gadget/muos"
 LINK_GADGET="/sys/kernel/config/usb_gadget/mulink"
+LINK_GCFG="$LINK_GADGET/configs/c.1"
+LINK_GFUN="$LINK_GADGET/functions/ffs.mulink"
 
 GCFG="$GADGET/configs/c.1"
 GFUN="$GADGET/functions"
 GSTR="$GADGET/strings/0x409"
 
 FFS_ROOT="/dev/usb-ffs"
+LINK_FFS="$FFS_ROOT/mulink"
 UDC="$(GET_VAR "device" "board/udc")"
 
 PID_FILE="$MUOS_RUN_DIR/usb_gadget.pid"
@@ -85,14 +88,55 @@ UNBIND_UDC() {
 	[ -e "$GADGET/UDC" ] || return 0
 
 	if [ -n "$(cat "$GADGET/UDC" 2>/dev/null)" ]; then
-		printf '' >"$GADGET/UDC" 2>/dev/null
+		printf '\n' >"$GADGET/UDC" 2>/dev/null
 		sleep 0.1
 	fi
 }
 
-LINK_ACTIVE() {
-	# Direct Link owns the controller while its USB cable is enabled and starts this service again afterwards
-	[ -d "$LINK_GADGET" ]
+LINK_REQUESTED() {
+	LINK_SETTING=$(GET_VAR "config" "settings/network/usb_cable")
+	[ "${LINK_SETTING:-0}" -eq 1 ]
+}
+
+CLEAN_STALE_LINK_GADGET() {
+	[ -d "$LINK_GADGET" ] || return 0
+
+	LOG_WARN "$0" 0 "USB" "Removing stale Direct Link USB gadget"
+	if [ -e "$LINK_GADGET/UDC" ] && [ -n "$(cat "$LINK_GADGET/UDC" 2>/dev/null)" ]; then
+		printf '\n' >"$LINK_GADGET/UDC" 2>/dev/null
+		sleep 0.1
+	fi
+
+	if IS_MOUNTED "$LINK_FFS"; then
+		umount "$LINK_FFS" 2>/dev/null || umount -l "$LINK_FFS" 2>/dev/null
+	fi
+
+	[ -L "$LINK_GCFG/ffs.mulink" ] && rm -f "$LINK_GCFG/ffs.mulink"
+	rmdir "$LINK_GCFG/strings/0x409" 2>/dev/null
+	rmdir "$LINK_GCFG" 2>/dev/null
+	rmdir "$LINK_GFUN" 2>/dev/null
+	rmdir "$LINK_GADGET/strings/0x409" 2>/dev/null
+	rmdir "$LINK_GADGET" 2>/dev/null
+	rmdir "$LINK_FFS" 2>/dev/null
+
+	[ ! -d "$LINK_GADGET" ]
+}
+
+WAIT_FOR_LINK_RELEASE() {
+	LINK_RELEASE_WAIT=0
+
+	while LINK_REQUESTED || [ -d "$LINK_GADGET" ]; do
+		if LINK_REQUESTED; then
+			LINK_RELEASE_WAIT=0
+		else
+			LINK_RELEASE_WAIT=$((LINK_RELEASE_WAIT + 1))
+			if [ "$LINK_RELEASE_WAIT" -ge 80 ]; then
+				CLEAN_STALE_LINK_GADGET && break
+				LINK_RELEASE_WAIT=70
+			fi
+		fi
+		sleep 0.1
+	done
 }
 
 BIND_UDC() {
@@ -389,19 +433,18 @@ WATCHDOG_LOOP() {
 	STALL_REBIND_SECS="10"
 	STALL_COUNT=0
 
-	while LINK_ACTIVE; do
-		sleep "$INTERVAL"
-	done
+	WAIT_FOR_LINK_RELEASE
 
 	ENSURE_DESIRED_STATE
 	ENSURE_RESULT=$?
 	[ "$ENSURE_RESULT" -ne 2 ] || exit 1
 
 	while :; do
-		LINK_ACTIVE && {
-			sleep "$INTERVAL"
+		if LINK_REQUESTED || [ -d "$LINK_GADGET" ]; then
+			WAIT_FOR_LINK_RELEASE
+			STALL_COUNT=0
 			continue
-		}
+		fi
 
 		RESOLVE_UDC || {
 			sleep "$INTERVAL"
@@ -533,7 +576,8 @@ CMD_STATUS() {
 
 CMD_RESUME() {
 	[ -n "$UDC" ] || exit 0
-	LINK_ACTIVE && exit 0
+	LINK_REQUESTED && exit 0
+	WAIT_FOR_LINK_RELEASE
 	REPAIR_AFTER_RESUME
 }
 

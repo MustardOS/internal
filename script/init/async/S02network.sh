@@ -1481,6 +1481,7 @@ DO_START() {
 }
 
 DO_STOP() {
+	STOP_MODE="${1:-full}"
 	[ "${HAS_NETWORK:-0}" -eq 0 ] && return 0
 
 	LOG_INFO "$0" 0 "NETWORK" "Stopping Network Service"
@@ -1495,14 +1496,22 @@ DO_STOP() {
 	NET_STATUS_CLEAR
 	CLEAR_ACTIVE
 
-	IS_WIRELESS_INTERFACE "$IFCE" && iw dev "$IFCE" disconnect
 	: >"$WPA_CONFIG"
 	chmod 0600 "$WPA_CONFIG"
 
-	LOG_INFO "$0" 0 "NETWORK" "$(printf "Setting '%s' device down" "$IFCE")"
+	LOG_INFO "$0" 0 "NETWORK" "$(printf "Clearing '%s' network session" "$IFCE")"
 	ip addr flush dev "$IFCE"
 	ip route del default dev "$IFCE" 2>/dev/null
-	ip link set dev "$IFCE" down
+
+	if [ "$STOP_MODE" = "full" ]; then
+		IS_WIRELESS_INTERFACE "$IFCE" && iw dev "$IFCE" disconnect
+		ip link set dev "$IFCE" down
+	elif IS_WIRELESS_INTERFACE "$IFCE"; then
+		# WiFi and Bluetooth share the same hardware on several devices. A normal
+		# disconnect must leave that hardware awake so Bluetooth remains usable.
+		ip link set dev "$IFCE" up
+		iw dev "$IFCE" set power_save off
+	fi
 
 	LOG_INFO "$0" 0 "NETWORK" "Stopping Network Services"
 	[ "${MUOS_HALT:-0}" -eq 1 ] || /opt/muos/script/web/service.sh stopall
@@ -1510,7 +1519,7 @@ DO_STOP() {
 	LOG_INFO "$0" 0 "NETWORK" "Stopping Keepalive Script"
 	killall -9 keepalive.sh 2>/dev/null
 
-	[ "${MUOS_HALT:-0}" -eq 1 ] || UNLOAD_MODULE
+	[ "$STOP_MODE" != "full" ] || [ "${MUOS_HALT:-0}" -eq 1 ] || UNLOAD_MODULE
 }
 
 DO_STATUS() {
@@ -1549,9 +1558,10 @@ ifconfig lo up &
 case "$1" in
 	start) DO_START start ;;
 	connect) DO_START connect "$2" ;;
-	stop | disconnect) DO_STOP ;;
+	stop) DO_STOP full ;;
+	disconnect) DO_STOP session ;;
 	restart)
-		DO_STOP
+		DO_STOP session
 		DO_START start
 		;;
 	load) LOAD_MODULE ;;

@@ -61,7 +61,7 @@ done
 
 : >"$NET_SCAN"
 if [ -z "$SCAN_DATA" ]; then
-	[ "$WAS_ACTIVE" -eq 0 ] && /opt/muos/script/init/async/S02network.sh stop
+	[ "$WAS_ACTIVE" -eq 0 ] && /opt/muos/script/init/async/S02network.sh disconnect
 	exit 0
 fi
 
@@ -73,5 +73,5 @@ printf '%s\n' "$SCAN_DATA" |
 	sort -u |
 	HEX_ESCAPE >>"$NET_SCAN"
 
-[ "$WAS_ACTIVE" -eq 0 ] && /opt/muos/script/init/async/S02network.sh stop
+[ "$WAS_ACTIVE" -eq 0 ] && /opt/muos/script/init/async/S02network.sh disconnect
 [ ! -s "$NET_SCAN" ] && printf "[!]" >"$NET_SCAN"

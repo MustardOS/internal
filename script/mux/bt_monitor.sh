@@ -18,7 +18,7 @@ IS_AUDIO_DEVICE() {
 		return 1
 	fi
 
-	BT_ICON=$(bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
+	BT_ICON=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null | awk -F': ' '/^\tIcon:/ { print $2; exit }')
 	case "$BT_ICON" in audio-*) return 0 ;; esac
 	return 1
 }

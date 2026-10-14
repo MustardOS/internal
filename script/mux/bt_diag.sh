@@ -192,7 +192,7 @@ DO_RUN() {
 			NAME=$(printf "%s" "$LINE" | cut -d' ' -f2-)
 			[ -z "$MAC" ] && continue
 
-			BT_RAW=$(timeout 3 bluetoothctl info "$MAC" 2>/dev/null)
+			BT_RAW=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
 
 			IS_CONN="no"
 			printf "%s\n" "$CONNECTED_MACS" | grep -qxF "$MAC" 2>/dev/null && IS_CONN="yes"
@@ -236,7 +236,7 @@ DO_RUN() {
 	BZ_BLOCKED=$(timeout 5 bluetoothctl devices 2>/dev/null | while IFS= read -r LINE; do
 		MAC=$(printf "%s" "$LINE" | awk '{print $2}')
 		[ -z "$MAC" ] && continue
-		INFO_OUT=$(timeout 2 bluetoothctl info "$MAC" 2>/dev/null)
+		INFO_OUT=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
 		BLOCKED=$(printf "%s" "$INFO_OUT" | awk -F': ' '/^\tBlocked:/ {print $2; exit}')
 		[ "$BLOCKED" = "yes" ] && printf "%s\n" "$LINE"
 	done)
@@ -271,11 +271,13 @@ DO_RUN() {
 		CHECK "$INFO" "Scanning for nearby devices..."
 		SCAN_RAW=$(
 			{
-				printf "scan on\n"
+				printf "agent off\nscan on\n"
 				sleep 5
-				printf "scan off\n"
+				printf "scan off\nquit\n"
 			} | timeout 10 bluetoothctl 2>/dev/null
 		)
+		ESC=$(printf '\033')
+		SCAN_RAW=$(printf "%s\n" "$SCAN_RAW" | sed "s/${ESC}\\[[0-9;]*m//g; s/\r//g")
 		FOUND=$(printf "%s\n" "$SCAN_RAW" | awk '/\[NEW\] Device/ { count++ } END { print count + 0 }')
 		if [ "${FOUND:-0}" -gt 0 ]; then
 			CHECK "$PASS" "$(printf "%s device(s) discovered during scan:" "$FOUND")"

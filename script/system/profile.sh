@@ -19,6 +19,7 @@ PROFILE_USAGE() {
 	printf '       %s save FILE NAME [DESCRIPTION]\n' "$0" >&2
 	printf '       %s import-oem SOURCE\n' "$0" >&2
 	printf '       %s import-wifi SOURCE\n' "$0" >&2
+	printf '       %s wifi-profile SOURCE DIRECTORY\n' "$0" >&2
 	printf '       %s oem-install SOURCE\n' "$0" >&2
 	printf '       %s check FILE\n' "$0" >&2
 	printf '       %s flush [DIRECTORY]\n' "$0" >&2
@@ -565,6 +566,100 @@ PROFILE_IMPORT_WIFI() {
 	LOG_INFO "$0" 0 "PROFILE" "Applied network settings from wifi.conf"
 }
 
+# The network script only connects to saved network profiles at boot, so wifi.conf also becomes one of those,
+# written the same way the network profile screen writes them
+PROFILE_WIFI_PROFILE() {
+	PWP_SOURCE=$1
+	PWP_DIR=$2
+	[ -r "$PWP_SOURCE" ] || return 0
+
+	PWP_KEYS="$MUOS_RUN_DIR/wifi.profile.keys.$$"
+	PWP_LINES="$MUOS_RUN_DIR/wifi.profile.lines.$$"
+	PROFILE_WIFI_KEYS "$PWP_SOURCE" >"$PWP_KEYS" || {
+		rm -f "$PWP_KEYS"
+		return 1
+	}
+
+	PROFILE_CHECKED "$PWP_KEYS" "$PWP_LINES" 1 "$PWP_SOURCE"
+	PWP_RESULT=$?
+	rm -f "$PWP_KEYS"
+	[ "$PWP_RESULT" -eq 0 ] || return "$PWP_RESULT"
+
+	PWP_SSID=
+	PWP_PASS=
+	PWP_TYPE=0
+	PWP_ADDR=
+	PWP_SUBN=
+	PWP_GATE=
+	PWP_DNSA=
+	while IFS= read -r PWP_LINE; do
+		PWP_VALUE=${PWP_LINE#*=}
+		case "${PWP_LINE%%=*}" in
+			network/ssid) PWP_SSID=$PWP_VALUE ;;
+			network/pass) PWP_PASS=$PWP_VALUE ;;
+			network/type) PWP_TYPE=$PWP_VALUE ;;
+			network/address) PWP_ADDR=$PWP_VALUE ;;
+			network/subnet) PWP_SUBN=$PWP_VALUE ;;
+			network/gateway) PWP_GATE=$PWP_VALUE ;;
+			network/dns) PWP_DNSA=$PWP_VALUE ;;
+		esac
+	done <"$PWP_LINES"
+	rm -f "$PWP_LINES"
+
+	[ -n "$PWP_SSID" ] || {
+		LOG_WARN "$0" 0 "PROFILE" "wifi.conf has no ssid, so no network profile was saved"
+		return 1
+	}
+
+	# Stored as the derived key rather than the password, like the network profile screen does
+	if [ -n "$PWP_PASS" ] && [ "${#PWP_PASS}" -ne 64 ] && command -v wpa_passphrase >/dev/null 2>&1; then
+		PWP_PSK=$(wpa_passphrase "$PWP_SSID" "$PWP_PASS" 2>/dev/null | sed -n 's/^[[:space:]]*psk=//p')
+		[ "${#PWP_PSK}" -eq 64 ] && PWP_PASS=$PWP_PSK
+	fi
+
+	PWP_NAME=$(printf '%s' "$PWP_SSID" | awk '{
+		OUT = ""
+		for (I = 1; I <= length($0); I++) {
+			C = substr($0, I, 1)
+			if (C !~ /[A-Za-z0-9 _.()-]/) C = "_"
+			if (C == "_" && substr(OUT, length(OUT), 1) == "_") continue
+			OUT = OUT C
+		}
+		sub(/^[ .]+/, "", OUT)
+		sub(/[ .]+$/, "", OUT)
+		print OUT
+	}')
+	[ -n "$PWP_NAME" ] || PWP_NAME=network
+
+	mkdir -p "$PWP_DIR" || return 1
+	PWP_TARGET="$PWP_DIR/$PWP_NAME.ini"
+	PWP_TEMP="$PWP_TARGET.tmp.$$"
+	(
+		umask 077
+		{
+			printf '[network]\n'
+			printf 'ssid=%s\n' "$PWP_SSID"
+			printf 'pass=%s\n' "$PWP_PASS"
+			if [ "$PWP_TYPE" = 1 ]; then
+				printf 'type=static\n'
+				printf 'address=%s\n' "$PWP_ADDR"
+				printf 'subnet=%s\n' "$PWP_SUBN"
+				printf 'gateway=%s\n' "$PWP_GATE"
+				printf 'dns=%s\n' "$PWP_DNSA"
+			else
+				printf 'type=dhcp\n'
+			fi
+			printf 'autoconnect=1\n'
+			printf 'priority=5\n'
+		} >"$PWP_TEMP"
+	) && mv -f "$PWP_TEMP" "$PWP_TARGET" || {
+		rm -f "$PWP_TEMP"
+		return 1
+	}
+
+	LOG_INFO "$0" 0 "PROFILE" "$(printf "Saved network profile '%s' from wifi.conf" "$PWP_NAME")"
+}
+
 PROFILE_CHECK() {
 	[ -r "$1" ] || return 1
 	PCK_LINES="$MUOS_RUN_DIR/profile.check.$$"
@@ -608,6 +703,10 @@ case "${1:-}" in
 	import-wifi)
 		[ "$#" -eq 2 ] || PROFILE_USAGE
 		PROFILE_IMPORT_WIFI "$2"
+		;;
+	wifi-profile)
+		[ "$#" -eq 3 ] || PROFILE_USAGE
+		PROFILE_WIFI_PROFILE "$2" "$3"
 		;;
 	oem-install)
 		[ "$#" -eq 2 ] || PROFILE_USAGE

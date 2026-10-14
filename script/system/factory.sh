@@ -15,6 +15,11 @@ RUN_DEVICE_SCRIPT amp.sh
 /opt/muos/script/device/speaker.sh
 
 AUTO_INSTALL_FS=""
+OEM_WIFI_STASH="$MUOS_RUN_DIR/oem_wifi.conf"
+
+# Factory defaults go in before the OEM profile, so a profile can still choose its own
+SET_VAR_DURABLE "config" "settings/advanced/rumble" "0"
+SET_VAR_DURABLE "config" "settings/power/saver_type" "1"
 
 IMPORT_OEM_PROFILE() {
 	OEM_PART="/dev/$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")"
@@ -22,7 +27,7 @@ IMPORT_OEM_PROFILE() {
 
 	OEM_MOUNT=$(mktemp -d /tmp/oem-profile.XXXXXX) || return 0
 	OEM_MOUNTED=0
-	for OEM_TYPE in exfat vfat; do
+	for OEM_TYPE in exfat vfat ext4; do
 		if MOUNT_FILESYSTEM "$OEM_TYPE" ro "$OEM_PART" "$OEM_MOUNT" 2>/dev/null; then
 			OEM_MOUNTED=1
 			break
@@ -33,8 +38,13 @@ IMPORT_OEM_PROFILE() {
 		WIFI_FILE=$(find "$OEM_MOUNT" -maxdepth 1 -type f -iname wifi.conf | head -n 1)
 		if [ -n "$WIFI_FILE" ]; then
 			LOG_INFO "$0" 0 "FACTORY RESET" "Importing OEM network settings"
-			/opt/muos/script/system/profile.sh import-wifi "$WIFI_FILE" ||
+			if /opt/muos/script/system/profile.sh import-wifi "$WIFI_FILE"; then
+				# The network profile is written once the ROMS partition has been prepared, as it lives there
+				(umask 077 && cp "$WIFI_FILE" "$OEM_WIFI_STASH") ||
+					LOG_WARN "$0" 0 "FACTORY RESET" "OEM network settings could not be kept for the network profile"
+			else
 				LOG_WARN "$0" 0 "FACTORY RESET" "OEM network settings could not be applied"
+			fi
 		fi
 
 		OEM_FILE=$(find "$OEM_MOUNT" -maxdepth 1 -type f -iname profile.conf | head -n 1)
@@ -154,5 +164,3 @@ fi
 rm -f "$CREDITS_COMPLETE"
 
 SET_VAR_DURABLE "config" "boot/factory_reset" "0"
-SET_VAR_DURABLE "config" "settings/advanced/rumble" "0"
-SET_VAR_DURABLE "config" "settings/power/saver_type" "1"

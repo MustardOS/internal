@@ -105,6 +105,14 @@ for D in $DIRS; do
 	mkdir -p "$MUOS_DIR/$D"
 done
 
+OEM_WIFI_STASH="$MUOS_RUN_DIR/oem_wifi.conf"
+if [ -f "$OEM_WIFI_STASH" ]; then
+	LOG_INFO "$0" 0 "FACTORY RESET" "Saving OEM network profile"
+	/opt/muos/script/system/profile.sh wifi-profile "$OEM_WIFI_STASH" "$MUOS_DIR/network" ||
+		LOG_WARN "$0" 0 "FACTORY RESET" "OEM network profile could not be saved"
+	rm -f "$OEM_WIFI_STASH"
+fi
+
 /opt/muos/script/system/profile.sh flush "$MUOS_DIR/log/profile"
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Default RetroArch Config Archive"

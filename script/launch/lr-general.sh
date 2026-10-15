@@ -18,8 +18,9 @@ if echo "$CORE" | grep -qE "flycast|morpheuscast"; then
 fi
 
 if echo "$CORE" | grep -q "j2me"; then
-	export JAVA_HOME=/opt/java
-	PATH=$PATH:$JAVA_HOME/bin
+	export JAVA_HOME="$MUOS_SHARE_DIR/emulator/zulu"
+	PATH=$JAVA_HOME/bin:$PATH
+	export PATH
 fi
 
 set -- -v -f

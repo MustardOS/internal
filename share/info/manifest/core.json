@@ -1222,35 +1222,8 @@
         ],
         "libretro": {
             "freej2me - retroarch": {
-                "name": "FreeJ2ME - RetroArch",
+                "name": "FreeJ2ME",
                 "core": "freej2me_libretro.so"
-            }
-        },
-        "external": {
-            "freej2me - 128x128": {
-                "name": "FreeJ2ME - 128x128",
-                "core": "ext-freej2me-128",
-                "launcher": "freej2me.sh"
-            },
-            "freej2me - 176x208": {
-                "name": "FreeJ2ME - 176x208",
-                "core": "ext-freej2me-176",
-                "launcher": "freej2me.sh"
-            },
-            "freej2me - 240x320": {
-                "name": "FreeJ2ME - 240x320",
-                "core": "ext-freej2me-240",
-                "launcher": "freej2me.sh"
-            },
-            "freej2me - 320x240": {
-                "name": "FreeJ2ME - 320x240",
-                "core": "ext-freej2me-320",
-                "launcher": "freej2me.sh"
-            },
-            "freej2me - 640x360": {
-                "name": "FreeJ2ME - 640x360",
-                "core": "ext-freej2me-640",
-                "launcher": "freej2me.sh"
             }
         },
         "extra": 1

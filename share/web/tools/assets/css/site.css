@@ -7929,6 +7929,18 @@ blockquote.new-title > p:last-child {
     background-image: linear-gradient(to right, #27262b calc(max(16.5rem, (100% - 78.5rem) / 2 + 16.5rem) - 1px), #44434d calc(max(16.5rem, (100% - 78.5rem) / 2 + 16.5rem) - 1px), #44434d max(16.5rem, (100% - 78.5rem) / 2 + 16.5rem), transparent max(16.5rem, (100% - 78.5rem) / 2 + 16.5rem));
   }
 }
+body {
+  text-wrap-style: pretty;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-wrap-style: balance;
+}
+
+pre, code, textarea, input {
+  text-wrap-style: auto;
+}
+
 div.highlighter-rouge pre.highlight, figure.highlight pre {
   line-height: 1.2;
 }

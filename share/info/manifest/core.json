@@ -1208,7 +1208,7 @@
         "namespace": "Mobile",
         "catalogue": "Java J2ME",
         "lookup": 0,
-        "default": "freej2me - retroarch",
+        "default": "freej2me",
         "friendly": [
             "java",
             "mobile",
@@ -1221,12 +1221,12 @@
             }
         ],
         "libretro": {
-            "freej2me - retroarch": {
+            "freej2me": {
                 "name": "FreeJ2ME",
                 "core": "freej2me_libretro.so"
             }
         },
-        "extra": 1
+        "extra": 0
     },
     "Karaoke": {
         "name": "Karaoke",
@@ -3008,8 +3008,7 @@
         "namespace": "Sega",
         "catalogue": "Sega Saturn",
         "lookup": 0,
-        "default": "yabasanshiro",
-        "runtime": "external",
+        "default": "yabadabadoo",
         "governor": "performance",
         "friendly": [
             "ss",
@@ -3039,6 +3038,11 @@
                 "core": "mednafen_saturn_libretro.so",
                 "extra": 1
             },
+            "yabadabadoo": {
+                "name": "Yabadabadoo",
+                "core": "yabadabadoo_libretro.so",
+                "extra": 0
+            },
             "yabasanshiro": {
                 "name": "YabaSanshiro",
                 "core": "yabasanshiro_libretro.so",
@@ -3046,7 +3050,8 @@
             },
             "yabause": {
                 "name": "Yabause",
-                "core": "yabause_libretro.so"
+                "core": "yabause_libretro.so",
+                "extra": 1
             }
         },
         "external": {

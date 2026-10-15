@@ -68,6 +68,7 @@
         "yabause": "Yabause",
         "yabasanshiro": "YabaSanshiro",
         "mednafen_saturn": "Beetle Saturn",
+        "yabadabadoo": "Yabadabadoo",
         "flycast": "Flycast",
         "flycastvl": "Flycast VL",
         "flycast-xtreme": "Flycast Xtreme",

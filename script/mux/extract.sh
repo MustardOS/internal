@@ -328,6 +328,8 @@ case "$ARCHIVE_NAME" in
 
 			LOG_DEBUG "$0" 0 "EXTRACT" "$(printf "Processing section: '%s'" "$TOP")"
 
+			ARC_UNSET
+
 			EXTRACTOR="/opt/muos/script/archive/$TOP.sh"
 			if [ ! -r "$EXTRACTOR" ]; then
 				LOG_WARN "$0" 0 "EXTRACT" "$(printf "Skipping unsupported section: '%s'" "$TOP")"
@@ -367,8 +369,17 @@ case "$ARCHIVE_NAME" in
 				continue
 			fi
 
+			# Sections that stage outside the bound storage (settings, retroarch...) have no bind map
+			# entry, so their free space is checked where they are extracted
+			SPACE_TARGET="${ARC_SPACE:-}"
+			[ -z "$SPACE_TARGET" ] && [ -z "$(RESOLVE_ARCHIVE_BIND_PATH "$TOP")" ] && SPACE_TARGET="$DEST"
+
 			REQ="$(GET_ARCHIVE_BYTES "$ARCHIVE" "$TOP/")"
-			! CHECK_SPACE_FOR_DEST "$REQ" "$TOP" "${ARC_SPACE:-}" && ALL_DONE 1
+			if ! CHECK_SPACE_FOR_DEST "$REQ" "$TOP" "$SPACE_TARGET"; then
+				LOG_ERROR "$0" 0 "EXTRACT" "$(printf "Not enough free space to restore '%s'" "$TOP")"
+				TASK_ERROR "no_space" "$(printf "There is not enough free space to restore %s." "$LABEL")"
+				ALL_DONE 1
+			fi
 
 			TASK_STATUS "$(printf "Extracting '%s'" "$LABEL")"
 			TASK_DETAIL "$(printf "Destination '%s'" "$DEST")"

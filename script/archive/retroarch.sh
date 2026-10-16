@@ -1,7 +1,8 @@
 #!/bin/sh
 # shellcheck disable=SC2034
 
-ARC_DIR="$MUOS_RUN_DIR/retroarch-archive"
+RETROARCH_ARC_DIR="$MUOS_RUN_DIR/retroarch-archive"
+ARC_DIR="$RETROARCH_ARC_DIR"
 ARC_LABEL="RetroArch Data"
 
 RA_DIR="$MUOS_SHARE_DIR/emulator/retroarch"
@@ -27,23 +28,23 @@ ARC_EXTRACT_POST() {
 }
 
 ARC_CREATE() {
-	SRC="$ARC_DIR"
+	SRC="$RETROARCH_ARC_DIR"
 	LABEL="$ARC_LABEL"
 	COMP=9
 }
 
 ARC_CREATE_PRE() {
-	rm -rf "$ARC_DIR"
-	mkdir -p "$ARC_DIR/retroarch" || return 1
+	rm -rf "$RETROARCH_ARC_DIR"
+	mkdir -p "$RETROARCH_ARC_DIR/retroarch" || return 1
 
-	[ -d "$RA_CONFIG" ] && ln -s "$RA_CONFIG" "$ARC_DIR/retroarch/content-config"
+	[ -d "$RA_CONFIG" ] && ln -s "$RA_CONFIG" "$RETROARCH_ARC_DIR/retroarch/content-config"
 	for RA_PART in overlays shaders cheats; do
-		[ -d "$RA_DIR/$RA_PART" ] && ln -s "$RA_DIR/$RA_PART" "$ARC_DIR/retroarch/$RA_PART"
+		[ -d "$RA_DIR/$RA_PART" ] && ln -s "$RA_DIR/$RA_PART" "$RETROARCH_ARC_DIR/retroarch/$RA_PART"
 	done
 
 	return 0
 }
 
 ARC_CREATE_POST() {
-	rm -rf "$ARC_DIR"
+	rm -rf "$RETROARCH_ARC_DIR"
 }

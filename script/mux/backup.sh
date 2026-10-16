@@ -79,6 +79,8 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 			break
 		fi
 
+		ARC_UNSET
+
 		CREATOR="/opt/muos/script/archive/$SRC_SHORTNAME.sh"
 		if [ ! -r "$CREATOR" ]; then
 			TASK_DETAIL "$(printf "Skipping unsupported archive: %s" "$SRC_SHORTNAME")"

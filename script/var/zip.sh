@@ -258,11 +258,14 @@ CHECK_ARCHIVE() {
 	fi
 }
 
+# A plain unset only removes variables in BusyBox ash, so the hooks of one archive script used to
+# stay defined for every script sourced after it. The settings hooks then ran "rm -rf $ARC_DIR"
+# with the next script's ARC_DIR, which is the whole storage tree.
 ARC_UNSET() {
 	for F in ARC_EXTRACT ARC_EXTRACT_PRE ARC_EXTRACT_POST ARC_CREATE ARC_CREATE_PRE ARC_CREATE_POST; do
-		unset "$F" 2>/dev/null
+		unset -f "$F" 2>/dev/null
 	done
-	unset ARC_SPACE 2>/dev/null
+	unset ARC_SPACE ARC_DIR ARC_LABEL SRC DEST LABEL COMP 2>/dev/null
 }
 
 EXTRACT_ARCHIVE() {

@@ -19,7 +19,7 @@ ARC_CREATE() {
 # or (for archive) regenerate on demand as the VFS extraction cache, so none belong in a backup!
 ARC_CREATE_PRE() {
 	for TRANSIENT in extract patched archive; do
-		[ -d "$ARC_DIR/pickles/$TRANSIENT" ] && rm -rf "${ARC_DIR:?}/pickles/$TRANSIENT"
+		[ -d "$MUOS_STORE_DIR/pickles/$TRANSIENT" ] && rm -rf "${MUOS_STORE_DIR:?}/pickles/$TRANSIENT"
 	done
 
 	return 0

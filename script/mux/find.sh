@@ -49,6 +49,9 @@ TMP_ALL_LOOKUP_IDS=$(TMD "all_lookup_ids")
 TMP_ALL_LOOKUP_IDS_SORTED=$(TMD "all_lookup_ids_sorted")
 TMP_GOOD_RESULTS=$(TMD "good_results")
 TMP_GOT_FILES=$(TMD "g_files")
+TMP_GOT_COLLAPSED=$(TMD "g_files_collapsed")
+TMP_LAUNCH_MAP=$(TMD "launch_map")
+TMP_ROOTS=$(TMD "roots")
 TMP_JOINED_PRETTY=$(TMD "joined_pretty")
 TMP_LISTS_FILTERED=$(TMD "lists_filtered")
 TMP_MATCHED_IDS=$(TMD "matched_ids")
@@ -171,6 +174,69 @@ awk -F'|' '
 # Chuck those back into our "found" files
 cat "$TMP_GOOD_RESULTS" >>"$TMP_GOT_FILES"
 
+# A folder with a launch file set is one item in Explore, so every match inside it
+# becomes that single launch file, named "folder/launch file" just as Explore names it
+LAUNCH_DIR="$MUOS_STORE_DIR/info/launch"
+if [ -d "$LAUNCH_DIR" ] && [ -s "$TMP_GOT_FILES" ]; then
+	find "$LAUNCH_DIR" -type f -name '*.cfg' 2>/dev/null |
+		awk -v BASE="$LAUNCH_DIR/" '
+			{
+				MARKER = $0
+				KEY = substr(MARKER, length(BASE) + 1)
+				sub(/\.cfg$/, "", KEY)
+				NAME = ""
+				if ((getline NAME <MARKER) > 0) {
+					sub(/\r$/, "", NAME)
+					gsub(/^[ \t]+|[ \t]+$/, "", NAME)
+				}
+				close(MARKER)
+				if (KEY != "" && NAME != "" && index(NAME, "/") == 0) print KEY "|" NAME
+			}
+		' >"$TMP_LAUNCH_MAP"
+
+	if [ -s "$TMP_LAUNCH_MAP" ]; then
+		for ROOT in "$@"; do
+			printf "%s\n" "${ROOT%/}"
+		done >"$TMP_ROOTS"
+
+		awk -F'|' -v OFS='|' -v ROOTS="$TMP_ROOTS" -v MAP="$TMP_LAUNCH_MAP" '
+			FILENAME == ROOTS { ROOT_LIST[++ROOT_COUNT] = $0; next }
+			FILENAME == MAP { LAUNCH[$1] = $2; next }
+			{
+				FULL = $1
+				AT = index(FULL, "/ROMS/")
+				if (!AT) { print; next }
+
+				REL = substr(FULL, AT + 6)
+				PARTS = split(REL, PART, "/")
+				PATH_SO_FAR = ""
+				MARKED = ""
+				for (I = 1; I < PARTS; I++) {
+					PATH_SO_FAR = (I == 1) ? PART[I] : PATH_SO_FAR "/" PART[I]
+					if (PATH_SO_FAR in LAUNCH) { MARKED = PATH_SO_FAR; break }
+				}
+				if (MARKED == "") { print; next }
+
+				FOLDER = substr(FULL, 1, AT + 5) MARKED
+				ROOT = ""
+				for (R = 1; R <= ROOT_COUNT; R++)
+					if (index(FULL, ROOT_LIST[R] "/") == 1 && length(ROOT_LIST[R]) > length(ROOT)) ROOT = ROOT_LIST[R]
+				if (ROOT == "" || index(FOLDER, ROOT "/") != 1) { print; next }
+
+				PARENT = FOLDER
+				sub(/\/[^\/]*$/, "", PARENT)
+				DIR = (PARENT == ROOT) ? "." : substr(PARENT, length(ROOT) + 2)
+
+				FOLDER_NAME = FOLDER
+				sub(/^.*\//, "", FOLDER_NAME)
+
+				print FOLDER "/" LAUNCH[MARKED], DIR, FOLDER_NAME "/" LAUNCH[MARKED]
+			}
+		' "$TMP_ROOTS" "$TMP_LAUNCH_MAP" "$TMP_GOT_FILES" >"$TMP_GOT_COLLAPSED" &&
+			mv "$TMP_GOT_COLLAPSED" "$TMP_GOT_FILES"
+	fi
+fi
+
 # Clean our lookup matches to keep only "base_id|pretty"
 sed 's/^.*] //' "$TMP_MATCHES" >"$TMP_MATCHES_CLEAN"
 
@@ -185,6 +251,7 @@ if [ -s "$TMP_MATCHES_MAP" ]; then
         NR==FNR { pretty[$1]=$2; next }
         {
             full=$1; dir=$2; base=$3
+            if (index(base, "/")) { print full "|" dir "|" base "|" substr(base, 1, index(base, "/") - 1); next }
             base_no_ext = base
             sub(/\.[^.]*$/, "", base_no_ext)
             if (base_no_ext in pretty) print full "|" dir "|" base "|" pretty[base_no_ext]
@@ -196,6 +263,7 @@ else
 	awk -F'|' '
         {
             full=$1; dir=$2; base=$3
+            if (index(base, "/")) { print full "|" dir "|" base "|" substr(base, 1, index(base, "/") - 1); next }
             base_no_ext = base
             sub(/\.[^.]*$/, "", base_no_ext)
             print full "|" dir "|" base "|" base_no_ext

@@ -4,6 +4,9 @@
 
 PROFILE_SHARE="$MUOS_SHARE_DIR/profile"
 PROFILE_DEFAULT="$PROFILE_SHARE/system/default.conf"
+
+# Live device levels: always saved, applied through their own scripts, never reset to a default
+PROFILE_LEVEL_KEYS="settings/general/brightness settings/general/volume"
 PROFILE_RULES="$PROFILE_SHARE/system/rules.conf"
 PROFILE_LOG_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/profile"
 PROFILE_PENDING="$PROFILE_SHARE/state/pending"
@@ -237,7 +240,11 @@ PROFILE_CHECKED() {
 }
 
 PROFILE_CURRENT() {
-	awk -v BASE="$MUOS_CONF_GLOBAL" -v CHANGED="${1:-0}" '
+	awk -v BASE="$MUOS_CONF_GLOBAL" -v CHANGED="${1:-0}" -v LEVELS="$PROFILE_LEVEL_KEYS" '
+		BEGIN {
+			split(LEVELS, LEVEL_LIST, " ")
+			for (I in LEVEL_LIST) LEVEL[LEVEL_LIST[I]] = 1
+		}
 		index($0, "=") > 0 {
 			KEY = substr($0, 1, index($0, "=") - 1)
 			if (index(KEY, "/") == 0) next
@@ -246,7 +253,7 @@ PROFILE_CURRENT() {
 			FOUND = (getline VALUE <FILE)
 			close(FILE)
 			if (FOUND < 0) VALUE = substr($0, index($0, "=") + 1)
-			if (CHANGED && KEY "=" VALUE == $0) next
+			if (CHANGED && KEY "=" VALUE == $0 && !(KEY in LEVEL)) next
 			print KEY "=" VALUE
 		}
 	' "$PROFILE_DEFAULT"
@@ -289,6 +296,10 @@ PROFILE_APPLY_LINES() {
 		}
 	' >"$PAL_PENDING" || return 1
 
+	PAL_BRIGHT=$(sed -n 's|^settings/general/brightness=||p' "$PAL_PENDING" | tail -n 1)
+	PAL_VOLUME=$(sed -n 's|^settings/general/volume=||p' "$PAL_PENDING" | tail -n 1)
+	sed -i -e '/^settings\/general\/brightness=/d' -e '/^settings\/general\/volume=/d' "$PAL_PENDING"
+
 	if [ -s "$PAL_PENDING" ]; then
 		if ! { [ -x "$MUOS_VAR_BIN" ] && "$MUOS_VAR_BIN" apply global <"$PAL_PENDING" 2>/dev/null; }; then
 			while IFS= read -r PAL_LINE; do
@@ -299,6 +310,16 @@ PROFILE_APPLY_LINES() {
 	fi
 
 	rm -f "$PAL_PENDING"
+
+	[ -n "$PAL_BRIGHT" ] && /opt/muos/script/device/bright.sh "$PAL_BRIGHT"
+	[ -n "$PAL_VOLUME" ] && /opt/muos/script/device/audio.sh "$PAL_VOLUME"
+
+	return 0
+}
+
+# Default settings without the live device levels, for Replace and Reset
+PROFILE_DEFAULTS_WITHOUT_LEVELS() {
+	PROFILE_KNOWN "$PROFILE_DEFAULT" | grep -v -e '^settings/general/brightness=' -e '^settings/general/volume='
 }
 
 PROFILE_SNAPSHOT() {
@@ -325,7 +346,7 @@ PROFILE_APPLY() {
 	PROFILE_SNAPSHOT || LOG_WARN "$0" 0 "PROFILE" "Could not save the previous settings"
 
 	if [ "$PA_MODE" = replace ]; then
-		PROFILE_KNOWN "$PROFILE_DEFAULT" | awk '
+		PROFILE_DEFAULTS_WITHOUT_LEVELS | awk '
 			NR == FNR {
 				CHOSEN[substr($0, 1, index($0, "=") - 1)] = 1
 				next
@@ -345,7 +366,7 @@ PROFILE_APPLY() {
 }
 
 PROFILE_RESET() {
-	PROFILE_KNOWN "$PROFILE_DEFAULT" | PROFILE_APPLY_LINES
+	PROFILE_DEFAULTS_WITHOUT_LEVELS | PROFILE_APPLY_LINES
 	rm -f "$PROFILE_PREVIOUS" "$PROFILE_ACTIVE"
 
 	LOG_INFO "$0" 0 "PROFILE" "Reset every profile setting to its default"

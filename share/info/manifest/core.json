@@ -3041,7 +3041,8 @@
             "yabadabadoo": {
                 "name": "Yabadabadoo",
                 "core": "yabadabadoo_libretro.so",
-                "extra": 0
+                "extra": 0,
+                "governor": "performance"
             },
             "yabasanshiro": {
                 "name": "YabaSanshiro",

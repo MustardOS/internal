@@ -202,7 +202,7 @@ function love.load(args)
                 max_powerups = _G.cheat_max_powerups,
                 start_1024_classic = _G.cheat_start_1024_classic,
                 start_1024_plus = _G.cheat_start_1024_plus,
-                debug_layout = _G.cheat_debug_layout,
+                debug_layout = "None",
             })
         end
     end
@@ -410,7 +410,7 @@ function love.load(args)
             next_idx = total_themes
         end
         _G.theme = _G.unlocked_themes[next_idx]
-        if renderer and renderer.applyTheme then renderer.applyTheme() end
+        if renderer and renderer.applyTheme then renderer.applyTheme(true) end
         if _G.appState ~= "THEME_SELECT" then
             if save and save.saveTheme then save.saveTheme(_G.theme) end
             if game then game:saveGameState() end
@@ -429,7 +429,7 @@ function love.load(args)
     _G.cheat_max_powerups = cheat_opts.max_powerups or false
     _G.cheat_start_1024_classic = cheat_opts.start_1024_classic or false
     _G.cheat_start_1024_plus = cheat_opts.start_1024_plus or false
-    _G.cheat_debug_layout = cheat_opts.debug_layout or "None"
+    _G.cheat_debug_layout = "None"
     if _G.cheat_unlock_all_themes and _G.rebuildUnlockedThemes then
         _G.rebuildUnlockedThemes()
     end
@@ -754,6 +754,9 @@ function love.update(dt)
                         if mode then
                             _G.appState = "GAME"
                             game = Game.new(mode)
+                            if renderer.triggerGameStartTransition then
+                                renderer.triggerGameStartTransition(mode, true)
+                            end
                         end
                     elseif sel == "Play Game" then
                         _G.appState = "PLAY_SELECT"
@@ -1128,9 +1131,15 @@ function love.update(dt)
                     if _G.play_select_selection == 1 then
                         _G.appState = "GAME"
                         game = Game.new("classic")
+                        if renderer.triggerGameStartTransition then
+                            renderer.triggerGameStartTransition("classic", false)
+                        end
                     elseif _G.play_select_selection == 2 then
                         _G.appState = "GAME"
                         game = Game.new("plus")
+                        if renderer.triggerGameStartTransition then
+                            renderer.triggerGameStartTransition("plus", false)
+                        end
                     elseif _G.play_select_selection == 3 then
                         _G.appState = "ARCADE_MENU"
                         _G.arcade_selection = 1
@@ -1172,6 +1181,9 @@ function love.update(dt)
                         mode = "goose"
                     end
                     game = Game.new(mode)
+                    if renderer.triggerGameStartTransition then
+                        renderer.triggerGameStartTransition(mode, false)
+                    end
                 end)
             elseif event == input.events.BACK then
                 sound.playMenuBack()
@@ -1553,6 +1565,10 @@ function love.update(dt)
         end
 
         -- GAME inputs below
+        if renderer.isGameStartTransitionActive and renderer.isGameStartTransitionActive() then
+            return
+        end
+
         if game.state == Game.STATE_TARGETING_BOMB or game.state == Game.STATE_TARGETING_SWAP_1 or game.state == Game.STATE_TARGETING_SWAP_2 then
             if event == input.events.UP then
                 game:moveCursor(0, -1)
@@ -1600,7 +1616,7 @@ function love.update(dt)
                         game:startSwapTargeting()
                     end)
                 end
-            elseif event == input.events.R1 or event == input.events.X then
+            elseif event == input.events.R1 then
                 if game.mode == "plus" and game.powerups.bomb <= 0 then
                     renderer.showToast("No Bomb Powerup!")
                 else
@@ -1620,7 +1636,7 @@ function love.update(dt)
                     local next_theme = un_themes[next_idx]
                     renderer.startThemeTransition(function()
                         _G.theme = next_theme
-                        if renderer.applyTheme then renderer.applyTheme() end
+                        if renderer.applyTheme then renderer.applyTheme(true) end
                         if save and save.saveTheme then save.saveTheme(_G.theme) end
                         return function() if game then renderer.draw(game) end end
                     end)
@@ -1658,6 +1674,9 @@ function love.update(dt)
             elseif event == input.events.CONFIRM then
                 queueTransitionAction(event, 0.08, function()
                     game:restart()
+                    if renderer.triggerGameStartTransition then
+                        renderer.triggerGameStartTransition(game.mode, false)
+                    end
                 end)
             elseif event == input.events.L1 or event == input.events.R1 then
                 if sound.isBgmEnabled() then
@@ -1705,6 +1724,9 @@ function love.update(dt)
             elseif event == input.events.SELECT then
                 queueTransitionAction(event, 0.08, function()
                     game:restart()
+                    if renderer.triggerGameStartTransition then
+                        renderer.triggerGameStartTransition(game.mode, false)
+                    end
                 end)
             elseif event == input.events.X then
                 queueTransitionAction(event, 0.08, function()
@@ -1733,6 +1755,9 @@ function love.update(dt)
             if event == input.events.CONFIRM or event == input.events.SELECT then
                 queueTransitionAction(event, 0.08, function()
                     game:restart()
+                    if renderer.triggerGameStartTransition then
+                        renderer.triggerGameStartTransition(game.mode, false)
+                    end
                 end)
             elseif event == input.events.BACK then
                 if game.mode == "timeattack" or game.mode == "nomercy" or game.mode == "goose" then
@@ -1757,7 +1782,7 @@ function love.update(dt)
                     local next_theme = un_themes[next_idx]
                     renderer.startThemeTransition(function()
                         _G.theme = next_theme
-                        if renderer.applyTheme then renderer.applyTheme() end
+                        if renderer.applyTheme then renderer.applyTheme(true) end
                         if save and save.saveTheme then save.saveTheme(_G.theme) end
                         return function() if game then renderer.draw(game) end end
                     end)

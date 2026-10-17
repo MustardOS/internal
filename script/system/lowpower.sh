@@ -40,7 +40,7 @@ LOW_BATTERY_WARNING() {
 		echo 1 >"$LED_LOW"
 		OVERLAY_ACTIVE=1
 
-		if [ -n "$LED_CMD" ] && [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ]; then
+		if [ -n "$LED_CMD" ] && [ "$(GET_VAR "config" "settings/general/rgb")" -eq 1 ] && ! RGB_EXTERNAL; then
 			$LED_CMD
 			[ ! -e "$IS_IDLE" ] && LED_CONTROL_CHANGE restore
 		fi

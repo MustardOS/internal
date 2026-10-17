@@ -1990,7 +1990,13 @@ KERNEL_TUNING() {
 	fi
 }
 
+# Mode 10 is External, where another application owns the lights and MustardOS leaves them alone
+RGB_EXTERNAL() {
+	[ "$(GET_VAR "config" "settings/rgb/mode")" = 10 ]
+}
+
 LED_CONTROL_CHANGE() {
+	RGB_EXTERNAL && return 0
 	[ "$(GET_VAR "device" "led/rgb")" -eq 1 ] && "$MUOS_RGB_BIN" "$1"
 }
 
@@ -2671,6 +2677,7 @@ RUN_INIT_SCRIPT() {
 			(
 				trap - INT QUIT TSTP
 				set "$INIT_MODE"
+				# shellcheck disable=SC1090
 				. "$INIT_SCRIPT"
 			)
 			;;

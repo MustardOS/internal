@@ -9,6 +9,7 @@
 . /opt/muos/script/var/ui.sh
 
 LOG_INFO "$0" 0 "BACKUP" "Backup script started"
+RUN_LOG_BEGIN backup ""
 
 TASK_IS_NATIVE || FRONTEND stop
 
@@ -17,7 +18,7 @@ SET_VAR "system" "foreground_process" "muxbackup"
 MANIFEST_FILE="/tmp/muxbackup_manifest.txt"
 ERROR_FLAG=0
 
-BACKUP_FOLDER="BACKUP"
+BACKUP_FOLDER="ARCHIVE"
 
 SD1="$(GET_VAR "device" "storage/rom/mount")"
 SD2="$(GET_VAR "device" "storage/sdcard/mount")"
@@ -61,6 +62,10 @@ fi
 
 LINE_NUM=0
 INDEX=1
+MERGED_SECTIONS=""
+BACKED_UP=0
+MERGED_PARTIAL=""
+MERGED_FINAL=""
 
 TOTAL=$(($(wc -l <"$MANIFEST_FILE") - 1))
 [ "$TOTAL" -lt 0 ] && TOTAL=0
@@ -107,9 +112,11 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 
 		if command -v ARC_CREATE_PRE >/dev/null 2>&1; then
 			if ! ARC_CREATE_PRE; then
-				TASK_DETAIL "$(printf "Pre-create hook failed for %s, skipping" "$SRC_SHORTNAME")"
+				LOG_ERROR "$0" 0 "BACKUP" "$(printf "Pre-create hook failed for '%s'" "$SRC_SHORTNAME")"
+				TASK_ERROR "archive_failed" "$(printf "Could not prepare %s for the backup" "$SRC_SHORTNAME")"
+				ERROR_FLAG=1
 				ARC_UNSET
-				continue
+				break
 			fi
 		fi
 
@@ -129,13 +136,13 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 
 		if [ "$ERROR_FLAG" -eq 0 ]; then
 			if [ "$MERGE_ALL" -eq 1 ]; then
-				ZIP_FILE="MustardOS.FullBackup.$(date +%Y%m%d).muxzip"
+				ZIP_FILE="MustardOS.FullBackup.$(date +%Y%m%d).muxbak"
 
 				TASK_STATUS "$(printf "Adding %s to archive" "$LABEL")"
 				TASK_DETAIL "$ZIP_FILE"
 			else
 				CAP_SRC_SN=$(CAPITALISE "$SRC_SHORTNAME")
-				ZIP_FILE="MustardOS.${CAP_SRC_SN}.$(date +%Y%m%d).muxzip"
+				ZIP_FILE="MustardOS.${CAP_SRC_SN}.$(date +%Y%m%d).muxbak"
 
 				TASK_STATUS "$(printf "Creating %s archive" "$LABEL")"
 				TASK_DETAIL "$ZIP_FILE"
@@ -143,16 +150,41 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 
 			TASK_PROGRESS "$INDEX" "$TOTAL"
 
-			DEST_FILE="${DEST_PATH}/${ZIP_FILE}"
-			LOG_INFO "$0" 0 "BACKUP" "$(printf "Archiving '%s' -> '%s'" "$SRC_SUFFIX" "$DEST_FILE")"
+			DEST_FINAL="${DEST_PATH}/${ZIP_FILE}"
+			DEST_FILE="${DEST_PATH}/.${ZIP_FILE}.partial"
+
+			if [ "$MERGE_ALL" -eq 1 ]; then
+				[ -z "$MERGED_PARTIAL" ] && rm -f "$DEST_FILE"
+				MERGED_PARTIAL="$DEST_FILE"
+				MERGED_FINAL="$DEST_FINAL"
+			else
+				rm -f "$DEST_FILE"
+			fi
+
+			LOG_INFO "$0" 0 "BACKUP" "$(printf "Archiving '%s' -> '%s'" "$SRC_SUFFIX" "$DEST_FINAL")"
 			if CREATE_ARCHIVE "$SRC_SHORTNAME" "$DEST_FILE" "$SRC_MNT" "$SRC_SHORTNAME" "$SRC_SUFFIX" "$COMP"; then
 				[ "$MERGE_ALL" -eq 1 ] && WHAT_DO="Added" || WHAT_DO="Created"
-				LOG_SUCCESS "$0" 0 "BACKUP" "$(printf "%s '%s'" "$WHAT_DO" "$LABEL")"
-				TASK_DETAIL "$(printf "%s '%s' successfully" "$WHAT_DO" "$LABEL")"
 				ARC_STATUS=0
+
+				if [ "$MERGE_ALL" -eq 1 ]; then
+					MERGED_SECTIONS="$MERGED_SECTIONS $SRC_SHORTNAME"
+				elif ! FINALISE_BACKUP "$DEST_FILE" "$DEST_FINAL" "$SRC_SHORTNAME"; then
+					LOG_ERROR "$0" 0 "BACKUP" "$(printf "Could not write the manifest for '%s'" "$SRC_SHORTNAME")"
+					TASK_ERROR "archive_failed" "$(printf "Could not finish the %s backup" "$SRC_SHORTNAME")"
+					rm -f "$DEST_FILE"
+					ERROR_FLAG=1
+					ARC_STATUS=1
+				fi
+
+				if [ "$ARC_STATUS" -eq 0 ]; then
+					BACKED_UP=$((BACKED_UP + 1))
+					LOG_SUCCESS "$0" 0 "BACKUP" "$(printf "%s '%s'" "$WHAT_DO" "$LABEL")"
+					TASK_DETAIL "$(printf "%s '%s' successfully" "$WHAT_DO" "$LABEL")"
+				fi
 			else
 				LOG_ERROR "$0" 0 "BACKUP" "$(printf "Failed to add '%s' for '%s'" "$SRC_SUFFIX" "$SRC_SHORTNAME")"
 				TASK_ERROR "archive_failed" "$(printf "Failed to archive %s" "$SRC_SHORTNAME")"
+				rm -f "$DEST_FILE"
 				ERROR_FLAG=1
 				ARC_STATUS=1
 			fi
@@ -169,12 +201,28 @@ if [ "$ERROR_FLAG" -ne 1 ]; then
 	done <"$MANIFEST_FILE"
 fi
 
+if [ -n "$MERGED_PARTIAL" ]; then
+	if [ "$ERROR_FLAG" -ne 0 ]; then
+		rm -f "$MERGED_PARTIAL"
+	else
+		TASK_STATUS "Writing Backup Manifest"
+		# shellcheck disable=SC2086
+		if ! FINALISE_BACKUP "$MERGED_PARTIAL" "$MERGED_FINAL" $MERGED_SECTIONS; then
+			LOG_ERROR "$0" 0 "BACKUP" "Could not write the backup manifest"
+			TASK_ERROR "archive_failed" "Could not finish the backup."
+			rm -f "$MERGED_PARTIAL"
+			ERROR_FLAG=1
+		fi
+	fi
+fi
+
 if [ "$ERROR_FLAG" -ne 0 ]; then
 	LOG_ERROR "$0" 0 "BACKUP" "Errors occurred during backup process"
 	TASK_ERROR "backup_incomplete" "Errors occurred during the backup."
 	TASK_IS_NATIVE || sleep 3
 else
 	LOG_SUCCESS "$0" 0 "BACKUP" "Backup completed successfully"
+	TASK_DETAIL "$(printf "Backed up %s of %s Sections" "$BACKED_UP" "$TOTAL")"
 	TASK_COMPLETE "Backup completed successfully"
 fi
 
@@ -192,4 +240,5 @@ TASK_IS_NATIVE || {
 SET_VAR "system" "foreground_process" "muxfrontend"
 
 ARCHIVE_CACHE_CLEANUP
+RUN_LOG_FINISH "$ERROR_FLAG"
 exit "$ERROR_FLAG"

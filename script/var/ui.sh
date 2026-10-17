@@ -18,6 +18,12 @@ TASK_IS_NATIVE() {
 	[ -n "${MUOS_TASK_UI:-}" ]
 }
 
+# A script that sets TASK_RUN_LOG also gets a plain transcript of its messages, kept as a log if it fails
+TASK_RUN_NOTE() {
+	[ -n "${TASK_RUN_LOG:-}" ] && printf '%s %s\n' "$(date '+%H:%M:%S')" "$*" >>"$TASK_RUN_LOG"
+	return 0
+}
+
 if TASK_IS_NATIVE; then
 	exec 3>&1
 
@@ -26,10 +32,12 @@ if TASK_IS_NATIVE; then
 	}
 
 	TASK_STATUS() {
+		TASK_RUN_NOTE "$1"
 		printf 'MUOS:STATUS\tTEXT=%s\n' "$(TASK_CLEAN "$1")" >&3
 	}
 
 	TASK_DETAIL() {
+		TASK_RUN_NOTE "$1"
 		printf 'MUOS:DETAIL\tTEXT=%s\n' "$(TASK_CLEAN "$1")" >&3
 	}
 
@@ -43,10 +51,12 @@ if TASK_IS_NATIVE; then
 	}
 
 	TASK_ERROR() {
+		TASK_RUN_NOTE "ERROR ($1): $2"
 		printf 'MUOS:ERROR\tCODE=%s\tTEXT=%s\n' "$(TASK_CLEAN "$1")" "$(TASK_CLEAN "$2")" >&3
 	}
 
 	TASK_COMPLETE() {
+		TASK_RUN_NOTE "$1"
 		printf 'MUOS:COMPLETE\tTEXT=%s\n' "$(TASK_CLEAN "$1")" >&3
 	}
 
@@ -78,10 +88,12 @@ else
 	}
 
 	TASK_STATUS() {
+		TASK_RUN_NOTE "$1"
 		printf '%s\n' "$1"
 	}
 
 	TASK_DETAIL() {
+		TASK_RUN_NOTE "$1"
 		printf '  %s\n' "$1"
 	}
 
@@ -94,10 +106,12 @@ else
 	}
 
 	TASK_ERROR() {
+		TASK_RUN_NOTE "ERROR ($1): $2"
 		printf 'Error: %s\n' "$2"
 	}
 
 	TASK_COMPLETE() {
+		TASK_RUN_NOTE "$1"
 		printf '%s\n' "$1"
 	}
 

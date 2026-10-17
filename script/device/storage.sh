@@ -78,7 +78,7 @@ EOF
 
 		KERNEL_TUNING "$DEV"
 
-		mkdir -p "$MOUNT_POINT/ROMS" "$MOUNT_POINT/BACKUP" "$MOUNT_POINT/ARCHIVE" "$MOUNT_POINT/ports"
+		mkdir -p "$MOUNT_POINT/ROMS" "$MOUNT_POINT/ARCHIVE" "$MOUNT_POINT/ports"
 
 		if [ -d "$MOUNT_POINT/MUOS/info/name" ]; then
 			SYNC_FILE "$ROM_MOUNT" "$MOUNT_POINT" "MUOS/info/name/tag.txt" size "atomic,verify"

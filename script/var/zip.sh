@@ -268,6 +268,123 @@ ARC_UNSET() {
 	unset ARC_SPACE ARC_DIR ARC_LABEL SRC DEST LABEL COMP 2>/dev/null
 }
 
+# Keeps a transcript of a backup or extraction and copies it to MUOS/log/KIND on SD1 when the run fails
+RUN_LOG_BEGIN() {
+	RUN_LOG_KIND="$1"
+	RUN_LOG_NAME="$2"
+	TASK_RUN_LOG="$(mktemp /tmp/muos-runlog.XXXXXX)" || {
+		TASK_RUN_LOG=""
+		return 0
+	}
+
+	{
+		printf 'MustardOS %s (%s) on %s\n' "$(GET_VAR "system" "version")" "$(GET_VAR "system" "build")" "$(GET_VAR "device" "board/name")"
+		printf 'Started %s\n' "$(date '+%Y-%m-%d %H:%M:%S')"
+		[ -n "$RUN_LOG_NAME" ] && printf 'Archive %s\n' "$RUN_LOG_NAME"
+		printf '\n'
+	} >"$TASK_RUN_LOG"
+}
+
+RUN_LOG_FINISH() {
+	[ -n "${TASK_RUN_LOG:-}" ] && [ -f "$TASK_RUN_LOG" ] || return 0
+
+	if [ "${1:-0}" -ne 0 ]; then
+		RL_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/$RUN_LOG_KIND"
+		RL_FILE="$RL_DIR/$(date '+%Y-%m-%d_%H%M%S')${RUN_LOG_NAME:+_$RUN_LOG_NAME}.txt"
+
+		printf '\nFinished %s with exit code %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" >>"$TASK_RUN_LOG"
+		if mkdir -p "$RL_DIR" && cp "$TASK_RUN_LOG" "$RL_FILE"; then
+			LOG_INFO "$0" 0 "LOG" "$(printf "Failure log written to '%s'" "$RL_FILE")"
+		fi
+	fi
+
+	rm -f "$TASK_RUN_LOG"
+	TASK_RUN_LOG=""
+}
+
+BACKUP_MANIFEST="backup.manifest"
+
+# One digest per section rather than per file, unzip streams a whole section in archive order in one pass
+# where reading files one at a time costs a process each and is far too slow on a large backup
+BACKUP_SECTION_DIGEST() {
+	unzip -p "$1" "$2/*" 2>/dev/null | sha256sum | cut -d' ' -f1
+}
+
+BACKUP_SECTION_FILES() {
+	unzip -Z1 "$1" 2>/dev/null | awk -v s="$2/" 'index($0, s) == 1 && substr($0, length($0)) != "/" { n++ } END { print n + 0 }'
+}
+
+# Writes the manifest into a finished backup, then moves it into place so a half written backup never
+# carries the final name.  Usage: FINALISE_BACKUP PARTIAL FINAL SECTION...
+FINALISE_BACKUP() {
+	FB_PARTIAL="$1"
+	FB_FINAL="$2"
+	shift 2
+
+	FB_WORK="$(mktemp -d /tmp/muos-backup.XXXXXX)" || return 1
+	{
+		printf 'format=1\n'
+		printf 'type=backup\n'
+		printf 'version=%s\n' "$(GET_VAR "system" "version")"
+		printf 'build=%s\n' "$(GET_VAR "system" "build")"
+		printf 'device=%s\n' "$(GET_VAR "device" "board/name")"
+		printf 'created=%s\n' "$(date '+%Y-%m-%dT%H:%M:%S')"
+		for FB_SECTION in "$@"; do
+			printf 'section=%s files=%s sha256=%s\n' "$FB_SECTION" \
+				"$(BACKUP_SECTION_FILES "$FB_PARTIAL" "$FB_SECTION")" \
+				"$(BACKUP_SECTION_DIGEST "$FB_PARTIAL" "$FB_SECTION")"
+		done
+	} >"$FB_WORK/$BACKUP_MANIFEST"
+
+	if ! (cd "$FB_WORK" && zip -q -0 "$FB_PARTIAL" "$BACKUP_MANIFEST") || ! mv -f "$FB_PARTIAL" "$FB_FINAL"; then
+		rm -rf "$FB_WORK"
+		return 1
+	fi
+
+	rm -rf "$FB_WORK"
+	return 0
+}
+
+# Checks a backup against its manifest before anything is restored.  Returns 0 when it matches,
+# 1 when the manifest is missing or broken and 2 when the contents do not match it
+VERIFY_BACKUP() {
+	VB_ARCHIVE="$1"
+	ARCHIVE_WORKSPACE || return 1
+	VB_MANIFEST="$ARCHIVE_WORK_DIR/$BACKUP_MANIFEST"
+
+	unzip -p "$VB_ARCHIVE" "$BACKUP_MANIFEST" >"$VB_MANIFEST" 2>/dev/null || return 1
+	grep -qx 'format=1' "$VB_MANIFEST" || return 1
+	grep -q '^section=' "$VB_MANIFEST" || return 1
+
+	CACHE_ARCHIVE "$VB_ARCHIVE" || return 1
+	awk -F/ 'NF == 1 && $0 != "'"$BACKUP_MANIFEST"'" { exit 1 }' "$ARCHIVE_CACHE_FILE" || return 2
+
+	VB_SECTIONS="$(sed -n 's/^section=\([^ ]*\) .*/\1/p' "$VB_MANIFEST" | sort)"
+	[ "$(GET_TOP_LEVEL_DIRS "$VB_ARCHIVE")" = "$VB_SECTIONS" ] || return 2
+
+	VB_TOTAL="$(printf '%s\n' "$VB_SECTIONS" | wc -l)"
+	VB_INDEX=0
+
+	while IFS= read -r VB_LINE; do
+		case "$VB_LINE" in section=*) ;; *) continue ;; esac
+
+		VB_SECTION="${VB_LINE#section=}"
+		VB_SECTION="${VB_SECTION%% *}"
+		VB_FILES="${VB_LINE#* files=}"
+		VB_FILES="${VB_FILES%% *}"
+		VB_SHA="${VB_LINE##* sha256=}"
+
+		VB_INDEX=$((VB_INDEX + 1))
+		TASK_DETAIL "$(printf "Checking %s" "$VB_SECTION")"
+		TASK_PROGRESS "$VB_INDEX" "$VB_TOTAL"
+
+		[ "$(BACKUP_SECTION_FILES "$VB_ARCHIVE" "$VB_SECTION")" = "$VB_FILES" ] || return 2
+		[ "$(BACKUP_SECTION_DIGEST "$VB_ARCHIVE" "$VB_SECTION")" = "$VB_SHA" ] || return 2
+	done <"$VB_MANIFEST"
+
+	return 0
+}
+
 EXTRACT_ARCHIVE() {
 	# $1 = LABEL        (for display purposes)
 	# $2 = ARCHIVE_PATH (path to .muxzip or whatever)
@@ -293,10 +410,10 @@ EXTRACT_ARCHIVE() {
 	printf "\nExtracting Archive: "
 
 	if [ -n "$PATTERN" ]; then
-		unzip -o "$ARCHIVE_PATH" "$PATTERN" -d "$DEST_DIR" >/dev/null &
+		unzip -o "$ARCHIVE_PATH" "$PATTERN" -d "$DEST_DIR" >/dev/null 2>>"${TASK_RUN_LOG:-/dev/null}" &
 		PID=$!
 	else
-		unzip -o "$ARCHIVE_PATH" -d "$DEST_DIR" >/dev/null &
+		unzip -o "$ARCHIVE_PATH" -d "$DEST_DIR" >/dev/null 2>>"${TASK_RUN_LOG:-/dev/null}" &
 		PID=$!
 	fi
 
@@ -376,12 +493,13 @@ CREATE_ARCHIVE() {
 	(
 		cd "$BASE_DIR" || exit 2
 		exec zip -q "-r${UPDATE_FLAG}${COMP}" "$DEST_FILE" "$REL_FROM_ROOT"
-	) >/dev/null 2>&1 &
+	) >/dev/null 2>>"${TASK_RUN_LOG:-/dev/null}" &
 	ZIP_PID=$!
 
 	THROBBER "$ZIP_PID"
 	wait "$ZIP_PID"
 	RC=$?
+	[ "$RC" -eq 12 ] && [ -n "$UPDATE_FLAG" ] && RC=0
 
 	if [ "$RC" -ne 0 ]; then
 		printf " Failure!\n"

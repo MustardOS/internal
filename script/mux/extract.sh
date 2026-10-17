@@ -11,6 +11,7 @@ TASK_IS_NATIVE || { [ -z "${THEME_INSTALLING:-}" ] && FRONTEND stop; }
 
 ALL_DONE() {
 	ARCHIVE_CACHE_CLEANUP
+	RUN_LOG_FINISH "${1:-0}"
 	[ -e "/tmp/no_fe" ] && exit 0
 
 	LOG_INFO "$0" 0 "EXTRACT" "$(printf "Cleanup and exit (code: %s)" "${1:-0}")"
@@ -158,6 +159,126 @@ INSTALL_UPDATE() {
 	)
 }
 
+EXTRACT_SECTIONS() {
+	EXTRACT_FAILED=""
+	EXTRACT_DONE=0
+	EXTRACT_TOTAL=0
+
+	TASK_STATUS "Scanning Archive Directories..."
+	if ! TOP_LEVEL="$(GET_TOP_LEVEL_DIRS "$ARCHIVE")"; then
+		LOG_ERROR "$0" 0 "EXTRACT" "Failed to scan archive directories"
+		TASK_ERROR "scan_failed" "The archive contents could not be read."
+		ALL_DONE 1
+	fi
+	LOG_DEBUG "$0" 0 "EXTRACT" "$(printf "Top-level entries: %s" "$TOP_LEVEL")"
+
+	for TOP in $TOP_LEVEL; do
+		EXTRACT_TOTAL=$((EXTRACT_TOTAL + 1))
+		DEST=""
+		LABEL=""
+		PATTERN="${TOP}/*"
+
+		LOG_DEBUG "$0" 0 "EXTRACT" "$(printf "Processing section: '%s'" "$TOP")"
+
+		ARC_UNSET
+
+		EXTRACTOR="/opt/muos/script/archive/$TOP.sh"
+		if [ ! -r "$EXTRACTOR" ]; then
+			LOG_WARN "$0" 0 "EXTRACT" "$(printf "Skipping unsupported section: '%s'" "$TOP")"
+			TASK_DETAIL "$(printf "Skipping unsupported section: %s" "$TOP")"
+			continue
+		fi
+
+		# shellcheck disable=SC1090
+		. "$EXTRACTOR" || {
+			TASK_DETAIL "$(printf "Invalid extractor for %s, cannot be sourced" "$TOP")"
+			continue
+		}
+
+		if ! command -v ARC_EXTRACT >/dev/null 2>&1; then
+			TASK_DETAIL "$(printf "Invalid extractor for %s, missing 'ARC_EXTRACT'" "$TOP")"
+			ARC_UNSET
+			continue
+		fi
+
+		ARC_EXTRACT || {
+			TASK_DETAIL "$(printf "Invalid extractor for %s, 'ARC_EXTRACT' failed" "$TOP")"
+			ARC_UNSET
+			continue
+		}
+
+		if command -v ARC_EXTRACT_PRE >/dev/null 2>&1; then
+			if ! ARC_EXTRACT_PRE; then
+				TASK_DETAIL "$(printf "Pre-extract hook failed for %s, skipping" "$TOP")"
+				ARC_UNSET
+				continue
+			fi
+		fi
+
+		if [ -z "${DEST:-}" ] || [ -z "${LABEL:-}" ]; then
+			TASK_DETAIL "$(printf "Invalid extractor for %s, missing 'DEST' or 'LABEL'" "$TOP")"
+			ARC_UNSET
+			continue
+		fi
+
+		# Sections that stage outside the bound storage (settings, retroarch...) have no bind map
+		# entry, so their free space is checked where they are extracted
+		SPACE_TARGET="${ARC_SPACE:-}"
+		[ -z "$SPACE_TARGET" ] && [ -z "$(RESOLVE_ARCHIVE_BIND_PATH "$TOP")" ] && SPACE_TARGET="$DEST"
+
+		REQ="$(GET_ARCHIVE_BYTES "$ARCHIVE" "$TOP/")"
+		if ! CHECK_SPACE_FOR_DEST "$REQ" "$TOP" "$SPACE_TARGET"; then
+			LOG_ERROR "$0" 0 "EXTRACT" "$(printf "Not enough free space to restore '%s'" "$TOP")"
+			TASK_ERROR "no_space" "$(printf "There is not enough free space to restore %s." "$LABEL")"
+			ALL_DONE 1
+		fi
+
+		TASK_STATUS "$(printf "Extracting '%s'" "$LABEL")"
+		TASK_DETAIL "$(printf "Destination '%s'" "$DEST")"
+		if EXTRACT_ARCHIVE "$LABEL" "$ARCHIVE" "$DEST" "$PATTERN"; then
+			LOG_SUCCESS "$0" 0 "EXTRACT" "$(printf "Extracted '%s' to '%s'" "$LABEL" "$DEST")"
+			TASK_DETAIL "$(printf "Extracted '%s' successfully" "$LABEL")"
+			ARC_STATUS=0
+			EXTRACT_DONE=$((EXTRACT_DONE + 1))
+		else
+			LOG_ERROR "$0" 0 "EXTRACT" "$(printf "Failed to extract '%s'" "$LABEL")"
+			TASK_DETAIL "$(printf "Failed to extract '%s'" "$LABEL")"
+			ARC_STATUS=1
+			EXTRACT_FAILED="$EXTRACT_FAILED $TOP"
+		fi
+
+		if command -v ARC_EXTRACT_POST >/dev/null 2>&1; then
+			if ! ARC_EXTRACT_POST "$ARC_STATUS"; then
+				LOG_WARN "$0" 0 "EXTRACT" "Post-extract hook failed"
+				if [ "$ARC_STATUS" -eq 0 ]; then
+					EXTRACT_FAILED="$EXTRACT_FAILED $TOP"
+					EXTRACT_DONE=$((EXTRACT_DONE - 1))
+				fi
+			fi
+		fi
+
+		ARC_UNSET
+	done
+
+	TASK_DETAIL "$(printf "Restored %s of %s Sections" "$EXTRACT_DONE" "$EXTRACT_TOTAL")"
+
+	if [ -n "$EXTRACT_FAILED" ]; then
+		LOG_ERROR "$0" 0 "EXTRACT" "$(printf "Sections not restored:%s" "$EXTRACT_FAILED")"
+		TASK_ERROR "extract_failed" "$(printf "These sections could not be restored:%s" "$EXTRACT_FAILED")"
+		ALL_DONE 1
+	fi
+}
+
+# Backups hold far more files than add-on archives, and mostly empty saves compress well past the
+# add-on ratio limit, so backups get their own limits.  Unsafe paths and file types are still refused
+# shellcheck disable=SC2034
+BACKUP_LIMITS() {
+	ARCHIVE_MAX_ENTRIES=1000000
+	ARCHIVE_MAX_ENTRY_BYTES=17179869184
+	ARCHIVE_MAX_TOTAL_BYTES=1099511627776
+	ARCHIVE_MAX_RATIO=1000000
+}
+
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
 	LOG_ERROR "$0" 0 "EXTRACT" "$(printf "Invalid argument count: %s" "$#")"
 	TASK_ERROR "bad_arguments" "$(printf "Usage: %s <archive> [mux module]" "$0")"
@@ -165,6 +286,7 @@ if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
 fi
 
 ARCHIVE="$1"
+RUN_LOG_BEGIN archive "${ARCHIVE##*/}"
 if [ ! -e "$ARCHIVE" ]; then
 	LOG_ERROR "$0" 0 "EXTRACT" "$(printf "Archive not found: '%s'" "$ARCHIVE")"
 	TASK_ERROR "archive_missing" "$(printf "Archive '%s' was not found" "$ARCHIVE")"
@@ -309,98 +431,35 @@ case "$ARCHIVE_NAME" in
 		rm -rf "$UPDATE_STAGE"
 		UPDATE_STAGE=""
 		;;
+	*.muxbak)
+		LOG_INFO "$0" 0 "EXTRACT" "Detected MustardOS backup (.muxbak)"
+		BACKUP_LIMITS
+		SAFE_ARCHIVE "$ARCHIVE" || REJECT_UNSAFE_ARCHIVE "$ARCHIVE"
+
+		TASK_STATUS "Verifying Backup..."
+		VERIFY_BACKUP "$ARCHIVE"
+		case $? in
+			0) LOG_SUCCESS "$0" 0 "EXTRACT" "Backup matches its manifest" ;;
+			1)
+				LOG_ERROR "$0" 0 "EXTRACT" "Backup has no valid manifest"
+				TASK_ERROR "backup_invalid" "This backup has no valid manifest, so it cannot be checked and nothing was restored."
+				ALL_DONE 1
+				;;
+			*)
+				LOG_ERROR "$0" 0 "EXTRACT" "Backup does not match its manifest"
+				TASK_ERROR "backup_damaged" "This backup is damaged or incomplete, so nothing was restored."
+				ALL_DONE 1
+				;;
+		esac
+
+		TASK_PROGRESS 0 0
+		EXTRACT_SECTIONS
+		;;
 	*.muxzip)
 		LOG_INFO "$0" 0 "EXTRACT" "Detected multi-section archive (.muxzip)"
 		SAFE_ARCHIVE "$ARCHIVE" || REJECT_UNSAFE_ARCHIVE "$ARCHIVE"
 
-		TASK_STATUS "Scanning Archive Directories..."
-		if ! TOP_LEVEL="$(GET_TOP_LEVEL_DIRS "$ARCHIVE")"; then
-			LOG_ERROR "$0" 0 "EXTRACT" "Failed to scan archive directories"
-			TASK_ERROR "scan_failed" "The archive contents could not be read."
-			ALL_DONE 1
-		fi
-		LOG_DEBUG "$0" 0 "EXTRACT" "$(printf "Top-level entries: %s" "$TOP_LEVEL")"
-
-		for TOP in $TOP_LEVEL; do
-			DEST=""
-			LABEL=""
-			PATTERN="${TOP}/*"
-
-			LOG_DEBUG "$0" 0 "EXTRACT" "$(printf "Processing section: '%s'" "$TOP")"
-
-			ARC_UNSET
-
-			EXTRACTOR="/opt/muos/script/archive/$TOP.sh"
-			if [ ! -r "$EXTRACTOR" ]; then
-				LOG_WARN "$0" 0 "EXTRACT" "$(printf "Skipping unsupported section: '%s'" "$TOP")"
-				TASK_DETAIL "$(printf "Skipping unsupported section: %s" "$TOP")"
-				continue
-			fi
-
-			# shellcheck disable=SC1090
-			. "$EXTRACTOR" || {
-				TASK_DETAIL "$(printf "Invalid extractor for %s, cannot be sourced" "$TOP")"
-				continue
-			}
-
-			if ! command -v ARC_EXTRACT >/dev/null 2>&1; then
-				TASK_DETAIL "$(printf "Invalid extractor for %s, missing 'ARC_EXTRACT'" "$TOP")"
-				ARC_UNSET
-				continue
-			fi
-
-			ARC_EXTRACT || {
-				TASK_DETAIL "$(printf "Invalid extractor for %s, 'ARC_EXTRACT' failed" "$TOP")"
-				ARC_UNSET
-				continue
-			}
-
-			if command -v ARC_EXTRACT_PRE >/dev/null 2>&1; then
-				if ! ARC_EXTRACT_PRE; then
-					TASK_DETAIL "$(printf "Pre-extract hook failed for %s, skipping" "$TOP")"
-					ARC_UNSET
-					continue
-				fi
-			fi
-
-			if [ -z "${DEST:-}" ] || [ -z "${LABEL:-}" ]; then
-				TASK_DETAIL "$(printf "Invalid extractor for %s, missing 'DEST' or 'LABEL'" "$TOP")"
-				ARC_UNSET
-				continue
-			fi
-
-			# Sections that stage outside the bound storage (settings, retroarch...) have no bind map
-			# entry, so their free space is checked where they are extracted
-			SPACE_TARGET="${ARC_SPACE:-}"
-			[ -z "$SPACE_TARGET" ] && [ -z "$(RESOLVE_ARCHIVE_BIND_PATH "$TOP")" ] && SPACE_TARGET="$DEST"
-
-			REQ="$(GET_ARCHIVE_BYTES "$ARCHIVE" "$TOP/")"
-			if ! CHECK_SPACE_FOR_DEST "$REQ" "$TOP" "$SPACE_TARGET"; then
-				LOG_ERROR "$0" 0 "EXTRACT" "$(printf "Not enough free space to restore '%s'" "$TOP")"
-				TASK_ERROR "no_space" "$(printf "There is not enough free space to restore %s." "$LABEL")"
-				ALL_DONE 1
-			fi
-
-			TASK_STATUS "$(printf "Extracting '%s'" "$LABEL")"
-			TASK_DETAIL "$(printf "Destination '%s'" "$DEST")"
-			if EXTRACT_ARCHIVE "$LABEL" "$ARCHIVE" "$DEST" "$PATTERN"; then
-				LOG_SUCCESS "$0" 0 "EXTRACT" "$(printf "Extracted '%s' to '%s'" "$LABEL" "$DEST")"
-				TASK_DETAIL "$(printf "Extracted '%s' successfully" "$LABEL")"
-				ARC_STATUS=0
-			else
-				LOG_ERROR "$0" 0 "EXTRACT" "$(printf "Failed to extract '%s'" "$LABEL")"
-				TASK_DETAIL "$(printf "Failed to extract '%s'" "$LABEL")"
-				ARC_STATUS=1
-			fi
-
-			if command -v ARC_EXTRACT_POST >/dev/null 2>&1; then
-				if ! ARC_EXTRACT_POST "$ARC_STATUS"; then
-					LOG_WARN "$0" 0 "EXTRACT" "Post-extract hook failed"
-				fi
-			fi
-
-			ARC_UNSET
-		done
+		EXTRACT_SECTIONS
 
 		# Special case for core downloads - we run the control script
 		# to initialise any control based changes for emulators

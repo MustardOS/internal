@@ -322,10 +322,40 @@ PMIC_POWER_OFF() {
 	i2cset -f -y "$PMIC_BUS" "$PMIC_ADDRESS" "$PMIC_REGISTER" "$(printf '0x%02x' $((PMIC_VALUE | 0x01)))"
 }
 
+# A warm SoC reset can leave the H700 DRAM in a state which the bootloader
+# cannot retrain, making a reboot look like a shutdown. The AXP2202 provides a
+# one-shot hardware restart which fully power-cycles the SoC and DRAM while
+# keeping VRTC alive. Use it only on the H700/AXP2202 combination and retain the
+# normal kernel reboot below as a fallback if the PMIC cannot be reached.
+PMIC_RESTART() {
+	[ "$ACTION" = reboot ] || return 0
+	grep -aq 'allwinner,h616' /proc/device-tree/compatible 2>/dev/null || return 0
+
+	PMIC_BUS=5
+	PMIC_ADDRESS=0x34
+	PMIC_REGISTER=0x27
+	PMIC_DEVICE="/sys/bus/i2c/devices/$PMIC_BUS-0034"
+
+	[ -e "$PMIC_DEVICE" ] || return 0
+	[ "$(cat "$PMIC_DEVICE/name" 2>/dev/null)" = axp2202 ] || return 0
+
+	PMIC_VALUE=$(i2cget -f -y "$PMIC_BUS" "$PMIC_ADDRESS" "$PMIC_REGISTER" 2>/dev/null) || return 0
+	case "$PMIC_VALUE" in 0x[0-9a-fA-F][0-9a-fA-F]) ;; *) return 0 ;; esac
+
+	PMIC_RESTART_VALUE=$(printf '0x%02x' $((PMIC_VALUE | 0x02)))
+	LOG_INFO "$0" 0 "HALT" "Requesting H700 PMIC power-cycle"
+	if i2cset -f -y "$PMIC_BUS" "$PMIC_ADDRESS" "$PMIC_REGISTER" "$PMIC_RESTART_VALUE"; then
+		sleep 2
+	else
+		LOG_WARN "$0" 0 "HALT" "H700 PMIC power-cycle request failed"
+	fi
+}
+
 LOG_INFO "$0" 0 "HALT" "$(printf "Handing off to %s -f" "$ACTION")"
 PMIC_POWER_OFF
+PMIC_RESTART
 "$ACTION" -f
 
-case "$BOARD_NAME" in
-	rg*) echo 0x1801 >"/sys/class/axp/axp_reg" ;;
+case "$ACTION:$BOARD_NAME" in
+	poweroff:rg*) echo 0x1801 >"/sys/class/axp/axp_reg" ;;
 esac

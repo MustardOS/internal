@@ -11,7 +11,7 @@ DO_START() {
 	LOG_INFO "$0" 0 "BOOTING" "Creating Required Run Directory"
 	mkdir -p "$MUOS_RUN_DIR"
 
-	KERNEL_LOG="$(GET_VAR "config" "settings/advanced/kernellog")"
+	KERNEL_LOG="$(GET_VAR "config" "danger/kernellog")"
 	case "$KERNEL_LOG" in
 		1) PRINTK=1 ;;
 		2) PRINTK=3 ;;

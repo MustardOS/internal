@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/storage.sh
 
 ROM_DEV="$(GET_VAR "device" "storage/rom/dev")"
 ROM_SEP="$(GET_VAR "device" "storage/rom/sep")"

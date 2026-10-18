@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 
 DRASTIC_DIR=$(dirname "$0")
 DRASTIC_LIB="$DRASTIC_DIR/libs"

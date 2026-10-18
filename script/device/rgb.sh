@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 [ "$(GET_VAR "config" "boot/device_mode")" -eq 1 ] && exit 0
 
 LED_SYSFS="/sys/class/led_anim"

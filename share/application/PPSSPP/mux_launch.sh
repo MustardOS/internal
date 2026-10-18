@@ -3,7 +3,8 @@
 # ICON: ppsspp
 # GRID: PPSSPP
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/stage.sh
+. /opt/muos/script/var/retro.sh
 
 APP_BIN="PPSSPP"
 SETUP_APP "$APP_BIN" ""

@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/service.sh
+. /opt/muos/script/var/storage.sh
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Setting date time to default"
 date 010100002026

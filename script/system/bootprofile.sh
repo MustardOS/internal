@@ -2,7 +2,7 @@
 # shellcheck source=/dev/null
 # Prints where the last boot spent its time.
 
-[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+[ -n "$MUOS_RUNTIME_LOADED" ] || . /opt/muos/script/var/runtime.sh
 
 BOOT_STATUS_DIR="$MUOS_RUN_DIR/boot"
 BOOT_STATE_DIR="${BOOT_STATE_DIR:-$MUOS_CONF_SYSTEM/boot}"

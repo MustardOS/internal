@@ -5,6 +5,8 @@
 # CAN_CANCEL: 0
 # PROTOCOL_VERSION: 1
 
+. /opt/muos/script/var/runtime.sh
+. /opt/muos/script/var/service.sh
 . /opt/muos/script/var/diag.sh
 
 DIAG_BEGIN "boot_services_report" "Boot and Services Report"

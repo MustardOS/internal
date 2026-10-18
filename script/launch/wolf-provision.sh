@@ -11,7 +11,7 @@
 # Usage: wolf-provision.sh <content folder> <name> [log path]
 # Prints the path of the anchor to launch on success.
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/base.sh
 
 WP_DIR=${1%/}
 WP_NAME=$2

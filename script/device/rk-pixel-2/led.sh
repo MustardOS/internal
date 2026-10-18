@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/boot.sh
 
 # Some boards wire their indicator LEDs straight to GPIOs with no leds-gpio node
 # behind them, so /sys/class/leds is empty and there is nothing for led/normal

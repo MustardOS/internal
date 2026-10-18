@@ -3,7 +3,7 @@
 # ICON: portmaster
 # GRID: PortMaster
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/retro.sh
 
 APP_BIN="portmaster"
 SETUP_APP "$APP_BIN" ""

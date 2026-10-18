@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/base.sh
 
 BUNDLED_MANIFEST_DIR="$MUOS_SHARE_DIR/info/manifest"
 USER_MANIFEST_DIR="$MUOS_STORE_DIR/info/manifest"

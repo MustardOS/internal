@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 # Everything arrives on the first core by default, so the core most likely to
 # be running the game also handles every card, display and radio interrupt.

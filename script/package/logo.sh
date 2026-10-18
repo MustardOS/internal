@@ -1,7 +1,8 @@
 #!/bin/sh
 # NEVER_CANCEL: 1
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/service.sh
+. /opt/muos/script/var/theme.sh
 . /opt/muos/script/var/ui.sh
 
 TASK_IS_NATIVE || FRONTEND stop

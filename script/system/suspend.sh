@@ -1,6 +1,8 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/display.sh
+. /opt/muos/script/var/service.sh
+. /opt/muos/script/var/runtime.sh
 
 # Lonely, oh so lonely...
 RECENT_WAKE="$MUOS_RUN_DIR/recent_wake"

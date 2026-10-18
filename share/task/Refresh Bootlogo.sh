@@ -5,7 +5,7 @@
 # CAN_CANCEL: 0
 # PROTOCOL_VERSION: 1
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/theme.sh
 . /opt/muos/script/var/ui.sh
 
 TASK_BEGIN "refresh_bootlogo" "Refresh Bootlogo"

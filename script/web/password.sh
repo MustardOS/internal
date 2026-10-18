@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 
 SSID="$(GET_VAR "config" "network/ssid")"
 PASS="$(GET_VAR "config" "network/pass")"

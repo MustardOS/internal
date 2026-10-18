@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/audio.sh
 
 export XDG_RUNTIME_DIR=/run
 

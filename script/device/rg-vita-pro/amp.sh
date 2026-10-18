@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 # Initialise external speaker amp (TAS58xx, I2C bus 3)
 LOG_INFO "$0" 0 "PIPEWIRE" "Initialising speaker amplifier"

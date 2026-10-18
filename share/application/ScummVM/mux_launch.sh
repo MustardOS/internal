@@ -3,7 +3,8 @@
 # ICON: scummvm
 # GRID: ScummVM
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/stage.sh
+. /opt/muos/script/var/retro.sh
 
 APP_BIN="scummvm"
 SETUP_APP "$APP_BIN" ""

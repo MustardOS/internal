@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/audio.sh
+. /opt/muos/script/var/storage.sh
 
 LOG_INFO "$0" 0 "LAUNCH" "$(printf "Content launch script started (PID: %s)" "$$")"
 
@@ -214,15 +215,11 @@ CORE_LAUNCHER=$(printf '%s' "$CORE_FIELDS" | cut -f1)
 [ -n "$CORE_LAUNCHER" ] || CORE_LAUNCHER="general.sh"
 CORE_LAUNCHER="${CORE_PREFIX}${CORE_LAUNCHER}"
 
-# A launcher exist for the core so check that first then the shared launch area
+# Resolve launchers from the canonical system script directory
 RESOLVE_LAUNCHER() {
-	for R_BASE in "/opt/muos/script/launch" "$MUOS_SHARE_DIR/script/launch"; do
-		[ -f "$R_BASE/$1" ] && {
-			printf '%s' "$R_BASE/$1"
-			return 0
-		}
-	done
-	return 1
+	R_PATH="/opt/muos/script/launch/$1"
+	[ -f "$R_PATH" ] || return 1
+	printf '%s' "$R_PATH"
 }
 
 LAUNCH_PREP=$(printf '%s' "$CORE_FIELDS" | cut -f2) # Optional preparation step before content run

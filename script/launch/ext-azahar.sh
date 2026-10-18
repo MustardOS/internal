@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/display.sh
 
 NAME=$1
 CORE=$2
@@ -34,6 +34,8 @@ cd "$EMUDIR" || exit
 
 export HOME="$EMUDIR"
 XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CONFIG_HOME
+CONFIG="$XDG_CONFIG_HOME/azahar-emu/sdl2-config.ini"
 
 # Source for the active controller mapping. muOS rewrites a:/b:/x:/y: in this entry per
 # Retro/Modern/Custom profile, so re-reading it each launch tracks the active profile.

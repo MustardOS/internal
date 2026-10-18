@@ -9,7 +9,7 @@
 # This script will enable or disable Grid mode for Main Menu
 # by updating the muxlaunch.ini theme override file
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/base.sh
 . /opt/muos/script/var/ui.sh
 
 TASK_BEGIN "toggle_grid_mode_main_menu" "Toggle Grid Mode Main Menu"

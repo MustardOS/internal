@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+[ -n "$MUOS_RUNTIME_LOADED" ] || . /opt/muos/script/var/runtime.sh
 
 BT_STATE="$MUOS_RUN_DIR/bluetooth_state"
 BT_CONF="$MUOS_SHARE_DIR/conf/bluetooth.conf"

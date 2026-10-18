@@ -13,7 +13,7 @@
 #
 # Usage: pwrkey.sh [start]
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/boot.sh
 
 KEY_NAME="rk805 pwrkey"
 HOTKEY_FIFO="$MUOS_RUN_DIR/hotkey"
@@ -57,10 +57,10 @@ TRACE "listening on $DEV"
 exec 4<"$DEV"
 while :; do
 	# One input_event is 24 bytes: sec, usec (8 each), type+code, value.
-	set -- $(dd bs=24 count=1 <&4 2>/dev/null | od -An -t d4)
+	PWRKEY_EVENT=$(dd bs=24 count=1 <&4 2>/dev/null | od -An -t d4 | tr '\n' ' ')
 
 	# Nothing read: the input device went away (module unloaded), so find it again
-	if [ "$#" -eq 0 ]; then
+	if [ -z "$PWRKEY_EVENT" ]; then
 		TRACE "input device gone, waiting for it to return"
 		exec 4<&-
 		until DEV=$(FIND_EVENT); do sleep 1; done
@@ -69,10 +69,13 @@ while :; do
 		continue
 	fi
 
-	[ "$#" -eq 6 ] || continue
-	[ "$5" -eq "$POWER_EVENT" ] || continue
+	IFS=' ' read -r _ _ _ _ PWRKEY_CODE PWRKEY_VALUE PWRKEY_EXTRA <<EOF
+$PWRKEY_EVENT
+EOF
+	[ -n "$PWRKEY_VALUE" ] && [ -z "$PWRKEY_EXTRA" ] || continue
+	[ "$PWRKEY_CODE" -eq "$POWER_EVENT" ] || continue
 
-	case "$6" in
+	case "$PWRKEY_VALUE" in
 		1) TRACE "down" ;;
 		0)
 			# The listener starts early in boot, so ignore taps until the frontend is up

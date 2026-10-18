@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 RUN_DIR="$MUOS_RUN_DIR/battery_usage"
 CONF_DIR="$MUOS_CONF_GLOBAL/battery_usage"

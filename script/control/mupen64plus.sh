@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/base.sh
 
 FORCE_COPY=0
 [ "$1" = "FORCE_COPY" ] && FORCE_COPY=1

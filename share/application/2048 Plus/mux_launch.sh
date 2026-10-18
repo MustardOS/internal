@@ -3,7 +3,8 @@
 # ICON: logo_2048
 # GRID: 2048 Plus
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/stage.sh
+. /opt/muos/script/var/retro.sh
 
 APP_NAME="2048 Plus"
 APP_SUBPATH="application/$APP_NAME"
@@ -52,7 +53,6 @@ START_LOVE() {
 if command -v SETUP_APP >/dev/null 2>&1; then
     # --- Jacaranda Logic ---
     SETUP_STAGE_OVERLAY
-    APP_BIN="bin/love"
     SETUP_APP "love" ""
 
     cd "$APP_GAME_DIRECTORY" || exit

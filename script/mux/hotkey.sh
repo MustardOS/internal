@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/boot.sh
+. /opt/muos/script/var/display.sh
 
 LOG_INFO "$0" 0 "HOTKEY" "Hotkey daemon starting"
 

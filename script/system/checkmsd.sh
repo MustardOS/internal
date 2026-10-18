@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
-
 # https://git.kernel.org/pub/scm/utils/mmc/mmc-utils.git/tree/lsmmc.c
 LOOKUP_MANUFACTURER() {
 	case "$1" in

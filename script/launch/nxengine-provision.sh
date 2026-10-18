@@ -1,6 +1,5 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
 . /opt/muos/script/var/zip.sh
 
 NX_LOGPATH="${1:-/dev/null}"

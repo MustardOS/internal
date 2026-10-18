@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/theme.sh
 
 SCREEN_IMAGE=${1:-$MUOS_RUN_DIR/dash_screenshot.png}
 SCREEN_SCOPE=${2:-private}

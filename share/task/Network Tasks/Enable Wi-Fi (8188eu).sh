@@ -9,7 +9,7 @@
 # This script will set wlan0 to use the 8188eu driver
 # Additionally it'll enable network and PortMaster, and generate SSH Keys if needed.
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 . /opt/muos/script/var/ui.sh
 
 TASK_BEGIN "enable_wi_fi_8188eu" "Enable Wi-Fi (8188eu)"

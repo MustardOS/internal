@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 
 MUOS_TASK_DIR="$MUOS_SHARE_DIR/task"
 

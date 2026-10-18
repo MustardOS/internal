@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 TARGET="$1"
 MAPPING="$2"

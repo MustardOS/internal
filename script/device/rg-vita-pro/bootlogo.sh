@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 LOGO_ROTATE=270
 
@@ -186,4 +186,3 @@ case "$1" in
 		exit 1
 		;;
 esac
-

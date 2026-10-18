@@ -2,7 +2,7 @@
 # HELP: Restore the default YabaSanshiro Controls.
 # ICON: retroarch
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/service.sh
 
 FRONTEND stop
 

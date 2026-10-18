@@ -5,7 +5,7 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 LOG_DEBUG "$0" 0 "METACUT" "$(printf "Reformatting metadata: '%s'" "$1")"
 

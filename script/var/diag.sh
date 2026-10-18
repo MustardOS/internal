@@ -3,7 +3,7 @@
 # Shared helpers for the Diagnostics tasks.  Each report is written to a text file on
 # the primary storage and ends with a list of findings in plain language.
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 . /opt/muos/script/var/ui.sh
 
 DIAG_FINDINGS=""

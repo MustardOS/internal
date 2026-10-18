@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/boot.sh
+. /opt/muos/script/var/runtime.sh
 
 LOG_INFO "$0" 0 "BOOTING" "Waiting for Pipewire Init"
 if [ "$(GET_VAR "config" "settings/advanced/audio_ready")" -eq 1 ]; then

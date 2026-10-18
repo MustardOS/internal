@@ -11,12 +11,12 @@ fi
 
 mkdir playground3d
 
-cd playground3d
+cd playground3d || exit 1
 
 # For game detection
 echo "ScummVM rocks!" > PLAYGROUND3D
 
 # back to the top
-cd ..
+cd .. || exit 1
 
 echo "Game data created"

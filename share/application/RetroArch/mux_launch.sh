@@ -3,7 +3,8 @@
 # ICON: retroarch
 # GRID: RetroArch
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/stage.sh
+. /opt/muos/script/var/retro.sh
 
 APP_BIN="retroarch"
 SETUP_APP "$APP_BIN" ""

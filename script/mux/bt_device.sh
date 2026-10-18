@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
+. /opt/muos/script/var/service.sh
 
 LOG_INFO "$0" 0 "BTDEVICE" "Bluetooth device management starting"
 

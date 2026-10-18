@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/display.sh
 
 BATT_OVL="$MUOS_RUN_DIR/overlay.battery"
 BATT_CAP="$MUOS_RUN_DIR/battery/capacity"

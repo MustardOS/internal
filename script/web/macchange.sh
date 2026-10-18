@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 
 HAS_NETWORK=$(GET_VAR "device" "board/network")
 [ "$HAS_NETWORK" -eq 0 ] && exit 0

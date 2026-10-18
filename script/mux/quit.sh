@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/theme.sh
 
 USAGE() {
 	printf 'Usage: %s close|poweroff|reboot frontend|osf|sleep [wait]\n' "$0" >&2

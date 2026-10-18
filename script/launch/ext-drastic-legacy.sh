@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/display.sh
+. /opt/muos/script/var/runtime.sh
 
 NAME=$1
 CORE=$2

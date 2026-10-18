@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/display.sh
 
 SS_LOCK="/run/muos/screenshot.lock"
 SS_LOCK_HELD=0

@@ -5,6 +5,7 @@
 # CAN_CANCEL: 0
 # PROTOCOL_VERSION: 1
 
+. /opt/muos/script/var/audio.sh
 . /opt/muos/script/var/diag.sh
 
 DIAG_BEGIN "audio_report" "Audio Report"

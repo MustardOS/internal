@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/audio.sh
 
 [ -z "$1" ] && exit 0
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 if [ -e "$OVERLAY_NOP" ]; then
 	LOG_INFO "$0" 0 "OVERLAY" "$(printf "Enabling overlay - removing '%s'" "$OVERLAY_NOP")"

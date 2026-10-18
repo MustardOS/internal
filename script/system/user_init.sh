@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 
 SCRIPT_DIR="$MUOS_STORE_DIR/init"
 INIT_LOG="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/user_init.log"

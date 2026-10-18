@@ -9,7 +9,7 @@
 # so redirecting it would put this script's log in the middle of the protocol.
 exec 2>>"/tmp/tt_manual_sync.log"
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/runtime.sh
 . /opt/muos/script/var/ui.sh
 
 TASK_BEGIN "manual_syncthing_scan" "Manual Syncthing Scan"
@@ -33,7 +33,7 @@ elif [ "$SYNCTHING_ENABLED" -eq 1 ] && [ "$NETWORK_STATE" = "up" ]; then
     SYNCTHING_PORT=$(GET_WEB_PORT "syncthing_port" 7070)
 fi
 
-if [ "$ERROR_FLAG" -eq 0 ] && [ -z "$SYNCTHING_API" ]; then 
+if [ "$ERROR_FLAG" -eq 0 ] && [ -z "$SYNCTHING_API" ]; then
     TASK_ERROR "no_api_key" "The Syncthing API key could not be read"
     ERROR_FLAG=1
 else

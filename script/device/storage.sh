@@ -1,6 +1,8 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/boot.sh
+. /opt/muos/script/var/retro.sh
+. /opt/muos/script/var/storage.sh
 . /opt/muos/script/var/sync.sh
 . /opt/muos/script/var/ui.sh
 

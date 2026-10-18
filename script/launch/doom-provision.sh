@@ -12,7 +12,7 @@
 # Usage: doom-provision.sh <content folder> <name> [log path]
 # Prints the path of the WAD to launch on success.
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/base.sh
 
 DP_DIR=${1%/}
 DP_NAME=$2

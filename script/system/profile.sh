@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 PROFILE_SHARE="$MUOS_SHARE_DIR/profile"
 PROFILE_DEFAULT="$PROFILE_SHARE/system/default.conf"

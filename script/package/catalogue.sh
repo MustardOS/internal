@@ -1,7 +1,7 @@
 #!/bin/sh
 # NEVER_CANCEL: 1
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/service.sh
 . /opt/muos/script/var/zip.sh
 . /opt/muos/script/var/ui.sh
 

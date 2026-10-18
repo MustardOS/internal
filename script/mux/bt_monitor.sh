@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 BT_DIR="$MUOS_CONF_GLOBAL/bluetooth"
 SCRIPT_DIR="$(dirname "$0")"

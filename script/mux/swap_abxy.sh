@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 RA_CONF=$1
 if [ ! -f "$RA_CONF" ] || [ ! -w "$RA_CONF" ]; then

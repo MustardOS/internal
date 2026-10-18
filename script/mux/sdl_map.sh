@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/runtime.sh
 
 CON_GO="$MUOS_RUN_DIR/controller"
 SELECTED_MAP=

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. /opt/muos/script/var/log.sh
+
 # Extraction buffer just in case!
 SPACE_BUFFER_BYTES="${SPACE_BUFFER_BYTES:-67108864}" # 64 MiB
 SPACE_BUFFER_PCT="${SPACE_BUFFER_PCT:-5}"            # 5%

@@ -1,6 +1,8 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/boot.sh
+. /opt/muos/script/var/theme.sh
+. /opt/muos/script/var/storage.sh
 
 NET_STATE=$(GET_VAR "device" "network/state")
 RETROWAIT=$(GET_VAR "config" "settings/advanced/retrowait")

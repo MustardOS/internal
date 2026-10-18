@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 
 # Disable the idle power management on the 8821cs kernel module.
 # Thanks to johnnyonflame for finding this!

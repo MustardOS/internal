@@ -8,7 +8,7 @@
 # This script toggles if API calls to Syncthing after content close
 # and shutdown are enabled or not.
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 . /opt/muos/script/var/ui.sh
 
 TASK_BEGIN "toggle_syncthing_auto_scan" "Toggle Syncthing Auto-Scan"

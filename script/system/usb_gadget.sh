@@ -3,7 +3,7 @@
 # ADB integration based on https://github.com/knulli-cfw/distribution/blob/knulli-main/board/batocera/allwinner/h700/fsoverlay/etc/init.d/S50adb
 # MTP integration based on https://github.com/viveris/uMTP-Responder/blob/master/conf/umtprd-ffs.sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 GADGET="/sys/kernel/config/usb_gadget/muos"
 LINK_GADGET="/sys/kernel/config/usb_gadget/mulink"

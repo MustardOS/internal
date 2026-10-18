@@ -1,6 +1,8 @@
 #!/bin/sh
 
-[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+[ -n "$MUOS_DISPLAY_LOADED" ] || . /opt/muos/script/var/display.sh
+[ -n "$MUOS_SERVICE_LOADED" ] || . /opt/muos/script/var/service.sh
+[ -n "$MUOS_RUNTIME_LOADED" ] || . /opt/muos/script/var/runtime.sh
 
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 

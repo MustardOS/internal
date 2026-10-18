@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/display.sh
 
 if [ "$(GET_VAR "device" "board/stick")" -eq 0 ] && [ "$(GET_VAR "config" "settings/advanced/dpad_swap")" -eq 1 ]; then
 	RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"

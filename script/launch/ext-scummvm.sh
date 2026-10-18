@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/stage.sh
+. /opt/muos/script/var/storage.sh
 . /opt/muos/script/var/launch.sh
 
 SETUP_STAGE_OVERLAY

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+[ -n "$MUOS_AUDIO_LOADED" ] || . /opt/muos/script/var/audio.sh
 
 PF_INTERNAL=$(GET_VAR "device" "audio/pf_internal")
 PF_EXTERNAL=$(GET_VAR "device" "audio/pf_external")

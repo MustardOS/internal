@@ -1,6 +1,7 @@
 #!/bin/sh
-# Source this file after var/func.sh in every launch script.
 # Sets NAME, CORE, FILE from positional parameters, logs them, and exports HOME.
+
+. /opt/muos/script/var/log.sh
 
 NAME=$1
 CORE=$2

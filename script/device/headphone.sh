@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/audio.sh
 
 SWITCH_OUTPUT_VOLUME() {
 	WANT=$1

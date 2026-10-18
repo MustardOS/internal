@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/theme.sh
+. /opt/muos/script/var/runtime.sh
 
 PROCESS_HELPER="/opt/muos/script/var/process.sh"
 LANDING_STATUS="/opt/muos/script/web/status.sh"

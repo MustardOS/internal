@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/audio.sh
 
 LOG_INFO "$0" 0 "AUDIOSINK" "Audio sink manager starting"
 

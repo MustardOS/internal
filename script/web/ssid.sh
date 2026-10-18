@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 IFCE="$(GET_VAR "device" "network/iface_active")"
 [ -n "$IFCE" ] || IFCE="$(GET_VAR "device" "network/iface")"

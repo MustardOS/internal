@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 LOG_INFO "$0" 0 "BTSCAN" "Bluetooth scan manager starting"
 

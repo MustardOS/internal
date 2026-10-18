@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+[ -n "$MUOS_RUNTIME_LOADED" ] || . /opt/muos/script/var/runtime.sh
 
 case "${1:-start}" in
 	start | restart) IN_SAFE_MODE && exit 0 ;;

@@ -3,7 +3,8 @@
 # ICON: vtree
 # GRID: vTree
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/stage.sh
+. /opt/muos/script/var/retro.sh
 
 SETUP_STAGE_OVERLAY
 

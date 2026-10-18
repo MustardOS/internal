@@ -9,7 +9,7 @@
 # This script will enable or disable Grid mode for applications
 # by updating the muxapp.ini theme override file
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/base.sh
 . /opt/muos/script/var/ui.sh
 
 TASK_BEGIN "toggle_grid_mode_applications" "Toggle Grid Mode Applications"

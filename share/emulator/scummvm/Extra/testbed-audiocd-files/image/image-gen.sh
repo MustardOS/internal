@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ $# == 0 ]; then
+if [ "$#" -eq 0 ]; then
   echo "Usage: `basename $0` [image]"
   exit 0
 fi
@@ -26,4 +26,3 @@ magick $1 -depth 8 -type Grayscale $base-8bpp-grey.tga
 magick $1 -depth 8 -type Grayscale -compress RLE $base-8bpp-grey-rle.tga
 magick $1 -depth 1 -type Grayscale $base-1bpp.xbm
 magick $1 -channel-fx 'gray=>alpha' $base-32bpp-grayalpha.png
-

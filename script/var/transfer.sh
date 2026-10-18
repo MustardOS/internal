@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. /opt/muos/script/var/log.sh
+
 THROBBER_WAIT="${THROBBER_WAIT:-1}"
 
 TRANSFER_TAG=""

@@ -11,7 +11,7 @@ fi
 
 mkdir testbed
 
-cd testbed
+cd testbed || exit 1
 
 # For game detection
 echo "ScummVM rocks!" > TESTBED
@@ -23,28 +23,28 @@ mkdir tEST4
 mkdir test5
 
 
-cd test1
+cd test1 || exit 1
 echo "It works!" > file.txt
-cd ..
+cd .. || exit 1
 
-cd Test2
+cd Test2 || exit 1
 echo "It works!" > File.txt
-cd ..
+cd .. || exit 1
 
-cd TEST3
+cd TEST3 || exit 1
 echo "It works!" > FILE.txt
-cd ..
+cd .. || exit 1
 
-cd tEST4
+cd tEST4 || exit 1
 echo "It works!" > fILe.txt
-cd ..
+cd .. || exit 1
 
-cd test5
+cd test5 || exit 1
 echo "It works!" > file.
-cd ..
+cd .. || exit 1
 
 # back to the top
-cd ..
+cd .. || exit 1
 
 # move the audiocd data to newly created directory
 cp -r testbed-audiocd-files testbed/audiocd-files

@@ -9,7 +9,7 @@
 # This script will toggle the iface between eth0 and wlan0
 # Additionally it'll enable network and PortMaster, and generate SSH Keys if needed.
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 . /opt/muos/script/var/ui.sh
 
 TASK_BEGIN "toggle_ethernet" "Toggle Ethernet"

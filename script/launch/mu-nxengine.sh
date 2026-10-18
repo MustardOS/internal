@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/display.sh
 . /opt/muos/script/var/launch.sh
 
 SETUP_SDL_ENVIRONMENT

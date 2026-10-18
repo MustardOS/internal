@@ -7,7 +7,7 @@ USAGE() {
 
 [ "$#" -lt 2 ] && USAGE
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 LOG_INFO "$0" 0 "FIND" "$(printf "Search initiated with %s argument(s)" "$#")"
 

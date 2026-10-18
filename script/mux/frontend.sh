@@ -1,6 +1,9 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/boot.sh
+. /opt/muos/script/var/retro.sh
+. /opt/muos/script/var/theme.sh
+. /opt/muos/script/var/storage.sh
 
 ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 BOARD_NAME=$(GET_VAR "device" "board/name")

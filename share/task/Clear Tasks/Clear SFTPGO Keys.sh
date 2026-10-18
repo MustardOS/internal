@@ -8,7 +8,6 @@
 # This script will remove the SFTPGO keys
 # These will be (re)generated on next boot.
 
-. /opt/muos/script/var/func.sh
 . /opt/muos/script/var/ui.sh
 
 TASK_BEGIN "clear_sftpgo_keys" "Clear SFTPGO Keys"

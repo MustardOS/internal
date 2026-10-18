@@ -5,7 +5,7 @@
 # CAN_CANCEL: 0
 # PROTOCOL_VERSION: 1
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/boot.sh
 . /opt/muos/script/var/ui.sh
 
 TASK_BEGIN "dot_and_junk_file_cleanup" "Dot and Junk File Cleanup"

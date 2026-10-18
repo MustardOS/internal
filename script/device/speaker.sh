@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 
 CARD="${CARD:-0}"
 AUDIO_SWAP="/opt/muos/config/settings/advanced/audio_swap"

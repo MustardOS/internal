@@ -3,7 +3,7 @@
 PS1='[\w]\$ '
 export LANG=UTF-8
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/service.sh
 
 printf "\033[1mWelcome to MustardOS %s\033[0m\n" "$(cat /opt/muos/config/system/version | head -n1 | tr '_' ' ')"
 /opt/muos/bin/fastfetch -c /opt/muos/bin/fastfetch.cfg

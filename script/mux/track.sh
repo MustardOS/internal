@@ -4,7 +4,8 @@
 # belong to jq and are bound with `--arg` so any shell must leave britney alone!
 # shellcheck disable=SC2016
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
+. /opt/muos/script/var/service.sh
 
 if [ "$#" -eq 1 ] && [ "$1" = migrate ]; then
 	NAME=""

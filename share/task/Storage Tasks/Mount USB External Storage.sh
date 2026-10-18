@@ -5,7 +5,6 @@
 # CAN_CANCEL: 0
 # PROTOCOL_VERSION: 1
 
-. /opt/muos/script/var/func.sh
 . /opt/muos/script/var/ui.sh
 
 TASK_BEGIN "mount_usb_external_storage" "Mount USB External Storage"

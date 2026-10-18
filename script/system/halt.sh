@@ -1,6 +1,8 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/audio.sh
+. /opt/muos/script/var/service.sh
+. /opt/muos/script/var/theme.sh
 
 BOARD_NAME=$(GET_VAR "device" "board/name")
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"

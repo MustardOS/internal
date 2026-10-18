@@ -5,8 +5,6 @@
 # CAN_CANCEL: 0
 # PROTOCOL_VERSION: 1
 
-. /opt/muos/script/var/func.sh
-
 DEVICE=""
 for HANDLERS in $(sed -n 's/^H: Handlers=\(.*\)/\1/p' /proc/bus/input/devices | tr ' ' '_'); do
 	case "$HANDLERS" in

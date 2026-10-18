@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+[ -n "$MUOS_LOG_LOADED" ] || . /opt/muos/script/var/log.sh
 
 HDMI_PATH=$(GET_VAR "device" "screen/hdmi")
 BOARD_HDMI=$(GET_VAR "device" "board/hdmi")

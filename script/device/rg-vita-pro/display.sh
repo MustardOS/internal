@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 # The kernel takes the panel over from U-Boot while it is still being shown.
 # Normalise that handover once before userspace takes ownership of the display.

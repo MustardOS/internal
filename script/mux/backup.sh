@@ -4,7 +4,8 @@
 # where to back them up, and whether to do it in individual or batch mode.
 # It supports both individual backups and batch processing of multiple files.
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
+. /opt/muos/script/var/service.sh
 . /opt/muos/script/var/zip.sh
 . /opt/muos/script/var/ui.sh
 

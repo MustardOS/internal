@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 ZRAM_FILE="/dev/zram0"
 ZRAM_SIZE=$(GET_VAR "config" "settings/advanced/zramfile")

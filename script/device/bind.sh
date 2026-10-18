@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/log.sh
 
 PRIORITY_LOCS="application bios init info/manifest info/track music pickles save theme wasabi"
 STANDARD_LOCS="info/catalogue info/name info/launch info/collection info/history info/override network profile screenshot syncthing package/catalogue package/config"

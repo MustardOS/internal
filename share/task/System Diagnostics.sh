@@ -5,7 +5,7 @@
 # CAN_CANCEL: 0
 # PROTOCOL_VERSION: 1
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/config.sh
 . /opt/muos/script/var/ui.sh
 
 TASK_BEGIN "system_diagnostics" "System Diagnostics"

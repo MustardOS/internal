@@ -2,7 +2,7 @@
 
 # shellcheck disable=SC2016
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/runtime.sh
 
 JQ_BIN=/opt/muos/bin/jq
 [ -x "$JQ_BIN" ] || JQ_BIN=/usr/bin/jq

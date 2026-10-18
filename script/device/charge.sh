@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. /opt/muos/script/var/func.sh
+. /opt/muos/script/var/boot.sh
+. /opt/muos/script/var/display.sh
 
 BOOT_MODE=$(GET_VAR "device" "battery/boot_mode")
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")

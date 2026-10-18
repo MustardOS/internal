@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -n "$MUOS_FUNC_LOADED" ] || . /opt/muos/script/var/func.sh
+[ -n "$MUOS_LOG_LOADED" ] || . /opt/muos/script/var/log.sh
 
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 [ "$FACTORY_RESET" -eq 1 ] && exit 0

@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/var/display.sh
+. /opt/muos/script/var/audio.sh
 . /opt/muos/script/var/service.sh
 . /opt/muos/script/var/runtime.sh
 
@@ -598,6 +599,7 @@ REPORT_WAKE_SOURCE() {
 
 SLEEP() {
 	RECENT_WAKE_MARK
+	SUSPEND_AUDIO_VOLUME=$(GET_ACTIVE_AUDIO_VOLUME)
 
 	LED_CONTROL_CHANGE off
 	ACTIVITY_TRACKER suspend
@@ -609,6 +611,7 @@ SLEEP() {
 	DISPLAY_WRITE disp0 setbl 0
 	MIRROR_STOP
 	PIXEL2_DISPLAY off
+	VOLUME_RAMP down
 	amixer set "Master" mute >/dev/null 2>&1
 
 	# Stop the pop!
@@ -739,6 +742,7 @@ RESUME() {
 	fi
 
 	amixer set "Master" unmute >/dev/null 2>&1
+	[ -n "$SPEAKER_AMP_STATE" ] || VOLUME_RAMP up "$SUSPEND_AUDIO_VOLUME"
 
 	E_BRIGHT="$DEFAULT_BRIGHTNESS"
 

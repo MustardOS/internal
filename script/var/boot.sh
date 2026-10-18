@@ -45,6 +45,19 @@ BOOT_PROGRESS() {
 	printf '%s\n' "$1" >"$BOOT_PROGRESS_TARGET" 2>/dev/null
 }
 
+WAIT_FOR_FIRST_PAINT() {
+	PAINT_WAIT_MAX=${1:-200}
+	PAINT_WAIT=0
+
+	while [ "$PAINT_WAIT" -lt "$PAINT_WAIT_MAX" ]; do
+		[ -e "$FIRST_PAINT_FLAG" ] && return 0
+		PAINT_WAIT=$((PAINT_WAIT + 1))
+		sleep 0.05
+	done
+
+	return 1
+}
+
 BOOT_PROGRESS_SMOOTH() {
 	(
 		PROG_CUR=$BOOT_PROGRESS_FLOOR
@@ -114,9 +127,13 @@ BOOT_PROGRESS_START() {
 	[ "$(GET_VAR "config" "boot/factory_reset")" = "1" ] && return 0
 	[ "$(GET_VAR "config" "boot/first_init")" = "0" ] && return 0
 
+	rm -f "$MESSAGE_FINISH" "$BOOT_PROGRESS_DONE" "$LOADING_RELEASED_FLAG" 2>/dev/null
+
 	(
 		PROG_WAIT=0
 		while [ "$PROG_WAIT" -lt 100 ]; do
+			[ -e "$BOOT_PROGRESS_DONE" ] && exit 0
+			[ -e "$FIRST_PAINT_FLAG" ] && exit 0
 			GPU_NODE_READY && break
 			sleep 0.1
 			PROG_WAIT=$((PROG_WAIT + 1))
@@ -127,7 +144,8 @@ BOOT_PROGRESS_START() {
 			exit 0
 		fi
 
-		rm -f "$MESSAGE_FINISH" "$BOOT_PROGRESS_DONE" "$LOADING_RELEASED_FLAG" 2>/dev/null
+		[ -e "$BOOT_PROGRESS_DONE" ] && exit 0
+		[ -e "$FIRST_PAINT_FLAG" ] && exit 0
 
 		PROG_QUIP=$(BOOT_PROGRESS_QUIP)
 		[ -n "$PROG_QUIP" ] || PROG_QUIP=$BOOT_PROGRESS_TEXT
@@ -176,27 +194,20 @@ BOOT_PROGRESS_STOP() {
 		return 0
 	fi
 
-	PROG_QUIP=$(BOOT_PROGRESS_QUIP)
-	[ -n "$PROG_QUIP" ] || PROG_QUIP="Nearly There"
+	if [ ! -e "$LOADING_PAINT_FLAG" ]; then
+		: >"$MESSAGE_FINISH" 2>/dev/null
+		for PROG_PID in $(pidof muxmessage 2>/dev/null); do
+			kill -TERM "$PROG_PID" 2>/dev/null
+		done
+		sleep 0.05
+		rm -f "$MESSAGE_TEXT" "$MESSAGE_PROG" "$MESSAGE_FINISH" \
+			"$BOOT_PROGRESS_TARGET" "$LOADING_RELEASED_FLAG" 2>/dev/null
+		return 0
+	fi
 
-	PROG_NOW=0
-	[ -r "$MESSAGE_PROG" ] && read -r PROG_NOW <"$MESSAGE_PROG" 2>/dev/null
-	case "$PROG_NOW" in
-		'' | *[!0-9]*) PROG_NOW=0 ;;
-	esac
-
-	while [ "$PROG_NOW" -lt 100 ]; do
-		PROG_STEP=$(((100 - PROG_NOW) / 2))
-		[ "$PROG_STEP" -lt 6 ] && PROG_STEP=6
-		PROG_NOW=$((PROG_NOW + PROG_STEP))
-		[ "$PROG_NOW" -gt 100 ] && PROG_NOW=100
-
-		printf '%s\n' "$PROG_NOW" >"$MESSAGE_PROG" 2>/dev/null
-		printf '%s\\n\\n%s%%\n' "$PROG_QUIP" "$PROG_NOW" >"$MESSAGE_TEXT" 2>/dev/null
-		sleep 0.06
-	done
-
-	sleep 0.12
+	printf '%s\n' 100 >"$MESSAGE_PROG" 2>/dev/null
+	printf '%s\\n\\n%s%%\n' "Nearly There" 100 >"$MESSAGE_TEXT" 2>/dev/null
+	sleep 0.05
 
 	: >"$MESSAGE_FINISH" 2>/dev/null
 
@@ -241,7 +252,12 @@ EXEC_MUX() {
 
 	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
 
-	RESTORE_AUDIO_VOLUME
+	if [ "$MODULE" = "muxfrontend" ] && [ "${AUDIO_RESTORE_ASYNC:-0}" -eq 1 ]; then
+		AUDIO_RESTORE_ASYNC=0
+		RESTORE_AUDIO_VOLUME &
+	else
+		RESTORE_AUDIO_VOLUME
+	fi
 
 	SET_VAR "system" "foreground_process" "$MODULE"
 	"/opt/muos/frontend/$MODULE" "$@"

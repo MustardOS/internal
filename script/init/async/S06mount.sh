@@ -55,6 +55,14 @@ DO_START() {
 		DEVICE="${BOOT_DEV}${BOOT_SEP}${BOOT_NUM}"
 
 		if mount -t "$BOOT_TYPE" -o rw,utf8,noatime,nofail "/dev/$DEVICE" "$BOOT_MOUNT"; then
+			if [ ! -f "$BOOT_MOUNT/bootlogo.bmp" ]; then
+				BOOT_W=$(GET_VAR "device" "screen/internal/width")
+				BOOT_H=$(GET_VAR "device" "screen/internal/height")
+				[ -n "$BOOT_W" ] || BOOT_W=$(GET_VAR "device" "screen/width")
+				[ -n "$BOOT_H" ] || BOOT_H=$(GET_VAR "device" "screen/height")
+				BOOT_LOGO="$MUOS_SHARE_DIR/bootlogo/${BOOT_W}x${BOOT_H}/bootlogo.bmp"
+				[ -f "$BOOT_LOGO" ] && cp -f "$BOOT_LOGO" "$BOOT_MOUNT/bootlogo.bmp"
+			fi
 			SET_VAR "device" "storage/boot/active" "1"
 			SET_VAR "device" "storage/boot/label" "$(blkid -o value -s LABEL "/dev/$DEVICE")"
 		fi

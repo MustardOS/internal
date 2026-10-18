@@ -111,6 +111,7 @@ STOP_DIR() {
 }
 
 /opt/muos/script/init/S80pipewire.sh store
+SET_SAVED_AUDIO_VOLUME "$(GET_BOOT_AUDIO_VOLUME)"
 VOLUME_RAMP down
 
 STOP_SERVICES() {

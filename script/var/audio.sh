@@ -93,6 +93,25 @@ SET_SAVED_AUDIO_VOLUME() {
 	return 0
 }
 
+GET_BOOT_AUDIO_VOLUME() {
+	case "$(GET_VAR "config" "settings/advanced/volume")" in
+		1) printf "0\n" ;;
+		2) printf "35\n" ;;
+		3)
+			BOOT_AUDIO_MAX=$(GET_VAR "device" "audio/max")
+			printf "%s\n" "${BOOT_AUDIO_MAX:-100}"
+			;;
+		*) GET_SAVED_AUDIO_VOLUME ;;
+	esac
+}
+
+GET_ACTIVE_AUDIO_VOLUME() {
+	ACTIVE_AUDIO_VOLUME=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null |
+		awk '/Volume:/{printf "%.0f", $2 * 100; exit}')
+	[ -n "$ACTIVE_AUDIO_VOLUME" ] || ACTIVE_AUDIO_VOLUME=$(GET_SAVED_AUDIO_VOLUME)
+	printf "%s\n" "$ACTIVE_AUDIO_VOLUME"
+}
+
 AUDIO_VOLUME_DIR="/opt/muos/share/volume"
 AUDIO_BUILTIN_FILE="$MUOS_RUN_DIR/audio_builtin"
 HEADPHONE_FLAG="$MUOS_RUN_DIR/headphones"
@@ -200,13 +219,13 @@ VOLUME_RAMP() {
 		sleep 0.5
 	done
 
-	CUR_PCT=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '/Volume:/{printf "%.0f", $2 * 100; exit}')
-	[ -n "$CUR_PCT" ] || CUR_PCT=0
+	CUR_PCT=$(GET_ACTIVE_AUDIO_VOLUME)
 
 	case "$DIR" in
 		up)
 			[ -z "$TARGET" ] && TARGET=$(GET_SAVED_AUDIO_VOLUME)
 			[ "$CUR_PCT" -gt "$TARGET" ] && CUR_PCT="$TARGET"
+			wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1
 
 			while [ "$CUR_PCT" -lt "$TARGET" ]; do
 				CUR_PCT=$((CUR_PCT + STEP))

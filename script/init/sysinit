@@ -35,19 +35,50 @@ RUN_ASYNC_START() {
 	RUN_INIT_DIR_BOUNDED start "$INIT_DIR/async" forward "S06mount.sh $MUOS_INIT_DEFERRED"
 }
 
+RUN_BOOT_SERVICE() {
+	SERVICE_SCRIPT=$1
+	SERVICE_NAME=$2
+	RUN_INIT_RECORDED start "$INIT_DIR/$SERVICE_SCRIPT" ||
+		LOG_WARN "$0" 0 "BOOTING" "$SERVICE_NAME initialisation reported an error"
+}
+
+RUN_BOOT_SERVICE_AFTER_PAINT() {
+	WAIT_FOR_FIRST_PAINT 200
+	RUN_BOOT_SERVICE "$1" "$2"
+}
+
 RUN_CRITICAL_START() {
-	RUN_INIT_RECORDED start "$INIT_DIR/S10udev.sh" ||
+	RUN_INIT_RECORDED start "$INIT_DIR/S10udev.sh" &
+	UDEV_PID=$!
+	RUN_INIT_RECORDED start "$INIT_DIR/S30dbus.sh" &
+	DBUS_PID=$!
+
+	if ! wait "$UDEV_PID"; then
 		LOG_WARN "$0" 0 "BOOTING" "udev initialisation reported an error"
-	BOOT_PROGRESS 20
+	fi
 
-	RUN_INIT_RECORDED start "$INIT_DIR/S30dbus.sh" ||
+	if ! wait "$DBUS_PID"; then
 		LOG_WARN "$0" 0 "BOOTING" "D-Bus initialisation reported an error"
-	BOOT_PROGRESS 35
+	fi
 
-	RUN_INIT_DIR_BOUNDED start "$INIT_DIR" forward \
-		"S10udev.sh S30dbus.sh S99muos.sh" ||
-		LOG_WARN "$0" 0 "BOOTING" "Parallel service initialisation reported an error"
-	BOOT_PROGRESS 85
+	AUDIO_WAIT=$(GET_VAR "config" "settings/advanced/audio_ready")
+	if IS_ONE "$AUDIO_WAIT"; then
+		RUN_BOOT_SERVICE S75bluetooth.sh Bluetooth &
+	else
+		RUN_BOOT_SERVICE_AFTER_PAINT S75bluetooth.sh Bluetooth &
+	fi
+	BLUETOOTH_PID=$!
+	RUN_BOOT_SERVICE S80pipewire.sh PipeWire &
+	PIPEWIRE_PID=$!
+	RUN_BOOT_SERVICE S81mode.sh "Device mode" &
+	MODE_PID=$!
+
+	wait "$MODE_PID"
+
+	if IS_ONE "$AUDIO_WAIT"; then
+		wait "$PIPEWIRE_PID"
+		wait "$BLUETOOTH_PID"
+	fi
 
 	RUN_INIT_RECORDED start "$INIT_DIR/S99muos.sh"
 }
@@ -61,12 +92,14 @@ case "${1:-start}" in
 		timeout 10 "$MUOS_VAR_BIN" build ||
 			LOG_WARN "$0" 0 "BOOTING" "Config cache build failed or timed out, continuing without it"
 
+		EARLY_GOVERNOR=$(GET_VAR "device" "cpu/governor")
+		[ -w "$EARLY_GOVERNOR" ] && printf '%s' performance >"$EARLY_GOVERNOR"
+
 		FBCON_DISABLE
 		RUN_DEVICE_SCRIPT display.sh recover ||
 			LOG_WARN "$0" 0 "BOOTING" "Device display handover recovery reported an error"
 		(RUN_ASYNC_START) >/dev/null 2>&1 &
 
-		BOOT_PROGRESS_START
 		RUN_CRITICAL_START
 		;;
 esac

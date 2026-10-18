@@ -221,27 +221,12 @@ DBUS_READY() {
 	[ -S "$DBUS_SOCKET" ]
 }
 
-ADV_VOL_TO_PERCENT() {
-	case "$1" in
-		1) printf "0\n" ;;
-		2) printf "35\n" ;;
-		3) printf "%s\n" "$(GET_VAR "device" "audio/max")" ;;
-	esac
-}
-
 GET_BOOT_RUNTIME_PERCENT() {
 	if [ "${BOOT_CONSOLE_MODE:-0}" -eq 1 ]; then
 		[ "${ADV_OD:-0}" -eq 1 ] && printf "200\n" || printf "100\n"
 	else
-		ADV_VOL_TO_PERCENT "$ADV_VOL"
+		GET_BOOT_AUDIO_VOLUME
 	fi
-}
-
-GET_BOOT_SAVED_VOLUME() {
-	case "$ADV_VOL" in
-		1 | 2 | 3) ADV_VOL_TO_PERCENT "$ADV_VOL" ;;
-		*) GET_SAVED_AUDIO_VOLUME ;;
-	esac
 }
 
 APPLY_AUDIO_SUSPEND() {
@@ -386,13 +371,13 @@ FINALISE_AUDIO() {
 	USE_SAVED=${1:-0}
 	TARGET_NAME=$(GET_TARGET_NODE)
 	RUNTIME_PERCENT=$(GET_BOOT_RUNTIME_PERCENT)
-	SAVED_VOL=$(GET_BOOT_SAVED_VOLUME)
-
-	SET_SAVED_AUDIO_VOLUME "$SAVED_VOL"
 
 	if [ "$USE_SAVED" -eq 1 ]; then
+		SAVED_VOL=$(GET_SAVED_AUDIO_VOLUME)
 		APPLY_VOL=$SAVED_VOL
 	else
+		SAVED_VOL=$(GET_BOOT_AUDIO_VOLUME)
+		SET_SAVED_AUDIO_VOLUME "$SAVED_VOL"
 		APPLY_VOL=${RUNTIME_PERCENT:-$SAVED_VOL}
 	fi
 
@@ -411,7 +396,7 @@ FINALISE_AUDIO() {
 
 	if [ -z "$DEF_ID" ]; then
 		LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "Target node '%s' not ready after timeout" "$TARGET_NAME")"
-		[ "${ADV_AR:-0}" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
+		SET_VAR "device" "audio/ready" "1"
 
 		if [ "${WP_MINOR:-0}" -ge 5 ]; then
 			WPCTL_VOL=$(awk "BEGIN { printf \"%.2f\", ${APPLY_VOL}/100 }")
@@ -454,14 +439,15 @@ FINALISE_AUDIO() {
 	sleep 0.1
 	wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1
 
-	[ "${ADV_AR:-0}" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
+	SET_VAR "device" "audio/ready" "1"
 
 	LOG_SUCCESS "$0" 0 "PIPEWIRE" "$(printf "Audio finalised (node=%s, volume=%s%%)" "$DEF_ID" "$APPLY_VOL")"
 	return 0
 }
 
 DO_START() {
-	[ "${ADV_AR:-0}" -eq 1 ] && SET_VAR "device" "audio/ready" "0"
+	SET_VAR "device" "audio/ready" "0"
+	SET_SAVED_AUDIO_VOLUME "$(GET_BOOT_AUDIO_VOLUME)"
 
 	SETUP_SPEAKER_AMP || LOG_WARN "$0" 0 "PIPEWIRE" "Unable to initialise the speaker amplifier"
 
@@ -477,7 +463,7 @@ DO_START() {
 
 	if ! START_PIPEWIRE; then
 		LOG_ERROR "$0" 0 "PIPEWIRE" "Failed to start"
-		[ "${ADV_AR:-0}" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
+		SET_VAR "device" "audio/ready" "1"
 		exit 1
 	fi
 
@@ -485,7 +471,7 @@ DO_START() {
 
 	if ! WAIT_UNTIL SOCKET_READY; then
 		LOG_WARN "$0" 0 "PIPEWIRE" "$(printf "PipeWire socket '%s' not ready after timeout" "$PW_SOCKET")"
-		[ "${ADV_AR:-0}" -eq 1 ] && SET_VAR "device" "audio/ready" "1"
+		SET_VAR "device" "audio/ready" "1"
 		exit 1
 	fi
 
@@ -590,7 +576,7 @@ DO_STOP() {
 	STOP_PROC wireplumber
 	STOP_PROC pipewire
 
-	[ "${ADV_AR:-0}" -eq 1 ] && SET_VAR "device" "audio/ready" "0"
+	SET_VAR "device" "audio/ready" "0"
 	LOG_SUCCESS "$0" 0 "PIPEWIRE" "Audio shutdown complete"
 }
 

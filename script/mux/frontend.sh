@@ -14,6 +14,9 @@ AUDIO_READY=$(GET_VAR "config" "settings/advanced/audio_ready")
 BOARD_STICK=$(GET_VAR "device" "board/stick")
 
 AUDIO_WAIT_MAX=100
+AUDIO_RESTORE_ASYNC=0
+[ "$AUDIO_READY" = 0 ] && AUDIO_RESTORE_ASYNC=1
+export AUDIO_RESTORE_ASYNC
 
 RUN_CONTENT_LOADER() {
 	[ -s "$ROM_GO" ] || return 0
@@ -40,7 +43,15 @@ SAFE_WRITE "$ACT" "$ACT_GO"
 SAFE_WRITE "root" "$EX_CARD"
 
 LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
-SET_DEFAULT_GOVERNOR
+if IS_ONE "$AUDIO_READY"; then
+	SET_DEFAULT_GOVERNOR
+else
+	(
+		WAIT_FOR_AUDIO_READY "$AUDIO_WAIT_MAX"
+		WAIT_FOR_FIRST_PAINT 200
+		SET_DEFAULT_GOVERNOR
+	) &
+fi
 
 if IS_ONE "$AUDIO_READY"; then
 	WAIT_FOR_AUDIO_READY "$AUDIO_WAIT_MAX"
@@ -78,14 +89,6 @@ fi
 
 LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Launcher"
 
-BOOT_PROGRESS 100
-BOOT_PROGRESS_STOP
-
-case "$BOARD_NAME" in
-	rk-g350-v) ;;
-	*) SHOW_SPLASH clear ;;
-esac
-
 BOOT_GUARD_CONFIRM_LATER
 WATCHDOG_START
 
@@ -102,7 +105,7 @@ while :; do
 
 	# Reset audio control status
 	LOG_INFO "$0" 0 "FRONTEND" "Audio Mixer Reset"
-	RESET_MIXER
+	[ "$(GET_VAR "device" "audio/ready")" = 1 ] && RESET_MIXER
 
 	if ! /opt/muos/script/var/process.sh stop-group gptokeyb >/dev/null 2>&1; then
 		LOG_WARN "$0" 0 "FRONTEND" "The owned gptokeyb process did not stop cleanly"

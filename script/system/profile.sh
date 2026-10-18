@@ -5,8 +5,9 @@
 PROFILE_SHARE="$MUOS_SHARE_DIR/profile"
 PROFILE_DEFAULT="$PROFILE_SHARE/system/default.conf"
 
-# Live device levels: always saved, applied through their own scripts, never reset to a default
-PROFILE_LEVEL_KEYS="settings/general/brightness settings/general/volume"
+# Live device state: always saved, applied through their own scripts, never reset to a default
+PROFILE_LEVEL_KEYS="settings/general/brightness settings/general/volume settings/general/timezone"
+PROFILE_ZONEINFO="/usr/share/zoneinfo"
 PROFILE_RULES="$PROFILE_SHARE/system/rules.conf"
 PROFILE_LOG_DIR="$(GET_VAR "device" "storage/rom/mount")/MUOS/log/profile"
 PROFILE_PENDING="$PROFILE_SHARE/state/pending"
@@ -220,27 +221,54 @@ PROFILE_CHECKED() {
 	PC_OEM=${3:-0}
 	PC_ORIGINAL=${4:-}
 	PC_PROBLEMS="$MUOS_RUN_DIR/profile.problems.$$"
+	PC_INVALID=0
 
 	rm -f "$PC_PROBLEMS"
-	if ! PROFILE_VALIDATE "$PC_SOURCE" "$PC_PROBLEMS" "$PC_OEM" "$PC_ORIGINAL" >"$PC_LINES"; then
-		PROFILE_WRITE_LOG "$PC_SOURCE" "$PC_PROBLEMS" "Nothing was applied and no settings were changed. Fix the lines below and try again."
-		rm -f "$PC_PROBLEMS" "$PC_LINES"
-		return 4
-	fi
-	rm -f "$PC_PROBLEMS"
+	PROFILE_VALIDATE "$PC_SOURCE" "$PC_PROBLEMS" "$PC_OEM" "$PC_ORIGINAL" >"$PC_LINES" || PC_INVALID=1
 
 	if [ ! -s "$PC_LINES" ]; then
+		if [ "$PC_INVALID" -eq 1 ]; then
+			PROFILE_WRITE_LOG "$PC_SOURCE" "$PC_PROBLEMS" "Nothing was applied because every setting was unsupported or invalid on this version of MustardOS."
+			rm -f "$PC_PROBLEMS" "$PC_LINES"
+			return 4
+		fi
+
 		PROFILE_WRITE_LOG "$PC_SOURCE" /dev/null "Nothing was applied because the file does not contain any settings."
-		rm -f "$PC_LINES"
+		rm -f "$PC_PROBLEMS" "$PC_LINES"
 		return 3
 	fi
 
-	PROFILE_CLEAR_LOG "$PC_SOURCE"
+	if [ "$PC_INVALID" -eq 1 ]; then
+		PROFILE_WRITE_LOG "$PC_SOURCE" "$PC_PROBLEMS" "Unsupported or invalid settings were skipped. Every compatible setting in the profile was kept."
+	else
+		PROFILE_CLEAR_LOG "$PC_SOURCE"
+	fi
+	rm -f "$PC_PROBLEMS"
 	return 0
 }
 
+# The timezone is the /etc/localtime link rather than a setting, so it is read and written here
+PROFILE_TIMEZONE() {
+	PT_LINK=$(readlink /etc/localtime 2>/dev/null) || return 1
+	case "$PT_LINK" in
+		*zoneinfo/*) printf '%s' "${PT_LINK#*zoneinfo/}" ;;
+		*) return 1 ;;
+	esac
+}
+
+PROFILE_SET_TIMEZONE() {
+	[ -f "$PROFILE_ZONEINFO/$1" ] || {
+		LOG_WARN "$0" 0 "PROFILE" "$(printf "Timezone '%s' is not on this device" "$1")"
+		return 1
+	}
+
+	[ "$(PROFILE_TIMEZONE)" = "$1" ] && return 0
+	ln -sf "$PROFILE_ZONEINFO/$1" /etc/localtime
+}
+
 PROFILE_CURRENT() {
-	awk -v BASE="$MUOS_CONF_GLOBAL" -v CHANGED="${1:-0}" -v LEVELS="$PROFILE_LEVEL_KEYS" '
+	awk -v BASE="$MUOS_CONF_GLOBAL" -v CHANGED="${1:-0}" -v LEVELS="$PROFILE_LEVEL_KEYS" \
+		-v ZONE="$(PROFILE_TIMEZONE)" '
 		BEGIN {
 			split(LEVELS, LEVEL_LIST, " ")
 			for (I in LEVEL_LIST) LEVEL[LEVEL_LIST[I]] = 1
@@ -248,6 +276,10 @@ PROFILE_CURRENT() {
 		index($0, "=") > 0 {
 			KEY = substr($0, 1, index($0, "=") - 1)
 			if (index(KEY, "/") == 0) next
+			if (KEY == "settings/general/timezone") {
+				if (ZONE != "") print KEY "=" ZONE
+				next
+			}
 			FILE = BASE "/" KEY
 			VALUE = ""
 			FOUND = (getline VALUE <FILE)
@@ -298,7 +330,9 @@ PROFILE_APPLY_LINES() {
 
 	PAL_BRIGHT=$(sed -n 's|^settings/general/brightness=||p' "$PAL_PENDING" | tail -n 1)
 	PAL_VOLUME=$(sed -n 's|^settings/general/volume=||p' "$PAL_PENDING" | tail -n 1)
-	sed -i -e '/^settings\/general\/brightness=/d' -e '/^settings\/general\/volume=/d' "$PAL_PENDING"
+	PAL_ZONE=$(sed -n 's|^settings/general/timezone=||p' "$PAL_PENDING" | tail -n 1)
+	sed -i -e '/^settings\/general\/brightness=/d' -e '/^settings\/general\/volume=/d' \
+		-e '/^settings\/general\/timezone=/d' "$PAL_PENDING"
 
 	if [ -s "$PAL_PENDING" ]; then
 		if ! { [ -x "$MUOS_VAR_BIN" ] && "$MUOS_VAR_BIN" apply global <"$PAL_PENDING" 2>/dev/null; }; then
@@ -313,13 +347,15 @@ PROFILE_APPLY_LINES() {
 
 	[ -n "$PAL_BRIGHT" ] && /opt/muos/script/device/bright.sh "$PAL_BRIGHT"
 	[ -n "$PAL_VOLUME" ] && /opt/muos/script/device/audio.sh "$PAL_VOLUME"
+	[ -n "$PAL_ZONE" ] && PROFILE_SET_TIMEZONE "$PAL_ZONE"
 
 	return 0
 }
 
-# Default settings without the live device levels, for Replace and Reset
+# Default settings without the live device state, for Replace and Reset
 PROFILE_DEFAULTS_WITHOUT_LEVELS() {
-	PROFILE_KNOWN "$PROFILE_DEFAULT" | grep -v -e '^settings/general/brightness=' -e '^settings/general/volume='
+	PROFILE_KNOWN "$PROFILE_DEFAULT" | grep -v -e '^settings/general/brightness=' -e '^settings/general/volume=' \
+		-e '^settings/general/timezone='
 }
 
 PROFILE_SNAPSHOT() {

@@ -54,13 +54,14 @@ case "${1:-start}" in
 	start | "")
 		LED_QUIET
 		RUN_DEVICE_SCRIPT led.sh boot &
-		RUN_DEVICE_SCRIPT display.sh recover &
 		BOOT_GUARD_ARM
 
 		timeout 10 "$MUOS_VAR_BIN" build ||
 			LOG_WARN "$0" 0 "BOOTING" "Config cache build failed or timed out, continuing without it"
 
 		FBCON_DISABLE
+		RUN_DEVICE_SCRIPT display.sh recover ||
+			LOG_WARN "$0" 0 "BOOTING" "Device display handover recovery reported an error"
 		(RUN_ASYNC_START) >/dev/null 2>&1 &
 
 		BOOT_PROGRESS_START

@@ -3826,13 +3826,14 @@
 			reg = <0x00>;
 			backlight = <0xd3>;
 			reset-gpios = <0x63 0x0d 0x01>;
+			enable-gpios = <0x63 0x09 0x00>;
 			vci-gpios = <0x63 0x08 0x00>;
 			pinctrl-names = "default";
 			pinctrl-0 = <0xd4 0xd5 0xd6>;
-			prepare-delay-ms = <0x32>;
-			reset-delay-ms = <0xdc>;
-			init-delay-ms = <0x32>;
-			enable-delay-ms = <0x78>;
+			prepare-delay-ms = <0x78>;
+			reset-delay-ms = <0x0a>;
+			init-delay-ms = <0xdc>;
+			enable-delay-ms = <0x00>;
 			disable-delay-ms = <0x32>;
 			unprepare-delay-ms = <0x14>;
 			width-mm = <0xe5>;
@@ -3840,7 +3841,7 @@
 			dsi,flags = <0xa03>;
 			dsi,format = <0x00>;
 			dsi,lanes = <0x04>;
-			panel-init-sequence = <0x5640111 0x5640129>;
+			panel-init-sequence = <0x5320111 0x5320129>;
 			panel-exit-sequence = <0x5780128 0x5780110>;
 			phandle = <0x23a>;
 

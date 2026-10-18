@@ -101,7 +101,8 @@ function Game.new(mode)
 
     -- Try to load saved game state
     local savedState = save.loadState(self.mode)
-    if savedState and savedState.gridState then
+    local has_debug_layout = _G.cheat_debug_layout and _G.cheat_debug_layout ~= "None"
+    if savedState and savedState.gridState and not has_debug_layout then
         if savedState.rngState and self.rng then
             self.rng:setState(savedState.rngState)
         end
@@ -279,10 +280,16 @@ function Game:addStartTiles()
         local val = 2
         for r = 1, 4 do
             for c = 1, 4 do
-                local tile = Tile.new(c, r, val)
-                tile.isNew = true
-                self.grid:insertTile(tile)
-                val = val * 2
+                if self.mode == "goose" and r == 4 and c == 4 then
+                    local goose = Tile.new(c, r, "goose")
+                    goose.isNew = true
+                    self.grid:insertTile(goose)
+                else
+                    local tile = Tile.new(c, r, val)
+                    tile.isNew = true
+                    self.grid:insertTile(tile)
+                    val = val * 2
+                end
             end
         end
         return
@@ -297,6 +304,15 @@ function Game:addStartTiles()
         local tile2 = Tile.new(2, 1, 1024)
         tile2.isNew = true
         self.grid:insertTile(tile2)
+
+        if self.mode == "goose" then
+            local cell = self.grid:randomAvailableCell(self.rng)
+            if cell then
+                local goose = Tile.new(cell.x, cell.y, "goose")
+                goose.isNew = true
+                self.grid:insertTile(goose)
+            end
+        end
         return
     end
 
@@ -455,6 +471,7 @@ function Game:move(direction)
 
     local traversalsX, traversalsY = self:buildTraversals(direction)
     local moved = false
+    self.merged_this_move = false
 
     self:prepareTiles()
 
@@ -467,7 +484,7 @@ function Game:move(direction)
 
                 -- Can we merge with the next tile?
                 if nextTile and nextTile.value == tile.value and nextTile.mergedFrom == nil then
-                    -- Merge!
+                    self.merged_this_move = true
                     if _G.stats then
                         _G.stats.tiles_merged = (_G.stats.tiles_merged or 0) + 1
                     end
@@ -799,6 +816,21 @@ function Game:walkGoose()
     if target then
         gooseTile:savePosition()
         self:moveTile(gooseTile, target.x, target.y)
+
+        local dx = target.x - gooseTile.previousPosition.x
+        local dy = target.y - gooseTile.previousPosition.y
+        local dist = math.abs(dx) + math.abs(dy)
+
+        if dist > 1 then
+            gooseTile.move_anim = "flap"
+        else
+            local empties = #self.grid:getAvailableCells()
+            if empties <= 5 or love.math.random() < 0.25 then
+                gooseTile.move_anim = "run"
+            else
+                gooseTile.move_anim = "walk"
+            end
+        end
     end
 end
 

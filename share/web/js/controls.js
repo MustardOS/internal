@@ -4,7 +4,7 @@
     const MU = window.MU;
     const {el, t, showToast} = MU;
     const runtime = window.MUOS_RUNTIME || {};
-    const RENEW = 500;
+    const RENEW = 1000;
     const LEVEL_REPEAT = 200;
     const STICK_GAP = 33;
     const STICK_KEEP = 150;

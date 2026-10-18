@@ -194,8 +194,15 @@
     lockButton.addEventListener("click", () => (auth.unlocked ? lock() : unlock()));
 
     function ready() {
+        try {
+            session = sessionStorage.getItem(SESSION_KEY) || "";
+        } catch (_) {
+            session = "";
+        }
         return readAuth().then(announce);
     }
+
+    window.addEventListener("pageshow", ready);
 
     MU.canManage = () => !auth.readonly && Boolean(auth.unlocked);
     MU.canManageLists = () => Boolean(auth.lists_open) || MU.canManage();

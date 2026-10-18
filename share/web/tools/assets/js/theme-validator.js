@@ -2,11 +2,12 @@
   "use strict";
   const $ = selector => document.querySelector(selector);
   const data = JSON.parse($("#theme-data").textContent);
+  data.scheme.meta = Object.assign({META_CUT: "int"}, data.scheme.meta || {});
   const glyphs = new Set(data.glyphs.filter(Boolean));
   const modules = new Set(data.modules);
   const resolutions = new Set(data.resolutions);
   const sounds = new Set(data.sounds);
-  const ROOT_FOLDERS = new Set(["scheme", "font", "glyph", "image", "alternate", "sound", "rgb", "overlay"]);
+  const ROOT_FOLDERS = new Set(["scheme", "font", "glyph", "image", "alternate", "sound", "rgb", "overlay", "catalogue"]);
   const RES_FOLDERS = new Set(["scheme", "font", "glyph", "image"]);
   const META = ["name.txt", "version.txt", "credits.txt"];
   const IMAGE_LIMIT = 4 * 1024 * 1024;
@@ -162,6 +163,8 @@
           add("warning", label, `Wallpaper is ${size.width}x${size.height} but sits in the ${resolution} folder`);
       }
     }
+
+    if (area === "catalogue") return;
   }
 
   async function validate(files) {

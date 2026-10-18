@@ -195,15 +195,25 @@
         }
     }
 
+    // A single missed reading keeps the last one on screen; only a run of them means the device is gone
+    const MISSES_ALLOWED = 3;
+    let shown = 0;
+    let misses = 0;
+
     function setLive(live) {
         el("tiles").hidden = !live;
         el("dash").hidden = !live;
         el("offline").hidden = live;
     }
 
+    function missed(reason) {
+        misses += 1;
+        console.warn(`Dashboard reading failed (${misses} in a row): ${reason}`);
+        if (!shown || misses >= MISSES_ALLOWED) setLive(false);
+    }
+
     async function refresh() {
         const response = await fetch(`state/status.json?_=${Date.now()}`, {cache: "no-store"});
-        if (response.status === 404) return setLive(false);
         if (!response.ok) throw new Error(`status returned ${response.status}`);
 
         const status = await response.json();
@@ -213,6 +223,8 @@
         renderDevice(status);
         renderStorage(status.storage);
         renderActivity(status.activity, status.running && status.running.content && status.running.content.name);
+        shown = 1;
+        misses = 0;
         setLive(true);
     }
 
@@ -224,8 +236,8 @@
         try {
             await refresh();
             await refreshDevices();
-        } catch (_) {
-            setLive(false);
+        } catch (error) {
+            missed(error && error.message ? error.message : String(error));
         } finally {
             ticking = 0;
         }

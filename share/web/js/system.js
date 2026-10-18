@@ -317,17 +317,29 @@
         while (boxes.length > list.length) holder.lastChild.remove();
     }
 
+    // A single missed reading keeps the last one on screen; only a run of them means the device is gone
+    const MISSES_ALLOWED = 3;
+    let shown = 0;
+    let misses = 0;
+
     function setLive(live) {
         el("system-sections").hidden = !live;
         el("system-offline").hidden = live;
     }
 
+    function missed(reason) {
+        misses += 1;
+        console.warn(`System Information reading failed (${misses} in a row): ${reason}`);
+        if (!shown || misses >= MISSES_ALLOWED) setLive(false);
+    }
+
     async function refresh() {
         const response = await fetch(`state/detail.json?_=${Date.now()}`, {cache: "no-store"});
-        if (response.status === 404) return setLive(false);
         if (!response.ok) throw new Error(`detail returned ${response.status}`);
 
         render(await response.json());
+        shown = 1;
+        misses = 0;
         setLive(true);
     }
 
@@ -336,8 +348,8 @@
         ticking = 1;
         try {
             await refresh();
-        } catch (_) {
-            setLive(false);
+        } catch (error) {
+            missed(error && error.message ? error.message : String(error));
         } finally {
             ticking = 0;
         }

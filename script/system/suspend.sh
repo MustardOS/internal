@@ -426,6 +426,14 @@ CHECK_RA_AND_SAVE() {
 	# My answer is, you find out how to restore save game content and let us know!
 }
 
+MARK_RESUME_CONTENT() {
+	if pgrep -f '/opt/muos/script/mux/launch.sh' >/dev/null 2>&1; then
+		: >"$MUOS_RUN_DIR/resume_content"
+	else
+		rm -f "$MUOS_RUN_DIR/resume_content"
+	fi
+}
+
 CHECK_MUXRETRO_AND_SAVE() {
 	# muxretro hosts libretro cores in process, it listens for:
 	# SIGUSR1 (save state + flush sram + pause + acknowledgement)
@@ -802,6 +810,7 @@ case "$SHUTDOWN_TIME_SETTING" in
 		SLEEP && RESUME
 		;;
 	2)
+		MARK_RESUME_CONTENT
 		CHECK_RA_AND_SAVE "CLOSE_CONTENT"
 		/opt/muos/script/mux/quit.sh poweroff sleep
 		;;
@@ -818,6 +827,7 @@ case "$SHUTDOWN_TIME_SETTING" in
 		CURRENT_TIME=$(cat "$S_EPOCH")
 		if [ "$CURRENT_TIME" -ge "$WAKE_EPOCH" ]; then
 			ACTIVITY_TRACKER stop poweroff
+			MARK_RESUME_CONTENT
 			CHECK_RA_AND_SAVE "CLOSE_CONTENT"
 			/opt/muos/script/mux/quit.sh poweroff sleep
 		else

@@ -101,14 +101,13 @@ HALT_SYSTEM() {
 		echo 1 >"$NORMAL_LED"
 	fi
 
-	# Clear last-played content per Device Startup setting.
-	#
-	# Last Game: Always relaunch on boot.
-	# Resume Game: Only relaunch on boot if we're running content
-	# that was started via the launch script.
 	case "$(GET_VAR "config" "settings/general/startup")" in
 		last) ;;
-		resume) pgrep -f "launch.sh" >/dev/null 2>&1 || CLEAR_LAST_PLAY ;;
+		resume)
+			if [ "$HALT_SRC" != sleep ] || [ ! -e "$MUOS_RUN_DIR/resume_content" ]; then
+				CLEAR_LAST_PLAY
+			fi
+			;;
 		*) CLEAR_LAST_PLAY ;;
 	esac
 
@@ -117,7 +116,6 @@ HALT_SYSTEM() {
 		osf)
 			DISPLAY_BLANK
 			CLOSE_CONTENT
-			CLEAR_LAST_PLAY
 			;;
 		sleep)
 			DISPLAY_BLANK

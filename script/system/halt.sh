@@ -206,7 +206,7 @@ RUN_WITH_TIMEOUT 5 1 /opt/muos/script/web/service.sh stopall >/dev/null 2>&1
 # Check if random theme is enabled and run the random theme script if necessary
 if [ "$(GET_VAR "config" "settings/advanced/random_theme")" -eq 1 ] 2>/dev/null; then
 	LOG_INFO "$0" 0 "HALT" "Applying random theme"
-	RUN_WITH_TIMEOUT 10 2 /opt/muos/script/package/theme.sh install "?R"
+	RUN_WITH_TIMEOUT 10 2 env MUOS_TASK_UI=halt /opt/muos/script/package/theme.sh install "?R"
 fi
 
 LOG_INFO "$0" 0 "HALT" "Disabling swap"

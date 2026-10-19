@@ -61,7 +61,8 @@
     ];
 
     function outputType(file) {
-        return /jpe?g$/i.test(file.type) || /\.jpe?g$/i.test(file.name) ? "image/jpeg" : "image/png";
+        if (/webp$/i.test(file.type) || /\.webp$/i.test(file.name)) return "image/webp";
+        return /jpe?g$/i.test(file.type) || /\.(?:jpe?g|jpe|jfif|pjpeg|pjp)$/i.test(file.name) ? "image/jpeg" : "image/png";
     }
 
     const box = el("crop-box");
@@ -71,6 +72,7 @@
     const sizeNote = el("crop-size");
     const sizePick = el("crop-limit");
     let image = null;
+    let original = null;
     let bounds = {width: 0, height: 0};
     let crop = {x: 0, y: 0, width: 0, height: 0};
     let scale = 1;
@@ -78,13 +80,59 @@
     let source = null;
 
     function paint() {
-        frame.style.left = `${crop.x * scale}px`;
+        const imageWidth = bounds.width * scale;
+        const offsetX = Math.max(0, (stage.clientWidth - imageWidth) / 2);
+        frame.style.left = `${offsetX + crop.x * scale}px`;
         frame.style.top = `${crop.y * scale}px`;
         frame.style.width = `${crop.width * scale}px`;
         frame.style.height = `${crop.height * scale}px`;
 
         const size = output(crop, Number(sizePick.value) || 0);
         sizeNote.textContent = `${crop.width} × ${crop.height} → ${size.width} × ${size.height}`;
+    }
+
+    function drawSource() {
+        bounds = {width: image.width || image.naturalWidth, height: image.height || image.naturalHeight};
+        crop = {x: 0, y: 0, ...bounds};
+
+        const room = stage.clientWidth || 520;
+        scale = Math.min(1, room / bounds.width, 420 / bounds.height);
+
+        canvas.width = bounds.width;
+        canvas.height = bounds.height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        canvas.style.width = `${bounds.width * scale}px`;
+        canvas.style.height = `${bounds.height * scale}px`;
+        stage.style.height = `${bounds.height * scale}px`;
+        paint();
+    }
+
+    function transform(kind) {
+        const sourceWidth = bounds.width;
+        const sourceHeight = bounds.height;
+        const rotated = kind === "left" || kind === "right";
+        const out = document.createElement("canvas");
+        out.width = rotated ? sourceHeight : sourceWidth;
+        out.height = rotated ? sourceWidth : sourceHeight;
+        const context = out.getContext("2d");
+
+        if (kind === "left") {
+            context.translate(0, out.height);
+            context.rotate(-Math.PI / 2);
+        } else if (kind === "right") {
+            context.translate(out.width, 0);
+            context.rotate(Math.PI / 2);
+        } else if (kind === "horizontal") {
+            context.translate(out.width, 0);
+            context.scale(-1, 1);
+        } else {
+            context.translate(0, out.height);
+            context.scale(1, -1);
+        }
+
+        context.drawImage(image, 0, 0);
+        image = out;
+        drawSource();
     }
 
     function wire() {
@@ -155,33 +203,25 @@
         return new Promise((settle) => {
             pending = {settle, restore: holdFocus()};
 
-            image = new Image();
+            original = new Image();
             source = URL.createObjectURL(file);
 
-            image.addEventListener("load", () => {
-                bounds = {width: image.naturalWidth, height: image.naturalHeight};
-                crop = {x: 0, y: 0, ...bounds};
-
-                const room = stage.clientWidth || 520;
-                scale = Math.min(1, room / bounds.width, 420 / bounds.height);
-
-                canvas.width = bounds.width;
-                canvas.height = bounds.height;
-                canvas.getContext("2d").drawImage(image, 0, 0);
-                canvas.style.width = `${bounds.width * scale}px`;
-                canvas.style.height = `${bounds.height * scale}px`;
-                stage.style.height = `${bounds.height * scale}px`;
-
+            original.addEventListener("load", () => {
+                image = original;
                 box.hidden = false;
-                paint();
+                drawSource();
                 el("crop-save").focus();
             });
 
-            image.addEventListener("error", () => close(file));
-            image.src = source;
+            original.addEventListener("error", () => close(file));
+            original.src = source;
 
             el("crop-save").onclick = () => save(file);
-            el("crop-reset").onclick = () => { crop = {x: 0, y: 0, ...bounds}; paint(); };
+            el("crop-reset").onclick = () => { image = original; drawSource(); };
+            el("crop-rotate-left").onclick = () => transform("left");
+            el("crop-rotate-right").onclick = () => transform("right");
+            el("crop-flip-horizontal").onclick = () => transform("horizontal");
+            el("crop-flip-vertical").onclick = () => transform("vertical");
             el("crop-cancel").onclick = () => close(null);
             sizePick.onchange = paint;
         });
@@ -195,9 +235,6 @@
 
     wire();
     onDismiss(() => close(null));
-    box.addEventListener("click", (event) => {
-        if (event.target === box) close(null);
-    });
 
     window.MU.cropImage = edit;
     window.MU.cropGeometry = {clamp, drag, output, outputType, MIN_EDGE};

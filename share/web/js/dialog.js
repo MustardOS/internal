@@ -7,17 +7,20 @@
     const askTitle = el("ask-title");
     const askMessage = el("ask-message");
     const askConfirm = el("ask-confirm");
+    const askAlternate = el("ask-alternate");
     const askInput = el("ask-input");
     const askSelect = el("ask-select");
     let asking = null;
 
-    function ask({title, message, confirm, danger, input, choices}) {
+    function ask({title, message, confirm, danger, input, choices, alternate}) {
         if (asking) closeAsk(false);
 
         askTitle.textContent = title;
         askMessage.textContent = message || "";
         askConfirm.textContent = confirm || "Confirm";
         askConfirm.classList.toggle("danger", Boolean(danger));
+        askAlternate.textContent = alternate || "";
+        askAlternate.hidden = !alternate;
 
         const field = input ? askInput : choices ? askSelect : null;
         askInput.hidden = !input;
@@ -56,7 +59,7 @@
         asking = null;
         askBox.hidden = true;
         restore();
-        if (!field) settle(answer);
+        if (answer === "alternate" || !field) settle(answer);
         else settle(answer ? field.value : null);
     }
 
@@ -69,6 +72,7 @@
             closeAsk(true);
         });
         el("ask-cancel").addEventListener("click", () => closeAsk(false));
+        askAlternate.addEventListener("click", () => closeAsk("alternate"));
         askBox.addEventListener("click", (event) => {
             if (event.target === askBox) closeAsk(false);
         });

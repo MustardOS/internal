@@ -129,52 +129,29 @@
         return select;
     }
 
-    const LAYOUTS = [
-        ["compact", "Compact list"],
-        ["comfortable", "Comfortable list"],
-        ["grid", "Grid"]
-    ];
-
-    const layouts = {catalogue: "comfortable", pickles: "comfortable"};
-    const layoutWatchers = [];
-
-    Object.keys(layouts).forEach((view) => {
-        try {
-            const saved = localStorage.getItem(`muos.layout.${view}`);
-            if (saved && LAYOUTS.some(([value]) => value === saved)) layouts[view] = saved;
-        } catch (_) {
-        }
-    });
-
-    function layoutClass(view, extra) {
-        return `cards${extra ? ` ${extra}` : ""} as-${layouts[view]}`;
-    }
-
-    function onLayoutChange(fn) {
-        layoutWatchers.push(fn);
-    }
-
-    function layoutControl(view) {
-        const select = make("select", "sort");
-        select.setAttribute("aria-label", t("Layout"));
-
-        LAYOUTS.forEach(([value, text]) => {
-            const option = make("option", null, t(text));
-            option.value = value;
-            if (value === layouts[view]) option.selected = true;
-            select.append(option);
-        });
-
-        select.addEventListener("change", () => {
-            layouts[view] = select.value;
-            try {
-                localStorage.setItem(`muos.layout.${view}`, select.value);
-            } catch (_) {
+    function sortableHead(columns, current, descending, onChange) {
+        const row = make("tr");
+        columns.forEach((column) => {
+            const cell = make("th", column.className || null);
+            cell.scope = "col";
+            if (!column.key) {
+                cell.classList.add("table-head");
+                cell.textContent = t(column.label || "");
+                row.append(cell);
+                return;
             }
-            layoutWatchers.forEach((fn) => fn(view, select.value));
-        });
 
-        return select;
+            const active = column.key === current;
+            if (active) cell.setAttribute("aria-sort", descending ? "descending" : "ascending");
+            const button = make("button", "sort-head", t(column.label));
+            button.type = "button";
+            if (active) button.append(document.createTextNode(descending ? " ▾" : " ▴"));
+            button.addEventListener("click", () => onChange(column.key,
+                active ? !descending : Boolean(column.descending)));
+            cell.append(button);
+            row.append(cell);
+        });
+        return row;
     }
 
     const toast = el("toast");
@@ -201,6 +178,56 @@
             if (was && was.isConnected !== false && was.focus) was.focus();
         };
     }
+
+    const mediaPreview = make("div", "media-preview-tooltip");
+    mediaPreview.hidden = true;
+    document.body.append(mediaPreview);
+
+    function hideMediaPreview() {
+        mediaPreview.hidden = true;
+        mediaPreview.replaceChildren();
+        delete mediaPreview.dataset.kind;
+    }
+
+    function placeMediaPreview(owner) {
+        if (mediaPreview.hidden || !owner.isConnected) return;
+        const anchor = owner.getBoundingClientRect();
+        const popup = mediaPreview.getBoundingClientRect();
+        let left = anchor.right + 10;
+        if (left + popup.width > window.innerWidth - 8) left = anchor.left - popup.width - 10;
+        let top = anchor.top + (anchor.height - popup.height) / 2;
+        left = Math.max(8, Math.min(left, window.innerWidth - popup.width - 8));
+        top = Math.max(8, Math.min(top, window.innerHeight - popup.height - 8));
+        mediaPreview.style.left = `${Math.round(left)}px`;
+        mediaPreview.style.top = `${Math.round(top)}px`;
+    }
+
+    function showMediaPreview(owner, source, kind) {
+        const media = make(kind === "video" ? "video" : "img");
+        if (kind === "video") {
+            media.autoplay = true;
+            media.loop = true;
+            media.muted = true;
+            media.playsInline = true;
+            media.preload = "metadata";
+        }
+        media.addEventListener("error", hideMediaPreview);
+        media.src = source;
+        mediaPreview.dataset.kind = kind;
+        mediaPreview.replaceChildren(media);
+        mediaPreview.hidden = false;
+        requestAnimationFrame(() => placeMediaPreview(owner));
+    }
+
+    function attachMediaPreview(owner, source, kind = "image") {
+        owner.addEventListener("mouseenter", () => showMediaPreview(owner, source, kind));
+        owner.addEventListener("mouseleave", hideMediaPreview);
+        owner.addEventListener("focus", () => showMediaPreview(owner, source, kind));
+        owner.addEventListener("blur", hideMediaPreview);
+    }
+
+    window.addEventListener("resize", hideMediaPreview);
+    document.addEventListener("scroll", hideMediaPreview, true);
 
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") dismissers.slice().forEach((fn) => fn());
@@ -269,8 +296,14 @@
                 return;
             }
 
-            const link = make("button", "crumb", step.label);
+            const link = make("button", `crumb${step.glyph ? " crumb-glyph" : ""}`,
+                step.glyph ? undefined : step.label);
             link.type = "button";
+            if (step.glyph) {
+                link.dataset.glyph = step.glyph;
+                link.title = step.label;
+                link.setAttribute("aria-label", step.label);
+            }
             link.addEventListener("click", step.go);
             into.append(link);
         });
@@ -324,11 +357,11 @@
         showToast,
         sortItems,
         sortControl,
-        layoutClass,
-        layoutControl,
-        onLayoutChange,
+        sortableHead,
         onDismiss,
         holdFocus,
+        attachMediaPreview,
+        hideMediaPreview,
         busy,
         setBar,
         showSpace,

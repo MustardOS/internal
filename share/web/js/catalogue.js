@@ -1,9 +1,10 @@
 (function () {
     "use strict";
 
+    const MU = window.MU;
     const {el, make, bytes, showToast, api, register, mediaUrl, apiPath, canManage, onAuthChange,
-           sortItems, sortControl, navigate, crumbs, ask, busy, problem, loading, showSpace,
-           layoutClass, layoutControl, onLayoutChange} = window.MU;
+           navigate, crumbs, ask, busy, problem, loading, sortableHead, attachMediaPreview,
+           hideMediaPreview, t} = MU;
 
     const TYPES = [
         {key: "box", name: "Box Art", short: "Box"},
@@ -15,142 +16,202 @@
         {key: "manual", name: "Manual", short: "Manual"},
         {key: "overlay/base", name: "Overlay", short: "Overlay"}
     ];
-
-    const STEPS = [
-        {key: "overlay/battery", leaf: "battery", name: "Battery"},
-        {key: "overlay/bright", leaf: "bright", name: "Brightness"},
-        {key: "overlay/volume", leaf: "volume", name: "Volume"}
-    ];
-
-    const STEP_COUNT = 10;
-
-    const FACE = ["box", "grid", "preview", "splash"];
     const VIEWABLE = ["svg", "png", "jpg", "jpeg", "webp", "gif", "bmp"];
-    const PLAYABLE = ["mp4"];
-    const READABLE = ["txt"];
-
-    const ACCEPTS = {
-        text: ".txt,text/plain",
-        manual: ".txt,text/plain",
-        video: ".mp4,video/mp4"
-    };
+    const ACCEPTS = {text: ".txt,text/plain", manual: ".txt,text/plain", video: ".mp4,video/mp4"};
     const UPLOAD_LIMIT = 32 * 1024 * 1024;
-    const PAGE = 60;
-
+    const PAGE = 100;
+    const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: "base"});
     const trail = el("catalogue-crumbs");
     const body = el("catalogue-body");
     const search = el("catalogue-search");
 
     let folder = null;
     let opened = null;
-    let overlays = null;
-    let steps = {};
     let entries = [];
     let shown = PAGE;
     let bareOnly = false;
-    let order = "name";
+    let sortColumn = "name";
+    let sortDescending = false;
 
-    const label = (entry) => (entry.friendly ? `${entry.friendly} (${entry.stem})` : entry.stem);
-    const extension = (name) => (name.split(".").pop() || "").toLowerCase();
+    try {
+        const saved = JSON.parse(localStorage.getItem("muos.catalogue.sort"));
+        if (["name", "count", "missing"].includes(saved.column)) sortColumn = saved.column;
+        sortDescending = Boolean(saved.descending);
+    } catch (_) {
+    }
+
+    const label = (entry) => (entry.friendly ? `${entry.friendly} (${entry.stem || entry.name})` : entry.stem || entry.name);
+    const extension = (name) => ((name || "").split(".").pop() || "").toLowerCase();
     const placeable = (entry) => Boolean(entry.catalogue);
     const pathUrl = (path) => apiPath(...path.split("/"));
-    const held = (entry) => TYPES.filter((kind) => entry.files[kind.key]).length;
-    const facePick = (entry) => FACE.map((key) => entry.files[key] && {key, file: entry.files[key]}).find(Boolean);
+    const held = (entry) => TYPES.filter((kind) => entry.files && entry.files[kind.key]).length;
+
+    function setSort(column, descending) {
+        sortColumn = column;
+        sortDescending = descending;
+        try {
+            localStorage.setItem("muos.catalogue.sort", JSON.stringify({column, descending}));
+        } catch (_) {
+        }
+        if (folder) renderContents();
+        else showFolders();
+    }
+
+    function sorted(items, naming) {
+        return [...items].sort((left, right) => {
+            let result;
+            if (sortColumn === "count") {
+                const leftCount = Object.prototype.hasOwnProperty.call(left, "count") ? left.count : held(left);
+                const rightCount = Object.prototype.hasOwnProperty.call(right, "count") ? right.count : held(right);
+                result = leftCount - rightCount;
+            }
+            else if (sortColumn === "missing") {
+                const leftMissing = Object.prototype.hasOwnProperty.call(left, "missing")
+                    ? left.missing : TYPES.length - held(left);
+                const rightMissing = Object.prototype.hasOwnProperty.call(right, "missing")
+                    ? right.missing : TYPES.length - held(right);
+                result = leftMissing - rightMissing;
+            }
+            else result = collator.compare(naming(left), naming(right));
+            if (!result) result = collator.compare(naming(left), naming(right));
+            return sortDescending ? -result : result;
+        });
+    }
 
     function chrome(searchable) {
-        const trailSteps = [{label: "Catalogue", go: () => go(null, null, null)}];
-
+        const trailSteps = [
+            {label: t("File Management"), glyph: "home", go: () => MU.show("files")},
+            {label: t("Catalogue"), go: () => go(null, null)}
+        ];
         if (folder) {
             const parts = folder.path.split("/");
             parts.forEach((part, index) => {
                 const upto = parts.slice(0, index + 1).join("/");
-                trailSteps.push({label: part, go: () => go(upto, null, null)});
+                trailSteps.push({label: part, go: () => go(upto, null)});
             });
         }
-
-        if (overlays) trailSteps.push({label: "System overlays"});
-        else if (opened) {
+        if (opened) {
             const entry = entries.find((item) => item.stem === opened);
             trailSteps.push({label: entry ? label(entry) : opened});
         }
-
         crumbs(trail, trailSteps);
         search.hidden = !searchable;
     }
 
-    function go(nextFolder, nextOpened, nextOverlays, push = true) {
-        if (push) navigate({folder: nextFolder, opened: nextOpened, overlays: Boolean(nextOverlays)});
-        return render(nextFolder, nextOpened, nextOverlays);
+    function go(nextFolder, nextOpened, push = true) {
+        if (push) navigate({folder: nextFolder, opened: nextOpened});
+        return render(nextFolder, nextOpened);
     }
 
-    async function render(nextFolder, nextOpened, nextOverlays) {
+    async function render(nextFolder, nextOpened) {
         if (!nextFolder) return showFolders();
-
         if (!folder || nextFolder !== folder.path || !entries.length) {
             const loaded = await loadFolder(nextFolder);
             if (!loaded) return;
         }
-
-        if (nextOverlays) return showOverlays();
         if (nextOpened) return showItem(nextOpened);
         return showContents();
     }
 
     function restore(where) {
         const at = where || {};
-        return render(at.folder || null, at.opened || null, at.overlays || null);
+        return render(at.folder || null, at.opened || null);
     }
 
-    function countCard(name, count, noun, onOpen) {
-        const face = make("div", "card-art opens");
-        face.addEventListener("click", onOpen);
-        if (!count) face.classList.add("empty");
-        face.append(make("span", "card-count", count.toLocaleString()));
+    const GLYPHS = {Add: "upload", Replace: "upload", Edit: "edit", Adjust: "sliders", Remove: "trash"};
 
-        const title = make("button", "card-name", name);
-        title.type = "button";
-        title.addEventListener("click", onOpen);
+    function action(name, handler, danger) {
+        const text = t(name);
+        const button = make("button", `link file-action${danger ? " danger" : ""}`);
+        button.type = "button";
+        button.dataset.glyph = GLYPHS[name];
+        button.dataset.tooltip = text;
+        button.title = text;
+        button.setAttribute("aria-label", text);
+        button.addEventListener("click", () => handler(button));
+        return button;
+    }
 
-        const card = make("div", "card wide");
-        card.append(face, title, make("span", "card-meta", count === 1 ? noun[0] : noun[1]));
-        return card;
+    function download(url, name) {
+        const text = t("Download");
+        const link = make("a", "link file-action");
+        link.dataset.glyph = "download";
+        link.dataset.tooltip = text;
+        link.title = text;
+        link.setAttribute("aria-label", text);
+        link.href = url;
+        link.download = name;
+        return link;
+    }
+
+    function toolsCell(actions) {
+        const tools = make("div", "entry-actions");
+        actions.filter(Boolean).forEach((item) => tools.append(item));
+        const cell = make("td", "table-options");
+        cell.append(tools);
+        return cell;
+    }
+
+    function table(columns, rows, sortable = true) {
+        const node = make("table", "data-table browser-table catalogue-table");
+        const head = make("thead");
+        head.append(sortableHead(columns, sortable ? sortColumn : "", sortable ? sortDescending : false,
+            sortable ? setSort : () => {}));
+        const tableBody = make("tbody");
+        rows.forEach((row) => tableBody.append(row));
+        node.append(head, tableBody);
+        const scroll = make("div", "table-scroll");
+        scroll.append(node);
+        return scroll;
+    }
+
+    function notice(title, message) {
+        const node = make("aside", "catalogue-notice");
+        node.append(make("strong", null, t(title)), make("p", null, message));
+        return node;
+    }
+
+    function openName(text, onOpen, folderName) {
+        const button = make("button", `entry-name ${folderName ? "collection-folder-name" : ""}`, text);
+        button.type = "button";
+        button.title = text;
+        button.addEventListener("click", onOpen);
+        return button;
     }
 
     async function showFolders() {
         folder = null;
         opened = null;
-        overlays = null;
         chrome(false);
-        body.replaceChildren(loading("Reading the card…"));
-
+        body.replaceChildren(loading("Reading the card..."));
         try {
             const data = await api("api/content");
-            showSpace("catalogue", data);
-
-            const folders = sortItems(data.folders || [], "name",
+            const folders = sorted((data.folders || []).map((entry) => ({
+                ...entry,
+                count: entry.content,
+                missing: Number(entry.missing) || 0
+            })),
                 (entry) => entry.friendly || entry.name);
-
-            body.replaceChildren();
             if (!folders.length) {
-                body.append(make("p", "note", "No content on the card."));
+                body.replaceChildren(make("p", "note", t("No content on the card.")));
                 return;
             }
 
-            const bar = make("div", "filters");
-            bar.append(sortControl(order, (value) => {
-                order = value;
-                showFolders();
-            }), layoutControl("catalogue"), make("span", "note", `${folders.length} on the card`));
-            body.append(bar);
-
-            const grid = make("div", layoutClass("catalogue", "counts"));
-            folders.forEach((entry) => {
-                grid.append(countCard(
-                    entry.friendly ? `${entry.friendly} (${entry.name})` : entry.name,
-                    entry.content, ["file", "files"],
-                    () => go(entry.name, null, null)));
+            const rows = folders.map((entry) => {
+                const row = make("tr");
+                const nameCell = make("td", "content-name-cell");
+                const name = entry.friendly ? `${entry.friendly} (${entry.name})` : entry.name;
+                nameCell.append(openName(name, () => go(entry.name, null), true));
+                row.append(nameCell,
+                    make("td", "number table-count", entry.content.toLocaleString()),
+                    make("td", "number table-missing", entry.missing.toLocaleString()));
+                return row;
             });
-            body.append(grid);
+            body.replaceChildren(table([
+                {key: "name", label: "Name"},
+                {key: "count", label: "Content", descending: true, className: "table-count"},
+                {key: "missing", label: "Missing", descending: true, className: "table-missing"}
+            ], rows));
         } catch (error) {
             body.replaceChildren(problem(error.message, showFolders));
         }
@@ -159,176 +220,79 @@
     async function loadFolder(path) {
         folder = {path, name: path.split("/").pop(), catalogue: null};
         opened = null;
-        overlays = null;
         shown = PAGE;
         bareOnly = false;
         search.value = "";
         chrome(false);
-        body.replaceChildren(loading(`Reading ${path.split("/").pop()}…`));
-
+        body.replaceChildren(loading(t("Reading %s...", path.split("/").pop())));
         try {
             const data = await api(`api/content/${pathUrl(path)}`);
-            showSpace("catalogue", data);
-            folder = {
-                path: data.path || path,
-                name: data.name || path.split("/").pop(),
-                catalogue: data.catalogue || null
-            };
+            folder = {path: data.path || path, name: data.name || path.split("/").pop(), catalogue: data.catalogue || null};
             entries = data.entries || [];
-            steps = data.overlays || {};
             return true;
         } catch (error) {
-            body.replaceChildren(problem(error.message, () => go(path, null, null, false)));
+            body.replaceChildren(problem(error.message, () => go(path, null, false)));
             return false;
         }
     }
 
-    function chips(entry) {
-        const row = make("span", "chips");
-
-        TYPES.forEach((kind) => {
-            const has = Boolean(entry.files[kind.key]);
-            const chip = make("span", `chip${has ? " on" : ""}`, kind.short);
-            chip.title = `${kind.name}: ${has ? "added" : "missing"}`;
-            row.append(chip);
-        });
-
-        return row;
-    }
-
-    function contentCard(entry) {
-        const box = make("div", "card");
-        const open = () => go(folder.path, entry.stem, null);
-
-        const art = make("div", "card-art opens");
-        art.title = `Open ${label(entry)}`;
-        art.addEventListener("click", open);
-
-        const shot = facePick(entry);
-        if (shot && VIEWABLE.includes(extension(shot.file))) {
-            const image = make("img");
-            image.loading = "lazy";
-            image.alt = "";
-            image.src = mediaUrl("catalogue", `${entry.catalogue}/${shot.key}/${shot.file}`);
-            image.addEventListener("error", () => {
-                image.remove();
-                art.append(make("span", "card-mark", String(held(entry))));
-            });
-            art.append(image);
-        } else {
-            art.append(make("span", "card-mark", held(entry) ? String(held(entry)) : ""));
-            if (!held(entry)) art.classList.add("empty");
-        }
-
-        const title = make("button", "card-name", entry.self ? `${label(entry)} (this folder)` : label(entry));
-        title.type = "button";
-        title.addEventListener("click", open);
-
-        box.append(art, title);
-
-        if (!placeable(entry)) {
-            const mark = make("span", "card-meta orphan", "no catalogue");
-            mark.title = `${folder.name} has no system, so there is nowhere to file this`;
-            box.append(mark);
-        } else {
-            box.append(chips(entry));
-        }
-
-        if (entry.orphan) {
-            const mark = make("span", "card-meta orphan", "not on the card");
-            mark.title = `Nothing on the card is named ${entry.stem}`;
-            box.append(mark);
-        }
-
-        return box;
-    }
-
-    function folderCard(entry) {
-        const box = make("div", "card");
-        const open = () => go(entry.path, null, null);
-
-        const art = make("div", "card-art opens empty");
-        art.title = `Open ${label(entry)}`;
-        art.addEventListener("click", open);
-        art.append(make("span", "card-mark", "/"));
-
-        const title = make("button", "card-name", label(entry));
-        title.type = "button";
-        title.addEventListener("click", open);
-
-        box.append(art, title, make("span", "card-meta", "folder"));
-        return box;
-    }
-
     function showContents() {
         opened = null;
-        overlays = null;
         shown = PAGE;
         chrome(true);
         renderContents();
     }
 
     function renderContents() {
-        const needle = search.value.trim().toLowerCase();
-        let found = entries;
-
-        if (needle) {
-            found = found.filter((entry) =>
-                entry.stem.toLowerCase().includes(needle) ||
-                (entry.friendly || "").toLowerCase().includes(needle));
-        }
+        const needle = search.value.trim().toLocaleLowerCase();
+        let found = entries.filter((entry) => !needle || `${entry.stem} ${entry.friendly || ""}`.toLocaleLowerCase().includes(needle));
         if (bareOnly) found = found.filter((entry) => !held(entry));
-
-        const sorted = sortItems(found, order, (entry) => entry.friendly || entry.stem);
-        const here = sorted.filter((entry) => entry.self);
-        const content = sorted.filter((entry) => !entry.self && !entry.path);
-        const directories = sorted.filter((entry) => !entry.self && entry.path);
+        const here = sorted(found.filter((entry) => entry.self), label);
+        const directories = sorted(found.filter((entry) => !entry.self && entry.path), label);
+        const content = sorted(found.filter((entry) => !entry.self && !entry.path), label);
+        const page = [...here, ...directories, ...content.slice(0, shown)];
 
         body.replaceChildren();
-
         const filter = make("div", "filters");
-        const toggle = make("button", `chip-toggle${bareOnly ? " on" : ""}`, "No artwork");
+        const toggle = make("button", `chip-toggle${bareOnly ? " on" : ""}`, t("No artwork"));
         toggle.type = "button";
         toggle.addEventListener("click", () => {
             bareOnly = !bareOnly;
             shown = PAGE;
             renderContents();
         });
-        filter.append(sortControl(order, (value) => {
-            order = value;
-            renderContents();
-        }), layoutControl("catalogue"), toggle, make("span", "note", `${content.length} shown`));
+        filter.append(toggle, make("span", "note", t("%s shown", content.length)));
         body.append(filter);
-
         if (canManage() && !folder.catalogue) {
-            body.append(make("p", "note", `${folder.name} has no system, so only its folder art can be set.`));
+            body.append(notice("Folder artwork only",
+                t("Content artwork requires an assigned system. You can still set artwork for the %s folder.", folder.name)));
         }
 
-        const grid = make("div", layoutClass("catalogue"));
-        here.forEach((entry) => grid.append(contentCard(entry)));
-        content.slice(0, shown).forEach((entry) => grid.append(contentCard(entry)));
-        body.append(grid);
+        const rows = [];
+        page.forEach((entry) => {
+            const open = () => entry.path ? go(entry.path, null) : go(folder.path, entry.stem);
+            const row = make("tr");
+            const nameCell = make("td", "content-name-cell");
+            let name = entry.self ? t("This Folder") : label(entry);
+            if (entry.orphan) name = `${name} (${t("not on the card")})`;
+            nameCell.append(openName(name, open, Boolean(entry.path || entry.self)));
+            const missing = TYPES.length - held(entry);
+            row.append(nameCell,
+                make("td", "number table-missing", missing.toLocaleString()));
+            rows.push(row);
+        });
 
-        if (folder.catalogue) {
-            const group = make("div", "group");
-            const head = make("div", "group-head");
-
-            head.append(make("h3", null, "System"));
-            group.append(head);
-
-            const inside = make("div", layoutClass("catalogue", "counts"));
-            inside.append(overlayCard());
-            group.append(inside);
-            body.append(group);
-        }
-
-        if (!content.length && !directories.length) {
-            body.append(make("p", "note", bareOnly ? "Everything here has artwork." : "Nothing matches that."));
+        if (!rows.length) {
+            body.append(make("p", "note", t(bareOnly ? "Everything here has artwork." : "Nothing matches that.")));
             return;
         }
+        body.append(table([
+            {key: "name", label: "Name"},
+            {key: "missing", label: "Missing", descending: true, className: "table-missing"}
+        ], rows));
 
         if (content.length > shown) {
-            const more = make("button", "link more", `Show more (${content.length - shown} left)`);
+            const more = make("button", "link more", t("Show more (%s left)", content.length - shown));
             more.type = "button";
             more.addEventListener("click", () => {
                 shown += PAGE;
@@ -336,91 +300,10 @@
             });
             body.append(more);
         }
-
-        if (directories.length) {
-            const group = make("div", "group");
-            const head = make("div", "group-head");
-
-            head.append(make("h3", null, directories.length === 1 ? "Folder" : "Folders"),
-                make("span", "note", `${directories.length}`));
-            group.append(head);
-
-            const inside = make("div", layoutClass("catalogue"));
-            directories.forEach((entry) => inside.append(folderCard(entry)));
-            group.append(inside);
-            body.append(group);
-        }
-    }
-
-    function stepsDone() {
-        return STEPS.reduce((sum, kind) => sum + Object.keys(steps[kind.leaf] || {}).length, 0);
-    }
-
-    function overlayCard() {
-        const box = make("div", "card wide");
-        const done = stepsDone();
-        const total = STEPS.length * STEP_COUNT;
-        const open = () => go(folder.path, null, true);
-
-        const face = make("div", "card-art opens");
-        face.title = "Open the system overlays";
-        face.addEventListener("click", open);
-        if (!done) face.classList.add("empty");
-        face.append(make("span", "card-count", `${done}`));
-
-        const title = make("button", "card-name", "System overlays");
-        title.type = "button";
-        title.addEventListener("click", open);
-
-        box.append(face, title, make("span", "card-meta", `of ${total} steps\n${folder.catalogue}`));
-        return box;
-    }
-
-    function showOverlays() {
-        opened = null;
-        overlays = true;
-        chrome(false);
-        renderOverlays();
-    }
-
-    function stepEntry(kind, step) {
-        const stem = `${kind.leaf}_${step}`;
-        const file = (steps[kind.leaf] || {})[String(step)];
-        return {stem, catalogue: folder.catalogue, files: file ? {[kind.key]: file} : {}};
-    }
-
-    function renderOverlays() {
-        body.replaceChildren();
-
-        const bar = make("div", "filters");
-        bar.append(layoutControl("catalogue"),
-            make("span", "note", `${stepsDone()} of ${STEPS.length * STEP_COUNT} added`));
-        body.append(bar);
-
-        body.append(make("p", "note",
-            `These belong to ${folder.catalogue}, not to any one game. Each gauge is drawn from ten images, one per step.`));
-
-        STEPS.forEach((kind) => {
-            const done = Object.keys(steps[kind.leaf] || {}).length;
-            const group = make("div", "group");
-            const head = make("div", "group-head");
-
-            head.append(make("h3", null, kind.name), make("span", "note", `${done} of ${STEP_COUNT}`));
-            group.append(head);
-
-            const grid = make("div", layoutClass("catalogue"));
-            for (let step = 0; step < STEP_COUNT; step += 1) {
-                grid.append(typeCard(stepEntry(kind, step), kind, `Step ${step}`));
-            }
-
-            group.append(grid);
-            body.append(group);
-        });
     }
 
     function showItem(stem) {
         opened = stem;
-        overlays = null;
         chrome(false);
         renderItem();
     }
@@ -428,173 +311,123 @@
     function renderItem() {
         const entry = entries.find((item) => item.stem === opened);
         body.replaceChildren();
-
         if (!entry) {
-            body.append(problem(`${opened} is no longer here`, () => go(folder.path, null, null, false)));
+            body.append(problem(t("%s is no longer here", opened), () => go(folder.path, null, false)));
             return;
         }
-
-        const bar = make("div", "filters");
-        bar.append(layoutControl("catalogue"),
-            make("span", "note", `${held(entry)} of ${TYPES.length} added`));
-        body.append(bar);
-
         if (!placeable(entry)) {
-            body.append(make("p", "note",
-                `${folder.name} has no system, so there is nowhere to file artwork for ${label(entry)}.`));
-        } else if (entry.orphan) {
-            body.append(make("p", "note danger",
-                `Nothing on the card is named ${entry.stem}, so none of this is drawn.`));
+            body.append(notice("Artwork unavailable",
+                t("%s is not assigned to a system, so artwork for %s cannot be stored.", folder.name, label(entry))));
         }
-
-        const grid = make("div", layoutClass("catalogue"));
-        TYPES.forEach((kind) => grid.append(typeCard(entry, kind)));
-        body.append(grid);
-
-        if (folder.catalogue && !entry.folder) body.append(gauges());
+        else if (entry.orphan) body.append(make("p", "note danger", t("Nothing on the card is named %s, so none of this is drawn.", entry.stem)));
+        body.append(table([
+            {label: "Name"}, {label: "File"}, {label: "Status", className: "table-artwork"},
+            {label: "Options", className: "table-options"}
+        ], TYPES.map((kind) => typeRow(entry, kind, kind.name)), false));
     }
 
-    function gauges() {
-        const group = make("div", "group");
-        const head = make("div", "group-head");
-
-        head.append(make("h3", null, "Gauges"),
-            make("span", "note", `${stepsDone()} of ${STEPS.length * STEP_COUNT}`));
-        group.append(head);
-
-        group.append(make("p", "note",
-            `Battery, brightness and volume are drawn from ${folder.catalogue}, ten images to a gauge, and are shared by everything in it.`));
-
-        const grid = make("div", layoutClass("catalogue", "counts"));
-        STEPS.forEach((kind) => {
-            const done = Object.keys(steps[kind.leaf] || {}).length;
-            const open = () => go(folder.path, null, true);
-
-            const card = make("div", "card wide");
-            const face = make("div", "card-art opens");
-            face.title = `Open the ${kind.name.toLowerCase()} gauge`;
-            face.addEventListener("click", open);
-            if (!done) face.classList.add("empty");
-            face.append(make("span", "card-count", `${done}`));
-
-            const title = make("button", "card-name", kind.name);
-            title.type = "button";
-            title.addEventListener("click", open);
-
-            card.append(face, title, make("span", "card-meta", `of ${STEP_COUNT} steps`));
-            grid.append(card);
-        });
-
-        group.append(grid);
-        return group;
-    }
-
-    function preview(art, url, file) {
-        const kind = extension(file);
-        const fallback = () => {
-            art.replaceChildren(make("span", "card-mark", kind));
-        };
-
-        if (VIEWABLE.includes(kind)) {
-            const image = make("img");
+    function previewName(entry, kind, file) {
+        const holder = make("div", "table-name-with-preview");
+        const source = mediaUrl("catalogue", artPath(entry, kind, file));
+        if (VIEWABLE.includes(extension(file))) {
+            const image = make("img", "table-preview");
             image.loading = "lazy";
             image.alt = "";
-            image.src = url;
-            image.addEventListener("error", fallback);
-            art.append(image);
-            return;
+            image.src = source;
+            image.tabIndex = 0;
+            image.setAttribute("aria-label", t("Preview image"));
+            attachMediaPreview(image, source);
+            image.addEventListener("error", () => {
+                hideMediaPreview();
+                image.remove();
+            });
+            holder.append(image);
+        } else if (kind.key === "video") {
+            const video = make("video", "table-preview catalogue-video-preview");
+            video.muted = true;
+            video.playsInline = true;
+            video.preload = "metadata";
+            video.src = source;
+            video.tabIndex = 0;
+            video.setAttribute("aria-label", t("Preview video"));
+            attachMediaPreview(video, source, "video");
+            video.addEventListener("loadedmetadata", () => {
+                if (Number.isFinite(video.duration) && video.duration > 0) video.currentTime = Math.min(0.5, video.duration / 10);
+            }, {once: true});
+            video.addEventListener("error", () => {
+                hideMediaPreview();
+                video.remove();
+            });
+            holder.append(video);
         }
-
-        if (PLAYABLE.includes(kind)) {
-            const clip = make("video");
-            clip.preload = "metadata";
-            clip.muted = true;
-            clip.playsInline = true;
-            clip.src = `${url}#t=0.1`;
-            clip.addEventListener("error", fallback);
-            art.append(clip);
-            return;
-        }
-
-        if (READABLE.includes(kind)) {
-            art.append(make("span", "card-mark", kind));
-            fetch(url, {cache: "no-store"})
-                .then((answer) => (answer.ok ? answer.text() : ""))
-                .then((words) => {
-                    const trimmed = words.trim();
-                    if (trimmed) art.replaceChildren(make("span", "card-text", trimmed.slice(0, 600)));
-                })
-                .catch(() => {});
-            return;
-        }
-
-        fallback();
+        const name = make("span", "entry-name", file);
+        name.title = file;
+        holder.append(name);
+        return holder;
     }
 
-    function typeCard(entry, kind, naming) {
+    function typeRow(entry, kind, naming) {
         const file = entry.files[kind.key];
-        const box = make("div", "card");
         const editable = canManage() && placeable(entry);
-
-        const art = make(editable ? "button" : "div", "card-art");
-        if (editable) {
-            art.type = "button";
-            art.classList.add("opens");
-        }
-
-        if (file) preview(art, mediaUrl("catalogue", artPath(entry, kind, file)), file);
-        else {
-            art.append(make("span", "card-mark", editable ? "+" : ""));
-            art.classList.add("empty");
-        }
-
-        box.append(art, make("span", "card-name", naming || kind.name));
-
-        if (editable) {
-            const picker = make("input");
+        const row = make("tr");
+        const nameCell = make("td", "content-name-cell", t(naming || kind.name));
+        const fileCell = make("td", "content-name-cell");
+        if (file) fileCell.append(previewName(entry, kind, file));
+        else fileCell.textContent = "-";
+        const picker = editable ? make("input") : null;
+        let uploadButton = null;
+        if (picker) {
             picker.type = "file";
             picker.hidden = true;
             picker.accept = ACCEPTS[kind.key] || "image/*";
             picker.addEventListener("change", () => {
-                if (picker.files.length) upload(entry, kind, picker.files[0], art);
+                if (picker.files.length) upload(entry, kind, picker.files[0], uploadButton);
                 picker.value = "";
             });
-
-            const what = `${file ? "Replace" : "Add"} the ${kind.name.toLowerCase()} for ${label(entry)}`;
-            art.title = what;
-            art.setAttribute("aria-label", what);
-            art.addEventListener("click", () => picker.click());
-            box.append(picker);
+            uploadButton = action(file ? "Replace" : "Add", () => picker.click());
         }
+        const actions = [
+            file && download(mediaUrl("catalogue", artPath(entry, kind, file)), file.split("/").pop()),
+            editable && (kind.key === "text" || kind.key === "manual")
+                && action("Edit", () => editTextArtwork(entry, kind, file)),
+            uploadButton,
+            file && editable && VIEWABLE.includes(extension(file)) && extension(file) !== "svg"
+                && action("Adjust", (button) => adjust(entry, kind, file, button)),
+            file && editable && action("Remove", (button) => discard(entry, kind, file, button), true)
+        ];
+        const options = toolsCell(actions);
+        if (picker) options.append(picker);
+        row.append(nameCell, fileCell, make("td", "table-artwork", t(file ? "Added" : "Missing")), options);
+        return row;
+    }
 
-        const actions = make("span", "card-actions");
-        if (file) {
-            const download = make("a", "link", "Get");
-            download.dataset.glyph = "download";
-            download.href = mediaUrl("catalogue", artPath(entry, kind, file));
-            download.download = file.split("/").pop();
-            actions.append(download);
-
-            if (editable) {
-                if (VIEWABLE.includes(extension(file)) && extension(file) !== "svg") {
-                    const tweak = make("button", "link", "Adjust");
-                    tweak.type = "button";
-                    tweak.dataset.glyph = "sliders";
-                    tweak.title = `Crop and resize the ${kind.name.toLowerCase()} for ${label(entry)}`;
-                    tweak.addEventListener("click", () => adjust(entry, kind, file, tweak));
-                    actions.append(tweak);
-                }
-
-                const remove = make("button", "link danger", "Remove");
-                remove.type = "button";
-                remove.dataset.glyph = "trash";
-                remove.addEventListener("click", () => discard(entry, kind, file, remove));
-                actions.append(remove);
+    async function editTextArtwork(entry, kind, file) {
+        try {
+            let content = "";
+            if (file) {
+                const response = await fetch(mediaUrl("catalogue", artPath(entry, kind, file)), {cache: "no-store"});
+                if (!response.ok) throw new Error(t("Could not read that %s", kind.name.toLowerCase()));
+                content = await response.text();
             }
-        }
-        if (actions.childElementCount) box.append(actions);
 
-        return box;
+            MU.editTextDocument({
+                title: t("Edit %s", kind.name),
+                content,
+                save: async (updated) => {
+                    const name = file ? file.split("/").pop() : `${entry.stem}.txt`;
+                    await api(destination(entry, kind, name), {
+                        method: "POST",
+                        body: new Blob([updated], {type: "text/plain;charset=utf-8"}),
+                        type: "text/plain;charset=utf-8"
+                    });
+                    showToast(t("%s saved", kind.name), "good");
+                    await refresh();
+                    return true;
+                }
+            });
+        } catch (error) {
+            showToast(error.message, "bad");
+        }
     }
 
     function artPath(entry, kind, file) {
@@ -609,34 +442,26 @@
 
     async function prepare(file) {
         if (file.size > UPLOAD_LIMIT) {
-            showToast(`${file.name} is ${bytes(file.size)}, over the ${bytes(UPLOAD_LIMIT)} limit`, "bad");
+            showToast(t("%s is %s, over the %s limit", file.name, bytes(file.size), bytes(UPLOAD_LIMIT)), "bad");
             return null;
         }
         if (!VIEWABLE.includes(extension(file.name)) || extension(file.name) === "svg") return file;
-        return window.MU.cropImage(file);
+        return MU.cropImage(file);
     }
 
     async function upload(entry, kind, chosen, button) {
         const file = await prepare(chosen);
         if (!file) return;
-
         const has = entry.files[kind.key];
         const name = `${entry.stem}.${extension(file.name)}`;
-
         try {
-            await busy(button, "Saving…", () => api(destination(entry, kind, name), {
-                method: "POST",
-                body: file,
-                type: file.type || "application/octet-stream"
+            await busy(button, "", () => api(destination(entry, kind, name), {
+                method: "POST", body: file, type: file.type || "application/octet-stream"
             }));
-
             if (has && has.split("/").pop() !== name) {
-                await api(`api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...has.split("/"))}`, {
-                    method: "DELETE"
-                });
+                await api(`api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...has.split("/"))}`, {method: "DELETE"});
             }
-
-            showToast(`${kind.name} saved`, "good");
+            showToast(t("%s saved", kind.name), "good");
             await refresh();
         } catch (error) {
             showToast(error.message, "bad");
@@ -645,28 +470,16 @@
 
     async function adjust(entry, kind, file, button) {
         const name = file.split("/").pop();
-        let edited;
-
         try {
             const response = await fetch(mediaUrl("catalogue", artPath(entry, kind, file)), {cache: "no-store"});
-            if (!response.ok) throw new Error(`Could not read that ${kind.name.toLowerCase()}`);
-
+            if (!response.ok) throw new Error(t("Could not read that %s", kind.name.toLowerCase()));
             const blob = await response.blob();
-            edited = await window.MU.cropImage(new File([blob], name, {type: blob.type}));
-        } catch (error) {
-            showToast(error.message, "bad");
-            return;
-        }
-
-        if (!edited) return;
-
-        try {
-            await busy(button, "Saving…", () => api(destination(entry, kind, name), {
-                method: "POST",
-                body: edited,
-                type: edited.type || "application/octet-stream"
+            const edited = await MU.cropImage(new File([blob], name, {type: blob.type}));
+            if (!edited) return;
+            await busy(button, "", () => api(destination(entry, kind, name), {
+                method: "POST", body: edited, type: edited.type || "application/octet-stream"
             }));
-            showToast(`${kind.name} adjusted`, "good");
+            showToast(t("%s adjusted", kind.name), "good");
             await refresh();
         } catch (error) {
             showToast(error.message, "bad");
@@ -675,18 +488,14 @@
 
     async function discard(entry, kind, file, button) {
         const sure = await ask({
-            title: "Remove artwork",
-            message: `The ${kind.name.toLowerCase()} for ${entry.stem} will be deleted.`,
-            confirm: "Remove",
-            danger: true
+            title: t("Remove artwork"),
+            message: t("The %s for %s will be deleted.", kind.name.toLowerCase(), entry.stem),
+            confirm: t("Remove"), danger: true
         });
         if (!sure) return;
-
         try {
-            await busy(button, "Removing…",
-                () => api(`api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...file.split("/"))}`,
-                    {method: "DELETE"}));
-            showToast(`${kind.name} removed`, "good");
+            await busy(button, "", () => api(`api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...file.split("/"))}`, {method: "DELETE"}));
+            showToast(t("%s removed", kind.name), "good");
             await refresh();
         } catch (error) {
             showToast(error.message, "bad");
@@ -695,11 +504,8 @@
 
     async function refresh() {
         const data = await api(`api/content/${pathUrl(folder.path)}`);
-        showSpace("catalogue", data);
         entries = data.entries || [];
-        steps = data.overlays || {};
-        if (overlays) renderOverlays();
-        else if (opened) renderItem();
+        if (opened) renderItem();
         else renderContents();
     }
 
@@ -707,21 +513,9 @@
         shown = PAGE;
         renderContents();
     });
-
-    onLayoutChange((view) => {
-        if (view !== "catalogue") return;
-        if (opened) renderItem();
-        else if (folder) renderContents();
-        else showFolders();
-    });
-
     onAuthChange(() => {
         if (opened) renderItem();
         else if (folder) renderContents();
     });
-
-    register("catalogue", {
-        restore,
-        load: () => render(folder && folder.path, opened, overlays)
-    });
+    register("catalogue", {restore, load: () => render(folder && folder.path, opened)});
 }());

@@ -48,10 +48,7 @@
                 <button class="nav-list-link" type="button" data-view="system">System Information</button>
             </li>
             <li class="nav-list-item">
-                <button class="nav-list-link" type="button" data-view="history">History</button>
-            </li>
-            <li class="nav-list-item">
-                <button class="nav-list-link" type="button" data-view="collections">Collections</button>
+                <button class="nav-list-link" type="button" data-view="files">File Management</button>
             </li>
             <li class="nav-list-item" id="nav-remote" hidden>
                 <button class="nav-list-link" type="button" data-view="remote">Remote View</button>
@@ -60,7 +57,7 @@
                 <button class="nav-list-link" type="button" data-view="catalogue">Catalogue</button>
             </li>
             <li class="nav-list-item" data-library-tools>
-                <button class="nav-list-link" type="button" data-view="pickles">Saves</button>
+                <button class="nav-list-link" type="button" data-view="pickles">Save States</button>
             </li>
         </ul>
 
@@ -169,10 +166,9 @@
         <section class="box" aria-label="Services">
             <h2>Services</h2>
             <div class="rows rows-wide">
-                <a class="row" data-service="sftpgo" href="#"><span>Files</span><i></i></a>
                 <a class="row" data-service="syncthing" href="#"><span>Syncthing</span><i></i></a>
                 <a class="row" data-service="ttyd" href="#"><span>Terminal</span><i></i></a>
-                <button class="row" data-service="sshd" type="button"><span>Secure Shell</span><i></i></button>
+                <button class="row" data-service="sshd" type="button"><span>Secure Shell + SFTP</span><i></i></button>
             </div>
             <p class="note" id="no-services" hidden>None enabled.</p>
         </section>
@@ -268,21 +264,75 @@
         <p class="note" id="tools-empty" hidden>The tools are not installed on this device.</p>
     </div>
 
+    <div class="view" id="view-files" hidden>
+        <div class="view-head">
+            <h1><strong>File Management</strong></h1>
+            <div class="file-head-actions">
+                <button class="link file-head-action" type="button" id="files-new" data-glyph="folder-plus" hidden>New Folder</button>
+                <button class="link file-head-action file-head-action-primary" type="button" id="files-upload-files" data-glyph="upload" hidden>Upload Files</button>
+                <button class="link file-head-action" type="button" id="files-upload-folders" data-glyph="folder-upload" hidden>Upload Folders</button>
+                <input id="files-file-picker" type="file" multiple hidden>
+                <input id="files-folder-picker" type="file" webkitdirectory directory multiple hidden>
+            </div>
+        </div>
+        <div class="file-browser" id="files-browser">
+            <div class="head file-toolbar" id="files-toolbar">
+                <div class="crumbs" id="files-crumbs"></div>
+                <input class="search" type="search" id="files-search" placeholder="Search" aria-label="Search">
+            </div>
+            <div class="file-space" id="files-space" hidden>
+                <span id="files-space-free"></span>
+                <div class="bar"><span id="files-space-fill"></span></div>
+            </div>
+            <div class="file-roots" id="files-roots"></div>
+            <div class="file-selection" id="files-selection" hidden>
+                <label class="file-select-all"><input type="checkbox" id="files-select-all"> Select all</label>
+                <span class="file-selection-count" id="files-selection-count">0 selected</span>
+                <div class="file-selection-actions">
+                    <button class="link" type="button" id="files-copy-selected" data-glyph="copy">Copy</button>
+                    <button class="link" type="button" id="files-move-selected" data-glyph="move">Move</button>
+                    <button class="link danger" type="button" id="files-remove-selected" data-glyph="trash">Remove</button>
+                    <button class="link" type="button" id="files-clear-selected" data-glyph="clear">Clear</button>
+                </div>
+            </div>
+            <div id="files-body"></div>
+        </div>
+        <div class="file-drop" id="files-drop" hidden>Drop files here to upload</div>
+        <section class="box file-queue" id="files-queue-box" hidden>
+            <h2>Transfers</h2>
+            <div id="files-queue"></div>
+        </section>
+    </div>
+
     <div class="view" id="view-history" hidden>
         <h1><strong>History</strong></h1>
 
         <div class="box" role="region" aria-label="History">
             <div class="head">
-                <h2>Recently played <span class="note" id="history-count"></span></h2>
+                <nav class="crumbs" id="history-crumbs" aria-label="Breadcrumb"></nav>
                 <input class="search" type="search" id="history-search" placeholder="Search" aria-label="Search">
             </div>
             <p class="note list-hint" id="history-hint"></p>
+            <div class="file-selection" id="history-selection" hidden>
+                <label class="file-select-all"><input type="checkbox" id="history-select-all"> Select all</label>
+                <span class="file-selection-count" id="history-selection-count">0 selected</span>
+                <div class="file-selection-actions">
+                    <button class="link" type="button" id="history-collect-selected" data-glyph="folder-plus">Add to collection</button>
+                    <button class="link danger" type="button" id="history-remove-selected" data-glyph="trash">Remove</button>
+                    <button class="link" type="button" id="history-clear-selected" data-glyph="clear">Clear</button>
+                </div>
+            </div>
             <div id="history-body"></div>
         </div>
     </div>
 
     <div class="view" id="view-collections" hidden>
-        <h1><strong>Collections</strong></h1>
+        <div class="view-head">
+            <h1><strong>Collections</strong></h1>
+            <div class="file-head-actions">
+                <button class="link file-head-action" type="button" id="collections-new" data-glyph="plus" hidden>New Collection</button>
+            </div>
+        </div>
 
         <div class="box" role="region" aria-label="Collections">
             <div class="head">
@@ -290,11 +340,15 @@
                 <input class="search" type="search" id="collections-search" placeholder="Search" aria-label="Search">
             </div>
             <p class="note list-hint" id="collections-hint"></p>
-            <div id="collections-folders"></div>
-        </div>
-
-        <div class="box" role="region" aria-labelledby="collections-items-title">
-            <h2 id="collections-items-title">Not in a collection</h2>
+            <div class="file-selection" id="collections-selection" hidden>
+                <label class="file-select-all"><input type="checkbox" id="collections-select-all"> Select all</label>
+                <span class="file-selection-count" id="collections-selection-count">0 selected</span>
+                <div class="file-selection-actions">
+                    <button class="link" type="button" id="collections-move-selected" data-glyph="move">Move</button>
+                    <button class="link danger" type="button" id="collections-remove-selected" data-glyph="trash">Remove</button>
+                    <button class="link" type="button" id="collections-clear-selected" data-glyph="clear">Clear</button>
+                </div>
+            </div>
             <div id="collections-body"></div>
         </div>
     </div>
@@ -458,17 +512,10 @@
         </div>
     </div>
 
-    <div class="view" id="view-catalogue" data-library-tools hidden>
+    <div class="view" id="view-catalogue" hidden>
         <h1><strong>Catalogue</strong></h1>
 
         <div class="box" role="region" aria-label="Catalogue">
-            <div class="space" id="catalogue-space" role="group" aria-label="Storage" hidden>
-                <div class="space-head">
-                    <b id="catalogue-space-free"></b>
-                    <span id="catalogue-space-total"></span>
-                </div>
-                <div class="space-bar"><span id="catalogue-space-fill"></span></div>
-            </div>
             <div class="head">
                 <nav class="crumbs" id="catalogue-crumbs" aria-label="Breadcrumb"></nav>
                 <input class="search" type="search" id="catalogue-search" placeholder="Search" aria-label="Search"
@@ -478,17 +525,10 @@
         </div>
     </div>
 
-    <div class="view" id="view-pickles" data-library-tools hidden>
-        <h1><strong>Saves</strong></h1>
+    <div class="view" id="view-pickles" hidden>
+        <h1><strong>Pickles Saves</strong></h1>
 
-        <div class="box" role="region" aria-label="Saves">
-            <div class="space" id="pickles-space" role="group" aria-label="Storage" hidden>
-                <div class="space-head">
-                    <b id="pickles-space-free"></b>
-                    <span id="pickles-space-total"></span>
-                </div>
-                <div class="space-bar"><span id="pickles-space-fill"></span></div>
-            </div>
+        <div class="box" role="region" aria-label="Pickles Saves">
             <div class="head">
                 <nav class="crumbs" id="pickles-crumbs" aria-label="Breadcrumb"></nav>
                 <input class="search" type="search" id="pickles-search" placeholder="Search" aria-label="Search"
@@ -514,10 +554,31 @@
             <select class="sort" id="crop-limit" aria-label="Largest edge"></select>
             <span class="note" id="crop-size"></span>
         </div>
-        <div class="code-actions">
-            <button class="link" type="button" id="crop-reset">Reset</button>
-            <button class="link" type="button" id="crop-cancel">Cancel</button>
-            <button class="link" type="button" id="crop-save">Use this</button>
+        <div class="crop-tools" aria-label="Image adjustments">
+            <button class="dialog-button" type="button" id="crop-rotate-left">Rotate Left</button>
+            <button class="dialog-button" type="button" id="crop-rotate-right">Rotate Right</button>
+            <button class="dialog-button" type="button" id="crop-flip-horizontal">Flip Horizontal</button>
+            <button class="dialog-button" type="button" id="crop-flip-vertical">Flip Vertical</button>
+        </div>
+        <div class="code-actions editor-actions">
+            <button class="dialog-button" type="button" id="crop-reset">Reset</button>
+            <button class="dialog-button" type="button" id="crop-cancel">Cancel</button>
+            <button class="dialog-button dialog-button-primary" type="button" id="crop-save">Save</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="text-editor-box" hidden>
+    <div class="box" role="dialog" aria-labelledby="text-editor-title" aria-modal="true">
+        <div class="head">
+            <h2 id="text-editor-title">Edit Text</h2>
+            <span class="note" id="text-editor-size"></span>
+        </div>
+        <textarea id="text-editor-content" autocomplete="off" autocorrect="off" autocapitalize="off"
+                  spellcheck="false" aria-labelledby="text-editor-title"></textarea>
+        <div class="code-actions editor-actions">
+            <button class="dialog-button" type="button" id="text-editor-cancel">Cancel</button>
+            <button class="dialog-button dialog-button-primary" type="button" id="text-editor-save">Save</button>
         </div>
     </div>
 </div>
@@ -529,6 +590,7 @@
         <input class="ask-field" id="ask-input" type="text" autocomplete="off" spellcheck="false" aria-labelledby="ask-title" hidden>
         <select class="ask-field" id="ask-select" aria-labelledby="ask-title" hidden></select>
         <div class="code-actions">
+            <button class="link ask-alternate" type="button" id="ask-alternate" hidden></button>
             <button class="link" type="button" id="ask-cancel">Cancel</button>
             <button class="link" type="button" id="ask-confirm"></button>
         </div>
@@ -556,6 +618,7 @@
     <script src="js/core.js" defer></script>
     <script src="js/theme.js" defer></script>
     <script src="js/dialog.js" defer></script>
+    <script src="js/crop.js" defer></script>
     <script src="js/session.js" defer></script>
     <script src="js/view.js" defer></script>
     <script src="js/dashboard.js" defer></script>
@@ -563,6 +626,9 @@
     <script src="js/tracker.js" defer></script>
     <script src="js/system.js" defer></script>
     <script src="js/lists.js" defer></script>
+    <script src="js/files.js" defer></script>
+    <script src="js/catalogue.js" defer></script>
+    <script src="js/pickles.js" defer></script>
     <script src="js/snapshot.js" defer></script>
     <script src="js/remote.js" defer></script>
     <script src="js/controls.js" defer></script>
@@ -570,7 +636,6 @@
     <script src="js/player.js" defer></script>
     <script src="js/game.js" defer></script>
     <script src="js/tools.js" defer></script>
-    <!-- Catalogue and save management remain available in source while hidden for this release. -->
     <script src="js/boot.js" defer></script>
 </body>
 </html>

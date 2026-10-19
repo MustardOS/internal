@@ -68,7 +68,7 @@
 
     async function api(path, options) {
         const settings = options || {};
-        const headers = {};
+        const headers = Object.assign({}, settings.headers || {});
 
         if (session) headers["X-muOS-Session"] = session;
         if (settings.type) headers["Content-Type"] = settings.type;
@@ -99,10 +99,13 @@
     }
 
     async function fetchAuthed(path, options) {
+        const settings = options || {};
+        const headers = Object.assign({}, settings.headers || {});
+        if (session) headers["X-muOS-Session"] = session;
         const response = await fetch(path, Object.assign({
-            headers: session ? {"X-muOS-Session": session} : {},
+            headers,
             cache: "no-store"
-        }, options || {}));
+        }, settings, {headers}));
         if (response.status === 401) {
             session = "";
             remember("");

@@ -79,7 +79,7 @@ EOF
 		1) TRACE "down" ;;
 		0)
 			# The listener starts early in boot, so ignore taps until the frontend is up
-			if [ ! -e "$BOOT_PROGRESS_DONE" ]; then
+			if [ ! -e "$FIRST_PAINT_FLAG" ]; then
 				TRACE "up, tap ignored (still booting)"
 				continue
 			fi

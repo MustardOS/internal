@@ -12,7 +12,7 @@ MDNS_DISCOVERY_FILE="$MUOS_RUN_DIR/landing/state/devices.json"
 
 SERVICE_PROCESS_NAME() {
 	case "$1" in
-		mdns | landing | sshd | sftpgo | ttyd | syncthing | tailscaled) printf 'web-%s\n' "$1" ;;
+		mdns | landing | sshd | ttyd | syncthing | tailscaled) printf 'web-%s\n' "$1" ;;
 		*) return 1 ;;
 	esac
 }
@@ -167,7 +167,7 @@ PREPARE_LANDING_ROOT() {
 	cp -f "$LANDING_SOURCE"/icon/*.png "$LANDING_SOURCE"/icon/*.svg "$LANDING_ROOT/icon"/ || return 1
 	cp -f "$LANDING_SOURCE"/css/dashboard.css "$LANDING_ROOT/css"/ || return 1
 
-	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists snapshot remote controls sound player game crop catalogue pickles tools toolnav boot; do
+	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists files snapshot remote controls sound player game crop catalogue pickles tools toolnav boot; do
 		cp -f "$LANDING_SOURCE/js/$LANDING_PART.js" "$LANDING_ROOT/js"/ || return 1
 	done
 
@@ -220,8 +220,6 @@ PREPARE_LANDING_ROOT() {
 		THEME_PALETTE
 		printf '    },\n'
 		printf '    services: {\n'
-		printf '        sftpgo: {enabled: %s, port: %s},\n' \
-			"$(BOOL_WEB_SETTING sftpgo)" "$(GET_WEB_PORT "sftpgo_port" 9090)"
 		printf '        syncthing: {enabled: %s, port: %s},\n' \
 			"$(BOOL_WEB_SETTING syncthing)" "$(GET_WEB_PORT "syncthing_port" 7070)"
 		printf '        ttyd: {enabled: %s, port: %s},\n' \
@@ -256,11 +254,6 @@ START_MDNS() {
 		set -- "$@" --service "_http._tcp:$(GET_WEB_PORT "landing_port" 80):MustardOS"
 	fi
 
-	if [ "$(WEB_SETTING sftpgo)" = "1" ]; then
-		set -- "$@" --service "_http._tcp:$(GET_WEB_PORT "sftpgo_port" 9090):MustardOS Files"
-		set -- "$@" --service "_sftp-ssh._tcp:$(GET_WEB_PORT "sftpgo_sftp_port" 2022):MustardOS SFTP"
-	fi
-
 	if [ "$(WEB_SETTING ttyd)" = "1" ]; then
 		set -- "$@" --service "_http._tcp:$(GET_WEB_PORT "ttyd_port" 8080):MustardOS Terminal"
 	fi
@@ -271,6 +264,7 @@ START_MDNS() {
 
 	if [ "$(WEB_SETTING sshd)" = "1" ]; then
 		set -- "$@" --service "_ssh._tcp:$(GET_WEB_PORT "sshd_port" 22):MustardOS SSH"
+		set -- "$@" --service "_sftp-ssh._tcp:$(GET_WEB_PORT "sshd_port" 22):MustardOS SFTP"
 	fi
 
 	"$PROCESS_HELPER" start web-mdns "$@"
@@ -322,6 +316,8 @@ MANAGE_WEBSERV() {
 					# The editors and tools open and save names, profiles, equaliser profiles, activity and
 					# core assignments under storage, and read the bundled core assignments from share.
 					set -- "$@" --storage "$MUOS_STORE_DIR" --share "$MUOS_SHARE_DIR"
+					set -- "$@" --file-root boot=/mnt/boot --file-root mmc=/mnt/mmc \
+						--file-root sdcard=/mnt/sdcard --file-root usb=/mnt/usb --file-root system=/opt/muos
 
 					# Only the ROMS directory of each storage root: the rest of a card holds
 					# BIOS files, ports, muOS itself and whatever else has been copied on, and
@@ -344,13 +340,11 @@ MANAGE_WEBSERV() {
 						set -- "$@" --content "$LANDING_ROMS"
 					done
 
-					# Browsing and downloading are always available. Authentication is what
-					# unlocks changing anything, and every change then wants the rolling code
-					# the device is showing, so two handhelds on one network cannot touch each
-					# other by accident. Without it the dashboard is read only, apart from History,
-					# Collections, and the Wasabi Now Playing controls which stay open to use.
+					# Browsing and downloading are always available. Authentication protects
+					# changes with the rolling code shown by the device. Without it, dashboard
+					# management remains available to everyone on the local network.
 					if [ "$(WEB_SETTING landing_auth)" = "0" ]; then
-						set -- "$@" --readonly --public-lists
+						set -- "$@" --public-lists
 					else
 						set -- "$@" --secret "$LANDING_SECRET"
 					fi
@@ -389,40 +383,25 @@ MANAGE_WEBSERV() {
 					;;
 				sshd)
 					SSHD_PORT=$(GET_WEB_PORT "sshd_port" 22)
-					SSHD_ETC=/etc/ssh
-					SSHD_EMPTY=/var/empty
-
-					if [ -x /opt/openssh/sbin/sshd ]; then
-						SSHD_BIN=/opt/openssh/sbin/sshd
-						SSHD_ETC=/opt/openssh/etc
-						SSHD_EMPTY=/opt/openssh/var/empty
-					elif [ -x /usr/sbin/sshd ]; then
-						SSHD_BIN=/usr/sbin/sshd
-					else
-						SSHD_BIN=sshd
-					fi
-
-					mkdir -p "$SSHD_EMPTY"
-					chown root:root /root "$SSHD_ETC" "$SSHD_EMPTY"
-					chmod 700 /root "$SSHD_ETC" "$SSHD_EMPTY"
-					chown root:root "$SSHD_ETC"/ssh_host_*_key
-					chmod 600 "$SSHD_ETC"/ssh_host_*_key
-
-					SSHD_CHECK=$("$SSHD_BIN" -t 2>&1) || {
-						LOG_ERROR "$0" 0 "WEB" "$(printf "OpenSSH refused to start: %s" "$SSHD_CHECK")"
+					case "$(uname -m)" in
+						aarch64) DROPBEAR_MULTI=/opt/muos/bin/aarch64/dropbearmulti ;;
+						x86_64) DROPBEAR_MULTI=/usr/sbin/dropbear ;;
+						*) DROPBEAR_MULTI=/usr/sbin/dropbear ;;
+					esac
+					[ -x "$DROPBEAR_MULTI" ] || {
+						LOG_ERROR "$0" 0 "WEB" "Dropbear is unavailable"
 						return 1
 					}
-
-					"$PROCESS_HELPER" start "$PROCESS_NAME" "$SSHD_BIN" -D -p "$SSHD_PORT"
-					;;
-				sftpgo)
-					chmod 755 "/opt/sftpgo"
-					SFTPGO_PORT=$(GET_WEB_PORT "sftpgo_port" 9090)
-					SFTPGO_SFTP_PORT=$(GET_WEB_PORT "sftpgo_sftp_port" 2022)
-					"$PROCESS_HELPER" start "$PROCESS_NAME" env \
-						"SFTPGO_HTTPD__BINDINGS__0__PORT=$SFTPGO_PORT" \
-						"SFTPGO_SFTPD__BINDINGS__0__PORT=$SFTPGO_SFTP_PORT" \
-						/opt/sftpgo/sftpgo serve -c /opt/sftpgo
+					mkdir -p /etc/dropbear /root/.ssh
+					chown root:root /root /root/.ssh /etc/dropbear
+					chmod 700 /root /root/.ssh /etc/dropbear
+					if [ "${DROPBEAR_MULTI##*/}" = dropbearmulti ]; then
+						set -- "$DROPBEAR_MULTI" dropbear
+					else
+						set -- "$DROPBEAR_MULTI"
+					fi
+					"$PROCESS_HELPER" start "$PROCESS_NAME" "$@" -F -R -E -p "$SSHD_PORT" \
+						-P "$MUOS_RUN_DIR/dropbear.pid" -W 1048576 -K 30 -T 5
 					;;
 				ttyd)
 					TTYD_USER=$(GET_VAR "config" "web/ttyd_user")
@@ -514,7 +493,7 @@ MANAGE_WEBSERV() {
 	esac
 }
 
-SERVICE_LIST="mdns landing sshd sftpgo ttyd syncthing tailscaled"
+SERVICE_LIST="mdns landing sshd ttyd syncthing tailscaled"
 case "$1" in
 	apply)
 		SERVICE_PROCESS_NAME "$2" >/dev/null || exit 1

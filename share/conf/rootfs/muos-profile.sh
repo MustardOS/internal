@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# Keep muOS-owned tools available to interactive and non-interactive login shells.
-for _muos_path in /opt/muos/bin /opt/openssh/bin /opt/micro /opt/fish/bin /opt/java/bin; do
+for _muos_path in /opt/muos/bin /opt/muos/share/emulator/zulu/bin; do
 	[ -d "$_muos_path" ] || continue
 	case ":${PATH:-}:" in
 		*:"$_muos_path":*) ;;
@@ -10,14 +9,12 @@ for _muos_path in /opt/muos/bin /opt/openssh/bin /opt/micro /opt/fish/bin /opt/j
 done
 export PATH
 
-if [ -d /opt/java ]; then
-	JAVA_HOME=/opt/java
+if [ -d /opt/muos/share/emulator/zulu ]; then
+	JAVA_HOME=/opt/muos/share/emulator/zulu
 	export JAVA_HOME
 fi
 
-if [ -x /opt/micro/micro ]; then
-	EDITOR=/opt/micro/micro
-elif [ -x /bin/vi ]; then
+if [ -x /bin/vi ]; then
 	EDITOR=/bin/vi
 fi
 [ -z "${EDITOR:-}" ] || export EDITOR

@@ -7,7 +7,7 @@
 
 # USB Ethernet script created for muOS 2405.1 Refried Beans +
 # This script will toggle the iface between eth0 and wlan0
-# Additionally it'll enable network and PortMaster, and generate SSH Keys if needed.
+# Additionally it'll enable network and PortMaster.
 
 . /opt/muos/script/var/config.sh
 . /opt/muos/script/var/ui.sh
@@ -29,8 +29,6 @@ else
 	SET_VAR "device" "network/iface" "wlan0"
 	SET_VAR "device" "network/state" "/sys/class/net/wlan0/operstate"
 fi
-
-/opt/openssh/bin/ssh-keygen -A
 
 TASK_STATUS "Sync Filesystem"
 sync

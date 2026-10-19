@@ -94,13 +94,6 @@ if command -v mpv >/dev/null 2>&1; then
 	FACTORY_AUDIO_PID=$!
 fi
 
-LOG_INFO "$0" 0 "FACTORY RESET" "Generating SSH Host Keys"
-if [ -x /opt/openssh/sbin/sshd ]; then
-	/opt/openssh/bin/ssh-keygen -A &
-elif [ -x /usr/sbin/sshd ]; then
-	/usr/bin/ssh-keygen -A &
-fi
-
 LOG_INFO "$0" 0 "FACTORY RESET" "Setting ARMHF Requirements"
 ARMHF="ld-linux-armhf.so.3"
 if [ ! -e "/lib/${ARMHF}" ] && [ -e "/lib32/${ARMHF}" ]; then

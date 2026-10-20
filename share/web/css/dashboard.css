@@ -255,8 +255,7 @@ h1 { margin: 18px 0 9px; color: var(--head); font-size: 36px; font-weight: 700; 
 
 .rows-wide { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
 .rows-wide .row { padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--box-alt); transition: border-color .15s; }
-.rows-wide .row:not([hidden]) ~ .row:not([hidden]) { border-top: 1px solid var(--line); }
-.rows-wide .row:hover, .rows-wide .row:focus-visible { border-color: var(--accent); }
+.rows-wide .row:not([hidden]):hover, .rows-wide .row:not([hidden]):focus-visible { border-color: var(--accent); }
 .row i { overflow: hidden; margin-inline-start: 12px; color: var(--muted); font-size: .78rem; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
 
 .view, .stack { display: grid; gap: 16px; }

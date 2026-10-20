@@ -224,7 +224,7 @@ PREPARE_LANDING_ROOT() {
 			"$(BOOL_WEB_SETTING syncthing)" "$(GET_WEB_PORT "syncthing_port" 7070)"
 		printf '        ttyd: {enabled: %s, port: %s},\n' \
 			"$(BOOL_WEB_SETTING ttyd)" "$(GET_WEB_PORT "ttyd_port" 8080)"
-		printf '        sshd: {enabled: %s, port: %s}\n' \
+		printf '        sshd: {enabled: %s, port: %s},\n' \
 			"$(BOOL_WEB_SETTING sshd)" "$(GET_WEB_PORT "sshd_port" 22)"
 		printf '        sftp: {enabled: %s, port: %s}\n' \
 			"$(BOOL_WEB_SETTING sftp)" "$(GET_WEB_PORT "sftp_port" 2022)"

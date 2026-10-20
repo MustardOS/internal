@@ -29,6 +29,8 @@
     const textEditorContent = el("text-editor-content");
     const textEditorSave = el("text-editor-save");
     const textEditorCancel = el("text-editor-cancel");
+    const richTextTools = el("text-editor-rich-tools");
+    const richTextColour = el("text-editor-rich-colour");
     const sortStorageKey = "muos.files.sort";
     const systemWarningKey = "muos.files.system-warning";
     const textExtensions = new Set([
@@ -398,15 +400,29 @@
         textEditor.hidden = true;
         textTarget = null;
         textEditorContent.value = "";
+        richTextTools.hidden = true;
     }
 
-    function openTextEditor({title, content, save}) {
+    function openTextEditor({title, content, save, richText = false}) {
         textTarget = {save};
         textEditorTitle.textContent = title;
         textEditorContent.value = content;
+        richTextTools.hidden = !richText;
+        richTextColour.value = "";
         updateTextSize();
         textEditor.hidden = false;
         textEditorContent.focus();
+    }
+
+    function insertRichCode(code) {
+        const begin = textEditorContent.selectionStart;
+        const finish = textEditorContent.selectionEnd;
+        const value = textEditorContent.value;
+        const prefix = `§${code}`;
+        const suffix = finish > begin && code !== "r" ? "§r" : "";
+        textEditorContent.setRangeText(`${prefix}${value.slice(begin, finish)}${suffix}`, begin, finish, "end");
+        textEditorContent.focus();
+        updateTextSize();
     }
 
     async function editText(item, relative) {
@@ -746,6 +762,13 @@
     });
     textEditorSave.addEventListener("click", saveText);
     textEditorCancel.addEventListener("click", closeTextEditor);
+    richTextTools.querySelectorAll("[data-rich-code]").forEach((button) => {
+        button.addEventListener("click", () => insertRichCode(button.dataset.richCode));
+    });
+    richTextColour.addEventListener("change", () => {
+        if (richTextColour.value) insertRichCode(richTextColour.value);
+        richTextColour.value = "";
+    });
     MU.onDismiss(closeTextEditor);
     MU.editTextDocument = openTextEditor;
     search.addEventListener("input", render);

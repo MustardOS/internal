@@ -9,7 +9,7 @@
     "slug": "bios-checker",
     "title": "BIOS Checker",
     "description": "Check your BIOS folder for missing, misnamed and wrong version files.",
-    "icon": "assets/icons/tour-assets-glyphs-muxinfo-sysinfo.svg"
+    "icon": "assets/icons/tour-assets-glyphs-muxinfo-detail.svg"
   },
   {
     "slug": "core-assign-editor",

@@ -12,7 +12,7 @@ MDNS_DISCOVERY_FILE="$MUOS_RUN_DIR/landing/state/devices.json"
 
 SERVICE_PROCESS_NAME() {
 	case "$1" in
-		mdns | landing | sshd | ttyd | syncthing | tailscaled) printf 'web-%s\n' "$1" ;;
+		mdns | landing | sshd | sftp | ttyd | syncthing) printf 'web-%s\n' "$1" ;;
 		*) return 1 ;;
 	esac
 }
@@ -167,7 +167,7 @@ PREPARE_LANDING_ROOT() {
 	cp -f "$LANDING_SOURCE"/icon/*.png "$LANDING_SOURCE"/icon/*.svg "$LANDING_ROOT/icon"/ || return 1
 	cp -f "$LANDING_SOURCE"/css/dashboard.css "$LANDING_ROOT/css"/ || return 1
 
-	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists files snapshot remote controls sound player game crop catalogue pickles tools toolnav boot; do
+	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists files snapshot remote controls sound player game crop video-editor catalogue pickles tools toolnav boot; do
 		cp -f "$LANDING_SOURCE/js/$LANDING_PART.js" "$LANDING_ROOT/js"/ || return 1
 	done
 
@@ -226,6 +226,8 @@ PREPARE_LANDING_ROOT() {
 			"$(BOOL_WEB_SETTING ttyd)" "$(GET_WEB_PORT "ttyd_port" 8080)"
 		printf '        sshd: {enabled: %s, port: %s}\n' \
 			"$(BOOL_WEB_SETTING sshd)" "$(GET_WEB_PORT "sshd_port" 22)"
+		printf '        sftp: {enabled: %s, port: %s}\n' \
+			"$(BOOL_WEB_SETTING sftp)" "$(GET_WEB_PORT "sftp_port" 2022)"
 		printf '    }\n};\n'
 	} >"$LANDING_RUNTIME" || {
 		rm -f "$LANDING_RUNTIME"
@@ -264,7 +266,10 @@ START_MDNS() {
 
 	if [ "$(WEB_SETTING sshd)" = "1" ]; then
 		set -- "$@" --service "_ssh._tcp:$(GET_WEB_PORT "sshd_port" 22):MustardOS SSH"
-		set -- "$@" --service "_sftp-ssh._tcp:$(GET_WEB_PORT "sshd_port" 22):MustardOS SFTP"
+	fi
+
+	if [ "$(WEB_SETTING sftp)" = "1" ]; then
+		set -- "$@" --service "_sftp-ssh._tcp:$(GET_WEB_PORT "sftp_port" 2022):MustardOS Secure File Transfer"
 	fi
 
 	"$PROCESS_HELPER" start web-mdns "$@"
@@ -400,8 +405,38 @@ MANAGE_WEBSERV() {
 					else
 						set -- "$DROPBEAR_MULTI"
 					fi
-					"$PROCESS_HELPER" start "$PROCESS_NAME" "$@" -F -R -E -p "$SSHD_PORT" \
+					"$PROCESS_HELPER" start "$PROCESS_NAME" "$@" -F -R -E -G root -p "$SSHD_PORT" \
 						-P "$MUOS_RUN_DIR/dropbear.pid" -W 1048576 -K 30 -T 5
+					;;
+				sftp)
+					SFTP_PORT=$(GET_WEB_PORT "sftp_port" 2022)
+					SFTP_DROPBEAR=/opt/muos/bin/aarch64/dropbearmulti
+					SFTP_SERVER=/opt/muos/bin/aarch64/sftp-server
+					SFTP_JAIL=/opt/muos/frontend/musftpjail
+					if [ ! -x "$SFTP_DROPBEAR" ] || [ ! -x "$SFTP_SERVER" ] || [ ! -x "$SFTP_JAIL" ]; then
+						LOG_ERROR "$0" 0 "WEB" "Secure File Transfer service files are unavailable"
+						return 1
+					fi
+					if ! grep -q '^muos:' /etc/passwd; then
+						adduser -D -H -h / -s /bin/sh muos || return 1
+						SFTP_PASSWORD_HASH='$6$mustardos-sftp$O1GeNl3WBlgGa8GMlPboh3sLE7FEYsKY28gu3kjDf9QAE8KWRcEXpKlVDlLqccFkS8y3CKfS7Hc8OTCb8LnJo/'
+						SFTP_SHADOW=$(mktemp /etc/shadow.muos.XXXXXX) || return 1
+						awk -F: -v HASH="$SFTP_PASSWORD_HASH" 'BEGIN { OFS=FS } $1 == "muos" { $2=HASH } { print }' \
+							/etc/shadow >"$SFTP_SHADOW" || {
+							rm -f "$SFTP_SHADOW"
+							return 1
+						}
+						chown root:root "$SFTP_SHADOW"
+						chmod 600 "$SFTP_SHADOW"
+						mv -f "$SFTP_SHADOW" /etc/shadow
+					fi
+					chown root:muos "$SFTP_JAIL" || return 1
+					chmod 4750 "$SFTP_JAIL" || return 1
+					mkdir -p /etc/dropbear
+					chown root:root /etc/dropbear
+					chmod 700 /etc/dropbear
+					"$PROCESS_HELPER" start "$PROCESS_NAME" "$SFTP_DROPBEAR" dropbear -F -R -E -G muos -j -k -c "$SFTP_JAIL" \
+						-p "$SFTP_PORT" -P "$MUOS_RUN_DIR/dropbear-sftp.pid" -W 1048576 -K 30 -T 5
 					;;
 				ttyd)
 					TTYD_USER=$(GET_VAR "config" "web/ttyd_user")
@@ -465,7 +500,6 @@ MANAGE_WEBSERV() {
 						--no-browser \
 						--no-upgrade
 					;;
-				tailscaled) /opt/muos/script/web/tailscale.sh start ;;
 			esac
 			;;
 		stop)
@@ -474,7 +508,6 @@ MANAGE_WEBSERV() {
 					"$PROCESS_HELPER" stop-group "$PROCESS_NAME"
 					rm -f "$MDNS_NAME_FILE" "$MDNS_DISCOVERY_FILE"
 					;;
-				tailscaled) /opt/muos/script/web/tailscale.sh stop ;;
 				landing)
 					"$PROCESS_HELPER" stop-group web-landstat
 					"$PROCESS_HELPER" stop-group "$PROCESS_NAME"
@@ -493,7 +526,7 @@ MANAGE_WEBSERV() {
 	esac
 }
 
-SERVICE_LIST="mdns landing sshd ttyd syncthing tailscaled"
+SERVICE_LIST="mdns landing sshd sftp ttyd syncthing"
 case "$1" in
 	apply)
 		SERVICE_PROCESS_NAME "$2" >/dev/null || exit 1

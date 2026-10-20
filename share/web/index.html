@@ -168,7 +168,8 @@
             <div class="rows rows-wide">
                 <a class="row" data-service="syncthing" href="#"><span>Syncthing</span><i></i></a>
                 <a class="row" data-service="ttyd" href="#"><span>Terminal</span><i></i></a>
-                <button class="row" data-service="sshd" type="button"><span>Secure Shell + SFTP</span><i></i></button>
+                <button class="row" data-service="sshd" type="button"><span>Secure Shell</span><i></i></button>
+                <button class="row" data-service="sftp" type="button"><span>Secure File Transfer</span><i></i></button>
             </div>
             <p class="note" id="no-services" hidden>None enabled.</p>
         </section>
@@ -542,7 +543,7 @@
 
 <div class="modal" id="crop-box" hidden>
     <div class="box" role="dialog" aria-labelledby="crop-title" aria-modal="true">
-        <h2 id="crop-title">Trim and resize</h2>
+        <h2 id="crop-title">Edit Image</h2>
         <div class="crop-stage" id="crop-stage">
             <canvas id="crop-canvas"></canvas>
             <div class="crop-frame" id="crop-frame">
@@ -554,16 +555,46 @@
             <select class="sort" id="crop-limit" aria-label="Largest edge"></select>
             <span class="note" id="crop-size"></span>
         </div>
-        <div class="crop-tools" aria-label="Image adjustments">
-            <button class="dialog-button" type="button" id="crop-rotate-left">Rotate Left</button>
-            <button class="dialog-button" type="button" id="crop-rotate-right">Rotate Right</button>
-            <button class="dialog-button" type="button" id="crop-flip-horizontal">Flip Horizontal</button>
-            <button class="dialog-button" type="button" id="crop-flip-vertical">Flip Vertical</button>
+        <div class="editor-fields crop-layer-tools" aria-label="Image layers">
+            <label><span>Layer</span><select id="crop-layer"></select></label>
+            <label><span>Opacity</span><input id="crop-layer-opacity" type="range" min="0" max="100" value="100"><i id="crop-layer-opacity-value">100%</i></label>
+            <label><span>Transform</span><select id="crop-transform">
+                <option value="">Choose...</option>
+                <option value="left">Rotate Left</option>
+                <option value="right">Rotate Right</option>
+                <option value="horizontal">Flip Horizontal</option>
+                <option value="vertical">Flip Vertical</option>
+            </select></label>
+        </div>
+        <div class="crop-tools" aria-label="Layer actions">
+            <button class="dialog-button" type="button" id="crop-layer-add">Add Layer</button>
+            <button class="dialog-button" type="button" id="crop-layer-raise">Raise</button>
+            <button class="dialog-button" type="button" id="crop-layer-lower">Lower</button>
+            <button class="dialog-button danger" type="button" id="crop-layer-remove">Remove Layer</button>
+            <input id="crop-layer-file" type="file" accept="image/*" hidden>
         </div>
         <div class="code-actions editor-actions">
             <button class="dialog-button" type="button" id="crop-reset">Reset</button>
             <button class="dialog-button" type="button" id="crop-cancel">Cancel</button>
             <button class="dialog-button dialog-button-primary" type="button" id="crop-save">Save</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="video-editor-box" hidden>
+    <div class="box" role="dialog" aria-labelledby="video-editor-title" aria-modal="true">
+        <h2 id="video-editor-title">Edit Video</h2>
+        <video id="video-editor-preview" controls playsinline></video>
+        <div class="editor-fields video-editor-fields">
+            <label><span>Start</span><input id="video-editor-start" type="number" min="0" step="0.1"><i>seconds</i></label>
+            <label><span>End</span><input id="video-editor-end" type="number" min="0" step="0.1"><i>seconds</i></label>
+            <label><span>Fade In</span><input id="video-editor-fade-in" type="number" min="0" step="0.1"><i>seconds</i></label>
+            <label><span>Fade Out</span><input id="video-editor-fade-out" type="number" min="0" step="0.1"><i>seconds</i></label>
+        </div>
+        <p class="note">Edits are non-destructive and are applied during playback.</p>
+        <div class="code-actions editor-actions">
+            <button class="dialog-button" type="button" id="video-editor-cancel">Cancel</button>
+            <button class="dialog-button dialog-button-primary" type="button" id="video-editor-save">Save</button>
         </div>
     </div>
 </div>
@@ -576,6 +607,24 @@
         </div>
         <textarea id="text-editor-content" autocomplete="off" autocorrect="off" autocapitalize="off"
                   spellcheck="false" aria-labelledby="text-editor-title"></textarea>
+        <div class="rich-text-tools" id="text-editor-rich-tools" aria-label="Text formatting" hidden>
+            <button class="dialog-button" type="button" data-rich-code="l">Bold</button>
+            <button class="dialog-button" type="button" data-rich-code="o">Italic</button>
+            <button class="dialog-button" type="button" data-rich-code="n">Underline</button>
+            <button class="dialog-button" type="button" data-rich-code="m">Strike</button>
+            <label><span>Colour</span><select id="text-editor-rich-colour">
+                <option value="">Choose...</option>
+                <option value="0">Black</option><option value="1">Dark Blue</option>
+                <option value="2">Dark Green</option><option value="3">Dark Aqua</option>
+                <option value="4">Dark Red</option><option value="5">Dark Purple</option>
+                <option value="6">Gold</option><option value="7">Grey</option>
+                <option value="8">Dark Grey</option><option value="9">Blue</option>
+                <option value="a">Green</option><option value="b">Aqua</option>
+                <option value="c">Red</option><option value="d">Light Purple</option>
+                <option value="e">Yellow</option><option value="f">White</option>
+            </select></label>
+            <button class="dialog-button" type="button" data-rich-code="r">Reset</button>
+        </div>
         <div class="code-actions editor-actions">
             <button class="dialog-button" type="button" id="text-editor-cancel">Cancel</button>
             <button class="dialog-button dialog-button-primary" type="button" id="text-editor-save">Save</button>
@@ -619,6 +668,7 @@
     <script src="js/theme.js" defer></script>
     <script src="js/dialog.js" defer></script>
     <script src="js/crop.js" defer></script>
+    <script src="js/video-editor.js" defer></script>
     <script src="js/session.js" defer></script>
     <script src="js/view.js" defer></script>
     <script src="js/dashboard.js" defer></script>

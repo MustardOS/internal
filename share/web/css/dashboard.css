@@ -489,6 +489,8 @@ button.card-name:hover, button.card-name:focus-visible { color: var(--accent); }
 .crop-stage { position: relative; display: grid; overflow: hidden; max-width: 100%; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); touch-action: none; place-items: start center; }
 #crop-canvas { display: block; }
 .crop-frame { position: absolute; box-sizing: border-box; border: 1px solid var(--accent); box-shadow: 0 0 0 9999px rgb(0 0 0 / 55%); cursor: move; }
+.crop-stage.moving-layer canvas, .crop-stage.moving-layer .crop-frame { cursor: grab; }
+.crop-stage:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .crop-frame span { position: absolute; width: 14px; height: 14px; border: 1px solid var(--accent); background: var(--bg); }
 .crop-frame [data-handle="nw"] { top: -7px; left: -7px; cursor: nwse-resize; }
 .crop-frame [data-handle="ne"] { top: -7px; right: -7px; cursor: nesw-resize; }
@@ -497,13 +499,26 @@ button.card-name:hover, button.card-name:focus-visible { color: var(--accent); }
 .crop-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 #crop-size { font-family: var(--mono); font-size: .74rem; }
 .crop-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.editor-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.editor-fields label { display: grid; min-width: 0; color: var(--muted); font-size: .72rem; gap: 4px; }
+.editor-fields input, .editor-fields select { min-width: 0; padding: 7px 9px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--text); font: inherit; }
+.editor-fields input:focus, .editor-fields select:focus { border-color: var(--accent); outline: 0; }
+.editor-fields i { color: var(--muted); font-family: var(--mono); font-size: .68rem; font-style: normal; }
+.crop-layer-tools { grid-template-columns: minmax(160px, 1fr) minmax(200px, 1.2fr) minmax(160px, 1fr); }
+#crop-layer-opacity { padding: 0; accent-color: var(--accent); }
+#video-editor-box > .box { width: min(820px, 100%); }
+#video-editor-preview { display: block; width: 100%; max-height: min(52vh, 440px); border: 1px solid var(--line); border-radius: 4px; background: #000; object-fit: contain; }
+.video-editor-fields { grid-template-columns: repeat(4, minmax(110px, 1fr)); }
+.rich-text-tools { display: flex; flex-wrap: wrap; align-items: end; gap: 7px; }
+.rich-text-tools label { display: grid; color: var(--muted); font-size: .7rem; gap: 3px; }
+.rich-text-tools select { min-height: 36px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 5px; background: var(--box); color: var(--head); font: inherit; }
 .dialog-button { min-height: 36px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 5px; background: var(--box); color: var(--head); cursor: pointer; font: 600 .82rem var(--sans); }
 .dialog-button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .dialog-button:disabled { opacity: .45; cursor: default; }
 .dialog-button-primary { border-color: var(--accent); background: var(--accent); color: var(--bg); font-weight: 700; }
 .dialog-button-primary:hover:not(:disabled) { color: var(--bg); filter: brightness(1.08); }
 .editor-actions { gap: 8px; }
-#text-editor-box > .box { width: min(900px, 100%); height: min(680px, calc(100vh - 32px)); grid-template-rows: auto minmax(0, 1fr) auto; }
+#text-editor-box > .box { width: min(900px, 100%); height: min(680px, calc(100vh - 32px)); grid-template-rows: auto minmax(0, 1fr) auto auto; }
 #text-editor-content { width: 100%; min-width: 0; min-height: 320px; resize: none; padding: 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--text); font-family: var(--mono); font-size: .82rem; line-height: 1.45; tab-size: 4; }
 #text-editor-content:focus { border-color: var(--accent); outline: 0; }
 .table-preview { width: 44px; height: 34px; flex: none; object-fit: contain; border: 1px solid var(--line); border-radius: 3px; background: var(--bg); vertical-align: middle; }
@@ -532,6 +547,7 @@ button.card-name:hover, button.card-name:focus-visible { color: var(--accent); }
 .pickles-section-count { color: var(--muted); font-family: var(--mono); font-size: .76rem; }
 @media (max-width: 480px) {
     .pickles-section-grid { grid-template-columns: 1fr; }
+    .crop-layer-tools, .video-editor-fields { grid-template-columns: 1fr; }
 }
 
 .modal { position: fixed; z-index: 10; display: flex; padding: 16px; background: rgb(0 0 0 / 60%); inset: 0; }

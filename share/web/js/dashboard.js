@@ -32,6 +32,18 @@
                     showToast(command);
                 }
             });
+        } else if (row.dataset.service === "sftp") {
+            const command = `sftp -P ${service.port} muos@${hostName}`;
+            meta.textContent = command;
+            row.title = command;
+            row.addEventListener("click", async () => {
+                try {
+                    await navigator.clipboard.writeText(command);
+                    showToast(t("Copied"), "good");
+                } catch (_) {
+                    showToast(command);
+                }
+            });
         } else {
             const port = Number(service.port);
             row.href = `http://${urlHost}${port === 80 ? "" : `:${port}`}/`;

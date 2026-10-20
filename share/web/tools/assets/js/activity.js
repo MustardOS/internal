@@ -68,6 +68,7 @@
         "yabause": "Yabause",
         "yabasanshiro": "YabaSanshiro",
         "mednafen_saturn": "Beetle Saturn",
+        "yabadabadoo": "Yabadabadoo",
         "flycast": "Flycast",
         "flycastvl": "Flycast VL",
         "flycast-xtreme": "Flycast Xtreme",
@@ -214,11 +215,6 @@
         "mpv-general": "MPV",
         "mreader-landscape": "mReader Landscape",
         "mreader-portrait": "mReader Portrait",
-        "freej2me-128": "J2ME 128x128",
-        "freej2me-176": "J2ME 176x208",
-        "freej2me-240": "J2ME 240x320",
-        "freej2me-320": "J2ME 320x240",
-        "freej2me-640": "J2ME 640x360",
         "drastic": "Drastic - Standalone",
         "drastic-legacy": "Drastic Legacy - Standalone",
         "mupen64plus-gliden64": "Mupen64Plus - Standalone - Glide",
@@ -274,6 +270,7 @@
     };
 
     const GROUPS = [
+        {key: "all", label: "All Media"},
         {key: "pickles", label: "Pickles"},
         {key: "wasabi", label: "Wasabi"},
         {key: "retroarch", label: "RetroArch"},
@@ -281,7 +278,7 @@
     ];
 
     function runtimeOf(runtime, core) {
-        if (GROUPS.some((group) => group.key === runtime)) return runtime;
+        if (runtime !== "all" && GROUPS.some((group) => group.key === runtime)) return runtime;
         if (core === "ext-video") return "wasabi";
         if (core.startsWith("ext-")) return "external";
         return "retroarch";
@@ -610,6 +607,7 @@
 
     function groupItems(items) {
         const groups = new Map(GROUPS.map((group) => [group.key, []]));
+        groups.set("all", items.slice());
         items.forEach((entry) => groups.get(entry.runtime).push(entry));
         return groups;
     }

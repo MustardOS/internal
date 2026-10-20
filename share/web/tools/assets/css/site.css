@@ -10493,3 +10493,76 @@ html, .side-bar, .site-nav {
 .press-white {
   background-color: #FFFFFF;
 }
+
+.format-swatch {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  vertical-align: middle;
+  border: 1px solid #44434d;
+  border-radius: 4px;
+}
+
+.format-swatch-0 {
+  background-color: #000000;
+}
+
+.format-swatch-1 {
+  background-color: #0000AA;
+}
+
+.format-swatch-2 {
+  background-color: #00AA00;
+}
+
+.format-swatch-3 {
+  background-color: #00AAAA;
+}
+
+.format-swatch-4 {
+  background-color: #AA0000;
+}
+
+.format-swatch-5 {
+  background-color: #AA00AA;
+}
+
+.format-swatch-6 {
+  background-color: #FFAA00;
+}
+
+.format-swatch-7 {
+  background-color: #AAAAAA;
+}
+
+.format-swatch-8 {
+  background-color: #555555;
+}
+
+.format-swatch-9 {
+  background-color: #5555FF;
+}
+
+.format-swatch-a {
+  background-color: #55FF55;
+}
+
+.format-swatch-b {
+  background-color: #55FFFF;
+}
+
+.format-swatch-c {
+  background-color: #FF5555;
+}
+
+.format-swatch-d {
+  background-color: #FF55FF;
+}
+
+.format-swatch-e {
+  background-color: #FFFF55;
+}
+
+.format-swatch-f {
+  background-color: #FFFFFF;
+}

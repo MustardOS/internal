@@ -9,15 +9,18 @@
     const TYPES = [
         {key: "box", name: "Box Art", short: "Box"},
         {key: "grid", name: "Grid Image", short: "Grid"},
-        {key: "preview", name: "Preview Image", short: "Preview"},
-        {key: "splash", name: "Launch Splash", short: "Splash"},
+        {key: "preview", name: "Preview Media", short: "Preview"},
         {key: "text", name: "Description Text", short: "Text"},
-        {key: "video", name: "Preview Video", short: "Video"},
         {key: "manual", name: "Manual", short: "Manual"},
         {key: "overlay/base", name: "Overlay", short: "Overlay"}
     ];
-    const VIEWABLE = ["svg", "png", "jpg", "jpeg", "webp", "gif", "bmp"];
-    const ACCEPTS = {text: ".txt,text/plain", manual: ".txt,text/plain", video: ".mp4,video/mp4"};
+    const VIEWABLE = ["svg", "png", "apng", "jpg", "jpeg", "webp", "gif", "bmp"];
+    const ACCEPTS = {
+        box: "image/*,.apng,.mp4,video/mp4",
+        preview: "image/*,.apng,.mp4,video/mp4",
+        text: ".txt,text/plain",
+        manual: ".txt,text/plain"
+    };
     const UPLOAD_LIMIT = 32 * 1024 * 1024;
     const PAGE = 100;
     const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: "base"});
@@ -27,6 +30,7 @@
 
     let folder = null;
     let opened = null;
+    let mediaVersion = Date.now();
     let entries = [];
     let shown = PAGE;
     let bareOnly = false;
@@ -328,8 +332,24 @@
 
     function previewName(entry, kind, file) {
         const holder = make("div", "table-name-with-preview");
-        const source = mediaUrl("catalogue", artPath(entry, kind, file));
-        if (VIEWABLE.includes(extension(file))) {
+        const source = freshUrl(entry, kind, file);
+        if (extension(file) === "mp4") {
+            const video = make("video", "table-preview catalogue-video-preview");
+            video.playsInline = true;
+            video.preload = "metadata";
+            video.src = source;
+            video.tabIndex = 0;
+            video.setAttribute("aria-label", t("Preview video"));
+            attachMediaPreview(video, source, "video");
+            video.addEventListener("loadedmetadata", () => {
+                if (Number.isFinite(video.duration) && video.duration > 0) video.currentTime = Math.min(.5, video.duration / 10);
+            }, {once: true});
+            video.addEventListener("error", () => {
+                hideMediaPreview();
+                video.remove();
+            });
+            holder.append(video);
+        } else if (VIEWABLE.includes(extension(file))) {
             const image = make("img", "table-preview");
             image.loading = "lazy";
             image.alt = "";
@@ -342,23 +362,6 @@
                 image.remove();
             });
             holder.append(image);
-        } else if (kind.key === "video") {
-            const video = make("video", "table-preview catalogue-video-preview");
-            video.muted = true;
-            video.playsInline = true;
-            video.preload = "metadata";
-            video.src = source;
-            video.tabIndex = 0;
-            video.setAttribute("aria-label", t("Preview video"));
-            attachMediaPreview(video, source, "video");
-            video.addEventListener("loadedmetadata", () => {
-                if (Number.isFinite(video.duration) && video.duration > 0) video.currentTime = Math.min(0.5, video.duration / 10);
-            }, {once: true});
-            video.addEventListener("error", () => {
-                hideMediaPreview();
-                video.remove();
-            });
-            holder.append(video);
         }
         const name = make("span", "entry-name", file);
         name.title = file;
@@ -391,7 +394,10 @@
             editable && (kind.key === "text" || kind.key === "manual")
                 && action("Edit", () => editTextArtwork(entry, kind, file)),
             uploadButton,
-            file && editable && VIEWABLE.includes(extension(file)) && extension(file) !== "svg"
+            file && editable && extension(file) === "mp4"
+                && action("Adjust", () => editVideoArtwork(entry, kind, file)),
+            file && editable && VIEWABLE.includes(extension(file))
+                && !["svg", "gif", "apng"].includes(extension(file))
                 && action("Adjust", (button) => adjust(entry, kind, file, button)),
             file && editable && action("Remove", (button) => discard(entry, kind, file, button), true)
         ];
@@ -413,6 +419,7 @@
             MU.editTextDocument({
                 title: t("Edit %s", kind.name),
                 content,
+                richText: kind.key === "manual",
                 save: async (updated) => {
                     const name = file ? file.split("/").pop() : `${entry.stem}.txt`;
                     await api(destination(entry, kind, name), {
@@ -434,10 +441,72 @@
         return `${entry.catalogue}/${kind.key}/${file}`;
     }
 
+    function freshUrl(entry, kind, file) {
+        return `${mediaUrl("catalogue", artPath(entry, kind, file))}?v=${mediaVersion}`;
+    }
+
     function destination(entry, kind, name) {
         const has = entry.files[kind.key] || "";
         const within = has.includes("/") ? `${has.slice(0, has.lastIndexOf("/"))}/` : "";
         return `api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...`${within}${name}`.split("/"))}`;
+    }
+
+    function sidecar(file) {
+        const slash = file.lastIndexOf("/");
+        const within = slash >= 0 ? `${file.slice(0, slash + 1)}` : "";
+        const name = file.slice(slash + 1).replace(/\.[^.]+$/, "");
+        return `${within}_edit/${name}.conf`;
+    }
+
+    function catalogueEndpoint(entry, kind, leaf) {
+        return `api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...leaf.split("/"))}`;
+    }
+
+    function parseSettings(text) {
+        const settings = {};
+        text.split(/\r?\n/).forEach((line) => {
+            const match = line.match(/^([a-z_]+)=(\d+)$/);
+            if (match) settings[match[1]] = Number(match[2]);
+        });
+        return settings;
+    }
+
+    async function editVideoArtwork(entry, kind, file) {
+        const edit = sidecar(file);
+        let settings = {};
+        try {
+            const response = await fetch(mediaUrl("catalogue", artPath(entry, kind, edit)), {cache: "no-store"});
+            if (response.ok) settings = parseSettings(await response.text());
+        } catch (_) {
+        }
+        await MU.editVideo({
+            name: file.split("/").pop(),
+            source: freshUrl(entry, kind, file),
+            settings,
+            save: async (updated) => {
+                const content = Object.entries(updated).map(([key, value]) => `${key}=${value}`).join("\n") + "\n";
+                await api(catalogueEndpoint(entry, kind, edit), {
+                    method: "POST",
+                    body: new Blob([content], {type: "text/plain;charset=utf-8"}),
+                    type: "text/plain;charset=utf-8"
+                });
+                showToast(t("%s saved", kind.name), "good");
+                return true;
+            }
+        });
+    }
+
+    async function animatedPng(file) {
+        if (extension(file.name) !== "png") return false;
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        for (let at = 8; at + 12 <= bytes.length;) {
+            const length = (bytes[at] << 24) | (bytes[at + 1] << 16) | (bytes[at + 2] << 8) | bytes[at + 3];
+            const type = String.fromCharCode(bytes[at + 4], bytes[at + 5], bytes[at + 6], bytes[at + 7]);
+            if (type === "acTL") return true;
+            if (type === "IDAT" || length < 0) return false;
+            at += length + 12;
+        }
+        return false;
     }
 
     async function prepare(file) {
@@ -445,7 +514,9 @@
             showToast(t("%s is %s, over the %s limit", file.name, bytes(file.size), bytes(UPLOAD_LIMIT)), "bad");
             return null;
         }
-        if (!VIEWABLE.includes(extension(file.name)) || extension(file.name) === "svg") return file;
+        const ext = extension(file.name);
+        if (![...VIEWABLE, "mp4"].includes(ext) || ["svg", "gif", "apng", "mp4"].includes(ext)) return file;
+        if (await animatedPng(file)) return file;
         return MU.cropImage(file);
     }
 
@@ -460,6 +531,12 @@
             }));
             if (has && has.split("/").pop() !== name) {
                 await api(`api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...has.split("/"))}`, {method: "DELETE"});
+            }
+            if (kind.key === "box" || kind.key === "preview") {
+                try {
+                    await api(catalogueEndpoint(entry, kind, sidecar(has || name)), {method: "DELETE"});
+                } catch (_) {
+                }
             }
             showToast(t("%s saved", kind.name), "good");
             await refresh();
@@ -495,6 +572,12 @@
         if (!sure) return;
         try {
             await busy(button, "", () => api(`api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...file.split("/"))}`, {method: "DELETE"}));
+            if (extension(file) === "mp4") {
+                try {
+                    await api(catalogueEndpoint(entry, kind, sidecar(file)), {method: "DELETE"});
+                } catch (_) {
+                }
+            }
             showToast(t("%s removed", kind.name), "good");
             await refresh();
         } catch (error) {
@@ -503,6 +586,7 @@
     }
 
     async function refresh() {
+        mediaVersion = Date.now();
         const data = await api(`api/content/${pathUrl(folder.path)}`);
         entries = data.entries || [];
         if (opened) renderItem();

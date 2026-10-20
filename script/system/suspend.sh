@@ -720,6 +720,7 @@ RESUME() {
 
 	# Network module must be loaded before attempting reconnect
 	wait "$MODULE_PID"
+	UPTIME_SEC >"$MUOS_RUN_DIR/input_resume"
 
 	if [ "$HAS_NETWORK" -eq 1 ] && [ "$NET_NAME" = "8821cs" ]; then
 		/opt/muos/script/init/S75bluetooth.sh start &

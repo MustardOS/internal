@@ -17746,25 +17746,6 @@
       ]
     },
     {
-      "key": "visual/launchsplash",
-      "group": "visual",
-      "type": "int",
-      "default": "1",
-      "label": "Launch Splash",
-      "module": "muxcustom",
-      "options": [
-        {
-          "value": "0",
-          "label": "Disabled"
-        },
-        {
-          "value": "1",
-          "label": "Enabled"
-        }
-      ],
-      "help": "Whether a picture is shown while content is loading.\n\nIt does not make loading any quicker, but it does make the wait look less like nothing is happening."
-    },
-    {
       "key": "visual/listglyph",
       "group": "visual",
       "type": "int",
@@ -18679,33 +18660,6 @@
       ]
     },
     {
-      "key": "visual/videopreview",
-      "group": "visual",
-      "type": "int",
-      "default": "2",
-      "label": "Video Preview",
-      "module": "muxcustom",
-      "help": "Plays a short video for an item once you have stayed on it for a moment.\n\nOnly items with a video in the catalogue have anything to show.",
-      "options": [
-        {
-          "value": "0",
-          "label": "Disabled"
-        },
-        {
-          "value": "1",
-          "label": "3 Second Delay"
-        },
-        {
-          "value": "2",
-          "label": "5 Second Delay"
-        },
-        {
-          "value": "3",
-          "label": "10 Second Delay"
-        }
-      ]
-    },
-    {
       "key": "web/landing",
       "group": "web",
       "type": "int",
@@ -19039,13 +18993,31 @@
       "help": "How often the Web Dashboard may take a picture of the screen for Remote View. Live streams the screen as it changes, at the rate set by Live View FPS. Manual only takes a picture when you press Refresh now in the dashboard, so the picture never changes while you are looking at it.\n\nRemote View needs Authentication and the code from Web Dashboard Code. The screen is only captured while someone is watching, and never while a private screen such as Web Dashboard Code is open. Live uses more processing and network while it is open. Disabled hides Remote View from the dashboard."
     },
     {
+      "key": "web/sftp",
+      "group": "web",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 1,
+      "label": "Sftp"
+    },
+    {
+      "key": "web/sftp_port",
+      "group": "web",
+      "type": "int",
+      "default": "2022",
+      "min": 1,
+      "max": 65535,
+      "label": "Sftp Port"
+    },
+    {
       "key": "web/sshd",
       "group": "web",
       "type": "int",
       "default": "0",
       "min": 0,
       "max": 1,
-      "label": "Secure Shell + SFTP",
+      "label": "Secure Shell",
       "options": [
         {
           "value": "0",
@@ -19056,7 +19028,7 @@
           "label": "Enabled"
         }
       ],
-      "help": "Secure shell and SFTP file transfer through one lightweight service and one network port."
+      "help": "Root command-line access through Secure Shell."
     },
     {
       "key": "web/sshd_port",
@@ -19065,7 +19037,7 @@
       "default": "22",
       "min": 1,
       "max": 65535,
-      "label": "Secure Shell + SFTP Port",
+      "label": "Secure Shell Port",
       "help": "The network port this service listens on.\n\nThe default suits almost everyone. Change it only if something else is already using that port."
     },
     {
@@ -19097,26 +19069,6 @@
       "max": 65535,
       "label": "Syncthing Web Port",
       "help": "The port used to reach this service from a web browser.\n\nChange it only if something else is already using that port."
-    },
-    {
-      "key": "web/tailscaled",
-      "group": "web",
-      "type": "int",
-      "default": "0",
-      "min": 0,
-      "max": 1,
-      "label": "Tailscale",
-      "options": [
-        {
-          "value": "0",
-          "label": "Disabled"
-        },
-        {
-          "value": "1",
-          "label": "Enabled"
-        }
-      ],
-      "help": "Joins the device to a private Tailscale network, so it can be reached from elsewhere."
     },
     {
       "key": "web/ttyd",
@@ -19275,6 +19227,109 @@
       "key": "settings/network/wake",
       "label": "Start Network on Wake",
       "values": "0 or 1"
+    }
+  ],
+  "builtin": [
+    {
+      "file": "10-clear-view.conf",
+      "name": "Clear View",
+      "description": "Slightly larger text in an easy to read typeface, with a stronger highlight on the selected item",
+      "settings": {
+        "settings/font/scale": "115",
+        "settings/advanced/font": "2",
+        "settings/font/name": "Atkinson Hyperlegible",
+        "visual/boldfocus": "1",
+        "visual/shadow": "1"
+      }
+    },
+    {
+      "file": "20-low-vision.conf",
+      "name": "Low Vision",
+      "description": "Larger text, strong contrast and a legible typeface, with messages and scrolling labels that stay on screen longer",
+      "settings": {
+        "settings/font/scale": "130",
+        "settings/advanced/font": "2",
+        "settings/font/name": "Atkinson Hyperlegible",
+        "visual/highcontrast": "1",
+        "visual/boldfocus": "1",
+        "visual/shadow": "1",
+        "visual/notifytime": "2",
+        "visual/labelscrollspeed": "1"
+      }
+    },
+    {
+      "file": "30-large-print.conf",
+      "name": "Large Print",
+      "description": "The largest text with strong contrast and a legible typeface, and box art turned off so lists have room to breathe",
+      "settings": {
+        "settings/font/scale": "160",
+        "settings/advanced/font": "2",
+        "settings/font/name": "Atkinson Hyperlegible",
+        "visual/highcontrast": "1",
+        "visual/boldfocus": "1",
+        "visual/shadow": "1",
+        "visual/notifytime": "3",
+        "visual/labelscrollspeed": "1",
+        "visual/boxart": "4"
+      }
+    },
+    {
+      "file": "40-calm-motion.conf",
+      "name": "Calm Motion",
+      "description": "Gentle fades in place of sliding and bouncing, with background video and moving text turned off",
+      "settings": {
+        "visual/reducemotion": "1",
+        "visual/elementtransition": "0",
+        "visual/boxarttransition": "0",
+        "visual/selectionanimation": "1",
+        "visual/blackfade": "1",
+        "visual/namescroll": "0",
+        "visual/labelscrollspeed": "1",
+        "visual/video_wallpaper": "0"
+      }
+    },
+    {
+      "file": "50-still-screen.conf",
+      "name": "Still Screen",
+      "description": "Removes every transition, animation and moving element, including the screensaver, for anyone sensitive to motion",
+      "settings": {
+        "visual/reducemotion": "2",
+        "visual/elementtransition": "13",
+        "visual/boxarttransition": "13",
+        "visual/selectionanimation": "0",
+        "visual/blackfade": "0",
+        "visual/namescroll": "0",
+        "visual/labelscrollspeed": "0",
+        "visual/video_wallpaper": "0",
+        "settings/power/saver_type": "0"
+      }
+    },
+    {
+      "file": "60-steady-hands.conf",
+      "name": "Steady Hands",
+      "description": "Lists move at a steadier pace and wait longer before repeating, and the device asks before saving, removing or powering off",
+      "settings": {
+        "settings/advanced/accelerate": "192",
+        "settings/advanced/repeat_delay": "400",
+        "settings/advanced/trust_modify": "0",
+        "settings/advanced/trust_remove": "0",
+        "settings/advanced/trust_power": "0",
+        "visual/notifytime": "2"
+      }
+    },
+    {
+      "file": "70-fewer-distractions.conf",
+      "name": "Fewer Distractions",
+      "description": "A quieter, calmer interface with background music, the start up chime, video and moving text turned off",
+      "settings": {
+        "visual/reducemotion": "1",
+        "settings/general/bgm": "0",
+        "settings/general/chime": "0",
+        "visual/video_wallpaper": "0",
+        "visual/namescroll": "0",
+        "visual/labelscrollspeed": "1",
+        "visual/notifytime": "2"
+      }
     }
   ]
 }

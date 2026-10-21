@@ -9074,6 +9074,49 @@ h1 strong {
 .device-page .main-header {
   align-items: center;
 }
+.device-page .lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-inline: 8px;
+  padding: 7px 14px;
+  border: 1px solid #C7AF26;
+  border-radius: 6px;
+  background: #C7AF26;
+  color: #1F1F1F;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.device-page .lock::before {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  background-color: currentColor;
+  content: "";
+  mask: url("/icon/lock.svg") no-repeat center/contain;
+}
+.device-page .lock:hover, .device-page .lock:focus-visible {
+  border-color: #FFFFFF;
+  background: #FFFFFF;
+}
+.device-page .lock[hidden] {
+  display: none;
+}
+.device-page .lock.open {
+  border-color: #55a971;
+  background: none;
+  color: #55a971;
+}
+.device-page .lock.open::before {
+  mask-image: url("/icon/unlock.svg");
+}
+.device-page .lock.open:hover, .device-page .lock.open:focus-visible {
+  background: rgba(85, 169, 113, 0.14);
+}
 .device-page .main-address {
   padding-inline-start: 32px;
   overflow: hidden;
@@ -10325,6 +10368,19 @@ a:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visibl
 
 html, .side-bar, .site-nav {
   scrollbar-color: #44434d transparent;
+}
+
+.device-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 1.5rem;
+}
+.device-tags span {
+  padding: 0.3rem 0.8rem;
+  border: 1.35px solid #44434d;
+  border-radius: 10px;
+  font-size: 0.9rem;
 }
 
 .roadmap-table td:nth-child(3) {

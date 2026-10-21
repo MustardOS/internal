@@ -276,6 +276,7 @@
                 <input id="files-folder-picker" type="file" webkitdirectory directory multiple hidden>
             </div>
         </div>
+        <p class="note list-hint" data-lock-hint></p>
         <div class="file-browser" id="files-browser">
             <div class="head file-toolbar" id="files-toolbar">
                 <div class="crumbs" id="files-crumbs"></div>
@@ -308,12 +309,12 @@
     <div class="view" id="view-history" hidden>
         <h1><strong>History</strong></h1>
 
+        <p class="note list-hint" id="history-hint"></p>
         <div class="box" role="region" aria-label="History">
             <div class="head">
                 <nav class="crumbs" id="history-crumbs" aria-label="Breadcrumb"></nav>
                 <input class="search" type="search" id="history-search" placeholder="Search" aria-label="Search">
             </div>
-            <p class="note list-hint" id="history-hint"></p>
             <div class="file-selection" id="history-selection" hidden>
                 <label class="file-select-all"><input type="checkbox" id="history-select-all"> Select all</label>
                 <span class="file-selection-count" id="history-selection-count">0 selected</span>
@@ -335,12 +336,12 @@
             </div>
         </div>
 
+        <p class="note list-hint" id="collections-hint"></p>
         <div class="box" role="region" aria-label="Collections">
             <div class="head">
                 <nav class="crumbs" id="collections-crumbs" aria-label="Breadcrumb"></nav>
                 <input class="search" type="search" id="collections-search" placeholder="Search" aria-label="Search">
             </div>
-            <p class="note list-hint" id="collections-hint"></p>
             <div class="file-selection" id="collections-selection" hidden>
                 <label class="file-select-all"><input type="checkbox" id="collections-select-all"> Select all</label>
                 <span class="file-selection-count" id="collections-selection-count">0 selected</span>
@@ -357,7 +358,7 @@
     <div class="view" id="view-playing" hidden>
         <h1><strong>Now Playing</strong></h1>
 
-        <p class="box note playing-empty" id="playing-empty">Nothing is playing on the device right now. Start something
+        <p class="note list-hint playing-empty" id="playing-empty">Nothing is playing on the device right now. Start something
             in Pickles or Wasabi and it appears here.</p>
 
         <section class="box player-box" id="player-box" aria-label="Wasabi" hidden>
@@ -449,7 +450,7 @@
 
         <div class="box remote-box">
             <p class="note" id="remote-note"></p>
-            <button class="link" type="button" id="remote-unlock" hidden>Unlock to manage</button>
+            <button class="lock" type="button" id="remote-unlock" hidden>Unlock</button>
             <canvas class="remote-screen" id="remote-screen" hidden></canvas>
             <div class="remote-progress" id="remote-progress" hidden>
                 <div class="bar"><span id="remote-bar"></span></div>
@@ -516,6 +517,7 @@
     <div class="view" id="view-catalogue" hidden>
         <h1><strong>Catalogue</strong></h1>
 
+        <p class="note list-hint" data-lock-hint></p>
         <div class="box" role="region" aria-label="Catalogue">
             <div class="head">
                 <nav class="crumbs" id="catalogue-crumbs" aria-label="Breadcrumb"></nav>
@@ -529,6 +531,7 @@
     <div class="view" id="view-pickles" hidden>
         <h1><strong>Pickles Saves</strong></h1>
 
+        <p class="note list-hint" data-lock-hint></p>
         <div class="box" role="region" aria-label="Pickles Saves">
             <div class="head">
                 <nav class="crumbs" id="pickles-crumbs" aria-label="Breadcrumb"></nav>

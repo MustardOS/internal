@@ -140,8 +140,13 @@
 
     function paintLock() {
         lockButton.hidden = !auth.required || Boolean(auth.readonly);
-        lockButton.textContent = auth.unlocked ? t("Lock") : t("Unlock to manage");
+        lockButton.textContent = auth.unlocked ? t("Lock") : t("Unlock");
         lockButton.classList.toggle("open", Boolean(auth.unlocked));
+
+        const locked = auth.required && !auth.readonly && !auth.unlocked;
+        document.querySelectorAll("[data-lock-hint]").forEach((node) => {
+            node.textContent = locked ? t("Unlock to manage with the Web Dashboard Code shown on the device.") : "";
+        });
     }
 
     async function readAuth() {

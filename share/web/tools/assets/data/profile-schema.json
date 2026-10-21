@@ -18408,6 +18408,27 @@
       "help": "Show or hide Pickles content start-up and RetroAchievements connection messages"
     },
     {
+      "key": "visual/power_off",
+      "group": "visual",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 1,
+      "label": "Power Off Effect",
+      "module": "muxcustom",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ],
+      "help": "Collapse the content picture like an old television when leaving Pickles or Wasabi. Reduce Motion disables this effect."
+    },
+    {
       "key": "visual/reducemotion",
       "group": "visual",
       "type": "int",

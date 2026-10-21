@@ -29,8 +29,14 @@ fi
 
 mkdir -p "$ROM_MOUNT"
 
+# FAT32 labels are traditionally capitals only, while exFAT and ext keep mixed case
+case "$ROM_TYPE" in
+	vfat) ROM_LABEL="MUSTARDOS" ;;
+	*) ROM_LABEL="MustardOS" ;;
+esac
+
 LOG_INFO "$0" 0 "FACTORY RESET" "Formatting ROM Partition"
-if ! MAKE_FILESYSTEM "$ROM_TYPE" "$ROM_PART" "ROMS"; then
+if ! MAKE_FILESYSTEM "$ROM_TYPE" "$ROM_PART" "$ROM_LABEL"; then
 	LOG_ERROR "$0" 0 "FACTORY RESET" "$(printf "Could not format %s as %s" "$ROM_PART" "$ROM_TYPE")"
 	killall -q "mpv"
 	CRITICAL_FAILURE format "$ROM_PART" "$ROM_TYPE"
@@ -63,6 +69,12 @@ if [ -d "$INIT_DIR" ]; then
 	find "$INIT_DIR" -mindepth 1 -maxdepth 1 -exec mv -f {} "$ROM_MOUNT"/ \;
 	rm -rf "$INIT_DIR"
 fi
+
+# Windows and macOS cannot read an ext filesystem, so the drive name and icons would never be shown
+case "$ROM_TYPE" in
+	ext2 | ext3 | ext4) rm -f "$ROM_MOUNT/autorun.inf" "$ROM_MOUNT/muoslogo.ico" "$ROM_MOUNT/.VolumeIcon.icns" ;;
+	*) fatattr +h "$ROM_MOUNT/.VolumeIcon.icns" 2>/dev/null || : ;;
+esac
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Filesystem Paths"
 DIRS='

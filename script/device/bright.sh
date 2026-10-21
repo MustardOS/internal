@@ -3,6 +3,7 @@
 . /opt/muos/script/var/display.sh
 
 [ -z "$1" ] && exit 0
+[ -e "$MUOS_RUN_DIR/quiet_halt" ] && exit 0
 
 mkdir -p "$MUOS_RUN_DIR"
 exec 9>"$MUOS_RUN_DIR/brightness.lock"

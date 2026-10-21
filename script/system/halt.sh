@@ -10,6 +10,10 @@ RUMBLE_SETTING="$(GET_VAR "config" "settings/advanced/rumble")"
 
 INIT_DIR="/opt/muos/script/init"
 
+# Set when the sleep shutdown alarm woke the device, nothing should light up or buzz
+QUIET_HALT=0
+[ -e "$MUOS_RUN_DIR/quiet_halt" ] && QUIET_HALT=1
+
 USAGE() {
 	printf 'Usage: %s {poweroff|reboot} [factory]\n' "$0" >&2
 	exit 1
@@ -121,8 +125,10 @@ STOP_SERVICES() {
 	RUN_WITH_TIMEOUT 8 3 /bin/sh "$INIT_DIR/async/S06mount.sh" stop
 }
 
-LOG_INFO "$0" 0 "HALT" "Running indicator LED shutdown sweep"
-RUN_DEVICE_SCRIPT led.sh shutdown
+if [ "$QUIET_HALT" -eq 0 ]; then
+	LOG_INFO "$0" 0 "HALT" "Running indicator LED shutdown sweep"
+	RUN_DEVICE_SCRIPT led.sh shutdown
+fi
 
 case "$ACTION" in
 	poweroff | shutdown) SPLASH_ROLE=shutdown ;;
@@ -165,40 +171,48 @@ if [ "$BOARD_NAME" = "rk-g350-v" ]; then
 	fi
 fi
 
-LOG_INFO "$0" 0 "HALT" "Drawing splash"
-(SHOW_SPLASH "$SPLASH_ROLE" "$SPLASH_READY" 1) &
-SPLASH_PID=$!
-SPLASH_POLL=0
-SPLASH_GONE=0
-while [ "$SPLASH_POLL" -lt 30 ] && [ ! -f "$SPLASH_READY" ]; do
+DRAW_SPLASH() {
+	LOG_INFO "$0" 0 "HALT" "Drawing splash"
+	(SHOW_SPLASH "$SPLASH_ROLE" "$SPLASH_READY" 1) &
+	SPLASH_PID=$!
+	SPLASH_POLL=0
+	SPLASH_GONE=0
+	while [ "$SPLASH_POLL" -lt 30 ] && [ ! -f "$SPLASH_READY" ]; do
+		SPLASH_STATE=
+		[ -r "/proc/$SPLASH_PID/stat" ] && read -r _ _ SPLASH_STATE _ <"/proc/$SPLASH_PID/stat" 2>/dev/null
+		if [ -z "$SPLASH_STATE" ] || [ "$SPLASH_STATE" = Z ]; then
+			SPLASH_GONE=1
+			break
+		fi
+		sleep 0.1
+		SPLASH_POLL=$((SPLASH_POLL + 1))
+	done
+
+	if [ -f "$SPLASH_READY" ]; then
+		LOG_INFO "$0" 0 "HALT" "Splash ready"
+	elif [ "$SPLASH_GONE" -eq 1 ]; then
+		# Nothing was drawn, so whatever the frontend left behind is still on screen
+		LOG_WARN "$0" 0 "HALT" "$(printf "Splash stopped before drawing anything after %s00ms" "$SPLASH_POLL")"
+	else
+		LOG_WARN "$0" 0 "HALT" "Splash did not become ready within three seconds"
+		kill -TERM "$SPLASH_PID" 2>/dev/null
+		sleep 0.1
+		kill -KILL "$SPLASH_PID" 2>/dev/null
+	fi
+
 	SPLASH_STATE=
 	[ -r "/proc/$SPLASH_PID/stat" ] && read -r _ _ SPLASH_STATE _ <"/proc/$SPLASH_PID/stat" 2>/dev/null
 	if [ -z "$SPLASH_STATE" ] || [ "$SPLASH_STATE" = Z ]; then
-		SPLASH_GONE=1
-		break
+		wait "$SPLASH_PID" 2>/dev/null
 	fi
-	sleep 0.1
-	SPLASH_POLL=$((SPLASH_POLL + 1))
-done
+	rm -f "$SPLASH_READY"
+}
 
-if [ -f "$SPLASH_READY" ]; then
-	LOG_INFO "$0" 0 "HALT" "Splash ready"
-elif [ "$SPLASH_GONE" -eq 1 ]; then
-	# Nothing was drawn, so whatever the frontend left behind is still on screen
-	LOG_WARN "$0" 0 "HALT" "$(printf "Splash stopped before drawing anything after %s00ms" "$SPLASH_POLL")"
+if [ "$QUIET_HALT" -eq 1 ]; then
+	LOG_INFO "$0" 0 "HALT" "Woken by the shutdown alarm, skipping the splash"
 else
-	LOG_WARN "$0" 0 "HALT" "Splash did not become ready within three seconds"
-	kill -TERM "$SPLASH_PID" 2>/dev/null
-	sleep 0.1
-	kill -KILL "$SPLASH_PID" 2>/dev/null
+	DRAW_SPLASH
 fi
-
-SPLASH_STATE=
-[ -r "/proc/$SPLASH_PID/stat" ] && read -r _ _ SPLASH_STATE _ <"/proc/$SPLASH_PID/stat" 2>/dev/null
-if [ -z "$SPLASH_STATE" ] || [ "$SPLASH_STATE" = Z ]; then
-	wait "$SPLASH_PID" 2>/dev/null
-fi
-rm -f "$SPLASH_READY"
 
 LOG_INFO "$0" 0 "HALT" "Stopping web services"
 RUN_WITH_TIMEOUT 5 1 /opt/muos/script/web/service.sh stopall >/dev/null 2>&1
@@ -237,6 +251,7 @@ if [ -x "$MUOS_VAR_BIN" ]; then
 fi
 
 # Vibrate the device if the user has specifically set it on shutdown
+[ "$QUIET_HALT" -eq 1 ] && RUMBLE_SETTING=0
 case "$RUMBLE_SETTING" in
 	2 | 4 | 6)
 		LOG_INFO "$0" 0 "HALT" "Running shutdown rumble"

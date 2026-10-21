@@ -160,7 +160,7 @@ RESTORE_DPAD_AND_LEDS() {
 		rg*)
 			LOG_DEBUG "$0" 0 "LAUNCH" "Resetting DPAD swap and LED state for rg* board"
 			printf "0" >"$RESTORE_DPAD_SWAP"
-			printf "1" >"$RESTORE_LED_NORMAL"
+			[ -e "$MUOS_RUN_DIR/quiet_halt" ] || printf "1" >"$RESTORE_LED_NORMAL"
 			printf "1" >"$RESTORE_LED_STATE"
 			;;
 		rk-pixel-2 | tui*)

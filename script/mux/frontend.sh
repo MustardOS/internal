@@ -116,6 +116,11 @@ while :; do
 	RESET_DPAD_MODE "$BOARD_STICK" "$BOARD_NAME" "$DPAD_SWAP"
 	RUN_CONTENT_LOADER
 
+	# The shutdown alarm is powering the device off, so the menu never comes back up
+	while [ -e "$MUOS_RUN_DIR/quiet_halt" ]; do
+		sleep 1
+	done
+
 	[ -s "$ACT_GO" ] || {
 		sleep 0.1
 		continue

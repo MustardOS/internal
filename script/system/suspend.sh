@@ -9,6 +9,7 @@
 RECENT_WAKE="$MUOS_RUN_DIR/recent_wake"
 LED_STATE="$MUOS_RUN_DIR/work_led_state"
 MUXRETRO_SAVE_READY="$MUOS_RUN_DIR/muxretro_save_ready"
+QUIET_HALT="$MUOS_RUN_DIR/quiet_halt"
 MUXRETRO_SUSPEND_SIGNAL="USR1"
 MUXRETRO_RESUME_SIGNAL="USR2"
 
@@ -230,6 +231,26 @@ PIXEL2_USB_WAIT() {
 	return 1
 }
 
+DEADLINE_REACHED() {
+	[ "${WAKE_EPOCH:-0}" -gt 0 ] 2>/dev/null || return 1
+	DEADLINE_NOW=$(cat "$RTC_WAKE_PATH/since_epoch" 2>/dev/null || printf '%s' 0)
+	[ "$DEADLINE_NOW" -ge "$WAKE_EPOCH" ] 2>/dev/null
+}
+
+# Woken by the shutdown alarm, so the display and power LED stay dark all the way down
+QUIET_HALT_PREPARE() {
+	: >"$QUIET_HALT"
+	DISPLAY_WRITE disp0 setbl 0
+	echo 4 >/sys/class/graphics/fb0/blank
+	echo 4 >/tmp/fb_blank
+	touch /tmp/mux_blank
+
+	LED_CONTROL_CHANGE off
+	case "$BOARD_NAME" in
+		rg*) echo 0 >"$LED_NORMAL" ;;
+	esac
+}
+
 RUN_SUSPEND_BACKEND() {
 	SUSPEND_HELPER=/opt/muos/frontend/mususpend
 	if [ ! -x "$SUSPEND_HELPER" ]; then
@@ -312,8 +333,14 @@ RUN_SUSPEND_BACKEND() {
 		fi
 		SUSPEND_RESULT=$?
 	fi
+	QUIET_WAKE=0
+	if [ "$SUSPEND_RESULT" -eq 2 ] || DEADLINE_REACHED; then
+		QUIET_WAKE=1
+		QUIET_HALT_PREPARE
+	fi
+
 	PIXEL2_USB on
-	PIXEL2_DISPLAY on
+	[ "$QUIET_WAKE" -eq 1 ] || PIXEL2_DISPLAY on
 
 	case "$SUSPEND_RESULT" in
 		0 | 3) G350_LOG_SUSPEND power-key-wake ;;
@@ -799,6 +826,7 @@ if [ "$FAKE_SLEEP" -eq 1 ]; then
 fi
 
 RECENT_WAKE_SET && exit 0
+rm -f "$QUIET_HALT"
 
 case "$SHUTDOWN_TIME_SETTING" in
 	-2) ;;
@@ -825,8 +853,8 @@ case "$SHUTDOWN_TIME_SETTING" in
 
 		SLEEP
 
-		CURRENT_TIME=$(cat "$S_EPOCH")
-		if [ "$CURRENT_TIME" -ge "$WAKE_EPOCH" ]; then
+		if [ -e "$QUIET_HALT" ] || DEADLINE_REACHED; then
+			QUIET_HALT_PREPARE
 			ACTIVITY_TRACKER stop poweroff
 			MARK_RESUME_CONTENT
 			CHECK_RA_AND_SAVE "CLOSE_CONTENT"

@@ -96,7 +96,7 @@ HALT_SYSTEM() {
 
 	# Turn on power LED for visual feedback on halt success.
 	NORMAL_LED=$(GET_VAR "device" "led/normal")
-	if [ -n "$NORMAL_LED" ] && [ -w "$NORMAL_LED" ]; then
+	if [ -n "$NORMAL_LED" ] && [ -w "$NORMAL_LED" ] && [ ! -e "$MUOS_RUN_DIR/quiet_halt" ]; then
 		LOG_INFO "$0" 0 "QUIT" "Switching on normal LED"
 		echo 1 >"$NORMAL_LED"
 	fi

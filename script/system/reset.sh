@@ -22,7 +22,10 @@ esac
 if [ -n "$ROM_NUM" ]; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Expanding ROM Partition"
 	printf "w\nw\n" | fdisk /dev/"$ROM_DEV"
-	parted ---pretend-input-tty /dev/"$ROM_DEV" resizepart "$ROM_NUM" 100%
+
+	LOG_INFO "$0" 0 "FACTORY RESET" "Repairing Partition Table"
+	printf "OK\nFix\n" | parted ---pretend-input-tty /dev/"$ROM_DEV" print >/dev/null 2>&1
+	printf "OK\nFix\n" | parted ---pretend-input-tty /dev/"$ROM_DEV" resizepart "$ROM_NUM" 100%
 else
 	LOG_INFO "$0" 0 "FACTORY RESET" "Using Whole-Device ROM Storage"
 fi

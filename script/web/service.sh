@@ -475,6 +475,7 @@ MANAGE_WEBSERV() {
 					fi
 					chown root:muos "$SFTP_JAIL" || return 1
 					chmod 4750 "$SFTP_JAIL" || return 1
+					chmod 0755 / || return 1
 					PREPARE_DROPBEAR || return 1
 					set -- "$DROPBEAR_BIN"
 					[ -z "$DROPBEAR_APPLET" ] || set -- "$@" "$DROPBEAR_APPLET"

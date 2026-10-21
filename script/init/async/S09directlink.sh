@@ -8,10 +8,10 @@ case "${1:-start}" in
 esac
 
 HAS_NETWORK=$(GET_VAR "device" "board/network")
+HAS_UDC=$(GET_VAR "device" "board/udc")
 
 DO_START() {
-	# No networking hardware means there is nothing a cable could join
-	[ "$HAS_NETWORK" -eq 1 ] || return 0
+	[ "${HAS_NETWORK:-0}" -eq 1 ] || [ -n "$HAS_UDC" ] || return 0
 
 	LOG_INFO "$0" 0 "BOOTING" "Direct Link Watcher"
 	DIRECTLINK start

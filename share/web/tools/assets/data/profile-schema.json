@@ -18999,7 +18999,18 @@
       "default": "0",
       "min": 0,
       "max": 1,
-      "label": "Sftp"
+      "label": "Secure File Transfer",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ],
+      "help": "Root-backed file transfer for your storage, the boot partition and MustardOS itself. Enabling it grants read and write access to those locations. Connect on port 2022 with the username muos and password muos."
     },
     {
       "key": "web/sftp_port",
@@ -19008,7 +19019,8 @@
       "default": "2022",
       "min": 1,
       "max": 65535,
-      "label": "Sftp Port"
+      "label": "Secure File Transfer Port",
+      "help": "The network port this service listens on.\n\nThe default suits almost everyone. Change it only if something else is already using that port."
     },
     {
       "key": "web/sshd",

@@ -520,6 +520,9 @@ button.card-name:hover, button.card-name:focus-visible { color: var(--accent); }
 #text-editor-box > .box { width: min(900px, 100%); height: min(680px, calc(100vh - 32px)); grid-template-rows: auto minmax(0, 1fr) auto auto; }
 #text-editor-content { width: 100%; min-width: 0; min-height: 320px; resize: none; padding: 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--text); font-family: var(--mono); font-size: .82rem; line-height: 1.45; tab-size: 4; }
 #text-editor-content:focus { border-color: var(--accent); outline: 0; }
+.file-image-preview-dialog { width: min(960px, 100%); max-height: calc(100vh - 32px); }
+.file-image-preview-stage { display: grid; place-items: center; min-height: 0; overflow: auto; border: 1px solid var(--line); border-radius: 4px; background: color-mix(in srgb, var(--bg) 88%, transparent); }
+.file-image-preview-stage img { display: block; max-width: 100%; max-height: calc(100vh - 170px); object-fit: contain; }
 .table-preview { width: 44px; height: 34px; flex: none; object-fit: contain; border: 1px solid var(--line); border-radius: 3px; background: var(--bg); vertical-align: middle; }
 .table-preview-placeholder { display: inline-grid; background: #666b73; color: #fff; font-family: var(--sans); font-size: 1.15rem; font-weight: 700; line-height: 1; place-items: center; }
 .table-preview:focus-visible { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 2px; }

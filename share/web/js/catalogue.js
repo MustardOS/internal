@@ -601,5 +601,11 @@
         if (opened) renderItem();
         else if (folder) renderContents();
     });
-    register("catalogue", {restore, load: () => render(folder && folder.path, opened)});
+    register("catalogue", {
+        restore,
+        load: () => {
+            entries = [];
+            return render(folder && folder.path, opened);
+        }
+    });
 }());

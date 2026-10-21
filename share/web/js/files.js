@@ -31,6 +31,10 @@
     const textEditorCancel = el("text-editor-cancel");
     const richTextTools = el("text-editor-rich-tools");
     const richTextColour = el("text-editor-rich-colour");
+    const imagePreview = el("file-image-preview-box");
+    const imagePreviewTitle = el("file-image-preview-title");
+    const imagePreviewImage = el("file-image-preview-image");
+    const imagePreviewClose = el("file-image-preview-close");
     const sortStorageKey = "muos.files.sort";
     const systemWarningKey = "muos.files.system-warning";
     const textExtensions = new Set([
@@ -50,7 +54,8 @@
         "makefile", "dockerfile", "containerfile", "cmakelists.txt", "meson.build", "kconfig", "config.in",
         "readme", "license", "copying", "authors", "changelog", "fstab", "hosts", "hostname", "interfaces", "issue"
     ]);
-    const imageExtensions = new Set(["png", "jpg", "jpeg", "jpe", "jfif", "pjpeg", "pjp", "webp"]);
+    const imageExtensions = new Set(["png", "apng", "jpg", "jpeg", "jpe", "jfif", "pjpeg", "pjp", "webp", "gif", "bmp", "avif"]);
+    const editableImageExtensions = new Set(["png", "jpg", "jpeg", "jpe", "jfif", "pjpeg", "pjp", "webp"]);
     const textLimit = 4 * 1024 * 1024;
     const imageLimit = 32 * 1024 * 1024;
     let roots = [];
@@ -62,6 +67,7 @@
     let sortDescending = false;
     let crumbsFor = null;
     let textTarget = null;
+    let imagePreviewUrl = "";
     const selected = new Set();
     const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: "base"});
 
@@ -224,7 +230,10 @@
     }
 
     function action(label, handler, danger) {
-        const glyphs = {"Edit Text": "text", "Edit Image": "sliders", Rename: "edit", Move: "move", Copy: "copy", Remove: "trash"};
+        const glyphs = {
+            "Edit Text": "text", "Edit Image": "sliders", "Preview Text": "text", "Preview Image": "text",
+            Rename: "edit", Move: "move", Copy: "copy", Remove: "trash"
+        };
         const text = t(label);
         const button = make("button", `link file-action${danger ? " danger" : ""}`);
         button.type = "button";
@@ -246,7 +255,8 @@
         const kind = extension(item.name);
         const name = String(item.name || "").toLocaleLowerCase();
         if ((textExtensions.has(kind) || textNames.has(name)) && item.bytes <= textLimit) return "text";
-        if (imageExtensions.has(kind) && item.bytes <= imageLimit) return "image";
+        if (imageExtensions.has(kind) && item.bytes <= imageLimit)
+            return editableImageExtensions.has(kind) ? "image" : "image-preview";
         return null;
     }
 
@@ -351,9 +361,15 @@
             }
 
             const tools = make("div", "entry-actions");
-            const editable = manageable && editableType(item);
-            if (editable === "text") tools.append(action("Edit Text", () => editText(item, relative)));
-            else if (editable === "image") tools.append(action("Edit Image", () => editImage(item, relative)));
+            const editable = editableType(item);
+            if (editable === "text") {
+                tools.append(action(manageable ? "Edit Text" : "Preview Text",
+                    () => openText(item, relative, manageable)));
+            } else if (editable === "image" || editable === "image-preview") {
+                const canEditImage = manageable && editable === "image";
+                tools.append(action(canEditImage ? "Edit Image" : "Preview Image",
+                    () => openImage(item, relative, canEditImage)));
+            }
             if (!item.directory && !item.link) {
                 const text = t("Download");
                 const download = make("a", "link file-action");
@@ -400,14 +416,20 @@
         textEditor.hidden = true;
         textTarget = null;
         textEditorContent.value = "";
+        textEditorContent.readOnly = false;
+        textEditorSave.hidden = false;
+        textEditorCancel.textContent = t("Cancel");
         richTextTools.hidden = true;
     }
 
-    function openTextEditor({title, content, save, richText = false}) {
-        textTarget = {save};
+    function openTextEditor({title, content, save, richText = false, readOnly = false}) {
+        textTarget = readOnly ? null : {save};
         textEditorTitle.textContent = title;
         textEditorContent.value = content;
-        richTextTools.hidden = !richText;
+        textEditorContent.readOnly = readOnly;
+        textEditorSave.hidden = readOnly;
+        textEditorCancel.textContent = t(readOnly ? "Close" : "Cancel");
+        richTextTools.hidden = readOnly || !richText;
         richTextColour.value = "";
         updateTextSize();
         textEditor.hidden = false;
@@ -425,15 +447,18 @@
         updateTextSize();
     }
 
-    async function editText(item, relative) {
+    async function openText(item, relative, editable) {
         try {
             const response = await fetchAuthed(endpoint("download", relative), {cache: "no-store"});
             if (!response.ok) throw await responseError(response);
             const content = await response.text();
-            openTextEditor({
-                title: t("Edit %s", item.name),
+            const options = {
+                title: t(editable ? "Edit %s" : "Preview %s", item.name),
                 content,
-                save: async (updated) => {
+                readOnly: !editable
+            };
+            if (editable) {
+                options.save = async (updated) => {
                     if (!await confirmProtected()) return false;
                     const saved = await fetchAuthed(endpoint("upload", relative), {
                         method: "PUT",
@@ -444,8 +469,9 @@
                     showToast("File saved", "good");
                     await openFolder(path);
                     return true;
-                }
-            });
+                };
+            }
+            openTextEditor(options);
         } catch (error) {
             showToast(error.message, "bad");
         }
@@ -471,11 +497,29 @@
         }
     }
 
-    async function editImage(item, relative) {
+    function closeImagePreview() {
+        if (imagePreview.hidden) return;
+        imagePreview.hidden = true;
+        imagePreviewImage.removeAttribute("src");
+        if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+        imagePreviewUrl = "";
+    }
+
+    async function openImage(item, relative, editable) {
         try {
             const response = await fetchAuthed(endpoint("download", relative), {cache: "no-store"});
             if (!response.ok) throw await responseError(response);
             const blob = await response.blob();
+            if (!editable) {
+                closeImagePreview();
+                imagePreviewTitle.textContent = t("Preview %s", item.name);
+                imagePreviewUrl = URL.createObjectURL(blob);
+                imagePreviewImage.src = imagePreviewUrl;
+                imagePreviewImage.alt = item.name;
+                imagePreview.hidden = false;
+                imagePreviewClose.focus();
+                return;
+            }
             const edited = await MU.cropImage(new File([blob], item.name, {type: blob.type}));
             if (!edited || !await confirmProtected()) return;
             const saved = await fetchAuthed(endpoint("upload", relative), {
@@ -762,6 +806,7 @@
     });
     textEditorSave.addEventListener("click", saveText);
     textEditorCancel.addEventListener("click", closeTextEditor);
+    imagePreviewClose.addEventListener("click", closeImagePreview);
     richTextTools.querySelectorAll("[data-rich-code]").forEach((button) => {
         button.addEventListener("click", () => insertRichCode(button.dataset.richCode));
     });
@@ -770,6 +815,7 @@
         richTextColour.value = "";
     });
     MU.onDismiss(closeTextEditor);
+    MU.onDismiss(closeImagePreview);
     MU.editTextDocument = openTextEditor;
     search.addEventListener("input", render);
     selectAll.addEventListener("change", () => {

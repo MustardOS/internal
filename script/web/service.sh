@@ -17,6 +17,35 @@ SERVICE_PROCESS_NAME() {
 	esac
 }
 
+FIND_DROPBEAR() {
+	DROPBEAR_BIN=
+	DROPBEAR_APPLET=
+	case "$(uname -m)" in
+		aarch64) DROPBEAR_CANDIDATES="/opt/muos/bin/aarch64/dropbearmulti /usr/sbin/dropbear /usr/bin/dropbear" ;;
+		x86_64) DROPBEAR_CANDIDATES="/usr/sbin/dropbear /usr/bin/dropbear" ;;
+		*) DROPBEAR_CANDIDATES="/usr/sbin/dropbear /usr/bin/dropbear" ;;
+	esac
+
+	for DROPBEAR_CANDIDATE in $DROPBEAR_CANDIDATES; do
+		[ -x "$DROPBEAR_CANDIDATE" ] || continue
+		if [ "${DROPBEAR_CANDIDATE##*/}" = dropbearmulti ]; then
+			"$DROPBEAR_CANDIDATE" dropbear -V >/dev/null 2>&1 || continue
+			DROPBEAR_APPLET=dropbear
+		else
+			"$DROPBEAR_CANDIDATE" -V >/dev/null 2>&1 || continue
+		fi
+		DROPBEAR_BIN=$DROPBEAR_CANDIDATE
+		return 0
+	done
+	return 1
+}
+
+PREPARE_DROPBEAR() {
+	mkdir -p /etc/dropbear /root/.ssh || return 1
+	chown root:root /root /root/.ssh /etc/dropbear || return 1
+	chmod 700 /root /root/.ssh /etc/dropbear || return 1
+}
+
 VALID_LOCAL_NAME() {
 	case "$1" in
 		"" | -* | *- | *[!A-Za-z0-9-]*) return 1 ;;
@@ -137,6 +166,8 @@ THEME_PALETTE() {
 		[ -n "$TP_NAME" ] &&
 			TP_ALT=$(find "$TP_DIR/alternate" -maxdepth 1 -iname "$TP_NAME.ini" 2>/dev/null | head -n 1)
 	fi
+	set -- "$TP_INI"
+	[ -z "$TP_ALT" ] || set -- "$@" "$TP_ALT"
 
 	awk -F' *= *' '
 		FNR == 1 { section = "" }
@@ -154,7 +185,7 @@ THEME_PALETTE() {
 			for (key in want)
 				if (key in colour) printf "        %s: \"#%s\",\n", want[key], colour[key]
 		}
-	' "$TP_INI" $TP_ALT
+	' "$@"
 }
 
 PREPARE_LANDING_ROOT() {
@@ -388,38 +419,46 @@ MANAGE_WEBSERV() {
 					;;
 				sshd)
 					SSHD_PORT=$(GET_WEB_PORT "sshd_port" 22)
-					case "$(uname -m)" in
-						aarch64) DROPBEAR_MULTI=/opt/muos/bin/aarch64/dropbearmulti ;;
-						x86_64) DROPBEAR_MULTI=/usr/sbin/dropbear ;;
-						*) DROPBEAR_MULTI=/usr/sbin/dropbear ;;
-					esac
-					[ -x "$DROPBEAR_MULTI" ] || {
-						LOG_ERROR "$0" 0 "WEB" "Dropbear is unavailable"
+					FIND_DROPBEAR || {
+						LOG_ERROR "$0" 0 "WEB" "Dropbear is unavailable or incompatible"
 						return 1
 					}
-					mkdir -p /etc/dropbear /root/.ssh
-					chown root:root /root /root/.ssh /etc/dropbear
-					chmod 700 /root /root/.ssh /etc/dropbear
-					if [ "${DROPBEAR_MULTI##*/}" = dropbearmulti ]; then
-						set -- "$DROPBEAR_MULTI" dropbear
-					else
-						set -- "$DROPBEAR_MULTI"
-					fi
+					PREPARE_DROPBEAR || return 1
+					set -- "$DROPBEAR_BIN"
+					[ -z "$DROPBEAR_APPLET" ] || set -- "$@" "$DROPBEAR_APPLET"
 					"$PROCESS_HELPER" start "$PROCESS_NAME" "$@" -F -R -E -G root -p "$SSHD_PORT" \
 						-P "$MUOS_RUN_DIR/dropbear.pid" -W 1048576 -K 30 -T 5
 					;;
 				sftp)
 					SFTP_PORT=$(GET_WEB_PORT "sftp_port" 2022)
-					SFTP_DROPBEAR=/opt/muos/bin/aarch64/dropbearmulti
-					SFTP_SERVER=/opt/muos/bin/aarch64/sftp-server
+					FIND_DROPBEAR || {
+						LOG_ERROR "$0" 0 "WEB" "Dropbear is unavailable or incompatible"
+						return 1
+					}
+					case "$(uname -m)" in
+						aarch64)
+							SFTP_SERVER=/opt/muos/bin/aarch64/sftp-server
+							;;
+						x86_64)
+							SFTP_SERVER=/usr/lib/openssh/sftp-server
+							[ -x "$SFTP_SERVER" ] || SFTP_SERVER=/usr/lib/ssh/sftp-server
+							[ -x "$SFTP_SERVER" ] || SFTP_SERVER=/usr/libexec/sftp-server
+							;;
+						*)
+							LOG_ERROR "$0" 0 "WEB" "Secure File Transfer is unavailable on this architecture"
+							return 1
+							;;
+					esac
 					SFTP_JAIL=/opt/muos/frontend/musftpjail
-					if [ ! -x "$SFTP_DROPBEAR" ] || [ ! -x "$SFTP_SERVER" ] || [ ! -x "$SFTP_JAIL" ]; then
+					if [ ! -x "$SFTP_SERVER" ] || [ ! -x "$SFTP_JAIL" ]; then
 						LOG_ERROR "$0" 0 "WEB" "Secure File Transfer service files are unavailable"
 						return 1
 					fi
 					if ! grep -q '^muos:' /etc/passwd; then
 						adduser -D -H -h / -s /bin/sh muos || return 1
-						SFTP_PASSWORD_HASH='$6$mustardos-sftp$O1GeNl3WBlgGa8GMlPboh3sLE7FEYsKY28gu3kjDf9QAE8KWRcEXpKlVDlLqccFkS8y3CKfS7Hc8OTCb8LnJo/'
+					fi
+					SFTP_PASSWORD_HASH="\$6\$mustardos-sftp\$O1GeNl3WBlgGa8GMlPboh3sLE7FEYsKY28gu3kjDf9QAE8KWRcEXpKlVDlLqccFkS8y3CKfS7Hc8OTCb8LnJo/"
+					if ! awk -F: -v HASH="$SFTP_PASSWORD_HASH" '$1 == "muos" && $2 == HASH { found=1 } END { exit found ? 0 : 1 }' /etc/shadow; then
 						SFTP_SHADOW=$(mktemp /etc/shadow.muos.XXXXXX) || return 1
 						awk -F: -v HASH="$SFTP_PASSWORD_HASH" 'BEGIN { OFS=FS } $1 == "muos" { $2=HASH } { print }' \
 							/etc/shadow >"$SFTP_SHADOW" || {
@@ -430,12 +469,16 @@ MANAGE_WEBSERV() {
 						chmod 600 "$SFTP_SHADOW"
 						mv -f "$SFTP_SHADOW" /etc/shadow
 					fi
+					if [ "$(id -gn muos 2>/dev/null)" != muos ]; then
+						LOG_ERROR "$0" 0 "WEB" "Secure File Transfer account group is unavailable"
+						return 1
+					fi
 					chown root:muos "$SFTP_JAIL" || return 1
 					chmod 4750 "$SFTP_JAIL" || return 1
-					mkdir -p /etc/dropbear
-					chown root:root /etc/dropbear
-					chmod 700 /etc/dropbear
-					"$PROCESS_HELPER" start "$PROCESS_NAME" "$SFTP_DROPBEAR" dropbear -F -R -E -G muos -j -k -c "$SFTP_JAIL" \
+					PREPARE_DROPBEAR || return 1
+					set -- "$DROPBEAR_BIN"
+					[ -z "$DROPBEAR_APPLET" ] || set -- "$@" "$DROPBEAR_APPLET"
+					"$PROCESS_HELPER" start "$PROCESS_NAME" "$@" -F -R -E -G muos -j -k -c "$SFTP_JAIL" \
 						-p "$SFTP_PORT" -P "$MUOS_RUN_DIR/dropbear-sftp.pid" -W 1048576 -K 30 -T 5
 					;;
 				ttyd)

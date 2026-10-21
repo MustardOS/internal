@@ -40,7 +40,7 @@ IMPORT_OEM_PROFILE() {
 		if [ -n "$WIFI_FILE" ]; then
 			LOG_INFO "$0" 0 "FACTORY RESET" "Importing OEM network settings"
 			if /opt/muos/script/system/profile.sh import-wifi "$WIFI_FILE"; then
-				# The network profile is written once the ROMS partition has been prepared, as it lives there
+				# The network profile is written once primary storage has been prepared, as it lives there
 				(umask 077 && cp "$WIFI_FILE" "$OEM_WIFI_STASH") ||
 					LOG_WARN "$0" 0 "FACTORY RESET" "OEM network settings could not be kept for the network profile"
 			else

@@ -178,7 +178,7 @@
     <div class="view" id="view-activity" hidden>
         <div class="view-head">
             <h1><strong>Activity Tracker</strong></h1>
-            <button class="link" type="button" id="tracker-save" hidden>Save as image</button>
+            <button class="link file-head-action" type="button" id="tracker-save" data-glyph="download" hidden>Save as image</button>
         </div>
 
         <p class="box offline" id="tracker-empty">No activity recorded.</p>
@@ -248,7 +248,7 @@
     <div class="view" id="view-system" hidden>
         <div class="view-head">
             <h1><strong>System Information</strong></h1>
-            <button class="link" type="button" id="system-save" hidden>Save as image</button>
+            <button class="link file-head-action" type="button" id="system-save" data-glyph="download" hidden>Save as image</button>
         </div>
 
         <p class="box offline" id="system-offline" hidden>No data from the device.</p>
@@ -291,8 +291,9 @@
                 <label class="file-select-all"><input type="checkbox" id="files-select-all"> Select all</label>
                 <span class="file-selection-count" id="files-selection-count">0 selected</span>
                 <div class="file-selection-actions">
-                    <button class="link" type="button" id="files-copy-selected" data-glyph="copy">Copy</button>
+                    <button class="link" type="button" id="files-download-selected" data-glyph="download" hidden>Download All</button>
                     <button class="link" type="button" id="files-move-selected" data-glyph="move">Move</button>
+                    <button class="link" type="button" id="files-copy-selected" data-glyph="copy">Copy</button>
                     <button class="link danger" type="button" id="files-remove-selected" data-glyph="trash">Remove</button>
                     <button class="link" type="button" id="files-clear-selected" data-glyph="clear">Clear</button>
                 </div>
@@ -449,14 +450,16 @@
         </div>
 
         <div class="box remote-box">
-            <p class="note" id="remote-note"></p>
+            <p class="note list-hint remote-status" id="remote-note"></p>
             <button class="lock" type="button" id="remote-unlock" hidden>Unlock</button>
-            <canvas class="remote-screen" id="remote-screen" hidden></canvas>
-            <div class="remote-progress" id="remote-progress" hidden>
-                <div class="bar"><span id="remote-bar"></span></div>
-                <p class="note" id="remote-next"></p>
+            <div class="remote-display">
+                <canvas class="remote-screen" id="remote-screen" hidden></canvas>
+                <div class="remote-progress" id="remote-progress" hidden>
+                    <div class="bar"><span id="remote-bar"></span></div>
+                    <p class="note" id="remote-next"></p>
+                </div>
+                <p class="note list-hint remote-pad-note" id="remote-pad-note" hidden></p>
             </div>
-            <p class="note remote-pad-note" id="remote-pad-note" hidden></p>
             <div class="remote-pad" id="remote-pad" role="group" aria-label="Remote Controls" hidden>
                 <div class="pad-shoulders">
                     <div class="pad-pair">
@@ -515,7 +518,12 @@
     </div>
 
     <div class="view" id="view-catalogue" hidden>
-        <h1><strong>Catalogue</strong></h1>
+        <div class="view-head">
+            <h1><strong>Catalogue</strong></h1>
+            <div class="file-head-actions">
+                <button class="link file-head-action" type="button" id="catalogue-refresh" data-glyph="refresh">Refresh</button>
+            </div>
+        </div>
 
         <p class="note list-hint" data-lock-hint></p>
         <div class="box" role="region" aria-label="Catalogue">
@@ -529,7 +537,13 @@
     </div>
 
     <div class="view" id="view-pickles" hidden>
-        <h1><strong>Pickles Saves</strong></h1>
+        <div class="view-head">
+            <h1><strong>Pickles Saves</strong></h1>
+            <div class="file-head-actions">
+                <button class="link file-head-action" type="button" id="pickles-import" data-glyph="upload" hidden>Import Save Game</button>
+                <input id="pickles-import-file" type="file" accept=".srm,.rtc,.sav,.mcd,.mcr,.mpk,.eep,.fla,.dsv,.brm,.bkr,.vmu,.vms,.gme,.pak,.sgm,.nv" hidden>
+            </div>
+        </div>
 
         <p class="note list-hint" data-lock-hint></p>
         <div class="box" role="region" aria-label="Pickles Saves">
@@ -570,8 +584,10 @@
             <select class="sort" id="crop-limit" aria-label="Largest edge"></select>
             <span class="note" id="crop-size"></span>
         </div>
+        <p class="note">Drag to position the selected layer. Use the corner handles to resize the output area.</p>
         <div class="editor-fields crop-layer-tools" aria-label="Image layers">
             <label><span>Layer</span><select id="crop-layer"></select></label>
+            <label><span>Scale</span><input id="crop-layer-scale" type="range" min="10" max="400" value="100"><i id="crop-layer-scale-value">100%</i></label>
             <label><span>Opacity</span><input id="crop-layer-opacity" type="range" min="0" max="100" value="100"><i id="crop-layer-opacity-value">100%</i></label>
             <label><span>Transform</span><select id="crop-transform">
                 <option value="">Choose...</option>
@@ -606,6 +622,11 @@
             <label><span>Fade In</span><input id="video-editor-fade-in" type="number" min="0" step="0.1"><i>seconds</i></label>
             <label><span>Fade Out</span><input id="video-editor-fade-out" type="number" min="0" step="0.1"><i>seconds</i></label>
         </div>
+        <div class="video-editor-actions">
+            <button class="dialog-button" type="button" id="video-editor-use-start">Set Start to Current Frame</button>
+            <button class="dialog-button" type="button" id="video-editor-use-end">Set End to Current Frame</button>
+            <label><input id="video-editor-mute" type="checkbox"> Mute audio</label>
+        </div>
         <p class="note">Edits are non-destructive and are applied during playback.</p>
         <div class="code-actions editor-actions">
             <button class="dialog-button" type="button" id="video-editor-cancel">Cancel</button>
@@ -620,8 +641,17 @@
             <h2 id="text-editor-title">Edit Text</h2>
             <span class="note" id="text-editor-size"></span>
         </div>
-        <textarea id="text-editor-content" autocomplete="off" autocorrect="off" autocapitalize="off"
-                  spellcheck="false" aria-labelledby="text-editor-title"></textarea>
+        <div class="text-editor-workspace">
+            <section class="text-editor-pane">
+                <strong>Editor</strong>
+                <textarea id="text-editor-content" autocomplete="off" autocorrect="off" autocapitalize="off"
+                          spellcheck="false" aria-labelledby="text-editor-title"></textarea>
+            </section>
+            <section class="text-editor-pane" id="text-editor-rich-preview-pane" hidden>
+                <strong>Preview</strong>
+                <div class="rich-text-preview" id="text-editor-rich-preview" aria-label="Formatted preview"></div>
+            </section>
+        </div>
         <div class="rich-text-tools" id="text-editor-rich-tools" aria-label="Text formatting" hidden>
             <button class="dialog-button" type="button" data-rich-code="l">Bold</button>
             <button class="dialog-button" type="button" data-rich-code="o">Italic</button>
@@ -638,7 +668,7 @@
                 <option value="c">Red</option><option value="d">Light Purple</option>
                 <option value="e">Yellow</option><option value="f">White</option>
             </select></label>
-            <button class="dialog-button" type="button" data-rich-code="r">Reset</button>
+            <button class="dialog-button" type="button" data-rich-code="r">Clear Formatting</button>
         </div>
         <div class="code-actions editor-actions">
             <button class="dialog-button" type="button" id="text-editor-cancel">Cancel</button>

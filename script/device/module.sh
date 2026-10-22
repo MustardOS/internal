@@ -15,6 +15,47 @@ G350_SET_RUMBLE_GPIO_OFF() {
 	printf "%s" low >"$G350_RUMBLE_GPIO/direction"
 }
 
+# The GCS H36S has to run its stock kernel, whose PowerVR driver is release 1.11, while the
+# shared A133 rootfs carries release 1.19.  The kernel module, firmware and user libraries
+# must all come from the same release, so the stock set is laid over the rootfs copies here.
+GCS_GPU_STACK() {
+	GCS_DEVICE=/opt/muos/device
+
+	while IFS=: read -r GCS_SOURCE GCS_TARGET; do
+		[ -f "$GCS_DEVICE/$GCS_SOURCE" ] && [ -e "$GCS_TARGET" ] || continue
+		grep -q " $GCS_TARGET " /proc/mounts || mount --bind "$GCS_DEVICE/$GCS_SOURCE" "$GCS_TARGET"
+	done <<EOF
+gpu/firmware/rgx.fw.22.102.54.38:/lib/firmware/rgx.fw.22.102.54.38
+gpu/lib/libEGL.so:/usr/lib/libEGL.so
+gpu/lib/libGLES_CM.so:/usr/lib/libGLES_CM.so
+gpu/lib/libGLESv2.so:/usr/lib/libGLESv2.so
+gpu/lib/libglslcompiler.so:/usr/lib/libglslcompiler.so
+gpu/lib/libIMGegl.so:/usr/lib/libIMGegl.so
+gpu/lib/libpvrNULL_WSEGL.so:/usr/lib/libpvrNULL_WSEGL.so
+gpu/lib/libPVROCL.so:/usr/lib/libPVROCL.so.1
+gpu/lib/libPVRScopeServices.so:/usr/lib/libPVRScopeServices.so
+gpu/lib/libsrv_um.so:/usr/lib/libsrv_um.so
+gpu/lib/libusc.so:/usr/lib/libusc.so
+EOF
+
+	# udev loads the rootfs pvrsrvkm by its device alias during boot, so swap it out unless
+	# the stock module was the one loaded here.  Nothing has opened the GPU by this point.
+	GCS_MARK=/run/muos/gcs_gpu_stock
+	if [ ! -e "$GCS_MARK" ] && grep -q '^pvrsrvkm ' /proc/modules; then
+		rmmod dc_sunxi 2>/dev/null
+		rmmod pvrsrvkm || LOG_ERROR "$0" 0 "MODULE" "Could not unload the rootfs pvrsrvkm"
+	fi
+
+	for GCS_MODULE in pvrsrvkm:pvrsrvkm.ko dc_sunxi:dc_sunxi.ko sunxi_backlight:sunxi-backlight.ko; do
+		grep -q "^${GCS_MODULE%%:*} " /proc/modules && continue
+		if insmod "$GCS_DEVICE/module/${GCS_MODULE#*:}"; then
+			[ "${GCS_MODULE%%:*}" = pvrsrvkm ] && mkdir -p "${GCS_MARK%/*}" && : >"$GCS_MARK"
+		else
+			LOG_ERROR "$0" 0 "MODULE" "$(printf "Could not load %s" "${GCS_MODULE%%:*}")"
+		fi
+	done
+}
+
 MODULES_DIR="/lib/modules/$(uname -r)"
 DEPMOD_STAMP="$MODULES_DIR/depmod.stamp"
 if [ ! -f "$DEPMOD_STAMP" ] || [ -n "$(find "$MODULES_DIR" -newer "$DEPMOD_STAMP" -maxdepth 0)" ]; then
@@ -27,7 +68,8 @@ case "$1" in
 
 		case "$BOARD_NAME" in
 			gcs-h36s)
-				modprobe -q dc_sunxi
+				GCS_GPU_STACK
+
 				if ! pidof muinput >/dev/null 2>&1; then
 					/opt/muos/frontend/muinput &
 				fi
@@ -133,7 +175,7 @@ case "$1" in
 		[ "$HAS_NETWORK" -eq 1 ] && modprobe -qr "$NET_NAME"
 
 		case "$BOARD_NAME" in
-			gcs-h36s) modprobe -qr dc_sunxi ;;
+			gcs-h36s) rmmod dc_sunxi 2>/dev/null ;;
 			rg*)
 				modprobe -qr mali_kbase
 				modprobe -qr squashfs

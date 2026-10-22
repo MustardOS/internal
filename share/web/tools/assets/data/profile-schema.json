@@ -18923,6 +18923,15 @@
       "help": "Whether Remote View shows buttons, volume and brightness controls that work the device from the browser. Enabled with Sticks also adds the analogue sticks, on devices that have them, and lets a game controller connected to the browser move them.\n\nThey need Authentication and the code from Web Dashboard Code, because anyone using them can do anything you can do with the device in your hands. With Authentication and Remote View Privacy both disabled, they are open to anyone on your network, but only while Remote View is set to Live."
     },
     {
+      "key": "web/remote_local_priority",
+      "group": "web",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 1,
+      "label": "Remote Local Priority"
+    },
+    {
       "key": "web/remote_privacy",
       "group": "web",
       "type": "int",

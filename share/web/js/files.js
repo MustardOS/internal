@@ -19,6 +19,7 @@
     const selectionBox = el("files-selection");
     const selectAll = el("files-select-all");
     const selectionCount = el("files-selection-count");
+    const downloadSelected = el("files-download-selected");
     const copySelected = el("files-copy-selected");
     const moveSelected = el("files-move-selected");
     const removeSelected = el("files-remove-selected");
@@ -31,6 +32,8 @@
     const textEditorCancel = el("text-editor-cancel");
     const richTextTools = el("text-editor-rich-tools");
     const richTextColour = el("text-editor-rich-colour");
+    const richTextPreviewPane = el("text-editor-rich-preview-pane");
+    const richTextPreview = el("text-editor-rich-preview");
     const imagePreview = el("file-image-preview-box");
     const imagePreviewTitle = el("file-image-preview-title");
     const imagePreviewImage = el("file-image-preview-image");
@@ -295,6 +298,8 @@
         selectionCount.textContent = t("%s selected", selected.size);
 
         const chosen = selectedItems();
+        downloadSelected.hidden = chosen.length < 2;
+        downloadSelected.disabled = chosen.length < 2 || chosen.some((item) => item.link);
         copySelected.disabled = !chosen.length || chosen.some((item) => item.link);
         moveSelected.disabled = !chosen.length;
         removeSelected.disabled = !chosen.length;
@@ -360,17 +365,18 @@
                 name.addEventListener("click", () => openFolder(relative));
             }
 
-            const tools = make("div", "entry-actions");
+            const tools = make("div", "entry-actions file-entry-actions");
+            const toolSlots = new Array(6).fill(null);
             const editable = editableType(item);
             if (editable === "text") {
-                tools.append(action(manageable ? "Edit Text" : "Preview Text",
-                    () => openText(item, relative, manageable)));
+                toolSlots[0] = action(manageable ? "Edit Text" : "Preview Text",
+                    () => openText(item, relative, manageable));
             } else if (editable === "image" || editable === "image-preview") {
                 const canEditImage = manageable && editable === "image";
-                tools.append(action(canEditImage ? "Edit Image" : "Preview Image",
-                    () => openImage(item, relative, canEditImage)));
+                toolSlots[0] = action(canEditImage ? "Edit Image" : "Preview Image",
+                    () => openImage(item, relative, canEditImage));
             }
-            if (!item.directory && !item.link) {
+            if (!item.link) {
                 const text = t("Download");
                 const download = make("a", "link file-action");
                 download.dataset.glyph = "download";
@@ -378,17 +384,16 @@
                 download.title = text;
                 download.setAttribute("aria-label", text);
                 download.href = endpoint("download", relative);
-                download.download = item.name;
-                tools.append(download);
+                download.download = item.directory ? `${item.name}.zip` : item.name;
+                toolSlots[1] = download;
             }
             if (manageable) {
-                tools.append(
-                    action("Rename", () => renameItem(item, relative)),
-                    action("Move", () => moveItem(item, relative)),
-                    ...(!item.link ? [action("Copy", () => copyItem(item, relative))] : []),
-                    action("Remove", () => removeItem(item, relative), true)
-                );
+                toolSlots[2] = action("Rename", () => renameItem(item, relative));
+                toolSlots[3] = action("Move", () => moveItem(item, relative));
+                if (!item.link) toolSlots[4] = action("Copy", () => copyItem(item, relative));
+                toolSlots[5] = action("Remove", () => removeItem(item, relative), true);
             }
+            toolSlots.forEach((tool) => tools.append(tool || make("span", "file-action-placeholder")));
             const selectCell = make("td", "table-select");
             if (selector) selectCell.append(selector);
             const nameCell = make("td", "file-name-cell");
@@ -411,6 +416,52 @@
         textEditorSize.textContent = bytes(new TextEncoder().encode(textEditorContent.value).length);
     }
 
+    function updateRichPreview() {
+        richTextPreview.replaceChildren();
+        const palette = ["#000", "#0000aa", "#00aa00", "#00aaaa", "#aa0000", "#aa00aa", "#ffaa00", "#aaa",
+            "#555", "#5555ff", "#55ff55", "#55ffff", "#ff5555", "#ff55ff", "#ffff55", "#fff"];
+        const state = {bold: false, italic: false, underline: false, strike: false, colour: ""};
+        const content = textEditorContent.value;
+        let text = "";
+        const flush = () => {
+            if (!text) return;
+            const span = document.createElement("span");
+            span.textContent = text;
+            span.style.fontWeight = state.bold ? "700" : "";
+            span.style.fontStyle = state.italic ? "italic" : "";
+            span.style.textDecoration = [state.underline && "underline", state.strike && "line-through"].filter(Boolean).join(" ");
+            span.style.color = state.colour;
+            richTextPreview.append(span);
+            text = "";
+        };
+        for (let at = 0; at < content.length;) {
+            if (content[at] !== "§" || at + 1 >= content.length) {
+                text += content[at++];
+                continue;
+            }
+            if (content[at + 1] === "§") {
+                text += "§";
+                at += 2;
+                continue;
+            }
+            const code = content[at + 1].toLowerCase();
+            if (!/[0-9a-flonmr]/.test(code)) {
+                text += content[at++];
+                continue;
+            }
+            flush();
+            if (/[0-9a-f]/.test(code)) state.colour = palette[parseInt(code, 16)];
+            else if (code === "l") state.bold = true;
+            else if (code === "o") state.italic = true;
+            else if (code === "n") state.underline = true;
+            else if (code === "m") state.strike = true;
+            else if (code === "r") Object.assign(state, {bold: false, italic: false, underline: false, strike: false, colour: ""});
+            at += 2;
+        }
+        flush();
+        if (!richTextPreview.childNodes.length) richTextPreview.textContent = t("Formatted preview");
+    }
+
     function closeTextEditor() {
         if (textEditor.hidden) return;
         textEditor.hidden = true;
@@ -420,6 +471,8 @@
         textEditorSave.hidden = false;
         textEditorCancel.textContent = t("Cancel");
         richTextTools.hidden = true;
+        richTextPreviewPane.hidden = true;
+        richTextPreview.replaceChildren();
     }
 
     function openTextEditor({title, content, save, richText = false, readOnly = false}) {
@@ -430,8 +483,10 @@
         textEditorSave.hidden = readOnly;
         textEditorCancel.textContent = t(readOnly ? "Close" : "Cancel");
         richTextTools.hidden = readOnly || !richText;
+        richTextPreviewPane.hidden = !richText;
         richTextColour.value = "";
         updateTextSize();
+        if (richText) updateRichPreview();
         textEditor.hidden = false;
         textEditorContent.focus();
     }
@@ -445,6 +500,7 @@
         textEditorContent.setRangeText(`${prefix}${value.slice(begin, finish)}${suffix}`, begin, finish, "end");
         textEditorContent.focus();
         updateTextSize();
+        updateRichPreview();
     }
 
     async function openText(item, relative, editable) {
@@ -715,6 +771,73 @@
         return row;
     }
 
+    function archiveName() {
+        const leaf = path.split("/").filter(Boolean).pop() || (current && current.label) || "MustardOS";
+        const clean = leaf.replace(/[\\/:*?"<>|]+/g, "-").trim() || "MustardOS";
+        return `${clean}-Selection.zip`;
+    }
+
+    function wait(milliseconds) {
+        return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+    }
+
+    async function downloadSelectedItems() {
+        const chosen = selectedItems();
+        if (!current || uploading || chosen.length < 2 || chosen.some((item) => item.link)) return;
+        const root = current.id;
+        const downloadName = archiveName();
+        const archiveEndpoint = endpoint("archive");
+        const jobEndpoint = (action, job) => `api/files/${encodeURIComponent(root)}/${action}/${encodeURIComponent(job)}`;
+
+        uploading = true;
+        render();
+        queue.replaceChildren();
+        const row = transferRow({size: 0}, downloadName);
+        const count = row.querySelector(".meter-head span");
+        const note = row.querySelector(".meter-foot");
+        const fill = row.querySelector(".bar span");
+        count.textContent = t("%s items", chosen.length);
+        note.textContent = t("Preparing archive...");
+        fill.classList.add("file-transfer-active");
+
+        try {
+            const started = await api(archiveEndpoint, {
+                method: "POST", body: chosen.map((item) => item.name).join("\n"), type: "text/plain"
+            });
+            let status;
+            do {
+                await wait(250);
+                status = await api(jobEndpoint("archive-status", started.job));
+                if (status.state === "failed") throw new Error(t(status.error || "Could not prepare that archive"));
+                const total = Number(status.total) || chosen.length;
+                const completed = Math.min(Number(status.completed) || 0, total);
+                fill.classList.remove("file-transfer-active");
+                fill.style.width = `${Math.round(completed * 100 / total)}%`;
+                if (status.current)
+                    note.textContent = t("Adding %s (%s of %s)", status.current, Math.min(completed + 1, total), total);
+                else note.textContent = t("Preparing archive...");
+            } while (status.state !== "ready");
+
+            fill.style.width = "100%";
+            note.textContent = t("Archive ready. Download starting...");
+            const link = document.createElement("a");
+            link.href = jobEndpoint("archive-download", started.job);
+            link.download = downloadName;
+            document.body.append(link);
+            link.click();
+            link.remove();
+            selected.clear();
+        } catch (error) {
+            fill.classList.remove("file-transfer-active");
+            fill.classList.add("warn");
+            note.textContent = error.message;
+            showToast(error.message, "bad");
+        } finally {
+            uploading = false;
+            render();
+        }
+    }
+
     function uploadPath(file) {
         return file.webkitRelativePath || file.name;
     }
@@ -797,7 +920,10 @@
         upload([...folderPicker.files]);
         folderPicker.value = "";
     });
-    textEditorContent.addEventListener("input", updateTextSize);
+    textEditorContent.addEventListener("input", () => {
+        updateTextSize();
+        if (!richTextPreviewPane.hidden) updateRichPreview();
+    });
     textEditorContent.addEventListener("keydown", (event) => {
         if ((event.ctrlKey || event.metaKey) && event.key.toLocaleLowerCase() === "s") {
             event.preventDefault();
@@ -826,6 +952,7 @@
         render();
     });
     copySelected.addEventListener("click", () => transferSelected("copy"));
+    downloadSelected.addEventListener("click", downloadSelectedItems);
     moveSelected.addEventListener("click", () => transferSelected("move"));
     removeSelected.addEventListener("click", removeSelectedItems);
     clearSelected.addEventListener("click", () => {

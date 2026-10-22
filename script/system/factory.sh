@@ -23,46 +23,72 @@ SET_VAR_DURABLE "config" "settings/advanced/rumble" "0"
 SET_VAR_DURABLE "config" "settings/power/saver_type" "1"
 
 IMPORT_OEM_PROFILE() {
-	OEM_PART="/dev/$(GET_VAR "device" "storage/rom/dev")$(GET_VAR "device" "storage/rom/sep")$(GET_VAR "device" "storage/rom/num")"
-	[ -b "$OEM_PART" ] || return 0
-
+	OEM_PROFILE_IMPORTED=0
+	OEM_WIFI_IMPORTED=0
 	OEM_MOUNT=$(mktemp -d /tmp/oem-profile.XXXXXX) || return 0
-	OEM_MOUNTED=0
-	for OEM_TYPE in exfat vfat ext4; do
-		if MOUNT_FILESYSTEM "$OEM_TYPE" ro "$OEM_PART" "$OEM_MOUNT" 2>/dev/null; then
-			OEM_MOUNTED=1
-			break
-		fi
-	done
 
-	if [ "$OEM_MOUNTED" -eq 1 ]; then
-		WIFI_FILE=$(find "$OEM_MOUNT" -maxdepth 1 -type f -iname wifi.conf | head -n 1)
-		if [ -n "$WIFI_FILE" ]; then
+	for OEM_STORAGE in sdcard rom; do
+		OEM_DEV=$(GET_VAR "device" "storage/$OEM_STORAGE/dev")
+		OEM_SEP=$(GET_VAR "device" "storage/$OEM_STORAGE/sep")
+		OEM_NUM=$(GET_VAR "device" "storage/$OEM_STORAGE/num")
+		[ -n "$OEM_DEV" ] || continue
+
+		if [ -n "$OEM_NUM" ]; then
+			OEM_PARTS="/dev/$OEM_DEV$OEM_SEP$OEM_NUM"
+		else
+			OEM_PARTS="/dev/${OEM_DEV}p1 /dev/${OEM_DEV}1 /dev/$OEM_DEV"
+		fi
+
+		for OEM_PART in $OEM_PARTS; do
+			[ -b "$OEM_PART" ] || continue
+			OEM_MOUNTED=0
+			for OEM_TYPE in exfat vfat ext4; do
+				if MOUNT_FILESYSTEM "$OEM_TYPE" ro "$OEM_PART" "$OEM_MOUNT" 2>/dev/null; then
+					OEM_MOUNTED=1
+					break
+				fi
+			done
+			[ "$OEM_MOUNTED" -eq 1 ] || continue
+
+			WIFI_FILE=""
+			OEM_FILE=""
+			for OEM_DIR in "$OEM_MOUNT/MUOS/profile" "$OEM_MOUNT"; do
+				[ -d "$OEM_DIR" ] || continue
+				[ -n "$WIFI_FILE" ] || WIFI_FILE=$(find "$OEM_DIR" -maxdepth 1 -type f -iname wifi.conf | head -n 1)
+				[ -n "$OEM_FILE" ] || OEM_FILE=$(find "$OEM_DIR" -maxdepth 1 -type f -iname profile.conf | head -n 1)
+			done
+
+			if [ "$OEM_WIFI_IMPORTED" -eq 0 ] && [ -n "$WIFI_FILE" ]; then
 			LOG_INFO "$0" 0 "FACTORY RESET" "Importing OEM network settings"
 			if /opt/muos/script/system/profile.sh import-wifi "$WIFI_FILE"; then
-				# The network profile is written once primary storage has been prepared, as it lives there
 				(umask 077 && cp "$WIFI_FILE" "$OEM_WIFI_STASH") ||
 					LOG_WARN "$0" 0 "FACTORY RESET" "OEM network settings could not be kept for the network profile"
+				OEM_WIFI_IMPORTED=1
 			else
 				LOG_WARN "$0" 0 "FACTORY RESET" "OEM network settings could not be applied"
 			fi
-		fi
+			fi
 
-		OEM_FILE=$(find "$OEM_MOUNT" -maxdepth 1 -type f -iname profile.conf | head -n 1)
-		if [ -n "$OEM_FILE" ] && AUTO_INSTALL_FS=$(/opt/muos/script/system/profile.sh oem-install "$OEM_FILE"); then
-			LOG_INFO "$0" 0 "FACTORY RESET" "$(printf "OEM profile requests an automatic install on %s" "$AUTO_INSTALL_FS")"
-		else
-			AUTO_INSTALL_FS=""
-		fi
+			if [ "$OEM_PROFILE_IMPORTED" -eq 0 ] && [ -n "$OEM_FILE" ]; then
+				if AUTO_INSTALL_FS=$(/opt/muos/script/system/profile.sh oem-install "$OEM_FILE"); then
+					LOG_INFO "$0" 0 "FACTORY RESET" "$(printf "OEM profile requests an automatic install on %s" "$AUTO_INSTALL_FS")"
+				else
+					AUTO_INSTALL_FS=""
+				fi
 
-		if [ -n "$OEM_FILE" ]; then
-			: >"$MUOS_RUN_DIR/oem_profile"
-			LOG_INFO "$0" 0 "FACTORY RESET" "Importing OEM profile"
-			/opt/muos/script/system/profile.sh import-oem "$OEM_FILE" ||
-				LOG_WARN "$0" 0 "FACTORY RESET" "OEM profile could not be applied"
-		fi
-		umount "$OEM_MOUNT" 2>/dev/null
-	fi
+				: >"$MUOS_RUN_DIR/oem_profile"
+				LOG_INFO "$0" 0 "FACTORY RESET" "Importing OEM profile"
+				if /opt/muos/script/system/profile.sh import-oem "$OEM_FILE"; then
+					OEM_PROFILE_IMPORTED=1
+				else
+					LOG_WARN "$0" 0 "FACTORY RESET" "OEM profile could not be applied"
+				fi
+			fi
+
+			umount "$OEM_MOUNT" 2>/dev/null
+			[ "$OEM_PROFILE_IMPORTED" -eq 1 ] && [ "$OEM_WIFI_IMPORTED" -eq 1 ] && break 2
+		done
+	done
 
 	rmdir "$OEM_MOUNT" 2>/dev/null
 }

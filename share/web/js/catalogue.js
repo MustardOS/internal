@@ -27,6 +27,7 @@
     const trail = el("catalogue-crumbs");
     const body = el("catalogue-body");
     const search = el("catalogue-search");
+    const refreshButton = el("catalogue-refresh");
 
     let folder = null;
     let opened = null;
@@ -593,10 +594,22 @@
         else renderContents();
     }
 
+    async function refreshAll() {
+        try {
+            await busy(refreshButton, t("Refreshing..."), () => api("api/catalogue/refresh", {method: "POST"}));
+            mediaVersion = Date.now();
+            entries = [];
+            await render(folder && folder.path, opened);
+        } catch (error) {
+            showToast(error.message, "bad");
+        }
+    }
+
     search.addEventListener("input", () => {
         shown = PAGE;
         renderContents();
     });
+    refreshButton.addEventListener("click", refreshAll);
     onAuthChange(() => {
         if (opened) renderItem();
         else if (folder) renderContents();

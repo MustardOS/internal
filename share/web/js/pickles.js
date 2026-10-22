@@ -10,6 +10,8 @@
     const trail = el("pickles-crumbs");
     const body = el("pickles-body");
     const search = el("pickles-search");
+    const importButton = el("pickles-import");
+    const importFile = el("pickles-import-file");
     const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: "base"});
     const SECTIONS = {
         state: {name: "Save States", singular: "game", plural: "games"},
@@ -45,6 +47,12 @@
     function parentName(item) {
         const parts = String(item.path || "").split("/");
         return parts.length > 1 ? parts[parts.length - 2] : "";
+    }
+
+    function coreName(item) {
+        if (item.core) return item.core;
+        const parts = String(item.path || "").split("/").filter(Boolean);
+        return parts.length > 1 ? parts[0] : "";
     }
 
     function groupContent(items, kind) {
@@ -98,6 +106,7 @@
         if (here) steps.push({label: here});
         crumbs(trail, steps);
         search.hidden = !searchable;
+        importButton.hidden = !canManage() || section !== "sram";
     }
 
     function go(nextSection, nextOpened, push = true) {
@@ -412,7 +421,7 @@
                     download(`sram/${item.path}.bk${copy.index}`, copy.file),
                     canManage() && action("Restore", (button) => restoreBackup(item, copy, button))
                 ];
-                row.append(nameCell, make("td", "table-core", parentName(item)), fileCell,
+                row.append(nameCell, make("td", "table-core", coreName(item)), fileCell,
                     make("td", "number table-size", bytes(copy.bytes)),
                     make("td", "number table-date", stamp(copy.modified)),
                     toolsCell(actions));
@@ -467,6 +476,26 @@
         }
     }
 
+    async function importSave(file) {
+        const core = saves.find((item) => item.core)?.core || "";
+        const destination = await ask({
+            title: t("Import save game"),
+            message: t("Enter a destination beginning with the Pickles core folder."),
+            confirm: t("Import"),
+            input: {value: core ? `${core}/${file.name}` : file.name, placeholder: `core/${file.name}`}
+        });
+        if (!destination || !destination.trim() || !destination.includes("/")) return;
+        try {
+            await busy(importButton, "Importing...", () => api(`api/pickles/sram/${apiPath(...destination.trim().split("/"))}`, {
+                method: "POST", body: file, type: "application/octet-stream"
+            }));
+            showToast("Save game imported", "good");
+            await load();
+        } catch (error) {
+            showToast(error.message, "bad");
+        }
+    }
+
     async function restoreBackup(item, backup, button) {
         const sure = await ask({
             title: t("Restore earlier copy"),
@@ -511,6 +540,11 @@
     search.addEventListener("input", () => {
         shown = PAGE;
         renderSection();
+    });
+    importButton.addEventListener("click", () => importFile.click());
+    importFile.addEventListener("change", () => {
+        if (importFile.files.length) importSave(importFile.files[0]);
+        importFile.value = "";
     });
     onAuthChange(() => {
         if (opened && section === "state") showGame(opened);

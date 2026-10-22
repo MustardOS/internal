@@ -44,11 +44,13 @@
     let ready = false;
     let queue = Promise.resolve();
     let failed = false;
+    let localLocked = false;
     const held = new Map();
     const repeating = new Map();
 
     const shown = () => !pad.hidden && !el("view-remote").hidden;
     const paused = () => Boolean(MU.remotePaused && MU.remotePaused());
+    const controlsOff = () => paused() || localLocked;
     const allowed = () => Boolean(runtime.remoteControlPublic) || MU.canManage();
 
     function send(path, body) {
@@ -206,7 +208,7 @@
     }
 
     function startAction(action) {
-        if (paused()) return;
+        if (controlsOff()) return;
         if (action.includes("/")) levelStart(action);
         else press(action);
     }
@@ -257,7 +259,7 @@
 
     for (const stick of sticks) {
         stick.addEventListener("pointerdown", (event) => {
-            if (event.button !== 0 || paused() || stick.classList.contains("disabled")) return;
+            if (event.button !== 0 || controlsOff() || stick.classList.contains("disabled")) return;
             event.preventDefault();
             stick.setPointerCapture(event.pointerId);
             pointerSticks.set(event.pointerId, stick);
@@ -302,7 +304,7 @@
 
     function pollGamepad() {
         gamepadFrame = 0;
-        const usable = shown() && !paused() && allowed();
+        const usable = shown() && !controlsOff() && allowed();
         const gamepad = usable ? gamepads().find((candidate) => candidate.connected) : null;
 
         if (!gamepad) {
@@ -388,14 +390,16 @@
     addHints();
 
     function applyPause() {
-        const off = paused();
+        const off = controlsOff();
         if (off) releaseAll(true);
         pad.classList.toggle("paused", off);
         for (const button of buttons) button.disabled = off || !available.has(button.dataset.button);
         for (const button of levels) button.disabled = off;
         for (const stick of sticks) stick.classList.toggle("disabled", off);
         if (pad.hidden) return;
-        note.textContent = off ? t("The controls are off while Remote View is paused.") : "";
+        note.textContent = localLocked
+            ? t("Controls are paused while the device is being used.")
+            : off ? t("The controls are off while Remote View is paused.") : "";
         note.hidden = !off;
     }
 
@@ -425,6 +429,7 @@
 
         available = new Set(state.buttons || []);
         ready = Boolean(state.ready);
+        localLocked = Boolean(state.local_active);
         for (const button of buttons) button.disabled = !available.has(button.dataset.button);
         for (const stick of sticks) stick.hidden = !stickAvailable(stick.dataset.stick);
 
@@ -436,6 +441,21 @@
         for (const stick of sticks) drawStick(stick.dataset.stick);
         watchGamepad();
     }
+
+    async function checkLocalInput() {
+        if (!shown() || pad.hidden || !ready) return;
+        try {
+            const state = await MU.api("api/input");
+            const next = Boolean(state.local_active);
+            if (next === localLocked) return;
+            localLocked = next;
+            applyPause();
+            if (!localLocked) watchGamepad();
+        } catch (_) {
+        }
+    }
+
+    setInterval(checkLocalInput, 250);
 
     new MutationObserver(() => {
         if (el("view-remote").hidden) releaseAll(true);

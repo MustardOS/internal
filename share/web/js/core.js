@@ -93,7 +93,7 @@
         const value = Number(seconds);
         if (!Number.isFinite(value) || value <= 0) return "";
         return new Date(value * 1000).toLocaleString([], {
-            day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"
+            day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
         });
     }
 
@@ -212,8 +212,22 @@
             media.preload = "metadata";
         }
         media.addEventListener("error", hideMediaPreview);
+        const fit = () => {
+            const width = kind === "video" ? media.videoWidth : media.naturalWidth;
+            const height = kind === "video" ? media.videoHeight : media.naturalHeight;
+            if (!width || !height) return;
+            const maximumWidth = Math.min(kind === "video" ? 360 : 260, window.innerWidth - 16);
+            const maximumHeight = Math.min(kind === "video" ? 240 : 220, window.innerHeight - 16);
+            const factor = Math.min(maximumWidth / width, maximumHeight / height);
+            mediaPreview.style.width = `${Math.max(80, Math.round(width * factor))}px`;
+            mediaPreview.style.height = `${Math.max(60, Math.round(height * factor))}px`;
+            placeMediaPreview(owner);
+        };
+        media.addEventListener(kind === "video" ? "loadedmetadata" : "load", fit, {once: true});
         media.src = source;
         mediaPreview.dataset.kind = kind;
+        mediaPreview.style.width = "";
+        mediaPreview.style.height = "";
         mediaPreview.replaceChildren(media);
         mediaPreview.hidden = false;
         requestAnimationFrame(() => placeMediaPreview(owner));

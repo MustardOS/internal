@@ -473,7 +473,9 @@
             }
 
             const visible = items.filter((item) => matches(item, needle));
-            newButton.hidden = !manage || opened !== null;
+            newButton.hidden = !manage;
+            newButton.textContent = t(opened === null ? "New Collection" : "Add Content");
+            newButton.dataset.glyph = opened === null ? "plus" : "upload";
             const allSelectable = [...items, ...selectableFolders(opened === null ? data.collections : [])];
             const visibleSelectable = [...visible, ...selectableFolders(folders)];
             paintSelection(controls, selected, allSelectable, visibleSelectable, manage,
@@ -603,6 +605,22 @@
                 await load();
         }
 
+        async function addContent(button) {
+            if (opened === null) return;
+            const path = await ask({
+                title: t("Add content"),
+                message: t("Enter the full path to content on the device."),
+                confirm: t("Add"),
+                input: {value: "", placeholder: "/mnt/mmc/ROMS/..."}
+            });
+            if (!path || !path.trim()) return;
+            if (await run(button, "Adding...",
+                () => api(`api/collection/${apiPath(opened, "add")}`,
+                    {method: "POST", body: path.trim(), type: "text/plain"}),
+                "Added to collection"))
+                await load();
+        }
+
         async function rename(folder, button) {
             const name = await ask({
                 title: t("Rename collection"),
@@ -712,7 +730,7 @@
         }
 
         search.addEventListener("input", render);
-        newButton.addEventListener("click", () => create(newButton));
+        newButton.addEventListener("click", () => opened === null ? create(newButton) : addContent(newButton));
         controls.all.addEventListener("change", () => {
             const items = opened === null ? data.items : folderItems(opened) || [];
             const needle = search.value.trim().toLocaleLowerCase();

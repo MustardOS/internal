@@ -291,8 +291,7 @@ LOAD_MODULE() {
 				# PCIe WiFi - autoloaded by kernel, no SDIO reload cycle needed
 				;;
 			rg*)
-				modprobe -qr "$NET_NAME"
-				sleep 1
+				FORCE_SDIO_AWAKE
 				;;
 		esac
 	fi
@@ -314,6 +313,12 @@ LOAD_MODULE() {
 		mgx* | tui*)
 			if [ -n "$NET_NAME" ] && ! MODULE_LOADED "$NET_NAME"; then
 				modprobe -q "$NET_MODULE"
+			fi
+			;;
+		gcs*)
+			# The RTL8723DS module ships with the device, outside the rootfs module tree
+			if [ -n "$NET_NAME" ] && ! MODULE_LOADED "$NET_NAME"; then
+				insmod "$NET_MODULE"
 			fi
 			;;
 		rk*)

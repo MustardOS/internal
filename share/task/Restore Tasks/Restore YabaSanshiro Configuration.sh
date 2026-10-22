@@ -1,30 +1,31 @@
 #!/bin/sh
 # HELP: Restore the default YabaSanshiro Controls.
 # ICON: retroarch
+# EXECUTION_MODE: progress
+# CAN_CANCEL: 0
+# PROTOCOL_VERSION: 1
 
-. /opt/muos/script/var/service.sh
+. /opt/muos/script/var/base.sh
+. /opt/muos/script/var/ui.sh
 
-FRONTEND stop
+TASK_BEGIN "restore_yabasanshiro_configuration" "Restore YabaSanshiro Configuration"
 
-echo "Restoring YabaSanshiro Controls"
+TASK_STATUS "Restoring YabaSanshiro Controls"
 
 YABA_DIR="$MUOS_SHARE_DIR/emulator/yabasanshiro"
 rm -f "${YABA_DIR}/.emulationstation/es_temporaryinput.cfg" "${YABA_DIR}/.yabasanshiro/keymapv2.json"
 
 /opt/muos/script/control/yabasanshiro.sh
 
-echo "Removing Per-game YabaSanshiro Configurations"
+TASK_STATUS "Removing Per-game YabaSanshiro Configurations"
 
 CONF_DIR="${YABA_DIR}/.yabasanshiro"
 for CFG in "$CONF_DIR"/*.config; do
 	[ "$(basename "$CFG")" != "28xx.config" ] && rm -f "$CFG"
 done
 
-echo "Sync Filesystem"
+TASK_STATUS "Sync Filesystem"
 sync
 
-echo "All Done!"
-TBOX sleep 2
-
-FRONTEND start task
+TASK_COMPLETE "YabaSanshiro configuration restored"
 exit 0

@@ -406,6 +406,8 @@ MANAGE_WEBSERV() {
 						[ "$(GET_VAR "config" "web/remote_view")" = "7" ] && set -- "$@" --screen-manual
 						REMOTE_CONTROL_ON && set -- "$@" --remote-input
 						REMOTE_CONTROL_PUBLIC && set -- "$@" --remote-public
+						REMOTE_CONTROL_ON && [ "$(GET_VAR "config" "web/remote_local_priority")" != "0" ] &&
+							set -- "$@" --local-priority
 						REMOTE_CONTROL_ON && [ "$(GET_VAR "config" "web/remote_control")" = "2" ] &&
 							set -- "$@" --remote-sticks
 					else

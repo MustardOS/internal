@@ -39,7 +39,7 @@
 
     function output(crop, limit) {
         const longest = Math.max(crop.width, crop.height);
-        if (!limit || longest <= limit) return {width: crop.width, height: crop.height};
+        if (!limit) return {width: crop.width, height: crop.height};
         const ratio = limit / longest;
         return {
             width: Math.max(1, Math.round(crop.width * ratio)),
@@ -48,10 +48,10 @@
     }
 
     const SIZES = [
-        {label: "Original size", limit: 0},
-        {label: "At most 640px", limit: 640},
-        {label: "At most 480px", limit: 480},
-        {label: "At most 320px", limit: 320}
+        {label: "Crop size", limit: 0},
+        {label: "640px output", limit: 640},
+        {label: "480px output", limit: 480},
+        {label: "320px output", limit: 320}
     ];
 
     function outputType(file) {
@@ -67,6 +67,8 @@
     const sizeNote = el("crop-size");
     const sizePick = el("crop-limit");
     const layerPick = el("crop-layer");
+    const layerScale = el("crop-layer-scale");
+    const layerScaleValue = el("crop-layer-scale-value");
     const opacity = el("crop-layer-opacity");
     const opacityValue = el("crop-layer-opacity-value");
     const transformPick = el("crop-transform");
@@ -79,30 +81,21 @@
     let selected = 0;
     let bounds = {width: 0, height: 0};
     let crop = {x: 0, y: 0, width: 0, height: 0};
-    let scale = 1;
+    let displayScale = 1;
     let pending = null;
     let sourceUrls = [];
     let baseFile = null;
+    let baseLayer = null;
 
-    function dimensions(layer) {
-        const width = layer.image.naturalWidth || layer.image.width;
-        const height = layer.image.naturalHeight || layer.image.height;
-        return Math.abs(layer.rotation) % 180 === 90 ? {width: height, height: width} : {width, height};
-    }
-
-    function renderLayer(context, layer, base) {
+    function renderLayer(context, layer) {
         const nativeWidth = layer.image.naturalWidth || layer.image.width;
         const nativeHeight = layer.image.naturalHeight || layer.image.height;
-        const turned = Math.abs(layer.rotation) % 180 === 90;
-        const visualWidth = turned ? nativeHeight : nativeWidth;
-        const visualHeight = turned ? nativeWidth : nativeHeight;
-        const ratio = base ? Math.min(bounds.width / visualWidth, bounds.height / visualHeight)
-            : Math.min(bounds.width * .8 / visualWidth, bounds.height * .8 / visualHeight, 1);
+        const ratio = layer.fit * layer.size;
         const width = nativeWidth * ratio;
         const height = nativeHeight * ratio;
         context.save();
         context.globalAlpha = layer.opacity;
-        context.translate(bounds.width / 2 + (base ? 0 : layer.x), bounds.height / 2 + (base ? 0 : layer.y));
+        context.translate(bounds.width / 2 + layer.x, bounds.height / 2 + layer.y);
         context.rotate(layer.rotation * Math.PI / 180);
         context.scale(layer.flipX ? -1 : 1, layer.flipY ? -1 : 1);
         context.drawImage(layer.image, -width / 2, -height / 2, width, height);
@@ -114,7 +107,7 @@
         canvas.height = bounds.height;
         const context = canvas.getContext("2d");
         context.clearRect(0, 0, bounds.width, bounds.height);
-        layers.forEach((layer, index) => renderLayer(context, layer, index === 0));
+        layers.forEach((layer) => renderLayer(context, layer));
     }
 
     function layerControls() {
@@ -127,36 +120,36 @@
         selected = Math.max(0, Math.min(selected, layers.length - 1));
         layerPick.value = String(selected);
         const layer = layers[selected];
+        layerScale.value = String(Math.round(layer.size * 100));
+        layerScaleValue.textContent = `${layerScale.value}%`;
         opacity.value = String(Math.round(layer.opacity * 100));
         opacityValue.textContent = `${opacity.value}%`;
-        stage.classList.toggle("moving-layer", selected > 0);
-        lowerButton.disabled = selected <= 1;
-        raiseButton.disabled = selected === 0 || selected >= layers.length - 1;
-        removeButton.disabled = selected === 0;
+        stage.classList.add("moving-layer");
+        lowerButton.disabled = selected <= 0;
+        raiseButton.disabled = selected >= layers.length - 1;
+        removeButton.disabled = layers.length <= 1;
     }
 
     function paint() {
-        const imageWidth = bounds.width * scale;
+        const imageWidth = bounds.width * displayScale;
         const offsetX = Math.max(0, (stage.clientWidth - imageWidth) / 2);
-        frame.style.left = `${offsetX + crop.x * scale}px`;
-        frame.style.top = `${crop.y * scale}px`;
-        frame.style.width = `${crop.width * scale}px`;
-        frame.style.height = `${crop.height * scale}px`;
+        frame.style.left = `${offsetX + crop.x * displayScale}px`;
+        frame.style.top = `${crop.y * displayScale}px`;
+        frame.style.width = `${crop.width * displayScale}px`;
+        frame.style.height = `${crop.height * displayScale}px`;
         const size = output(crop, Number(sizePick.value) || 0);
-        sizeNote.textContent = `${crop.width} × ${crop.height} → ${size.width} × ${size.height}`;
+        sizeNote.textContent = `Crop ${crop.width} × ${crop.height} · Output ${size.width} × ${size.height}`;
     }
 
     function layout(resetCrop) {
-        const base = dimensions(layers[0]);
-        bounds = {width: base.width, height: base.height};
         if (resetCrop) crop = {x: 0, y: 0, ...bounds};
         else crop = clamp(crop, bounds);
         const room = stage.clientWidth || 520;
-        scale = Math.min(1, room / bounds.width, 420 / bounds.height);
+        displayScale = Math.min(1, room / bounds.width, 420 / bounds.height);
         composite();
-        canvas.style.width = `${bounds.width * scale}px`;
-        canvas.style.height = `${bounds.height * scale}px`;
-        stage.style.height = `${bounds.height * scale}px`;
+        canvas.style.width = `${bounds.width * displayScale}px`;
+        canvas.style.height = `${bounds.height * displayScale}px`;
+        stage.style.height = `${bounds.height * displayScale}px`;
         layerControls();
         paint();
     }
@@ -168,7 +161,7 @@
         else if (kind === "right") layer.rotation = (layer.rotation + 90) % 360;
         else if (kind === "horizontal") layer.flipX = !layer.flipX;
         else if (kind === "vertical") layer.flipY = !layer.flipY;
-        layout(selected === 0 && (kind === "left" || kind === "right"));
+        layout(false);
     }
 
     function loadImage(file) {
@@ -185,7 +178,10 @@
     async function addLayer(file) {
         try {
             const image = await loadImage(file);
-            layers.push({name: file.name, image, opacity: 1, rotation: 0, flipX: false, flipY: false, x: 0, y: 0});
+            const nativeWidth = image.naturalWidth || image.width;
+            const nativeHeight = image.naturalHeight || image.height;
+            const fit = Math.min(bounds.width * .8 / nativeWidth, bounds.height * .8 / nativeHeight);
+            layers.push({name: file.name, image, opacity: 1, size: 1, fit, rotation: 0, flipX: false, flipY: false, x: 0, y: 0});
             selected = layers.length - 1;
             layout(false);
         } catch (_) {
@@ -194,7 +190,7 @@
 
     function moveLayer(direction) {
         const target = selected + direction;
-        if (selected === 0 || target < 1 || target >= layers.length) return;
+        if (target < 0 || target >= layers.length) return;
         [layers[selected], layers[target]] = [layers[target], layers[selected]];
         selected = target;
         layout(false);
@@ -202,7 +198,7 @@
 
     function shiftLayer(dx, dy) {
         const layer = layers[selected];
-        if (!layer || selected === 0) return;
+        if (!layer) return;
         const limitX = bounds.width / 2;
         const limitY = bounds.height / 2;
         layer.x = Math.max(-limitX, Math.min(limitX, layer.x + dx));
@@ -212,7 +208,7 @@
 
     function reset() {
         if (!layers.length) return;
-        layers = [{...layers[0], opacity: 1, rotation: 0, flipX: false, flipY: false}];
+        layers = [{...baseLayer}];
         selected = 0;
         layout(true);
     }
@@ -230,13 +226,12 @@
             const handle = event.target.dataset ? event.target.dataset.handle : null;
             if (handle) return start(event, handle);
             if (event.target !== frame && event.target !== canvas) return;
-            if (selected > 0) return start(event, "layer");
-            if (event.target === frame) start(event, "move");
+            start(event, "layer");
         });
         stage.addEventListener("pointermove", (event) => {
             if (!active) return;
-            const dx = (event.clientX - last.x) / scale;
-            const dy = (event.clientY - last.y) / scale;
+            const dx = (event.clientX - last.x) / displayScale;
+            const dy = (event.clientY - last.y) / displayScale;
             last = {x: event.clientX, y: event.clientY};
             if (active === "layer") return shiftLayer(dx, dy);
             crop = drag(crop, active, dx, dy, bounds);
@@ -246,7 +241,7 @@
         stage.addEventListener("keydown", (event) => {
             const steps = {ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1]};
             const step = steps[event.key];
-            if (!step || selected === 0) return;
+            if (!step) return;
             const distance = event.shiftKey ? 10 : 1;
             shiftLayer(step[0] * distance, step[1] * distance);
             event.preventDefault();
@@ -291,7 +286,9 @@
             baseFile = file;
             try {
                 const image = await loadImage(file);
-                layers = [{name: file.name, image, opacity: 1, rotation: 0, flipX: false, flipY: false, x: 0, y: 0}];
+                bounds = {width: image.naturalWidth || image.width, height: image.naturalHeight || image.height};
+                baseLayer = {name: file.name, image, opacity: 1, size: 1, fit: 1, rotation: 0, flipX: false, flipY: false, x: 0, y: 0};
+                layers = [{...baseLayer}];
                 selected = 0;
                 box.hidden = false;
                 layout(true);
@@ -313,6 +310,12 @@
     });
     sizePick.addEventListener("change", paint);
     layerPick.addEventListener("change", () => { selected = Number(layerPick.value) || 0; layerControls(); });
+    layerScale.addEventListener("input", () => {
+        if (!layers[selected]) return;
+        layers[selected].size = Number(layerScale.value) / 100;
+        layerScaleValue.textContent = `${layerScale.value}%`;
+        composite();
+    });
     opacity.addEventListener("input", () => {
         if (!layers[selected]) return;
         layers[selected].opacity = Number(opacity.value) / 100;
@@ -331,7 +334,7 @@
     raiseButton.addEventListener("click", () => moveLayer(1));
     lowerButton.addEventListener("click", () => moveLayer(-1));
     removeButton.addEventListener("click", () => {
-        if (selected === 0) return;
+        if (layers.length <= 1) return;
         layers.splice(selected, 1);
         selected = Math.min(selected, layers.length - 1);
         layout(false);

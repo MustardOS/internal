@@ -296,7 +296,7 @@
                     framed = true;
                     liveEmpty = 0;
                     if (type && type[1].trim() === "image/jpeg") {
-                        note.textContent = t("Live. The screen streams while this page is open.");
+                        note.textContent = "";
                         latest = new Blob([body], {type: "image/jpeg"});
                         show();
                     } else {

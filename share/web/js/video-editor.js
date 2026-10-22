@@ -9,6 +9,9 @@
     const end = el("video-editor-end");
     const fadeIn = el("video-editor-fade-in");
     const fadeOut = el("video-editor-fade-out");
+    const mute = el("video-editor-mute");
+    const useStart = el("video-editor-use-start");
+    const useEnd = el("video-editor-use-end");
     const saveButton = el("video-editor-save");
     const cancelButton = el("video-editor-cancel");
     let target = null;
@@ -28,7 +31,8 @@
             start: from,
             end: until,
             fadeIn: Math.min(number(fadeIn), length),
-            fadeOut: Math.min(number(fadeOut), length)
+            fadeOut: Math.min(number(fadeOut), length),
+            mute: mute.checked
         };
     }
 
@@ -41,7 +45,7 @@
         if (edit.fadeIn > 0 && at < edit.fadeIn) gain = Math.min(gain, at / edit.fadeIn);
         if (edit.fadeOut > 0 && left < edit.fadeOut) gain = Math.min(gain, left / edit.fadeOut);
         video.style.opacity = String(Math.max(0, gain));
-        video.volume = Math.max(0, gain);
+        video.volume = edit.mute ? 0 : Math.max(0, gain);
         frame = requestAnimationFrame(preview);
     }
 
@@ -72,7 +76,8 @@
                 start_ms: Math.round(edit.start * 1000),
                 end_ms: Math.round(edit.end * 1000),
                 fade_in_ms: Math.round(edit.fadeIn * 1000),
-                fade_out_ms: Math.round(edit.fadeOut * 1000)
+                fade_out_ms: Math.round(edit.fadeOut * 1000),
+                mute: edit.mute ? 1 : 0
             }) !== false) close(true);
         } catch (error) {
             showToast(error.message, "bad");
@@ -95,6 +100,7 @@
                 end.value = String((Number(settings.end_ms) || Math.round(duration * 1000)) / 1000);
                 fadeIn.value = String((Number(settings.fade_in_ms) || 0) / 1000);
                 fadeOut.value = String((Number(settings.fade_out_ms) || 0) / 1000);
+                mute.checked = Number(settings.mute) === 1;
                 video.currentTime = number(start);
                 video.play().catch(() => {});
                 cancelAnimationFrame(frame);
@@ -107,6 +113,8 @@
     [start, end, fadeIn, fadeOut].forEach((field) => field.addEventListener("change", () => {
         if (field === start) video.currentTime = number(start);
     }));
+    useStart.addEventListener("click", () => { start.value = video.currentTime.toFixed(3); });
+    useEnd.addEventListener("click", () => { end.value = video.currentTime.toFixed(3); });
     saveButton.addEventListener("click", save);
     cancelButton.addEventListener("click", () => close(false));
     onDismiss(() => close(false));

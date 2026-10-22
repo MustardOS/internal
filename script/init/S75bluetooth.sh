@@ -81,9 +81,11 @@ DO_START() {
 		rg*)
 			NET_NAME=$(GET_VAR "device" "network/name")
 			HAS_NETWORK=$(GET_VAR "device" "board/network")
-			if [ "${HAS_NETWORK:-0}" -ne 0 ] && [ -n "$NET_NAME" ] && ! grep -q "^$NET_NAME " /proc/modules 2>/dev/null; then
-				LOG_INFO "$0" 0 "BLUETOOTH" "Loading network module required..."
-				/opt/muos/script/init/async/S02network.sh load
+			if [ "${HAS_NETWORK:-0}" -ne 0 ] && [ -n "$NET_NAME" ]; then
+				LOG_INFO "$0" 0 "BLUETOOTH" "Preparing shared wireless hardware..."
+				if ! /opt/muos/script/init/async/S02network.sh load; then
+					LOG_WARN "$0" 0 "BLUETOOTH" "Shared wireless hardware did not initialise"
+				fi
 			fi
 			rfkill unblock bluetooth 2>/dev/null
 			sleep 0.1

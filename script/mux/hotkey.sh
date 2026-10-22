@@ -42,6 +42,7 @@ HANDLE_HOTKEY() {
 			[ "$IDLE_SLEEP_CFG" -gt 0 ] && IS_NORMAL_MODE && IS_HANDHELD_MODE && SLEEP
 			;;
 
+		SLEEP_LID) LID_ENABLED && SLEEP ;;
 		SLEEP_SHORT | SLEEP_LONG) SLEEP ;;
 
 			# RGB combos:
@@ -57,15 +58,22 @@ HANDLE_HOTKEY() {
 	esac
 }
 
-LID_CLOSED() {
+LID_ENABLED() {
 	case "$BOARD_NAME" in
-		rg34xx-sp | rg35xx-sp | rgsp)
-			HALL_KEY="$(cat "$(GET_VAR "device" "board/hall")")"
-			read -r VAL <"$HALL_KEY" 2>/dev/null || return 1
-			[ "$VAL" -eq 0 ]
-			;;
+		rg34xx-sp | rg35xx-sp | rgsp) ;;
 		*) return 1 ;;
 	esac
+
+	[ "$(GET_VAR "device" "board/lid")" -eq 1 ] 2>/dev/null || return 1
+	[ "$(GET_VAR "config" "settings/advanced/lidswitch")" -eq 1 ] 2>/dev/null
+}
+
+LID_CLOSED() {
+	LID_ENABLED || return 1
+	HALL_KEY="$(GET_VAR "device" "board/hall")"
+	[ -n "$HALL_KEY" ] && [ -r "$HALL_KEY" ] || return 1
+	read -r VAL <"$HALL_KEY" 2>/dev/null || return 1
+	[ "$VAL" -eq 0 ]
 }
 
 SLEEP() {
@@ -76,11 +84,6 @@ SLEEP() {
 
 	# Prevent sleep immediately after resume
 	[ -f "$MUOS_RUN_DIR/recent_wake" ] && return 0
-
-	# Ignore if our lid switch is disabled
-	case "$BOARD_NAME" in
-		rg34xx-sp | rg35xx-sp | rgsp) [ "$(GET_VAR "config" "settings/advanced/lidswitch")" -eq 0 ] && return 0 ;;
-	esac
 
 	CURR_UPTIME=$(UPTIME 2>/dev/null)
 	CURR_UPTIME=${CURR_UPTIME%%.*}
@@ -145,8 +148,11 @@ while :; do
 		IS_NORMAL_MODE && IS_HANDHELD_MODE && /opt/muos/script/mux/idle.sh start
 	fi
 
-	# Don't respond to any hotkeys while in charge mode or with lid closed.
-	if [ "$CHARGE_ACTIVE" -eq 1 ] || LID_CLOSED; then
+	if [ "$CHARGE_ACTIVE" -eq 1 ]; then
+		continue
+	fi
+
+	if [ "$HOTKEY" != SLEEP_LID ] && LID_CLOSED; then
 		continue
 	fi
 

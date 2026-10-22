@@ -4,7 +4,7 @@
     "rg35xx-sp",
     "rgsp"
   ],
-  "SLEEP_LONG": {
+  "SLEEP_LID": {
     "handle_hold": false,
     "inputs": [
       "LID_CLOSE"

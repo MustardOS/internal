@@ -2,7 +2,7 @@
     "use strict";
 
     const MU = window.MU;
-    const {el, t, showToast} = MU;
+    const {el, t, showToast, clock} = MU;
     const POLL = 2000;
     const IDLE_POLL = 8000;
 
@@ -90,14 +90,6 @@
             else button.removeAttribute("aria-current");
             button.disabled = !canControl || sending;
         });
-    }
-
-    function clock(seconds) {
-        const total = Math.max(0, Math.floor(Number(seconds) || 0));
-        const hours = Math.floor(total / 3600);
-        const minutes = Math.floor((total % 3600) / 60);
-        const rest = String(total % 60).padStart(2, "0");
-        return hours ? `${hours}:${String(minutes).padStart(2, "0")}:${rest}` : `${minutes}:${rest}`;
     }
 
     function livePosition() {

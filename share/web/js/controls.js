@@ -45,6 +45,7 @@
     let queue = Promise.resolve();
     let failed = false;
     let localLocked = false;
+    let checkingLocalInput = false;
     const held = new Map();
     const repeating = new Map();
 
@@ -443,7 +444,8 @@
     }
 
     async function checkLocalInput() {
-        if (!shown() || pad.hidden || !ready) return;
+        if (!shown() || pad.hidden || !ready || checkingLocalInput) return;
+        checkingLocalInput = true;
         try {
             const state = await MU.api("api/input");
             const next = Boolean(state.local_active);
@@ -452,6 +454,8 @@
             applyPause();
             if (!localLocked) watchGamepad();
         } catch (_) {
+        } finally {
+            checkingLocalInput = false;
         }
     }
 

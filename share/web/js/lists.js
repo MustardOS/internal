@@ -226,6 +226,8 @@
         let items = [];
         let folders = [];
         let busy = 0;
+        let loadingData = false;
+        let reloadRequested = false;
         let working = false;
         const sort = readSort("muos.history.sort", "date", true);
 
@@ -367,22 +369,31 @@
         }
 
         async function load() {
-            if (!body.childElementCount) body.replaceChildren(loading("Reading the history…"));
-            try {
-                const fresh = await api("api/history");
-                items = fresh.items || [];
-                busy = fresh.busy || 0;
-                if (MU.canManageLists()) {
-                    try {
-                        folders = ((await api("api/collection")).collections || []).map((entry) => entry.name);
-                    } catch (_) {
-                        folders = [];
-                    }
-                }
-                render();
-            } catch (error) {
-                body.replaceChildren(problem(error.message, load));
+            if (loadingData) {
+                reloadRequested = true;
+                return;
             }
+            loadingData = true;
+            do {
+                reloadRequested = false;
+                if (!body.childElementCount) body.replaceChildren(loading("Reading the history…"));
+                try {
+                    const fresh = await api("api/history");
+                    items = fresh.items || [];
+                    busy = fresh.busy || 0;
+                    if (MU.canManageLists()) {
+                        try {
+                            folders = ((await api("api/collection")).collections || []).map((entry) => entry.name);
+                        } catch (_) {
+                            folders = [];
+                        }
+                    }
+                    render();
+                } catch (error) {
+                    body.replaceChildren(problem(error.message, load));
+                }
+            } while (reloadRequested);
+            loadingData = false;
         }
 
         search.addEventListener("input", render);
@@ -411,6 +422,8 @@
         let opened = null;
         let crumbsFor;
         let working = false;
+        let loadingData = false;
+        let reloadRequested = false;
         const sort = readSort("muos.collections.sort", "name", false);
 
         function setSort(column, descending) {
@@ -713,14 +726,23 @@
         }
 
         async function load() {
-            if (!body.childElementCount) body.replaceChildren(loading("Reading the collections…"));
-            try {
-                const fresh = await api("api/collection");
-                data = {items: fresh.items || [], collections: fresh.collections || [], busy: fresh.busy || 0};
-                render();
-            } catch (error) {
-                body.replaceChildren(problem(error.message, load));
+            if (loadingData) {
+                reloadRequested = true;
+                return;
             }
+            loadingData = true;
+            do {
+                reloadRequested = false;
+                if (!body.childElementCount) body.replaceChildren(loading("Reading the collections…"));
+                try {
+                    const fresh = await api("api/collection");
+                    data = {items: fresh.items || [], collections: fresh.collections || [], busy: fresh.busy || 0};
+                    render();
+                } catch (error) {
+                    body.replaceChildren(problem(error.message, load));
+                }
+            } while (reloadRequested);
+            loadingData = false;
         }
 
         function restore(where) {

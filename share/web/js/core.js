@@ -87,6 +87,14 @@
         return hours ? `${hours}h ${minutes}m` : `${minutes}m`;
     }
 
+    function clock(seconds) {
+        const total = Math.max(0, Math.floor(Number(seconds) || 0));
+        const hours = Math.floor(total / 3600);
+        const minutes = Math.floor((total % 3600) / 60);
+        const rest = String(total % 60).padStart(2, "0");
+        return hours ? `${hours}:${String(minutes).padStart(2, "0")}:${rest}` : `${minutes}:${rest}`;
+    }
+
     const count = (value) => (Number(value) || 0).toLocaleString();
 
     function stamp(seconds) {
@@ -366,6 +374,7 @@
         make,
         bytes,
         duration,
+        clock,
         count,
         stamp,
         showToast,

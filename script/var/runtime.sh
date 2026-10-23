@@ -81,7 +81,9 @@ RESTORE_CPU_GOV() {
 	done
 
 	if [ -n "$GOV" ] && [ -w "$GOV_PATH" ]; then
-		printf "%s" "$GOV" >"$GOV_PATH"
+		if printf "%s" "$GOV" >"$GOV_PATH"; then
+			rm -f -- "$GOV_WAKE"
+		fi
 	fi
 }
 

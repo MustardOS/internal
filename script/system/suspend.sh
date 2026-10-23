@@ -23,6 +23,7 @@ BOARD_NAME=$(GET_VAR "device" "board/name")
 HAS_NETWORK=$(GET_VAR "device" "board/network")
 NET_NAME=$(GET_VAR "device" "network/name")
 CPU_GOV_PATH="$(GET_VAR "device" "cpu/governor")"
+SUSPEND_CPU_GOV="$MUOS_RUN_DIR/suspend_cpu_gov"
 LED_NORMAL="$(GET_VAR "device" "led/normal")"
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
 RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
@@ -651,7 +652,12 @@ SLEEP() {
 		amixer -q -c 0 cset name="$SPEAKER_AMP_SWITCH" off >/dev/null 2>&1
 	fi
 
-	SAVE_CPU_GOV "$CPU_GOV_PATH"
+	SAVE_CPU_GOV "$CPU_GOV_PATH" "$SUSPEND_CPU_GOV"
+	if [ -r "$MUOS_RUN_DIR/wake_cpu_gov" ]; then
+		IFS= read -r ACTIVE_CPU_GOV <"$MUOS_RUN_DIR/wake_cpu_gov"
+		ACTIVE_CPU_GOV=${ACTIVE_CPU_GOV%%[[:space:]]*}
+		[ -n "$ACTIVE_CPU_GOV" ] && printf '%s' "$ACTIVE_CPU_GOV" >"$SUSPEND_CPU_GOV"
+	fi
 
 	case "$BOARD_NAME" in
 		rg*) echo "0" >"$LED_NORMAL" ;;
@@ -734,7 +740,7 @@ RESUME() {
 			;;
 	esac
 
-	RESTORE_CPU_GOV "$CPU_GOV_PATH"
+	RESTORE_CPU_GOV "$CPU_GOV_PATH" "$SUSPEND_CPU_GOV"
 	SYNC_GPU_FREQUENCY "$(cat "$CPU_GOV_PATH" 2>/dev/null)"
 	SYNC_CPU_IDLE "$(cat "$CPU_GOV_PATH" 2>/dev/null)"
 	SYNC_DMC_FREQUENCY "$(cat "$CPU_GOV_PATH" 2>/dev/null)"

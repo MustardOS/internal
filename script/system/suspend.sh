@@ -40,13 +40,9 @@ CONNECT_ON_WAKE=$(GET_VAR "config" "settings/network/wake")
 USE_ACTIVITY="$(GET_VAR "config" "settings/advanced/activity")"
 USB_FUNCTION="$(GET_VAR "config" "settings/advanced/usb_function")"
 
-# H700 firmware drops into "super standby", where only the memory is kept powered, when nothing
-# else is armed to wake the device.  The "Sleep Until Wake" suspend option has no shutdown alarm,
-# so on these boards the SoC alarm and the charger wake are cleared too, leaving the power key as
-# the only way back.  It already had the functionality, this is simply a coding placebo!
-SUPER_STANDBY=0
+H700_DEVICE=0
 case "$BOARD_NAME" in
-	rg28xx-h | rg34xx-h | rg34xx-sp | rg35xx-* | rg40xx-* | rgcubexx-h | rgsp) [ "$SHUTDOWN_TIME_SETTING" = -1 ] && SUPER_STANDBY=1 ;;
+	rg28xx-h | rg34xx-h | rg34xx-sp | rg35xx-* | rg40xx-* | rgcubexx-h | rgsp) H700_DEVICE=1 ;;
 esac
 
 # We'll keep the suspend state for the G350 at freeze for now, not that it even works!
@@ -275,6 +271,13 @@ RUN_SUSPEND_BACKEND() {
 		rk-g350-v) POWER_DEVICE=rk8xx_pwrkey ;;
 		rg-vita-pro | rk-pixel-2) POWER_DEVICE="rk805 pwrkey" ;;
 	esac
+	[ "$H700_DEVICE" -eq 1 ] && POWER_DEVICE=axp2202-pek
+
+	LID_WAKE=0
+	if [ "$(GET_VAR "device" "board/lid")" -eq 1 ] 2>/dev/null && \
+		[ "$(GET_VAR "config" "settings/advanced/lidswitch")" -eq 1 ] 2>/dev/null; then
+		LID_WAKE=1
+	fi
 
 	# Plugged in, so stay out of the kernel power state and wait in userspace
 	# instead.  The power key, pulling the charger, or the shutdown deadline wakes it.
@@ -284,6 +287,7 @@ RUN_SUSPEND_BACKEND() {
 		set -- --state userspace --charger "$CHARGER_PATH" --optimise \
 			--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
 		[ -n "$POWER_DEVICE" ] && set -- "$@" --power-device "$POWER_DEVICE"
+		[ "$LID_WAKE" -eq 1 ] && set -- "$@" --lid-wake
 		[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
 
 		"$SUSPEND_HELPER" "$@"
@@ -305,25 +309,21 @@ RUN_SUSPEND_BACKEND() {
 		# mem is refused while a wakeup source is held (the phy holds one while
 		# a PC is connected in ADB mode), so fall back to the power key wait
 		if [ "$SUSPEND_RESULT" -eq 1 ]; then
-			if [ -n "$REMAINING" ]; then
-				"$SUSPEND_HELPER" --state userspace --power-device "$POWER_DEVICE" --optimise \
-					--quiesce muxfrontend --quiesce muxretro --quiesce retroarch --timeout "$REMAINING"
-			else
-				"$SUSPEND_HELPER" --state userspace --power-device "$POWER_DEVICE" --optimise \
-					--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
-			fi
+			set -- --state userspace --power-device "$POWER_DEVICE" --optimise \
+				--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
+			[ "$LID_WAKE" -eq 1 ] && set -- "$@" --lid-wake
+			[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
+			"$SUSPEND_HELPER" "$@"
 			SUSPEND_RESULT=$?
 		fi
 	elif [ -n "$POWER_DEVICE" ]; then
 		G350_LOG_SUSPEND userspace-wait
 
-		if [ -n "$REMAINING" ]; then
-			"$SUSPEND_HELPER" --state userspace --power-device "$POWER_DEVICE" --optimise \
-				--quiesce muxfrontend --quiesce muxretro --quiesce retroarch --timeout "$REMAINING"
-		else
-			"$SUSPEND_HELPER" --state userspace --power-device "$POWER_DEVICE" --optimise \
-				--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
-		fi
+		set -- --state userspace --power-device "$POWER_DEVICE" --optimise \
+			--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
+		[ "$LID_WAKE" -eq 1 ] && set -- "$@" --lid-wake
+		[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
+		"$SUSPEND_HELPER" "$@"
 		SUSPEND_RESULT=$?
 	else
 		if [ -n "$REMAINING" ]; then
@@ -556,11 +556,6 @@ QUIET_WAKE_SOURCES() {
 		for BATTERY_WAKE in /sys/class/power_supply/*battery*/power/wakeup; do
 			[ -e "$BATTERY_WAKE" ] && printf '%s\n' "$BATTERY_WAKE"
 		done
-		if [ "$SUPER_STANDBY" -eq 1 ] && [ "${FAKE_SLEEP:-0}" -eq 0 ]; then
-			for USB_WAKE in /sys/class/power_supply/*usb*/power/wakeup; do
-				[ -e "$USB_WAKE" ] && printf '%s\n' "$USB_WAKE"
-			done
-		fi
 	} |
 		while IFS= read -r WAKE_CONTROL; do
 			WAKE_VALUE=
@@ -656,7 +651,6 @@ SLEEP() {
 		amixer -q -c 0 cset name="$SPEAKER_AMP_SWITCH" off >/dev/null 2>&1
 	fi
 
-	STOP_SSHD_GRACEFUL
 	SAVE_CPU_GOV "$CPU_GOV_PATH"
 
 	case "$BOARD_NAME" in
@@ -831,11 +825,6 @@ rm -f "$QUIET_HALT"
 case "$SHUTDOWN_TIME_SETTING" in
 	-2) ;;
 	-1)
-		if [ "$SUPER_STANDBY" -eq 1 ] && [ "$FAKE_SLEEP" -eq 0 ]; then
-			[ -w "$RTC_WAKE_PATH/wakealarm" ] && echo 0 >"$RTC_WAKE_PATH/wakealarm"
-			LOG_INFO "$0" 0 "SUSPEND" "Sleep Until Wake! Going into SuPeR sTaNdBy!"
-		fi
-
 		SLEEP && RESUME
 		;;
 	2)

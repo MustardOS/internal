@@ -68,14 +68,6 @@ LID_ENABLED() {
 	[ "$(GET_VAR "config" "settings/advanced/lidswitch")" -eq 1 ] 2>/dev/null
 }
 
-LID_CLOSED() {
-	LID_ENABLED || return 1
-	HALL_KEY="$(GET_VAR "device" "board/hall")"
-	[ -n "$HALL_KEY" ] && [ -r "$HALL_KEY" ] || return 1
-	read -r VAL <"$HALL_KEY" 2>/dev/null || return 1
-	[ "$VAL" -eq 0 ]
-}
-
 SLEEP() {
 	IS_NORMAL_MODE || return 0
 
@@ -103,7 +95,14 @@ SLEEP() {
 
 START_MUHOTKEY() {
 	LOG_DEBUG "$0" 0 "HOTKEY" "Starting muhotkey backend"
-	/opt/muos/frontend/muhotkey >&3 &
+
+	set --
+	case "$(GET_VAR "device" "board/lid")" in
+		1) ;;
+		*) set -- -L ;;
+	esac
+
+	/opt/muos/frontend/muhotkey "$@" >&3 &
 	MU_PID=$!
 }
 
@@ -149,10 +148,6 @@ while :; do
 	fi
 
 	if [ "$CHARGE_ACTIVE" -eq 1 ]; then
-		continue
-	fi
-
-	if [ "$HOTKEY" != SLEEP_LID ] && LID_CLOSED; then
 		continue
 	fi
 

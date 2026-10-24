@@ -5642,6 +5642,68 @@
 		linux,phandle = <0xde>;
 		phandle = <0xde>;
 
+		opp@1800000000-ab {
+			opp-microvolt-b1 = <0x138800>;
+			opp-microvolt-b0 = <0x12ebc0>;
+			opp-microvolt-a1 = <0x138800>;
+			clock-latency-ns = <0x3b9b0>;
+			opp-hz = <0x00 0x6b49d200>;
+		};
+
+		opp@408000000-ab {
+			opp-microvolt-c2 = <0xdbba0>;
+			opp-microvolt-c1 = <0xdbba0>;
+			opp-microvolt-c0 = <0xdbba0>;
+			opp-microvolt-b1 = <0xdbba0>;
+			opp-microvolt-b0 = <0xdbba0>;
+			opp-microvolt-a1 = <0xdbba0>;
+			clock-latency-ns = <0x3b9b0>;
+			opp-hz = <0x00 0x18519600>;
+		};
+
+		opp@408000000-0 {
+			opp-supported-hw = <0x0b>;
+			clock-latency-ns = <0x3b9b0>;
+			opp-microvolt = <0xdbba0>;
+			opp-hz = <0x00 0x18519600>;
+		};
+
+		opp@360000000-ab {
+			opp-microvolt-c2 = <0xdbba0>;
+			opp-microvolt-c1 = <0xdbba0>;
+			opp-microvolt-c0 = <0xdbba0>;
+			opp-microvolt-b1 = <0xdbba0>;
+			opp-microvolt-b0 = <0xdbba0>;
+			opp-microvolt-a1 = <0xdbba0>;
+			clock-latency-ns = <0x3b9b0>;
+			opp-hz = <0x00 0x15752a00>;
+		};
+
+		opp@360000000-0 {
+			opp-supported-hw = <0x0b>;
+			clock-latency-ns = <0x3b9b0>;
+			opp-microvolt = <0xdbba0>;
+			opp-hz = <0x00 0x15752a00>;
+		};
+
+		opp@288000000-ab {
+			opp-microvolt-c2 = <0xdbba0>;
+			opp-microvolt-c1 = <0xdbba0>;
+			opp-microvolt-c0 = <0xdbba0>;
+			opp-microvolt-b1 = <0xdbba0>;
+			opp-microvolt-b0 = <0xdbba0>;
+			opp-microvolt-a1 = <0xdbba0>;
+			clock-latency-ns = <0x3b9b0>;
+			opp-hz = <0x00 0x112a8800>;
+		};
+
+		opp@288000000-0 {
+			opp-supported-hw = <0x0b>;
+			clock-latency-ns = <0x3b9b0>;
+			opp-microvolt = <0xdbba0>;
+			opp-hz = <0x00 0x112a8800>;
+		};
+
 		opp@480000000-0 {
 			opp-hz = <0x00 0x1c9c3800>;
 			opp-microvolt = <0xdbba0>;
@@ -6184,7 +6246,7 @@
 		#cooling-cells = <0x02>;
 		gpu_idle = <0x01>;
 		dvfs_status = <0x01>;
-		operating-points = <0xb8920 0xf4240 0x9e340 0xea600 0x927c0 0xdbba0 0x86c40 0xdbba0 0x7b0c0 0xdbba0 0x6f540 0xdbba0 0x668a0 0xdbba0>;
+		operating-points = <0xc7380 0x100590 0xb8920 0xf4240 0x9e340 0xea600 0x927c0 0xdbba0 0x86c40 0xdbba0 0x7b0c0 0xdbba0 0x6f540 0xdbba0 0x668a0 0xdbba0 0x57e40 0xdbba0>;
 		linux,phandle = <0xd4>;
 		phandle = <0xd4>;
 

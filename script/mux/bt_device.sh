@@ -53,12 +53,52 @@ CONNECT_DEVICE() {
 	return 1
 }
 
+APPEND_MANAGED_DEVICE() {
+	INFO_MAC=$1
+	INFO_FALLBACK=${2:-}
+	grep -q "^$INFO_MAC " "$TMP_BT_PAIR" 2>/dev/null && return 0
+
+	INFO_RAW=$(timeout 5 bluetoothctl info "$INFO_MAC" 2>/dev/null)
+	INFO_PAIRED=$(printf "%s" "$INFO_RAW" | awk -F': ' '/^\tPaired:/ { print $2; exit }')
+	INFO_TRUSTED=$(printf "%s" "$INFO_RAW" | awk -F': ' '/^\tTrusted:/ { print $2; exit }')
+	[ "$INFO_PAIRED" = "yes" ] || [ "$INFO_TRUSTED" = "yes" ] || return 1
+
+	INFO_ALIAS=$(printf "%s" "$INFO_RAW" | awk -F': ' '/^\tAlias:/ { print $2; exit }')
+	INFO_NAME=$(printf "%s" "$INFO_RAW" | awk -F': ' '/^\tName:/ { print $2; exit }')
+	INFO_NAME=${INFO_ALIAS:-${INFO_NAME:-${INFO_FALLBACK:-$INFO_MAC}}}
+	INFO_MAC_CLEAN=$(printf "%s" "$INFO_MAC" | tr ':' '_')
+	if [ -f "$BT_DIR/alias_$INFO_MAC_CLEAN" ]; then
+		INFO_OUR_ALIAS=$(cat "$BT_DIR/alias_$INFO_MAC_CLEAN" 2>/dev/null)
+		[ -n "$INFO_OUR_ALIAS" ] && INFO_NAME=$INFO_OUR_ALIAS
+	fi
+
+	INFO_CONNECTED=$(printf "%s" "$INFO_RAW" | awk -F': ' '/^\tConnected:/ { print $2; exit }')
+	[ "$INFO_CONNECTED" = "yes" ] && INFO_CONNECTED=1 || INFO_CONNECTED=0
+	printf "%s %d %s\n" "$INFO_MAC" "$INFO_CONNECTED" "$INFO_NAME" >>"$TMP_BT_PAIR"
+}
+
 DO_LIST() {
+	REQUIRED_MAC=${1:-}
+	case "$REQUIRED_MAC" in
+		"") ;;
+		??:??:??:??:??:??) ;;
+		*) LOG_ERROR "$0" 0 "BTDEVICE" "Invalid required device address"; return 1 ;;
+	esac
+
 	if [ -f "$BT_DEVICE_LOCK" ]; then
 		LOCK_PID=$(cat "$BT_DEVICE_LOCK" 2>/dev/null)
 		if [ -n "$LOCK_PID" ] && kill -0 "$LOCK_PID" 2>/dev/null; then
-			LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Device list already in progress (PID %s) - skipping" "$LOCK_PID")"
-			exit 0
+			LOG_INFO "$0" 0 "BTDEVICE" "$(printf "Waiting for device list process %s" "$LOCK_PID")"
+			LOCK_WAIT=0
+			while [ -f "$BT_DEVICE_LOCK" ] && kill -0 "$LOCK_PID" 2>/dev/null && [ "$LOCK_WAIT" -lt 100 ]; do
+				sleep 0.1
+				LOCK_WAIT=$((LOCK_WAIT + 1))
+			done
+			if [ -f "$BT_DEVICE_LOCK" ] && kill -0 "$LOCK_PID" 2>/dev/null; then
+				LOG_WARN "$0" 0 "BTDEVICE" "Device list remained busy"
+				return 1
+			fi
+			[ -n "$REQUIRED_MAC" ] || return 0
 		fi
 		rm -f "$BT_DEVICE_LOCK"
 	fi
@@ -136,15 +176,23 @@ DO_LIST() {
 		done
 	fi
 
-	if [ ! -s "$TMP_BT_PAIR" ]; then
-		rm -f "$TMP_BT_PAIR"
-		LOG_WARN "$0" 0 "BTDEVICE" "No managed devices found"
-		return 0
+	if [ -f "$BT_PAIRED" ]; then
+		while IFS=' ' read -r CACHED_MAC _ CACHED_NAME; do
+			case "$CACHED_MAC" in
+				??:??:??:??:??:??) APPEND_MANAGED_DEVICE "$CACHED_MAC" "$CACHED_NAME" || true ;;
+			esac
+		done <"$BT_PAIRED"
 	fi
+
+	[ -z "$REQUIRED_MAC" ] || APPEND_MANAGED_DEVICE "$REQUIRED_MAC" || true
 
 	COUNT=$(wc -l <"$TMP_BT_PAIR" 2>/dev/null || printf 0)
 	mv -f "$TMP_BT_PAIR" "$BT_PAIRED"
-	LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Found %s managed device(s); list written to '%s'" "${COUNT:-0}" "$BT_PAIRED")"
+	if [ "${COUNT:-0}" -eq 0 ]; then
+		LOG_WARN "$0" 0 "BTDEVICE" "No managed devices found"
+	else
+		LOG_SUCCESS "$0" 0 "BTDEVICE" "$(printf "Found %s managed device(s); list written to '%s'" "$COUNT" "$BT_PAIRED")"
+	fi
 }
 
 DO_CONNECT() {
@@ -197,7 +245,7 @@ DO_CONNECT() {
 		return 1
 	fi
 
-	DO_LIST
+	DO_LIST "$MAC"
 }
 
 DO_DISCONNECT() {
@@ -367,7 +415,7 @@ DO_ALIAS() {
 }
 
 case "${1:-}" in
-	list) DO_LIST ;;
+	list) DO_LIST "${2:-}" ;;
 	connect) DO_CONNECT "$2" ;;
 	disconnect) DO_DISCONNECT "$2" ;;
 	forget) DO_FORGET "$2" ;;

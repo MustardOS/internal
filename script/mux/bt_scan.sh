@@ -8,9 +8,11 @@ BT_DIR="$MUOS_CONF_GLOBAL/bluetooth"
 BT_SCAN="$BT_DIR/scan"
 BT_PAIRED="$BT_DIR/paired"
 BT_SCAN_LOCK="$BT_DIR/scan.lock"
+BT_SCAN_INFO_DIR="$MUOS_RUN_DIR/bt_scan_info"
 BT_SCAN_TIMEOUT=$(GET_VAR "config" "settings/advanced/bt_scan_timeout")
 SCAN_TIMEOUT=${BT_SCAN_TIMEOUT:-20}
 SHOW_RAW=$(GET_VAR "config" "settings/advanced/bt_raw")
+LOCAL_MACS=
 
 mkdir -p "$BT_DIR"
 
@@ -76,6 +78,20 @@ OUI_LOOKUP() {
 
 BT_SCAN_STOP="$BT_DIR/scan.stop"
 
+LOAD_LOCAL_MACS() {
+	LOCAL_MACS=$(
+		for ADAPTER_ADDRESS in /sys/class/bluetooth/hci*/address; do
+			[ -f "$ADAPTER_ADDRESS" ] || continue
+			cat "$ADAPTER_ADDRESS" 2>/dev/null
+		done
+		for ADAPTER_DIR in /var/lib/bluetooth/??:??:??:??:??:??; do
+			[ -d "$ADAPTER_DIR" ] && basename "$ADAPTER_DIR"
+		done
+		timeout 5 bluetoothctl list 2>/dev/null | awk '$1 == "Controller" { print $2 }'
+	)
+	LOCAL_MACS=$(printf "%s\n" "$LOCAL_MACS" | tr '[:lower:]' '[:upper:]' | sort -u)
+}
+
 WRITE_SCAN_RESULTS() {
 	TMP_NAMES_FILE="${1:-}"
 
@@ -113,6 +129,8 @@ WRITE_SCAN_RESULTS() {
 		MAC=${LINE%% *}
 		NAME=${LINE#* }
 		[ -z "$MAC" ] && continue
+		MAC_UPPER=$(printf "%s" "$MAC" | tr '[:lower:]' '[:upper:]')
+		printf "%s\n" "$LOCAL_MACS" | grep -qxF "$MAC_UPPER" 2>/dev/null && continue
 
 		# Skip paired, trusted, and connected devices
 		grep -q "^$MAC " "$BT_PAIRED" 2>/dev/null && continue
@@ -173,11 +191,13 @@ DO_LIST() {
 	fi
 	printf "%s" "$$" >"$BT_SCAN_LOCK"
 	rm -f "$BT_SCAN_STOP"
+	mkdir -p "$BT_SCAN_INFO_DIR"
 	trap 'rm -f "$BT_SCAN_LOCK" "$BT_SCAN_STOP"' EXIT
 	: >"$BT_SCAN"
 
 	LOG_INFO "$0" 0 "BTSCAN" "$(printf "Scan starting (%ss)" "$SCAN_TIMEOUT")"
 	timeout 5 bluetoothctl power on >/dev/null 2>&1
+	LOAD_LOCAL_MACS
 
 	TMP_NAMES="$BT_DIR/scan_names.tmp.$$"
 	: >"$TMP_NAMES"
@@ -277,11 +297,12 @@ DO_CONNECT() {
 		return 1
 	fi
 
-	"$(dirname "$0")/bt_device.sh" list
+	"$(dirname "$0")/bt_device.sh" list "$MAC"
 }
 
 DO_INFO() {
 	MAC="$1"
+	DISPLAY_NAME=${2:-}
 	[ -z "$MAC" ] && {
 		LOG_ERROR "$0" 0 "BTSCAN" "No MAC address provided for info"
 		exit 1
@@ -290,13 +311,31 @@ DO_INFO() {
 	LOG_INFO "$0" 0 "BTSCAN" "$(printf "Fetching info for '%s'" "$MAC")"
 
 	BT_INFO="$MUOS_RUN_DIR/bt_info"
-	BT_RAW=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
+	MAC_CLEAN=$(printf "%s" "$MAC" | tr ':' '_')
+	BT_INFO_CACHE="$BT_SCAN_INFO_DIR/$MAC_CLEAN"
+	mkdir -p "$BT_SCAN_INFO_DIR"
+
+	BT_RAW=
+	INFO_ATTEMPT=0
+	while [ "$INFO_ATTEMPT" -lt 3 ] && [ -z "$BT_RAW" ]; do
+		BT_RAW=$(timeout 5 bluetoothctl info "$MAC" 2>/dev/null)
+		INFO_ATTEMPT=$((INFO_ATTEMPT + 1))
+		[ -n "$BT_RAW" ] || sleep 0.2
+	done
 
 	if [ -z "$BT_RAW" ]; then
-		printf "Address: %s\nNo additional information available.\n" "$MAC" >"$BT_INFO"
+		if [ -s "$BT_INFO_CACHE" ]; then
+			cp -f "$BT_INFO_CACHE" "$BT_INFO"
+		else
+			{
+				[ -z "$DISPLAY_NAME" ] || printf "Name: %s\n" "$DISPLAY_NAME"
+				printf "Address: %s\nNo additional information available.\n" "$MAC"
+			} >"$BT_INFO"
+		fi
 		return 0
 	fi
 
+	BT_INFO_TMP="$BT_INFO.tmp.$$"
 	{
 		printf "Address: %s\n" "$MAC"
 
@@ -314,7 +353,20 @@ DO_INFO() {
 
 		CONNECTED=$(printf "%s" "$BT_RAW" | awk -F': ' '/^\tConnected:/ { print $2; exit }')
 		[ -n "$CONNECTED" ] && printf "Connected: %s\n" "$CONNECTED"
-	} >"$BT_INFO"
+	} >"$BT_INFO_TMP"
+
+	if grep -qE '^(Type|Signal):' "$BT_INFO_TMP" 2>/dev/null; then
+		mv -f "$BT_INFO_TMP" "$BT_INFO"
+		cp -f "$BT_INFO" "$BT_INFO_CACHE"
+	elif [ -s "$BT_INFO_CACHE" ]; then
+		rm -f "$BT_INFO_TMP"
+		cp -f "$BT_INFO_CACHE" "$BT_INFO"
+	else
+		mv -f "$BT_INFO_TMP" "$BT_INFO"
+		if grep -qE '^(Paired|Trusted|Connected):' "$BT_INFO" 2>/dev/null; then
+			cp -f "$BT_INFO" "$BT_INFO_CACHE"
+		fi
+	fi
 
 	LOG_SUCCESS "$0" 0 "BTSCAN" "$(printf "Device info written to '%s'" "$BT_INFO")"
 }
@@ -323,9 +375,9 @@ case "${1:-}" in
 	list) DO_LIST ;;
 	stop) DO_STOP ;;
 	connect) DO_CONNECT "$2" ;;
-	info) DO_INFO "$2" ;;
+	info) DO_INFO "$2" "${3:-}" ;;
 	*)
-		printf "Usage: %s {list|stop|connect <mac>|info <mac>}\n" "$0"
+		printf "Usage: %s {list|stop|connect <mac>|info <mac> [name]}\n" "$0"
 		exit 1
 		;;
 esac

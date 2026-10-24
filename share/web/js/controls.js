@@ -14,6 +14,7 @@
 
     const pad = el("remote-pad");
     const note = el("remote-pad-note");
+    const lock = el("remote-lock");
     const buttons = Array.from(pad.querySelectorAll("[data-button]"));
     const levels = Array.from(pad.querySelectorAll("[data-level]"));
 
@@ -45,13 +46,17 @@
     let queue = Promise.resolve();
     let failed = false;
     let localLocked = false;
+    let physicalLocked = false;
+    let lockWanted = false;
+    let lockTimer = 0;
+    let lockBusy = false;
     let checkingLocalInput = false;
     const held = new Map();
     const repeating = new Map();
 
     const shown = () => !pad.hidden && !el("view-remote").hidden;
     const paused = () => Boolean(MU.remotePaused && MU.remotePaused());
-    const controlsOff = () => paused() || localLocked;
+    const controlsOff = () => paused() || (localLocked && !physicalLocked);
     const allowed = () => Boolean(runtime.remoteControlPublic) || MU.canManage();
 
     function send(path, body) {
@@ -75,6 +80,44 @@
         for (const button of pad.querySelectorAll(`[data-button="${action}"], [data-level="${action}"]`)) {
             button.classList.toggle("down", down);
         }
+    }
+
+    function drawLock() {
+        lock.setAttribute("aria-pressed", physicalLocked ? "true" : "false");
+        for (const glyph of lock.querySelectorAll("[data-when]")) {
+            glyph.hidden = glyph.dataset.when !== (physicalLocked ? "on" : "off");
+        }
+    }
+
+    async function renewLock(value) {
+        if (lockBusy) return;
+        lockBusy = true;
+        try {
+            await MU.api("api/input/lock", {method: "POST", type: "text/plain", body: value ? "1" : "0"});
+            physicalLocked = value;
+            if (value) localLocked = false;
+            drawLock();
+            applyPause();
+        } catch (error) {
+            if (value) {
+                lockWanted = false;
+                physicalLocked = false;
+                clearInterval(lockTimer);
+                lockTimer = 0;
+                drawLock();
+            }
+            showToast(error.message, "bad");
+        } finally {
+            lockBusy = false;
+        }
+    }
+
+    function setLock(value) {
+        lockWanted = value;
+        clearInterval(lockTimer);
+        lockTimer = 0;
+        renewLock(value);
+        if (value) lockTimer = setInterval(() => renewLock(true), RENEW);
     }
 
     function press(name) {
@@ -371,7 +414,10 @@
 
     window.addEventListener("blur", () => releaseAll(true));
     document.addEventListener("visibilitychange", () => {
-        if (document.hidden) releaseAll(true);
+        if (document.hidden) {
+            if (lockWanted) setLock(false);
+            releaseAll(true);
+        }
     });
 
     function addHints() {
@@ -407,8 +453,10 @@
     document.addEventListener("muos-remote-pause", applyPause);
 
     function hide(message) {
+        if (lockWanted) setLock(false);
         releaseAll(false);
         document.body.classList.remove("remote-has-pad");
+        lock.hidden = true;
         pad.hidden = true;
         note.textContent = message || "";
         note.hidden = !message;
@@ -430,13 +478,16 @@
 
         available = new Set(state.buttons || []);
         ready = Boolean(state.ready);
-        localLocked = Boolean(state.local_active);
+        physicalLocked = Boolean(state.locked);
+        localLocked = Boolean(state.local_active) && !physicalLocked;
+        drawLock();
         for (const button of buttons) button.disabled = !available.has(button.dataset.button);
         for (const stick of sticks) stick.hidden = !stickAvailable(stick.dataset.stick);
 
         if (!ready) return hide(t("The device input service is not running."));
         note.hidden = true;
         pad.hidden = false;
+        lock.hidden = false;
         document.body.classList.add("remote-has-pad");
         applyPause();
         for (const stick of sticks) drawStick(stick.dataset.stick);
@@ -448,8 +499,13 @@
         checkingLocalInput = true;
         try {
             const state = await MU.api("api/input");
-            const next = Boolean(state.local_active);
-            if (next === localLocked) return;
+            physicalLocked = Boolean(state.locked);
+            const next = Boolean(state.local_active) && !physicalLocked;
+            drawLock();
+            if (next === localLocked) {
+                applyPause();
+                return;
+            }
             localLocked = next;
             applyPause();
             if (!localLocked) watchGamepad();
@@ -461,10 +517,21 @@
 
     setInterval(checkLocalInput, 250);
 
+    lock.addEventListener("click", () => setLock(!physicalLocked));
+
     new MutationObserver(() => {
-        if (el("view-remote").hidden) releaseAll(true);
+        if (el("view-remote").hidden) {
+            if (lockWanted) setLock(false);
+            releaseAll(true);
+        }
         else load();
     }).observe(el("view-remote"), {attributes: true, attributeFilter: ["hidden"]});
+
+    window.addEventListener("pagehide", () => {
+        clearInterval(lockTimer);
+        if (lockWanted) fetch("api/input/lock", {method: "POST", body: "0", keepalive: true}).catch(() => {});
+        lockWanted = false;
+    });
 
     MU.onAuthChange(() => {
         if (!el("view-remote").hidden) load();

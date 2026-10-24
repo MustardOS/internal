@@ -132,7 +132,7 @@
             title: t("Modify system files"),
             message: t("Changes here can stop MustardOS from starting or working correctly."),
             confirm: t("Continue"),
-            alternate: t("Don't Remind Me")
+            alternate: t("Do Not Remind Me")
         });
         if (answer === "alternate") {
             try {

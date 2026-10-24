@@ -604,14 +604,16 @@ button.card-name:hover, button.card-name:focus-visible { color: var(--accent); }
 .remote-box { display: grid; justify-items: center; gap: 12px; }
 .remote-box .note { justify-self: stretch; }
 #remote-note:empty { display: none; }
-.remote-display { display: grid; width: min-content; max-width: 100%; justify-items: stretch; gap: 12px; }
+.remote-display { display: grid; width: fit-content; max-width: 100%; justify-items: stretch; gap: 12px; }
+.remote-display > .note { contain: inline-size; }
+body:not(.remote-mobile) .remote-display > .remote-screen { justify-self: center; }
 .remote-screen { display: block; max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: 6px; background: #000; image-rendering: auto; }
 .remote-screen[hidden], .remote-box .link[hidden], .remote-box .lock[hidden] { display: none; }
 .remote-progress { display: grid; width: 100%; max-width: 640px; justify-self: center; gap: 6px; justify-items: center; }
 .remote-progress .bar { width: 100%; }
 .remote-progress .note { justify-self: center; text-align: center; }
 .remote-progress[hidden] { display: none; }
-.remote-pad-note { justify-content: center; text-align: center; }
+.remote-pad-note { justify-content: flex-start; text-align: start; }
 .list-tools { flex-wrap: wrap; align-items: center; }
 
 .player-box { display: grid; gap: 10px; border-top-color: var(--accent); }
@@ -897,9 +899,9 @@ body.remote-mobile .pad-small { min-height: var(--pad-small); }
 }
 .remote-screen-toggle { display: none; border: 1px solid var(--line); border-radius: 6px; }
 body.remote-has-pad .remote-screen-toggle { display: inline-flex; }
-.remote-screen-toggle, .remote-sound-toggle { align-items: center; gap: 5px; }
-.remote-sound-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; }
-.remote-sound-toggle[hidden] { display: none; }
+.remote-screen-toggle, .remote-sound-toggle, .remote-lock-toggle { align-items: center; gap: 5px; }
+.remote-sound-toggle, .remote-lock-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; }
+.remote-sound-toggle[hidden], .remote-lock-toggle[hidden] { display: none; }
 #view-remote.screen-off .remote-screen, #view-remote.screen-off #remote-note, #view-remote.screen-off .remote-progress,
 #view-remote.screen-off #remote-popout, #view-remote.screen-off #remote-save, #view-remote.screen-off #remote-pause, #view-remote.screen-off #remote-refresh { display: none; }
 body.remote-mobile #view-remote .list-tools { display: flex; gap: 8px; }

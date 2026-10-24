@@ -17746,6 +17746,27 @@
       ]
     },
     {
+      "key": "visual/launchsplash",
+      "group": "visual",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 1,
+      "label": "Launch Splash",
+      "module": "muxcustom",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ],
+      "help": "Shows content artwork while Pickles prepares the game. Splash catalogues can use still images, animated GIF or APNG images, and MP4 video."
+    },
+    {
       "key": "visual/listglyph",
       "group": "visual",
       "type": "int",

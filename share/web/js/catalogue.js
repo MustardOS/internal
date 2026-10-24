@@ -10,6 +10,7 @@
         {key: "box", name: "Box Art", short: "Box"},
         {key: "grid", name: "Grid Image", short: "Grid"},
         {key: "preview", name: "Preview Media", short: "Preview"},
+        {key: "splash", name: "Launch Splash", short: "Splash"},
         {key: "text", name: "Description Text", short: "Text"},
         {key: "manual", name: "Manual", short: "Manual"},
         {key: "overlay/base", name: "Overlay", short: "Overlay"}
@@ -18,6 +19,7 @@
     const ACCEPTS = {
         box: "image/*,.apng,.mp4,video/mp4",
         preview: "image/*,.apng,.mp4,video/mp4",
+        splash: "image/*,.apng,.mp4,video/mp4",
         text: ".txt,text/plain",
         manual: ".txt,text/plain"
     };
@@ -533,7 +535,7 @@
             if (has && has.split("/").pop() !== name) {
                 await api(`api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...has.split("/"))}`, {method: "DELETE"});
             }
-            if (kind.key === "box" || kind.key === "preview") {
+            if (kind.key === "box" || kind.key === "preview" || kind.key === "splash") {
                 try {
                     await api(catalogueEndpoint(entry, kind, sidecar(has || name)), {method: "DELETE"});
                 } catch (_) {

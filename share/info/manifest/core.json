@@ -2004,8 +2004,8 @@
         "namespace": "Nintendo",
         "catalogue": "Nintendo N64",
         "lookup": 0,
-        "default": "mupen64plus - standalone - glidemk2 - full",
-        "runtime": "external",
+        "default": "mupen64plus next",
+        "runtime": "pickles",
         "governor": "performance",
         "friendly": [
             "nintendonintendo64dd",

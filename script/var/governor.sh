@@ -11,7 +11,10 @@ SYNC_GPU_FREQUENCY() {
 	# Zero or unset uses every frequency the GPU offers, otherwise it is the chosen ceiling
 	GPU_CAP="$(GET_VAR "config" "danger/gpu_max")"
 	case "$GPU_CAP" in
-		'' | 0 | *[!0-9]*) GPU_CAP= ;;
+		'' | 0 | *[!0-9]*) GPU_CAP="$(GET_VAR "device" "gpu/max_freq_default")" ;;
+	esac
+	case "$GPU_CAP" in
+		'' | *[!0-9]*) GPU_CAP= ;;
 	esac
 
 	for GPU_DEV in /sys/class/devfreq/*/; do
@@ -29,20 +32,21 @@ SYNC_GPU_FREQUENCY() {
 		GPU_CEIL=$(printf "%s\n" "$GPU_LIST" | tail -1)
 		GPU_FLOOR=$(printf "%s\n" "$GPU_LIST" | head -1)
 
-		if [ "$GOV" = "performance" ]; then
-			GPU_TARGET=$GPU_CEIL
-		else
-			GPU_TARGET=$GPU_FLOOR
-		fi
+		GPU_TARGET=$GPU_FLOOR
+		GPU_MAX=$GPU_CEIL
+		case "$GOV" in
+			performance) GPU_TARGET=$GPU_CEIL ;;
+			powersave) GPU_MAX=$GPU_FLOOR ;;
+		esac
 
 		[ -n "$GPU_TARGET" ] || continue
 
 		if [ -w "$GPU_DEV/max_freq" ]; then
 			printf "%s" "$GPU_FLOOR" >"$GPU_DEV/min_freq"
-			printf "%s" "$GPU_CEIL" >"$GPU_DEV/max_freq"
+			printf "%s" "$GPU_MAX" >"$GPU_DEV/max_freq"
 		fi
 
-		LOG_DEBUG "$0" 0 "FRONTEND" "$(printf "GPU floor set to %s, ceiling %s, for governor '%s'" "$GPU_TARGET" "$GPU_CEIL" "$GOV")"
+		LOG_DEBUG "$0" 0 "FRONTEND" "$(printf "GPU floor set to %s, ceiling %s, for governor '%s'" "$GPU_TARGET" "$GPU_MAX" "$GOV")"
 		printf "%s" "$GPU_TARGET" >"$GPU_DEV/min_freq"
 	done
 }
@@ -184,7 +188,10 @@ SET_DEFAULT_GOVERNOR() {
 
 		CPU_CAP="$(GET_VAR "config" "danger/cpu_max")"
 		case "$CPU_CAP" in
-			'' | 0 | *[!0-9]*) CPU_CAP="$CPU_TOP" ;;
+			'' | 0 | *[!0-9]*) CPU_CAP="$(GET_VAR "device" "cpu/max_freq_default")" ;;
+		esac
+		case "$CPU_CAP" in
+			'' | *[!0-9]*) CPU_CAP="$CPU_TOP" ;;
 		esac
 		[ "$CPU_CAP" -gt "${CPU_TOP:-0}" ] 2>/dev/null && CPU_CAP="$CPU_TOP"
 
@@ -207,4 +214,3 @@ SET_DEFAULT_GOVERNOR() {
 		SYNC_CPU_CORES
 	) &
 }
-

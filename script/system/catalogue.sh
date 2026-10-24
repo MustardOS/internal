@@ -5,7 +5,7 @@
 BUNDLED_MANIFEST_DIR="$MUOS_SHARE_DIR/info/manifest"
 USER_MANIFEST_DIR="$MUOS_STORE_DIR/info/manifest"
 BASE_PATH="$MUOS_STORE_DIR/info/catalogue"
-TARGET_DIRS="box grid preview text manual overlay/base overlay/battery overlay/bright overlay/volume"
+TARGET_DIRS="box grid preview splash text manual overlay/base overlay/battery overlay/bright overlay/volume"
 EXTRA_DIRS="Application Archive Collection Folder Root Task Theme"
 
 MANIFEST_FILE=""

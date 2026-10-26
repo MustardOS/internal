@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/var/log.sh
+. /opt/muos/script/var/storage.sh
 
 THROBBER_WAIT="${THROBBER_WAIT:-1}"
 
@@ -91,7 +92,7 @@ TRANSFER_RUN() {
 	done
 
 	# Both directions need the secondary card, either as the source or the target
-	SD_DEVICE="$(GET_VAR "device" "storage/sdcard/dev")$(GET_VAR "device" "storage/sdcard/sep")$(GET_VAR "device" "storage/sdcard/num")"
+	SD_DEVICE="$(SECONDARY_DEVICE)$(GET_VAR "device" "storage/sdcard/sep")$(GET_VAR "device" "storage/sdcard/num")"
 	if ! grep -q -m 1 "$SD_DEVICE" /proc/partitions; then
 		LOG_ERROR "$0" 0 "$TRANSFER_TAG" "Secondary storage not detected"
 		TASK_ERROR "no_sdcard" "Secondary storage was not detected."

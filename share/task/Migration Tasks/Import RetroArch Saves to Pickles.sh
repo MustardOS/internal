@@ -30,6 +30,7 @@ PICKLES_ROOT="${PICKLES_ROOT:-$MUOS_STORE_DIR/pickles}"
 ASSIGN_ROOT="${ASSIGN_ROOT:-$MUOS_SHARE_DIR/info/content}"
 CORE_ROOT="${CORE_ROOT:-$MUOS_SHARE_DIR/core}"
 CORE_INFO_ROOT="${CORE_INFO_ROOT:-$MUOS_SHARE_DIR/emulator/retroarch/info}"
+STATE_TOOL="${STATE_TOOL:-/opt/muos/frontend/mustate}"
 WORK_DIR="/tmp/muos/retroarch-pickles-import.$$"
 CONTENT_INDEX="$WORK_DIR/content.tsv"
 SAVE_LIST="$WORK_DIR/saves.list"
@@ -61,11 +62,16 @@ NORMALISE() {
 	printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr -cd '[:alnum:]'
 }
 
-CORE_NAME() {
-	CORE_INFO="$CORE_INFO_ROOT/${1%.so}.info"
-	[ -f "$CORE_INFO" ] || return 1
-	sed -n 's/^corename[[:space:]]*=[[:space:]]*"\(.*\)"[[:space:]]*$/\1/p' "$CORE_INFO" | head -n 1
+CORE_INFO_VALUE() {
+	CIV_ID=${1%_libretro.so}
+	CIV_FILE="$CORE_INFO_ROOT/${CIV_ID}_libretro.info"
+	[ -f "$CIV_FILE" ] || CIV_FILE="$CORE_INFO_ROOT/$CIV_ID.info"
+	[ -f "$CIV_FILE" ] || return 1
+	sed -n "s/^$2[[:space:]]*=[[:space:]]*\"\(.*\)\"[[:space:]]*$/\1/p" "$CIV_FILE" | head -n 1
 }
+
+CORE_NAME() { CORE_INFO_VALUE "$1" corename; }
+CORE_VERSION() { CORE_INFO_VALUE "$1" display_version; }
 
 ASSIGNED_CORE() {
 	AC_PATH=$1
@@ -170,11 +176,29 @@ NEXT_STATE_SLOT() {
 	return 1
 }
 
+STATE_SLOT() {
+	SS_DIR=$1
+	SS_PREFERRED=$2
+	case "$SS_PREFERRED" in
+		'' | *[!0-9]*) ;;
+		*)
+			if [ "$SS_PREFERRED" -lt 64 ] && [ ! -e "$SS_DIR/slot_$SS_PREFERRED.state" ] \
+				&& ! grep -Fqx "[slot_$SS_PREFERRED]" "$SS_DIR/states.ini" 2>/dev/null; then
+				printf '%s' "$SS_PREFERRED"
+				return 0
+			fi
+			;;
+	esac
+	NEXT_STATE_SLOT "$SS_DIR"
+}
+
 ADD_STATE_MANIFEST() {
 	ASM_MANIFEST=$1
 	ASM_SLOT=$2
 	ASM_NAME=$3
 	ASM_CREATED=$4
+	ASM_CORE=$5
+	ASM_VERSION=$6
 	ASM_TEMP="$ASM_MANIFEST.tmp.$$"
 
 	{
@@ -183,7 +207,7 @@ ADD_STATE_MANIFEST() {
 		printf '[slot_%s]\n' "$ASM_SLOT"
 		printf 'name=%s\n' "$ASM_NAME"
 		printf 'created=%s\n' "$ASM_CREATED"
-		printf 'crc=\ncore=\ncore_version=\n'
+		printf 'crc=\ncore=%s\ncore_version=%s\n' "$ASM_CORE" "$ASM_VERSION"
 		printf 'disc_index=-1\ndisc_ejected=0\ndisc_path=\n'
 	} >"$ASM_TEMP" && mv -f "$ASM_TEMP" "$ASM_MANIFEST"
 }
@@ -230,7 +254,7 @@ if [ "$IMPORT_STATES" -eq 1 ] && [ -d "$RA_STATE_ROOT" ]; then
 		SOURCE_NAME=${SOURCE##*/}
 		case "$SOURCE_NAME" in
 			*.png | *.PNG) ;;
-			*.state | *.state.auto | *.state[0-9]*) printf '%s\n' "$SOURCE" ;;
+			*.state*) printf '%s\n' "$SOURCE" ;;
 		esac
 	done >"$STATE_LIST"
 fi
@@ -261,6 +285,14 @@ if [ "$TOTAL" -eq 0 ]; then
 	exit 0
 fi
 
+if [ ! -x "$STATE_TOOL" ]; then
+	REPORT_LINE "The native save conversion tool is not available: $STATE_TOOL"
+	TASK_ERROR "converter" "The save conversion tool is not installed"
+	TASK_DETAIL "$REPORT"
+	TASK_COMPLETE "Nothing was imported"
+	exit 1
+fi
+
 TASK_STATUS "Importing Save Games"
 while IFS= read -r SOURCE; do
 	[ -n "$SOURCE" ] || continue
@@ -276,11 +308,7 @@ while IFS= read -r SOURCE; do
 	SOURCE_KEY=$(NORMALISE "$SOURCE_STEM")
 	TASK_DETAIL "$SOURCE_NAME"
 
-	if RZIP_COMPRESSED "$SOURCE"; then
-		COMPRESSED=$((COMPRESSED + 1))
-		REPORT_LINE "SKIPPED compressed save game: $SOURCE"
-		continue
-	fi
+	RZIP_COMPRESSED "$SOURCE" && COMPRESSED=$((COMPRESSED + 1))
 
 	if ! RESOLVE_CONTENT "$SOURCE_KEY" "$RA_CORE"; then
 		if [ "$MATCH_COUNT" -gt 1 ]; then
@@ -303,7 +331,8 @@ while IFS= read -r SOURCE; do
 		continue
 	fi
 
-	if mkdir -p "$TARGET_DIR" && cp "$SOURCE" "$TARGET"; then
+	TEMP_SAVE="$WORK_DIR/save.$PROGRESS"
+	if mkdir -p "$TARGET_DIR" && "$STATE_TOOL" extract "$SOURCE" "$TEMP_SAVE" && mv "$TEMP_SAVE" "$TARGET"; then
 		SAVE_IMPORTED=$((SAVE_IMPORTED + 1))
 		REPORT_LINE "COPIED save game: $SOURCE -> $TARGET"
 	else
@@ -324,6 +353,7 @@ if [ "$IMPORT_STATES" -eq 1 ]; then
 		RA_CORE=${SOURCE_REL%%/*}
 		SOURCE_NAME=${SOURCE##*/}
 		STATE_LABEL=
+		PREFERRED_SLOT=0
 		case "$SOURCE_NAME" in
 			*.state.auto)
 				SOURCE_STEM=${SOURCE_NAME%.state.auto}
@@ -339,6 +369,7 @@ if [ "$IMPORT_STATES" -eq 1 ]; then
 				case "$STATE_NUMBER" in
 					*[!0-9]*) continue ;;
 				esac
+				PREFERRED_SLOT=$STATE_NUMBER
 				STATE_LABEL="Imported RetroArch State $STATE_NUMBER"
 				;;
 			*) continue ;;
@@ -346,11 +377,7 @@ if [ "$IMPORT_STATES" -eq 1 ]; then
 		SOURCE_KEY=$(NORMALISE "$SOURCE_STEM")
 		TASK_DETAIL "$SOURCE_NAME"
 
-		if RZIP_COMPRESSED "$SOURCE"; then
-			COMPRESSED=$((COMPRESSED + 1))
-			REPORT_LINE "SKIPPED compressed save state: $SOURCE"
-			continue
-		fi
+		RZIP_COMPRESSED "$SOURCE" && COMPRESSED=$((COMPRESSED + 1))
 
 		if ! RESOLVE_CONTENT "$SOURCE_KEY" "$RA_CORE"; then
 			if [ "$MATCH_COUNT" -gt 1 ]; then
@@ -364,39 +391,54 @@ if [ "$IMPORT_STATES" -eq 1 ]; then
 		fi
 
 		TARGET_DIR="$PICKLES_ROOT/state/$MATCH_CORE${MATCH_DIR:+/$MATCH_DIR}/$MATCH_STEM"
+		TEMP_STATE="$WORK_DIR/state.$PROGRESS"
+		if ! "$STATE_TOOL" convert "$SOURCE" "$TEMP_STATE"; then
+			FAILED=$((FAILED + 1))
+			REPORT_LINE "FAILED save state conversion: $SOURCE"
+			continue
+		fi
 		STATE_EXISTS=0
 		for EXISTING_STATE in "$TARGET_DIR"/slot_*.state; do
 			[ -f "$EXISTING_STATE" ] || continue
-			if cmp -s "$SOURCE" "$EXISTING_STATE"; then
+			if cmp -s "$TEMP_STATE" "$EXISTING_STATE"; then
 				STATE_EXISTS=1
 				break
 			fi
 		done
 		if [ "$STATE_EXISTS" -eq 1 ]; then
+			rm -f "$TEMP_STATE"
 			EXISTING=$((EXISTING + 1))
 			REPORT_LINE "SKIPPED existing Pickles state: $SOURCE"
 			continue
 		fi
 
-		SLOT=$(NEXT_STATE_SLOT "$TARGET_DIR") || {
+		SLOT=$(STATE_SLOT "$TARGET_DIR" "$PREFERRED_SLOT") || {
+			rm -f "$TEMP_STATE"
 			FULL=$((FULL + 1))
 			REPORT_LINE "SKIPPED Pickles state slots are full: $TARGET_DIR"
 			continue
 		}
 		TARGET="$TARGET_DIR/slot_$SLOT.state"
-		THUMB_SOURCE="$SOURCE.png"
+		THUMB_SOURCE=
+		if [ -f "$SOURCE.png" ]; then
+			THUMB_SOURCE="$SOURCE.png"
+		elif [ -f "${SOURCE%.*}.png" ]; then
+			THUMB_SOURCE="${SOURCE%.*}.png"
+		fi
 		THUMB_TARGET="$TARGET_DIR/slot_$SLOT.png"
 		CREATED=$(stat -c '%Y' "$SOURCE" 2>/dev/null)
 		[ -n "$CREATED" ] || CREATED=$(date '+%s')
 
-		if mkdir -p "$TARGET_DIR" && cp "$SOURCE" "$TARGET" \
-			&& ADD_STATE_MANIFEST "$TARGET_DIR/states.ini" "$SLOT" "$STATE_LABEL" "$CREATED"; then
-			[ ! -f "$THUMB_SOURCE" ] || cp "$THUMB_SOURCE" "$THUMB_TARGET" 2>/dev/null || :
+		STATE_CORE=$(CORE_NAME "$MATCH_CORE" 2>/dev/null)
+		STATE_VERSION=$(CORE_VERSION "$MATCH_CORE" 2>/dev/null)
+		if mkdir -p "$TARGET_DIR" && mv "$TEMP_STATE" "$TARGET" \
+			&& ADD_STATE_MANIFEST "$TARGET_DIR/states.ini" "$SLOT" "$STATE_LABEL" "$CREATED" "$STATE_CORE" "$STATE_VERSION"; then
+			[ -z "$THUMB_SOURCE" ] || cp "$THUMB_SOURCE" "$THUMB_TARGET" 2>/dev/null || :
 			STATE_IMPORTED=$((STATE_IMPORTED + 1))
 			REPORT_LINE "COPIED save state: $SOURCE -> $TARGET"
 		else
 			FAILED=$((FAILED + 1))
-			rm -f "$TARGET" "$THUMB_TARGET"
+			rm -f "$TEMP_STATE" "$TARGET" "$THUMB_TARGET"
 			REPORT_LINE "FAILED save state: $SOURCE -> $TARGET"
 		fi
 	done <"$STATE_LIST"
@@ -413,7 +455,7 @@ TASK_PROGRESS "$TOTAL" "$TOTAL"
 	printf 'Existing Pickles files skipped: %s\n' "$EXISTING"
 	printf 'Unmatched files skipped: %s\n' "$UNMATCHED"
 	printf 'Ambiguous files skipped: %s\n' "$AMBIGUOUS"
-	printf 'Compressed files skipped: %s\n' "$COMPRESSED"
+	printf 'Compressed files converted: %s\n' "$COMPRESSED"
 	printf 'Full state lists skipped: %s\n' "$FULL"
 	printf 'Copy failures: %s\n' "$FAILED"
 } >>"$REPORT"

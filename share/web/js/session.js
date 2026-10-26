@@ -115,6 +115,46 @@
         return response;
     }
 
+    function uploadAuthed(path, body, headers, onProgress) {
+        return new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            request.open("PUT", path);
+            request.responseType = "text";
+            request.setRequestHeader("Cache-Control", "no-store");
+            if (session) request.setRequestHeader("X-muOS-Session", session);
+            Object.entries(headers || {}).forEach(([name, value]) => request.setRequestHeader(name, value));
+
+            if (request.upload && onProgress) {
+                request.upload.addEventListener("progress", (event) => {
+                    if (event.lengthComputable) onProgress(event.loaded, event.total);
+                });
+            }
+
+            request.addEventListener("load", () => {
+                if (request.status === 401) {
+                    session = "";
+                    remember("");
+                    auth.unlocked = 0;
+                    announce();
+                }
+                resolve({
+                    ok: request.status >= 200 && request.status < 300,
+                    status: request.status,
+                    json: async () => {
+                        try {
+                            return JSON.parse(request.responseText || "null");
+                        } catch (_) {
+                            return null;
+                        }
+                    }
+                });
+            });
+            request.addEventListener("error", () => reject(new Error(t("Network error while uploading"))));
+            request.addEventListener("abort", () => reject(new Error(t("Upload cancelled"))));
+            request.send(body);
+        });
+    }
+
     const lockButton = el("lock-toggle");
     const SESSION_KEY = "muos-session";
     let session = "";
@@ -220,6 +260,7 @@
     Object.assign(MU, {
         api,
         fetchAuthed,
+        uploadAuthed,
         unlock: () => unlock(),
         ready
     });

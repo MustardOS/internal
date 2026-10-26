@@ -51,7 +51,18 @@
     const extension = (name) => ((name || "").split(".").pop() || "").toLowerCase();
     const placeable = (entry) => Boolean(entry.catalogue);
     const pathUrl = (path) => apiPath(...path.split("/"));
-    const held = (entry) => TYPES.filter((kind) => entry.files && entry.files[kind.key]).length;
+    const held = (entry) => TYPES.filter((kind) => entry.files && (entry.files[kind.key] || inheritedGlobalFile(entry, kind))).length;
+
+    function applyFolderDefaults(data) {
+        folder.defaults = data.defaults || {};
+        entries = data.entries || [];
+        const self = entries.find((entry) => entry.self);
+        if (!self || !folder.catalogue) return;
+        ["splash", "overlay/base"].forEach((key) => {
+            if (folder.defaults[key]) self.files[key] = folder.defaults[key];
+            else delete self.files[key];
+        });
+    }
 
     function setSort(column, descending) {
         sortColumn = column;
@@ -125,7 +136,7 @@
         return render(at.folder || null, at.opened || null);
     }
 
-    const GLYPHS = {Add: "upload", Replace: "upload", Edit: "edit", Adjust: "sliders", Remove: "trash"};
+    const GLYPHS = {Add: "upload", Replace: "upload", Override: "upload", Edit: "edit", Adjust: "sliders", Remove: "trash"};
 
     function action(name, handler, danger) {
         const text = t(name);
@@ -225,7 +236,7 @@
     }
 
     async function loadFolder(path) {
-        folder = {path, name: path.split("/").pop(), catalogue: null};
+        folder = {path, name: path.split("/").pop(), catalogue: null, defaults: {}};
         opened = null;
         shown = PAGE;
         bareOnly = false;
@@ -234,8 +245,13 @@
         body.replaceChildren(loading(t("Reading %s...", path.split("/").pop())));
         try {
             const data = await api(`api/content/${pathUrl(path)}`);
-            folder = {path: data.path || path, name: data.name || path.split("/").pop(), catalogue: data.catalogue || null};
-            entries = data.entries || [];
+            folder = {
+                path: data.path || path,
+                name: data.name || path.split("/").pop(),
+                catalogue: data.catalogue || null,
+                defaults: data.defaults || {}
+            };
+            applyFolderDefaults(data);
             return true;
         } catch (error) {
             body.replaceChildren(problem(error.message, () => go(path, null, false)));
@@ -374,11 +390,13 @@
 
     function typeRow(entry, kind, naming) {
         const file = entry.files[kind.key];
-        const editable = canManage() && placeable(entry);
+        const globalFile = inheritedGlobalFile(entry, kind);
+        const shownFile = file || globalFile;
+        const editable = canManage() && Boolean(assetCatalogue(entry, kind));
         const row = make("tr");
         const nameCell = make("td", "content-name-cell", t(naming || kind.name));
         const fileCell = make("td", "content-name-cell");
-        if (file) fileCell.append(previewName(entry, kind, file));
+        if (shownFile) fileCell.append(previewName(entry, kind, shownFile));
         else fileCell.textContent = "-";
         const picker = editable ? make("input") : null;
         let uploadButton = null;
@@ -390,10 +408,10 @@
                 if (picker.files.length) upload(entry, kind, picker.files[0], uploadButton);
                 picker.value = "";
             });
-            uploadButton = action(file ? "Replace" : "Add", () => picker.click());
+            uploadButton = action(file ? "Replace" : globalFile ? "Override" : "Add", () => picker.click());
         }
         const actions = [
-            file && download(mediaUrl("catalogue", artPath(entry, kind, file)), file.split("/").pop()),
+            shownFile && download(mediaUrl("catalogue", artPath(entry, kind, shownFile)), shownFile.split("/").pop()),
             editable && (kind.key === "text" || kind.key === "manual")
                 && action("Edit", () => editTextArtwork(entry, kind, file)),
             uploadButton,
@@ -406,7 +424,7 @@
         ];
         const options = toolsCell(actions);
         if (picker) options.append(picker);
-        row.append(nameCell, fileCell, make("td", "table-artwork", t(file ? "Added" : "Missing")), options);
+        row.append(nameCell, fileCell, make("td", "table-artwork", t(file ? "Added" : globalFile ? "Global" : "Missing")), options);
         return row;
     }
 
@@ -441,7 +459,7 @@
     }
 
     function artPath(entry, kind, file) {
-        return `${entry.catalogue}/${kind.key}/${file}`;
+        return `${assetCatalogue(entry, kind)}/${kind.key}/${file}`;
     }
 
     function freshUrl(entry, kind, file) {
@@ -451,7 +469,7 @@
     function destination(entry, kind, name) {
         const has = entry.files[kind.key] || "";
         const within = has.includes("/") ? `${has.slice(0, has.lastIndexOf("/"))}/` : "";
-        return `api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...`${within}${name}`.split("/"))}`;
+        return `api/catalogue/${apiPath(assetCatalogue(entry, kind), ...kind.key.split("/"), ...`${within}${name}`.split("/"))}`;
     }
 
     function sidecar(file) {
@@ -462,7 +480,22 @@
     }
 
     function catalogueEndpoint(entry, kind, leaf) {
-        return `api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...leaf.split("/"))}`;
+        return `api/catalogue/${apiPath(assetCatalogue(entry, kind), ...kind.key.split("/"), ...leaf.split("/"))}`;
+    }
+
+    function inheritedFolderAsset(entry, kind) {
+        return entry.self && (kind.key === "splash" || kind.key === "overlay/base");
+    }
+
+    function inheritedGlobalFile(entry, kind) {
+        if (entry.self || !entry.catalogue) return "";
+        if (kind.key !== "splash" && kind.key !== "overlay/base") return "";
+        const defaults = entry.defaults || (folder && entry.catalogue === folder.catalogue ? folder.defaults : {});
+        return defaults[kind.key] || "";
+    }
+
+    function assetCatalogue(entry, kind) {
+        return inheritedFolderAsset(entry, kind) ? folder.catalogue : entry.catalogue;
     }
 
     function parseSettings(text) {
@@ -527,13 +560,13 @@
         const file = await prepare(chosen);
         if (!file) return;
         const has = entry.files[kind.key];
-        const name = `${entry.stem}.${extension(file.name)}`;
+        const name = `${inheritedFolderAsset(entry, kind) ? "default" : entry.stem}.${extension(file.name)}`;
         try {
             await busy(button, "", () => api(destination(entry, kind, name), {
                 method: "POST", body: file, type: file.type || "application/octet-stream"
             }));
             if (has && has.split("/").pop() !== name) {
-                await api(`api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...has.split("/"))}`, {method: "DELETE"});
+                await api(`api/catalogue/${apiPath(assetCatalogue(entry, kind), ...kind.key.split("/"), ...has.split("/"))}`, {method: "DELETE"});
             }
             if (kind.key === "box" || kind.key === "preview" || kind.key === "splash") {
                 try {
@@ -574,7 +607,7 @@
         });
         if (!sure) return;
         try {
-            await busy(button, "", () => api(`api/catalogue/${apiPath(entry.catalogue, ...kind.key.split("/"), ...file.split("/"))}`, {method: "DELETE"}));
+            await busy(button, "", () => api(`api/catalogue/${apiPath(assetCatalogue(entry, kind), ...kind.key.split("/"), ...file.split("/"))}`, {method: "DELETE"}));
             if (extension(file) === "mp4") {
                 try {
                     await api(catalogueEndpoint(entry, kind, sidecar(file)), {method: "DELETE"});
@@ -591,7 +624,7 @@
     async function refresh() {
         mediaVersion = Date.now();
         const data = await api(`api/content/${pathUrl(folder.path)}`);
-        entries = data.entries || [];
+        applyFolderDefaults(data);
         if (opened) renderItem();
         else renderContents();
     }

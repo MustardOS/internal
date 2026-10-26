@@ -16,6 +16,7 @@ BOOT_MOUNT=$(GET_VAR "device" "storage/boot/mount")
 
 DO_START() {
 	mount -t configfs none /sys/kernel/config
+	/opt/muos/script/device/emmc.sh load
 
 	# A special case for the Zero28 device since it has to load the FUSE module
 	# manually, we'll just sit tight and wait for at least 10 seconds...

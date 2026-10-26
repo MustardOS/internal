@@ -121,6 +121,7 @@ case "$1" in
 			tui*)
 				modprobe -q dc_sunxi
 				modprobe -q ax88179_178a
+				/opt/muos/script/device/emmc.sh load
 
 				case "$BOARD_NAME" in
 					tui-spoon|tui-brick|tui-brick-pro|tui-smpro-s)

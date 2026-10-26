@@ -25,6 +25,7 @@ ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 CARD_MODE="$(GET_VAR "config" "danger/cardmode")"
 
 DEV="$(GET_VAR "device" "storage/$TYPE/dev")"
+[ "$TYPE" = sdcard ] && DEV=$(SECONDARY_DEVICE)
 SEP="$(GET_VAR "device" "storage/$TYPE/sep")"
 NUM="$(GET_VAR "device" "storage/$TYPE/num")"
 

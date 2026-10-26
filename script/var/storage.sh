@@ -5,6 +5,13 @@ MUOS_STORAGE_LOADED=1
 [ -n "${MUOS_DISPLAY_LOADED-}" ] || . "${MUOS_VAR_DIR:-/opt/muos/script/var}/display.sh"
 [ -n "${MUOS_RUNTIME_LOADED-}" ] || . "${MUOS_VAR_DIR:-/opt/muos/script/var}/runtime.sh"
 
+SECONDARY_DEVICE() {
+	case "$(GET_VAR "device" "board/name"):$(GET_VAR "config" "danger/emmc")" in
+		tui-*:1) printf '%s\n' mmcblk2 ;;
+		*) GET_VAR "device" "storage/sdcard/dev" ;;
+	esac
+}
+
 READ_FIRST_LINE() {
 	[ -r "$1" ] || return 1
 	READ_LINE=

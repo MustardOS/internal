@@ -2,7 +2,7 @@
     "use strict";
 
     const MU = window.MU;
-    const {api, apiPath, ask, bytes, crumbs, el, fetchAuthed, loading, make, problem, register, setBar, showToast, sortableHead, stamp, t} = MU;
+    const {api, apiPath, ask, bytes, crumbs, el, fetchAuthed, loading, make, problem, register, setBar, showToast, sortableHead, stamp, t, uploadAuthed} = MU;
     const browser = el("files-browser");
     const body = el("files-body");
     const rootsBox = el("files-roots");
@@ -887,9 +887,13 @@
             note.textContent = t("Uploading...");
             fill.classList.add("file-transfer-active");
             try {
-                const response = await fetchAuthed(endpoint("upload", join(path, relative)), {
-                    method: "PUT", body: file, headers: protectedHeaders()
-                });
+                const response = await uploadAuthed(
+                    endpoint("upload", join(path, relative)), file, protectedHeaders(), (loaded, total) => {
+                        fill.classList.remove("file-transfer-active");
+                        fill.style.width = `${Math.round(loaded * 100 / total)}%`;
+                        note.textContent = t("Uploading... %s%%", Math.round(loaded * 100 / total));
+                    }
+                );
                 if (!response.ok) throw await responseError(response);
                 fill.classList.remove("file-transfer-active");
                 fill.style.width = "100%";

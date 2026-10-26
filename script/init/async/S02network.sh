@@ -783,7 +783,11 @@ IP_DHCP() {
 		LOG_INFO "$0" 0 "NETWORK" "udhcpc was found!"
 		DHCP_HOSTNAME=$(hostname 2>/dev/null)
 		[ -n "$DHCP_HOSTNAME" ] || DHCP_HOSTNAME="muos"
-		udhcpc -i "$IFCE" -F "$DHCP_HOSTNAME" -b -q >/dev/null 2>&1
+		if ! timeout 20 udhcpc -i "$IFCE" -F "$DHCP_HOSTNAME" -n -q -t 5 -T 3 >/dev/null 2>&1; then
+			LOG_ERROR "$0" 0 "NETWORK" "udhcpc failed to acquire a lease"
+			FAIL_WITH "DHCP_FAILED" "$RC_DHCP_FAILED"
+			return $?
+		fi
 	else
 		LOG_ERROR "$0" 0 "NETWORK" "No DHCP client found (tried dhcpcd, udhcpc)"
 		FAIL_WITH "DHCP_FAILED" "$RC_DHCP_FAILED"

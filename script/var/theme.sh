@@ -73,9 +73,9 @@ THEME_PNG_IMAGE() {
 	if [ -e "$JSONPATH" ]; then
 		printf "Found '%s' JSON: %s\n" "$ROLE" "$JSONPATH"
 
-		# Single jq invocation pulling all four values, tab-separated
-		JQ_OUT=$(jq -r '[.background_colour, .background_gradient_colour, .png_recolour, .png_recolour_alpha] | map(. // "") | @tsv' "$JSONPATH")
-		IFS='	' read -r JQ_BG JQ_BGG JQ_PR JQ_PRA <<EOF
+		# Use a non-whitespace separator so read preserves empty fields.
+		JQ_OUT=$(jq -r '[.background_colour, .background_gradient_colour, .png_recolour, .png_recolour_alpha] | map(. // "") | join("\u001f")' "$JSONPATH")
+		IFS="$(printf '\037')" read -r JQ_BG JQ_BGG JQ_PR JQ_PRA <<EOF
 $JQ_OUT
 EOF
 
@@ -134,7 +134,7 @@ EOF
 		cp -f "$SRC" "$TMP_FG"
 	fi
 
-	magick "$TMP_FG" "$TMP_BG" -compose Dst_Over -composite -alpha off BMP3:"$TMP_OUT"
+	magick "$TMP_BG" "$TMP_FG" -gravity center -compose Over -composite -alpha off BMP3:"$TMP_OUT"
 	case "$OUT" in
 		*.bmp | *.BMP) magick "$TMP_OUT" BMP3:"$OUT" ;;
 		*) mv -f "$TMP_OUT" "$OUT" ;;

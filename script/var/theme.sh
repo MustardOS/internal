@@ -266,12 +266,16 @@ SHOW_SPLASH() {
 	ROLE="${1:-load}"
 	READY_PATH="${2:-}"
 	EXEC_MODE="${3:-0}"
+	CONTENT_IMAGE="${4:-}"
+	CONTENT_PLAY="${5:-0}"
+	CONTENT_SECONDS="${6:-0}"
 
 	SPLASH_BIN="/opt/muos/frontend/musplash"
 	[ -x "$SPLASH_BIN" ] || return 1
 
 	case "$ROLE" in
 		bootlogo | shutdown | reboot | reset | load) ;;
+		content) [ -f "$CONTENT_IMAGE" ] || return 1 ;;
 		clear) "$SPLASH_BIN" -c && return 0 ;;
 		*) return 1 ;;
 	esac
@@ -294,6 +298,7 @@ SHOW_SPLASH() {
 		0 | 1 | 2 | 3) ;;
 		*) SCALE=0 ;;
 	esac
+	[ "$ROLE" = content ] && SCALE=1
 
 	ROTATE=$(GET_VAR "device" "screen/splash_rotate")
 	case "$ROTATE" in
@@ -338,11 +343,14 @@ SHOW_SPLASH() {
 		printf "%s" "$VAL"
 	}
 
-	JSONPATH="$THEME_DIR/${ROLE}.json"
+	JSON_ROLE="$ROLE"
+	[ "$ROLE" = content ] && JSON_ROLE=load
+
+	JSONPATH="$THEME_DIR/${JSON_ROLE}.json"
 
 	if [ -e "$THEME_DIR/active.txt" ]; then
 		read -r THEME_ALTERNATE <"$THEME_DIR/active.txt"
-		ALT_JSON="$THEME_DIR/alternate/${THEME_ALTERNATE}_${ROLE}.json"
+		ALT_JSON="$THEME_DIR/alternate/${THEME_ALTERNATE}_${JSON_ROLE}.json"
 		[ -e "$ALT_JSON" ] && JSONPATH="$ALT_JSON"
 	fi
 
@@ -386,6 +394,19 @@ EOF
 	fi
 
 	FBCON_DISABLE
+
+	if [ "$ROLE" = content ]; then
+		set -- -r "$ROTATE" -s "$SCALE" -g "${BACKGROUND_COLOUR}:${BACKGROUND_GRADIENT_COLOUR}" \
+			-l "$MUOS_LOG_DIR/musplash.trace"
+		[ "$CONTENT_PLAY" -eq 1 ] 2>/dev/null && set -- "$@" -p
+		case "$CONTENT_SECONDS" in
+			finish | press) set -- "$@" -d "$CONTENT_SECONDS" ;;
+			*) [ "$CONTENT_SECONDS" -gt 0 ] 2>/dev/null && set -- "$@" -d "$CONTENT_SECONDS" ;;
+		esac
+		[ "$(GET_VAR "config" "visual/blackfade")" = 1 ] && set -- "$@" -F 200
+		"$SPLASH_BIN" -i "$CONTENT_IMAGE" "$@"
+		return $?
+	fi
 
 	CURR_LANG="$(GET_VAR "config" "settings/general/language")"
 

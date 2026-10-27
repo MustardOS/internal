@@ -2,6 +2,7 @@
 
 . /opt/muos/script/var/audio.sh
 . /opt/muos/script/var/storage.sh
+. /opt/muos/script/var/theme.sh
 
 LOG_INFO "$0" 0 "LAUNCH" "$(printf "Content launch script started (PID: %s)" "$$")"
 
@@ -116,6 +117,24 @@ LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "\tLAUNCH = '%s'" "$LAUNCH")"
 LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "\tR_DIR = '%s'" "$R_DIR")"
 LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "\tROM_NAME = '%s'" "$ROM_NAME")"
 LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "\tROM = '%s'" "$ROM")"
+
+if [ -s "$SPL_GO" ]; then
+	SPLASH_IMAGE=
+	SPLASH_STILL=0
+	SPLASH_SECONDS=0
+	{
+		read -r SPLASH_IMAGE
+		read -r SPLASH_STILL
+		read -r SPLASH_SECONDS
+	} <"$SPL_GO"
+
+	SPLASH_PLAY=1
+	[ "$SPLASH_STILL" = 1 ] && SPLASH_PLAY=0
+
+	LOG_INFO "$0" 0 "LAUNCH" "$(printf "Showing launch splash '%s' (duration: %s)" "$SPLASH_IMAGE" "$SPLASH_SECONDS")"
+	SHOW_SPLASH content "" 0 "$SPLASH_IMAGE" "$SPLASH_PLAY" "$SPLASH_SECONDS" ||
+		LOG_WARN "$0" 0 "LAUNCH" "Launch splash could not be shown"
+fi
 
 printf "%s\n%s\n%s" "$NAME" "$ASSIGN" "$CORE" >"$OVL_GO"
 [ -e "$OVERLAY_NOP" ] && rm -f "$OVERLAY_NOP"

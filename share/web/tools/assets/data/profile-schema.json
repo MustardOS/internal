@@ -17755,7 +17755,7 @@
       "type": "int",
       "default": "1",
       "min": 0,
-      "max": 1,
+      "max": 12,
       "label": "Launch Splash",
       "module": "muxcustom",
       "options": [
@@ -17765,10 +17765,54 @@
         },
         {
           "value": "1",
-          "label": "Enabled"
+          "label": "1 Second"
+        },
+        {
+          "value": "2",
+          "label": "2 Seconds"
+        },
+        {
+          "value": "3",
+          "label": "3 Seconds"
+        },
+        {
+          "value": "4",
+          "label": "4 Seconds"
+        },
+        {
+          "value": "5",
+          "label": "5 Seconds"
+        },
+        {
+          "value": "6",
+          "label": "6 Seconds"
+        },
+        {
+          "value": "7",
+          "label": "7 Seconds"
+        },
+        {
+          "value": "8",
+          "label": "8 Seconds"
+        },
+        {
+          "value": "9",
+          "label": "9 Seconds"
+        },
+        {
+          "value": "10",
+          "label": "10 Seconds"
+        },
+        {
+          "value": "11",
+          "label": "Until Finished"
+        },
+        {
+          "value": "12",
+          "label": "Until Button Press"
         }
       ],
-      "help": "Shows content artwork while Pickles prepares the game. Splash catalogues can use still images, animated GIF or APNG images, and MP4 video."
+      "help": "Shows content artwork while the content starts. Splash catalogues can use still images, animated GIF, WebP or APNG images, and MP4 video.\n\nA number of seconds keeps the splash up for at least that long. Until Finished plays animations and videos through once, and keeps still images up until a button is pressed. Until Button Press keeps any splash up until a button is pressed."
     },
     {
       "key": "visual/listglyph",
@@ -18418,7 +18462,7 @@
       "default": "1",
       "min": 0,
       "max": 1,
-      "label": "Pickles Startup Messages",
+      "label": "Startup Messages",
       "module": "muxcustom",
       "options": [
         {
@@ -18439,7 +18483,7 @@
       "default": "1",
       "min": 0,
       "max": 1,
-      "label": "Power Off Effect",
+      "label": "Power Effects",
       "module": "muxcustom",
       "options": [
         {
@@ -18451,7 +18495,7 @@
           "label": "Enabled"
         }
       ],
-      "help": "Collapse the content picture like an old television when leaving Pickles or Wasabi. Reduce Motion disables this effect."
+      "help": "Collapse the content picture like an old television when leaving Pickles or Wasabi, and open it back up when content starts after a launch splash. Reduce Motion disables these effects."
     },
     {
       "key": "visual/reducemotion",

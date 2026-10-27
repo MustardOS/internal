@@ -21,7 +21,8 @@
         preview: "image/*,.apng,.mp4,video/mp4",
         splash: "image/*,.apng,.mp4,video/mp4",
         text: ".txt,text/plain",
-        manual: ".txt,text/plain"
+        manual: ".txt,text/plain",
+        "overlay/base": ".png,.webp,.qoi,.tga,image/png,image/webp"
     };
     const UPLOAD_LIMIT = 32 * 1024 * 1024;
     const PAGE = 100;

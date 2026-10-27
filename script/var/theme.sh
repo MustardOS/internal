@@ -123,9 +123,9 @@ EOF
 	rm -f "$TMP_BG" "$TMP_FG" "$TMP_OUT"
 
 	if [ "$BACKGROUND_COLOUR" = "$BACKGROUND_GRADIENT_COLOUR" ]; then
-		magick -size "${DEVICE_W}x${DEVICE_H}" xc:"#${BACKGROUND_COLOUR}" "$TMP_BG"
+		magick -size "${DEVICE_W}x${DEVICE_H}" xc:"#${BACKGROUND_COLOUR}" -type TrueColor "$TMP_BG"
 	else
-		magick -size 1x"${DEVICE_H}" gradient:"#${BACKGROUND_COLOUR}-#${BACKGROUND_GRADIENT_COLOUR}" -resize "${DEVICE_W}x${DEVICE_H}!" "$TMP_BG"
+		magick -size 1x"${DEVICE_H}" gradient:"#${BACKGROUND_COLOUR}-#${BACKGROUND_GRADIENT_COLOUR}" -resize "${DEVICE_W}x${DEVICE_H}!" -type TrueColor "$TMP_BG"
 	fi
 
 	if [ "$PNG_RECOLOUR_ALPHA" -gt 0 ]; then
@@ -134,7 +134,7 @@ EOF
 		cp -f "$SRC" "$TMP_FG"
 	fi
 
-	magick "$TMP_BG" "$TMP_FG" -gravity center -compose Over -composite -alpha off BMP3:"$TMP_OUT"
+	magick "$TMP_BG" "$TMP_FG" -gravity center -compose Over -composite -alpha off -type TrueColor BMP3:"$TMP_OUT"
 	case "$OUT" in
 		*.bmp | *.BMP) magick "$TMP_OUT" BMP3:"$OUT" ;;
 		*) mv -f "$TMP_OUT" "$OUT" ;;

@@ -2,13 +2,6 @@
 
 . /opt/muos/script/var/config.sh
 
-# Disable the idle power management on the 8821cs kernel module.
-# Thanks to johnnyonflame for finding this!
-case "$(GET_VAR "device" "board/name")" in
-	rg*) echo 0 >/sys/module/8821cs/parameters/rtw_power_mgnt ;;
-	*) ;;
-esac
-
 DNS_SERVER=$(sed -n 's/^nameserver[[:space:]]\+//p' /etc/resolv.conf | head -n 1)
 
 if [ -z "$DNS_SERVER" ]; then

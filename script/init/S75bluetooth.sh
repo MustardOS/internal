@@ -25,8 +25,9 @@ BT_DAEMON="/usr/libexec/bluetooth/bluetoothd"
 HCI_PID="$MUOS_RUN_DIR/hciattach.pid"
 BT_PID="$MUOS_RUN_DIR/bluetoothd.pid"
 
-TIMEOUT=5000
+TIMEOUT=7000
 INTERVAL=100
+HCI_ATTEMPTS=3
 
 PROC_RUNNING() {
 	pidof "$1" >/dev/null 2>&1
@@ -73,6 +74,24 @@ STOP_PROC() {
 	fi
 }
 
+ATTACH_HCI() {
+	STOP_PROC "rtk_hciattach" "$HCI_PID"
+	rfkill unblock bluetooth 2>/dev/null
+
+	case "$BOARD_NAME" in
+		rg-vita*) return 1 ;;
+		rg*)
+			modprobe /lib/modules/4.9.170/kernel/drivers/bluetooth/rtl_btlpm.ko
+			rtk_hciattach -n -s 115200 /dev/ttyS1 rtk_h5 >/dev/null 2>&1 &
+			;;
+		tui*)
+			rtk_hciattach -n -s 115200 ttyS1 xradio >/dev/null 2>&1 &
+			;;
+		*) return 1 ;;
+	esac
+	printf "%s" "$!" >"$HCI_PID"
+}
+
 DO_START() {
 	SET_STATE starting
 
@@ -87,12 +106,6 @@ DO_START() {
 					LOG_WARN "$0" 0 "BLUETOOTH" "Shared wireless hardware did not initialise"
 				fi
 			fi
-			rfkill unblock bluetooth 2>/dev/null
-			sleep 0.1
-			LOG_INFO "$0" 0 "BLUETOOTH" "Attaching Realtek HCI (rg variant)"
-			modprobe /lib/modules/4.9.170/kernel/drivers/bluetooth/rtl_btlpm.ko
-			rtk_hciattach -n -s 115200 /dev/ttyS1 rtk_h5 >/dev/null 2>&1 &
-			printf "%s" "$!" >"$HCI_PID"
 			;;
 		tui*)
 			LOG_INFO "$0" 0 "BLUETOOTH" "Unblocking Bluetooth hardware (tui/xradio variant)"
@@ -114,9 +127,6 @@ DO_START() {
 					LOG_WARN "$0" 0 "BLUETOOTH" "$(printf "Cannot derive BT MAC: %s address not available" "${WIFI_IFACE:-wireless interface}")"
 				fi
 			fi
-			LOG_INFO "$0" 0 "BLUETOOTH" "Attaching Realtek HCI (tui/xradio variant)"
-			rtk_hciattach -n -s 115200 ttyS1 xradio >/dev/null 2>&1 &
-			printf "%s" "$!" >"$HCI_PID"
 			;;
 		*)
 			LOG_INFO "$0" 0 "BLUETOOTH" "$(printf "No Bluetooth HCI attachment needed for board '%s'" "$BOARD_NAME")"
@@ -125,9 +135,25 @@ DO_START() {
 			;;
 	esac
 
-	LOG_INFO "$0" 0 "BLUETOOTH" "Waiting for HCI device to become ready"
-	if ! WAIT_UNTIL HCI_READY; then
-		LOG_WARN "$0" 0 "BLUETOOTH" "HCI device did not appear within timeout"
+	case "$BOARD_NAME" in
+		rg-vita*)
+			WAIT_UNTIL HCI_READY || true
+			;;
+		*)
+			HCI_ATTEMPT=0
+			while ! HCI_READY && [ "$HCI_ATTEMPT" -lt "$HCI_ATTEMPTS" ]; do
+				HCI_ATTEMPT=$((HCI_ATTEMPT + 1))
+				LOG_INFO "$0" 0 "BLUETOOTH" "$(printf "Attaching HCI device (attempt %s/%s)" "$HCI_ATTEMPT" "$HCI_ATTEMPTS")"
+				ATTACH_HCI || break
+				WAIT_UNTIL HCI_READY && break
+				sleep 0.5
+			done
+			;;
+	esac
+
+	if ! HCI_READY; then
+		LOG_WARN "$0" 0 "BLUETOOTH" "HCI device did not initialise after retries"
+		STOP_PROC "rtk_hciattach" "$HCI_PID"
 		SET_STATE unavailable
 		return 1
 	fi
@@ -137,6 +163,10 @@ DO_START() {
 		LOG_WARN "$0" 0 "BLUETOOTH" "$(printf "bluetoothd not found at '%s' - skipping" "$BT_DAEMON")"
 		SET_STATE unavailable
 		return 0
+	fi
+
+	if PROC_RUNNING bluetoothd && ! BLUETOOTHD_READY; then
+		STOP_PROC "bluetoothd" "$BT_PID"
 	fi
 
 	if PROC_RUNNING bluetoothd; then
@@ -162,7 +192,13 @@ DO_START() {
 			exit 0
 		fi
 
-		if ! timeout 5 bluetoothctl power on >/dev/null 2>&1; then
+		POWER_ATTEMPT=0
+		while [ "$POWER_ATTEMPT" -lt 3 ]; do
+			POWER_ATTEMPT=$((POWER_ATTEMPT + 1))
+			timeout 5 bluetoothctl power on >/dev/null 2>&1 && break
+			sleep 0.5
+		done
+		if [ "$POWER_ATTEMPT" -ge 3 ] && ! timeout 5 bluetoothctl show 2>/dev/null | grep -q "Powered: yes"; then
 			LOG_WARN "$0" 0 "BLUETOOTH" "HCI device could not be powered"
 			SET_STATE unavailable
 			exit 0

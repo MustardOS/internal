@@ -228,6 +228,29 @@ IS_WIRELESS_INTERFACE() {
 		{ [ -d "$SCN_PATH/$1/wireless" ] || [ -L "$SCN_PATH/$1/phy80211" ]; }
 }
 
+TUNE_WIRELESS_POWER() {
+	TUNE_IFACE=$1
+
+	for TUNE_PARAMETER in \
+		/sys/module/*/parameters/rtw_power_mgnt \
+		/sys/module/*/parameters/rtw_enusbss \
+		/sys/module/*/parameters/rtw_ips_mode; do
+		[ -w "$TUNE_PARAMETER" ] && printf '0' >"$TUNE_PARAMETER"
+	done
+
+	[ -n "$TUNE_IFACE" ] && [ -d "$SCN_PATH/$TUNE_IFACE" ] || return 0
+	for TUNE_CONTROL in "$SCN_PATH/$TUNE_IFACE/device/power/control" "$SCN_PATH/$TUNE_IFACE/device/../power/control"; do
+		[ -w "$TUNE_CONTROL" ] && printf 'on' >"$TUNE_CONTROL"
+	done
+	if [ -L "$SCN_PATH/$TUNE_IFACE/phy80211" ]; then
+		iw dev "$TUNE_IFACE" set power_save off 2>/dev/null
+		iw dev "$TUNE_IFACE" set txpower auto 2>/dev/null
+	else
+		iwconfig "$TUNE_IFACE" power off 2>/dev/null
+		iwconfig "$TUNE_IFACE" txpower auto 2>/dev/null
+	fi
+}
+
 INTERFACE_USES_CONFIGURED_DRIVER() {
 	[ -n "$NET_NAME" ] || return 0
 	I_EXPECTED=$(NORMALISE_MODULE_NAME "$NET_NAME")
@@ -353,7 +376,7 @@ LOAD_MODULE() {
 	ip link set "$IFCE" up
 	sleep 1
 
-	[ -L "$SCN_PATH/$IFCE/phy80211" ] && iw dev "$IFCE" set power_save off
+	TUNE_WIRELESS_POWER "$IFCE"
 
 	WRITE_RESOLV
 
@@ -1202,7 +1225,7 @@ TRY_CONNECT() {
 			return $?
 		}
 
-		IS_WIRELESS_INTERFACE "$IFCE" && iw dev "$IFCE" set power_save off
+		IS_WIRELESS_INTERFACE "$IFCE" && TUNE_WIRELESS_POWER "$IFCE"
 	else
 		FAIL_WITH "FAILED" "$RC_FAIL"
 		return $?

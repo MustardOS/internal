@@ -35,7 +35,7 @@ SET_PIXEL_USB_ROLE() {
 	[ "$(GET_VAR "device" "board/name")" = "rk-pixel-2" ] || return 0
 
 	case "${1:-$(GET_VAR "config" "settings/advanced/usb_function")}" in
-		0) USB_ROLE="host" ;;
+		0) USB_ROLE="otg" ;;
 		1 | 2) USB_ROLE="peripheral" ;;
 		*) return 0 ;;
 	esac

@@ -286,7 +286,8 @@ RUN_SUSPEND_BACKEND() {
 		LOG_INFO "$0" 0 "SUSPEND" "External power connected, entering userspace sleep"
 
 		set -- --state userspace --charger "$CHARGER_PATH" --optimise \
-			--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
+			--quiesce muxfrontend --quiesce muxretro --quiesce retroarch \
+			--quiesce muxmedia --quiesce muhotkey --quiesce pipewire --quiesce wireplumber
 		[ -n "$POWER_DEVICE" ] && set -- "$@" --power-device "$POWER_DEVICE"
 		[ "$LID_WAKE" -eq 1 ] && set -- "$@" --lid-wake
 		[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
@@ -311,7 +312,8 @@ RUN_SUSPEND_BACKEND() {
 		# a PC is connected in ADB mode), so fall back to the power key wait
 		if [ "$SUSPEND_RESULT" -eq 1 ]; then
 			set -- --state userspace --power-device "$POWER_DEVICE" --optimise \
-				--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
+				--quiesce muxfrontend --quiesce muxretro --quiesce retroarch \
+				--quiesce muxmedia --quiesce muhotkey --quiesce pipewire --quiesce wireplumber
 			[ "$LID_WAKE" -eq 1 ] && set -- "$@" --lid-wake
 			[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
 			"$SUSPEND_HELPER" "$@"
@@ -321,7 +323,8 @@ RUN_SUSPEND_BACKEND() {
 		G350_LOG_SUSPEND userspace-wait
 
 		set -- --state userspace --power-device "$POWER_DEVICE" --optimise \
-			--quiesce muxfrontend --quiesce muxretro --quiesce retroarch
+			--quiesce muxfrontend --quiesce muxretro --quiesce retroarch \
+			--quiesce muxmedia --quiesce muhotkey --quiesce pipewire --quiesce wireplumber
 		[ "$LID_WAKE" -eq 1 ] && set -- "$@" --lid-wake
 		[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
 		"$SUSPEND_HELPER" "$@"

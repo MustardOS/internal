@@ -3,7 +3,7 @@
 # ADB integration based on https://github.com/knulli-cfw/distribution/blob/knulli-main/board/batocera/allwinner/h700/fsoverlay/etc/init.d/S50adb
 # MTP integration based on https://github.com/viveris/uMTP-Responder/blob/master/conf/umtprd-ffs.sh
 
-. /opt/muos/script/var/log.sh
+. /opt/muos/script/var/storage.sh
 
 GADGET="/sys/kernel/config/usb_gadget/muos"
 LINK_GADGET="/sys/kernel/config/usb_gadget/mulink"
@@ -376,8 +376,12 @@ REBIND_UDC() {
 ENSURE_DESIRED_STATE() {
 	CUR_FUNC="$(GET_USB_FUNCTION)"
 	case "$CUR_FUNC" in
-		none) [ -d "$GADGET" ] && STOP_GADGET ;;
+		none)
+			[ -d "$GADGET" ] && STOP_GADGET
+			SET_PIXEL_USB_ROLE 0
+			;;
 		adb | mtp)
+			SET_PIXEL_USB_ROLE "$(GET_VAR "config" "settings/advanced/usb_function")" || return 1
 			USB_FUNCTION="$CUR_FUNC"
 			FUNCTION_AVAILABLE "$USB_FUNCTION" || {
 				LOG_ERROR "$0" 0 "USB" "$(printf "USB function '%s' is unavailable on this rootfs" "$USB_FUNCTION")"

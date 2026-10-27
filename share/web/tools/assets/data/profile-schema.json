@@ -14603,6 +14603,10 @@
         {
           "value": "19",
           "label": "Pixel Moss"
+        },
+        {
+          "value": "20",
+          "label": "Blank"
         }
       ],
       "help": "The screensaver shown once the screen has dimmed, or none at all.\n\nThis follows the Idle Display Timeout, so with that turned off you will never see one."

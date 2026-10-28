@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Restore the default RetroArch overrides
+# HELP: Restores the default per-system RetroArch override files. Overrides you have changed by hand will be replaced.
 # ICON: retroarch
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

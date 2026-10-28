@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Toggle Ethernet
+# HELP: Switches networking between Wi-Fi and a wired Ethernet connection. Run it again to switch back.
 # ICON: ethernet
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Restore the default MustardOS themes and theme overrides
+# HELP: Copies the default MustardOS themes and theme overrides back into the theme folder. Themes you have installed are kept, but default themes you have edited will be replaced.
 # ICON: sdcard
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

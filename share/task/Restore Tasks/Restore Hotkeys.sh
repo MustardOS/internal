@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Restore the default MustardOS hotkeys.
+# HELP: Restores the default MustardOS hotkeys. Any hotkeys you have changed will be replaced.
 # ICON: sdcard
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

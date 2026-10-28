@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Show the introduction on every menu again, as it appeared the first time you used the device.
+# HELP: Shows the introduction on every menu again, as it appeared the first time you used the device.
 # ICON: star
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

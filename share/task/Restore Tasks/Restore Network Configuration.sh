@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Restore Network Configuration
+# HELP: Stops networking and clears the Wi-Fi name, password, address and DNS settings back to their defaults. Saved network profiles are kept.
 # ICON: network
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

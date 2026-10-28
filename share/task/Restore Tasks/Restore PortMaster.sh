@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Restore PortMaster application
+# HELP: Reinstalls the PortMaster application from the copy included with MustardOS. Use this if PortMaster will not start or has been removed.
 # ICON: sdcard
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

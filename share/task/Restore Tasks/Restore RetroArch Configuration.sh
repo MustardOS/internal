@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Restore the default RetroArch global settings and hotkeys (retroarch.cfg). Per-system core overrides will not be modified.
+# HELP: Restores the default RetroArch global settings and hotkeys in retroarch.cfg. Per-system core overrides are not changed.
 # ICON: retroarch
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Clear Core Assignments
+# HELP: Removes every core assigned to individual content and folders, so everything goes back to the automatic defaults. Content in folders with no default will ask for a core again.
 # ICON: clear
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

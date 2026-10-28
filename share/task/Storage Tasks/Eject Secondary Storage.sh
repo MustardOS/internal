@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Will attempt to eject any secondary storage that has been configured by the system
+# HELP: Safely unmounts SD2 so the card can be removed without losing data.
 # ICON: storage
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Toggle Grid Mode Content Explorer
+# HELP: Switches the Explore Content menu between grid and list layouts when the active theme supports a grid. Run it again to switch back.
 # ICON: theme
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

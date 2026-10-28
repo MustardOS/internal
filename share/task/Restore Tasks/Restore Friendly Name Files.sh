@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Restore the default friendly name files
+# HELP: Restores the default friendly name files that turn content file names into readable titles. Names you have changed by hand may be replaced.
 # ICON: sdcard
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

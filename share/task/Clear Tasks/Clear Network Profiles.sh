@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Clear Network Profiles
+# HELP: Deletes every saved network profile, including their names, passwords and address settings. The network you are connected to now is not changed.
 # ICON: clear
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

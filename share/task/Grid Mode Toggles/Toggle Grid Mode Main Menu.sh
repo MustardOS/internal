@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Toggle Grid Mode Main Menu
+# HELP: Switches the Main Menu between grid and list layouts when the active theme supports a grid. Run it again to switch back.
 # ICON: theme
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

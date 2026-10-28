@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Clear the entire catalogue and generate a clean one
+# HELP: Deletes every catalogue image and text file, including box art, previews, splashes and descriptions, then creates a clean empty catalogue. Anything you have added to the catalogue will be lost.
 # ICON: clear
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Toggle Syncthing Auto-Scan
+# HELP: Turns automatic Syncthing folder scanning on or off. When it is off, changes are only picked up by a manual scan.
 # ICON: network
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

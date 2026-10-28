@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Clear History
+# HELP: Removes every entry from the History menu. Your content, saves and activity data are not touched.
 # ICON: clear
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

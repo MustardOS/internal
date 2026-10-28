@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Restore the default DraStic settings and hotkeys.
+# HELP: Restores the default DraStic settings and hotkeys. Any DraStic settings you have changed will be replaced.
 # ICON: retroarch
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

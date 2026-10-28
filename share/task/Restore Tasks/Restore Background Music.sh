@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Restore the default MustardOS background music
+# HELP: Copies the default MustardOS background music back into the music folder. Any music you have added is kept, but default tracks with the same name are replaced.
 # ICON: sdcard
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

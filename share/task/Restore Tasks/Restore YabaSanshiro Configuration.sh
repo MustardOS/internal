@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Restore the default YabaSanshiro Controls.
+# HELP: Restores the default YabaSanshiro controls. Any YabaSanshiro controls you have changed will be replaced.
 # ICON: retroarch
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Clear the Folder directory within the catalogue
+# HELP: Deletes only the Folder section of the catalogue, which holds folder images and descriptions, then recreates it empty. All other catalogue artwork is kept.
 # ICON: clear
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

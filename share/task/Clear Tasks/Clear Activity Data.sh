@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Archive Activity Data
+# HELP: Clears play time, launch counts and other activity records for all content. The current records are moved into an archive folder inside MUOS/info/track rather than deleted, so they can be brought back by hand.
 # ICON: clear
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

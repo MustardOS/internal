@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Enable Wi-Fi using an 8188eu chipset USB adapter
+# HELP: Sets the device up to use a USB Wi-Fi adapter with the RTL8188EU chipset. Use this on devices without built-in Wi-Fi, then restart before connecting.
 # ICON: ethernet
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

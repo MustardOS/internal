@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Clear Collections
+# HELP: Removes every collection and the items inside them. Your content files are not touched, only the collection shortcuts.
 # ICON: clear
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

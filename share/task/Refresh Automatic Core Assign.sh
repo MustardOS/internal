@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Refresh Automatic Core Assign
+# HELP: Rebuilds the list that matches your content folder names to their systems and default cores. Use this after adding new system folders or manifests, or if folders are being matched to the wrong system.
 # ICON: junk
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

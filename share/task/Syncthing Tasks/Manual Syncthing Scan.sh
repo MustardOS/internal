@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Manual Syncthing Scan
+# HELP: Asks Syncthing to check every shared folder for changes now, instead of waiting for the next scheduled scan. Syncthing must be enabled and the device connected to a network.
 # ICON: backup
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

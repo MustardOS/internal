@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Will attempt to mount any secondary storage that has been configured by the system
+# HELP: Mounts SD2 again after it has been ejected or inserted while the device was running.
 # ICON: storage
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

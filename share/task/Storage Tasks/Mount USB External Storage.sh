@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Will attempt to mount any USB external storage that has been configured by the system
+# HELP: Mounts USB storage again after it has been ejected or plugged in while the device was running.
 # ICON: storage
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

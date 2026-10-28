@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Run Dot and Junk File Cleanup
+# HELP: Removes hidden files and folders left behind by other computers, such as .DS_Store, ._ files, Thumbs.db, desktop.ini and System Volume Information, from SD1, SD2 and USB storage. Your content and saves are not touched.
 # ICON: junk
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

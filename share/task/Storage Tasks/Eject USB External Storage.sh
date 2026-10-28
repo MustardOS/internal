@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Will attempt to eject any external USB storage that has been configured by the system
+# HELP: Safely unmounts USB storage so the drive can be removed without losing data.
 # ICON: storage
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

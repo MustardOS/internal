@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Restore the default PPSSPP-SA settings and hotkeys.
+# HELP: Restores the default PPSSPP settings and hotkeys. Any PPSSPP settings you have changed will be replaced.
 # ICON: retroarch
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

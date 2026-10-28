@@ -1,5 +1,5 @@
 #!/bin/sh
-# HELP: Export collection list, including boxart if found, to a file called "collection.html" at the root of SD1
+# HELP: Creates a web page called collection.html at the root of SD1 listing every item in your collections, with box art where it can be found. The active theme can supply its own page design.
 # ICON: star
 # EXECUTION_MODE: progress
 # CAN_CANCEL: 0

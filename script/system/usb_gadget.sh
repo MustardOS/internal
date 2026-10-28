@@ -19,8 +19,11 @@ LINK_FFS="$FFS_ROOT/mulink"
 UDC="$(GET_VAR "device" "board/udc")"
 
 PID_FILE="$MUOS_RUN_DIR/usb_gadget.pid"
-UMTPRD_CONF_SOURCE=${UMTPRD_CONF_SOURCE:-"$MUOS_SHARE_DIR/conf/rootfs/umtprd.conf"}
-UMTPRD_CONF_TARGET=${UMTPRD_CONF_TARGET:-"/etc/umtprd/umtprd.conf"}
+MUADB_BIN=${MUADB_BIN:-"/opt/muos/frontend/muadb"}
+MUMTP_BIN=${MUMTP_BIN:-"/opt/muos/frontend/mumtp"}
+MUADB_ENV=${MUADB_ENV:-"$MUOS_SHARE_DIR/conf/adb-env.sh"}
+MUMTP_CONF_SOURCE=${MUMTP_CONF_SOURCE:-"$MUOS_SHARE_DIR/conf/mumtp.conf"}
+MUMTP_CONF_TARGET=${MUMTP_CONF_TARGET:-"$MUOS_RUN_DIR/mumtp.conf"}
 
 GET_USB_FUNCTION() {
 	case "$(GET_VAR "config" "settings/advanced/usb_function")" in
@@ -52,7 +55,8 @@ USB_MANUFACTURER() {
 }
 
 USB_PRODUCT() {
-	tr '[:lower:]' '[:upper:]' </opt/muos/device/config/board/name | awk '{$1=$1;print}'
+	MODEL=$(tr '[:lower:]_-' '[:upper:]  ' </opt/muos/device/config/board/name | awk '{$1=$1;print}')
+	printf 'MustardOS - %s\n' "$MODEL"
 }
 
 FIRMWARE_VERSION() {
@@ -183,27 +187,31 @@ UMOUNT_FFS() {
 START_DAEMON_PROC() {
 	case "$1" in
 		adb)
-			[ -x /usr/bin/adbd ] || return 1
-			IS_RUNNING adbd || /usr/bin/adbd &
+			[ -x "$MUADB_BIN" ] || return 1
+			IS_RUNNING muadb || ENV="$MUADB_ENV" "$MUADB_BIN" &
 			;;
 		mtp)
-			[ -x /usr/bin/umtprd ] || return 1
-			UPDATE_UMTPRD_CONF || {
-				LOG_ERROR "$0" 0 "USB" "Unable to prepare the uMTP Responder configuration"
+			[ -x "$MUMTP_BIN" ] || return 1
+			UPDATE_MUMTP_CONF || {
+				LOG_ERROR "$0" 0 "USB" "Unable to prepare the MTP configuration"
 				return 1
 			}
-			IS_RUNNING umtprd || /usr/bin/umtprd &
+			IS_RUNNING mumtp || "$MUMTP_BIN" -conf "$MUMTP_CONF_TARGET" &
 			;;
 	esac
 }
 
 STOP_DAEMONS() {
+	if IS_RUNNING muadb; then killall -q muadb; fi
 	if IS_RUNNING adbd; then killall -q adbd; fi
+	if IS_RUNNING mumtp; then killall -q mumtp; fi
 	if IS_RUNNING umtprd; then killall -q umtprd; fi
 
 	sleep 0.25
 
+	IS_RUNNING muadb && killall -q -KILL muadb
 	IS_RUNNING adbd && killall -q -KILL adbd
+	IS_RUNNING mumtp && killall -q -KILL mumtp
 	IS_RUNNING umtprd && killall -q -KILL umtprd
 }
 
@@ -221,16 +229,16 @@ CURRENT_FUNCTION() {
 
 DAEMON_UP() {
 	case "$1" in
-		adb) pidof adbd >/dev/null 2>&1 ;;
-		mtp) pidof umtprd >/dev/null 2>&1 ;;
+		adb) pidof muadb >/dev/null 2>&1 ;;
+		mtp) pidof mumtp >/dev/null 2>&1 ;;
 		*) return 1 ;;
 	esac
 }
 
 FUNCTION_AVAILABLE() {
 	case "$1" in
-		adb) [ -x /usr/bin/adbd ] ;;
-		mtp) [ -x /usr/bin/umtprd ] ;;
+		adb) [ -x "$MUADB_BIN" ] ;;
+		mtp) [ -x "$MUMTP_BIN" ] ;;
 		none) return 0 ;;
 		*) return 1 ;;
 	esac
@@ -277,14 +285,14 @@ SWITCH_TO() {
 	BIND_UDC
 }
 
-UPDATE_UMTPRD_CONF() {
-	[ -r "$UMTPRD_CONF_SOURCE" ] || return 1
-	mkdir -p "${UMTPRD_CONF_TARGET%/*}" || return 1
-	UMTPRD_CONF_TEMP="$UMTPRD_CONF_TARGET.tmp.$$"
-	rm -f "$UMTPRD_CONF_TEMP"
-	cp -f "$UMTPRD_CONF_SOURCE" "$UMTPRD_CONF_TEMP" || return 1
-	chmod 0644 "$UMTPRD_CONF_TEMP" || {
-		rm -f "$UMTPRD_CONF_TEMP"
+UPDATE_MUMTP_CONF() {
+	[ -r "$MUMTP_CONF_SOURCE" ] || return 1
+	mkdir -p "${MUMTP_CONF_TARGET%/*}" || return 1
+	MUMTP_CONF_TEMP="$MUMTP_CONF_TARGET.tmp.$$"
+	rm -f "$MUMTP_CONF_TEMP"
+	cp -f "$MUMTP_CONF_SOURCE" "$MUMTP_CONF_TEMP" || return 1
+	chmod 0644 "$MUMTP_CONF_TEMP" || {
+		rm -f "$MUMTP_CONF_TEMP"
 		return 1
 	}
 
@@ -295,26 +303,19 @@ UPDATE_UMTPRD_CONF() {
 	_PRD="$(USB_PRODUCT)"
 	_FWV="$(FIRMWARE_VERSION)"
 
-	if [ "$(GET_VAR "device" "storage/sdcard/active")" -eq 1 ]; then
-		_SDCARD_EXPR='s|^#storage "/mnt/sdcard"|storage "/mnt/sdcard"|'
-	else
-		_SDCARD_EXPR='s|^storage "/mnt/sdcard"|#storage "/mnt/sdcard"|'
-	fi
-
 	sed -i \
-		-e "$_SDCARD_EXPR" \
 		-e "s/^usb_vendor_id .*/usb_vendor_id \"$_VID\"/" \
 		-e "s/^usb_product_id .*/usb_product_id \"$_PID\"/" \
 		-e "s/^serial .*/serial \"$_SER\"/" \
 		-e "s/^manufacturer .*/manufacturer \"$_MFR\"/" \
 		-e "s/^product .*/product \"$_PRD\"/" \
 		-e "s/^firmware_version .*/firmware_version \"$_FWV\"/" \
-		"$UMTPRD_CONF_TEMP" || {
-		rm -f "$UMTPRD_CONF_TEMP"
+		"$MUMTP_CONF_TEMP" || {
+		rm -f "$MUMTP_CONF_TEMP"
 		return 1
 	}
 
-	mv -f "$UMTPRD_CONF_TEMP" "$UMTPRD_CONF_TARGET"
+	mv -f "$MUMTP_CONF_TEMP" "$MUMTP_CONF_TARGET"
 }
 
 START_GADGET() {
@@ -565,16 +566,16 @@ CMD_STATUS() {
 		fi
 	done
 
-	if IS_RUNNING adbd; then
-		printf "adbd: running\n"
+	if IS_RUNNING muadb; then
+		printf "muadb: running\n"
 	else
-		printf "adbd: stopped\n"
+		printf "muadb: stopped\n"
 	fi
 
-	if IS_RUNNING umtprd; then
-		printf "umtprd: running\n"
+	if IS_RUNNING mumtp; then
+		printf "mumtp: running\n"
 	else
-		printf "umtprd: stopped\n"
+		printf "mumtp: stopped\n"
 	fi
 }
 

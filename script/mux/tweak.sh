@@ -104,7 +104,7 @@ case "$USB_FUNC" in
 		;;
 	2)
 		# Same idea as above but for MTP
-		if ! pidof umtprd >/dev/null 2>&1 || ! GADGET_WD; then
+		if ! pidof mumtp >/dev/null 2>&1 || ! GADGET_WD; then
 			LOG_DEBUG "$0" 0 "TWEAK" "Starting USB gadget (MTP)"
 			"$USB_GADGET_RUN" start
 		fi

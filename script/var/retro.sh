@@ -9,7 +9,7 @@ SETUP_APP() {
 	printf "app\n" >"$ACT_GO"
 
 	GOV_GO="$MUOS_RUN_DIR/governor"
-	[ -e "$GOV_GO" ] && cat "$GOV_GO" >"$(GET_VAR "device" "cpu/governor")"
+	[ -s "$GOV_GO" ] && APPLY_PERFORMANCE "$(cat "$GOV_GO")"
 
 	HOME="$(GET_VAR "device" "board/home")"
 	export HOME

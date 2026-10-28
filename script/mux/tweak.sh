@@ -56,7 +56,6 @@ for MUINPUT_PID in $(pidof muinput); do
 	kill -HUP "$MUINPUT_PID"
 done
 
-rm -rf "$MUOS_RUN_DIR/wake_cpu_gov"
 HOTKEY restart
 
 C_BRIGHT="$(GET_VAR "config" "settings/general/brightness")"

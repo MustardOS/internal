@@ -9,7 +9,6 @@ LOG_INFO "$0" 0 "LAUNCH" "$(printf "Content launch script started (PID: %s)" "$$
 ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 BOARD_NAME=$(GET_VAR "device" "board/name")
 LED_NORMAL=$(GET_VAR "device" "led/normal")
-GOVERNOR=$(GET_VAR "device" "cpu/governor")
 RUMBLE_PATH=$(GET_VAR "device" "board/rumble")
 NET_STATE=$(GET_VAR "device" "network/state")
 DPAD_SWAP=$(GET_VAR "device" "board/swap")
@@ -150,10 +149,10 @@ case "$BOARD_NAME" in
 	*) ;;
 esac
 
-APPLY_OPTIONAL_FILE "$GOV_GO" "$GOVERNOR" "CPU Governor"
-SYNC_GPU_FREQUENCY "$(cat "$GOVERNOR" 2>/dev/null)"
-SYNC_CPU_IDLE "$(cat "$GOVERNOR" 2>/dev/null)"
-SYNC_DMC_FREQUENCY "$(cat "$GOVERNOR" 2>/dev/null)"
+if [ -s "$GOV_GO" ]; then
+	LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Applying performance '%s'" "$(cat "$GOV_GO")")"
+	APPLY_PERFORMANCE "$(cat "$GOV_GO")"
+fi
 
 ENSURE_REMOVED_SYNC "$GOV_GO"
 ENSURE_REMOVED_SYNC "$SAA_GO"

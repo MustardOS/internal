@@ -12,7 +12,7 @@
   const FILENAME = "core.json";
 
   const FALLBACK_OPTIONS = {
-    governor: ["conservative", "interactive", "ondemand", "performance", "powersave", "schedutil", "userspace"],
+    governor: [{ id: "automatic", name: "Automatic" }, { id: "powersave", name: "Powersave" }, { id: "efficient", name: "Efficient" }, { id: "balanced", name: "Balanced" }, { id: "responsive", name: "Responsive" }, { id: "turbo", name: "Turbo" }, { id: "extreme", name: "Extreme" }],
     control: [{ id: "system", name: "System" }, { id: "modern", name: "Modern" }, { id: "retro", name: "Retro" }],
     arch: [{ id: "aarch64", name: "ARM 64-bit" }, { id: "arm32", name: "ARM 32-bit" }, { id: "x64", name: "x86 64-bit" }, { id: "x86", name: "x86 32-bit" }],
     device: [],
@@ -82,7 +82,12 @@
   })();
 
   // An empty list means the page shipped without that option data, so nothing can be judged unknown.
-  function known(name, value) { return !options[name].length || options[name].some(entry => entry.value === value); }
+  const LEGACY_GOVERNORS = ["conservative", "interactive", "ondemand", "performance", "schedutil", "userspace"];
+
+  function known(name, value) {
+    if (name === "governor" && LEGACY_GOVERNORS.includes(value)) return true;
+    return !options[name].length || options[name].some(entry => entry.value === value);
+  }
 
   function option(value, label) {
     const node = document.createElement("option");

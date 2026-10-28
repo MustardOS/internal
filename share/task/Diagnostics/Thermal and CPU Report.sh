@@ -13,6 +13,11 @@ DIAG_SECTION "muOS CPU configuration"
 DIAG_CONFIG "$MUOS_CONF_DEVICE/cpu"
 DIAG_KV "Default governor" "$(GET_VAR "device" "cpu/default" 2>/dev/null)"
 
+DIAG_SECTION "Performance levels"
+DIAG_CMD "Status" /opt/muos/frontend/mucpu status
+DIAG_CMD "Levels on this device" /opt/muos/frontend/mucpu list
+PERF_SESSION=$(DIAG_READ /run/muos/cpu_profile)
+
 DIAG_SECTION "CPU cores"
 DIAG_KV "Possible" "$(DIAG_READ /sys/devices/system/cpu/possible)"
 DIAG_KV "Online" "$(DIAG_READ /sys/devices/system/cpu/online)"
@@ -31,7 +36,8 @@ for POLICY in /sys/devices/system/cpu/cpufreq/policy* /sys/devices/system/cpu/cp
 	fi
 	SCALING_MAX=$(DIAG_READ "$POLICY/scaling_max_freq")
 	HARDWARE_MAX=$(DIAG_READ "$POLICY/cpuinfo_max_freq")
-	if DIAG_IS_NUM "$SCALING_MAX" && DIAG_IS_NUM "$HARDWARE_MAX" && [ "$SCALING_MAX" -lt $((HARDWARE_MAX * 3 / 4)) ]; then
+	if [ "${PERF_SESSION:-automatic}" = automatic ] && DIAG_IS_NUM "$SCALING_MAX" && DIAG_IS_NUM "$HARDWARE_MAX" &&
+		[ "$SCALING_MAX" -lt $((HARDWARE_MAX * 3 / 4)) ]; then
 		DIAG_FINDING "CPU" "The CPU is capped at $((SCALING_MAX / 1000)) MHz of a possible $((HARDWARE_MAX / 1000)) MHz."
 	fi
 done

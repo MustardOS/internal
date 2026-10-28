@@ -13952,13 +13952,82 @@
       "help": "How large the volume indicator is drawn."
     },
     {
+      "key": "settings/power/gov_default",
+      "group": "power",
+      "type": "text",
+      "default": "automatic",
+      "label": "Default Performance",
+      "module": "muxpower",
+      "help": "How hard the processor works in the menus, and for content that has no level of its own.\n\nAutomatic suits nearly everything. A higher level costs battery, and a lower one may leave heavier content struggling.",
+      "options": [
+        {
+          "value": "automatic",
+          "label": "Automatic"
+        },
+        {
+          "value": "powersave",
+          "label": "Powersave"
+        },
+        {
+          "value": "efficient",
+          "label": "Efficient"
+        },
+        {
+          "value": "balanced",
+          "label": "Balanced"
+        },
+        {
+          "value": "responsive",
+          "label": "Responsive"
+        },
+        {
+          "value": "turbo",
+          "label": "Turbo"
+        },
+        {
+          "value": "extreme",
+          "label": "Extreme"
+        }
+      ]
+    },
+    {
       "key": "settings/power/gov_idle",
       "group": "power",
       "type": "text",
       "default": "powersave",
-      "label": "Idle Governor",
+      "label": "Idle Performance",
       "module": "muxpower",
-      "help": "How hard the processor works once the device has gone idle.\n\nA gentler setting saves battery while nothing is happening. Leave it alone unless you are chasing battery life."
+      "help": "How hard the processor works once the device has gone idle.\n\nPowersave uses the least battery while nothing is happening. Your normal level returns as soon as you press a button.",
+      "options": [
+        {
+          "value": "automatic",
+          "label": "Automatic"
+        },
+        {
+          "value": "powersave",
+          "label": "Powersave"
+        },
+        {
+          "value": "efficient",
+          "label": "Efficient"
+        },
+        {
+          "value": "balanced",
+          "label": "Balanced"
+        },
+        {
+          "value": "responsive",
+          "label": "Responsive"
+        },
+        {
+          "value": "turbo",
+          "label": "Turbo"
+        },
+        {
+          "value": "extreme",
+          "label": "Extreme"
+        }
+      ]
     },
     {
       "key": "settings/power/idle_display",

@@ -358,7 +358,7 @@
         "catalogue": "Atari Jaguar",
         "lookup": 0,
         "default": "virtual jaguar",
-        "governor": "performance",
+        "governor": "extreme",
         "friendly": [
             "atarijaguar",
             "jaguar"
@@ -1697,7 +1697,7 @@
         "lookup": 0,
         "default": "azahar - standalone",
         "runtime": "external",
-        "governor": "performance",
+        "governor": "extreme",
         "friendly": [
             "nintendo3ds",
             "n3ds",
@@ -1724,7 +1724,7 @@
         "lookup": 0,
         "default": "drastic - standalone",
         "runtime": "external",
-        "governor": "performance",
+        "governor": "extreme",
         "friendly": [
             "nintendonintendodsi",
             "nintendodsi",
@@ -1920,7 +1920,7 @@
                 "name": "mGBA",
                 "core": "mgba_libretro.so",
                 "bios_required": 0,
-                "governor": "performance"
+                "governor": "extreme"
             },
             "mgba rumble": {
                 "name": "mGBA Rumble",
@@ -2006,7 +2006,7 @@
         "lookup": 0,
         "default": "mupen64plus next",
         "runtime": "pickles",
-        "governor": "performance",
+        "governor": "extreme",
         "friendly": [
             "nintendonintendo64dd",
             "nintendonintendo64",
@@ -2240,7 +2240,7 @@
                 "name": "ChimeraSNES",
                 "core": "chimerasnes_libretro.so",
                 "bios_required": 0,
-                "governor": "performance"
+                "governor": "extreme"
             },
             "mesen-s": {
                 "name": "Mesen-S",
@@ -2454,7 +2454,7 @@
         "catalogue": "Philips CDi",
         "lookup": 0,
         "default": "same cdi",
-        "governor": "performance",
+        "governor": "extreme",
         "friendly": [
             "philipscdi",
             "cdi"
@@ -2683,7 +2683,7 @@
         "catalogue": "Sega Atomiswave Naomi",
         "lookup": 1,
         "default": "flycast vl",
-        "governor": "performance",
+        "governor": "extreme",
         "friendly": [
             "seganaomi",
             "segaatomiswave",
@@ -2750,7 +2750,7 @@
         "catalogue": "Sega Dreamcast",
         "lookup": 0,
         "default": "flycast vl",
-        "governor": "performance",
+        "governor": "extreme",
         "friendly": [
             "segadreamcast",
             "segadc",
@@ -3009,7 +3009,7 @@
         "catalogue": "Sega Saturn",
         "lookup": 0,
         "default": "yabadabadoo",
-        "governor": "performance",
+        "governor": "extreme",
         "friendly": [
             "ss",
             "segasaturn",
@@ -3042,7 +3042,7 @@
                 "name": "Yabadabadoo",
                 "core": "yabadabadoo_libretro.so",
                 "extra": 0,
-                "governor": "performance"
+                "governor": "extreme"
             },
             "yabasanshiro": {
                 "name": "YabaSanshiro",
@@ -3431,7 +3431,7 @@
         "lookup": 0,
         "default": "ppsspp",
         "runtime": "external",
-        "governor": "performance",
+        "governor": "extreme",
         "friendly": [
             "sonypsp",
             "sonyplaystationportable",

@@ -153,63 +153,44 @@ SYNC_CPU_CORES() {
 		"$ONLINE_CORES" "$DETECTED_CORES" "$REQUESTED_CORES")"
 }
 
+APPLY_PERFORMANCE() {
+	MUCPU_BIN=/opt/muos/frontend/mucpu
+	[ -x "$MUCPU_BIN" ] || return 1
+
+	PERF_GOV=$("$MUCPU_BIN" apply "${1:-default}" 2>/dev/null)
+	[ -n "$PERF_GOV" ] || PERF_GOV=$("$MUCPU_BIN" apply default 2>/dev/null)
+
+	if [ -z "$PERF_GOV" ]; then
+		LOG_WARN "$0" 0 "FRONTEND" "$(printf "Unable to apply performance '%s'" "${1:-default}")"
+		return 1
+	fi
+
+	SYNC_GPU_FREQUENCY "$PERF_GOV"
+	SYNC_CPU_IDLE "$PERF_GOV"
+	SYNC_DMC_FREQUENCY "$PERF_GOV"
+
+	LOG_DEBUG "$0" 0 "FRONTEND" "$(printf "Performance '%s' applied with governor '%s'" "${1:-default}" "$PERF_GOV")"
+}
+
+REAPPLY_PERFORMANCE() {
+	MUCPU_BIN=/opt/muos/frontend/mucpu
+	[ -x "$MUCPU_BIN" ] || return 1
+
+	PERF_GOV=$("$MUCPU_BIN" reapply 2>/dev/null)
+	[ -n "$PERF_GOV" ] || return 1
+
+	SYNC_GPU_FREQUENCY "$PERF_GOV"
+	SYNC_CPU_IDLE "$PERF_GOV"
+	SYNC_DMC_FREQUENCY "$PERF_GOV"
+}
+
 SET_DEFAULT_GOVERNOR() {
 	(
-		DEF_GOV=$(GET_VAR "device" "cpu/default")
-		GOV_PATH="$(GET_VAR "device" "cpu/governor")"
-		AVAIL_PATH="$(GET_VAR "device" "cpu/available")"
-
-		if [ -f "$AVAIL_PATH" ] && ! grep -qw "$DEF_GOV" "$AVAIL_PATH"; then
-			LOG_WARN "$0" 0 "FRONTEND" "$(printf "Governor '%s' unavailable, falling back to ondemand" "$DEF_GOV")"
-			DEF_GOV="ondemand"
-		fi
-
-		printf "%s" "$DEF_GOV" >"$GOV_PATH"
-		SYNC_GPU_FREQUENCY "$DEF_GOV"
-		SYNC_CPU_IDLE "$DEF_GOV"
-		SYNC_DMC_FREQUENCY "$DEF_GOV"
+		APPLY_PERFORMANCE default
 
 		# Anything a crashed or interrupted session left pinned is released above,
 		# so an idle wake must not pin it again.
 		rm -f "$MUOS_RUN_DIR/idle_devfreq"
-
-		CPU_PATH=$(dirname "$GOV_PATH")
-
-		MIN_PATH="$(GET_VAR "device" "cpu/min_freq")"
-		MAX_PATH="$(GET_VAR "device" "cpu/max_freq")"
-
-		[ -f "$MIN_PATH" ] && GET_VAR "device" "cpu/min_freq_default" >"$MIN_PATH"
-
-		# Zero or unset uses the highest frequency the CPU offers, otherwise it is the chosen ceiling
-		CPU_FREQ_DIR=$(dirname "$MAX_PATH")
-		CPU_TOP=$(tr ' ' '\n' <"$CPU_FREQ_DIR/scaling_available_frequencies" 2>/dev/null | grep -v '^$' | sort -n | tail -1)
-		[ -n "$CPU_TOP" ] || CPU_TOP=$(cat "$CPU_FREQ_DIR/cpuinfo_max_freq" 2>/dev/null)
-		[ -n "$CPU_TOP" ] || CPU_TOP="$(GET_VAR "device" "cpu/max_freq_default")"
-
-		CPU_CAP="$(GET_VAR "config" "danger/cpu_max")"
-		case "$CPU_CAP" in
-			'' | 0 | *[!0-9]*) CPU_CAP="$(GET_VAR "device" "cpu/max_freq_default")" ;;
-		esac
-		case "$CPU_CAP" in
-			'' | *[!0-9]*) CPU_CAP="$CPU_TOP" ;;
-		esac
-		[ "$CPU_CAP" -gt "${CPU_TOP:-0}" ] 2>/dev/null && CPU_CAP="$CPU_TOP"
-
-		[ -f "$MAX_PATH" ] && [ -n "$CPU_CAP" ] && printf "%s" "$CPU_CAP" >"$MAX_PATH"
-
-		if [ "$DEF_GOV" = "ondemand" ]; then
-			# Detect differing kernel version layout
-			if [ -d "$CPU_PATH/ondemand" ]; then
-				OD_PATH="$CPU_PATH/ondemand"
-			else
-				OD_PATH="$CPU_PATH"
-			fi
-
-			[ -f "$OD_PATH/sampling_rate" ] && GET_VAR "device" "cpu/sampling_rate_default" >"$OD_PATH/sampling_rate"
-			[ -f "$OD_PATH/up_threshold" ] && GET_VAR "device" "cpu/up_threshold_default" >"$OD_PATH/up_threshold"
-			[ -f "$OD_PATH/sampling_down_factor" ] && GET_VAR "device" "cpu/sampling_down_factor_default" >"$OD_PATH/sampling_down_factor"
-			[ -f "$OD_PATH/io_is_busy" ] && GET_VAR "device" "cpu/io_is_busy_default" >"$OD_PATH/io_is_busy"
-		fi
 
 		SYNC_CPU_CORES
 	) &

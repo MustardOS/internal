@@ -101,7 +101,7 @@ LINK_REQUESTED() {
 CLEAN_STALE_LINK_GADGET() {
 	[ -d "$LINK_GADGET" ] || return 0
 
-	LOG_WARN "$0" 0 "USB" "Removing stale Direct Link USB gadget"
+	LOG_WARN "$0" 0 "USB" "Removing stale Device Link USB gadget"
 	if [ -e "$LINK_GADGET/UDC" ] && [ -n "$(cat "$LINK_GADGET/UDC" 2>/dev/null)" ]; then
 		printf '\n' >"$LINK_GADGET/UDC" 2>/dev/null
 		sleep 0.1

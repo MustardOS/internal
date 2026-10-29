@@ -11374,6 +11374,25 @@
       "help": "The region your device keeps time for. Setting this lets the clock correct itself from the internet, and handles daylight saving for you."
     },
     {
+      "key": "settings/general/track_notice",
+      "group": "general",
+      "type": "int",
+      "default": "1",
+      "label": "Track Change Notice",
+      "module": "muxcustom",
+      "help": "Whether a short notice shows the new track when Wasabi is playing music in the background, both in the frontend and in Pickles.",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ]
+    },
+    {
       "key": "settings/general/volume",
       "group": "general",
       "type": "int",

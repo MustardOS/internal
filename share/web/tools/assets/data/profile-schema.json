@@ -18,6 +18,10 @@
       "title": "Power"
     },
     {
+      "id": "saver",
+      "title": "Screensaver"
+    },
+    {
       "id": "hotkey",
       "title": "Hotkeys"
     },
@@ -63,6 +67,8 @@
       "group": "advanced",
       "type": "int",
       "default": "96",
+      "min": 16,
+      "max": 32767,
       "label": "Menu Acceleration",
       "module": "muxtweakadv",
       "help": "How quickly the list picks up speed when you hold a direction down.\n\nA lower number gets moving sooner, which suits long lists. A higher number holds a steady pace for longer, which makes it easier to stop on the item you wanted.\n\nRaise it if you keep overshooting.",
@@ -142,6 +148,8 @@
       "group": "advanced",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Activity Tracker",
       "module": "muxtweakadv",
       "help": "Records how long you play each item and how often you open it, which is what the Activity Tracker reads.\n\nTurning it off stops anything new being recorded. Whatever has already been tracked is kept.",
@@ -161,6 +169,8 @@
       "group": "advanced",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Audio Subsystem Wait",
       "module": "muxtweakadv",
       "help": "Waits for the audio system to finish starting before showing the frontend.\n\nEnable it if the first sound of the session is missed or cut short. Leaving it disabled provides the quickest boot.",
@@ -180,6 +190,8 @@
       "group": "advanced",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Audio Suspend",
       "module": "muxtweakadv",
       "help": "Lets the audio hardware power down when nothing is playing, which saves a little battery.\n\nThe cost is that the first moment of sound after a quiet spell can be clipped. Turn it off if you keep losing the start of sounds.",
@@ -199,6 +211,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Audio Reverse",
       "module": "muxtweakadv",
       "help": "Swaps the left and right channels over.\n\nOnly needed if your device or headphones have them the wrong way round, which you would notice as sound arriving from the opposite side to where it belongs.",
@@ -218,6 +232,8 @@
       "group": "advanced",
       "type": "int",
       "default": "3",
+      "min": 0,
+      "max": 5,
       "label": "Box Art Padding Divisor",
       "module": "muxtweakadv",
       "help": "Box Art Padding in Customisation is a percentage, and this decides how much actual space each percent is worth.\n\nA smaller number here makes every percent count for more, so the same padding setting pushes the artwork further from the edge. A larger number makes each percent count for less, so the padding becomes finer to adjust.\n\nLeave it alone unless the padding steps feel too coarse or too gentle.",
@@ -253,6 +269,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 3,
       "label": "Brightness On Boot",
       "module": "muxtweakadv",
       "help": "The screen brightness the device returns to each time it starts, whatever you had it set to before.\n\nHandy if you tend to wind it right down at night and would rather not find it there in the morning.",
@@ -280,6 +298,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Raw Device Visibility",
       "module": "muxtweakadv",
       "help": "Shows nearby Bluetooth broadcasts that do not provide a useful device name.\n\nThese normally appear as a hardware address and are hidden to keep the scan list useful. Enable this only when diagnosing or pairing unusual hardware.",
@@ -299,6 +319,8 @@
       "group": "advanced",
       "type": "int",
       "default": "20",
+      "min": 5,
+      "max": 30,
       "label": "Bluetooth Scan Timeout",
       "options": [
         {
@@ -333,6 +355,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Display Suspend",
       "module": "muxtweakadv",
       "help": "Lets the display power down properly when the device sleeps rather than simply going dark.\n\nIt saves a little battery, but some screens come back with flicker or no picture at all. If yours misbehaves after a sleep, turn this off.",
@@ -352,6 +376,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Double Buffering",
       "module": "muxtweakadv",
       "help": "Draws to a second full screen buffer instead of working with one.\n\nThis uses noticeably more memory and exists for comparing how things render, not for everyday use.\n\nLeave it off unless you are chasing a display fault. Takes effect on the next launch.",
@@ -371,6 +397,8 @@
       "group": "advanced",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "DPAD Swap Function",
       "module": "muxtweakadv",
       "help": "Lets the power button switch the DPAD between behaving normally and standing in for the sticks.\n\nHandy for content that only reads one or the other. Leave it off if you would rather the power button did nothing else.",
@@ -390,6 +418,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Additional Cores",
       "module": "muxtweakadv",
       "help": "Shows the extra systems and cores in Core Assignment as well as the main ones.\n\nLeave this off for a shorter list of the choices that suit most people. Content already assigned to an extra core keeps working either way.",
@@ -409,6 +439,8 @@
       "group": "advanced",
       "type": "int",
       "default": "2",
+      "min": 0,
+      "max": 3,
       "label": "Font Source",
       "options": [
         {
@@ -435,6 +467,8 @@
       "group": "advanced",
       "type": "int",
       "default": "16",
+      "min": 1,
+      "max": 32,
       "label": "Brightness Increment",
       "module": "muxtweakadv",
       "help": "How far the brightness moves with each press.\n\nA smaller step gives you finer control over the level, a larger one gets you from dim to bright in fewer presses.",
@@ -574,6 +608,8 @@
       "group": "advanced",
       "type": "int",
       "default": "8",
+      "min": 1,
+      "max": 32,
       "label": "Volume Increment",
       "module": "muxtweakadv",
       "help": "How far the volume moves with each press.\n\nA smaller step gives you finer control over the level, a larger one gets you from quiet to loud in fewer presses.",
@@ -713,6 +749,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "LED During Play",
       "module": "muxtweakadv",
       "help": "Whether the power light stays lit while content is loading.\n\nPurely cosmetic, and worth turning off if you would rather the light did not flash about while you are playing in the dark.",
@@ -732,6 +770,8 @@
       "group": "advanced",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Device Lid Switch",
       "module": "muxtweakadv",
       "help": "Whether closing the lid puts the device to sleep, on the devices that have one.\n\nTurn it off if you would rather the lid did nothing at all.",
@@ -751,6 +791,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "GPU Performance Mode",
       "module": "muxtweakadv",
       "help": "Holds the graphics chip at its top speed rather than letting it settle down when there is little to do.\n\nIt can smooth out the occasional stutter, at the cost of battery and a warmer device. Leave it off unless you have something that needs it.",
@@ -770,6 +812,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Overdrive",
       "options": [
         {
@@ -788,6 +832,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Random Theme on Boot",
       "module": "muxcustom",
       "help": "Picks a different theme each time the device starts, chosen from the ones you have installed.\n\nLeave it off if you would rather the theme you chose stayed put.",
@@ -807,6 +853,8 @@
       "group": "advanced",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Remember Section",
       "module": "muxtweakadv",
       "help": "Screens split into sections normally open on the first one. With this on they open wherever you last were.\n\nHandy if you keep going back to the same section, less so if you would rather always start from the beginning.",
@@ -826,6 +874,8 @@
       "group": "advanced",
       "type": "int",
       "default": "208",
+      "min": 16,
+      "max": 32767,
       "label": "Menu Repeat Delay",
       "module": "muxtweakadv",
       "help": "How long a button must be held before it starts repeating.\n\nA short delay means the list starts moving almost as soon as you press. A longer one lets you tap without the list running away from you.\n\nRaise it if a single press sometimes moves you two places.",
@@ -969,6 +1019,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "RetroArch Startup Cache",
       "module": "muxtweakadv",
       "help": "Prepares part of RetroArch while the device starts so it opens faster the first time you use it.\n\nThis adds roughly three seconds to boot in exchange for a quicker first launch. Worth it if you play through RetroArch often, less so if you rarely do.",
@@ -988,6 +1040,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "RetroArch Network Wait",
       "module": "muxtweakadv",
       "help": "Holds RetroArch back until the device has joined a network.\n\nOnly worth having on if you rely on netplay or other online features the moment content opens. It adds a wait to every launch, so leave it off otherwise.",
@@ -1007,6 +1061,8 @@
       "group": "advanced",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 6,
       "label": "Device Rumble",
       "module": "muxtweakadv",
       "help": "Whether the device gives a short buzz when it starts up, goes to sleep and shuts down.\n\nThis covers those three moments only. Content manages its own rumble separately.",
@@ -1046,6 +1102,8 @@
       "group": "advanced",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Stage Overlay",
       "module": "muxtweakadv",
       "help": "The small bars that slide in when you change brightness or volume, along with the battery warning.\n\nTurn it off if you would rather nothing appeared over the top of what you are doing.",
@@ -1065,6 +1123,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 6,
       "label": "Menu Navigation",
       "module": "muxtweakadv",
       "help": "Which controls move you around the menus, the DPAD, the sticks, or both together.\n\nSet it to whichever you find yourself reaching for. On devices without sticks there is nothing here to change.",
@@ -1104,6 +1164,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1024,
       "label": "System Swapfile",
       "module": "muxtweakadv",
       "help": "Sets aside space on your card for the device to fall back on when memory runs short.\n\nA few demanding ports ask for this. It costs card space and is slower than real memory, so leave it alone unless something tells you otherwise.",
@@ -1151,6 +1213,8 @@
       "group": "advanced",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Thermal Zone Control",
       "module": "muxtweakadv",
       "help": "Lets the device shut itself down if it gets too hot.\n\nThis is a safety net rather than something you will meet in ordinary use. Leave it on, as turning it off means nothing will step in if the device runs hot.",
@@ -1170,6 +1234,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Trust Modifications",
       "module": "muxtweakadv",
       "help": "Settings screens normally ask whether to save when you leave with changes pending. With this on they simply save.\n\nQuicker once you know your way around, though it does mean a change made by accident is kept without asking.",
@@ -1189,6 +1255,8 @@
       "group": "advanced",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Trust Power Choice",
       "module": "muxtweakadv",
       "help": "Rebooting and shutting down normally ask you to confirm first. With this on they happen straight away.\n\nQuicker, but there is then nothing between a mistaken press and the device going down.",
@@ -1208,6 +1276,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Trust Removals",
       "module": "muxtweakadv",
       "help": "Removing content or resetting settings normally asks you to confirm first. With this on it happens straight away.\n\nWorth thinking twice about, as there is no way back once something has been removed.",
@@ -1227,6 +1297,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 2,
       "label": "USB Function",
       "module": "muxtweakadv",
       "help": "What the device offers when you plug it into a computer.\n\nMTP lets you browse your files from the computer, which is what most people want. ADB is a developer connection and is only worth choosing if you know you need it.",
@@ -1250,6 +1322,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Verbose Messages",
       "module": "muxtweakadv",
       "help": "Shows the startup and shutdown messages scrolling past instead of the usual quiet screen.\n\nUseful when something is going wrong at boot and you need to see where it stops. Leave it off otherwise.",
@@ -1269,6 +1343,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 3,
       "label": "Volume On Boot",
       "module": "muxtweakadv",
       "help": "The volume the device returns to each time it starts, whatever you had it set to before.\n\nWorth setting low if the device sometimes gets switched on somewhere quiet.",
@@ -1296,6 +1372,8 @@
       "group": "advanced",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1024,
       "label": "System ZRam",
       "module": "muxtweakadv",
       "help": "Compressed memory held in RAM, giving you a little more to work with without touching your card.\n\nFaster than the swapfile, though compressing costs a small amount of processing. Leave it alone unless something asks for it.",
@@ -1343,6 +1421,8 @@
       "group": "colour",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Schedule",
       "module": "muxdistemp",
       "help": "Warms the screen colours automatically on a sunrise and sunset schedule.\n\nWith this off, the single temperature below is used all day.",
@@ -1362,6 +1442,8 @@
       "group": "colour",
       "type": "int",
       "default": "30",
+      "min": -255,
+      "max": 255,
       "label": "Daytime / Manual Temperature",
       "module": "muxdistemp",
       "help": "The display temperature used during daytime when scheduling is enabled, or the manual display temperature when scheduling is disabled.",
@@ -3417,6 +3499,8 @@
       "group": "colour",
       "type": "int",
       "default": "30",
+      "min": 0,
+      "max": 95,
       "label": "Sunrise Time",
       "module": "muxdistemp",
       "help": "When the daytime temperature takes over.",
@@ -3812,6 +3896,8 @@
       "group": "colour",
       "type": "int",
       "default": "160",
+      "min": -255,
+      "max": 255,
       "label": "Sunset Temperature",
       "module": "muxdistemp",
       "help": "The colour temperature used through the evening hours.\n\nHigher is warmer and easier on the eyes at night.",
@@ -5867,6 +5953,8 @@
       "group": "colour",
       "type": "int",
       "default": "78",
+      "min": 0,
+      "max": 95,
       "label": "Sunset Time",
       "module": "muxdistemp",
       "help": "When the evening temperature takes over. Remember to go to bed at an appropriate time!",
@@ -6270,6 +6358,8 @@
       "group": "font",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 32767,
       "label": "Face",
       "help": "Which style to use when a font file holds more than one, counted from 0.\n\nLeave it at 0 unless the font calls for another style."
     },
@@ -6278,6 +6368,8 @@
       "group": "font",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 64,
       "label": "Footer Size",
       "options": [
         {
@@ -6413,6 +6505,8 @@
       "group": "font",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 64,
       "label": "Header Size",
       "options": [
         {
@@ -6568,6 +6662,8 @@
       "group": "font",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 64,
       "label": "List Size",
       "options": [
         {
@@ -6711,6 +6807,8 @@
       "group": "font",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 64,
       "label": "Panel Size",
       "options": [
         {
@@ -6894,6 +6992,8 @@
       "group": "font",
       "type": "int",
       "default": "0",
+      "min": -32768,
+      "max": 32767,
       "label": "Width",
       "options": [
         {
@@ -6909,6 +7009,8 @@
       "group": "general",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 2,
       "label": "Background Music",
       "module": "muxcustom",
       "help": "Whether background music plays on the menus.\n\nThe music itself comes from your music folder.",
@@ -6932,6 +7034,8 @@
       "group": "general",
       "type": "int",
       "default": "35",
+      "min": 0,
+      "max": 100,
       "label": "Background Music Volume",
       "module": "muxcustom",
       "help": "How loud the background music is.",
@@ -7340,15 +7444,15 @@
           "value": "100",
           "label": "100%"
         }
-      ],
-      "min": 0,
-      "max": 100
+      ]
     },
     {
       "key": "settings/general/brightness",
       "group": "general",
       "type": "int",
       "default": "90",
+      "min": 1,
+      "max": 255,
       "label": "Brightness",
       "options": [
         {
@@ -8373,15 +8477,15 @@
         }
       ],
       "open": 1,
-      "help": "Screen brightness as a percentage. Profiles retain the exact native 1-255 brightness level used by the device.",
-      "min": 1,
-      "max": 255
+      "help": "Screen brightness as a percentage. Profiles retain the exact native 1-255 brightness level used by the device."
     },
     {
       "key": "settings/general/chime",
       "group": "general",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Startup Chime",
       "module": "muxcustom",
       "help": "Whether a short sound plays once the device has finished starting up.",
@@ -8409,6 +8513,8 @@
       "group": "general",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 2,
       "label": "Navigation Sound",
       "module": "muxcustom",
       "help": "Whether the menus make a sound as you move through them.",
@@ -8463,6 +8569,8 @@
       "group": "general",
       "type": "int",
       "default": "100",
+      "min": 0,
+      "max": 100,
       "label": "Navigation Sound Volume",
       "module": "muxcustom",
       "help": "How loud the navigation sounds are.",
@@ -8871,9 +8979,7 @@
           "value": "100",
           "label": "100%"
         }
-      ],
-      "min": 0,
-      "max": 100
+      ]
     },
     {
       "key": "settings/general/startup",
@@ -8915,6 +9021,8 @@
       "group": "general",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 7,
       "label": "Theme Resolution",
       "options": [
         {
@@ -8957,6 +9065,8 @@
       "group": "general",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 2,
       "label": "Theme Scaling",
       "module": "muxcustom",
       "help": "How a theme built for another resolution is stretched or fitted to this screen.\n\nOnly comes into play once Theme Resolution has been changed.",
@@ -11378,6 +11488,8 @@
       "group": "general",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Track Change Notice",
       "module": "muxcustom",
       "help": "Whether a short notice shows the new track when Wasabi is playing music in the background, both in the frontend and in Pickles.",
@@ -11397,6 +11509,8 @@
       "group": "general",
       "type": "int",
       "default": "45",
+      "min": 0,
+      "max": 200,
       "label": "Volume",
       "options": [
         {
@@ -11804,9 +11918,7 @@
           "label": "100%"
         }
       ],
-      "open": 1,
-      "min": 0,
-      "max": 200
+      "open": 1
     },
     {
       "key": "settings/hdmi/depth",
@@ -11863,6 +11975,8 @@
       "group": "hdmi",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Colour Range",
       "module": "muxhdmi",
       "help": "The range of brightness values sent.\n\nIf blacks look washed out or crushed, this is usually the setting at fault.",
@@ -11919,6 +12033,8 @@
       "group": "hdmi",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Scan Scaling",
       "module": "muxhdmi",
       "help": "Whether the picture is pushed out past the edges of the screen or pulled in from them.\n\nReach for this if the image is cut off or does not quite fill the screen.",
@@ -11938,6 +12054,8 @@
       "group": "hdmi",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 3,
       "label": "Colour Space",
       "module": "muxhdmi",
       "help": "How colour is encoded on the way out.\n\nRGB suits most TVs. Try the others only if the colours look plainly wrong.",
@@ -11965,6 +12083,8 @@
       "group": "hotkey",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 5,
       "label": "DPAD Swap Hotkey",
       "module": "muxtweakgen",
       "help": "Which button combination switches the DPAD between behaving normally and standing in for the sticks.",
@@ -12000,6 +12120,8 @@
       "group": "hotkey",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 5,
       "label": "Screenshot Hotkey",
       "module": "muxtweakgen",
       "help": "Which button combination takes a screenshot.",
@@ -12035,6 +12157,8 @@
       "group": "overlay",
       "type": "int",
       "default": "255",
+      "min": 0,
+      "max": 255,
       "label": "Battery Alpha",
       "options": [
         {
@@ -12443,15 +12567,15 @@
         }
       ],
       "open": 1,
-      "help": "How strongly the low battery warning shows through.",
-      "min": 0,
-      "max": 255
+      "help": "How strongly the low battery warning shows through."
     },
     {
       "key": "settings/overlay/bat_anchor",
       "group": "overlay",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 8,
       "label": "Battery Anchor",
       "options": [
         {
@@ -12498,6 +12622,8 @@
       "group": "overlay",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 2,
       "label": "Battery Scale",
       "options": [
         {
@@ -12520,6 +12646,8 @@
       "group": "overlay",
       "type": "int",
       "default": "255",
+      "min": 0,
+      "max": 255,
       "label": "Brightness Alpha",
       "options": [
         {
@@ -12928,15 +13056,15 @@
         }
       ],
       "open": 1,
-      "help": "How strongly the brightness indicator shows through.",
-      "min": 0,
-      "max": 255
+      "help": "How strongly the brightness indicator shows through."
     },
     {
       "key": "settings/overlay/bri_anchor",
       "group": "overlay",
       "type": "int",
       "default": "2",
+      "min": 0,
+      "max": 8,
       "label": "Brightness Anchor",
       "options": [
         {
@@ -12983,6 +13111,8 @@
       "group": "overlay",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 2,
       "label": "Brightness Scale",
       "options": [
         {
@@ -13005,6 +13135,8 @@
       "group": "overlay",
       "type": "int",
       "default": "255",
+      "min": 0,
+      "max": 255,
       "label": "General Alpha",
       "options": [
         {
@@ -13413,15 +13545,15 @@
         }
       ],
       "open": 1,
-      "help": "How strongly the content overlay shows through.\n\nLower it if the overlay is fighting with the content underneath.",
-      "min": 0,
-      "max": 255
+      "help": "How strongly the content overlay shows through.\n\nLower it if the overlay is fighting with the content underneath."
     },
     {
       "key": "settings/overlay/gen_anchor",
       "group": "overlay",
       "type": "int",
       "default": "4",
+      "min": 0,
+      "max": 8,
       "label": "General Anchor",
       "options": [
         {
@@ -13468,6 +13600,8 @@
       "group": "overlay",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 2,
       "label": "General Scale",
       "options": [
         {
@@ -13490,6 +13624,8 @@
       "group": "overlay",
       "type": "int",
       "default": "255",
+      "min": 0,
+      "max": 255,
       "label": "Volume Alpha",
       "options": [
         {
@@ -13898,15 +14034,15 @@
         }
       ],
       "open": 1,
-      "help": "How strongly the volume indicator shows through.",
-      "min": 0,
-      "max": 255
+      "help": "How strongly the volume indicator shows through."
     },
     {
       "key": "settings/overlay/vol_anchor",
       "group": "overlay",
       "type": "int",
       "default": "2",
+      "min": 0,
+      "max": 8,
       "label": "Volume Anchor",
       "options": [
         {
@@ -13953,6 +14089,8 @@
       "group": "overlay",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 2,
       "label": "Volume Scale",
       "options": [
         {
@@ -14053,6 +14191,8 @@
       "group": "power",
       "type": "int",
       "default": "120",
+      "min": 0,
+      "max": 1800,
       "label": "Idle Display",
       "options": [
         {
@@ -14099,6 +14239,8 @@
       "group": "power",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Mute on Display Timeout",
       "module": "muxpower",
       "help": "Whether sound is muted once the screen dims.\n\nHandy if the device tends to dim while music is playing and you would rather it went quiet as well.",
@@ -14118,6 +14260,8 @@
       "group": "power",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1800,
       "label": "Idle Sleep",
       "options": [
         {
@@ -14164,6 +14308,8 @@
       "group": "power",
       "type": "int",
       "default": "25",
+      "min": 0,
+      "max": 100,
       "label": "Low Battery",
       "options": [
         {
@@ -14571,15 +14717,15 @@
           "label": "100%"
         }
       ],
-      "help": "The capacity at which the red light comes on to tell you the battery is getting low.\n\nSet it higher if you would rather have more warning.",
-      "min": 0,
-      "max": 100
+      "help": "The capacity at which the red light comes on to tell you the battery is getting low.\n\nSet it higher if you would rather have more warning."
     },
     {
       "key": "settings/power/saver_speed",
       "group": "power",
       "type": "int",
       "default": "90",
+      "min": 0,
+      "max": 600,
       "label": "Saver Speed",
       "options": [
         {
@@ -14610,6 +14756,8 @@
       "group": "power",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 20,
       "label": "Saver Type",
       "options": [
         {
@@ -14704,6 +14852,8 @@
       "group": "power",
       "type": "int",
       "default": "600",
+      "min": -2,
+      "max": 3600,
       "label": "Shutdown",
       "options": [
         {
@@ -14758,10 +14908,1255 @@
       "help": "What a short press of the power button does, whether that is sleeping, shutting down, or nothing at all.\n\nHolding the button down shuts the device off regardless."
     },
     {
+      "key": "settings/saver/blockfall_colour",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 9,
+      "label": "Block Fall Colour",
+      "options": [
+        {
+          "value": "0",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "White"
+        },
+        {
+          "value": "2",
+          "label": "Red"
+        },
+        {
+          "value": "3",
+          "label": "Orange"
+        },
+        {
+          "value": "4",
+          "label": "Amber"
+        },
+        {
+          "value": "5",
+          "label": "Green"
+        },
+        {
+          "value": "6",
+          "label": "Cyan"
+        },
+        {
+          "value": "7",
+          "label": "Blue"
+        },
+        {
+          "value": "8",
+          "label": "Purple"
+        },
+        {
+          "value": "9",
+          "label": "Pink"
+        }
+      ],
+      "help": "The colour of the blocks and the board.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/blockfall_size",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Block Fall Block Size",
+      "options": [
+        {
+          "value": "0",
+          "label": "Small"
+        },
+        {
+          "value": "1",
+          "label": "Medium"
+        },
+        {
+          "value": "2",
+          "label": "Large"
+        }
+      ],
+      "help": "How large the falling blocks are.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/boxart_count",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Flying Box Art Box Count",
+      "options": [
+        {
+          "value": "0",
+          "label": "4"
+        },
+        {
+          "value": "1",
+          "label": "8"
+        },
+        {
+          "value": "2",
+          "label": "12"
+        }
+      ],
+      "help": "How many boxes can fly across the screen at once.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/boxart_size",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Flying Box Art Box Size",
+      "options": [
+        {
+          "value": "0",
+          "label": "Small"
+        },
+        {
+          "value": "1",
+          "label": "Medium"
+        },
+        {
+          "value": "2",
+          "label": "Large"
+        }
+      ],
+      "help": "How large the flying boxes are.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/bsod_background",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 1,
+      "label": "Blue Screen Background",
+      "options": [
+        {
+          "value": "0",
+          "label": "Blue"
+        },
+        {
+          "value": "1",
+          "label": "Black"
+        }
+      ],
+      "help": "The colour behind the crash message.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/bsod_screens",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 2,
+      "label": "Blue Screen Screens",
+      "options": [
+        {
+          "value": "0",
+          "label": "Crash and Reboot"
+        },
+        {
+          "value": "1",
+          "label": "Crash Only"
+        },
+        {
+          "value": "2",
+          "label": "Reboot Only"
+        }
+      ],
+      "help": "Which screens are shown. Crash and Reboot takes turns between the two.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/constellation_colour",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 9,
+      "label": "Constellation Colour",
+      "options": [
+        {
+          "value": "0",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "White"
+        },
+        {
+          "value": "2",
+          "label": "Red"
+        },
+        {
+          "value": "3",
+          "label": "Orange"
+        },
+        {
+          "value": "4",
+          "label": "Amber"
+        },
+        {
+          "value": "5",
+          "label": "Green"
+        },
+        {
+          "value": "6",
+          "label": "Cyan"
+        },
+        {
+          "value": "7",
+          "label": "Blue"
+        },
+        {
+          "value": "8",
+          "label": "Purple"
+        },
+        {
+          "value": "9",
+          "label": "Pink"
+        }
+      ],
+      "help": "The colour of the stars and the lines joining them.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/constellation_count",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Constellation Star Count",
+      "options": [
+        {
+          "value": "0",
+          "label": "32"
+        },
+        {
+          "value": "1",
+          "label": "64"
+        },
+        {
+          "value": "2",
+          "label": "128"
+        }
+      ],
+      "help": "How many stars float about the screen.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/constellation_link",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Constellation Link Distance",
+      "options": [
+        {
+          "value": "0",
+          "label": "Short"
+        },
+        {
+          "value": "1",
+          "label": "Normal"
+        },
+        {
+          "value": "2",
+          "label": "Long"
+        }
+      ],
+      "help": "How close two stars need to be before a line joins them.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/datetime_colour",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 9,
+      "label": "Date and Time Colour",
+      "options": [
+        {
+          "value": "0",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "White"
+        },
+        {
+          "value": "2",
+          "label": "Red"
+        },
+        {
+          "value": "3",
+          "label": "Orange"
+        },
+        {
+          "value": "4",
+          "label": "Amber"
+        },
+        {
+          "value": "5",
+          "label": "Green"
+        },
+        {
+          "value": "6",
+          "label": "Cyan"
+        },
+        {
+          "value": "7",
+          "label": "Blue"
+        },
+        {
+          "value": "8",
+          "label": "Purple"
+        },
+        {
+          "value": "9",
+          "label": "Pink"
+        }
+      ],
+      "help": "The colour of the time and date. Default uses the text colour of the active theme.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/datetime_date",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 1,
+      "label": "Date and Time Show Date",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ],
+      "help": "Whether the date appears below the time.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/datetime_seconds",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 1,
+      "label": "Date and Time Show Seconds",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ],
+      "help": "Whether the time includes seconds.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/dvd_colour",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 2,
+      "label": "DVD Bounce Colour",
+      "options": [
+        {
+          "value": "0",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "Cycle on Bounce"
+        },
+        {
+          "value": "2",
+          "label": "Rainbow"
+        }
+      ],
+      "help": "How the logo is coloured. Default stays white and only changes colour on each bounce at the very top speed, Cycle on Bounce changes colour on every bounce, and Rainbow drifts slowly through every colour.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/dvd_size",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "DVD Bounce Logo Size",
+      "options": [
+        {
+          "value": "0",
+          "label": "Small"
+        },
+        {
+          "value": "1",
+          "label": "Medium"
+        },
+        {
+          "value": "2",
+          "label": "Large"
+        }
+      ],
+      "help": "How large the bouncing logo is drawn.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/firefly_colour",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 2,
+      "label": "Fireflies Colour",
+      "options": [
+        {
+          "value": "0",
+          "label": "Warm"
+        },
+        {
+          "value": "1",
+          "label": "Cool"
+        },
+        {
+          "value": "2",
+          "label": "Rainbow"
+        }
+      ],
+      "help": "Warm gives a soft golden glow, Cool a pale blue, and Rainbow gives each firefly its own colour.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/firefly_count",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Fireflies Firefly Count",
+      "options": [
+        {
+          "value": "0",
+          "label": "24"
+        },
+        {
+          "value": "1",
+          "label": "48"
+        },
+        {
+          "value": "2",
+          "label": "96"
+        }
+      ],
+      "help": "How many fireflies drift about the screen.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/glitch_hold",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Gravity Glitch Hold Time",
+      "options": [
+        {
+          "value": "0",
+          "label": "Short"
+        },
+        {
+          "value": "1",
+          "label": "Normal"
+        },
+        {
+          "value": "2",
+          "label": "Long"
+        }
+      ],
+      "help": "How long the screen stays whole before it starts to fall apart.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/glitch_size",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Gravity Glitch Tile Size",
+      "options": [
+        {
+          "value": "0",
+          "label": "Small"
+        },
+        {
+          "value": "1",
+          "label": "Medium"
+        },
+        {
+          "value": "2",
+          "label": "Large"
+        }
+      ],
+      "help": "How large the falling pieces of the screen are.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/hallway_paintings",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 1,
+      "label": "Endless Hallway Paintings",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ],
+      "help": "Whether box art from your content hangs on the walls as paintings.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/hallway_pixel",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Endless Hallway Pixel Size",
+      "options": [
+        {
+          "value": "0",
+          "label": "Fine"
+        },
+        {
+          "value": "1",
+          "label": "Normal"
+        },
+        {
+          "value": "2",
+          "label": "Chunky"
+        }
+      ],
+      "help": "How chunky the hallway looks. Fine shows the most detail.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/hallway_visitors",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 1,
+      "label": "Endless Hallway Visitors",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ],
+      "help": "Whether someone occasionally crosses the hallway ahead.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/lavalamp_colour",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 4,
+      "label": "Lava Lamp Colour",
+      "options": [
+        {
+          "value": "0",
+          "label": "Random"
+        },
+        {
+          "value": "1",
+          "label": "Amber"
+        },
+        {
+          "value": "2",
+          "label": "Ocean"
+        },
+        {
+          "value": "3",
+          "label": "Lime"
+        },
+        {
+          "value": "4",
+          "label": "Magenta"
+        }
+      ],
+      "help": "The colour of the lamp. Random picks a new colour each time.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/lavalamp_count",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 3,
+      "label": "Lava Lamp Blob Count",
+      "options": [
+        {
+          "value": "0",
+          "label": "Random"
+        },
+        {
+          "value": "1",
+          "label": "6"
+        },
+        {
+          "value": "2",
+          "label": "9"
+        },
+        {
+          "value": "3",
+          "label": "12"
+        }
+      ],
+      "help": "How many blobs float in the lamp. Random picks a new number each time.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/matrix_colour",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 9,
+      "label": "Digital Rain Colour",
+      "options": [
+        {
+          "value": "0",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "White"
+        },
+        {
+          "value": "2",
+          "label": "Red"
+        },
+        {
+          "value": "3",
+          "label": "Orange"
+        },
+        {
+          "value": "4",
+          "label": "Amber"
+        },
+        {
+          "value": "5",
+          "label": "Green"
+        },
+        {
+          "value": "6",
+          "label": "Cyan"
+        },
+        {
+          "value": "7",
+          "label": "Blue"
+        },
+        {
+          "value": "8",
+          "label": "Purple"
+        },
+        {
+          "value": "9",
+          "label": "Pink"
+        }
+      ],
+      "help": "The colour of the falling characters. Default is the familiar soft green.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/matrix_size",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Digital Rain Character Size",
+      "options": [
+        {
+          "value": "0",
+          "label": "Small"
+        },
+        {
+          "value": "1",
+          "label": "Medium"
+        },
+        {
+          "value": "2",
+          "label": "Large"
+        }
+      ],
+      "help": "How large each falling character is. Smaller characters fill the screen with more columns.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/maze_radar",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 1,
+      "label": "Maze Runner Radar",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ],
+      "help": "Whether the hunter sends out radar rings while it chases the runner.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/maze_size",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Maze Runner Cell Size",
+      "options": [
+        {
+          "value": "0",
+          "label": "Small"
+        },
+        {
+          "value": "1",
+          "label": "Medium"
+        },
+        {
+          "value": "2",
+          "label": "Large"
+        }
+      ],
+      "help": "How large each part of the maze is. Smaller cells make a bigger maze.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/moss_colour",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 4,
+      "label": "Pixel Moss Colour",
+      "options": [
+        {
+          "value": "0",
+          "label": "Random"
+        },
+        {
+          "value": "1",
+          "label": "Moss"
+        },
+        {
+          "value": "2",
+          "label": "Lichen"
+        },
+        {
+          "value": "3",
+          "label": "Autumn"
+        },
+        {
+          "value": "4",
+          "label": "Frost"
+        }
+      ],
+      "help": "The colour of the moss. Random picks a new colour each time.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/moss_flowers",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 1,
+      "label": "Pixel Moss Flowers",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ],
+      "help": "Whether the moss flowers once it has covered the screen.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/moss_size",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Pixel Moss Cell Size",
+      "options": [
+        {
+          "value": "0",
+          "label": "Small"
+        },
+        {
+          "value": "1",
+          "label": "Medium"
+        },
+        {
+          "value": "2",
+          "label": "Large"
+        }
+      ],
+      "help": "How large each patch of moss is.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/mystify_shapes",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 4,
+      "label": "Mystify Shapes",
+      "options": [
+        {
+          "value": "0",
+          "label": "Automatic"
+        },
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        }
+      ],
+      "help": "How many shapes twist across the screen. Automatic shows two, or four at the very top speed.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/mystify_trail",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Mystify Trail Length",
+      "options": [
+        {
+          "value": "0",
+          "label": "Short"
+        },
+        {
+          "value": "1",
+          "label": "Normal"
+        },
+        {
+          "value": "2",
+          "label": "Long"
+        }
+      ],
+      "help": "How many echoes each shape leaves behind it.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/pulse_colour",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 9,
+      "label": "Pulse Grid Colour",
+      "options": [
+        {
+          "value": "0",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "White"
+        },
+        {
+          "value": "2",
+          "label": "Red"
+        },
+        {
+          "value": "3",
+          "label": "Orange"
+        },
+        {
+          "value": "4",
+          "label": "Amber"
+        },
+        {
+          "value": "5",
+          "label": "Green"
+        },
+        {
+          "value": "6",
+          "label": "Cyan"
+        },
+        {
+          "value": "7",
+          "label": "Blue"
+        },
+        {
+          "value": "8",
+          "label": "Purple"
+        },
+        {
+          "value": "9",
+          "label": "Pink"
+        }
+      ],
+      "help": "The colour of the grid and its pulses.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/pulse_size",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Pulse Grid Cell Size",
+      "options": [
+        {
+          "value": "0",
+          "label": "Small"
+        },
+        {
+          "value": "1",
+          "label": "Medium"
+        },
+        {
+          "value": "2",
+          "label": "Large"
+        }
+      ],
+      "help": "How large each square of the grid is.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/slideshow_order",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 1,
+      "label": "Image Slideshow Order",
+      "options": [
+        {
+          "value": "0",
+          "label": "Name"
+        },
+        {
+          "value": "1",
+          "label": "Random"
+        }
+      ],
+      "help": "Name shows the images in order, starting from a random one. Random picks any image each time.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/slideshow_time",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 5,
+      "label": "Image Slideshow Image Time",
+      "options": [
+        {
+          "value": "0",
+          "label": "Follow Speed"
+        },
+        {
+          "value": "1",
+          "label": "5 Seconds"
+        },
+        {
+          "value": "2",
+          "label": "10 Seconds"
+        },
+        {
+          "value": "3",
+          "label": "20 Seconds"
+        },
+        {
+          "value": "4",
+          "label": "30 Seconds"
+        },
+        {
+          "value": "5",
+          "label": "60 Seconds"
+        }
+      ],
+      "help": "How long each image stays on the screen. Follow Speed uses the Screensaver Speed setting.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/slideshow_transition",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 1,
+      "label": "Image Slideshow Transition",
+      "options": [
+        {
+          "value": "0",
+          "label": "Crossfade"
+        },
+        {
+          "value": "1",
+          "label": "Cut"
+        }
+      ],
+      "help": "How one image changes to the next.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/star_count",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Starfield Star Count",
+      "options": [
+        {
+          "value": "0",
+          "label": "Few"
+        },
+        {
+          "value": "1",
+          "label": "Normal"
+        },
+        {
+          "value": "2",
+          "label": "Many"
+        }
+      ],
+      "help": "How many stars fly past at once.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/star_trails",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 2,
+      "label": "Starfield Trails",
+      "options": [
+        {
+          "value": "0",
+          "label": "Automatic"
+        },
+        {
+          "value": "1",
+          "label": "Always"
+        },
+        {
+          "value": "2",
+          "label": "Never"
+        }
+      ],
+      "help": "Whether stars leave streaks behind them. Automatic only draws them at the very top speed.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/trace_colour",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 9,
+      "label": "Circuit Trace Colour",
+      "options": [
+        {
+          "value": "0",
+          "label": "Default"
+        },
+        {
+          "value": "1",
+          "label": "White"
+        },
+        {
+          "value": "2",
+          "label": "Red"
+        },
+        {
+          "value": "3",
+          "label": "Orange"
+        },
+        {
+          "value": "4",
+          "label": "Amber"
+        },
+        {
+          "value": "5",
+          "label": "Green"
+        },
+        {
+          "value": "6",
+          "label": "Cyan"
+        },
+        {
+          "value": "7",
+          "label": "Blue"
+        },
+        {
+          "value": "8",
+          "label": "Purple"
+        },
+        {
+          "value": "9",
+          "label": "Pink"
+        }
+      ],
+      "help": "The colour of the circuit traces.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/trace_count",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Circuit Trace Trace Count",
+      "options": [
+        {
+          "value": "0",
+          "label": "6"
+        },
+        {
+          "value": "1",
+          "label": "12"
+        },
+        {
+          "value": "2",
+          "label": "24"
+        }
+      ],
+      "help": "How many traces can be drawing at the same time.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/trace_size",
+      "group": "saver",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 2,
+      "label": "Circuit Trace Grid Size",
+      "options": [
+        {
+          "value": "0",
+          "label": "Small"
+        },
+        {
+          "value": "1",
+          "label": "Medium"
+        },
+        {
+          "value": "2",
+          "label": "Large"
+        }
+      ],
+      "help": "How far apart the circuit lines are.",
+      "module": "muxsaver"
+    },
+    {
+      "key": "settings/saver/video_shuffle",
+      "group": "saver",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 1,
+      "label": "Video Wallpaper Shuffle",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ],
+      "help": "Play a different video each time the screensaver starts, chosen from the theme video and the videos in your MUOS/wallpaper folder.",
+      "module": "muxsaver"
+    },
+    {
       "key": "settings/theme/content_item_count",
       "group": "themeoverride",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 64,
       "label": "Content Item Count",
       "options": [
         {
@@ -15024,6 +16419,8 @@
       "group": "themeoverride",
       "type": "int",
       "default": "-1",
+      "min": -1,
+      "max": 64,
       "label": "Footer Height",
       "module": "muxcustom",
       "help": "Override the theme footer bar height in pixels (Default uses the theme value)",
@@ -15299,6 +16696,8 @@
       "group": "themeoverride",
       "type": "int",
       "default": "-2",
+      "min": -2,
+      "max": 128,
       "label": "Glyph Size Footer",
       "options": [
         {
@@ -15381,6 +16780,8 @@
       "group": "themeoverride",
       "type": "int",
       "default": "-2",
+      "min": -2,
+      "max": 128,
       "label": "Glyph Size Grid",
       "options": [
         {
@@ -15463,6 +16864,8 @@
       "group": "themeoverride",
       "type": "int",
       "default": "-2",
+      "min": -2,
+      "max": 128,
       "label": "Glyph Size Header",
       "options": [
         {
@@ -15545,6 +16948,8 @@
       "group": "themeoverride",
       "type": "int",
       "default": "-2",
+      "min": -2,
+      "max": 128,
       "label": "Glyph Size List",
       "options": [
         {
@@ -15627,6 +17032,8 @@
       "group": "themeoverride",
       "type": "int",
       "default": "-1",
+      "min": -1,
+      "max": 64,
       "label": "Header Height",
       "module": "muxcustom",
       "help": "Override the theme header bar height in pixels (Default uses the theme value)",
@@ -15902,6 +17309,8 @@
       "group": "themeoverride",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 100,
       "label": "Label Width",
       "options": [
         {
@@ -16280,6 +17689,8 @@
       "group": "visual",
       "type": "int",
       "default": "2",
+      "min": 0,
+      "max": 2,
       "label": "Background Scale",
       "module": "muxcustom",
       "help": "How the wallpaper is fitted to the screen, whether stretched, cropped or left as it is.",
@@ -16303,6 +17714,8 @@
       "group": "visual",
       "type": "int",
       "default": "2",
+      "min": 0,
+      "max": 3,
       "label": "Battery",
       "module": "muxcustom",
       "help": "How the battery appears in the header, as a glyph, a percentage or both, or hidden altogether.",
@@ -16330,6 +17743,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Black Fade Animation",
       "module": "muxcustom",
       "help": "Whether the screen fades out to black as content launches, rather than cutting straight across.",
@@ -16349,6 +17764,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Bluetooth",
       "module": "muxcustom",
       "help": "Whether the Bluetooth indicator appears in the header.",
@@ -16368,6 +17785,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Bold Focus",
       "options": [
         {
@@ -16386,6 +17805,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 4,
       "label": "Box Art",
       "module": "muxcustom",
       "options": [
@@ -16417,6 +17838,8 @@
       "group": "visual",
       "type": "int",
       "default": "6",
+      "min": 0,
+      "max": 9,
       "label": "Box Art Alignment",
       "module": "muxcustom",
       "help": "Where the artwork sits on the screen.\n\nWorth pairing with whichever side your theme leaves free.",
@@ -16464,6 +17887,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Hide Box Art",
       "options": [
         {
@@ -16482,6 +17907,8 @@
       "group": "visual",
       "type": "int",
       "default": "15",
+      "min": 0,
+      "max": 100,
       "label": "Box Art Padding",
       "module": "muxcustom",
       "help": "Breathing room around the artwork on all sides, as a percentage.\n\nIf the steps feel too coarse or too gentle, Box Art Padding Divisor in Advanced changes what each percent is worth.",
@@ -16897,6 +18324,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Box Art Placeholder",
       "module": "muxcustom",
       "help": "Shows the theme's stand in image when an item has no artwork of its own.\n\nTurn it off if you would rather have empty space than a placeholder.",
@@ -16916,6 +18345,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 100,
       "label": "Box Art Scale",
       "module": "muxcustom",
       "help": "How much of the space available the artwork fills, as a percentage.\n\nLower it if the artwork is crowding out the list.",
@@ -17331,6 +18762,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 13,
       "label": "Box Art Transition",
       "module": "muxcustom",
       "help": "How the artwork arrives as you move through the list, whether that is a fade, a slide, or nothing at all.",
@@ -17398,6 +18831,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Clock",
       "module": "muxcustom",
       "help": "Whether the time appears in the header.",
@@ -17417,6 +18852,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 2,
       "label": "Collection In Content",
       "module": "muxcustom",
       "help": "Whether your collections appear inside Content Explorer as well as on their own screen.",
@@ -17440,6 +18877,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 2,
       "label": "History In Content",
       "module": "muxcustom",
       "help": "Whether your recent history appears inside Content Explorer as well as on its own screen.",
@@ -17463,6 +18902,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Full Width Selection",
       "module": "muxcustom",
       "options": [
@@ -17482,6 +18923,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Menu Counter File",
       "module": "muxcustom",
       "help": "Toggle the visibility of currently selected file along with total in Explore Content",
@@ -17501,6 +18944,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Menu Counter Folder",
       "module": "muxcustom",
       "help": "Toggle the visibility of currently selected folder along with total in Explore Content",
@@ -17520,6 +18965,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Dash to Colon",
       "module": "muxcustom",
       "help": "Show a colon instead of a dash in content names, which often reads a little cleaner",
@@ -17538,7 +18985,9 @@
       "key": "visual/elementtransition",
       "group": "visual",
       "type": "int",
-      "default": "0",
+      "default": "13",
+      "min": 0,
+      "max": 13,
       "label": "Element Transition",
       "module": "muxcustom",
       "help": "Select the animation used when dialogues, toast messages and help boxes appear",
@@ -17606,6 +19055,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Empty Folders",
       "module": "muxcustom",
       "help": "Whether folders with nothing in them are still listed.\n\nHiding them tidies up a card with plenty of unused system folders.",
@@ -17625,6 +19076,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Folder Item Count",
       "module": "muxcustom",
       "help": "Whether folders show how many items are inside them.",
@@ -17644,6 +19097,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Forward History",
       "module": "muxcustom",
       "help": "Whether coming back out of a folder returns you to the item you went in on.\n\nSaves scrolling back down a long list every time.",
@@ -17663,6 +19118,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Friendly Folder Names",
       "module": "muxcustom",
       "help": "Replaces the label of shortened content folders to more appropriately named labels",
@@ -17682,6 +19139,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Grid Mode Content",
       "module": "muxcustom",
       "options": [
@@ -17701,6 +19160,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 4,
       "label": "Group Content Items",
       "module": "muxcustom",
       "help": "Gather content into folders by starting letter, either one letter each or several letters together, with numbers kept separate",
@@ -17732,6 +19193,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Screen Title",
       "module": "muxcustom",
       "help": "Whether the name of the current screen appears along the top.",
@@ -17751,6 +19214,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Show Hidden Content",
       "module": "muxcustom",
       "help": "Toggle hidden content displayed in Explore Content - Place a '.' or '_' character at the start of a file or folder name to hide it",
@@ -17770,6 +19235,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "High Contrast",
       "options": [
         {
@@ -17788,6 +19255,8 @@
       "group": "visual",
       "type": "int",
       "default": "2",
+      "min": 0,
+      "max": 3,
       "label": "Label Scroll Speed",
       "module": "muxcustom",
       "help": "Controls the scroll speed for labels - Disabled turns off all scrolling, Slow and Fast adjust the animation speed with proportional pause durations",
@@ -17815,6 +19284,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 3,
       "label": "Save State Launch",
       "module": "muxcustom",
       "help": "Whether pressing A picks up from your last save state, or whether holding A is what does that.\n\nSet it to whichever you find yourself doing more often.",
@@ -17907,6 +19378,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "List Glyph",
       "module": "muxcustom",
       "help": "Toggle icon glyphs for menu and content list items - does not affect header, footer, grid or carousel glyphs",
@@ -17926,6 +19399,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Mixed Folder Content",
       "module": "muxcustom",
       "help": "If enabled folders within content explorer will be mixed in with other content alphabetically",
@@ -17945,6 +19420,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 3,
       "label": "Remove Bracketed Text",
       "module": "muxcustom",
       "help": "Remove extra information from content labels - This does NOT rename your files it only changes how it is displayed",
@@ -17972,6 +19449,8 @@
       "group": "visual",
       "type": "int",
       "default": "2",
+      "min": 0,
+      "max": 2,
       "label": "Label Scroll Style",
       "module": "muxcustom",
       "help": "Controls how labels scroll when they exceed half the display width - Disabled stops all scrolling, Continuous loops indefinitely, Bounce scrolls to the end then returns",
@@ -17995,6 +19474,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Network",
       "module": "muxcustom",
       "help": "Whether the Wi-Fi indicator appears in the header.\n\nIts strength reflects the local wireless link and does not claim that the Internet is reachable.",
@@ -18014,6 +19495,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 3,
       "label": "Message Duration",
       "module": "muxcustom",
       "help": "How long a passing message stays on screen before the next one takes its place.",
@@ -18041,6 +19524,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 14,
       "label": "Overlay Image",
       "options": [
         {
@@ -18112,6 +19597,8 @@
       "group": "visual",
       "type": "int",
       "default": "85",
+      "min": 0,
+      "max": 255,
       "label": "Overlay Transparency",
       "options": [
         {
@@ -18520,15 +20007,15 @@
         }
       ],
       "open": 1,
-      "help": "How strongly the frontend overlay shows through.\n\nLower it if the overlay is fighting with what is underneath.",
-      "min": 0,
-      "max": 255
+      "help": "How strongly the frontend overlay shows through.\n\nLower it if the overlay is fighting with what is underneath."
     },
     {
       "key": "visual/pageskip",
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Shoulder Button Skip",
       "module": "muxcustom",
       "help": "Choose whether the shoulder buttons move a page at a time or jump to the next starting letter\n\nLetter jumping needs an alphabetical sort order, so any other sort falls back to moving a page at a time",
@@ -18643,6 +20130,8 @@
       "group": "visual",
       "type": "int",
       "default": "2",
+      "min": 0,
+      "max": 5,
       "label": "Selection Intensity",
       "module": "muxcustom",
       "help": "Controls the intensity of the selection animation when navigating between list and grid items",
@@ -18678,6 +20167,8 @@
       "group": "visual",
       "type": "int",
       "default": "4",
+      "min": 0,
+      "max": 4,
       "label": "Selection Direction",
       "module": "muxcustom",
       "help": "Controls the style of the selection animation applied when navigating between list and grid items",
@@ -18709,6 +20200,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Shadow Rendering",
       "module": "muxcustom",
       "help": "A soft shadow behind list text and glyphs, which helps them stand off a busy wallpaper.",
@@ -18728,6 +20221,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Shuffle Function",
       "module": "muxcustom",
       "help": "Lets R2 throw you at a random item in the current list.\n\nHandy when you cannot decide what to play.",
@@ -18747,6 +20242,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Sort Order",
       "module": "muxcustom",
       "help": "Whether the current sort order is shown in the header, which saves opening the menu to check.",
@@ -18766,6 +20263,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Tag Order",
       "module": "muxcustom",
       "help": "Whether an item's tag glyph is shown beside it.",
@@ -18785,6 +20284,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Move Leading The",
       "module": "muxcustom",
       "help": "Move a trailing 'The' back to the front of a name, so 'Batman and Robin, The' reads as 'The Batman and Robin'",
@@ -18804,6 +20305,8 @@
       "group": "visual",
       "type": "int",
       "default": "0",
+      "min": 0,
+      "max": 1,
       "label": "Title Include Root Drive",
       "module": "muxcustom",
       "help": "Changes the top title label in Explore Content to show current storage device along with folder name",
@@ -18823,6 +20326,8 @@
       "group": "visual",
       "type": "int",
       "default": "1",
+      "min": 0,
+      "max": 1,
       "label": "Video Wallpaper",
       "module": "muxcustom",
       "help": "Plays the theme's video wallpaper behind the menus, where the theme provides one.\n\nIt costs a little battery, so turn it off if you would rather keep that.",

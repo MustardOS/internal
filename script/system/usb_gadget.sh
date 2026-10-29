@@ -59,6 +59,14 @@ USB_PRODUCT() {
 	printf 'MustardOS - %s\n' "$MODEL"
 }
 
+UPDATE_GADGET_IDENTITY() {
+	USB_VID >"$GADGET/idVendor"
+	USB_PID >"$GADGET/idProduct"
+	USB_SERIAL >"$GSTR/serialnumber"
+	USB_MANUFACTURER >"$GSTR/manufacturer"
+	USB_PRODUCT >"$GSTR/product"
+}
+
 FIRMWARE_VERSION() {
 	head -n 1 /opt/muos/config/system/version
 }
@@ -151,11 +159,7 @@ BIND_UDC() {
 CREATE_GADGET_SHELL() {
 	mkdir -p "$GADGET" "$GSTR" "$GCFG"
 
-	USB_VID >"$GADGET/idVendor"
-	USB_PID >"$GADGET/idProduct"
-	USB_SERIAL >"$GSTR/serialnumber"
-	USB_MANUFACTURER >"$GSTR/manufacturer"
-	USB_PRODUCT >"$GSTR/product"
+	UPDATE_GADGET_IDENTITY
 
 	echo 500 >"$GCFG/MaxPower"
 }
@@ -276,6 +280,7 @@ SWITCH_TO() {
 	fi
 
 	UNBIND_UDC
+	UPDATE_GADGET_IDENTITY || return 1
 	STOP_DAEMONS
 	UMOUNT_FFS "$OTHER"
 

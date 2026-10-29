@@ -19371,7 +19371,7 @@
           "label": "Until Button Press"
         }
       ],
-      "help": "Shows content artwork while the content starts. Splash catalogues can use still images, animated GIF, WebP or APNG images, and MP4 video.\n\nA number of seconds keeps the splash up for at least that long. Until Finished plays animations and videos through once, and keeps still images up until a button is pressed. Until Button Press keeps any splash up until a button is pressed."
+      "help": "Shows content artwork while the content starts. Splash catalogues can use still images, animated GIF, WebP or APNG images, and MP4 video.\n\nA number of seconds keeps the splash up for at least that long. Until Finished plays animations and videos through once, and shows still images for two seconds. Until Button Press keeps any splash up until a button is pressed."
     },
     {
       "key": "visual/listglyph",

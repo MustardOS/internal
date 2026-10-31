@@ -1,0 +1,30 @@
+{
+    "catalogue": "Texas Instruments TI-83",
+    "lookup": 0,
+    "default": "numero",
+    "friendly": [
+        "ti83",
+        "texasinstrumentsti83"
+    ],
+    "bios": [
+        {
+            "file": "ti83se.rom",
+            "hash": "c6ff8204c5c81b7be34614dbbd690c8b"
+        },
+        {
+            "file": "ti83plus.rom",
+            "hash": "8011181f810b5ec4e9d6a03f0e14257a"
+        },
+        {
+            "file": "ti83.rom",
+            "hash": "d4448d09bbfde687c04f9e3310e023ab"
+        }
+    ],
+    "libretro": {
+        "numero": {
+            "name": "Numero",
+            "core": "numero_libretro.so"
+        }
+    },
+    "extra": 1
+}

@@ -1,0 +1,33 @@
+{
+    "catalogue": "OpenBOR",
+    "lookup": 0,
+    "default": "openbor v7530 - standalone",
+    "runtime": "external",
+    "friendly": [
+        "openbeatsofrage",
+        "openbor"
+    ],
+    "bios": [],
+    "external": {
+        "openbor v4432 - standalone": {
+            "name": "OpenBOR v4432 - Standalone",
+            "core": "ext-openbor4432",
+            "launcher": "openbor.sh"
+        },
+        "openbor v6412 - standalone": {
+            "name": "OpenBOR v6412 - Standalone",
+            "core": "ext-openbor6412",
+            "launcher": "openbor.sh"
+        },
+        "openbor v7142 - standalone": {
+            "name": "OpenBOR v7142 - Standalone",
+            "core": "ext-openbor7142",
+            "launcher": "openbor.sh"
+        },
+        "openbor v7530 - standalone": {
+            "name": "OpenBOR v7530 - Standalone",
+            "core": "ext-openbor7530",
+            "launcher": "openbor.sh"
+        }
+    }
+}

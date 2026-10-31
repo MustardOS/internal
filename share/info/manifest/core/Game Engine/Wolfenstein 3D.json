@@ -1,0 +1,19 @@
+{
+    "catalogue": "Wolfenstein 3D",
+    "lookup": 0,
+    "default": "ecwolf",
+    "friendly": [
+        "wolfenstein3d",
+        "wolfenstein",
+        "wolf3d",
+        "wolf"
+    ],
+    "bios": [],
+    "libretro": {
+        "ecwolf": {
+            "name": "ECWolf",
+            "core": "ecwolf_libretro.so",
+            "launcher": "ecwolf.sh"
+        }
+    }
+}

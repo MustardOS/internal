@@ -1,0 +1,17 @@
+{
+    "catalogue": "Karaoke",
+    "lookup": 0,
+    "default": "pocketcdg",
+    "friendly": [
+        "cdg",
+        "pocketcdg"
+    ],
+    "bios": [],
+    "libretro": {
+        "pocketcdg": {
+            "name": "PocketCDG",
+            "core": "pocketcdg_libretro.so"
+        }
+    },
+    "extra": 1
+}

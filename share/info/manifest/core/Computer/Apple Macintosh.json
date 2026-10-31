@@ -1,0 +1,24 @@
+{
+    "catalogue": "Apple Macintosh",
+    "lookup": 0,
+    "default": "minivmac",
+    "friendly": [
+        "applemacintosh",
+        "macintosh",
+        "minivmac"
+    ],
+    "bios": [
+        {
+            "file": "MacII.ROM",
+            "hash": "66223be1497460f1e60885eeb35e03cc"
+        }
+    ],
+    "libretro": {
+        "minivmac": {
+            "name": "Mini vMac",
+            "core": "minivmac_libretro.so",
+            "bios_required": 0
+        }
+    },
+    "extra": 1
+}

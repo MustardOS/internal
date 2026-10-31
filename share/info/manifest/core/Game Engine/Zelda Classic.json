@@ -1,0 +1,22 @@
+{
+    "catalogue": "Zelda Classic",
+    "lookup": 0,
+    "default": "zc250x",
+    "friendly": [
+        "zeldaclassic",
+        "zeldac"
+    ],
+    "bios": [],
+    "libretro": {
+        "zc210": {
+            "name": "Zelda Classic 2.10",
+            "core": "zc210_libretro.so",
+            "bios_required": 0
+        },
+        "zc250x": {
+            "name": "Zelda Classic 2.50x",
+            "core": "zc250x_libretro.so",
+            "bios_required": 0
+        }
+    }
+}

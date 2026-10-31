@@ -1,0 +1,25 @@
+{
+    "catalogue": "Atari 2600",
+    "lookup": 0,
+    "default": "stella 2014",
+    "friendly": [
+        "twentysixhundred",
+        "atari",
+        "atari2600",
+        "a2600",
+        "2600"
+    ],
+    "bios": [],
+    "libretro": {
+        "stella": {
+            "name": "Stella",
+            "core": "stella_libretro.so",
+            "bios_required": 0
+        },
+        "stella 2014": {
+            "name": "Stella 2014",
+            "core": "stella2014_libretro.so",
+            "bios_required": 0
+        }
+    }
+}

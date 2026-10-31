@@ -160,10 +160,14 @@
     core: async () => {
       const state = await json("/api/tools/core");
       const text = await (await request("/api/tools/core/core.json")).text();
-      return { source: state.source, text };
+      return { sources: state.systems || {}, text };
     },
-    saveCore: async text => { await request("/api/tools/core", { method: "POST", body: text }); },
-    resetCore: async () => { await request("/api/tools/core", { method: "DELETE" }); },
+    saveCore: async (namespace, system, text) => {
+      await request(`/api/tools/core/${encodeURIComponent(namespace)}/${encodeURIComponent(`${system}.json`)}`, { method: "POST", body: text });
+    },
+    resetCore: async system => {
+      await request(system ? `/api/tools/core/${encodeURIComponent(`${system}.json`)}` : "/api/tools/core", { method: "DELETE" });
+    },
     contentRoots: async () => (await json("/api/tools/content")).roots || [],
     folder: (root, dir) => json(`/api/tools/content/${root}/${dir ? `${encode(dir)}/` : ""}`),
     readPlaylist: async (root, path) => (await request(`/api/tools/content/${root}/${encode(path)}`)).text(),

@@ -1,0 +1,40 @@
+{
+    "catalogue": "Magnavox Odyssey - VideoPac",
+    "lookup": 0,
+    "default": "odyssey2",
+    "friendly": [
+        "magnavox",
+        "magnavoxodyssey",
+        "magnavoxodyssey2",
+        "magnavoxvideopac",
+        "videopac",
+        "odyssey",
+        "odyssey2"
+    ],
+    "bios": [
+        {
+            "file": "c52.bin",
+            "hash": ""
+        },
+        {
+            "file": "g7400.bin",
+            "hash": ""
+        },
+        {
+            "file": "jopac.bin",
+            "hash": ""
+        },
+        {
+            "file": "o2rom.bin",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "odyssey2": {
+            "name": "Odyssey2",
+            "core": "o2em_libretro.so",
+            "bios_required": 1
+        }
+    },
+    "extra": 1
+}

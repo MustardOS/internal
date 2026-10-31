@@ -1,0 +1,17 @@
+{
+    "catalogue": "RPG Maker 2000 - 2003",
+    "lookup": 0,
+    "default": "easyrpg",
+    "friendly": [
+        "rpgmaker",
+        "easyrpg"
+    ],
+    "bios": [],
+    "libretro": {
+        "easyrpg": {
+            "name": "EasyRPG",
+            "core": "easyrpg_libretro.so",
+            "launcher": "easyrpg.sh"
+        }
+    }
+}

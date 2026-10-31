@@ -1,0 +1,19 @@
+{
+    "catalogue": "Crisp Game Lib Portable",
+    "lookup": 0,
+    "default": "crisp game lib",
+    "runtime": "external",
+    "friendly": [
+        "cglpsdl2",
+        "crisp"
+    ],
+    "bios": [],
+    "external": {
+        "crisp game lib": {
+            "name": "Crisp Game Lib",
+            "core": "ext-crisp",
+            "launcher": "crisp.sh"
+        }
+    },
+    "extra": 1
+}

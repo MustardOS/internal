@@ -222,7 +222,8 @@
 
   const loadSystems = systemData
     .then(data => {
-      systems = Object.values(data)
+      systems = Object.entries(data)
+        .map(([key, system]) => ({ ...system, name: system.catalogue || key }))
         .filter(system => Array.isArray(system.bios) && system.bios.length)
         .sort((a, b) => a.name.localeCompare(b.name));
     })

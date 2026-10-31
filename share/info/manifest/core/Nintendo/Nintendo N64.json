@@ -1,0 +1,71 @@
+{
+    "catalogue": "Nintendo N64",
+    "lookup": 0,
+    "default": "mupen64plus next",
+    "runtime": "pickles",
+    "governor": "extreme",
+    "friendly": [
+        "nintendonintendo64dd",
+        "nintendonintendo64",
+        "nintendon64",
+        "nintendo64",
+        "n64hacks",
+        "n64dd",
+        "n64",
+        "64dd",
+        "64"
+    ],
+    "bios": [],
+    "libretro": {
+        "ludicrous n64 2k22 xtreme amped": {
+            "name": "Ludicrous N64 2k22 Xtreme Amped",
+            "core": "km_ludicrousn64_2k22_xtreme_amped_libretro.so"
+        },
+        "mupen64plus": {
+            "name": "Mupen64Plus",
+            "core": "mupen64plus_libretro.so",
+            "extra": 1
+        },
+        "mupen64plus next": {
+            "name": "Mupen64Plus Next",
+            "core": "mupen64plus_next_libretro.so"
+        },
+        "parallel n64": {
+            "name": "ParaLLel N64",
+            "core": "parallel_n64_libretro.so",
+            "extra": 1
+        }
+    },
+    "external": {
+        "mupen64plus - standalone - glide": {
+            "name": "Mupen64Plus - Standalone - Glide",
+            "core": "ext-mupen64plus-gliden64",
+            "launcher": "mupen64plus.sh"
+        },
+        "mupen64plus - standalone - glide - full": {
+            "name": "Mupen64Plus - Standalone - Glide - Full",
+            "core": "ext-mupen64plus-gliden64-full",
+            "launcher": "mupen64plus.sh"
+        },
+        "mupen64plus - standalone - glidemk2": {
+            "name": "Mupen64Plus - Standalone - GlideMk2",
+            "core": "ext-mupen64plus-glidemk2",
+            "launcher": "mupen64plus.sh"
+        },
+        "mupen64plus - standalone - glidemk2 - full": {
+            "name": "Mupen64Plus - Standalone - GlideMk2 - Full",
+            "core": "ext-mupen64plus-glidemk2-full",
+            "launcher": "mupen64plus.sh"
+        },
+        "mupen64plus - standalone - rice": {
+            "name": "Mupen64Plus - Standalone - Rice",
+            "core": "ext-mupen64plus-rice",
+            "launcher": "mupen64plus.sh"
+        },
+        "mupen64plus - standalone - rice - full": {
+            "name": "Mupen64Plus - Standalone - Rice - Full",
+            "core": "ext-mupen64plus-rice-full",
+            "launcher": "mupen64plus.sh"
+        }
+    }
+}

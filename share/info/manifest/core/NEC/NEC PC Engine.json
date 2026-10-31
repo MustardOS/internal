@@ -1,0 +1,35 @@
+{
+    "catalogue": "NEC PC Engine",
+    "lookup": 0,
+    "default": "beetle pce fast",
+    "friendly": [
+        "turbographix",
+        "turbografx16",
+        "turbografx",
+        "tgrafx16",
+        "tgrafx",
+        "tgfx",
+        "tg16",
+        "tg",
+        "pcengine",
+        "pce",
+        "necturbografx16",
+        "necturbografx",
+        "nectg16",
+        "necpcengine",
+        "necpce"
+    ],
+    "bios": [],
+    "libretro": {
+        "beetle pce": {
+            "name": "Beetle PCE",
+            "core": "mednafen_pce_libretro.so",
+            "bios_required": 0
+        },
+        "beetle pce fast": {
+            "name": "Beetle PCE Fast",
+            "core": "mednafen_pce_fast_libretro.so",
+            "bios_required": 0
+        }
+    }
+}

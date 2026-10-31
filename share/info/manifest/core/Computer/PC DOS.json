@@ -1,0 +1,29 @@
+{
+    "catalogue": "PC DOS",
+    "lookup": 0,
+    "default": "dosbox-pure",
+    "friendly": [
+        "pc",
+        "msdos",
+        "microsoftdos",
+        "dosbox",
+        "dos"
+    ],
+    "bios": [],
+    "libretro": {
+        "dosbox-core": {
+            "name": "DOSBox-core",
+            "core": "dosbox_core_libretro.so",
+            "extra": 1
+        },
+        "dosbox-pure": {
+            "name": "DOSBox-Pure",
+            "core": "dosbox_pure_libretro.so"
+        },
+        "dosbox-svn": {
+            "name": "DOSBox-SVN",
+            "core": "dosbox_svn_libretro.so",
+            "extra": 1
+        }
+    }
+}

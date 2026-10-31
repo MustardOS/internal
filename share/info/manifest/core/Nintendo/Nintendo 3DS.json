@@ -1,0 +1,25 @@
+{
+    "catalogue": "Nintendo 3DS",
+    "lookup": 0,
+    "default": "azahar - standalone",
+    "runtime": "external",
+    "governor": "extreme",
+    "friendly": [
+        "nintendo3ds",
+        "n3ds",
+        "3ds"
+    ],
+    "bios": [],
+    "external": {
+        "azahar - standalone": {
+            "name": "Azahar - Standalone",
+            "core": "ext-azahar",
+            "launcher": "azahar.sh",
+            "require": {
+                "device": [
+                    "rg-vita-pro"
+                ]
+            }
+        }
+    }
+}

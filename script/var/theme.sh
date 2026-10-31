@@ -269,6 +269,7 @@ SHOW_SPLASH() {
 	CONTENT_IMAGE="${4:-}"
 	CONTENT_PLAY="${5:-0}"
 	CONTENT_SECONDS="${6:-0}"
+	CONTENT_FADE="${7:-1}"
 
 	SPLASH_BIN="/opt/muos/frontend/musplash"
 	[ -x "$SPLASH_BIN" ] || return 1
@@ -403,7 +404,8 @@ EOF
 			finish | press) set -- "$@" -d "$CONTENT_SECONDS" ;;
 			*) [ "$CONTENT_SECONDS" -gt 0 ] 2>/dev/null && set -- "$@" -d "$CONTENT_SECONDS" ;;
 		esac
-		[ "$(GET_VAR "config" "visual/blackfade")" = 1 ] && set -- "$@" -F 200
+		[ "$CONTENT_FADE" -eq 1 ] 2>/dev/null &&
+			[ "$(GET_VAR "config" "visual/blackfade")" = 1 ] && set -- "$@" -F 200
 		"$SPLASH_BIN" -i "$CONTENT_IMAGE" "$@"
 		return $?
 	fi

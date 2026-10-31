@@ -1,0 +1,17 @@
+{
+    "catalogue": "Commodore PET",
+    "lookup": 0,
+    "default": "vice xpet",
+    "friendly": [
+        "pet",
+        "commodorepet"
+    ],
+    "bios": [],
+    "libretro": {
+        "vice xpet": {
+            "name": "VICE xpet",
+            "core": "vice_xpet_libretro.so"
+        }
+    },
+    "extra": 1
+}

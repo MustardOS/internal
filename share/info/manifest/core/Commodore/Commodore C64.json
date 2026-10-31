@@ -1,0 +1,36 @@
+{
+    "catalogue": "Commodore C64",
+    "lookup": 0,
+    "default": "vice x64 fast",
+    "friendly": [
+        "commodorec64",
+        "commodore64",
+        "commodore",
+        "c64"
+    ],
+    "bios": [],
+    "libretro": {
+        "frodo": {
+            "name": "Frodo",
+            "core": "frodo_libretro.so",
+            "bios_required": 0
+        },
+        "vice x64 fast": {
+            "name": "VICE x64 fast",
+            "core": "vice_x64_libretro.so"
+        },
+        "vice x64dtv": {
+            "name": "VICE x64 DTV",
+            "core": "vice_x64dtv_libretro.so",
+            "bios_required": 0
+        },
+        "vice x64sc accurate": {
+            "name": "VICE x64sc accurate",
+            "core": "vice_x64sc_libretro.so"
+        },
+        "vice xscpu64": {
+            "name": "VICE xscpu64",
+            "core": "vice_xscpu64_libretro.so"
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "catalogue": "Uzebox",
+    "lookup": 0,
+    "default": "uzem",
+    "friendly": [
+        "uzebox"
+    ],
+    "bios": [],
+    "libretro": {
+        "uzem": {
+            "name": "Uzem",
+            "core": "uzem_libretro.so"
+        }
+    },
+    "extra": 1
+}

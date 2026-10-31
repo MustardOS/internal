@@ -1,0 +1,65 @@
+{
+    "catalogue": "Sega Atomiswave Naomi",
+    "lookup": 1,
+    "default": "flycast vl",
+    "governor": "extreme",
+    "friendly": [
+        "seganaomi",
+        "segaatomiswave",
+        "naomi",
+        "aw",
+        "atomiswave",
+        "arcseganaomi",
+        "arcsegaatomiswave",
+        "arcnaomi",
+        "arcatomiswave",
+        "arcadeseganaomi",
+        "arcadesegaatomiswave",
+        "arcadenaomi",
+        "arcadeatomiswave"
+    ],
+    "bios": [
+        {
+            "file": "dc/naomi.zip",
+            "hash": ""
+        },
+        {
+            "file": "dc/naomi2.zip",
+            "hash": ""
+        },
+        {
+            "file": "dc/awbios.zip",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "flycast": {
+            "name": "Flycast",
+            "core": "flycast_libretro.so"
+        },
+        "flycast vl": {
+            "name": "Flycast VL",
+            "core": "flycastvl_libretro.so"
+        },
+        "flycast xtreme": {
+            "name": "Flycast Xtreme",
+            "core": "flycast-xtreme_libretro.so"
+        },
+        "morpheuscast": {
+            "name": "Morpheuscast",
+            "core": "morpheuscast_libretro.so"
+        },
+        "morpheuscast xtreme": {
+            "name": "MorpheusCast Xtreme",
+            "core": "km_morpheuscast_xtreme_libretro.so",
+            "bios_required": 0
+        }
+    },
+    "external": {
+        "flycast": {
+            "name": "Flycast",
+            "core": "ext-flycast",
+            "launcher": "flycast.sh"
+        }
+    }
+}

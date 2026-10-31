@@ -1,0 +1,27 @@
+{
+    "catalogue": "Atari Lynx",
+    "lookup": 0,
+    "default": "handy",
+    "friendly": [
+        "atarilynx",
+        "lynx"
+    ],
+    "bios": [
+        {
+            "file": "lynxboot.img",
+            "hash": "fcd403db69f54290b51035d82f835e7b"
+        }
+    ],
+    "libretro": {
+        "beetle lynx": {
+            "name": "Beetle Lynx",
+            "core": "mednafen_lynx_libretro.so",
+            "bios_required": 1
+        },
+        "handy": {
+            "name": "Handy",
+            "core": "handy_libretro.so",
+            "bios_required": 0
+        }
+    }
+}

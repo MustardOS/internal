@@ -1,0 +1,90 @@
+{
+    "catalogue": "Sony PlayStation",
+    "lookup": 0,
+    "default": "pcsx rearmed",
+    "friendly": [
+        "sonypsx",
+        "sonyps1",
+        "sonyps",
+        "sonyplaystation",
+        "psxpbps",
+        "psxpbp",
+        "psxisos",
+        "psxiso",
+        "psxchds",
+        "psxchd",
+        "psx",
+        "pspbps",
+        "pspbp",
+        "psisos",
+        "psiso",
+        "pschds",
+        "pschd",
+        "ps1",
+        "ps",
+        "playstationpbps",
+        "playstationchds",
+        "playstation",
+        "pcsx",
+        "pbps",
+        "pbp",
+        "epsxe"
+    ],
+    "bios": [
+        {
+            "file": "PSXONPSP660.bin",
+            "hash": "c53ca5908936d412331790f4426c6c33"
+        },
+        {
+            "file": "scph101.bin",
+            "hash": "6E3735FF4C7DC899EE98981385F6F3D0"
+        },
+        {
+            "file": "scph7001.bin",
+            "hash": "1e68c231d0896b7eadcad1d7d8e76129"
+        },
+        {
+            "file": "scph5500.bin",
+            "hash": "8dd7d5296a650fac7319bce665a6a53c"
+        },
+        {
+            "file": "scph5501.bin",
+            "hash": "490f666e1afb15b7362b406ed1cea246"
+        },
+        {
+            "file": "scph5502.bin",
+            "hash": "32736f17079d0b2b7024407c39bd3050"
+        },
+        {
+            "file": "scph1001.bin",
+            "hash": "924e392ed05558ffdb115408c263dccf"
+        },
+        {
+            "file": "ps1_rom.bin",
+            "hash": "81bbe60ba7a3d1cea1d48c14cbcc647b"
+        }
+    ],
+    "libretro": {
+        "beetle psx": {
+            "name": "Beetle PSX",
+            "core": "mednafen_psx_libretro.so",
+            "bios_required": 0,
+            "extra": 1
+        },
+        "duckstation": {
+            "name": "DuckStation",
+            "core": "duckstation_libretro.so",
+            "bios_required": 1
+        },
+        "pcsx rearmed": {
+            "name": "PCSX ReARMed",
+            "core": "pcsx_rearmed_libretro.so",
+            "bios_required": 0
+        },
+        "swanstation": {
+            "name": "SwanStation",
+            "core": "swanstation_libretro.so",
+            "bios_required": 1
+        }
+    }
+}

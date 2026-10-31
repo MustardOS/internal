@@ -1,0 +1,18 @@
+{
+    "catalogue": "Pyxel",
+    "lookup": 0,
+    "default": "pyxel",
+    "runtime": "external",
+    "friendly": [
+        "pyxel"
+    ],
+    "bios": [],
+    "external": {
+        "pyxel": {
+            "name": "Pyxel",
+            "core": "ext-pyxel",
+            "launcher": "pyxel.sh"
+        }
+    },
+    "extra": 1
+}

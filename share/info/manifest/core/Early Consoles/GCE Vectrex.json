@@ -1,0 +1,18 @@
+{
+    "catalogue": "GCE Vectrex",
+    "lookup": 0,
+    "default": "vecx",
+    "friendly": [
+        "vectrex",
+        "gcevectrex",
+        "gce"
+    ],
+    "bios": [],
+    "libretro": {
+        "vecx": {
+            "name": "vecx",
+            "core": "vecx_libretro.so"
+        }
+    },
+    "extra": 1
+}

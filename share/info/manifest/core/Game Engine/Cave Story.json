@@ -1,0 +1,22 @@
+{
+    "catalogue": "Cave Story",
+    "lookup": 0,
+    "default": "nxengine",
+    "friendly": [
+        "cavestory"
+    ],
+    "bios": [
+        {
+            "file": "Cave Story (En).zip",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "nxengine": {
+            "name": "NXEngine",
+            "core": "nxengine_libretro.so",
+            "launcher": "nxengine.sh",
+            "bios_required": 1
+        }
+    }
+}

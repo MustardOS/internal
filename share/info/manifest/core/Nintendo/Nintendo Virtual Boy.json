@@ -1,0 +1,26 @@
+{
+    "catalogue": "Nintendo Virtual Boy",
+    "lookup": 0,
+    "default": "beetle vb",
+    "friendly": [
+        "virtualboy",
+        "virtuaboy",
+        "virtboy",
+        "vb",
+        "nvb",
+        "nintendovitrualboy",
+        "nintendovb"
+    ],
+    "bios": [],
+    "libretro": {
+        "beetle vb": {
+            "name": "Beetle VB",
+            "core": "mednafen_vb_libretro.so"
+        },
+        "vb": {
+            "name": "VB",
+            "core": "vb_libretro.so",
+            "bios_required": 0
+        }
+    }
+}

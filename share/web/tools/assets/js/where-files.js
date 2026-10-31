@@ -83,8 +83,9 @@
     ? window.MUTool.core().then(result => JSON.parse(result.text))
     : fetch("/assets/data/core-assign.json").then(response => response.json()))
     .then(data => {
-      systems = Object.values(data).map(system => ({
+      systems = Object.entries(data).map(([key, system]) => ({
         ...system,
+        name: system.catalogue || key,
         friendly: (system.friendly || []).map(normalise),
         bios: system.bios || [],
         cores: ["libretro", "external"].flatMap(group => Object.entries(system[group] || {}).map(([key, core]) => ({ group, key, core })))

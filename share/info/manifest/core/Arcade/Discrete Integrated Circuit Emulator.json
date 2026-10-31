@@ -1,0 +1,16 @@
+{
+    "catalogue": "Discrete Integrated Circuit Emulator",
+    "lookup": 0,
+    "default": "dice",
+    "friendly": [
+        "dice"
+    ],
+    "bios": [],
+    "libretro": {
+        "dice": {
+            "name": "Dice",
+            "core": "dice_libretro.so"
+        }
+    },
+    "extra": 1
+}

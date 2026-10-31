@@ -1,0 +1,45 @@
+{
+    "catalogue": "Atari 5200",
+    "lookup": 0,
+    "default": "a5200",
+    "friendly": [
+        "fiftytwohundred",
+        "atari5200",
+        "a5200",
+        "5200"
+    ],
+    "bios": [
+        {
+            "file": "5200.rom",
+            "hash": "281f20ea4320404ec820fb7ec0693b38"
+        },
+        {
+            "file": "ATARIXL.ROM",
+            "hash": "06daac977823773a3eea3422fd26a703"
+        },
+        {
+            "file": "ATARIBAS.ROM",
+            "hash": "0bac0c6a50104045d902df4503a4c30b"
+        },
+        {
+            "file": "ATARIOSA.ROM",
+            "hash": "eb1f32f5d9f382db1bbfb8d7f9cb343a"
+        },
+        {
+            "file": "ATARIOSB.ROM",
+            "hash": "a3e8d617c95d08031fe1b20d541434b2"
+        }
+    ],
+    "libretro": {
+        "a5200": {
+            "name": "a5200",
+            "core": "a5200_libretro.so",
+            "bios_required": 0
+        },
+        "atari 800": {
+            "name": "Atari 800",
+            "core": "atari800_libretro.so",
+            "bios_required": 1
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "catalogue": "Quake",
+    "lookup": 0,
+    "default": "tyrquake",
+    "friendly": [
+        "quake",
+        "idquake"
+    ],
+    "bios": [],
+    "libretro": {
+        "tyrquake": {
+            "name": "TyrQuake",
+            "core": "tyrquake_libretro.so"
+        }
+    }
+}

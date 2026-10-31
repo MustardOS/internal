@@ -1,0 +1,39 @@
+{
+    "catalogue": "Dragon and Tandy",
+    "lookup": 0,
+    "default": "xroar",
+    "runtime": "external",
+    "friendly": [
+        "coco",
+        "dragon",
+        "dragon32",
+        "dragon64"
+    ],
+    "bios": [],
+    "external": {
+        "coco 3": {
+            "name": "CoCo 3",
+            "core": "coco3",
+            "launcher": "xroar.sh",
+            "bios_required": 1
+        },
+        "dragon 32": {
+            "name": "Dragon 32",
+            "core": "dragon32",
+            "launcher": "xroar.sh",
+            "bios_required": 1
+        },
+        "dragon 64": {
+            "name": "Dragon 64",
+            "core": "dragon64",
+            "launcher": "xroar.sh",
+            "bios_required": 1
+        },
+        "xroar": {
+            "name": "XRoar",
+            "core": "xroar",
+            "launcher": "xroar.sh",
+            "bios_required": 1
+        }
+    }
+}

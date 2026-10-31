@@ -1,0 +1,37 @@
+{
+    "catalogue": "NEC PC98",
+    "lookup": 0,
+    "default": "neko project ii kai",
+    "friendly": [
+        "pc98",
+        "necpc98"
+    ],
+    "bios": [
+        {
+            "file": "np2kai/bios.rom",
+            "hash": ""
+        },
+        {
+            "file": "np2kai/FONT.ROM",
+            "hash": ""
+        },
+        {
+            "file": "np2kai/itf.rom",
+            "hash": ""
+        },
+        {
+            "file": "np2kai/sound.rom",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "neko project ii": {
+            "name": "Neko Project II",
+            "core": "nekop2_libretro.so"
+        },
+        "neko project ii kai": {
+            "name": "Neko Project II Kai",
+            "core": "np2kai_libretro.so"
+        }
+    }
+}

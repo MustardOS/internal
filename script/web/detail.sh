@@ -28,6 +28,21 @@ DETAIL_FIRST() {
 	done
 }
 
+DETAIL_CPU_EXTREME() {
+	DCE_LEAF=$1
+	DCE_MODE=$2
+
+	for DCE_PATH in /sys/devices/system/cpu/cpufreq/policy*/"$DCE_LEAF"; do
+		DCE_VALUE=$(READ_UINT "$DCE_PATH")
+		[ -n "$DCE_VALUE" ] && [ "$DCE_VALUE" -gt 0 ] && printf '%s\n' "$DCE_VALUE"
+	done | awk -v mode="$DCE_MODE" '
+		NR == 1 { selected = $1 + 0 }
+		mode == "min" && $1 + 0 < selected { selected = $1 + 0 }
+		mode == "max" && $1 + 0 > selected { selected = $1 + 0 }
+		END { if (selected > 0) printf "%d", selected }
+	'
+}
+
 DETAIL_GLOB() {
 	for DG_PATH in $1; do
 		[ -e "$DG_PATH" ] && {
@@ -142,8 +157,12 @@ DETAIL_REFRESH_STATIC() {
 	DR_CORES=${DR_CPU##*|}
 	[ -n "$DR_MODEL" ] || DR_MODEL=$(lscpu 2>/dev/null | sed -n 's/^Model name:[ \t]*//p')
 
-	DR_CPU_MIN=$(DETAIL_FIRST /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_min_freq /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq)
-	DR_CPU_MAX=$(DETAIL_FIRST /sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
+	DR_CPU_MIN=$(DETAIL_CPU_EXTREME cpuinfo_min_freq min)
+	[ -n "$DR_CPU_MIN" ] || DR_CPU_MIN=$(DETAIL_FIRST /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq)
+	DR_CPU_MAX=$(DETAIL_CPU_EXTREME scaling_max_freq max)
+	[ -n "$DR_CPU_MAX" ] || DR_CPU_MAX=$(DETAIL_CPU_EXTREME cpuinfo_max_freq max)
+	[ -n "$DR_CPU_MAX" ] || DR_CPU_MAX=$(DETAIL_FIRST /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq \
+		/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
 
 	DR_GPU_RANGE=
 	DR_GPU_LIST=$(DETAIL_GLOB "/sys/class/devfreq/*gpu*/available_frequencies")
@@ -205,6 +224,10 @@ DETAIL_WRITE() {
 	DW_GOVERNOR_FILE=$(GET_VAR "device" "cpu/governor")
 	[ -n "$DW_GOVERNOR_FILE" ] || DW_GOVERNOR_FILE=/sys/devices/system/cpu/cpufreq/policy0/scaling_governor
 
+	DW_CPU_SPEED=$(DETAIL_CPU_EXTREME scaling_cur_freq max)
+	[ -n "$DW_CPU_SPEED" ] || DW_CPU_SPEED=$(DETAIL_CPU_EXTREME cpuinfo_cur_freq max)
+	[ -n "$DW_CPU_SPEED" ] || DW_CPU_SPEED=$(DETAIL_FIRST /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq)
+
 	DW_GPU_SPEED=
 	DW_GPU_GOVERNOR=
 	DW_GPU_DIR=$(DETAIL_GLOB "/sys/class/devfreq/*gpu*")
@@ -230,7 +253,7 @@ DETAIL_WRITE() {
 		--argjson swap_total "$(DETAIL_NUMBER "$DW_SWAP_TOTAL")" \
 		--argjson swap_free "$(DETAIL_NUMBER "$DW_SWAP_FREE")" \
 		--argjson temperature "$(DETAIL_NUMBER "$(DETAIL_FIRST /sys/class/thermal/thermal_zone0/temp /sys/class/thermal/thermal_zone1/temp)")" \
-		--argjson cpu_speed "$(DETAIL_NUMBER "$(DETAIL_FIRST /sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_cur_freq /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq)")" \
+		--argjson cpu_speed "$(DETAIL_NUMBER "$DW_CPU_SPEED")" \
 		--arg governor "$(READ_FILE "$DW_GOVERNOR_FILE")" \
 		--argjson gpu_speed "$(DETAIL_NUMBER "$DW_GPU_SPEED")" \
 		--arg gpu_governor "$DW_GPU_GOVERNOR" \

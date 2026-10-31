@@ -1,0 +1,23 @@
+{
+    "catalogue": "Palm OS",
+    "lookup": 0,
+    "default": "mu",
+    "friendly": [
+        "palmos",
+        "palm"
+    ],
+    "bios": [
+        {
+            "file": "palmos41-en-m515.rom",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "mu": {
+            "name": "Mu",
+            "core": "mu_libretro.so",
+            "bios_required": 0
+        }
+    },
+    "extra": 1
+}

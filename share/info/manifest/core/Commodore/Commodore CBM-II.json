@@ -1,0 +1,21 @@
+{
+    "catalogue": "Commodore CBM-II",
+    "lookup": 0,
+    "default": "vice xcbm2",
+    "friendly": [
+        "commodorecbmii",
+        "cbmii"
+    ],
+    "bios": [],
+    "libretro": {
+        "vice xcbm2": {
+            "name": "VICE xcbm2",
+            "core": "vice_xcbm2_libretro.so"
+        },
+        "vice xcmb5x0": {
+            "name": "VICE xcmb5x0",
+            "core": "vice_xcbm5x0_libretro.so"
+        }
+    },
+    "extra": 1
+}

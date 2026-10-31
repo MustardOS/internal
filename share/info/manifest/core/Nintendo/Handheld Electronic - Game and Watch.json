@@ -1,0 +1,21 @@
+{
+    "catalogue": "Handheld Electronic - Game and Watch",
+    "lookup": 0,
+    "default": "handheld electronic",
+    "friendly": [
+        "nintendogw",
+        "nintendogameandwatch",
+        "ngw",
+        "handheldelectronic",
+        "gamenwatch",
+        "gameandwatch",
+        "gw"
+    ],
+    "bios": [],
+    "libretro": {
+        "handheld electronic": {
+            "name": "Handheld Electronic",
+            "core": "gw_libretro.so"
+        }
+    }
+}

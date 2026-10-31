@@ -1,0 +1,17 @@
+{
+    "catalogue": "Commodore VIC-20",
+    "lookup": 0,
+    "default": "vice xvic",
+    "friendly": [
+        "vic20",
+        "commodorevic20"
+    ],
+    "bios": [],
+    "libretro": {
+        "vice xvic": {
+            "name": "VICE xvic",
+            "core": "vice_xvic_libretro.so"
+        }
+    },
+    "extra": 1
+}

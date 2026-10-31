@@ -1,0 +1,18 @@
+{
+    "catalogue": "MicroW8",
+    "lookup": 0,
+    "default": "uw8",
+    "friendly": [
+        "microw8",
+        "uw8"
+    ],
+    "bios": [],
+    "libretro": {
+        "uw8": {
+            "name": "MicroW8",
+            "core": "uw8_libretro.so",
+            "bios_required": 0
+        }
+    },
+    "extra": 1
+}

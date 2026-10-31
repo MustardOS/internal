@@ -1,0 +1,36 @@
+{
+    "catalogue": "Nintendo Famicom Disk System",
+    "lookup": 0,
+    "default": "fceumm",
+    "friendly": [
+        "nintendofamicomdisksystem",
+        "fds",
+        "fcds",
+        "famicomdisksystem",
+        "famicomds"
+    ],
+    "bios": [
+        {
+            "file": "disksys.rom",
+            "hash": "ca30b50f880eb660a320674ed365ef7a"
+        }
+    ],
+    "libretro": {
+        "fceumm": {
+            "name": "FCEUmm",
+            "core": "fceumm_libretro.so",
+            "bios_required": 1
+        },
+        "mesen": {
+            "name": "Mesen",
+            "core": "mesen_libretro.so",
+            "bios_required": 1,
+            "extra": 1
+        },
+        "nestopia": {
+            "name": "Nestopia",
+            "core": "nestopia_libretro.so",
+            "bios_required": 1
+        }
+    }
+}

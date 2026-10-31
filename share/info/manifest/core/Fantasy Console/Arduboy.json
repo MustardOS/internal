@@ -1,0 +1,21 @@
+{
+    "catalogue": "Arduboy",
+    "lookup": 0,
+    "default": "ardens",
+    "friendly": [
+        "arduboy"
+    ],
+    "bios": [],
+    "libretro": {
+        "ardens": {
+            "name": "Ardens",
+            "core": "ardens_libretro.so",
+            "bios_required": 0
+        },
+        "arduous": {
+            "name": "Arduous",
+            "core": "arduous_libretro.so",
+            "bios_required": 0
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "catalogue": "LowRes NX",
+    "lookup": 0,
+    "default": "lowres nx",
+    "friendly": [
+        "lowresnx"
+    ],
+    "bios": [],
+    "libretro": {
+        "lowres nx": {
+            "name": "LowRes NX",
+            "core": "lowresnx_libretro.so"
+        }
+    },
+    "extra": 1
+}

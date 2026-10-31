@@ -3,6 +3,7 @@
 . /opt/muos/script/var/audio.sh
 . /opt/muos/script/var/storage.sh
 . /opt/muos/script/var/theme.sh
+. /opt/muos/script/var/manifest.sh
 
 LOG_INFO "$0" 0 "LAUNCH" "$(printf "Content launch script started (PID: %s)" "$$")"
 
@@ -78,6 +79,7 @@ CLEANUP_AFTER_LAUNCH() {
 	RESTORE_FRAMEBUFFER_MODE "$DEV_MODE" "$SCREEN_INT_W" "$SCREEN_INT_H" "$SCREEN_EXT_W" "$SCREEN_EXT_H"
 	RUN_SYNCTHING_SCAN "$USE_SYNCTHING" "$SYNCTHING_AUTOSCAN" "$NET_STATE"
 	RUN_DISCORD_PRESENCE clear
+	nice -n 19 /opt/muos/script/system/optimised.sh >/dev/null 2>&1 &
 }
 
 if [ ! -s "$ROM_GO" ]; then
@@ -168,19 +170,12 @@ APPLY_OPTIONAL_FILE "$SHD_GO" "$MUOS_RUN_DIR/overlay.shader" "Overlay Shader"
 # Set the chosen overlay alpha/anchor/scale options of content.
 APPLY_OPTIONAL_FILE "$OVO_GO" "$MUOS_RUN_DIR/overlay.options" "Overlay Options"
 
-# Pickles and RetroArch run the same Libretro cores, so both read the libretro group in core.json
-# and the tag on the stored assignment says which runtime drives the fella.
-BUNDLED_MANIFEST_DIR="$MUOS_SHARE_DIR/info/manifest"
-USER_MANIFEST_DIR="$MUOS_STORE_DIR/info/manifest"
-
-if [ -r "$USER_MANIFEST_DIR/core.json" ] && jq -e 'type == "object"' "$USER_MANIFEST_DIR/core.json" >/dev/null 2>&1; then
-	CORE_JSON="$USER_MANIFEST_DIR/core.json"
-else
-	CORE_JSON="$BUNDLED_MANIFEST_DIR/core.json"
-fi
+# Pickles and RetroArch run the same Libretro cores, so both read the libretro group in the system's
+# definition file and the tag on the stored assignment says which runtime drives the fella.
+CORE_JSON=$(CORE_MANIFEST_FILE "$ASSIGN") || CORE_JSON="$CORE_MANIFEST_DIR/$ASSIGN.json"
 
 CORE_HAS() {
-	jq -e --arg s "$ASSIGN" --arg g "$CORE_GROUP" --arg c "$1" '.[$s][$g][$c]' "$CORE_JSON" >/dev/null 2>&1
+	jq -e --arg g "$CORE_GROUP" --arg c "$1" '.[$g][$c]' "$CORE_JSON" >/dev/null 2>&1
 }
 
 SET_RUNTIME() {
@@ -204,7 +199,7 @@ case "$LAUNCH" in
 		;;
 esac
 
-# Only swap runtimes when the manifest can be read, otherwise a missing core.json would turn every
+# Only swap runtimes when the manifest can be read, otherwise a missing system file would turn every
 # External assignment into RetroArch and every Libretro one into an External launcher.
 if [ ! -r "$CORE_JSON" ]; then
 	LOG_ERROR "$0" 0 "LAUNCH" "$(printf "Core Assign file '%s' is missing, keeping the %s runtime" "$CORE_JSON" "$CORE_RUNTIME")"
@@ -225,8 +220,8 @@ fi
 
 LOG_DEBUG "$0" 0 "LAUNCH" "$(printf "Resolved core '%s' as %s from '%s'" "$CORE_ID" "$CORE_RUNTIME" "$CORE_JSON")"
 
-CORE_FIELDS=$(jq -r --arg s "$ASSIGN" --arg g "$CORE_GROUP" --arg c "$CORE_ID" \
-	'.[$s][$g][$c] // {} | [(.launcher // ""), (.prep // ""), (.done // "")] | @tsv' \
+CORE_FIELDS=$(jq -r --arg g "$CORE_GROUP" --arg c "$CORE_ID" \
+	'.[$g][$c] // {} | [(.launcher // ""), (.prep // ""), (.done // "")] | @tsv' \
 	"$CORE_JSON" 2>/dev/null)
 
 CORE_LAUNCHER=$(printf '%s' "$CORE_FIELDS" | cut -f1)

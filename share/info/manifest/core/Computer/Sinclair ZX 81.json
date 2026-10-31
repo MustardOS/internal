@@ -1,0 +1,17 @@
+{
+    "catalogue": "Sinclair ZX 81",
+    "lookup": 0,
+    "default": "eightyone",
+    "friendly": [
+        "zx81",
+        "sinclairzx81"
+    ],
+    "bios": [],
+    "libretro": {
+        "eightyone": {
+            "name": "EightyOne",
+            "core": "81_libretro.so"
+        }
+    },
+    "extra": 1
+}

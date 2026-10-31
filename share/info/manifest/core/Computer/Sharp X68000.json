@@ -1,0 +1,27 @@
+{
+    "catalogue": "Sharp X68000",
+    "lookup": 0,
+    "default": "px68k",
+    "friendly": [
+        "x68000",
+        "sharpx68000",
+        "x68k"
+    ],
+    "bios": [
+        {
+            "file": "keropi/iplrom.dat",
+            "hash": ""
+        },
+        {
+            "file": "keropi/cgrom.dat",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "px68k": {
+            "name": "PX68k",
+            "core": "px68k_libretro.so"
+        }
+    },
+    "extra": 1
+}

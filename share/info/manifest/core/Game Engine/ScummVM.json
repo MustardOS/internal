@@ -1,0 +1,28 @@
+{
+    "catalogue": "ScummVM",
+    "lookup": 0,
+    "default": "scummvm",
+    "runtime": "external",
+    "friendly": [
+        "lucasart",
+        "lucasarts",
+        "scummvm",
+        "scumm"
+    ],
+    "bios": [],
+    "libretro": {
+        "scummvm": {
+            "name": "ScummVM",
+            "core": "scummvm_libretro.so",
+            "launcher": "scummvm.sh",
+            "extra": 1
+        }
+    },
+    "external": {
+        "scummvm": {
+            "name": "ScummVM",
+            "core": "ext-scummvm",
+            "launcher": "scummvm.sh"
+        }
+    }
+}

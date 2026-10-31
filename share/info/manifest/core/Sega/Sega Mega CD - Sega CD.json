@@ -1,0 +1,51 @@
+{
+    "catalogue": "Sega Mega CD - Sega CD",
+    "lookup": 0,
+    "default": "genesis plus gx",
+    "friendly": [
+        "segasegacd",
+        "segascd",
+        "segamegacd",
+        "segamcd",
+        "segacd",
+        "scd",
+        "megadrivecd",
+        "megacd",
+        "mdsegacd",
+        "mdcd",
+        "gensegacd",
+        "genesiscd",
+        "gencd"
+    ],
+    "bios": [
+        {
+            "file": "bios_CD_E.bin",
+            "hash": "e66fa1dc5820d254611fdcdba0662372"
+        },
+        {
+            "file": "bios_CD_U.bin",
+            "hash": "854b9150240a198070150e4566ae1290"
+        },
+        {
+            "file": "bios_CD_J.bin",
+            "hash": "278a9397d192149e84e820ac621a8edd"
+        }
+    ],
+    "libretro": {
+        "genesis plus gx": {
+            "name": "Genesis Plus GX",
+            "core": "genesis_plus_gx_libretro.so",
+            "bios_required": 1
+        },
+        "genesis plus gx wide": {
+            "name": "Genesis Plus GX Wide",
+            "core": "genesis_plus_gx_wide_libretro.so",
+            "bios_required": 1
+        },
+        "picodrive": {
+            "name": "PicoDrive",
+            "core": "picodrive_libretro.so",
+            "bios_required": 1
+        }
+    }
+}

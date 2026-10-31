@@ -1,0 +1,60 @@
+{
+    "catalogue": "Nintendo Game Boy Advance",
+    "lookup": 0,
+    "default": "mgba",
+    "friendly": [
+        "nintendogba",
+        "nintendogameboyadvance",
+        "ningba",
+        "ngba",
+        "mgba",
+        "gbsp",
+        "gbahacks",
+        "gbadvance",
+        "gba",
+        "gameboyadvance"
+    ],
+    "bios": [
+        {
+            "file": "gba_bios.bin",
+            "hash": "a860e8c0b6d573d191e4ec7db1b1e4f6"
+        }
+    ],
+    "libretro": {
+        "beetle gba": {
+            "name": "Beetle GBA",
+            "core": "mednafen_gba_libretro.so",
+            "bios_required": 0,
+            "extra": 1
+        },
+        "gpsp": {
+            "name": "gpSP",
+            "core": "gpsp_libretro.so",
+            "bios_required": 0
+        },
+        "mgba": {
+            "name": "mGBA",
+            "core": "mgba_libretro.so",
+            "bios_required": 0,
+            "governor": "extreme"
+        },
+        "mgba rumble": {
+            "name": "mGBA Rumble",
+            "core": "mgba_rumble_libretro.so",
+            "bios_required": 0,
+            "extra": 1
+        },
+        "vba-m": {
+            "name": "VBA-M",
+            "core": "vbam_libretro.so",
+            "bios_required": 0,
+            "extra": 1
+        },
+        "vba-next": {
+            "name": "VBA-Next",
+            "core": "vba_next_libretro.so",
+            "bios_required": 0,
+            "extra": 1
+        }
+    }
+}

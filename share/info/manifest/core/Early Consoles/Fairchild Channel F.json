@@ -1,0 +1,36 @@
+{
+    "catalogue": "Fairchild Channel F",
+    "lookup": 0,
+    "default": "freechaf",
+    "friendly": [
+        "fairchildchannelf",
+        "fairchild",
+        "channelf"
+    ],
+    "bios": [
+        {
+            "file": "sl31253.bin",
+            "hash": "ac9804d4c0e9d07e33472e3726ed15c3"
+        },
+        {
+            "file": "sl31254.bin",
+            "hash": "da98f4bb3242ab80d76629021bb27585"
+        },
+        {
+            "file": "sl90025.bin",
+            "hash": "95d339631d867c8f1d15a5f2ec26069d"
+        }
+    ],
+    "libretro": {
+        "freechaf": {
+            "name": "FreeChaF",
+            "core": "freechaf_libretro.so"
+        },
+        "press f": {
+            "name": "Press F",
+            "core": "press_f_libretro.so",
+            "bios_required": 0
+        }
+    },
+    "extra": 1
+}

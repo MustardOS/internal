@@ -1,0 +1,61 @@
+{
+    "catalogue": "Nintendo Game Boy",
+    "lookup": 0,
+    "default": "gambatte",
+    "friendly": [
+        "originalgameboy",
+        "nintendogb",
+        "nintendogameboy",
+        "ngb",
+        "gbhacks",
+        "gbdmg",
+        "gb",
+        "gameboy",
+        "dmg"
+    ],
+    "bios": [],
+    "libretro": {
+        "doublecherrygb": {
+            "name": "DoubleCherryGB",
+            "core": "DoubleCherryGB_libretro.so",
+            "extra": 1
+        },
+        "emux gb": {
+            "name": "Emux GB",
+            "core": "emux_gb_libretro.so",
+            "bios_required": 0,
+            "extra": 1
+        },
+        "fixgb": {
+            "name": "FixGB",
+            "core": "fixgb_libretro.so",
+            "extra": 1
+        },
+        "gambatte": {
+            "name": "Gambatte",
+            "core": "gambatte_libretro.so"
+        },
+        "gearboy": {
+            "name": "Gearboy",
+            "core": "gearboy_libretro.so"
+        },
+        "mgba": {
+            "name": "mGBA",
+            "core": "mgba_libretro.so"
+        },
+        "sameboy": {
+            "name": "SameBoy",
+            "core": "sameboy_libretro.so"
+        },
+        "tgb dual": {
+            "name": "TGB Dual",
+            "core": "tgbdual_libretro.so",
+            "extra": 1
+        },
+        "vba-m": {
+            "name": "VBA-M",
+            "core": "vbam_libretro.so",
+            "extra": 1
+        }
+    }
+}

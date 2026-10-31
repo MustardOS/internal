@@ -10,6 +10,26 @@
   const safeKey = key => key !== "__proto__" && key !== "prototype" && key !== "constructor";
 
   const FILENAME = "core.json";
+  const SYSTEM_FIELDS = ["name", "namespace", "catalogue", "default", "friendly", "runtime", "libretro", "external"];
+  const fileKey = name => String(name || "").replace(/^.*[\\/]/, "").replace(/\.json$/i, "");
+  const systemText = system => `${JSON.stringify(system, null, 4)}\n`;
+  const safeFolder = name => /^[^./\\][^/\\]*$/.test(String(name || "").trim());
+
+  // The namespace is the folder a system file sits in, so it lives on the open system but never in the file
+  function fileData(system) {
+    const { namespace, name, catalogue, ...rest } = system;
+    return { catalogue, ...rest };
+  }
+  const fileText = system => systemText(fileData(system));
+  const filePath = (key, system) => `${String(system.namespace || "").trim()}/${key}.json`;
+
+  // Files from older layouts carry name and namespace fields; catalogue is the display name now
+  function normalise(system, namespace) {
+    if (!plainObject(system)) return system;
+    const { namespace: folder, name, catalogue, ...rest } = system;
+    return { namespace: folder ?? namespace ?? "", catalogue: catalogue ?? name ?? "", ...rest };
+  }
+  const normaliseAll = data => Object.fromEntries(Object.entries(data).map(([key, system]) => [key, normalise(system)]));
 
   const FALLBACK_OPTIONS = {
     governor: [{ id: "automatic", name: "Automatic" }, { id: "powersave", name: "Powersave" }, { id: "efficient", name: "Efficient" }, { id: "balanced", name: "Balanced" }, { id: "responsive", name: "Responsive" }, { id: "turbo", name: "Turbo" }, { id: "extreme", name: "Extreme" }],
@@ -178,37 +198,103 @@
     state.coreFilter = "";
   }
 
-  function openDocument(source, data) {
+  function systemFile(data) {
+    const values = Object.values(data);
+    return !values.length || !values.every(value => plainObject(value) && SYSTEM_FIELDS.some(field => own(value, field)));
+  }
+
+  function baselineOf(data) {
+    return Object.fromEntries(Object.entries(data).map(([key, system]) => [key, systemText(system)]));
+  }
+
+  function changedSystems() {
+    const doc = state.doc;
+    if (!doc) return [];
+    return Object.keys(doc.data).filter(key => doc.baseline[key] !== systemText(doc.data[key]));
+  }
+
+  function removedSystems() {
+    const doc = state.doc;
+    return doc ? Object.keys(doc.baseline).filter(key => !own(doc.data, key)) : [];
+  }
+
+  function openDocument(source, data, sources = {}) {
     if (!plainObject(data)) throw new Error("The file must contain a JSON object.");
-    if (oldFormat(data)) throw new Error("This is a libretro.json or external.json file from an older release. Open a core.json file instead.");
-    if (state.doc && state.doc.changed && !confirm("Replace the open file? Its changes have not been downloaded.")) return false;
-    state.doc = { source, data, changed: false };
+    if (oldFormat(data)) throw new Error("This is a libretro.json or external.json file from an older release. Open system files or a core.json file instead.");
+    if (state.doc && state.doc.changed && !confirm("Replace the open systems? Their changes have not been downloaded.")) return false;
+    data = normaliseAll(data);
+    state.doc = { source, data, sources, baseline: baselineOf(data), changed: false };
     state.systemFilter = "";
     selectSystem(Object.keys(data)[0] || "");
     render();
     return true;
   }
 
-  async function openFile(file) {
+  function addSystems(source, systems) {
+    if (!state.doc) return openDocument(source, systems);
+    for (const [key, system] of Object.entries(systems)) state.doc.data[key] = normalise(system, plainObject(state.doc.data[key]) ? state.doc.data[key].namespace : "");
+    selectSystem(Object.keys(systems)[0]);
+    markChanged();
+    render();
+    return true;
+  }
+
+  async function openFiles(files) {
+    const systems = {};
+    let manifest = null;
     try {
-      if (!openDocument(file.name, JSON.parse(await file.text()))) return;
-      setStatus(`${file.name} opened.`, "good");
+      for (const file of files) {
+        const data = JSON.parse(await file.text());
+        if (!plainObject(data)) throw new Error(`${file.name} must contain a JSON object.`);
+        if (systemFile(data)) {
+          const key = fileKey(file.name);
+          if (!key || !safeKey(key)) throw new Error(`${file.name} does not have a usable system name.`);
+          systems[key] = data;
+        } else if (files.length === 1) {
+          manifest = data;
+        } else {
+          throw new Error(`${file.name} holds several systems. Open it on its own.`);
+        }
+      }
+      if (manifest) {
+        if (!openDocument(files[0].name, manifest)) return;
+        const count = Object.keys(manifest).length;
+        setStatus(`${files[0].name} opened with ${count} system${count === 1 ? "" : "s"}.`, "good");
+        return;
+      }
+      const keys = Object.keys(systems);
+      if (!keys.length || !addSystems(keys.length === 1 ? files[0].name : `${keys.length} system files`, systems)) return;
+      setStatus(keys.length === 1 ? `${keys[0]} opened.` : `${keys.length} systems opened.`, "good");
     } catch (error) {
-      setStatus(`${file.name}: ${error.message}`, "bad");
+      setStatus(error.message, "bad");
     }
+  }
+
+  function downloadText(name, text) {
+    const blob = new Blob([text], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = name;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   }
 
   function refreshTitle() {
     const node = $("#file-name");
     if (!state.doc) { node.textContent = ""; return; }
-    const source = state.doc.source && state.doc.source !== FILENAME ? `, opened from ${state.doc.source}` : "";
-    node.textContent = `${FILENAME}${source}${state.doc.changed ? " (changed)" : ""}`;
+    const total = Object.keys(state.doc.data).length;
+    const changed = changedSystems().length + removedSystems().length;
+    state.doc.changed = changed > 0;
+    const source = state.doc.source ? `, opened from ${state.doc.source}` : "";
+    node.textContent = `${total} system${total === 1 ? "" : "s"}${source}${changed ? `, ${changed} changed` : ""}`;
+    $("#download-changed").disabled = !changed;
   }
 
   function render() {
     const doc = state.doc;
     $("#workspace").hidden = !doc;
-    $("#download").disabled = !doc;
+    $("#download").disabled = !doc || !activeSystem();
+    $("#download-changed").disabled = !doc || !doc.changed;
     refreshTitle();
     if (!doc) return;
     $("#system-filter").value = state.systemFilter;
@@ -224,7 +310,7 @@
     $("#system-count").textContent = `(${keys.length})`;
     const filter = state.systemFilter.toLocaleLowerCase("en-AU");
     const visible = keys.filter(key => {
-      const name = plainObject(data[key]) ? String(data[key].name || "") : "";
+      const name = plainObject(data[key]) ? `${data[key].catalogue || ""} ${data[key].namespace || ""}` : "";
       return `${key} ${name}`.toLocaleLowerCase("en-AU").includes(filter);
     });
     const list = $("#system-list");
@@ -239,7 +325,7 @@
       if (system.extra === 1) tags.push(tag("Extra", "extra", "Only shown when Additional Cores is enabled"));
       const limited = GROUPS.flatMap(group => Object.entries(groupOf(system, group)).filter(([, core]) => limits(core).length).map(([coreKey, core]) => (plainObject(core) && core.name) || coreKey));
       if (limited.length) tags.push(tag("Limited", "limited", `Limited cores: ${limited.join(", ")}`));
-      fillListButton(button, system.name, key, tags, own(RUNTIME_LABELS, system.runtime) ? `defaults to ${RUNTIME_LABELS[system.runtime]}` : "");
+      fillListButton(button, system.catalogue, key, tags, own(RUNTIME_LABELS, system.runtime) ? `defaults to ${RUNTIME_LABELS[system.runtime]}` : "");
       button.addEventListener("click", () => {
         selectSystem(key);
         renderSystemList();
@@ -291,7 +377,7 @@
     $("#editor").hidden = !system;
     if (!system) return;
 
-    $("#system-heading").textContent = system.name || state.systemKey;
+    $("#system-heading").textContent = system.catalogue || state.systemKey;
     setInput("#system-key", state.systemKey);
     $$("[data-system-field]").forEach(input => setInput(`[data-system-field="${input.dataset.systemField}"]`, system[input.dataset.systemField]));
     $$("[data-system-number]").forEach(input => setInput(`[data-system-number="${input.dataset.systemNumber}"]`, Number(system[input.dataset.systemNumber]) || 0));
@@ -463,9 +549,11 @@
       const path = systemKey || "(empty system key)";
       if (!systemKey.trim() || !safeKey(systemKey)) issue(issues, "error", path, "System key is empty or reserved.");
       if (!plainObject(system)) { issue(issues, "error", path, "System must be an object."); continue; }
-      for (const field of ["name", "namespace", "catalogue", "default"]) {
+      for (const field of ["namespace", "catalogue", "default"]) {
         if (typeof system[field] !== "string" || !system[field].trim()) issue(issues, "error", `${path}.${field}`, "A non-empty string is required.");
       }
+      if (typeof system.namespace === "string" && system.namespace.trim() && !safeFolder(system.namespace)) issue(issues, "error", `${path}.namespace`, "The namespace is a folder name, so it cannot start with a dot or contain a slash.");
+      if (!safeFolder(systemKey)) issue(issues, "error", path, "The system key is a file name, so it cannot start with a dot or contain a slash.");
       if (system.lookup !== 0 && system.lookup !== 1) issue(issues, "error", `${path}.lookup`, "Use 0 or 1.");
       if (!Array.isArray(system.friendly) || system.friendly.some(value => typeof value !== "string")) issue(issues, "error", `${path}.friendly`, "Use an array of strings.");
       checkChoice(issues, system, "governor", path);
@@ -538,27 +626,44 @@
     return group === "external" ? { name: "New Emulator", core: "ext-new", launcher: "general.sh" } : { name: "New Core", core: "new_libretro.so" };
   }
 
-  $("#file-input").addEventListener("change", event => { if (event.target.files[0]) openFile(event.target.files[0]); event.target.value = ""; });
-  $("#new-file").addEventListener("click", () => { if (openDocument(FILENAME, {})) setStatus("Started a new core.json.", "good"); });
+  $("#file-input").addEventListener("change", event => { if (event.target.files.length) openFiles([...event.target.files]); event.target.value = ""; });
+  $("#new-file").addEventListener("click", () => { if (openDocument("", {})) setStatus("Started with no systems. Add one to begin.", "good"); });
   $("#validate").addEventListener("click", () => {
     const issues = validate();
     const errors = issues.filter(entry => entry.level === "error").length;
     setStatus(errors ? `Validation found ${errors} error${errors === 1 ? "" : "s"}.` : "Validation complete.", errors ? "bad" : "good");
   });
-  $("#download").addEventListener("click", () => {
+  function confirmErrors(keys, action) {
+    const errors = validate().filter(entry => entry.level === "error" && keys.some(key => entry.path === key || entry.path.startsWith(`${key}.`)));
+    return !errors.length || confirm(`${errors.length} validation error${errors.length === 1 ? "" : "s"} found. ${action} anyway?`);
+  }
+
+  function markSaved(keys) {
     const doc = state.doc;
-    if (!doc) return;
-    const errors = validate().filter(entry => entry.level === "error");
-    if (errors.length && !confirm(`This file has ${errors.length} validation error${errors.length === 1 ? "" : "s"}. Download it anyway?`)) return;
-    const blob = new Blob([`${JSON.stringify(doc.data, null, 2)}\n`], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = FILENAME;
-    link.click();
-    URL.revokeObjectURL(link.href);
-    doc.changed = false;
+    for (const key of keys) {
+      if (own(doc.data, key)) doc.baseline[key] = systemText(doc.data[key]);
+      else delete doc.baseline[key];
+    }
     refreshTitle();
-    setStatus(`Downloaded ${FILENAME}.`, "good");
+  }
+
+  $("#download").addEventListener("click", () => {
+    const key = state.systemKey;
+    if (!activeSystem() || !confirmErrors([key], "Download it")) return;
+    downloadText(`${key}.json`, fileText(activeSystem()));
+    markSaved([key]);
+    setStatus(`Downloaded ${key}.json. It belongs in core/${filePath(key, activeSystem())}.`, "good");
+  });
+  $("#download-changed").addEventListener("click", () => {
+    const keys = changedSystems();
+    const removed = removedSystems();
+    if (!keys.length && !removed.length) return;
+    if (!confirmErrors(keys, "Download them")) return;
+    keys.forEach((key, index) => setTimeout(() => downloadText(`${key}.json`, fileText(state.doc.data[key])), index * 250));
+    markSaved([...keys, ...removed]);
+    const places = keys.map(key => `core/${filePath(key, state.doc.data[key])}`).join(", ");
+    const note = removed.length ? ` Delete ${removed.map(key => `${key}.json`).join(", ")} yourself.` : "";
+    setStatus(`Downloaded ${keys.length} system file${keys.length === 1 ? "" : "s"}, which belong in ${places}.${note}`, "good");
   });
 
   $("#system-filter").addEventListener("input", event => { state.systemFilter = event.target.value; renderSystemList(); });
@@ -566,7 +671,7 @@
   $("#add-system").addEventListener("click", () => {
     const data = state.doc.data;
     const key = uniqueKey("New System", data);
-    data[key] = { name: key, namespace: "", catalogue: key, lookup: 0, default: "new core", friendly: [], bios: [], libretro: { "new core": newCore("libretro") } };
+    data[key] = { namespace: "", catalogue: key, lookup: 0, default: "new core", friendly: [], bios: [], libretro: { "new core": newCore("libretro") } };
     selectSystem(key);
     state.coreKey = "new core";
     markChanged();
@@ -576,7 +681,7 @@
     const data = state.doc.data;
     const key = uniqueKey(`${state.systemKey} Copy`, data);
     data[key] = clone(activeSystem());
-    data[key].name = key;
+    data[key].catalogue = key;
     selectSystem(key);
     markChanged();
     render();
@@ -688,51 +793,80 @@
   $("#apply-core-json").addEventListener("click", () => applyJson($("#core-json"), value => { activeCores()[state.coreKey] = value; }));
   $("#apply-system-json").addEventListener("click", () => applyJson($("#system-json"), value => { state.doc.data[state.systemKey] = value; }));
   $("#apply-manifest-json").addEventListener("click", () => applyJson($("#manifest-json"), value => {
-    if (oldFormat(value)) throw new Error("This is the older libretro.json or external.json layout. Use the core.json layout.");
+    if (oldFormat(value)) throw new Error("This is the older libretro.json or external.json layout. Use the current layout.");
     state.doc.data = value;
     selectSystem(Object.keys(value)[0] || "");
   }));
 
   const device = window.MUTool;
   if (device) {
+    $("#open-bundled").hidden = true;
     const loadFromDevice = async () => {
       try {
-        const { source, text } = await device.core();
-        if (!openDocument(source === "user" ? "core.json on the device" : "bundled core.json", JSON.parse(text))) return;
-        state.doc.changed = false;
-        refreshTitle();
-        setStatus(source === "user" ? "Opened your core.json from the device." : "Opened the bundled core.json. Saving creates your own copy.", "good");
+        const { sources, text } = await device.core();
+        if (!openDocument("the device", JSON.parse(text), sources)) return;
+        const mine = Object.values(sources).filter(source => source === "user").length;
+        setStatus(mine ? `Opened from the device. ${mine} system${mine === 1 ? " uses your" : "s use your"} own file.` : "Opened the bundled systems. Saving a system creates your own copy of it.", "good");
       } catch (error) {
-        setStatus(`Could not open core.json from the device: ${error.message}`, "bad");
+        setStatus(`Could not open the systems from the device: ${error.message}`, "bad");
       }
     };
     device.bar($(".toolbar"), [
       ["Reload", loadFromDevice],
-      ["Reset to Bundled", async () => {
-        if (!confirm("Remove your core.json and go back to the bundled one? A backup is kept as core.json.bak.")) return;
+      ["Reset System", async () => {
+        const key = state.systemKey;
+        if (!state.doc || !key) return;
+        if (state.doc.sources[key] !== "user") { setStatus(`${key} already uses the bundled file.`, "good"); return; }
+        if (!confirm(`Remove your ${key}.json and go back to the bundled one? A backup is kept as ${key}.json.bak.`)) return;
+        try {
+          await device.resetCore(key);
+          await loadFromDevice();
+          setStatus(`Your ${key}.json was removed.`, "good");
+        } catch (error) {
+          setStatus(error.message, "bad");
+        }
+      }],
+      ["Reset All", async () => {
+        if (!confirm("Remove every system file of your own and go back to the bundled ones? A backup of each is kept as .bak.")) return;
         try {
           await device.resetCore();
           await loadFromDevice();
-          setStatus("Your core.json was removed. The bundled file is in use again.", "good");
+          setStatus("Your system files were removed. The bundled files are in use again.", "good");
         } catch (error) {
           setStatus(error.message, "bad");
         }
       }],
       ["Save to Device", async () => {
         if (!state.doc) return;
-        const errors = validate().filter(entry => entry.level === "error");
-        if (errors.length && !confirm(`This file has ${errors.length} validation error${errors.length === 1 ? "" : "s"}. Save it anyway?`)) return;
+        const keys = changedSystems();
+        const removed = removedSystems();
+        if (!keys.length && !removed.length) { setStatus("No systems have changed.", "good"); return; }
+        if (!confirmErrors(keys, "Save them")) return;
+        const restored = removed.filter(key => state.doc.sources[key] === "bundled");
+        if (restored.length && !confirm(`Bundled systems cannot be removed from the device, so ${restored.join(", ")} will return. Save anyway?`)) return;
         try {
-          await device.saveCore(`${JSON.stringify(state.doc.data, null, 2)}\n`);
-          state.doc.changed = false;
-          state.doc.source = "core.json on the device";
-          refreshTitle();
-          setStatus("Saved to the device. The previous file is kept as core.json.bak.", "good");
+          for (const key of keys) await device.saveCore(state.doc.data[key].namespace.trim(), key, fileText(state.doc.data[key]));
+          for (const key of removed) await device.resetCore(key);
+          await loadFromDevice();
+          const done = [];
+          if (keys.length) done.push(`Saved ${keys.length} system${keys.length === 1 ? "" : "s"}`);
+          if (removed.length) done.push(`${done.length ? "removed" : "Removed"} ${removed.length} system file${removed.length === 1 ? "" : "s"}`);
+          setStatus(`${done.join(" and ")} on the device. Each previous file is kept as .bak.`, "good");
         } catch (error) {
           setStatus(error.message, "bad");
         }
       }, true]
     ]);
     loadFromDevice();
+  } else {
+    $("#open-bundled").addEventListener("click", async () => {
+      try {
+        const data = await (await fetch("/assets/data/core-assign.json")).json();
+        if (!openDocument("the bundled systems", data)) return;
+        setStatus(`Opened ${Object.keys(data).length} bundled systems.`, "good");
+      } catch (error) {
+        setStatus(`Could not open the bundled systems: ${error.message}`, "bad");
+      }
+    });
   }
 })();

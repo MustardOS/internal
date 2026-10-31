@@ -1,0 +1,16 @@
+{
+    "catalogue": "WASM-4",
+    "lookup": 0,
+    "default": "wasm-4",
+    "friendly": [
+        "wasm4"
+    ],
+    "bios": [],
+    "libretro": {
+        "wasm-4": {
+            "name": "WASM-4",
+            "core": "wasm4_libretro.so"
+        }
+    },
+    "extra": 1
+}

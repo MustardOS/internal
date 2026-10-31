@@ -1,0 +1,17 @@
+{
+    "catalogue": "Doom",
+    "lookup": 0,
+    "default": "prboom",
+    "friendly": [
+        "prboom",
+        "doom"
+    ],
+    "bios": [],
+    "libretro": {
+        "prboom": {
+            "name": "PrBoom",
+            "core": "prboom_libretro.so",
+            "launcher": "prboom.sh"
+        }
+    }
+}

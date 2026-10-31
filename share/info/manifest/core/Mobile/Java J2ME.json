@@ -1,0 +1,23 @@
+{
+    "catalogue": "Java J2ME",
+    "lookup": 0,
+    "default": "freej2me",
+    "friendly": [
+        "java",
+        "mobile",
+        "j2me"
+    ],
+    "bios": [
+        {
+            "file": "freej2me-lr.jar",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "freej2me": {
+            "name": "FreeJ2ME",
+            "core": "freej2me_libretro.so"
+        }
+    },
+    "extra": 0
+}

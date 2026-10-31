@@ -1,0 +1,40 @@
+{
+    "catalogue": "External - Ports",
+    "lookup": 0,
+    "default": "external",
+    "runtime": "external",
+    "friendly": [
+        "scripts",
+        "script",
+        "ports",
+        "port",
+        "externalports",
+        "externalport",
+        "external",
+        "apps",
+        "app"
+    ],
+    "bios": [],
+    "external": {
+        "external": {
+            "name": "External",
+            "core": "external",
+            "launcher": "general.sh"
+        },
+        "frotz": {
+            "name": "Frotz",
+            "core": "ext-frotz",
+            "launcher": "frotz.sh"
+        },
+        "portoverlay": {
+            "name": "PortOverlay",
+            "core": "ext-gen-overlay",
+            "launcher": "general.sh"
+        },
+        "terminal": {
+            "name": "Terminal",
+            "core": "ext-terminal",
+            "launcher": "terminal.sh"
+        }
+    }
+}

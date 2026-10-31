@@ -1,0 +1,25 @@
+{
+    "catalogue": "Sega SG-1000",
+    "lookup": 0,
+    "default": "genesis plus gx",
+    "friendly": [
+        "sg1000",
+        "segasgone",
+        "segasg1000"
+    ],
+    "bios": [],
+    "libretro": {
+        "bluemsx": {
+            "name": "blueMSX",
+            "core": "bluemsx_libretro.so"
+        },
+        "gearsystem": {
+            "name": "Gearsystem",
+            "core": "gearsystem_libretro.so"
+        },
+        "genesis plus gx": {
+            "name": "Genesis Plus GX",
+            "core": "genesis_plus_gx_libretro.so"
+        }
+    }
+}

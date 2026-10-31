@@ -1,0 +1,17 @@
+{
+    "catalogue": "2048",
+    "lookup": 0,
+    "default": "2048",
+    "friendly": [
+        "2048"
+    ],
+    "bios": [],
+    "libretro": {
+        "2048": {
+            "name": "2048",
+            "core": "2048_libretro.so",
+            "bios_required": 0
+        }
+    },
+    "extra": 1
+}

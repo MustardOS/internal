@@ -1,0 +1,35 @@
+{
+    "catalogue": "Atari ST-STE-TT-Falcon",
+    "lookup": 0,
+    "default": "hatari",
+    "friendly": [
+        "atarist",
+        "atariste",
+        "ast",
+        "aste",
+        "atarifalcon",
+        "falcon",
+        "tt",
+        "ataritt",
+        "st",
+        "ste"
+    ],
+    "bios": [
+        {
+            "file": "tos.img",
+            "hash": "c1c57ce48e8ee4135885cee9e63a68a2"
+        }
+    ],
+    "libretro": {
+        "hatari": {
+            "name": "Hatari",
+            "core": "hatari_libretro.so",
+            "bios_required": 1
+        },
+        "hatarib": {
+            "name": "HatariB",
+            "core": "hatarib_libretro.so",
+            "bios_required": 1
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "catalogue": "VeMUlator",
+    "lookup": 0,
+    "default": "vemulator",
+    "friendly": [
+        "vemulator"
+    ],
+    "bios": [],
+    "libretro": {
+        "vemulator": {
+            "name": "VeMUlator",
+            "core": "vemulator_libretro.so"
+        }
+    },
+    "extra": 1
+}

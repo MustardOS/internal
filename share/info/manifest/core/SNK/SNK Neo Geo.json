@@ -1,0 +1,37 @@
+{
+    "catalogue": "SNK Neo Geo",
+    "lookup": 1,
+    "default": "finalburn neo",
+    "friendly": [
+        "snkneogeo",
+        "sng",
+        "ng",
+        "neogeo",
+        "fbnneogeo",
+        "arcneogeo",
+        "arcadesnkneogeo",
+        "arcadesnk",
+        "arcadeneogeo"
+    ],
+    "bios": [
+        {
+            "file": "neogeo.zip",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "fb alpha 2012 neo geo": {
+            "name": "FB Alpha 2012 Neo Geo",
+            "core": "fbalpha2012_neogeo_libretro.so"
+        },
+        "finalburn neo": {
+            "name": "FinalBurn Neo",
+            "core": "fbneo_libretro.so"
+        },
+        "geolith": {
+            "name": "Geolith",
+            "core": "geolith_libretro.so",
+            "extra": 1
+        }
+    }
+}

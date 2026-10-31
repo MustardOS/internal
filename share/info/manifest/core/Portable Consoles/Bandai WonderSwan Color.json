@@ -1,0 +1,23 @@
+{
+    "catalogue": "Bandai WonderSwan Color",
+    "lookup": 0,
+    "default": "beetle cygne",
+    "friendly": [
+        "wsc",
+        "ws",
+        "wonderswancolor",
+        "wonderswan",
+        "bwsc",
+        "bws",
+        "bandaiwonderswancolor",
+        "bandaiwonderswan"
+    ],
+    "bios": [],
+    "libretro": {
+        "beetle cygne": {
+            "name": "Beetle Cygne",
+            "core": "mednafen_wswan_libretro.so",
+            "bios_required": 0
+        }
+    }
+}

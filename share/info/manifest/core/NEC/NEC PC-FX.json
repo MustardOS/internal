@@ -1,0 +1,26 @@
+{
+    "catalogue": "NEC PC-FX",
+    "lookup": 0,
+    "default": "beetle pc-fx",
+    "friendly": [
+        "pcfx",
+        "necpcfx"
+    ],
+    "bios": [
+        {
+            "file": "pcfx.rom",
+            "hash": "08e36edbea28a017f79f8d4f7ff9b6d7"
+        }
+    ],
+    "libretro": {
+        "beetle pc-fx": {
+            "name": "Beetle PC-FX",
+            "core": "mednafen_pcfx_libretro.so"
+        },
+        "pcfx": {
+            "name": "PC-FX",
+            "core": "pcfx_libretro.so",
+            "bios_required": 0
+        }
+    }
+}

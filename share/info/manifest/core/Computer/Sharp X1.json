@@ -1,0 +1,26 @@
+{
+    "catalogue": "Sharp X1",
+    "lookup": 0,
+    "default": "x millennium",
+    "friendly": [
+        "x1",
+        "sharpx1"
+    ],
+    "bios": [
+        {
+            "file": "xmil/IPLROM.X1",
+            "hash": "eeeea1cd29c6e0e8b094790ae969bfa7"
+        },
+        {
+            "file": "xmil/IPLROM.X1T",
+            "hash": "851e4a5936f17d13f8c39a980cf00d77"
+        }
+    ],
+    "libretro": {
+        "x millennium": {
+            "name": "X Millennium",
+            "core": "x1_libretro.so"
+        }
+    },
+    "extra": 1
+}

@@ -1,0 +1,71 @@
+{
+    "catalogue": "SNK Neo Geo CD",
+    "lookup": 0,
+    "default": "neocd",
+    "friendly": [
+        "snkngcd",
+        "snkneogeocd",
+        "ngcd",
+        "neogeocd",
+        "neocdz",
+        "neocd",
+        "arcneogeocd",
+        "arcadeneogeocd"
+    ],
+    "bios": [
+        {
+            "file": "neocd/neocd_f.rom",
+            "hash": ""
+        },
+        {
+            "file": "neocd/neocd_sf.rom",
+            "hash": ""
+        },
+        {
+            "file": "neocd/front-sp1.bin",
+            "hash": ""
+        },
+        {
+            "file": "neocd/neocd_t.rom",
+            "hash": ""
+        },
+        {
+            "file": "neocd/neocd_st.rom",
+            "hash": ""
+        },
+        {
+            "file": "neocd/top-sp1.bin",
+            "hash": ""
+        },
+        {
+            "file": "neocd/neocd_z.rom",
+            "hash": ""
+        },
+        {
+            "file": "neocd/neocd_sz.rom",
+            "hash": ""
+        },
+        {
+            "file": "neocd/neocd.bin",
+            "hash": ""
+        },
+        {
+            "file": "neocd/uni-bioscd.rom",
+            "hash": ""
+        },
+        {
+            "file": "neocd/ng-lo.rom",
+            "hash": ""
+        },
+        {
+            "file": "neocd/000-lo.lo",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "neocd": {
+            "name": "NeoCD",
+            "core": "neocd_libretro.so"
+        }
+    }
+}

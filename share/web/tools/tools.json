@@ -14,7 +14,7 @@
   {
     "slug": "core-assign-editor",
     "title": "Core Assign Editor",
-    "description": "Edit the systems, Libretro cores, External emulators, BIOS files and requirements in core.json.",
+    "description": "Edit the systems, Libretro cores, External emulators, BIOS files and requirements in each system file.",
     "icon": "assets/icons/tour-assets-glyphs-muxconfig-core.svg"
   },
   {

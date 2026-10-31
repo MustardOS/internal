@@ -1,0 +1,33 @@
+{
+    "catalogue": "Sega Game Gear",
+    "lookup": 0,
+    "default": "picodrive",
+    "friendly": [
+        "sgg",
+        "seggg",
+        "segagg",
+        "segagamegear",
+        "gg",
+        "gamegearhacks",
+        "gamegear"
+    ],
+    "bios": [],
+    "libretro": {
+        "gearsystem": {
+            "name": "Gearsystem",
+            "core": "gearsystem_libretro.so"
+        },
+        "genesis plus gx": {
+            "name": "Genesis Plus GX",
+            "core": "genesis_plus_gx_libretro.so"
+        },
+        "picodrive": {
+            "name": "PicoDrive",
+            "core": "picodrive_libretro.so"
+        },
+        "sms plus gx": {
+            "name": "SMS Plus GX",
+            "core": "smsplus_libretro.so"
+        }
+    }
+}

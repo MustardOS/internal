@@ -1,0 +1,41 @@
+{
+    "catalogue": "NEC PC-8000 - PC-8800 Series",
+    "lookup": 0,
+    "default": "quasi8800",
+    "friendly": [
+        "pc8000",
+        "necpc8000"
+    ],
+    "bios": [
+        {
+            "file": "quasi88/n88.rom",
+            "hash": ""
+        },
+        {
+            "file": "quasi88/n88_0.rom",
+            "hash": ""
+        },
+        {
+            "file": "quasi88/n88_1.rom",
+            "hash": ""
+        },
+        {
+            "file": "quasi88/n88_2.rom",
+            "hash": ""
+        },
+        {
+            "file": "quasi88/n88_3.rom",
+            "hash": ""
+        },
+        {
+            "file": "quasi88/disk.rom",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "quasi8800": {
+            "name": "Quasi 8800",
+            "core": "quasi88_libretro.so"
+        }
+    }
+}

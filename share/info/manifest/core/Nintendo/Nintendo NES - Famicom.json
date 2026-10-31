@@ -1,0 +1,56 @@
+{
+    "catalogue": "Nintendo NES - Famicom",
+    "lookup": 0,
+    "default": "fceumm",
+    "friendly": [
+        "nintendonintendoentertainmentsystem",
+        "nintendones",
+        "nintendofamicom",
+        "nintendoentertainmentsystem",
+        "ninnes",
+        "neshacks",
+        "nesfc",
+        "nesds",
+        "nescd",
+        "nes",
+        "fcnes",
+        "fc",
+        "famicom"
+    ],
+    "bios": [],
+    "libretro": {
+        "bnes": {
+            "name": "BNES",
+            "core": "bnes_libretro.so",
+            "extra": 1
+        },
+        "emux nes": {
+            "name": "Emux NES",
+            "core": "emux_nes_libretro.so",
+            "bios_required": 0,
+            "extra": 1
+        },
+        "fceumm": {
+            "name": "FCEUmm",
+            "core": "fceumm_libretro.so"
+        },
+        "fceunext": {
+            "name": "FCEUNext",
+            "core": "fceunext_libretro.so",
+            "bios_required": 0
+        },
+        "mesen": {
+            "name": "Mesen",
+            "core": "mesen_libretro.so",
+            "extra": 1
+        },
+        "nestopia": {
+            "name": "Nestopia",
+            "core": "nestopia_libretro.so"
+        },
+        "quicknes": {
+            "name": "QuickNES",
+            "core": "quicknes_libretro.so"
+        }
+    }
+}

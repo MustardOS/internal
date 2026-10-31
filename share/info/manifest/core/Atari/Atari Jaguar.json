@@ -1,0 +1,19 @@
+{
+    "catalogue": "Atari Jaguar",
+    "lookup": 0,
+    "default": "virtual jaguar",
+    "governor": "extreme",
+    "friendly": [
+        "atarijaguar",
+        "jaguar"
+    ],
+    "bios": [],
+    "libretro": {
+        "virtual jaguar": {
+            "name": "Virtual Jaguar",
+            "core": "virtualjaguar_libretro.so",
+            "bios_required": 0
+        }
+    },
+    "extra": 1
+}

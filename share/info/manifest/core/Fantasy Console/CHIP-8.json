@@ -1,0 +1,25 @@
+{
+    "catalogue": "CHIP-8",
+    "lookup": 0,
+    "default": "jaxe",
+    "friendly": [
+        "superchip",
+        "megachip8",
+        "chipeight",
+        "chip8"
+    ],
+    "bios": [],
+    "libretro": {
+        "emux chip8": {
+            "name": "Emux CHIP-8",
+            "core": "emux_chip8_libretro.so",
+            "bios_required": 0
+        },
+        "jaxe": {
+            "name": "JAXE",
+            "core": "jaxe_libretro.so",
+            "bios_required": 0
+        }
+    },
+    "extra": 1
+}

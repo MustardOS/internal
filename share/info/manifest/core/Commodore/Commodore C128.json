@@ -1,0 +1,18 @@
+{
+    "catalogue": "Commodore C128",
+    "lookup": 0,
+    "default": "vice x128",
+    "friendly": [
+        "commodorec128",
+        "commodore128",
+        "c128"
+    ],
+    "bios": [],
+    "libretro": {
+        "vice x128": {
+            "name": "VICE x128",
+            "core": "vice_x128_libretro.so"
+        }
+    },
+    "extra": 1
+}

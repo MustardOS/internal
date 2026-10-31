@@ -1,0 +1,17 @@
+{
+  "generated": 1793402038,
+  "content": {
+    "4f6ab49745fa06590042fc4ecdc5666f": {
+      "name": "Legend of Oasis, The (USA)",
+      "system": "Sega Saturn",
+      "cores": {
+        "yabadabadoo": {
+          "description": "Sprites only draw when the VDP1 frame change happens at the end of VBlank, otherwise the game shows a black screen.",
+          "options": {
+            "yabadabadoo_vdp1_frame_change": "vblank_end"
+          }
+        }
+      }
+    }
+  }
+}

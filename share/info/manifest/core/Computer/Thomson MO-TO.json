@@ -1,0 +1,19 @@
+{
+    "catalogue": "Thomson MO-TO",
+    "lookup": 0,
+    "default": "theodore",
+    "friendly": [
+        "thomsonmoto",
+        "thomson",
+        "theodore"
+    ],
+    "bios": [],
+    "libretro": {
+        "theodore": {
+            "name": "Theodore",
+            "core": "theodore_libretro.so",
+            "bios_required": 0
+        }
+    },
+    "extra": 1
+}

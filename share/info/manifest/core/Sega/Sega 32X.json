@@ -1,0 +1,21 @@
+{
+    "catalogue": "Sega 32X",
+    "lookup": 0,
+    "default": "picodrive",
+    "friendly": [
+        "thirtytwox",
+        "sega32x",
+        "sega32",
+        "s32x",
+        "md32x",
+        "gen32x",
+        "32x"
+    ],
+    "bios": [],
+    "libretro": {
+        "picodrive": {
+            "name": "PicoDrive",
+            "core": "picodrive_libretro.so"
+        }
+    }
+}

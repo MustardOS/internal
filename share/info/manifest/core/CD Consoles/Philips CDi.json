@@ -1,0 +1,32 @@
+{
+    "catalogue": "Philips CDi",
+    "lookup": 0,
+    "default": "same cdi",
+    "governor": "extreme",
+    "friendly": [
+        "philipscdi",
+        "cdi"
+    ],
+    "bios": [
+        {
+            "file": "same_cdi/bios/cdibios.zip",
+            "hash": ""
+        },
+        {
+            "file": "same_cdi/bios/cdimono1.zip",
+            "hash": ""
+        },
+        {
+            "file": "same_cdi/bios/cdimono2.zip",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "same cdi": {
+            "name": "SAME CDi",
+            "core": "same_cdi_libretro.so",
+            "bios_required": 1
+        }
+    },
+    "extra": 1
+}

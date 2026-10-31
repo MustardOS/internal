@@ -1,0 +1,23 @@
+{
+    "catalogue": "Amstrad",
+    "lookup": 0,
+    "default": "cpc gx4000 caprice",
+    "friendly": [
+        "amstrad",
+        "amstradcpc",
+        "cpc"
+    ],
+    "bios": [],
+    "libretro": {
+        "cpc crocods": {
+            "name": "CPC CrocoDS",
+            "core": "crocods_libretro.so",
+            "bios_required": 0
+        },
+        "cpc gx4000 caprice": {
+            "name": "CPC GX4000 Caprice",
+            "core": "cap32_libretro.so",
+            "bios_required": 0
+        }
+    }
+}

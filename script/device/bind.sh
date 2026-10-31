@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . /opt/muos/script/var/log.sh
+. /opt/muos/script/var/manifest.sh
 
 PRIORITY_LOCS="application bios init info/manifest info/track music pickles save theme wasabi"
 STANDARD_LOCS="info/catalogue info/name info/launch info/collection info/history info/override network profile screenshot syncthing package/catalogue package/config"
@@ -167,6 +168,13 @@ FAIL_IF_ANY() {
 
 LOG_INFO "$0" 0 "BIND MOUNT" "Mounting PRIORITY paths"
 MOUNT_STORAGE "$PRIORITY_LOCS" "PRIORITY"
+
+for CM_OLD in "$MUOS_STORE_DIR/info/manifest/core.json" "$CORE_MANIFEST_USER"/*.json; do
+	[ -f "$CM_OLD" ] || continue
+	LOG_INFO "$0" 0 "BIND MOUNT" "Moving older core definitions into namespace folders"
+	CORE_MANIFEST_MIGRATE
+	break
+done
 
 ASSIGN_FILE="$MUOS_STORE_DIR/info/manifest/assign.json"
 if [ ! -s "$ASSIGN_FILE" ]; then

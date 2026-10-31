@@ -10,9 +10,18 @@
     const askAlternate = el("ask-alternate");
     const askInput = el("ask-input");
     const askSelect = el("ask-select");
+    const askCancel = el("ask-cancel");
     let asking = null;
+    let actionButtons = [];
 
-    function ask({title, message, confirm, danger, input, choices, alternate}) {
+    function clearActions() {
+        actionButtons.forEach((button) => button.remove());
+        actionButtons = [];
+        askConfirm.hidden = false;
+        askCancel.hidden = false;
+    }
+
+    function ask({title, message, confirm, danger, input, choices, alternate, actions}) {
         if (asking) closeAsk(false);
 
         askTitle.textContent = title;
@@ -21,6 +30,21 @@
         askConfirm.classList.toggle("danger", Boolean(danger));
         askAlternate.textContent = alternate || "";
         askAlternate.hidden = !alternate;
+
+        clearActions();
+        if (actions && actions.length) {
+            askConfirm.hidden = true;
+            askCancel.hidden = true;
+            actionButtons = actions.map((action) => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = action.danger ? "link danger" : "link";
+                button.textContent = action.label;
+                button.addEventListener("click", () => closeAsk(action.value));
+                askConfirm.before(button);
+                return button;
+            });
+        }
 
         const field = input ? askInput : choices ? askSelect : null;
         askInput.hidden = !input;
@@ -43,6 +67,8 @@
         if (field) {
             field.focus();
             if (input) askInput.select();
+        } else if (actionButtons.length) {
+            actionButtons[0].focus();
         } else {
             askConfirm.focus();
         }
@@ -58,6 +84,7 @@
         const {settle, restore, field} = asking;
         asking = null;
         askBox.hidden = true;
+        clearActions();
         restore();
         if (answer === "alternate" || !field) settle(answer);
         else settle(answer ? field.value : null);
@@ -71,7 +98,7 @@
             event.preventDefault();
             closeAsk(true);
         });
-        el("ask-cancel").addEventListener("click", () => closeAsk(false));
+        askCancel.addEventListener("click", () => closeAsk(false));
         askAlternate.addEventListener("click", () => closeAsk("alternate"));
         askBox.addEventListener("click", (event) => {
             if (event.target === askBox) closeAsk(false);

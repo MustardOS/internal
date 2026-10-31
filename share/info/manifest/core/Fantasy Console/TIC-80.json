@@ -1,0 +1,16 @@
+{
+    "catalogue": "TIC-80",
+    "lookup": 0,
+    "default": "tic-80",
+    "friendly": [
+        "tic80",
+        "t80"
+    ],
+    "bios": [],
+    "libretro": {
+        "tic-80": {
+            "name": "TIC-80",
+            "core": "tic80_libretro.so"
+        }
+    }
+}

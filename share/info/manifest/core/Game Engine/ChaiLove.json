@@ -1,0 +1,16 @@
+{
+    "catalogue": "ChaiLove",
+    "lookup": 0,
+    "default": "chailove",
+    "friendly": [
+        "chailove"
+    ],
+    "bios": [],
+    "libretro": {
+        "chailove": {
+            "name": "ChaiLove",
+            "core": "chailove_libretro.so",
+            "bios_required": 0
+        }
+    }
+}

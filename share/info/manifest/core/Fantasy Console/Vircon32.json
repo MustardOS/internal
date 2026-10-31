@@ -1,0 +1,20 @@
+{
+    "catalogue": "Vircon32",
+    "lookup": 0,
+    "default": "vircon32",
+    "friendly": [
+        "vircon32"
+    ],
+    "bios": [
+        {
+            "file": "Vircon32Bios.v32",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "vircon32": {
+            "name": "Vircon32",
+            "core": "vircon32_libretro.so"
+        }
+    }
+}

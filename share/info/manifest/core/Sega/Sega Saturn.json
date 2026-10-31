@@ -1,0 +1,63 @@
+{
+    "catalogue": "Sega Saturn",
+    "lookup": 0,
+    "default": "yabadabadoo",
+    "governor": "extreme",
+    "friendly": [
+        "ss",
+        "segasaturn",
+        "segasat",
+        "saturn",
+        "satourne",
+        "sat"
+    ],
+    "bios": [
+        {
+            "file": "saturn_bios.bin",
+            "hash": "af5828fdff51384f99b3c4926be27762"
+        },
+        {
+            "file": "sega_101.bin",
+            "hash": "85ec9ca47d8f6807718151cbcca8b964"
+        },
+        {
+            "file": "mpr-17933.bin",
+            "hash": "3240872c70984b6cbfda1586cab68dbe"
+        }
+    ],
+    "libretro": {
+        "beetle saturn": {
+            "name": "Beetle Saturn",
+            "core": "mednafen_saturn_libretro.so",
+            "extra": 1
+        },
+        "yabadabadoo": {
+            "name": "Yabadabadoo",
+            "core": "yabadabadoo_libretro.so",
+            "extra": 0,
+            "governor": "extreme"
+        },
+        "yabasanshiro": {
+            "name": "YabaSanshiro",
+            "core": "yabasanshiro_libretro.so",
+            "extra": 1
+        },
+        "yabause": {
+            "name": "Yabause",
+            "core": "yabause_libretro.so",
+            "extra": 1
+        }
+    },
+    "external": {
+        "yabasanshiro": {
+            "name": "YabaSanshiro",
+            "core": "ext-yabasanshiro-bios",
+            "launcher": "yabasanshiro.sh"
+        },
+        "yabasanshiro - standalone - hle": {
+            "name": "YabaSanshiro - Standalone - HLE",
+            "core": "ext-yabasanshiro-hle",
+            "launcher": "yabasanshiro.sh"
+        }
+    }
+}

@@ -1,0 +1,86 @@
+{
+    "catalogue": "Commodore Amiga",
+    "lookup": 0,
+    "default": "puae 2021",
+    "friendly": [
+        "commodoreamiga",
+        "amiga500",
+        "amiga"
+    ],
+    "bios": [
+        {
+            "file": "kick33180.A500",
+            "hash": "85ad74194e87c08904327de1a9443b7a"
+        },
+        {
+            "file": "kick34005.A500",
+            "hash": "82a21c1890cae844b3df741f2762d48d"
+        },
+        {
+            "file": "kick37175.A500",
+            "hash": "dc10d7bdd1b6f450773dfb558477c230"
+        },
+        {
+            "file": "kick37350.A600",
+            "hash": "465646c9b6729f77eea5314d1f057951"
+        },
+        {
+            "file": "kick40063.A600",
+            "hash": "e40a5dfb3d017ba8779faba30cbd1c8e"
+        },
+        {
+            "file": "kick39106.A1200",
+            "hash": "b7cc148386aa631136f510cd29e42fc3"
+        },
+        {
+            "file": "kick40068.A1200",
+            "hash": "646773759326fbac3b2311fd8c8793ee"
+        },
+        {
+            "file": "kick39106.A4000",
+            "hash": "9b8bdd5a3fd32c2a5a6f5b1aefc799a5"
+        },
+        {
+            "file": "kick40068.A4000",
+            "hash": "9bdedde6a4f33555b4a270c8ca53297d"
+        },
+        {
+            "file": "kick34005.CDTV",
+            "hash": "89da1838a24460e4b93f4f0c5d92d48d"
+        },
+        {
+            "file": "kick40060.CD32",
+            "hash": "5f8924d013dd57a89cf349f4cdedc6b1"
+        },
+        {
+            "file": "kick40060.CD32.ext",
+            "hash": "bb72565701b1b6faece07d68ea5da639"
+        },
+        {
+            "file": "kick40060.CD32",
+            "hash": "f2f241bf094168cfb9e7805dc2856433"
+        }
+    ],
+    "libretro": {
+        "puae": {
+            "name": "PUAE",
+            "core": "puae_libretro.so",
+            "bios_required": 1
+        },
+        "puae 2021": {
+            "name": "PUAE 2021",
+            "core": "puae2021_libretro.so",
+            "bios_required": 1
+        },
+        "puae xtreme": {
+            "name": "PUAE Xtreme",
+            "core": "km_puae_xtreme_amped_2k24_libretro.so",
+            "bios_required": 1
+        },
+        "uae4arm": {
+            "name": "UAE4ARM",
+            "core": "uae4arm_libretro.so",
+            "bios_required": 1
+        }
+    }
+}

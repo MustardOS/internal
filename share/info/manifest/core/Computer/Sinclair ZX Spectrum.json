@@ -1,0 +1,17 @@
+{
+    "catalogue": "Sinclair ZX Spectrum",
+    "lookup": 0,
+    "default": "fuse",
+    "friendly": [
+        "zxs",
+        "spectrum"
+    ],
+    "bios": [],
+    "libretro": {
+        "fuse": {
+            "name": "Fuse",
+            "core": "fuse_libretro.so"
+        }
+    },
+    "extra": 1
+}

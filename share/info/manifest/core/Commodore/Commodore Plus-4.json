@@ -1,0 +1,18 @@
+{
+    "catalogue": "Commodore Plus-4",
+    "lookup": 0,
+    "default": "vice xplus4",
+    "friendly": [
+        "commodoreplus4",
+        "plus4"
+    ],
+    "bios": [],
+    "libretro": {
+        "vice xplus4": {
+            "name": "VICE xplus4",
+            "core": "vice_xplus4_libretro.so",
+            "bios_required": 0
+        }
+    },
+    "extra": 1
+}

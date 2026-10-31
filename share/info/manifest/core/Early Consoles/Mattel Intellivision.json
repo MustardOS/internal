@@ -1,0 +1,28 @@
+{
+    "catalogue": "Mattel Intellivision",
+    "lookup": 0,
+    "default": "freeintv",
+    "friendly": [
+        "mattelintellivision",
+        "intellivision",
+        "intv"
+    ],
+    "bios": [
+        {
+            "file": "exec.bin",
+            "hash": "62e761035cb657903761800f4437b8af"
+        },
+        {
+            "file": "grom.bin",
+            "hash": "0cd5946c6473e42e8e4c2137785e427f"
+        }
+    ],
+    "libretro": {
+        "freeintv": {
+            "name": "FreeIntv",
+            "core": "freeintv_libretro.so",
+            "bios_required": 1
+        }
+    },
+    "extra": 1
+}

@@ -1,0 +1,55 @@
+{
+    "catalogue": "Sega Dreamcast",
+    "lookup": 0,
+    "default": "flycast vl",
+    "governor": "extreme",
+    "friendly": [
+        "segadreamcast",
+        "segadc",
+        "sdc",
+        "redream",
+        "flycast",
+        "dreamcast",
+        "dc"
+    ],
+    "bios": [
+        {
+            "file": "dc/dc_boot.bin",
+            "hash": "e10c53c2f8b90bab96ead2d368858623"
+        },
+        {
+            "file": "dc/dc_flash.bin",
+            "hash": "0a93f7940c455905bea6e392dfde92a4"
+        }
+    ],
+    "libretro": {
+        "flycast": {
+            "name": "Flycast",
+            "core": "flycast_libretro.so"
+        },
+        "flycast vl": {
+            "name": "Flycast VL",
+            "core": "flycastvl_libretro.so"
+        },
+        "flycast xtreme": {
+            "name": "Flycast Xtreme",
+            "core": "flycast-xtreme_libretro.so"
+        },
+        "morpheuscast": {
+            "name": "Morpheuscast",
+            "core": "morpheuscast_libretro.so"
+        },
+        "morpheuscast xtreme": {
+            "name": "MorpheusCast Xtreme",
+            "core": "km_morpheuscast_xtreme_libretro.so",
+            "bios_required": 0
+        }
+    },
+    "external": {
+        "flycast": {
+            "name": "Flycast",
+            "core": "ext-flycast",
+            "launcher": "flycast.sh"
+        }
+    }
+}

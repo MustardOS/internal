@@ -1,0 +1,55 @@
+{
+    "catalogue": "Nintendo Game Boy Color",
+    "lookup": 0,
+    "default": "gambatte",
+    "friendly": [
+        "nintendogbc",
+        "nintendogameboycolor",
+        "ningbc",
+        "ngbc",
+        "gbcolor",
+        "gbchacks",
+        "gbc",
+        "bgb",
+        "gameboycolor"
+    ],
+    "bios": [],
+    "libretro": {
+        "doublecherrygb": {
+            "name": "DoubleCherryGB",
+            "core": "DoubleCherryGB_libretro.so",
+            "extra": 1
+        },
+        "fixgb": {
+            "name": "FixGB",
+            "core": "fixgb_libretro.so",
+            "extra": 1
+        },
+        "gambatte": {
+            "name": "Gambatte",
+            "core": "gambatte_libretro.so"
+        },
+        "gearboy": {
+            "name": "Gearboy",
+            "core": "gearboy_libretro.so"
+        },
+        "mgba": {
+            "name": "mGBA",
+            "core": "mgba_libretro.so"
+        },
+        "sameboy": {
+            "name": "SameBoy",
+            "core": "sameboy_libretro.so"
+        },
+        "tgb dual": {
+            "name": "TGB Dual",
+            "core": "tgbdual_libretro.so",
+            "extra": 1
+        },
+        "vba-m": {
+            "name": "VBA-M",
+            "core": "vbam_libretro.so",
+            "extra": 1
+        }
+    }
+}

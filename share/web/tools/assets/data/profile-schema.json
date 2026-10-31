@@ -808,6 +808,27 @@
       ]
     },
     {
+      "key": "settings/advanced/optimised",
+      "group": "advanced",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 1,
+      "label": "Optimised Profiles",
+      "module": "muxtweakadv",
+      "help": "Applies community tested Pickles settings and core options to games known to need them, such as a core option that stops a game showing a black screen.\n\nGames are matched by their RetroAchievements hash, and the list is refreshed from the MustardOS extra repository when a network is available. Anything you change yourself always takes priority.",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ]
+    },
+    {
       "key": "settings/advanced/overdrive",
       "group": "advanced",
       "type": "int",

@@ -1,0 +1,23 @@
+{
+    "catalogue": "Book Reader",
+    "lookup": 0,
+    "default": "mreader landscape",
+    "runtime": "external",
+    "friendly": [
+        "books",
+        "book"
+    ],
+    "bios": [],
+    "external": {
+        "mreader landscape": {
+            "name": "mReader Landscape",
+            "core": "ext-mreader-landscape",
+            "launcher": "mreader.sh"
+        },
+        "mreader portrait": {
+            "name": "mReader Portrait",
+            "core": "ext-mreader-portrait",
+            "launcher": "mreader.sh"
+        }
+    }
+}

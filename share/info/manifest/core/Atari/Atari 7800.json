@@ -1,0 +1,24 @@
+{
+    "catalogue": "Atari 7800",
+    "lookup": 0,
+    "default": "prosystem",
+    "friendly": [
+        "seventyeighthundred",
+        "atari7800",
+        "a7800",
+        "7800"
+    ],
+    "bios": [
+        {
+            "file": "7800 BIOS (U).rom",
+            "hash": "0763f1ffb006ddbe32e52d497ee848ae"
+        }
+    ],
+    "libretro": {
+        "prosystem": {
+            "name": "ProSystem",
+            "core": "prosystem_libretro.so",
+            "bios_required": 0
+        }
+    }
+}

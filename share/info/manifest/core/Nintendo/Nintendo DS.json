@@ -1,0 +1,60 @@
+{
+    "catalogue": "Nintendo DS",
+    "lookup": 0,
+    "default": "drastic - standalone",
+    "runtime": "external",
+    "governor": "extreme",
+    "friendly": [
+        "nintendonintendodsi",
+        "nintendodsi",
+        "nintendods",
+        "ninds",
+        "nds",
+        "dsi",
+        "ds"
+    ],
+    "bios": [
+        {
+            "file": "bios7.bin",
+            "hash": "df692a80a5b1bc90728bc3dfc76cd948"
+        },
+        {
+            "file": "bios9.bin",
+            "hash": "a392174eb3e572fed6447e956bde4b25"
+        },
+        {
+            "file": "firmware.bin",
+            "hash": ""
+        }
+    ],
+    "libretro": {
+        "desmume 2015": {
+            "name": "DeSmuME 2015",
+            "core": "desmume2015_libretro.so",
+            "extra": 1
+        },
+        "melonds": {
+            "name": "melonDS",
+            "core": "melonds_libretro.so",
+            "extra": 1
+        },
+        "melonds-ds": {
+            "name": "melonDS-DS",
+            "core": "melondsds_libretro.so",
+            "extra": 1
+        }
+    },
+    "external": {
+        "drastic - standalone": {
+            "name": "Drastic - Standalone",
+            "core": "ext-drastic",
+            "launcher": "drastic.sh"
+        },
+        "drastic legacy - standalone": {
+            "name": "Drastic Legacy - Standalone",
+            "core": "ext-drastic-legacy",
+            "launcher": "drastic-legacy.sh",
+            "extra": 1
+        }
+    }
+}

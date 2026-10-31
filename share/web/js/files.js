@@ -865,9 +865,89 @@
         }
     }
 
+    async function existingUploads(files) {
+        const folders = new Map();
+        files.forEach((file) => {
+            const relative = uploadPath(file);
+            const folder = parentOf(relative);
+            if (!folders.has(folder)) folders.set(folder, []);
+            folders.get(folder).push(relative);
+        });
+
+        const existing = new Set();
+        for (const [folder, relatives] of folders) {
+            let listed = items;
+            if (folder) {
+                try {
+                    listed = (await api(endpoint("browse", join(path, folder)))).items || [];
+                } catch (_) {
+                    continue;
+                }
+            }
+            const names = new Set(listed.filter((item) => !item.directory).map((item) => item.name));
+            relatives.forEach((relative) => {
+                if (names.has(relative.slice(relative.lastIndexOf("/") + 1))) existing.add(relative);
+            });
+        }
+        return existing;
+    }
+
+    async function chooseReplacements(files) {
+        const existing = await existingUploads(files);
+        if (!existing.size) return files;
+
+        const clashes = files.filter((file) => existing.has(uploadPath(file)));
+        const skipped = new Set();
+        let every = null;
+        for (let index = 0; index < clashes.length; index++) {
+            const relative = uploadPath(clashes[index]);
+            let answer = every;
+            if (!answer) {
+                const remaining = clashes.length - index - 1;
+                answer = await ask({
+                    title: t("Replace %s?", relative),
+                    message: remaining > 1 ? t("A file with this name already exists. %s more files being uploaded also already exist.", remaining)
+                        : remaining ? t("A file with this name already exists. One more file being uploaded also already exists.")
+                            : t("A file with this name already exists."),
+                    actions: [
+                        {value: "skip", label: t("Skip")},
+                        {value: "skip-all", label: t("Skip All")},
+                        {value: "replace-all", label: t("Replace All"), danger: true},
+                        {value: "replace", label: t("Replace"), danger: true}
+                    ]
+                });
+                if (!answer) return null;
+                if (answer === "skip-all" || answer === "replace-all") {
+                    every = answer === "skip-all" ? "skip" : "replace";
+                    answer = every;
+                }
+            }
+            if (answer === "skip") skipped.add(relative);
+        }
+        return files.filter((file) => !skipped.has(uploadPath(file)));
+    }
+
     async function upload(files) {
         if (!current || uploading || !files.length || !await confirmProtected()) return;
         uploading = true;
+        let chosen;
+        try {
+            chosen = await chooseReplacements(files);
+        } catch (error) {
+            uploading = false;
+            showToast(error.message, "bad");
+            return;
+        }
+        if (!chosen) {
+            uploading = false;
+            return;
+        }
+        if (!chosen.length) {
+            uploading = false;
+            showToast(t("No files were uploaded"), "good");
+            return;
+        }
+        files = chosen;
         render();
         queue.replaceChildren();
         let completed = 0;

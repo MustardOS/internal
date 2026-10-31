@@ -1,0 +1,17 @@
+{
+    "catalogue": "BennuGD",
+    "lookup": 0,
+    "default": "bennugd",
+    "friendly": [
+        "bennugd",
+        "BennuGD"
+    ],
+    "bios": [],
+    "libretro": {
+        "bennugd": {
+            "name": "BennuGD",
+            "core": "bennugd_libretro.so"
+        }
+    },
+    "extra": 1
+}

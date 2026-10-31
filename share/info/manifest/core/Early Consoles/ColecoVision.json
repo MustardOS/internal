@@ -1,0 +1,27 @@
+{
+    "catalogue": "ColecoVision",
+    "lookup": 0,
+    "default": "gearcoleco",
+    "friendly": [
+        "colecovision",
+        "coleco"
+    ],
+    "bios": [
+        {
+            "file": "colecovision.rom",
+            "hash": "2c66f5911e5b42b8ebe113403548eee7"
+        }
+    ],
+    "libretro": {
+        "bluemsx": {
+            "name": "blueMSX",
+            "core": "bluemsx_libretro.so",
+            "bios_required": 1
+        },
+        "gearcoleco": {
+            "name": "Gearcoleco",
+            "core": "gearcoleco_libretro.so",
+            "bios_required": 1
+        }
+    }
+}

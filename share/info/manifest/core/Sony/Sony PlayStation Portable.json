@@ -1,0 +1,29 @@
+{
+    "catalogue": "Sony PlayStation Portable",
+    "lookup": 0,
+    "default": "ppsspp",
+    "runtime": "external",
+    "governor": "extreme",
+    "friendly": [
+        "sonypsp",
+        "sonyplaystationportable",
+        "psp",
+        "ppsspp",
+        "playstationportable"
+    ],
+    "bios": [],
+    "libretro": {
+        "ppsspp": {
+            "name": "PPSSPP",
+            "core": "ppsspp_libretro.so"
+        }
+    },
+    "external": {
+        "ppsspp": {
+            "name": "PPSSPP",
+            "core": "ext-ppsspp",
+            "launcher": "ppsspp.sh",
+            "control": "modern"
+        }
+    }
+}

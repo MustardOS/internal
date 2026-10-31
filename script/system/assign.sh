@@ -1,8 +1,8 @@
 #!/bin/sh
 
 . /opt/muos/script/var/config.sh
+. /opt/muos/script/var/manifest.sh
 
-BUNDLED_MANIFEST_DIR="$MUOS_SHARE_DIR/info/manifest"
 USER_MANIFEST_DIR="$MUOS_STORE_DIR/info/manifest"
 
 OUTPUT_FILE="$USER_MANIFEST_DIR/assign.json"
@@ -52,22 +52,16 @@ fi
 
 jq -r 'keys[]' "$TMP_BASE" >"$TMP_KEYS"
 
-MANIFEST_FILE=""
-if [ -r "$USER_MANIFEST_DIR/core.json" ] && jq -e 'type == "object"' "$USER_MANIFEST_DIR/core.json" >/dev/null 2>&1; then
-	MANIFEST_FILE="$USER_MANIFEST_DIR/core.json"
-elif [ -r "$BUNDLED_MANIFEST_DIR/core.json" ] && jq -e 'type == "object"' "$BUNDLED_MANIFEST_DIR/core.json" >/dev/null 2>&1; then
-	MANIFEST_FILE="$BUNDLED_MANIFEST_DIR/core.json"
-fi
-
-if [ -z "$MANIFEST_FILE" ]; then
-	printf "No core definitions found in %s\n" "$BUNDLED_MANIFEST_DIR" >&2
+TMP_MANIFEST="$ASSIGN_WORK/core.json"
+if ! CORE_MANIFEST_MERGED >"$TMP_MANIFEST"; then
+	printf "No core definitions found in %s\n" "$CORE_MANIFEST_DIR" >&2
 	exit 1
 fi
 
 jq -r '
 	[ to_entries[] | . as $e | ($e.value.friendly // [])[] | "\(.)\t\($e.key)" ]
 	| unique[]
-' "$MANIFEST_FILE" >"$TMP_LIST"
+' "$TMP_MANIFEST" >"$TMP_LIST"
 
 set --
 while IFS="$(printf '\t')" read -r KEY SYSTEM || [ -n "$KEY" ]; do

@@ -1,0 +1,37 @@
+{
+    "catalogue": "Media Player",
+    "lookup": 0,
+    "default": "wasabi",
+    "runtime": "external",
+    "friendly": [
+        "video",
+        "videos",
+        "music",
+        "sound",
+        "media",
+        "audio",
+        "movies",
+        "movie",
+        "iptv"
+    ],
+    "bios": [],
+    "external": {
+        "wasabi": {
+            "name": "Wasabi",
+            "core": "ext-video",
+            "launcher": "video.sh"
+        },
+        "ffplay": {
+            "name": "FFPlay",
+            "core": "ext-ffplay",
+            "launcher": "ffplay.sh",
+            "extra": 1
+        },
+        "mpv": {
+            "name": "MPV",
+            "core": "ext-mpv-general",
+            "launcher": "mpv.sh",
+            "extra": 1
+        }
+    }
+}

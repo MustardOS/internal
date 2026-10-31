@@ -1,0 +1,25 @@
+{
+    "catalogue": "Nintendo Pokemon Mini",
+    "lookup": 0,
+    "default": "pokemini",
+    "friendly": [
+        "pokemonmini",
+        "pokemini",
+        "poke",
+        "nintendopokemonmini",
+        "nintendopokemini"
+    ],
+    "bios": [
+        {
+            "file": "bios.min",
+            "hash": "1e4fb124a3a886865acb574f388c803d"
+        }
+    ],
+    "libretro": {
+        "pokemini": {
+            "name": "PokeMini",
+            "core": "pokemini_libretro.so",
+            "bios_required": 0
+        }
+    }
+}

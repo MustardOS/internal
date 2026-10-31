@@ -9,7 +9,7 @@ About.__index = About
 local CREDITS = {
     { "Font", "Atkinson Hyperlegible by the Braille Institute, SIL Open Font License" },
     { "Game engine", "LÖVE 11.5, zlib license" },
-    { "Handheld runtime", "By saitamasahil, MIT license" },
+    { "muOS runtime", "By saitamasahil, MIT license" },
     { "Dancing Links", "Donald Knuth's Algorithm X" },
     { "Theme colors", "Solarized by Ethan Schoonover, Nord by Arctic Ice Studio, Gruvbox by Pavel Pertsev" },
 }

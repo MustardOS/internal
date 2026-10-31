@@ -10,7 +10,7 @@ local Game = require("src.game")
 local packs = require("src.packs")
 local sudoku = require("src.sudoku")
 
-local VERSION = "1.2.2"
+local VERSION = "1.2.3"
 
 local SCENES = {
     title = require("src.scenes.title"),

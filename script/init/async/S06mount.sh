@@ -1,6 +1,7 @@
 #!/bin/sh
 
 [ -n "$MUOS_LOG_LOADED" ] || . /opt/muos/script/var/log.sh
+[ -n "$MUOS_THEME_LOADED" ] || . /opt/muos/script/var/theme.sh
 
 FACTORY_RESET=$(GET_VAR "config" "boot/factory_reset")
 [ "$FACTORY_RESET" -eq 1 ] && exit 0
@@ -66,6 +67,14 @@ DO_START() {
 			fi
 			SET_VAR "device" "storage/boot/active" "1"
 			SET_VAR "device" "storage/boot/label" "$(blkid -o value -s LABEL "/dev/$DEVICE")"
+
+			# U-Boot's Vita Pro logo still comes from its resource partition.
+			# Once Linux has mounted BOOT, redraw the themed copy as a single
+			# frame before the frontend claims the display.
+			if [ "$BOARD_NAME" = rg-vita-pro ] && [ -f "$BOOT_MOUNT/bootlogo.bmp" ]; then
+				SHOW_SPLASH content "" 0 "$BOOT_MOUNT/bootlogo.bmp" 0 0 0 ||
+					LOG_WARN "$0" 0 "BOOTING" "BOOT partition logo splash could not be shown"
+			fi
 		fi
 	) &
 

@@ -3830,18 +3830,18 @@
 			vci-gpios = <0x63 0x08 0x00>;
 			pinctrl-names = "default";
 			pinctrl-0 = <0xd4 0xd5 0xd6>;
-			prepare-delay-ms = <0x78>;
-			reset-delay-ms = <0x0a>;
-			init-delay-ms = <0xdc>;
-			enable-delay-ms = <0x00>;
+			prepare-delay-ms = <0x32>;
+			reset-delay-ms = <0xdc>;
+			init-delay-ms = <0x32>;
+			enable-delay-ms = <0x78>;
 			disable-delay-ms = <0x32>;
 			unprepare-delay-ms = <0x14>;
 			width-mm = <0xe5>;
 			height-mm = <0x8f>;
-			dsi,flags = <0xa03>;
+			dsi,flags = <0xe03>;
 			dsi,format = <0x00>;
 			dsi,lanes = <0x04>;
-			panel-init-sequence = <0x5320111 0x5320129>;
+			panel-init-sequence = <0x5000129 0x5780111>;
 			panel-exit-sequence = <0x5780128 0x5780110>;
 			phandle = <0x23a>;
 
@@ -3850,13 +3850,13 @@
 				phandle = <0x23b>;
 
 				timing0 {
-					clock-frequency = <0x858b030>;
+					clock-frequency = <0x90f5600>;
 					hactive = <0x438>;
 					vactive = <0x780>;
 					hsync-len = <0x04>;
-					hback-porch = <0x32>;
-					hfront-porch = <0x32>;
-					vsync-len = <0x04>;
+					hback-porch = <0x64>;
+					hfront-porch = <0x64>;
+					vsync-len = <0x05>;
 					vback-porch = <0x20>;
 					vfront-porch = <0x0f>;
 					hsync-active = <0x00>;

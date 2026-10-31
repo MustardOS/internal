@@ -58,7 +58,7 @@ if IS_ONE "$AUDIO_READY"; then
 fi
 
 case "$BOARD_NAME" in
-	tui*)
+	rg-vita-pro | tui*)
 		/opt/muos/script/init/S80pipewire.sh prime ||
 			LOG_WARN "$0" 0 "FRONTEND" "Audio output priming did not complete"
 		;;

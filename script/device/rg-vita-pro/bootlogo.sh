@@ -7,8 +7,8 @@ LOGO_ROTATE=270
 LOGO_ENTRIES="logo.bmp logo_kernel.bmp"
 LOGO_TMP="/tmp/vita_bootlogo_$$.bmp"
 
-BOOT_MOUNT=$(GET_VAR "device" "storage/boot/mount")
-BACKUP="$BOOT_MOUNT/resource.orig.img"
+ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
+BACKUP="$ROM_MOUNT/MUOS/backup/rg-vita-pro-resource.orig.img"
 
 RESOURCE_DEVICE() {
 	ROOT_DEV=$(sed -n 's/.*root=\([^ ]*\).*/\1/p' /proc/cmdline)
@@ -90,10 +90,20 @@ APPLY() {
 	[ -n "$SCREEN_W" ] && [ -n "$SCREEN_H" ] || return 1
 
 	magick "${SRC}[0]" -resize "${SCREEN_W}x${SCREEN_H}!" -rotate "$LOGO_ROTATE" \
-		-alpha off -type TrueColor BMP3:"$LOGO_TMP" || {
+		-alpha off -type TrueColor -define bmp:format=bmp3 BMP3:"$LOGO_TMP" || {
 		LOG_ERROR "$0" 0 "BOOTLOGO" "Unable to convert the boot logo"
 		return 1
 	}
+
+	# Rockchip U-Boot reliably accepts the compact Windows 3.x 24-bit form.
+	# A 32-bit V4 bitmap is also too large for the second logo slot on this
+	# 16 MiB resource partition and would be silently truncated by dd.
+	LOGO_BPP=$(dd if="$LOGO_TMP" bs=1 skip=28 count=2 2>/dev/null | od -An -tu2 | tr -d ' ')
+	if [ "$(dd if="$LOGO_TMP" bs=1 count=2 2>/dev/null)" != "BM" ] || [ "$LOGO_BPP" -ne 24 ]; then
+		LOG_ERROR "$0" 0 "BOOTLOGO" "Converted boot logo is not a 24-bit BMP"
+		rm -f "$LOGO_TMP"
+		return 1
+	fi
 
 	LOGO_SIZE=$(wc -c <"$LOGO_TMP")
 	PART_BLOCKS=$(cat "/sys/class/block/$(basename "$DEV")/size")
@@ -131,6 +141,11 @@ APPLY() {
 	done
 
 	if [ ! -f "$BACKUP" ]; then
+		mkdir -p "${BACKUP%/*}" || {
+			LOG_ERROR "$0" 0 "BOOTLOGO" "Unable to create the resource backup directory"
+			rm -f "$LOGO_TMP"
+			return 1
+		}
 		dd if="$DEV" of="$BACKUP" bs=1M 2>/dev/null || {
 			LOG_ERROR "$0" 0 "BOOTLOGO" "Unable to save the original resource partition"
 			rm -f "$BACKUP" "$LOGO_TMP"

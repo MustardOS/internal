@@ -2,21 +2,24 @@
 
 . /opt/muos/script/var/log.sh
 
-# The kernel takes the panel over from U-Boot while it is still being shown.
-# Normalise that handover once before userspace takes ownership of the display.
-# This also recovers panels which remain black while the VOP itself continues
-# scanning out normally, a state which cannot be inferred from its IRQ count.
-# If the VOP still floods POST_BUF_EMPTY interrupts afterwards, repeat the
-# bounded reset until the display pipeline settles.
+# Observe the display handover from U-Boot without disabling the VOP. The
+# RK3576 vendor DRM driver detaches its private IOMMU domain when the VOP is
+# disabled, but can fail to reattach it before a DRM client owns the display.
+# That failure disables every plane and leaves a lit, black panel. The first
+# userspace DRM commit is therefore responsible for completing the handover.
 
 VOP_NAME="27d00000.vop"
 FB_BLANK="/sys/class/graphics/fb0/blank"
 
 SAMPLE_SECONDS=0.1
 STALL_THRESHOLD=1000
-MAX_ATTEMPTS=3
 READY_ATTEMPTS=40
 READY_DELAY=0.05
+
+TRACE() {
+	[ -w /dev/kmsg ] || return 0
+	printf '<6>muos-display: %s\n' "$*" >/dev/kmsg
+}
 
 VOP_IRQ_TOTAL() {
 	awk -v name="$VOP_NAME" '
@@ -34,7 +37,9 @@ VOP_STALLED() {
 	BEFORE=$(VOP_IRQ_TOTAL)
 	sleep "$SAMPLE_SECONDS"
 	AFTER=$(VOP_IRQ_TOTAL)
-	[ $((AFTER - BEFORE)) -gt "$STALL_THRESHOLD" ]
+	DELTA=$((AFTER - BEFORE))
+	TRACE "VOP IRQ delta over ${SAMPLE_SECONDS}s: $DELTA"
+	[ "$DELTA" -gt "$STALL_THRESHOLD" ]
 }
 
 WAIT_FOR_PANEL() {
@@ -48,48 +53,22 @@ WAIT_FOR_PANEL() {
 	return 1
 }
 
-RESET_PIPELINE() {
-	printf '%s' 4 >"$FB_BLANK" || return 1
-	sleep 0.1
-	printf '%s' 0 >"$FB_BLANK" || return 1
-	sleep 0.2
-}
-
 RECOVER() {
 	if ! WAIT_FOR_PANEL; then
-		LOG_WARN "$0" 0 "DISPLAY" "Panel framebuffer did not become ready for handover recovery"
+		TRACE "panel framebuffer did not become ready"
+		LOG_WARN "$0" 0 "DISPLAY" "Panel framebuffer did not become ready for handover observation"
 		return 0
 	fi
+	TRACE "observing panel handover"
 
-	WAS_STALLED=0
 	if VOP_STALLED; then
-		WAS_STALLED=1
-		LOG_WARN "$0" 0 "DISPLAY" "Panel output stalled during the U-Boot handover"
+		TRACE "VOP interrupt flood detected; preserving the active IOMMU mapping"
+		LOG_WARN "$0" 0 "DISPLAY" "Panel handover interrupt flood detected; deferring recovery to the first DRM client"
+	else
+		TRACE "panel handover scanout is stable"
 	fi
 
-	ATTEMPT=1
-	while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
-		if ! RESET_PIPELINE; then
-			LOG_ERROR "$0" 0 "DISPLAY" "Unable to reset the panel display pipeline"
-			return 1
-		fi
-
-		if ! VOP_STALLED; then
-			if [ "$WAS_STALLED" -eq 1 ]; then
-				LOG_INFO "$0" 0 "DISPLAY" "Panel output recovered"
-			else
-				LOG_INFO "$0" 0 "DISPLAY" "Panel handover normalised"
-			fi
-			return 0
-		fi
-
-		LOG_WARN "$0" 0 "DISPLAY" "$(printf "Panel output remains stalled, retrying display pipeline reset (attempt %s)" "$ATTEMPT")"
-		WAS_STALLED=1
-		ATTEMPT=$((ATTEMPT + 1))
-	done
-
-	LOG_ERROR "$0" 0 "DISPLAY" "Panel output still stalled after resetting display pipeline"
-	return 1
+	return 0
 }
 
 case "$1" in

@@ -449,6 +449,11 @@ DO_START() {
 	SET_VAR "device" "audio/ready" "0"
 	SET_SAVED_AUDIO_VOLUME "$(GET_BOOT_AUDIO_VOLUME)"
 
+	# Finish device-specific amplifier setup before advertising audio as ready.
+	# Some amplifiers need retries after a cold start, and the frontend chime is
+	# intentionally one-shot, so background setup can otherwise swallow it.
+	RUN_DEVICE_SCRIPT amp.sh || LOG_WARN "$0" 0 "PIPEWIRE" "Unable to initialise the device amplifier"
+
 	SETUP_SPEAKER_AMP || LOG_WARN "$0" 0 "PIPEWIRE" "Unable to initialise the speaker amplifier"
 
 	LOG_INFO "$0" 0 "PIPEWIRE" "Restoring Default Sound System"
@@ -494,6 +499,21 @@ DO_START() {
 
 DO_PRIME() {
 	case "$(GET_VAR "device" "board/name")" in
+		rg-vita-pro)
+			if ! SOCKET_READY; then
+				LOG_WARN "$0" 0 "PIPEWIRE" "Audio output priming skipped because PipeWire is unavailable"
+				exit 1
+			fi
+
+			# Keep the audio route active while the frontend opens its backend.
+			# Otherwise these digital amplifiers can discard the one-shot chime
+			# while waking, even though later interface sounds work normally.
+			PRIME_AUDIO_OUTPUT || {
+				LOG_WARN "$0" 0 "PIPEWIRE" "Audio output priming did not complete"
+				exit 1
+			}
+			exit 0
+			;;
 		tui*) ;;
 		*) exit 0 ;;
 	esac

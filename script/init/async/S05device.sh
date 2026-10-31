@@ -138,9 +138,6 @@ DO_START() {
 
 	rfkill unblock all 2>/dev/null
 
-	# Initialise amp for devices that need it
-	RUN_DEVICE_SCRIPT amp.sh &
-
 	# Set up indicator LEDs for devices that drive bare GPIOs
 	RUN_DEVICE_SCRIPT led.sh &
 

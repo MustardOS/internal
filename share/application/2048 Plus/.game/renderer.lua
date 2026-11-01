@@ -161,8 +161,10 @@ function renderer.startTextSizeTransition(old_size, new_size)
         return
     end
 
-    local w, h = love.graphics.getDimensions()
-    local scale = _G.scale or 1
+    local is_console = _G.is_console_active and _G.is_console_active()
+    local w = is_console and 640 or love.graphics.getWidth()
+    local h = is_console and 480 or love.graphics.getHeight()
+    local scale = is_console and 1.0 or (_G.scale or 1)
 
     if not text_size_old_canvas or text_size_old_canvas:getWidth() ~= w or text_size_old_canvas:getHeight() ~= h then
         text_size_old_canvas = love.graphics.newCanvas(w, h)
@@ -180,7 +182,25 @@ function renderer.startTextSizeTransition(old_size, new_size)
     -- Capture old settings text without pill into transparent canvas
     love.graphics.setCanvas(text_size_old_canvas)
     love.graphics.clear(0, 0, 0, 0)
-    renderer.drawSettingsElements(sel, w, h, scale, old_layout)
+    if is_console then
+        local real_getDims = love.graphics.getDimensions
+        local real_getW = love.graphics.getWidth
+        local real_getH = love.graphics.getHeight
+        love.graphics.getDimensions = function() return 640, 480 end
+        love.graphics.getWidth = function() return 640 end
+        love.graphics.getHeight = function() return 480 end
+        local prev_scale = _G.scale
+        _G.scale = 1.0
+
+        renderer.drawSettingsElements(sel, w, h, scale, old_layout)
+
+        _G.scale = prev_scale
+        love.graphics.getDimensions = real_getDims
+        love.graphics.getWidth = real_getW
+        love.graphics.getHeight = real_getH
+    else
+        renderer.drawSettingsElements(sel, w, h, scale, old_layout)
+    end
     love.graphics.setCanvas()
 
     text_size_transition_timer = TEXT_SIZE_TRANSITION_DURATION
@@ -200,8 +220,10 @@ function renderer.finishTextSizeTransition()
         return
     end
 
-    local w, h = love.graphics.getDimensions()
-    local scale = _G.scale or 1
+    local is_console = _G.is_console_active and _G.is_console_active()
+    local w = is_console and 640 or love.graphics.getWidth()
+    local h = is_console and 480 or love.graphics.getHeight()
+    local scale = is_console and 1.0 or (_G.scale or 1)
 
     if not text_size_new_canvas or text_size_new_canvas:getWidth() ~= w or text_size_new_canvas:getHeight() ~= h then
         text_size_new_canvas = love.graphics.newCanvas(w, h)
@@ -217,7 +239,25 @@ function renderer.finishTextSizeTransition()
 
     love.graphics.setCanvas(text_size_new_canvas)
     love.graphics.clear(0, 0, 0, 0)
-    renderer.drawSettingsElements(sel, w, h, scale, new_layout)
+    if is_console then
+        local real_getDims = love.graphics.getDimensions
+        local real_getW = love.graphics.getWidth
+        local real_getH = love.graphics.getHeight
+        love.graphics.getDimensions = function() return 640, 480 end
+        love.graphics.getWidth = function() return 640 end
+        love.graphics.getHeight = function() return 480 end
+        local prev_scale = _G.scale
+        _G.scale = 1.0
+
+        renderer.drawSettingsElements(sel, w, h, scale, new_layout)
+
+        _G.scale = prev_scale
+        love.graphics.getDimensions = real_getDims
+        love.graphics.getWidth = real_getW
+        love.graphics.getHeight = real_getH
+    else
+        renderer.drawSettingsElements(sel, w, h, scale, new_layout)
+    end
     love.graphics.setCanvas()
 
     text_size_new_canvas_ready = true
@@ -7795,8 +7835,10 @@ end
 function renderer.drawSettings(selection, skip_transition)
     renderer.clearBackground()
 
-    local w, h = love.graphics.getDimensions()
-    local scale = _G.scale or 1
+    local is_console = _G.is_console_active and _G.is_console_active()
+    local w = is_console and 640 or love.graphics.getWidth()
+    local h = is_console and 480 or love.graphics.getHeight()
+    local scale = is_console and 1.0 or (_G.scale or 1)
 
     local layout = renderer.calculateSettingsLayout(selection, w, h, scale)
     selection = layout.selection

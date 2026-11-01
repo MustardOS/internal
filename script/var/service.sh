@@ -26,7 +26,7 @@ ENSURE_REMOVED() {
 }
 
 GET_FRONTEND_PIDS() {
-	pgrep -f 'muxfrontend|frontend\.sh' 2>/dev/null
+	pgrep -f '^/opt/muos/frontend/muxfrontend( |$)|^/bin/sh /opt/muos/script/mux/frontend\.sh( |$)' 2>/dev/null
 }
 
 FRONTEND_RUNNING() {
@@ -82,6 +82,11 @@ FRONTEND() {
 			if FRONTEND_RUNNING; then
 				return 0
 			fi
+
+			# FRONTEND stop creates this marker so each running frontend shell
+			# exits instead of relaunching another module. It must not survive
+			# into the paired start operation used by FRONTEND restart.
+			rm -f "$SAFE_QUIT" 2>/dev/null
 
 			if [ -n "${2:-}" ]; then
 				setsid -f /opt/muos/script/mux/frontend.sh "$2" </dev/null >/dev/null 2>&1

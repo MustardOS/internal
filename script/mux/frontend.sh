@@ -30,6 +30,11 @@ RUN_CONTENT_LOADER() {
 	[ -s "$ACT_GO" ] || SAFE_WRITE "launcher" "$ACT_GO"
 }
 
+DEVICE_FRONTEND_START() { :; }
+DEVICE_FRONTEND_EXEC() { EXEC_MUX "$@"; }
+# shellcheck source=/dev/null
+DEVICE_FRONTEND_SCRIPT=$(DEVICE_SCRIPT frontend.sh) && . "$DEVICE_FRONTEND_SCRIPT"
+
 SKIP=0
 
 if [ -n "$1" ]; then
@@ -89,6 +94,8 @@ fi
 
 LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Launcher"
 
+DEVICE_FRONTEND_START
+
 BOOT_GUARD_CONFIRM_LATER
 WATCHDOG_START
 
@@ -140,11 +147,11 @@ while :; do
 			SET_DEFAULT_GOVERNOR
 
 			touch "/tmp/pdi_go"
-			EXEC_MUX "launcher" "muxfrontend"
+			DEVICE_FRONTEND_EXEC "launcher" "muxfrontend"
 			;;
 
 		explore)
-			EXEC_MUX "explore" "muxfrontend"
+			DEVICE_FRONTEND_EXEC "explore" "muxfrontend"
 			;;
 
 		app)
@@ -181,12 +188,12 @@ while :; do
 			LOG_INFO "$0" 0 "FRONTEND" "Resetting governor to default"
 			SET_DEFAULT_GOVERNOR
 
-			EXEC_MUX "app" "muxfrontend"
+			DEVICE_FRONTEND_EXEC "app" "muxfrontend"
 			;;
 
-		collection) EXEC_MUX "collection" "muxfrontend" ;;
-		history) EXEC_MUX "history" "muxfrontend" ;;
-		info) EXEC_MUX "info" "muxfrontend" ;;
+		collection) DEVICE_FRONTEND_EXEC "collection" "muxfrontend" ;;
+		history) DEVICE_FRONTEND_EXEC "history" "muxfrontend" ;;
+		info) DEVICE_FRONTEND_EXEC "info" "muxfrontend" ;;
 
 		credits) /opt/muos/frontend/mucredits ;;
 		terminal)
@@ -199,7 +206,7 @@ while :; do
 		*)
 			LOG_WARN "$0" 0 "FRONTEND" "Unknown action: $ACTION"
 			printf 'Unknown module: %s\n' "$ACTION" >&2
-			EXEC_MUX "$ACTION" "muxfrontend"
+			DEVICE_FRONTEND_EXEC "$ACTION" "muxfrontend"
 			;;
 	esac
 

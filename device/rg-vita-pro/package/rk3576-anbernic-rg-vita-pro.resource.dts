@@ -2354,7 +2354,6 @@
 			compatible = "synaptics,dsx-i2c";
 			reg = <0x70>;
 			synaptics,irq-gpio = <0x63 0x15 0x2008>;
-			synaptics,reset-gpio = <0x63 0x18 0x01>;
 			synaptics,reset-delay-ms = <0xc8>;
 			synaptics,reset-on-state = <0x00>;
 			synaptics,reset-active-ms = <0x14>;
@@ -3825,23 +3824,21 @@
 			compatible = "simple-panel-dsi";
 			reg = <0x00>;
 			backlight = <0xd3>;
+			power-supply = <0x579>;
 			reset-gpios = <0x63 0x0d 0x01>;
 			enable-gpios = <0x63 0x09 0x00>;
-			vci-gpios = <0x63 0x08 0x00>;
 			pinctrl-names = "default";
 			pinctrl-0 = <0xd4 0xd5 0xd6>;
-			prepare-delay-ms = <0x78>;
-			reset-delay-ms = <0x0a>;
-			init-delay-ms = <0xdc>;
-			enable-delay-ms = <0x00>;
+			prepare-delay-ms = <0x05>;
+			reset-delay-ms = <0xdc>;
+			init-delay-ms = <0x78>;
+			enable-delay-ms = <0x78>;
 			disable-delay-ms = <0x32>;
 			unprepare-delay-ms = <0x14>;
-			width-mm = <0xe5>;
-			height-mm = <0x8f>;
 			dsi,flags = <0xa03>;
 			dsi,format = <0x00>;
 			dsi,lanes = <0x04>;
-			panel-init-sequence = <0x5780111 0x5320129>;
+			panel-init-sequence = <0x5640129 0x5640111>;
 			panel-exit-sequence = <0x5780128 0x5780110>;
 			phandle = <0x23a>;
 
@@ -3850,12 +3847,12 @@
 				phandle = <0x23b>;
 
 				timing0 {
-					clock-frequency = <0x90f5600>;
+					clock-frequency = <0x858b030>;
 					hactive = <0x438>;
 					vactive = <0x780>;
 					hsync-len = <0x04>;
-					hback-porch = <0x64>;
-					hfront-porch = <0x64>;
+					hback-porch = <0x32>;
+					hfront-porch = <0x32>;
 					vsync-len = <0x04>;
 					vback-porch = <0x20>;
 					vfront-porch = <0x0f>;
@@ -11744,7 +11741,7 @@
 		lcd {
 
 			lcd-vci-gpio {
-				rockchip,pins = <0x00 0x08 0x00 0x196>;
+			rockchip,pins = <0x00 0x08 0x00 0x324 0x00 0x18 0x00 0x324>;
 				phandle = <0xd4>;
 			};
 
@@ -11762,7 +11759,7 @@
 		touch {
 
 			touch-gpio {
-				rockchip,pins = <0x00 0x18 0x00 0x199 0x00 0x15 0x00 0x199>;
+				rockchip,pins = <0x00 0x15 0x00 0x199>;
 				phandle = <0x62>;
 			};
 		};
@@ -12001,6 +11998,16 @@
 		rockchip,codec = <0x1a7>;
 		rockchip,jack-det;
 		phandle = <0x570>;
+	};
+
+	vcc-lcd-vci {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_lcd_vci";
+		regulator-min-microvolt = <0x325aa0>;
+		regulator-max-microvolt = <0x325aa0>;
+		gpio = <0x63 0x08 0x00>;
+		enable-active-high;
+		phandle = <0x579>;
 	};
 
 	vcc-sys {

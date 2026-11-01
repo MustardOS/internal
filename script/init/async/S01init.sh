@@ -8,6 +8,9 @@ GOVERNOR=$(GET_VAR "device" "cpu/governor")
 DEBUG_FS=$(GET_VAR "device" "board/debugfs")
 
 DO_START() {
+	mkdir -p "/tmp/muos"
+	rm -rf "$MUOS_LOG_DIR"/*.log "/opt/muxtmp"
+
 	LOG_INFO "$0" 0 "BOOTING" "Creating Required Run Directory"
 	mkdir -p "$MUOS_RUN_DIR"
 
@@ -46,10 +49,15 @@ DO_START() {
 
 	/opt/muos/script/device/module.sh load
 
-	[ "$FACTORY_RESET" -eq 1 ] && /opt/muos/frontend/muwarn &
+	DEVICE_DISPLAY_START() { :; }
+	DEVICE_FACTORY_WARNING_START() { /opt/muos/frontend/muwarn & }
+	# shellcheck source=/dev/null
+	DEVICE_FRONTEND_SCRIPT=$(DEVICE_SCRIPT frontend.sh) && . "$DEVICE_FRONTEND_SCRIPT"
+	DEVICE_DISPLAY_START
 
-	mkdir -p "/tmp/muos"
-	rm -rf "$MUOS_LOG_DIR"/*.log "/opt/muxtmp"
+	if [ "$FACTORY_RESET" -eq 1 ]; then
+		DEVICE_FACTORY_WARNING_START
+	fi
 
 	IFS= read -r MU_UPTIME _ </proc/uptime
 

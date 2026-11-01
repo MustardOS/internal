@@ -971,7 +971,7 @@
                     endpoint("upload", join(path, relative)), file, protectedHeaders(), (loaded, total) => {
                         fill.classList.remove("file-transfer-active");
                         fill.style.width = `${Math.round(loaded * 100 / total)}%`;
-                        note.textContent = t("Uploading... %s%%", Math.round(loaded * 100 / total));
+                        note.textContent = t("Uploading... %s%", Math.round(loaded * 100 / total));
                     }
                 );
                 if (!response.ok) throw await responseError(response);

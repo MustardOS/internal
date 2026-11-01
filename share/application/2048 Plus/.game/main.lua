@@ -1,11 +1,11 @@
--- 2048 Plus — Main entry point
--- A feature-packed implementation of the classic 2048 game
+-- Main entry point
 
 require("globals")
 
 local Game     = require("game")
 local input    = require("input")
 local renderer = require("renderer")
+_G.renderer    = renderer
 local save     = require("save")
 local splash   = require("splash")
 local sound    = require("sound")
@@ -26,9 +26,9 @@ local konami_sequence = { "up", "up", "down", "down", "left", "right", "left", "
 local last_app_state = nil
 local screen_transition_timer = 0
 local screen_transition_duration = 0.20
-local screen_canvas = nil       -- canvas of the NEW (incoming) screen
-local old_screen_canvas = nil   -- canvas of the OLD (outgoing) screen
-local transition_direction = 1  -- +1 = forward (new slides in from right), -1 = backward (from left)
+local screen_canvas = nil       -- canvas of new incoming screen
+local old_screen_canvas = nil   -- canvas of old outgoing screen
+local transition_direction = 1  -- forward 1, backward -1
 local konami_progress = 1
 
 local transition_delay_timer = 0
@@ -54,17 +54,36 @@ local STATE_DEPTH = {
     DINO          = 2,
 }
 
--- Forward declaration (defined later in the file, after love.update's helper logic)
+-- Forward declaration for drawCurrentScreen
 local drawCurrentScreen
 
 local function captureOldScreen()
-    local w, h = love.graphics.getDimensions()
-    if not old_screen_canvas then
+    local w, h = 640, 480
+    if not _G.is_console_active() then
+        w, h = love.graphics.getDimensions()
+    end
+    if not old_screen_canvas or old_screen_canvas:getWidth() ~= w or old_screen_canvas:getHeight() ~= h then
         old_screen_canvas = love.graphics.newCanvas(w, h)
     end
     love.graphics.setCanvas({old_screen_canvas, stencil = true})
     love.graphics.clear()
-    drawCurrentScreen()
+    if _G.is_console_active() then
+        local real_getDims = love.graphics.getDimensions
+        local real_getW = love.graphics.getWidth
+        local real_getH = love.graphics.getHeight
+        love.graphics.getDimensions = function() return 640, 480 end
+        love.graphics.getWidth = function() return 640 end
+        love.graphics.getHeight = function() return 480 end
+        local prev_scale = _G.scale
+        _G.scale = 1.0
+        drawCurrentScreen()
+        _G.scale = prev_scale
+        love.graphics.getDimensions = real_getDims
+        love.graphics.getWidth = real_getW
+        love.graphics.getHeight = real_getH
+    else
+        drawCurrentScreen()
+    end
     love.graphics.setCanvas()
 end
 
@@ -85,7 +104,7 @@ end
 function love.load(args)
     love.math.setRandomSeed(os.time())
 
-    -- Handle resolution arguments (same pattern as Scrappy)
+    -- Parse resolution arguments
     if args and #args > 0 then
         local w, h = 640, 480
         if #args >= 2 then
@@ -107,9 +126,14 @@ function love.load(args)
 
     update_ui_scale()
 
-    -- Initialize save system (high scores stored in static/ dir)
+    -- Initialize save directory
     if love.system.getOS() == "Web" then
         save.init("/tmp")
+    elseif love.system.getOS() == "Android" or _G.android_console then
+        love.filesystem.setIdentity("2048plus")
+        local save_dir = love.filesystem.getSaveDirectory()
+        love.filesystem.createDirectory("")
+        save.init(save_dir)
     else
         _G.WORK_DIR = love.filesystem.getWorkingDirectory() or "."
         save.init(_G.WORK_DIR .. "/static")
@@ -207,8 +231,9 @@ function love.load(args)
         end
     end
 
-    function _G.unlockAchievement(id)
-        if _G.game and _G.game.mode == "huge" and id ~= "ach_huge_2048" then
+    function _G.unlockAchievement(id, game_ref)
+        local cur_game = game_ref or _G.game or game
+        if _G.appState == "GAME" and cur_game and cur_game.mode == "huge" and id ~= "ach_huge_2048" then
             return
         end
         if not _G.achievements[id] then
@@ -325,7 +350,8 @@ function love.load(args)
     end
 
     function _G.recordDogBreedPlayed(breed_id)
-        if _G.game and _G.game.mode == "huge" then return end
+        local cur_game = _G.game or game
+        if _G.appState == "GAME" and cur_game and cur_game.mode == "huge" then return end
         breed_id = breed_id or _G.active_dog_breed or "roxy"
         _G.stats = _G.stats or {}
         _G.stats.played_dog_breeds = _G.stats.played_dog_breeds or {}
@@ -353,6 +379,9 @@ function love.load(args)
     end
 
     function _G.cycleStoreSortMode()
+        if _G.screen_transitions and renderer.captureOldStoreScreen then
+            renderer.captureOldStoreScreen()
+        end
         _G.store_sort_mode = ((_G.store_sort_mode or 0) + 1) % 10
         _G.store_selection = 1
         _G.store_scroll = 0
@@ -365,11 +394,18 @@ function love.load(args)
 
     function _G.cycleTheme(direction)
         local dir = direction or 1
+        if _G.stats_scroll_target then
+            _G.stats_scroll = _G.stats_scroll_target
+        end
+        if _G.achievements_scroll_target then
+            _G.achievements_scroll = _G.achievements_scroll_target
+        end
         local function getCurrentDrawTarget()
             if _G.appState == "GAME" and game then
                 return game
             elseif _G.appState == "ACHIEVEMENTS" then
-                return function() renderer.drawAchievements(_G.achievements_scroll or 0, true) end
+                local scr = (_G.achievements_tab == 2) and (_G.stats_scroll or 0) or (_G.achievements_scroll or 0)
+                return function() renderer.drawAchievements(scr, true) end
             elseif _G.appState == "TUTORIAL" then
                 return function() renderer.drawTutorial(_G.tutorial_page or 1, true) end
             elseif _G.appState == "ABOUT" then
@@ -496,6 +532,10 @@ function love.load(args)
         classic_games = 0,
         plus_games = 0,
         arcade_games = 0,
+        timeattack_games = 0,
+        huge_games = 0,
+        nomercy_games = 0,
+        goose_games = 0,
     }
     for k, v in pairs(defaults) do
         if _G.stats[k] == nil then
@@ -503,15 +543,18 @@ function love.load(args)
         end
     end
 
-    -- Crucially apply the loaded theme to the renderer NOW
+    -- Apply active theme to renderer
     renderer.applyTheme()
 
     -- Initialize input
     input.load()
 
-    -- Initialize renderer (compute layout, load fonts)
+    -- Initialize renderer layout and fonts
     renderer.init()
-    local w, h = love.graphics.getDimensions()
+    local w, h = 640, 480
+    if not _G.is_console_active() then
+        w, h = love.graphics.getDimensions()
+    end
     screen_canvas = love.graphics.newCanvas(w, h)
 
     -- Initialize dino game
@@ -527,11 +570,11 @@ function love.update(dt)
     -- Cap dt to prevent animation glitches on frame drops
     dt = math.min(dt, 0.05)
 
-    -- Trigger screen transitions on appState change (smooth slide animation)
+    -- Screen slide transitions
     if _G.appState ~= last_app_state then
         if splash.finished and last_app_state ~= nil then
-            -- ARCADE_MENU & PLAY_SELECT have their own panel slide animation; skip global slide for them
-            -- Exception: PLAY_SELECT → GAME uses the normal circle-wipe so the game doesn't flash
+            -- Skip global slide for menus with custom panel transitions
+            -- Circle wipe transition into game
             local going_to_game_from_play = (last_app_state == "PLAY_SELECT" or last_app_state == "ARCADE_MENU") and _G.appState == "GAME"
             local skip_slide = not going_to_game_from_play and
                 (_G.appState == "ARCADE_MENU" or last_app_state == "ARCADE_MENU" or _G.appState == "PLAY_SELECT" or last_app_state == "PLAY_SELECT")
@@ -558,8 +601,8 @@ function love.update(dt)
         screen_transition_timer = math.max(0, screen_transition_timer - dt)
     end
 
-    -- Check for global exit combo (MENU + START)
-    -- Only trigger if MENU and BACK are distinct keys (avoids false quit when pressing Back on PC)
+    -- Global exit combo: MENU + START
+    -- Require distinct MENU and BACK keys to avoid accidental exit
     if input.events.MENU ~= input.events.BACK then
         if input.state[input.events.MENU] and input.state[input.events.START] then
             love.event.quit()
@@ -617,6 +660,21 @@ function love.update(dt)
             _G.achievements_scroll = _G.achievements_scroll + diff * 15 * dt
             if math.abs(_G.achievements_scroll - _G.achievements_scroll_target) < 0.01 then
                 _G.achievements_scroll = _G.achievements_scroll_target
+            end
+        end
+    end
+
+    -- Smooth scroll interpolation for statistics
+    if _G.stats_scroll == nil then _G.stats_scroll = 0 end
+    if _G.stats_scroll_target == nil then _G.stats_scroll_target = 0 end
+    if not _G.screen_transitions then
+        _G.stats_scroll = _G.stats_scroll_target
+    else
+        if _G.stats_scroll ~= _G.stats_scroll_target then
+            local diff = _G.stats_scroll_target - _G.stats_scroll
+            _G.stats_scroll = _G.stats_scroll + diff * 15 * dt
+            if math.abs(_G.stats_scroll - _G.stats_scroll_target) < 0.01 then
+                _G.stats_scroll = _G.stats_scroll_target
             end
         end
     end
@@ -690,10 +748,7 @@ function love.update(dt)
 
     -- Process input events
     input.processEvents(function(event)
-        if event == input.events.Y then
-            if _G.appState == "THEME_SELECT" and sound and sound.playMenuMove then
-                sound.playMenuMove()
-            end
+        if event == input.events.Y and _G.appState ~= "THEME_SELECT" then
             if _G.cycleTheme then
                 _G.cycleTheme(1)
             end
@@ -754,6 +809,7 @@ function love.update(dt)
                         if mode then
                             _G.appState = "GAME"
                             game = Game.new(mode)
+                            _G.game = game
                             if renderer.triggerGameStartTransition then
                                 renderer.triggerGameStartTransition(mode, true)
                             end
@@ -763,13 +819,48 @@ function love.update(dt)
                         _G.play_select_selection = 1
                         _G.arcade_selection = 1
                         renderer.setArcadeMenuOpen(true)
-                    elseif sel:match("^Select Theme") then
+                    elseif sel:match("^Select Theme") or sel == "Customization" then
                         _G.themeSelectPrevState = "MENU"
                         _G.themeSelectInitialTheme = _G.theme
+                        _G.customization_tab = _G.customization_tab or 1
+                        if renderer.syncCustomThemeIndex then
+                            renderer.syncCustomThemeIndex()
+                        end
+                        -- Sync indices to currently equipped items
+                        if renderer.getBoardSkinsCatalog then
+                            for i, s in ipairs(renderer.getBoardSkinsCatalog()) do
+                                if s.id == (_G.board_skin or "default") then
+                                    _G.custom_board_idx = i
+                                    break
+                                end
+                            end
+                        end
+                        if renderer.getPetsCatalog then
+                            _G.custom_pet_idx = 1
+                            if _G.active_companion == "cat" then
+                                for i, p in ipairs(renderer.getPetsCatalog()) do
+                                    if p.type == "cat" then
+                                        _G.custom_pet_idx = i
+                                        break
+                                    end
+                                end
+                            elseif _G.active_companion == "dog" then
+                                for i, p in ipairs(renderer.getPetsCatalog()) do
+                                    if p.type == "dog" and p.breed_id == (_G.active_dog_breed or "roxy") then
+                                        _G.custom_pet_idx = i
+                                        break
+                                    end
+                                end
+                            end
+                        end
                         _G.appState = "THEME_SELECT"
                     elseif sel == "Achievements" or sel == "Achievements & Stats" then
                         _G.appState = "ACHIEVEMENTS"
                         _G.achievements_tab = 1
+                        _G.achievements_scroll = 0
+                        _G.achievements_scroll_target = 0
+                        _G.stats_scroll = 0
+                        _G.stats_scroll_target = 0
                     elseif sel == "Tutorial" then
                         _G.appState = "TUTORIAL"
                         _G.tutorial_page = 1
@@ -868,11 +959,11 @@ function love.update(dt)
                             if _G.active_companion == "cat" then
                                 _G.active_companion = "none"
                                 if save and save.saveCompanion then save.saveCompanion("none") end
-                                renderer.showToast("Unequipped Cat Companion")
+                                renderer.showToast("Unequipped Luna")
                             else
                                 _G.active_companion = "cat"
                                 if save and save.saveCompanion then save.saveCompanion("cat") end
-                                renderer.showToast("Equipped Cat Companion!")
+                                renderer.showToast("Equipped Luna!")
                             end
                         elseif (_G.stats.coins or 0) >= sel_item.cost then
                             _G.stats.coins = _G.stats.coins - sel_item.cost
@@ -881,7 +972,7 @@ function love.update(dt)
                             save.saveStats(_G.stats)
                             _G.active_companion = "cat"
                             if save and save.saveCompanion then save.saveCompanion("cat") end
-                            renderer.showToast("Purchased & Equipped Cat Companion!")
+                            renderer.showToast("Purchased & Equipped Luna!")
                         else
                             renderer.showToast("Not enough Coins!")
                         end
@@ -1003,24 +1094,24 @@ function love.update(dt)
                 if event == input.events.BACK then
                     if not (renderer.isJukeboxModalClosing and renderer.isJukeboxModalClosing()) then
                         sound.playMenuSelect()
-                        transition_delay_key = "B"
-                        transition_delay_timer = 0.08
-                        if _G.screen_transitions and renderer.closeJukeboxModal then
-                            renderer.closeJukeboxModal(function()
+                        queueTransitionAction("B", 0.08, function()
+                            if _G.screen_transitions and renderer.closeJukeboxModal then
+                                renderer.closeJukeboxModal(function()
+                                    _G.jukebox_web_modal = false
+                                    if sound.stopWebServer then
+                                        sound.stopWebServer()
+                                    end
+                                end)
+                            else
                                 _G.jukebox_web_modal = false
+                                if renderer.resetJukeboxModalAnim then
+                                    renderer.resetJukeboxModalAnim()
+                                end
                                 if sound.stopWebServer then
                                     sound.stopWebServer()
                                 end
-                            end)
-                        else
-                            _G.jukebox_web_modal = false
-                            if renderer.resetJukeboxModalAnim then
-                                renderer.resetJukeboxModalAnim()
                             end
-                            if sound.stopWebServer then
-                                sound.stopWebServer()
-                            end
-                        end
+                        end)
                     end
                 elseif event == input.events.CONFIRM or event == "return" or event == "a" or event == "space" then
                     if not (renderer.isJukeboxModalClosing and renderer.isJukeboxModalClosing()) then
@@ -1084,16 +1175,17 @@ function love.update(dt)
             elseif event == input.events.X or event == input.events.SELECT then
                 if not _G.jukebox_web_modal and not (renderer.isJukeboxModalClosing and renderer.isJukeboxModalClosing()) then
                     sound.playMenuSelect()
-                    transition_delay_key = (event == input.events.SELECT) and "SELECT" or "X"
-                    transition_delay_timer = 0.08
-                    if renderer.openJukeboxModal then
-                        renderer.openJukeboxModal()
-                    else
-                        _G.jukebox_web_modal = true
-                    end
-                    if sound.startWebServer then
-                        sound.startWebServer(8048)
-                    end
+                    local key = (event == input.events.SELECT) and "SELECT" or "X"
+                    queueTransitionAction(key, 0.08, function()
+                        if renderer.openJukeboxModal then
+                            renderer.openJukeboxModal()
+                        else
+                            _G.jukebox_web_modal = true
+                        end
+                        if sound.startWebServer then
+                            sound.startWebServer(8048)
+                        end
+                    end)
                 end
             elseif event == input.events.R1 then
                 sound.playMenuSelect()
@@ -1131,12 +1223,14 @@ function love.update(dt)
                     if _G.play_select_selection == 1 then
                         _G.appState = "GAME"
                         game = Game.new("classic")
+                        _G.game = game
                         if renderer.triggerGameStartTransition then
                             renderer.triggerGameStartTransition("classic", false)
                         end
                     elseif _G.play_select_selection == 2 then
                         _G.appState = "GAME"
                         game = Game.new("plus")
+                        _G.game = game
                         if renderer.triggerGameStartTransition then
                             renderer.triggerGameStartTransition("plus", false)
                         end
@@ -1181,6 +1275,7 @@ function love.update(dt)
                         mode = "goose"
                     end
                     game = Game.new(mode)
+                    _G.game = game
                     if renderer.triggerGameStartTransition then
                         renderer.triggerGameStartTransition(mode, false)
                     end
@@ -1260,56 +1355,89 @@ function love.update(dt)
                     _G.appState = "MENU"
                     _G.achievements_scroll = 0
                     _G.achievements_scroll_target = 0
+                    _G.stats_scroll = 0
+                    _G.stats_scroll_target = 0
                 end)
-            elseif event == input.events.LEFT or event == input.events.L1 then
-                if _G.achievements_tab == 2 then
+            elseif event == input.events.L1 then
+                local cur_t = _G.achievements_tab or 1
+                local next_tab = (cur_t > 1) and (cur_t - 1) or 2
+                if next_tab ~= cur_t then
                     sound.playMenuMove()
                     queueTransitionAction(event, 0.08, function()
                         if _G.screen_transitions then
-                            renderer.captureOldAchievementsSlide(2)
+                            renderer.captureOldAchievementsSlide(cur_t)
                             _G.achievements_slide_dir = -1
                             _G.achievements_slide_timer = 0.20
                             _G.achievements_slide_ready = false
                         end
-                        _G.achievements_tab = 1
+                        _G.achievements_tab = next_tab
                     end)
                 end
-            elseif event == input.events.RIGHT or event == input.events.R1 then
-                if _G.achievements_tab == 1 then
+            elseif event == input.events.R1 then
+                local cur_t = _G.achievements_tab or 1
+                local next_tab = (cur_t < 2) and (cur_t + 1) or 1
+                if next_tab ~= cur_t then
                     sound.playMenuMove()
                     queueTransitionAction(event, 0.08, function()
                         if _G.screen_transitions then
-                            renderer.captureOldAchievementsSlide(1)
+                            renderer.captureOldAchievementsSlide(cur_t)
                             _G.achievements_slide_dir = 1
                             _G.achievements_slide_timer = 0.20
                             _G.achievements_slide_ready = false
                         end
-                        _G.achievements_tab = 2
+                        _G.achievements_tab = next_tab
                     end)
                 end
-            elseif event == input.events.UP and _G.achievements_tab == 1 then
-                local old_target = _G.achievements_scroll_target or 0
-                _G.achievements_scroll_target = math.max(0, old_target - 1)
-                if _G.achievements_scroll_target ~= old_target then
-                    sound.playMenuMove()
+            elseif event == input.events.UP then
+                if (_G.achievements_tab or 1) == 1 then
+                    local old_target = _G.achievements_scroll_target or 0
+                    _G.achievements_scroll_target = math.max(0, old_target - 1)
+                    if _G.achievements_scroll_target ~= old_target then
+                        sound.playMenuMove()
+                    end
+                else
+                    local old_target = _G.stats_scroll_target or 0
+                    _G.stats_scroll_target = math.max(0, old_target - 1)
+                    if _G.stats_scroll_target ~= old_target then
+                        sound.playMenuMove()
+                    end
                 end
-            elseif event == input.events.DOWN and _G.achievements_tab == 1 then
-                -- 31 achievements total, allow scrolling only if items overflow visible area
-                local w, h = love.graphics.getDimensions()
-
-                local scale = _G.scale
-                local item_h = math.floor(85 * scale)
-                local header_h = math.floor(115 * scale)
-                local footer_h = math.floor(55 * scale)
-                local visible_area = h - header_h - footer_h
-                local total_items = (renderer.getAchievementsCount and renderer.getAchievementsCount()) or 22
-                local total_height = total_items * item_h
-                local max_scroll = math.max(0, math.ceil((total_height - visible_area) / item_h))
-                local old_target = _G.achievements_scroll_target or 0
-                _G.achievements_scroll_target = math.min(max_scroll, old_target + 1)
-                if _G.achievements_scroll_target ~= old_target then
-                    sound.playMenuMove()
+            elseif event == input.events.DOWN then
+                if (_G.achievements_tab or 1) == 1 then
+                    local max_scroll = _G.achievements_max_scroll
+                    if not max_scroll and renderer.getAchievementsMaxScroll then
+                        max_scroll = renderer.getAchievementsMaxScroll()
+                    end
+                    if not max_scroll then
+                        local h = _G.is_console_active() and 480 or love.graphics.getHeight()
+                        local scale = _G.is_console_active() and 1.0 or (_G.scale or 1.0)
+                        local item_h = math.floor(85 * scale)
+                        local header_h = math.floor(115 * scale)
+                        local footer_h = math.floor(55 * scale)
+                        local visible_area = h - header_h - footer_h
+                        local total_items = (renderer.getAchievementsCount and renderer.getAchievementsCount()) or 34
+                        local total_height = total_items * item_h
+                        max_scroll = math.max(0, math.ceil((total_height - visible_area) / item_h))
+                    end
+                    local old_target = _G.achievements_scroll_target or 0
+                    _G.achievements_scroll_target = math.min(max_scroll, old_target + 1)
+                    if _G.achievements_scroll_target ~= old_target then
+                        sound.playMenuMove()
+                    end
+                else
+                    local max_scroll = _G.stats_max_scroll
+                    if not max_scroll and renderer.getStatsMaxScroll then
+                        max_scroll = renderer.getStatsMaxScroll()
+                    end
+                    max_scroll = max_scroll or 0
+                    local old_target = _G.stats_scroll_target or 0
+                    _G.stats_scroll_target = math.min(max_scroll, old_target + 1)
+                    if _G.stats_scroll_target ~= old_target then
+                        sound.playMenuMove()
+                    end
                 end
+            elseif event == input.events.Y then
+                if _G.cycleTheme then _G.cycleTheme(1) end
             end
             return
         elseif _G.appState == "CHEATS_MENU" then
@@ -1383,29 +1511,160 @@ function love.update(dt)
             end
             return
         elseif _G.appState == "THEME_SELECT" then
-            if event == input.events.CONFIRM then
-                sound.playMenuSelect()
-                queueTransitionAction(event, 0.08, function()
-                    save.saveTheme(_G.theme)
-                    if game then game:saveGameState() end
-                    _G.appState = _G.themeSelectPrevState or "MENU"
-                end)
+            local tab = _G.customization_tab or 1
+            if event == input.events.L1 then
+                local next_tab = (tab > 1) and (tab - 1) or 3
+                if next_tab ~= tab then
+                    sound.playMenuMove()
+                    if tab == 1 then
+                        _G.theme = _G.themeSelectInitialTheme or "light"
+                        if renderer.applyTheme then renderer.applyTheme(true) end
+                    end
+                    if next_tab == 1 and renderer.syncCustomThemeIndex then
+                        renderer.syncCustomThemeIndex()
+                    end
+                    if _G.screen_transitions and renderer.startCustomizationTabTransition then
+                        renderer.startCustomizationTabTransition(tab, next_tab, -1)
+                    else
+                        _G.customization_tab = next_tab
+                    end
+                end
+            elseif event == input.events.R1 then
+                local next_tab = (tab < 3) and (tab + 1) or 1
+                if next_tab ~= tab then
+                    sound.playMenuMove()
+                    if tab == 1 then
+                        _G.theme = _G.themeSelectInitialTheme or "light"
+                        if renderer.applyTheme then renderer.applyTheme(true) end
+                    end
+                    if next_tab == 1 and renderer.syncCustomThemeIndex then
+                        renderer.syncCustomThemeIndex()
+                    end
+                    if _G.screen_transitions and renderer.startCustomizationTabTransition then
+                        renderer.startCustomizationTabTransition(tab, next_tab, 1)
+                    else
+                        _G.customization_tab = next_tab
+                    end
+                end
             elseif event == input.events.BACK then
-                sound.playMenuSelect()
+                sound.playMenuBack()
                 queueTransitionAction(event, 0.08, function()
                     _G.theme = _G.themeSelectInitialTheme or "light"
                     renderer.applyTheme()
                     _G.appState = _G.themeSelectPrevState or "MENU"
                 end)
-            elseif event == input.events.X or event == input.events.LEFT or event == input.events.UP then
-                if sound and sound.playMenuMove then sound.playMenuMove() end
-                if _G.cycleTheme then
-                    _G.cycleTheme(-1)
+            elseif event == input.events.CONFIRM then
+                if tab == 1 then
+                    -- Theme tab: save theme and stay on screen
+                    local is_unlocked = renderer.isThemeUnlocked and renderer.isThemeUnlocked(_G.theme)
+                    if not is_unlocked then
+                        sound.playMenuBack()
+                        local entry = renderer.getSelectedThemeEntry and renderer.getSelectedThemeEntry()
+                        if entry and entry.unlock_type == "store" then
+                            renderer.showToast("Available from Store")
+                        elseif entry and entry.ach_name then
+                            renderer.showToast("Unlock " .. entry.ach_name .. " to equip")
+                        else
+                            renderer.showToast("Theme is locked")
+                        end
+                    else
+                        sound.playMenuSelect()
+                        local initial_theme = _G.themeSelectInitialTheme or "light"
+                        if _G.theme ~= initial_theme then
+                            _G.themeSelectInitialTheme = _G.theme
+                            save.saveTheme(_G.theme)
+                            if game then game:saveGameState() end
+                            local theme_disp = renderer.getThemeDisplayName(_G.theme, false)
+                            renderer.showToast("Equipped " .. theme_disp .. " Theme!")
+                        end
+                    end
+                elseif tab == 2 then
+                    -- Board tab: equip or unequip selected skin
+                    local skin = renderer.getSelectedBoardSkin and renderer.getSelectedBoardSkin()
+                    if skin then
+                        local is_owned = (skin.id == "default") or (_G.stats and _G.stats.purchased_items and _G.stats.purchased_items["skin_" .. skin.id])
+                        if is_owned then
+                            sound.playMenuSelect()
+                            if _G.board_skin == skin.id and skin.id ~= "default" then
+                                _G.board_skin = "default"
+                                save.saveBoardSkin("default")
+                                renderer.showToast("Equipped Dynamic Board")
+                            else
+                                _G.board_skin = skin.id
+                                save.saveBoardSkin(skin.id)
+                                renderer.showToast("Equipped " .. skin.name)
+                            end
+                        else
+                            sound.playMenuBack()
+                            renderer.showToast("Available from Store")
+                        end
+                    end
+                elseif tab == 3 then
+                    -- Pet tab: equip or unequip selected pet
+                    local pet = renderer.getSelectedPet and renderer.getSelectedPet()
+                    if pet then
+                        local is_owned = (pet.type == "cat" and _G.stats and _G.stats.purchased_items and _G.stats.purchased_items["mascot_cat"])
+                            or (pet.type == "dog" and _G.stats and _G.stats.purchased_items and _G.stats.purchased_items["mascot_dog"])
+                        if is_owned then
+                            sound.playMenuSelect()
+                            if pet.type == "cat" then
+                                if _G.active_companion == "cat" then
+                                    _G.active_companion = "none"
+                                    save.saveCompanion("none")
+                                    renderer.showToast("Unequipped Luna")
+                                else
+                                    _G.active_companion = "cat"
+                                    save.saveCompanion("cat")
+                                    renderer.showToast("Equipped Luna!")
+                                end
+                            elseif pet.type == "dog" then
+                                if _G.active_companion == "dog" and (_G.active_dog_breed or "roxy") == pet.breed_id then
+                                    _G.active_companion = "none"
+                                    save.saveCompanion("none")
+                                    renderer.showToast("Unequipped " .. pet.name)
+                                else
+                                    _G.active_companion = "dog"
+                                    _G.active_dog_breed = pet.breed_id
+                                    save.saveCompanion("dog")
+                                    if save.saveDogBreed then save.saveDogBreed(pet.breed_id) end
+                                    renderer.showToast("Equipped " .. pet.name .. "!")
+                                end
+                            end
+                        else
+                            sound.playMenuBack()
+                            renderer.showToast("Available from Store")
+                        end
+                    end
+                end
+            elseif event == input.events.Y then
+                if tab == 2 or tab == 3 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if _G.cycleTheme then _G.cycleTheme(1) end
+                    _G.themeSelectInitialTheme = _G.theme
+                    save.saveTheme(_G.theme)
+                    if game then game:saveGameState() end
+                end
+            elseif event == input.events.LEFT or event == input.events.UP then
+                if tab == 1 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if renderer.cycleCustomTheme then renderer.cycleCustomTheme(-1) end
+                elseif tab == 2 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if renderer.cycleBoardSkin then renderer.cycleBoardSkin(-1) end
+                elseif tab == 3 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if renderer.cyclePet then renderer.cyclePet(-1) end
                 end
             elseif event == input.events.RIGHT or event == input.events.DOWN then
-                if sound and sound.playMenuMove then sound.playMenuMove() end
-                if _G.cycleTheme then
-                    _G.cycleTheme(1)
+                if tab == 1 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if renderer.cycleCustomTheme then renderer.cycleCustomTheme(1) end
+                elseif tab == 2 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if renderer.cycleBoardSkin then renderer.cycleBoardSkin(1) end
+                elseif tab == 3 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if renderer.cyclePet then renderer.cyclePet(1) end
                 end
             end
             return
@@ -1435,14 +1694,7 @@ function love.update(dt)
                     elseif sel == "Back" then
                         sound.playMenuBack()
                         if _G.screen_transitions then
-                            local w, h = love.graphics.getDimensions()
-                            if not old_screen_canvas then
-                                old_screen_canvas = love.graphics.newCanvas(w, h)
-                            end
-                            love.graphics.setCanvas({old_screen_canvas, stencil = true})
-                            love.graphics.clear()
-                            drawCurrentScreen()
-                            love.graphics.setCanvas()
+                            captureOldScreen()
                             _G.screen_canvas_ready = false
                         end
                         queueTransitionAction(event, 0.08, function()
@@ -1459,14 +1711,7 @@ function love.update(dt)
                     if sel == "Audio & Haptics" then
                         sound.playMenuSelect()
                         if _G.screen_transitions then
-                            local w, h = love.graphics.getDimensions()
-                            if not old_screen_canvas then
-                                old_screen_canvas = love.graphics.newCanvas(w, h)
-                            end
-                            love.graphics.setCanvas({old_screen_canvas, stencil = true})
-                            love.graphics.clear()
-                            drawCurrentScreen()
-                            love.graphics.setCanvas()
+                            captureOldScreen()
                             _G.screen_canvas_ready = false
                         end
                         queueTransitionAction(event, 0.08, function()
@@ -1480,10 +1725,17 @@ function love.update(dt)
                         end)
                     elseif sel:match("^Text Size") then
                         sound.playMenuSelect()
-                        _G.text_size = (_G.text_size == "large") and "normal" or "large"
+                        local old_size = _G.text_size
+                        local new_size = (old_size == "large") and "normal" or "large"
+                        if _G.screen_transitions and renderer.startTextSizeTransition then
+                            renderer.startTextSizeTransition(old_size, new_size)
+                        end
+                        _G.text_size = new_size
                         save.saveTextSize(_G.text_size)
                         renderer.init()
-                        renderer.flashTextSize()
+                        if _G.screen_transitions and renderer.finishTextSizeTransition then
+                            renderer.finishTextSizeTransition()
+                        end
                     elseif sel:match("Animation Speed") then
                         sound.playMenuSelect()
                         if _G.animation_speed == "normal" then
@@ -1521,9 +1773,13 @@ function love.update(dt)
                         end
                         save.saveTimeAttackTime(_G.time_attack_time)
                     elseif sel:match("^CRT Shader") then
-                        _G.crt_filter = not _G.crt_filter
-                        save.saveCrtFilter(_G.crt_filter)
                         sound.playMenuSelect()
+                        local new_crt = not _G.crt_filter
+                        if _G.screen_transitions and renderer.startCrtTransition then
+                            renderer.startCrtTransition(new_crt)
+                        end
+                        _G.crt_filter = new_crt
+                        save.saveCrtFilter(_G.crt_filter)
 
                     elseif sel == "Back" then
                         sound.playMenuBack()
@@ -1536,14 +1792,7 @@ function love.update(dt)
                 sound.playMenuBack()
                 if _G.settings_page == "audio" then
                     if _G.screen_transitions then
-                        local w, h = love.graphics.getDimensions()
-                        if not old_screen_canvas then
-                            old_screen_canvas = love.graphics.newCanvas(w, h)
-                        end
-                        love.graphics.setCanvas({old_screen_canvas, stencil = true})
-                        love.graphics.clear()
-                        drawCurrentScreen()
-                        love.graphics.setCanvas()
+                        captureOldScreen()
                         _G.screen_canvas_ready = false
                     end
                     queueTransitionAction(event, 0.08, function()
@@ -1703,6 +1952,7 @@ function love.update(dt)
                         renderer.setArcadeMenuOpen(true)
                     end
                     game = nil
+                    _G.game = nil
                 end)
             end
         elseif game.state == Game.STATE_WON then
@@ -1749,6 +1999,7 @@ function love.update(dt)
                         renderer.setArcadeMenuOpen(true)
                     end
                     game = nil
+                    _G.game = nil
                 end)
             end
         elseif game.state == Game.STATE_LOST then
@@ -1821,6 +2072,7 @@ function love.update(dt)
                         renderer.setArcadeMenuOpen(true)
                     end
                     game = nil
+                    _G.game = nil
                 end)
             end
         end
@@ -1855,7 +2107,8 @@ drawCurrentScreen = function()
     elseif _G.appState == "CHEATS_MENU" then
         renderer.drawSecretMenu(_G.cheats_selection or 1)
     elseif _G.appState == "ACHIEVEMENTS" then
-        renderer.drawAchievements(_G.achievements_scroll or 0)
+        local scr = (_G.achievements_tab == 2) and (_G.stats_scroll or 0) or (_G.achievements_scroll or 0)
+        renderer.drawAchievements(scr)
     elseif _G.appState == "THEME_SELECT" then
         renderer.drawThemeSelect()
     elseif _G.appState == "SETTINGS" then
@@ -1908,11 +2161,122 @@ local crt_shader_code = [[
 local crt_shader = nil
 local crt_main_canvas = nil
 
+local function draw_internal()
+    if not splash.finished then
+        splash.draw()
+        return
+    end
+
+    local sc_w, sc_h = 640, 480
+    if not _G.is_console_active() then
+        sc_w, sc_h = love.graphics.getDimensions()
+    end
+    local w, h = sc_w, sc_h
+
+    if screen_transition_timer > 0 then
+        -- Ease-out transition curve
+        local t_progress = 1 - (screen_transition_timer / screen_transition_duration)
+        local p = 1 - math.pow(1 - t_progress, 3)
+
+        if not screen_canvas or screen_canvas:getWidth() ~= sc_w or screen_canvas:getHeight() ~= sc_h then
+            screen_canvas = love.graphics.newCanvas(sc_w, sc_h)
+        end
+
+        -- Only render the new screen to the canvas ONCE at the start of the transition
+        if not _G.screen_canvas_ready then
+            love.graphics.setCanvas({screen_canvas, stencil = true})
+            love.graphics.clear()
+            drawCurrentScreen()
+            love.graphics.setCanvas()
+            _G.screen_canvas_ready = true
+        end
+
+        -- Draw background fill to avoid any gaps
+        love.graphics.clear(0.05, 0.05, 0.08, 1.0)
+
+        local dir = transition_direction or 1
+        local shadow_w = math.floor(20 * (_G.scale or 1))
+
+        if dir == 1 then
+            -- Forward screen slide
+            -- Parallax shift for old screen
+            local old_x = math.floor(-0.3 * w * p)
+            local new_x = math.floor(w * (1 - p))
+
+            -- Draw old screen
+            if old_screen_canvas then
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.setBlendMode("replace", "premultiplied")
+                love.graphics.draw(old_screen_canvas, old_x, 0)
+                love.graphics.setBlendMode("alpha", "alphamultiply")
+
+                -- Dim old screen overlay
+                love.graphics.setColor(0, 0, 0, 0.5 * p)
+                love.graphics.rectangle("fill", old_x, 0, w, h)
+            end
+
+            -- 2. Draw shadow to the left of the new screen
+            for i = 0, shadow_w - 1 do
+                local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
+                love.graphics.setColor(0, 0, 0, alpha)
+                love.graphics.rectangle("fill", new_x - shadow_w + i, 0, 1, h)
+            end
+
+            -- Draw new screen
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setBlendMode("replace", "premultiplied")
+            love.graphics.draw(screen_canvas, new_x, 0)
+            love.graphics.setBlendMode("alpha", "alphamultiply")
+        else
+            -- Backward screen slide
+            -- Parallax shift for new screen
+            local new_x = math.floor(-0.3 * w * (1 - p))
+            local old_x = math.floor(w * p)
+
+            -- Draw new screen
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setBlendMode("replace", "premultiplied")
+            love.graphics.draw(screen_canvas, new_x, 0)
+            love.graphics.setBlendMode("alpha", "alphamultiply")
+
+            -- Dim overlay
+            love.graphics.setColor(0, 0, 0, 0.5 * (1 - p))
+            love.graphics.rectangle("fill", new_x, 0, w, h)
+
+            if old_screen_canvas then
+                -- Draw edge shadow
+                for i = 0, shadow_w - 1 do
+                    local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
+                    love.graphics.setColor(0, 0, 0, alpha)
+                    love.graphics.rectangle("fill", old_x - shadow_w + i, 0, 1, h)
+                end
+
+                -- Draw old screen
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.setBlendMode("replace", "premultiplied")
+                love.graphics.draw(old_screen_canvas, old_x, 0)
+                love.graphics.setBlendMode("alpha", "alphamultiply")
+            end
+        end
+
+        love.graphics.setColor(1, 1, 1, 1)
+    else
+        _G.screen_canvas_ready = false
+        drawCurrentScreen()
+    end
+end
+
 function love.draw()
+    if _G.is_console_active() then
+        _G.android_console.draw(draw_internal)
+        return
+    end
+
     local w, h = love.graphics.getDimensions()
     local old_setCanvas = love.graphics.setCanvas
 
-    local apply_crt = _G.crt_filter
+    local in_crt_transition = renderer.isCrtTransitionActive and renderer.isCrtTransitionActive()
+    local apply_crt = _G.crt_filter or in_crt_transition
     if apply_crt then
         if not crt_shader then
             local success, err = pcall(function()
@@ -1943,105 +2307,6 @@ function love.draw()
         love.graphics.clear()
     end
 
-    local function draw_internal()
-        if not splash.finished then
-            splash.draw()
-            return
-        end
-
-        if screen_transition_timer > 0 then
-            -- Ease-out transition curve
-            local t_progress = 1 - (screen_transition_timer / screen_transition_duration)
-            local p = 1 - math.pow(1 - t_progress, 3)
-
-            if not screen_canvas then
-                screen_canvas = love.graphics.newCanvas(w, h)
-            end
-
-            -- Only render the new screen to the canvas ONCE at the start of the transition
-            if not _G.screen_canvas_ready then
-                love.graphics.setCanvas({screen_canvas, stencil = true})
-                love.graphics.clear()
-                drawCurrentScreen()
-                love.graphics.setCanvas()
-                _G.screen_canvas_ready = true
-            end
-
-            -- Draw background fill to avoid any gaps
-            love.graphics.clear(0.05, 0.05, 0.08, 1.0)
-
-            local dir = transition_direction or 1
-            local shadow_w = math.floor(20 * (_G.scale or 1))
-
-            if dir == 1 then
-                -- Forward screen slide
-                -- Parallax shift for old screen
-                local old_x = math.floor(-0.3 * w * p)
-                local new_x = math.floor(w * (1 - p))
-
-                -- Draw old screen
-                if old_screen_canvas then
-                    love.graphics.setColor(1, 1, 1, 1)
-                    love.graphics.setBlendMode("replace", "premultiplied")
-                    love.graphics.draw(old_screen_canvas, old_x, 0)
-                    love.graphics.setBlendMode("alpha", "alphamultiply")
-
-                    -- Dim old screen overlay
-                    love.graphics.setColor(0, 0, 0, 0.5 * p)
-                    love.graphics.rectangle("fill", old_x, 0, w, h)
-                end
-
-                -- 2. Draw shadow to the left of the new screen
-                for i = 0, shadow_w - 1 do
-                    local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
-                    love.graphics.setColor(0, 0, 0, alpha)
-                    love.graphics.rectangle("fill", new_x - shadow_w + i, 0, 1, h)
-                end
-
-                -- Draw new screen
-                love.graphics.setColor(1, 1, 1, 1)
-                love.graphics.setBlendMode("replace", "premultiplied")
-                love.graphics.draw(screen_canvas, new_x, 0)
-                love.graphics.setBlendMode("alpha", "alphamultiply")
-            else
-                -- Backward screen slide
-                -- Parallax shift for new screen
-                local new_x = math.floor(-0.3 * w * (1 - p))
-                local old_x = math.floor(w * p)
-
-                -- Draw new screen
-                love.graphics.setColor(1, 1, 1, 1)
-                love.graphics.setBlendMode("replace", "premultiplied")
-                love.graphics.draw(screen_canvas, new_x, 0)
-                love.graphics.setBlendMode("alpha", "alphamultiply")
-
-                -- Dim overlay
-                love.graphics.setColor(0, 0, 0, 0.5 * (1 - p))
-                love.graphics.rectangle("fill", new_x, 0, w, h)
-
-                if old_screen_canvas then
-                    -- Draw edge shadow
-                    for i = 0, shadow_w - 1 do
-                        local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
-                        love.graphics.setColor(0, 0, 0, alpha)
-                        love.graphics.rectangle("fill", old_x - shadow_w + i, 0, 1, h)
-                    end
-
-                    -- Draw old screen
-                    love.graphics.setColor(1, 1, 1, 1)
-                    love.graphics.setBlendMode("replace", "premultiplied")
-                    love.graphics.draw(old_screen_canvas, old_x, 0)
-                    love.graphics.setBlendMode("alpha", "alphamultiply")
-                end
-            end
-
-            love.graphics.setColor(1, 1, 1, 1)
-        else
-            _G.screen_canvas_ready = false
-            drawCurrentScreen()
-        end
-    end
-
     local success, err = pcall(draw_internal)
     if not success then
         if apply_crt then
@@ -2054,15 +2319,118 @@ function love.draw()
     if apply_crt and crt_shader and crt_main_canvas then
         love.graphics.setCanvas = old_setCanvas
         love.graphics.setCanvas()
-        love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.setShader(crt_shader)
-        love.graphics.draw(crt_main_canvas, 0, 0)
-        love.graphics.setShader()
+
+        if in_crt_transition and renderer.drawCrtScreenWithTransition then
+            renderer.drawCrtScreenWithTransition(crt_main_canvas, crt_shader, 0, 0, w, h, 0, 0, 1, 1, 0, 0)
+        else
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setShader(crt_shader)
+            love.graphics.draw(crt_main_canvas, 0, 0)
+            love.graphics.setShader()
+        end
     end
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
     if button == 1 then
+        -- Customization tab click
+        if _G.appState == "THEME_SELECT" then
+            if _G.customization_tab_bounds then
+                for idx, b in ipairs(_G.customization_tab_bounds) do
+                    if x >= b.x and x <= (b.x + b.w) and y >= b.y and y <= (b.y + b.h) then
+                        local cur_tab = _G.customization_tab or 1
+                        if idx ~= cur_tab then
+                            local sound = require("sound")
+                            if sound and sound.playMenuMove then sound.playMenuMove() end
+                            if cur_tab == 1 then
+                                _G.theme = _G.themeSelectInitialTheme or "light"
+                                if renderer.applyTheme then renderer.applyTheme(true) end
+                            end
+                            if idx == 1 and renderer.syncCustomThemeIndex then
+                                renderer.syncCustomThemeIndex()
+                            end
+                            local dir = (idx > cur_tab) and 1 or -1
+                            if _G.screen_transitions and renderer.startCustomizationTabTransition then
+                                renderer.startCustomizationTabTransition(cur_tab, idx, dir)
+                            else
+                                _G.customization_tab = idx
+                            end
+                        end
+                        return
+                    end
+                end
+            end
+            local pb = _G.customization_prev_btn_bounds
+            if pb and x >= pb.x and x <= (pb.x + pb.w) and y >= pb.y and y <= (pb.y + pb.h) then
+                local sound = require("sound")
+                if sound and sound.playMenuMove then sound.playMenuMove() end
+                local tab = _G.customization_tab or 1
+                if tab == 1 then
+                    if renderer.cycleCustomTheme then renderer.cycleCustomTheme(-1) end
+                elseif tab == 2 then
+                    if renderer.cycleBoardSkin then renderer.cycleBoardSkin(-1) end
+                elseif tab == 3 then
+                    if renderer.cyclePet then renderer.cyclePet(-1) end
+                end
+                return
+            end
+            local nb = _G.customization_next_btn_bounds
+            if nb and x >= nb.x and x <= (nb.x + nb.w) and y >= nb.y and y <= (nb.y + nb.h) then
+                local sound = require("sound")
+                if sound and sound.playMenuMove then sound.playMenuMove() end
+                local tab = _G.customization_tab or 1
+                if tab == 1 then
+                    if renderer.cycleCustomTheme then renderer.cycleCustomTheme(1) end
+                elseif tab == 2 then
+                    if renderer.cycleBoardSkin then renderer.cycleBoardSkin(1) end
+                elseif tab == 3 then
+                    if renderer.cyclePet then renderer.cyclePet(1) end
+                end
+                return
+            end
+        end
+        -- Achievements tab and shoulder button click
+        if _G.appState == "ACHIEVEMENTS" then
+            if _G.achievements_l1_bounds then
+                local b = _G.achievements_l1_bounds
+                if x >= b.x and x <= (b.x + b.w) and y >= b.y and y <= (b.y + b.h) then
+                    local input_mod = require("input")
+                    if input_mod and input_mod.handleInput then
+                        input_mod.handleInput(input_mod.events.L1)
+                    end
+                    return
+                end
+            end
+            if _G.achievements_r1_bounds then
+                local b = _G.achievements_r1_bounds
+                if x >= b.x and x <= (b.x + b.w) and y >= b.y and y <= (b.y + b.h) then
+                    local input_mod = require("input")
+                    if input_mod and input_mod.handleInput then
+                        input_mod.handleInput(input_mod.events.R1)
+                    end
+                    return
+                end
+            end
+            if _G.achievements_tab_bounds then
+                for idx, b in ipairs(_G.achievements_tab_bounds) do
+                    if x >= b.x and x <= (b.x + b.w) and y >= b.y and y <= (b.y + b.h) then
+                        local cur_tab = _G.achievements_tab or 1
+                        if idx ~= cur_tab then
+                            local sound = require("sound")
+                            if sound and sound.playMenuMove then sound.playMenuMove() end
+                            if _G.screen_transitions then
+                                renderer.captureOldAchievementsSlide(cur_tab)
+                                _G.achievements_slide_dir = (idx > cur_tab) and 1 or -1
+                                _G.achievements_slide_timer = 0.20
+                                _G.achievements_slide_ready = false
+                            end
+                            _G.achievements_tab = idx
+                        end
+                        return
+                    end
+                end
+            end
+        end
         if _G.appState == "STORE" and _G.store_sort_btn_bounds then
             local b = _G.store_sort_btn_bounds
             if x >= b.x and x <= (b.x + b.w) and y >= b.y and y <= (b.y + b.h) then
@@ -2074,11 +2442,49 @@ function love.mousereleased(x, y, button, istouch, presses)
     end
 end
 
+function love.wheelmoved(x, y)
+    if _G.appState == "ACHIEVEMENTS" then
+        if y > 0 then
+            if (_G.achievements_tab or 1) == 1 then
+                local old_target = _G.achievements_scroll_target or 0
+                _G.achievements_scroll_target = math.max(0, old_target - 1)
+            else
+                local old_target = _G.stats_scroll_target or 0
+                _G.stats_scroll_target = math.max(0, old_target - 1)
+            end
+        elseif y < 0 then
+            if (_G.achievements_tab or 1) == 1 then
+                local max_scroll = _G.achievements_max_scroll or 0
+                local old_target = _G.achievements_scroll_target or 0
+                _G.achievements_scroll_target = math.min(max_scroll, old_target + 1)
+            else
+                local max_scroll = _G.stats_max_scroll or 0
+                local old_target = _G.stats_scroll_target or 0
+                _G.stats_scroll_target = math.min(max_scroll, old_target + 1)
+            end
+        end
+    end
+end
+
+-- Resize handler for orientation changes
+function love.resize(w, h)
+    if _G.android_console and _G.android_console.updateLayout then
+        _G.android_console.updateLayout()
+    end
+    if _G.update_ui_scale then
+        _G.update_ui_scale()
+    end
+    if renderer and renderer.init then
+        renderer.init()
+        if game and game.size then
+            renderer.updateLayout(game.size)
+        end
+    end
+end
+
 function love.quit()
     if sound and sound.stopWebServer then
         pcall(sound.stopWebServer)
-    else
-        os.execute("pkill -9 -f jukebox_server.py 2>/dev/null")
     end
     if game then
         pcall(function() game:saveGameState() end)
@@ -2095,4 +2501,20 @@ function love.quit()
         end)
     end
     os.exit()
+end
+
+function love.focus(f)
+    if not f then
+        if game and game.saveGameState then
+            pcall(function() game:saveGameState() end)
+        end
+    end
+end
+
+function love.visible(v)
+    if not v then
+        if game and game.saveGameState then
+            pcall(function() game:saveGameState() end)
+        end
+    end
 end

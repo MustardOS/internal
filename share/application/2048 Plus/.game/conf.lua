@@ -1,6 +1,7 @@
 function love.conf(t)
     t.version = "11.5"
     t.console = false
+    t.identity = "2048plus"
 
     t.window.title = "2048 Plus"
     t.window.icon = nil

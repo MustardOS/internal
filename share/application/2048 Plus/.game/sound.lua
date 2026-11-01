@@ -21,20 +21,22 @@ local bgmStoppedBySystem = false
 local bgmPausedByUser = false
 
 local activeJoystick = nil
-local joystickInitialized = false
 
 local function getJoystick()
-    if joystickInitialized then
+    if activeJoystick and activeJoystick:isConnected() then
         return activeJoystick
     end
     if love.joystick then
         local joysticks = love.joystick.getJoysticks()
-        if #joysticks > 0 then
-            activeJoystick = joysticks[1]
-            joystickInitialized = true
+        for _, j in ipairs(joysticks) do
+            if j:isConnected() then
+                activeJoystick = j
+                return activeJoystick
+            end
         end
     end
-    return activeJoystick
+    activeJoystick = nil
+    return nil
 end
 
 local function triangle(phase)
@@ -52,7 +54,7 @@ function sound.init()
     enabled = save.loadSound()
     pcall(getJoystick)
 
-    -- Pre-generate the sounds so they are ready to play instantly
+    -- Pre-generate sound buffers
     if love.sound and love.audio then
         local sampleRate = 44100
 
@@ -245,6 +247,7 @@ end
 local BUILTIN_TRACKS = {
     ["all night - roa .mp3"] = true,
     ["beloved - roa.mp3"] = true,
+    ["carefree - luke bergs.mp3"] = true,
     ["chillout - audiocoffee.mp3"] = true,
     ["crescent moon - purrple cat.mp3"] = true,
     ["day off - tokyo music walker .mp3"] = true,
@@ -252,16 +255,20 @@ local BUILTIN_TRACKS = {
     ["embrace - roa.mp3"] = true,
     ["golden hour - purrple cat.mp3"] = true,
     ["green tea - purrple cat.mp3"] = true,
+    ["heart of the ocean - purrple cat.mp3"] = true,
+    ["hope - ghostrifter official.mp3"] = true,
     ["journey - roa.mp3"] = true,
+    ["kokua - luke bergs.mp3"] = true,
     ["late at night - sakura girl.mp3"] = true,
+    ["lights - sakura girl.mp3"] = true,
     ["missing you - purrple cat.mp3"] = true,
+    ["pearl - kirara magic.mp3"] = true,
     ["purple dream - ghostrifter official.mp3"] = true,
     ["summer madness - roa.mp3"] = true,
     ["sunset drive - tokyo music walker.mp3"] = true,
     ["when i was a boy - tokyo music walker.mp3"] = true,
+    ["winter magic - roa.mp3"] = true,
 }
-
-local server_process_running = false
 
 function sound.initPlaylist(keepSource)
     bgmPlaylist = {}
@@ -331,6 +338,10 @@ function sound.reloadPlaylist()
     return #bgmPlaylist
 end
 
+function sound.getPlaylist()
+    return bgmPlaylist
+end
+
 local server_ip = nil
 local server_port = 8048
 local server_process_running = false
@@ -388,11 +399,11 @@ function sound.getQrImage(expected_url)
     local exp_ip, exp_port = expected_url:match("^https?://([^:/]+):?(%d*)/?")
     exp_port = (exp_port and exp_port ~= "") and (tonumber(exp_port) or 8048) or 8048
 
-    -- If Wi-Fi changed or connected while popup is open, restart server on the new IP
+    -- Restart server if IP or port changed
     local now = love and love.timer and love.timer.getTime and love.timer.getTime() or os.clock()
     if exp_ip and is_valid_lan_ip(exp_ip) then
         local needs_restart = false
-        if server_process_running and (server_active_ip ~= exp_ip or (server_active_port and server_active_port ~= exp_port)) then
+        if server_process_running and (server_active_ip ~= exp_ip or (server_active_port and tonumber(server_active_port) ~= tonumber(exp_port))) then
             needs_restart = true
         elseif not server_process_running and _G.jukebox_web_modal then
             needs_restart = true
@@ -400,7 +411,9 @@ function sound.getQrImage(expected_url)
 
         if needs_restart and (now - last_server_start_time > 1.2) then
             sound.startWebServer(exp_port)
-            return nil
+            if qr_image then
+                return qr_image
+            end
         end
     end
 
@@ -413,61 +426,18 @@ function sound.getQrImage(expected_url)
         qr_image_url = nil
     end
 
-    if (now - last_qr_check) < 0.1 then
-        return qr_image
-    end
-    last_qr_check = now
-
-    local work_dir = _G.WORK_DIR or "."
-    local candidates = {
-        work_dir .. "/static/web_qr.png",
-        work_dir .. "/gamedata/static/web_qr.png",
-        "static/web_qr.png",
-        "gamedata/static/web_qr.png"
-    }
-
-    local seen = {}
-    for _, qr_path in ipairs(candidates) do
-        if not seen[qr_path] then
-            seen[qr_path] = true
-            local url_path = qr_path .. ".url"
-            local uf = io.open(url_path, "r")
-            if uf then
-                local file_url = uf:read("*all")
-                uf:close()
-                if file_url then
-                    file_url = file_url:gsub("^%s+", ""):gsub("%s+$", "")
-                end
-                if file_url == expected_url then
-                    local f = io.open(qr_path, "rb")
-                    if f then
-                        local data = f:read("*all")
-                        f:close()
-                        local ok, img = pcall(function()
-                            local fileData = love.filesystem.newFileData(data, "qr.png")
-                            local imageData = love.image.newImageData(fileData)
-                            return love.graphics.newImage(imageData)
-                        end)
-                        if ok and img then
-                            qr_image = img
-                            qr_image_url = expected_url
-                            return qr_image
-                        end
-                    end
-                else
-                    os.remove(qr_path)
-                    os.remove(url_path)
-                end
-            else
-                local f = io.open(qr_path, "rb")
-                if f then
-                    f:close()
-                    os.remove(qr_path)
-                end
-            end
+    -- In-memory QR code generator
+    local ok_jws, jws = pcall(require, "scripts.jukebox_web_server")
+    if ok_jws and jws and jws.getQrImage then
+        local img = jws.getQrImage(expected_url)
+        if img then
+            qr_image = img
+            qr_image_url = expected_url
+            return img
         end
     end
-    return nil
+
+    return qr_image
 end
 
 function sound.get_ip_address(force_refresh)
@@ -475,12 +445,11 @@ function sound.get_ip_address(force_refresh)
         return server_ip
     end
 
-    -- 1. Fast, non-blocking UDP socket route check via LuaSocket (microseconds, 0 subshells)
+    -- UDP socket route check
     local ok_sock, socket = pcall(require, "socket")
     if ok_sock and socket and socket.udp then
         local u = socket.udp()
         if u then
-            u:settimeout(0)
             local ok_peer = pcall(function() u:setpeername("8.8.8.8", 80) end)
             if ok_peer then
                 local ip = u:getsockname()
@@ -491,6 +460,18 @@ function sound.get_ip_address(force_refresh)
                 end
             else
                 pcall(function() u:close() end)
+            end
+        end
+    end
+
+    -- Hostname resolution fallback
+    if ok_sock and socket and socket.dns and socket.dns.gethostname and socket.dns.toip then
+        local ok_host, host = pcall(socket.dns.gethostname)
+        if ok_host and host then
+            local ok_toip, ip = pcall(socket.dns.toip, host)
+            if ok_toip and is_valid_lan_ip(ip) then
+                server_ip = ip
+                return ip
             end
         end
     end
@@ -532,12 +513,16 @@ end
 
 function sound.has_wifi(force)
     local now = love and love.timer and love.timer.getTime and love.timer.getTime() or os.clock()
-    if not force and (now - last_ip_check < 1.5) then
+    if not force and (now - last_ip_check < 3.0) then
         return cached_has_wifi, cached_wifi_ip
     end
     last_ip_check = now
     local ip = sound.get_ip_address(true)
     if not is_valid_lan_ip(ip) then
+        -- Preserve running server IP if check intermittently fails
+        if cached_has_wifi and cached_wifi_ip and server_process_running then
+            return true, cached_wifi_ip
+        end
         cached_has_wifi = false
         cached_wifi_ip = nil
         if server_process_running and _G.jukebox_web_modal then
@@ -551,44 +536,8 @@ function sound.has_wifi(force)
 end
 
 function sound.startWebServer(port)
-    port = port or 8048
+    port = tonumber(port) or 8048
     last_server_start_time = love and love.timer and love.timer.getTime and love.timer.getTime() or os.clock()
-    local work_dir = _G.WORK_DIR or "."
-
-    local function resolve_path(rel)
-        local candidates = {
-            work_dir .. "/" .. rel,
-            work_dir .. "/gamedata/" .. rel,
-            "gamedata/" .. rel,
-            rel
-        }
-        for _, p in ipairs(candidates) do
-            local f = io.open(p, "r")
-            if f then f:close(); return p end
-        end
-        return work_dir .. "/" .. rel
-    end
-
-    local script_path = resolve_path("scripts/jukebox_server.py")
-    local music_dir = resolve_path("assets/music")
-    local font_path = resolve_path("assets/font/ClearSans-Bold.ttf")
-
-    local static_dir = work_dir .. "/static"
-    local st_check = io.open(static_dir .. "/theme.dat", "r") or io.open(static_dir .. "/theme_state.json", "r")
-    if not st_check then
-        local g_static = work_dir .. "/gamedata/static"
-        local gst_check = io.open(g_static .. "/theme.dat", "r") or io.open(g_static .. "/theme_state.json", "r")
-        if gst_check then
-            gst_check:close()
-            static_dir = g_static
-        end
-    else
-        st_check:close()
-    end
-
-    local qr_path = static_dir .. "/web_qr.png"
-    local url_path = qr_path .. ".url"
-    local theme_path = static_dir .. "/theme_state.json"
 
     local ok_wifi, ip = sound.has_wifi(true)
     if not ok_wifi then
@@ -598,8 +547,6 @@ function sound.startWebServer(port)
         server_process_running = false
         qr_image = nil
         qr_image_url = nil
-        os.remove(qr_path)
-        os.remove(url_path)
         return "127.0.0.1", port
     end
 
@@ -608,60 +555,41 @@ function sound.startWebServer(port)
         qr_image = nil
         qr_image_url = nil
     end
-    server_ip = ip
-    server_port = port
-    server_active_ip = ip
-    server_active_port = port
 
-    -- If existing QR on disk doesn't match target_url, remove it immediately so stale QR is never shown
-    local uf = io.open(url_path, "r")
-    local existing_url = nil
-    if uf then
-        existing_url = uf:read("*all")
-        uf:close()
-        if existing_url then
-            existing_url = existing_url:gsub("^%s+", ""):gsub("%s+$", "")
-        end
-    end
-    if existing_url ~= target_url then
-        os.remove(qr_path)
-        os.remove(url_path)
-    end
-
-    -- Write initial theme state
-    if renderer and renderer.applyTheme then
-        renderer.applyTheme(true)
-    else
-        local tf = io.open(theme_path, "w")
-        if tf then
-            local t_name = renderer and renderer.getThemeDisplayName and renderer.getThemeDisplayName(_G.theme or "light", false) or (_G.theme or "light")
-            tf:write(string.format('{"theme":"%s","name":"%s","timestamp":%d}', _G.theme or "light", t_name, os.time()))
-            tf:close()
+    local ok_jws, jws = pcall(require, "scripts.jukebox_web_server")
+    if ok_jws and jws then
+        local ok_start, act_ip, act_port = jws.start(ip, port)
+        if ok_start then
+            server_process_running = true
+            server_ip = act_ip
+            server_port = tonumber(act_port or port) or 8048
+            server_active_ip = act_ip
+            server_active_port = tonumber(act_port or port) or 8048
+            sound.getQrImage(target_url)
+            return act_ip, server_active_port
         end
     end
 
-    os.execute("pkill -9 -f jukebox_server.py 2>/dev/null")
-
-    local cmd = string.format('python3 -B "%s" --daemon --host "%s" --music-dir "%s" --port %d --qr-path "%s" --font-path "%s" --theme-file "%s" > /dev/null 2>&1',
-        script_path, ip, music_dir, port, qr_path, font_path, theme_path)
-    os.execute(cmd)
-
-    server_process_running = true
-    if not qr_image then
-        sound.getQrImage(target_url)
-    end
+    server_process_running = false
     return ip, port
 end
 
 function sound.stopWebServer()
-    os.execute("pkill -9 -f jukebox_server.py 2>/dev/null")
+    local ok_jws, jws = pcall(require, "scripts.jukebox_web_server")
+    if ok_jws and jws then
+        jws.stop()
+    end
     server_process_running = false
     server_active_ip = nil
-    -- Cache QR code image
+    server_active_port = 8048
     return sound.reloadPlaylist()
 end
 
 function sound.isWebServerRunning()
+    local ok_jws, jws = pcall(require, "scripts.jukebox_web_server")
+    if ok_jws and jws and jws.is_running and jws.is_running() then
+        return true
+    end
     return server_process_running
 end
 
@@ -833,6 +761,11 @@ function sound.playPrevBgm()
 end
 
 function sound.update(dt)
+    local ok_jws, jws = pcall(require, "scripts.jukebox_web_server")
+    if ok_jws and jws and jws.is_running and jws.is_running() then
+        jws.update(sound)
+    end
+
     local in_game    = _G.appState == "GAME"
     local in_jukebox = _G.appState == "JUKEBOX"
     local allowed    = sound.isBgmEnabled() and (in_game or in_jukebox)
@@ -1053,9 +986,19 @@ end
 
 function sound.vibrate(duration)
     if not _G.vibration then return end
-    local j = getJoystick()
-    if j and j:isVibrationSupported() then
-        j:setVibration(0.6, 0.6, duration or 0.1)
+    local dur = duration or 0.1
+    pcall(function()
+        if love.system and love.system.vibrate then
+            love.system.vibrate(dur)
+        end
+    end)
+    if love.joystick then
+        local joysticks = love.joystick.getJoysticks()
+        for _, j in ipairs(joysticks) do
+            if j:isConnected() and j:isVibrationSupported() then
+                j:setVibration(0.6, 0.6, dur)
+            end
+        end
     end
 end
 return sound

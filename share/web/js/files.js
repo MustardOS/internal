@@ -2,7 +2,7 @@
     "use strict";
 
     const MU = window.MU;
-    const {api, apiPath, ask, bytes, crumbs, el, fetchAuthed, loading, make, problem, register, setBar, showToast, sortableHead, stamp, t, uploadAuthed} = MU;
+    const {api, apiPath, ask, bytes, crumbs, el, fetchAuthed, holdFocus, loading, make, problem, register, setBar, showToast, sortableHead, stamp, t, uploadAuthed} = MU;
     const browser = el("files-browser");
     const body = el("files-body");
     const rootsBox = el("files-roots");
@@ -38,6 +38,18 @@
     const imagePreviewTitle = el("file-image-preview-title");
     const imagePreviewImage = el("file-image-preview-image");
     const imagePreviewClose = el("file-image-preview-close");
+    const modeBox = el("file-mode-box");
+    const modeForm = el("file-mode-form");
+    const modeTitle = el("file-mode-title");
+    const modePath = el("file-mode-path");
+    const modeValue = el("file-mode-value");
+    const modeSave = el("file-mode-save");
+    const modeCancel = el("file-mode-cancel");
+    const modeChecks = [...modeForm.querySelectorAll("[data-mode-bit]")];
+    const actionMenu = make("div", "file-action-menu");
+    actionMenu.hidden = true;
+    actionMenu.setAttribute("role", "menu");
+    document.body.append(actionMenu);
     const sortStorageKey = "muos.files.sort";
     const systemWarningKey = "muos.files.system-warning";
     const textExtensions = new Set([
@@ -71,6 +83,8 @@
     let crumbsFor = null;
     let textTarget = null;
     let imagePreviewUrl = "";
+    let modeTarget = null;
+    let actionMenuOwner = null;
     const selected = new Set();
     const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: "base"});
 
@@ -232,20 +246,66 @@
         setBar(el("files-space-fill"), percent, percent >= 90);
     }
 
+    const actionGlyphs = {
+        "Edit Text": "text", "Edit Image": "sliders", "Preview Text": "text", "Preview Image": "text",
+        "More Options": "more", Permissions: "lock", Rename: "edit", Move: "move", Copy: "copy", Remove: "trash"
+    };
+
     function action(label, handler, danger) {
-        const glyphs = {
-            "Edit Text": "text", "Edit Image": "sliders", "Preview Text": "text", "Preview Image": "text",
-            Rename: "edit", Move: "move", Copy: "copy", Remove: "trash"
-        };
         const text = t(label);
         const button = make("button", `link file-action${danger ? " danger" : ""}`);
         button.type = "button";
-        button.dataset.glyph = glyphs[label];
+        button.dataset.glyph = actionGlyphs[label];
         button.dataset.tooltip = text;
         button.title = text;
         button.setAttribute("aria-label", text);
         button.addEventListener("click", () => handler(button));
         return button;
+    }
+
+    function closeActionMenu(restoreFocus = false) {
+        if (!actionMenuOwner) return;
+        const owner = actionMenuOwner;
+        actionMenuOwner = null;
+        actionMenu.hidden = true;
+        actionMenu.replaceChildren();
+        owner.setAttribute("aria-expanded", "false");
+        if (restoreFocus && owner.isConnected) owner.focus();
+    }
+
+    function openActionMenu(owner, entries) {
+        if (actionMenuOwner === owner) {
+            closeActionMenu(true);
+            return;
+        }
+        closeActionMenu();
+        actionMenuOwner = owner;
+        owner.setAttribute("aria-expanded", "true");
+        owner.setAttribute("aria-haspopup", "menu");
+
+        actionMenu.replaceChildren(...entries.map((entry) => {
+            const button = make("button", `link file-menu-item${entry.danger ? " danger" : ""}`, t(entry.label));
+            button.type = "button";
+            button.dataset.glyph = actionGlyphs[entry.label];
+            button.setAttribute("role", "menuitem");
+            button.addEventListener("click", (event) => {
+                event.stopPropagation();
+                closeActionMenu();
+                entry.handler();
+            });
+            return button;
+        }));
+
+        actionMenu.hidden = false;
+        const anchor = owner.getBoundingClientRect();
+        const menu = actionMenu.getBoundingClientRect();
+        const left = Math.max(8, Math.min(window.innerWidth - menu.width - 8, anchor.right - menu.width));
+        let top = anchor.bottom + 4;
+        if (top + menu.height > window.innerHeight - 8) top = Math.max(8, anchor.top - menu.height - 4);
+        actionMenu.style.left = `${Math.round(left)}px`;
+        actionMenu.style.top = `${Math.round(top)}px`;
+        const first = actionMenu.querySelector("button");
+        if (first) first.focus();
     }
 
     function extension(name) {
@@ -307,6 +367,7 @@
     }
 
     function render() {
+        closeActionMenu();
         browser.classList.toggle("box", Boolean(current));
         toolbar.hidden = !current;
         paintCrumbs();
@@ -366,7 +427,7 @@
             }
 
             const tools = make("div", "entry-actions file-entry-actions");
-            const toolSlots = new Array(6).fill(null);
+            const toolSlots = new Array(3).fill(null);
             const editable = editableType(item);
             if (editable === "text") {
                 toolSlots[0] = action(manageable ? "Edit Text" : "Preview Text",
@@ -388,10 +449,14 @@
                 toolSlots[1] = download;
             }
             if (manageable) {
-                toolSlots[2] = action("Rename", () => renameItem(item, relative));
-                toolSlots[3] = action("Move", () => moveItem(item, relative));
-                if (!item.link) toolSlots[4] = action("Copy", () => copyItem(item, relative));
-                toolSlots[5] = action("Remove", () => removeItem(item, relative), true);
+                const menuEntries = [];
+                if (current.permissions && item.permissions)
+                    menuEntries.push({label: "Permissions", handler: () => openPermissions(item, relative)});
+                menuEntries.push({label: "Rename", handler: () => renameItem(item, relative)});
+                menuEntries.push({label: "Move", handler: () => moveItem(item, relative)});
+                if (!item.link) menuEntries.push({label: "Copy", handler: () => copyItem(item, relative)});
+                menuEntries.push({label: "Remove", handler: () => removeItem(item, relative), danger: true});
+                toolSlots[2] = action("More Options", (button) => openActionMenu(button, menuEntries));
             }
             toolSlots.forEach((tool) => tools.append(tool || make("span", "file-action-placeholder")));
             const selectCell = make("td", "table-select");
@@ -561,6 +626,54 @@
         imagePreviewUrl = "";
     }
 
+    function selectedMode() {
+        return modeChecks.reduce((value, input) => value | (input.checked ? Number(input.dataset.modeBit) : 0), 0);
+    }
+
+    function paintMode() {
+        modeValue.textContent = selectedMode().toString(8).padStart(3, "0");
+    }
+
+    function closePermissions() {
+        if (!modeTarget) return;
+        const restore = modeTarget.restore;
+        modeTarget = null;
+        modeBox.hidden = true;
+        restore();
+    }
+
+    async function openPermissions(item, relative) {
+        if (!await confirmProtected()) return;
+        const mode = Number(item.mode) & 0o777;
+        modeChecks.forEach((input) => { input.checked = Boolean(mode & Number(input.dataset.modeBit)); });
+        modeTitle.textContent = t("Permissions for %s", item.name);
+        modePath.textContent = relative;
+        modeTarget = {relative, restore: holdFocus()};
+        paintMode();
+        modeBox.hidden = false;
+        modeChecks[0].focus();
+    }
+
+    async function savePermissions(event) {
+        event.preventDefault();
+        if (!modeTarget) return;
+        const relative = modeTarget.relative;
+        const mode = selectedMode().toString(8).padStart(3, "0");
+        modeSave.disabled = true;
+        try {
+            await api(endpoint("chmod", relative), {
+                method: "POST", body: mode, type: "text/plain", headers: protectedHeaders()
+            });
+            closePermissions();
+            showToast("Permissions changed", "good");
+            await openFolder(path);
+        } catch (error) {
+            showToast(error.message, "bad");
+        } finally {
+            modeSave.disabled = false;
+        }
+    }
+
     async function openImage(item, relative, editable) {
         try {
             const response = await fetchAuthed(endpoint("download", relative), {cache: "no-store"});
@@ -624,6 +737,7 @@
         try {
             const payload = await api(endpoint("browse"));
             items = payload.items || [];
+            current.permissions = Boolean(payload.permissions);
             paintSpace(payload);
             render();
         } catch (error) {
@@ -1017,6 +1131,9 @@
     textEditorSave.addEventListener("click", saveText);
     textEditorCancel.addEventListener("click", closeTextEditor);
     imagePreviewClose.addEventListener("click", closeImagePreview);
+    modeForm.addEventListener("submit", savePermissions);
+    modeCancel.addEventListener("click", closePermissions);
+    modeChecks.forEach((input) => input.addEventListener("change", paintMode));
     richTextTools.querySelectorAll("[data-rich-code]").forEach((button) => {
         button.addEventListener("click", () => insertRichCode(button.dataset.richCode));
     });
@@ -1026,6 +1143,8 @@
     });
     MU.onDismiss(closeTextEditor);
     MU.onDismiss(closeImagePreview);
+    MU.onDismiss(closePermissions);
+    MU.onDismiss(closeActionMenu);
     MU.editTextDocument = openTextEditor;
     search.addEventListener("input", render);
     selectAll.addEventListener("change", () => {
@@ -1054,6 +1173,18 @@
         drop.hidden = true;
     }));
     document.addEventListener("drop", (event) => upload([...event.dataTransfer.files]));
+    document.addEventListener("click", (event) => {
+        if (!actionMenu.hidden && !actionMenu.contains(event.target) && event.target !== actionMenuOwner)
+            closeActionMenu();
+    });
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !actionMenu.hidden) {
+            event.preventDefault();
+            closeActionMenu(true);
+        }
+    });
+    window.addEventListener("resize", () => closeActionMenu());
+    window.addEventListener("scroll", () => closeActionMenu(), true);
     MU.onAuthChange(() => {
         if (!MU.canManage()) selected.clear();
         render();

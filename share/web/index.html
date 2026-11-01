@@ -678,6 +678,34 @@
     </div>
 </div>
 
+<div class="modal" id="file-mode-box" hidden>
+    <form class="box file-mode-dialog" id="file-mode-form" role="dialog" aria-labelledby="file-mode-title" aria-modal="true">
+        <h2 id="file-mode-title">Permissions</h2>
+        <p class="file-mode-warning" role="alert"><strong>Warning:</strong> Incorrect permissions can stop files, scripts, or folders from working. Execute permission allows code to run.</p>
+        <p class="note file-mode-path"><code id="file-mode-path"></code></p>
+        <div class="file-mode-grid" aria-label="Unix permissions">
+            <span></span><strong>Read</strong><strong>Write</strong><strong>Execute</strong>
+            <strong>Owner</strong>
+            <label><input type="checkbox" data-mode-bit="256"><span>Read</span></label>
+            <label><input type="checkbox" data-mode-bit="128"><span>Write</span></label>
+            <label><input type="checkbox" data-mode-bit="64"><span>Execute</span></label>
+            <strong>Group</strong>
+            <label><input type="checkbox" data-mode-bit="32"><span>Read</span></label>
+            <label><input type="checkbox" data-mode-bit="16"><span>Write</span></label>
+            <label><input type="checkbox" data-mode-bit="8"><span>Execute</span></label>
+            <strong>Other</strong>
+            <label><input type="checkbox" data-mode-bit="4"><span>Read</span></label>
+            <label><input type="checkbox" data-mode-bit="2"><span>Write</span></label>
+            <label><input type="checkbox" data-mode-bit="1"><span>Execute</span></label>
+        </div>
+        <p class="file-mode-value">Mode <code id="file-mode-value">000</code></p>
+        <div class="code-actions editor-actions">
+            <button class="dialog-button" type="button" id="file-mode-cancel">Cancel</button>
+            <button class="dialog-button dialog-button-primary" type="submit" id="file-mode-save">Save</button>
+        </div>
+    </form>
+</div>
+
 <div class="modal" id="ask-box" hidden>
     <div class="box" role="alertdialog" aria-labelledby="ask-title" aria-describedby="ask-message">
         <h2 id="ask-title"></h2>

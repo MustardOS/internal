@@ -37,6 +37,7 @@ local vectors = {
 function Game.new(mode)
     local self = setmetatable({}, Game)
     self.mode = mode or "classic"
+    _G.game = self
     save.saveLastMode(self.mode)
     self.rng = love.math.newRandomGenerator(math.floor(love.timer.getTime() * 1000) + love.math.random(1, 100000))
     self.size = 4
@@ -179,6 +180,18 @@ function Game.new(mode)
                 _G.stats.classic_games = (_G.stats.classic_games or 0) + 1
             elseif self.mode == "plus" then
                 _G.stats.plus_games = (_G.stats.plus_games or 0) + 1
+            elseif self.mode == "timeattack" then
+                _G.stats.timeattack_games = (_G.stats.timeattack_games or 0) + 1
+                _G.stats.arcade_games = (_G.stats.arcade_games or 0) + 1
+            elseif self.mode == "huge" then
+                _G.stats.huge_games = (_G.stats.huge_games or 0) + 1
+                _G.stats.arcade_games = (_G.stats.arcade_games or 0) + 1
+            elseif self.mode == "nomercy" then
+                _G.stats.nomercy_games = (_G.stats.nomercy_games or 0) + 1
+                _G.stats.arcade_games = (_G.stats.arcade_games or 0) + 1
+            elseif self.mode == "goose" then
+                _G.stats.goose_games = (_G.stats.goose_games or 0) + 1
+                _G.stats.arcade_games = (_G.stats.arcade_games or 0) + 1
             else
                 _G.stats.arcade_games = (_G.stats.arcade_games or 0) + 1
             end
@@ -212,9 +225,9 @@ function Game.new(mode)
         renderer.clearHeaderLogoMorph()
     end
 
-    -- Trigger "First Steps" achievement
+    -- Trigger First Steps achievement
     if _G.unlockAchievement and self.mode ~= "huge" then
-        _G.unlockAchievement("ach_first_game")
+        _G.unlockAchievement("ach_first_game", self)
     end
 
     -- Time Attack: initialize timer after everything is set up if not loaded from save
@@ -522,52 +535,33 @@ function Game:move(direction)
                     end
 
                     -- Check powerup milestone unlocks
-                    if self.mode == "plus" and merged.value >= 128 then
+                    if self.mode == "plus" and merged.value >= 256 then
                         local m_str = tostring(merged.value)
                         if not self.milestonesReached[m_str] then
                             self.milestonesReached[m_str] = true
 
-                            local function grantRandomPowerup(g)
-                                local p = g.rng and g.rng:random(1, 3) or love.math.random(1, 3)
-                                if p == 1 then
-                                    g.powerups.undo = g.powerups.undo + 1
-                                    return "Undo"
-                                elseif p == 2 then
-                                    g.powerups.swap = g.powerups.swap + 1
-                                    return "Swap"
-                                else
-                                    g.powerups.bomb = g.powerups.bomb + 1
-                                    return "Bomb"
-                                end
-                            end
-
-                            if merged.value == 128 then
-                                local name = grantRandomPowerup(self)
-                                self:addFloatingNotification("+" .. name, merged.x, merged.y)
-                            elseif merged.value == 256 then
-                                local name = grantRandomPowerup(self)
+                            local morph_text = nil
+                            if merged.value == 256 then
                                 self.powerups.undo = self.powerups.undo + 1
-                                self:addFloatingNotification("+" .. name .. " & +1 Undo", merged.x, merged.y)
+                                morph_text = "+1 UNDO"
                             elseif merged.value == 512 then
+                                self.powerups.swap = self.powerups.swap + 1
+                                morph_text = "+1 SWAP"
+                            elseif merged.value == 1024 then
+                                self.powerups.bomb = self.powerups.bomb + 1
+                                morph_text = "+1 BOMB"
+                            elseif merged.value >= 2048 then
                                 self.powerups.undo = self.powerups.undo + 1
                                 self.powerups.bomb = self.powerups.bomb + 1
                                 self.powerups.swap = self.powerups.swap + 1
-                                self:addFloatingNotification("All Powerups +1", merged.x, merged.y)
-                            elseif merged.value == 1024 then
-                                self.powerups.undo = self.powerups.undo + 2
-                                self.powerups.bomb = self.powerups.bomb + 2
-                                self.powerups.swap = self.powerups.swap + 2
-                                self:addFloatingNotification("All Powerups +2", merged.x, merged.y)
-                            elseif merged.value == 2048 then
-                                self.powerups.undo = self.powerups.undo + 2
-                                self.powerups.bomb = self.powerups.bomb + 2
-                                self.powerups.swap = self.powerups.swap + 2
-                                self:addFloatingNotification("All Powerups +2", merged.x, merged.y)
-                            elseif merged.value >= 4096 then
-                                self.powerups.undo = self.powerups.undo + 3
-                                self.powerups.bomb = self.powerups.bomb + 3
-                                self.powerups.swap = self.powerups.swap + 3
-                                self:addFloatingNotification("All Powerups +3", merged.x, merged.y)
+                                morph_text = "+1 ALL"
+                            end
+
+                            if morph_text then
+                                local renderer = require("renderer")
+                                if renderer and renderer.triggerHeaderLogoMorph then
+                                    renderer.triggerHeaderLogoMorph(morph_text)
+                                end
                             end
                         end
                     end
@@ -1030,6 +1024,18 @@ function Game:restart()
             _G.stats.classic_games = (_G.stats.classic_games or 0) + 1
         elseif self.mode == "plus" then
             _G.stats.plus_games = (_G.stats.plus_games or 0) + 1
+        elseif self.mode == "timeattack" then
+            _G.stats.timeattack_games = (_G.stats.timeattack_games or 0) + 1
+            _G.stats.arcade_games = (_G.stats.arcade_games or 0) + 1
+        elseif self.mode == "huge" then
+            _G.stats.huge_games = (_G.stats.huge_games or 0) + 1
+            _G.stats.arcade_games = (_G.stats.arcade_games or 0) + 1
+        elseif self.mode == "nomercy" then
+            _G.stats.nomercy_games = (_G.stats.nomercy_games or 0) + 1
+            _G.stats.arcade_games = (_G.stats.arcade_games or 0) + 1
+        elseif self.mode == "goose" then
+            _G.stats.goose_games = (_G.stats.goose_games or 0) + 1
+            _G.stats.arcade_games = (_G.stats.arcade_games or 0) + 1
         else
             _G.stats.arcade_games = (_G.stats.arcade_games or 0) + 1
         end
@@ -1266,7 +1272,7 @@ function Game:update(dt)
                 self.timesUp = true  -- flag for renderer to show "Time's Up!"
                 local sound = require("sound")
                 sound.playGameOver()
-                self:saveGameState()  -- saves high score only (saveGameState returns early for timeattack)
+                self:saveGameState()  -- saves high score only, saveGameState returns early for timeattack
                 save.saveHighScore(self.highScore, self.mode)
             end
         end

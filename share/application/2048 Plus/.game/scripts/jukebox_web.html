@@ -1,580 +1,4 @@
-#!/usr/bin/env python3
-"""
-2048 Plus — Jukebox Wireless Music Web Server & Manager
-Clean, modern, and minimal wireless music management console for 2048 Plus.
-Allows players to upload, preview, manage, and download custom MP3/OGG/WAV tracks
-from phone or PC over local Wi-Fi.
-
-Features:
-- Real-time live theme synchronization with main app (via Y key in game) across all 41+ themes
-- Pure CSS dynamic variable engine for instantaneous theme transitions without page reload
-- High-fidelity interactive spinning vinyl turntable with animated tonearm
-- 16-band real-time graphic equalizer with Web Audio API frequency analysis
-- Clean, minimal Material Design 3 transport icons (no clunky circular frames, perfectly centered)
-- Flat, modern aesthetic with no blurry glowing effects
-- Drag-and-drop file upload with animated progress tracking
-- Authentic ClearSans-Bold typography and Google Material Design 3 icons
-"""
-
-import os
-import sys
-import json
-import signal
-import socket
-import shutil
-import argparse
-import urllib.parse
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from socketserver import ThreadingMixIn
-
-# Ignore SIGHUP so server persists even if terminal detaches
-if hasattr(signal, "SIGHUP"):
-    try:
-        signal.signal(signal.SIGHUP, signal.SIG_IGN)
-    except Exception:
-        pass
-
-# Default list of built-in tracks that cannot be deleted
-BUILTIN_TRACKS = {
-    "all night - roa .mp3",
-    "beloved - roa.mp3",
-    "chillout - audiocoffee.mp3",
-    "crescent moon - purrple cat.mp3",
-    "day off - tokyo music walker .mp3",
-    "downtown glow - ghostrifter official.mp3",
-    "embrace - roa.mp3",
-    "golden hour - purrple cat.mp3",
-    "green tea - purrple cat.mp3",
-    "journey - roa.mp3",
-    "late at night - sakura girl.mp3",
-    "missing you - purrple cat.mp3",
-    "purple dream - ghostrifter official.mp3",
-    "summer madness - roa.mp3",
-    "sunset drive - tokyo music walker.mp3",
-    "when i was a boy - tokyo music walker.mp3",
-}
-
-class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
-    daemon_threads = True
-    allow_reuse_address = True
-
-def is_valid_lan_ip(ip):
-    if not ip or not isinstance(ip, str):
-        return False
-    parts = ip.strip().split(".")
-    if len(parts) != 4:
-        return False
-    try:
-        octets = [int(p) for p in parts]
-    except ValueError:
-        return False
-    if any(o < 0 or o > 255 for o in octets):
-        return False
-    if octets == [0, 0, 0, 0]:
-        return False
-    if octets[0] == 127:
-        return False
-    if octets[0] == 169 and octets[1] == 254:
-        return False
-    if octets[0] == 192 and octets[1] == 168 and octets[2] == 7 and octets[3] == 1:  # ArkOS usb gadget
-        return False
-    return True
-
-def get_local_ip(preferred=None):
-    if preferred and is_valid_lan_ip(preferred):
-        return preferred.strip()
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-        s.close()
-        if is_valid_lan_ip(ip):
-            return ip
-    except Exception:
-        pass
-
-    for probe in ("192.168.1.1", "192.168.0.1", "10.0.0.1"):
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.connect((probe, 80))
-            ip = s.getsockname()[0]
-            s.close()
-            if is_valid_lan_ip(ip):
-                return ip
-        except Exception:
-            pass
-
-    try:
-        import subprocess
-        output = subprocess.check_output(["hostname", "-I"], timeout=1).decode("utf-8")
-        for token in output.split():
-            if is_valid_lan_ip(token):
-                return token
-    except Exception:
-        pass
-
-    return "127.0.0.1"
-
-def parse_track_meta(filename):
-    """Extracts title and artist from 'Title - Artist.ext'."""
-    stem, _ = os.path.splitext(filename)
-    if " - " in stem:
-        parts = stem.split(" - ", 1)
-        title = parts[0].strip()
-        artist = parts[1].strip()
-    else:
-        title = stem.strip()
-        artist = "Custom Track"
-    return title, artist
-
-def sanitize_filename(filename):
-    """Sanitizes filename to prevent directory traversal."""
-    filename = os.path.basename(filename)
-    filename = filename.replace("\\", "").replace("/", "")
-    filename = "".join(c for c in filename if c.isprintable() and c not in '<>:"/\\|?*')
-    return filename.strip()
-
-def find_font_file(custom_path=None):
-    """Locates the ClearSans-Bold.ttf font file."""
-    if custom_path and os.path.isfile(custom_path):
-        return os.path.abspath(custom_path)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    candidates = [
-        os.path.join(script_dir, "..", "assets", "font", "ClearSans-Bold.ttf"),
-        os.path.join(os.getcwd(), "assets", "font", "ClearSans-Bold.ttf"),
-        "/home/sahil/My Files/Git/2048plus/assets/font/ClearSans-Bold.ttf",
-    ]
-    for c in candidates:
-        if os.path.isfile(c):
-            return os.path.abspath(c)
-    return None
-
-class JukeboxHandler(BaseHTTPRequestHandler):
-    music_dir = ""
-    font_path = ""
-    theme_file = ""
-    server_port = 8048
-    server_host = ""
-
-    def log_message(self, format, *args):
-        pass
-
-    def send_json(self, data, status=200):
-        body = json.dumps(data).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.end_headers()
-        try:
-            self.wfile.write(body)
-        except (BrokenPipeError, ConnectionResetError):
-            pass
-
-    def get_current_theme(self):
-        """Reads the live theme state written by Love2D game."""
-        target = self.theme_file
-        if not target or not os.path.isfile(target):
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            candidates = [
-                os.path.join(script_dir, "..", "static", "theme_state.json"),
-                os.path.join(os.getcwd(), "static", "theme_state.json"),
-                "/home/sahil/My Files/Git/2048plus/static/theme_state.json",
-            ]
-            for c in candidates:
-                if os.path.isfile(c):
-                    target = c
-                    break
-
-        if target and os.path.isfile(target):
-            try:
-                with open(target, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    if isinstance(data, dict) and "theme" in data:
-                        return data
-            except Exception:
-                pass
-        return {"theme": "light", "name": "Classic Light", "timestamp": 0, "bg": "#faf8ef", "board": "#bbada0", "accent": "#edc22e", "text": "#776e65", "is_dark": False}
-
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET, HEAD, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.end_headers()
-
-    def do_HEAD(self):
-        parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path
-        if path in ("/", "/index.html"):
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.end_headers()
-        elif path in ("/font/ClearSans-Bold.ttf", "/assets/font/ClearSans-Bold.ttf"):
-            self.send_response(200)
-            self.send_header("Content-Type", "font/ttf")
-            self.end_headers()
-        elif path in ("/assets/logo/logo_2048.png", "/logo.png"):
-            self.send_response(200)
-            self.send_header("Content-Type", "image/png")
-            self.end_headers()
-        elif path in ("/favicon.ico", "/favicon.png"):
-            self.send_response(200)
-            self.send_header("Content-Type", "image/png")
-            self.end_headers()
-        elif path in ("/api/tracks", "/api/status", "/api/theme"):
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
-            self.end_headers()
-        else:
-            self.send_response(200)
-            self.end_headers()
-
-    def do_GET(self):
-        parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path
-
-        if path in ("/", "/index.html"):
-            self.serve_dashboard()
-        elif path in ("/font/ClearSans-Bold.ttf", "/assets/font/ClearSans-Bold.ttf"):
-            self.serve_font()
-        elif path in ("/assets/logo/logo_2048.png", "/logo.png"):
-            self.serve_logo_png()
-        elif path == "/api/tracks":
-            self.api_get_tracks()
-        elif path == "/api/status":
-            self.api_get_status()
-        elif path == "/api/theme":
-            self.send_json(self.get_current_theme())
-        elif path.startswith("/api/stream/"):
-            filename = urllib.parse.unquote(path[len("/api/stream/"):])
-            self.stream_audio(filename, as_attachment=False)
-        elif path.startswith("/api/download/"):
-            filename = urllib.parse.unquote(path[len("/api/download/"):])
-            self.stream_audio(filename, as_attachment=True)
-        elif path in ("/favicon.ico", "/favicon.png"):
-            self.serve_favicon()
-        else:
-            self.send_error(404, "File Not Found")
-
-    def do_POST(self):
-        parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path
-
-        if path == "/api/upload":
-            self.api_upload()
-        elif path == "/api/delete":
-            self.api_delete()
-        elif path == "/api/edit_track":
-            self.api_edit_track()
-        elif path == "/api/shutdown":
-            self.send_json({"success": True, "message": "Server shutting down"})
-            threading = __import__("threading")
-            threading.Thread(target=self.server.shutdown).start()
-        else:
-            self.send_error(404)
-
-    def serve_dashboard(self):
-        ip = JukeboxHandler.server_host or get_local_ip()
-        theme_info = self.get_current_theme()
-        current_theme = theme_info.get("theme", "light")
-        current_name = theme_info.get("name", "Classic Light")
-
-        html = HTML_TEMPLATE.replace("__DEVICE_IP__", f"{ip}:{self.server_port}")
-        html = html.replace("__INITIAL_THEME__", current_theme)
-        html = html.replace("__INITIAL_THEME_NAME__", current_name)
-
-        data = html.encode("utf-8")
-        self.send_response(200)
-        self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.send_header("Content-Length", str(len(data)))
-        self.end_headers()
-        self.wfile.write(data)
-
-    def serve_font(self):
-        target = self.font_path or find_font_file()
-        if target and os.path.isfile(target):
-            try:
-                with open(target, "rb") as f:
-                    data = f.read()
-                self.send_response(200)
-                self.send_header("Content-Type", "font/ttf")
-                self.send_header("Content-Length", str(len(data)))
-                self.send_header("Cache-Control", "public, max-age=31536000, immutable")
-                self.send_header("Access-Control-Allow-Origin", "*")
-                self.end_headers()
-                self.wfile.write(data)
-                return
-            except Exception as e:
-                print(f"Error serving font: {e}", file=sys.stderr)
-        self.send_error(404, "Font Not Found")
-
-    def serve_logo_png(self):
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        candidates = [
-            os.path.join(script_dir, "..", "assets", "logo", "logo_2048.png"),
-            os.path.join(os.getcwd(), "assets", "logo", "logo_2048.png"),
-            "/home/sahil/My Files/Git/2048plus/assets/logo/logo_2048.png",
-        ]
-        for target in candidates:
-            if os.path.isfile(target):
-                try:
-                    with open(target, "rb") as f:
-                        data = f.read()
-                    self.send_response(200)
-                    self.send_header("Content-Type", "image/png")
-                    self.send_header("Content-Length", str(len(data)))
-                    self.send_header("Cache-Control", "public, max-age=31536000")
-                    self.end_headers()
-                    self.wfile.write(data)
-                    return
-                except Exception as e:
-                    print(f"Error serving logo png: {e}", file=sys.stderr)
-        self.send_error(404, "Logo Not Found")
-
-    def serve_favicon(self):
-        self.serve_logo_png()
-
-    def api_get_status(self):
-        ip = JukeboxHandler.server_host or get_local_ip()
-        total, used, free = shutil.disk_usage(self.music_dir if os.path.exists(self.music_dir) else ".")
-        theme_info = self.get_current_theme()
-        self.send_json({
-            "ip": ip,
-            "port": self.server_port,
-            "theme": theme_info.get("theme", "light"),
-            "theme_name": theme_info.get("name", "Classic Light"),
-            "theme_timestamp": theme_info.get("timestamp", 0),
-            "storage": {
-                "total_mb": round(total / (1024 * 1024), 1),
-                "free_mb": round(free / (1024 * 1024), 1),
-                "used_mb": round(used / (1024 * 1024), 1)
-            }
-        })
-
-    def api_get_tracks(self):
-        tracks = []
-        if os.path.exists(self.music_dir):
-            for f in sorted(os.listdir(self.music_dir)):
-                lower = f.lower()
-                if lower.endswith((".mp3", ".ogg", ".wav")):
-                    full_path = os.path.join(self.music_dir, f)
-                    try:
-                        size = os.path.getsize(full_path)
-                    except Exception:
-                        size = 0
-                    title, artist = parse_track_meta(f)
-                    is_builtin = lower in BUILTIN_TRACKS
-                    tracks.append({
-                        "filename": f,
-                        "title": title,
-                        "artist": artist,
-                        "size_bytes": size,
-                        "size_formatted": f"{size / (1024*1024):.1f} MB" if size >= 1048576 else f"{size / 1024:.0f} KB",
-                        "is_custom": not is_builtin
-                    })
-
-        tracks.sort(key=lambda x: x["title"].lower())
-        self.send_json({"tracks": tracks})
-
-    def stream_audio(self, filename, as_attachment=False):
-        safe_name = sanitize_filename(filename)
-        file_path = os.path.join(self.music_dir, safe_name)
-        if not os.path.isfile(file_path):
-            self.send_error(404, "Audio file not found")
-            return
-
-        size = os.path.getsize(file_path)
-        ext = os.path.splitext(safe_name)[1].lower()
-        content_type = "application/octet-stream" if as_attachment else ("audio/mpeg" if ext == ".mp3" else ("audio/ogg" if ext == ".ogg" else "audio/wav"))
-
-        range_header = self.headers.get("Range")
-        if range_header and not as_attachment:
-            try:
-                bytes_range = range_header.split("=")[1].strip()
-                start_str, end_str = bytes_range.split("-")
-                start = int(start_str) if start_str else 0
-                end = int(end_str) if end_str else size - 1
-                length = end - start + 1
-
-                self.send_response(206)
-                self.send_header("Access-Control-Allow-Origin", "*")
-                self.send_header("Content-Type", content_type)
-                self.send_header("Content-Range", f"bytes {start}-{end}/{size}")
-                self.send_header("Content-Length", str(length))
-                self.send_header("Accept-Ranges", "bytes")
-                self.end_headers()
-
-                with open(file_path, "rb") as f:
-                    f.seek(start)
-                    self.wfile.write(f.read(length))
-                return
-            except Exception:
-                pass
-
-        self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Content-Type", content_type)
-        self.send_header("Content-Length", str(size))
-        self.send_header("Accept-Ranges", "bytes")
-        if as_attachment:
-            quoted_fn = urllib.parse.quote(safe_name)
-            clean_fn = safe_name.replace('"', '\\"')
-            self.send_header("Content-Disposition", f'attachment; filename="{clean_fn}"; filename*=UTF-8\'\'{quoted_fn}')
-        self.end_headers()
-        with open(file_path, "rb") as f:
-            shutil.copyfileobj(f, self.wfile)
-
-    def api_upload(self):
-        content_type = self.headers.get("Content-Type", "")
-        if not content_type.startswith("multipart/form-data") or "boundary=" not in content_type:
-            self.send_json({"success": False, "error": "Invalid Content-Type"}, 400)
-            return
-
-        boundary = content_type.split("boundary=")[1].strip().encode("utf-8")
-        try:
-            content_length = int(self.headers.get("Content-Length", 0))
-            body = self.rfile.read(content_length)
-        except Exception as e:
-            self.send_json({"success": False, "error": f"Upload read error: {e}"}, 400)
-            return
-
-        parts = body.split(b"--" + boundary)
-        saved_files = []
-
-        for part in parts:
-            if b'Content-Disposition: form-data;' in part and b'filename="' in part:
-                try:
-                    header_part, file_data = part.split(b"\r\n\r\n", 1)
-                    file_data = file_data.rsplit(b"\r\n", 1)[0]
-                    header_text = header_part.decode("utf-8", errors="ignore")
-
-                    raw_filename = header_text.split('filename="')[1].split('"')[0]
-                    raw_filename = urllib.parse.unquote(raw_filename)
-                    safe_name = sanitize_filename(raw_filename)
-
-                    ext = os.path.splitext(safe_name)[1].lower()
-                    if ext not in (".mp3", ".ogg", ".wav"):
-                        continue
-
-                    if not safe_name:
-                        safe_name = f"custom_track_{len(saved_files)+1}{ext}"
-
-                    os.makedirs(self.music_dir, exist_ok=True)
-                    out_path = os.path.join(self.music_dir, safe_name)
-
-                    with open(out_path, "wb") as f:
-                        f.write(file_data)
-
-                    saved_files.append(safe_name)
-                except Exception as e:
-                    print(f"Error parsing upload part: {e}", file=sys.stderr)
-
-        if saved_files:
-            self.send_json({
-                "success": True,
-                "uploaded": saved_files,
-                "message": f"Successfully added {len(saved_files)} track(s) to Jukebox!"
-            })
-        else:
-            self.send_json({"success": False, "error": "No valid MP3, OGG, or WAV files received."}, 400)
-
-    def api_delete(self):
-        try:
-            length = int(self.headers.get("Content-Length", 0))
-            data = json.loads(self.rfile.read(length).decode("utf-8"))
-            filename = sanitize_filename(data.get("filename", ""))
-        except Exception:
-            self.send_json({"success": False, "error": "Invalid request body"}, 400)
-            return
-
-        if not filename:
-            self.send_json({"success": False, "error": "Filename required"}, 400)
-            return
-
-        if filename.lower() in BUILTIN_TRACKS:
-            self.send_json({"success": False, "error": "Cannot delete built-in Lo-Fi tracks."}, 403)
-            return
-
-        target_file = os.path.join(self.music_dir, filename)
-        if os.path.isfile(target_file):
-            try:
-                os.remove(target_file)
-                self.send_json({"success": True, "message": f"Deleted {filename}"})
-            except Exception as e:
-                self.send_json({"success": False, "error": f"Failed to delete file: {e}"}, 500)
-        else:
-            self.send_json({"success": False, "error": "File not found"}, 404)
-
-    def api_edit_track(self):
-        try:
-            length = int(self.headers.get("Content-Length", 0))
-            data = json.loads(self.rfile.read(length).decode("utf-8"))
-            old_filename = sanitize_filename(data.get("old_filename", ""))
-            new_title = (data.get("title", "") or "").strip()
-            new_artist = (data.get("artist", "") or "").strip()
-            direct_filename = sanitize_filename((data.get("new_filename", "") or "").strip())
-        except Exception:
-            self.send_json({"success": False, "error": "Invalid request body"}, 400)
-            return
-
-        if not old_filename:
-            self.send_json({"success": False, "error": "Original filename required"}, 400)
-            return
-
-        if old_filename.lower() in BUILTIN_TRACKS:
-            self.send_json({"success": False, "error": "Cannot edit built-in soundtrack tracks."}, 403)
-            return
-
-        old_path = os.path.join(self.music_dir, old_filename)
-        if not os.path.isfile(old_path):
-            self.send_json({"success": False, "error": "Track file not found"}, 404)
-            return
-
-        ext = os.path.splitext(old_filename)[1].lower()
-        if ext not in (".mp3", ".ogg", ".wav"):
-            self.send_json({"success": False, "error": "Invalid audio file extension"}, 400)
-            return
-
-        # Determine target filename
-        if direct_filename:
-            d_stem, d_ext = os.path.splitext(direct_filename)
-            if not d_ext:
-                d_ext = ext
-            new_filename = f"{d_stem}{d_ext}"
-        elif new_title:
-            if new_artist and new_artist.lower() != "custom track":
-                new_filename = f"{new_title} - {new_artist}{ext}"
-            else:
-                new_filename = f"{new_title}{ext}"
-        else:
-            self.send_json({"success": False, "error": "Track title cannot be empty"}, 400)
-            return
-
-        new_filename = sanitize_filename(new_filename)
-        if not new_filename:
-            self.send_json({"success": False, "error": "Invalid new filename"}, 400)
-            return
-
-        new_path = os.path.join(self.music_dir, new_filename)
-        if old_filename != new_filename:
-            if os.path.exists(new_path):
-                self.send_json({"success": False, "error": f"A track named '{new_filename}' already exists."}, 409)
-                return
-            try:
-                os.rename(old_path, new_path)
-            except Exception as e:
-                self.send_json({"success": False, "error": f"Failed to rename file: {e}"}, 500)
-                return
-
-        self.send_json({
-            "success": True,
-            "message": f"Updated track to '{new_filename}'",
-            "old_filename": old_filename,
-            "new_filename": new_filename
-        })
-
-HTML_TEMPLATE = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="__INITIAL_THEME__">
 <head>
 <meta charset="UTF-8">
@@ -2671,56 +2095,56 @@ const THEMES_CATALOG = [
   },
   {
     "id": "ocean",
-    "name": "Ocean Breeze",
-    "bg": "#d6eaf8",
-    "board": "#aed6f1",
-    "accent": "#2980b9",
-    "text": "#1a5276",
-    "is_dark": false,
+    "name": "Ocean",
+    "bg": "#061527",
+    "board": "#0c274c",
+    "accent": "#f59e0b",
+    "text": "#60a5fa",
+    "is_dark": true,
     "tiles": {
       "2": {
-        "bg": "#eee4da",
-        "color": "#1a5276"
+        "bg": "#edf4fc",
+        "color": "#0a2240"
       },
       "4": {
-        "bg": "#ede0c8",
-        "color": "#1a5276"
+        "bg": "#cce0f5",
+        "color": "#0a2240"
       },
       "8": {
-        "bg": "#f2b179",
-        "color": "#1a5276"
+        "bg": "#9dc2ee",
+        "color": "#0a2240"
       },
       "16": {
-        "bg": "#f59563",
-        "color": "#1a5276"
+        "bg": "#6da2e4",
+        "color": "#0a2240"
       },
       "32": {
-        "bg": "#f67c5f",
-        "color": "#1a5276"
+        "bg": "#4382d6",
+        "color": "#ffffff"
       },
       "64": {
-        "bg": "#f65e3b",
+        "bg": "#2566c4",
         "color": "#ffffff"
       },
       "128": {
-        "bg": "#edcf72",
-        "color": "#1a5276"
+        "bg": "#1b4fb0",
+        "color": "#ffffff"
       },
       "256": {
-        "bg": "#edcc61",
-        "color": "#1a5276"
+        "bg": "#153b8f",
+        "color": "#ffffff"
       },
       "512": {
-        "bg": "#edc850",
-        "color": "#1a5276"
+        "bg": "#0e2a6d",
+        "color": "#ffffff"
       },
       "1024": {
-        "bg": "#edc53f",
-        "color": "#1a5276"
+        "bg": "#081a48",
+        "color": "#ffffff"
       },
       "2048": {
-        "bg": "#edc22e",
-        "color": "#1a5276"
+        "bg": "#f59e0b",
+        "color": "#381e02"
       }
     }
   },
@@ -2729,53 +2153,53 @@ const THEMES_CATALOG = [
     "name": "Deep Forest",
     "bg": "#e8f5e9",
     "board": "#a5d6a7",
-    "accent": "#388e3c",
-    "text": "#2d5016",
+    "accent": "#059669",
+    "text": "#1b5e20",
     "is_dark": false,
     "tiles": {
       "2": {
-        "bg": "#eee4da",
-        "color": "#2d5016"
+        "bg": "#edf7ed",
+        "color": "#1b3a1f"
       },
       "4": {
-        "bg": "#ede0c8",
-        "color": "#2d5016"
+        "bg": "#d7ecd5",
+        "color": "#1b3a1f"
       },
       "8": {
-        "bg": "#f2b179",
-        "color": "#2d5016"
+        "bg": "#bce0b8",
+        "color": "#1b3a1f"
       },
       "16": {
-        "bg": "#f59563",
-        "color": "#2d5016"
+        "bg": "#98cf92",
+        "color": "#1b3a1f"
       },
       "32": {
-        "bg": "#f67c5f",
-        "color": "#2d5016"
+        "bg": "#6fba67",
+        "color": "#1b3a1f"
       },
       "64": {
-        "bg": "#f65e3b",
-        "color": "#f9f6f2"
+        "bg": "#4ba342",
+        "color": "#ffffff"
       },
       "128": {
-        "bg": "#edcf72",
-        "color": "#2d5016"
+        "bg": "#358b2d",
+        "color": "#ffffff"
       },
       "256": {
-        "bg": "#edcc61",
-        "color": "#2d5016"
+        "bg": "#25731d",
+        "color": "#ffffff"
       },
       "512": {
-        "bg": "#edc850",
-        "color": "#2d5016"
+        "bg": "#195c13",
+        "color": "#ffffff"
       },
       "1024": {
-        "bg": "#edc53f",
-        "color": "#2d5016"
+        "bg": "#0f420b",
+        "color": "#ffffff"
       },
       "2048": {
-        "bg": "#edc22e",
-        "color": "#2d5016"
+        "bg": "#059669",
+        "color": "#ffffff"
       }
     }
   },
@@ -3607,55 +3031,55 @@ const THEMES_CATALOG = [
   {
     "id": "honk",
     "name": "Untitled Goose",
-    "bg": "#eef7f4",
-    "board": "#d2e4df",
-    "accent": "#5293c1",
-    "text": "#1a6c5a",
+    "bg": "#e8f4f8",
+    "board": "#183b48",
+    "accent": "#f59e0b",
+    "text": "#0f3342",
     "is_dark": false,
     "tiles": {
       "2": {
         "bg": "#ffffff",
-        "color": "#1a3c34"
+        "color": "#112630"
       },
       "4": {
-        "bg": "#f7f0e1",
-        "color": "#1a3c34"
+        "bg": "#fef08a",
+        "color": "#112630"
       },
       "8": {
-        "bg": "#fbdca4",
-        "color": "#1a3c34"
+        "bg": "#fde047",
+        "color": "#112630"
       },
       "16": {
-        "bg": "#f9c264",
-        "color": "#1a3c34"
+        "bg": "#facc15",
+        "color": "#112630"
       },
       "32": {
-        "bg": "#dbecf5",
-        "color": "#1a3c34"
+        "bg": "#fb923c",
+        "color": "#112630"
       },
       "64": {
-        "bg": "#b4d4e7",
-        "color": "#1a3c34"
+        "bg": "#f97316",
+        "color": "#112630"
       },
       "128": {
-        "bg": "#8ebbd9",
-        "color": "#1a3c34"
+        "bg": "#ea580c",
+        "color": "#ffffff"
       },
       "256": {
-        "bg": "#5293c1",
-        "color": "#bfe4f4"
+        "bg": "#06b6d4",
+        "color": "#ffffff"
       },
       "512": {
-        "bg": "#2d71a1",
-        "color": "#bfe4f4"
+        "bg": "#0284c7",
+        "color": "#ffffff"
       },
       "1024": {
-        "bg": "#164e75",
-        "color": "#bfe4f4"
+        "bg": "#0f766e",
+        "color": "#ffffff"
       },
       "2048": {
-        "bg": "#ff8000",
-        "color": "#1a3c34"
+        "bg": "#eab308",
+        "color": "#112630"
       }
     }
   },
@@ -3968,7 +3392,7 @@ const THEMES_CATALOG = [
         "color": "#ffffff"
       },
       "128": {
-        "bg": "#00b8ff",
+        "bg": "#00a6ff",
         "color": "#ffffff"
       },
       "256": {
@@ -3985,7 +3409,7 @@ const THEMES_CATALOG = [
       },
       "2048": {
         "bg": "#00d0ff",
-        "color": "#ffffff"
+        "color": "#0b0c10"
       }
     }
   },
@@ -5719,118 +5143,191 @@ function drawForest(ctx, w, h, t, pos) {
 
 // Ocean theme
 function drawOcean(ctx, w, h, t) {
-  ctx.lineWidth = 1.2;
-  for (let i = 1; i <= 15; i++) {
-    const startX = w * ((i * 0.72) % 1.0);
-    const speed = 12 + (i % 5) * 6;
-    const yCycle = h + 24;
-    const y = h + 12 - ((t * speed + i * 29.3) % yCycle);
-    const x = startX + Math.sin(t * 0.7 + i) * 10;
-    const radius = 2.0 + (i % 3) * 1.5;
-    const alpha = 0.22 * (1.0 - (h - y) / (h + 10));
+  // Sunbeams piercing water surface
+  for (let r = 1; r <= 4; r++) {
+    const sway = Math.sin(t * 0.25 + r * 1.5) * 18;
+    const topX = w * (0.15 + (r - 1) * 0.22) + sway;
+    const topW = 18 + r * 6;
+    const botX = topX + (w * 0.16) + Math.sin(t * 0.2 + r) * 25;
+    const botW = 50 + r * 16;
+    const pulse = 0.5 + 0.5 * Math.sin(t * 0.55 + r * 1.7);
+    const alpha = 0.03 + pulse * 0.03;
 
-    ctx.strokeStyle = `rgba(140, 217, 255, ${alpha})`;
+    ctx.fillStyle = `rgba(90, 215, 255, ${alpha})`;
+    ctx.beginPath();
+    ctx.moveTo(topX, 0);
+    ctx.lineTo(topX + topW, 0);
+    ctx.lineTo(botX + botW, h);
+    ctx.lineTo(botX, h);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Drifting marine motes
+  for (let i = 1; i <= 16; i++) {
+    const mx = ((i * 0.618033 * w) + t * 9 + Math.sin(t * 0.7 + i) * 10) % w;
+    const my = ((i * 0.414213 * h) - t * 5 + Math.cos(t * 0.5 + i) * 8) % h;
+    const pulse = 0.4 + 0.6 * Math.sin(t * 1.8 + i * 2.1);
+    const sz = 1.2 + (i % 3) * 0.7;
+    const isTeal = (i % 2 === 0);
+    ctx.fillStyle = isTeal ? `rgba(0, 245, 212, ${0.35 * pulse})` : `rgba(56, 189, 248, ${0.4 * pulse})`;
+    ctx.beginPath();
+    ctx.arc(mx, my, sz, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Multi-depth rising bubbles
+  ctx.lineWidth = 1.2;
+  for (let i = 1; i <= 18; i++) {
+    const startX = w * ((i * 0.618033) % 1.0);
+    const speed = 16 + (i % 6) * 8;
+    const yCycle = h + 30;
+    const y = h + 15 - ((t * speed + i * 47.1) % yCycle);
+    const x = startX + Math.sin(t * 1.2 + i * 1.7) * (5 + (i % 4) * 3);
+    const radius = 2.2 + (i % 4) * 1.4;
+    const depthFade = Math.min(1.0, y / (h * 0.25)) * Math.min(1.0, (h - y) / (h * 0.08));
+    const pulse = 0.7 + 0.3 * Math.sin(t * 2.0 + i);
+    const alpha = (0.22 + (i % 3) * 0.08) * depthFade * pulse;
+
+    ctx.fillStyle = `rgba(38, 192, 242, ${alpha * 0.3})`;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = `rgba(140, 230, 255, ${alpha})`;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.stroke();
 
-    ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.7})`;
+    ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
     ctx.beginPath();
-    ctx.arc(x - radius * 0.3, y - radius * 0.3, radius * 0.2, 0, Math.PI * 2);
+    ctx.arc(x - radius * 0.35, y - radius * 0.35, radius * 0.25, 0, Math.PI * 2);
     ctx.fill();
   }
 }
 
 // Honk theme
 function drawHonk(ctx, w, h, t) {
-  // Mist orbs
-  for (let i = 1; i <= 3; i++) {
-    const mistX = (w * 0.5) + Math.sin(t * 0.2 + i) * 60;
-    const mistY = (h * 0.5) + Math.cos(t * 0.15 + i * 1.5) * 20;
-    const pulse = 0.5 + 0.5 * Math.sin(t * 0.3 + i * 2);
-    ctx.fillStyle = `rgba(255, 242, 204, ${0.08 * pulse})`;
+  // Undulating pond surface currents
+  const currentLayers = [
+    { yRatio: 0.18, freq: 0.008, spd: 0.8, amp: 6.0, alpha: 0.12, col: '14, 165, 233' },
+    { yRatio: 0.34, freq: 0.006, spd: -0.6, amp: 8.0, alpha: 0.10, col: '2, 132, 199' },
+    { yRatio: 0.52, freq: 0.009, spd: 0.9, amp: 7.0, alpha: 0.11, col: '6, 182, 212' },
+    { yRatio: 0.68, freq: 0.007, spd: -0.7, amp: 9.0, alpha: 0.10, col: '14, 165, 233' },
+    { yRatio: 0.84, freq: 0.010, spd: 0.75, amp: 7.5, alpha: 0.12, col: '2, 132, 199' }
+  ];
+  ctx.lineWidth = 1.5;
+  currentLayers.forEach(wl => {
+    const baseY = h * wl.yRatio;
+    ctx.strokeStyle = `rgba(${wl.col}, ${wl.alpha})`;
     ctx.beginPath();
-    ctx.arc(mistX, mistY, h * 0.7 + i * 15, 0, Math.PI * 2);
-    ctx.fill();
-  }
+    const step = 8;
+    for (let x = -step; x <= w + step; x += step) {
+      const wy = baseY + Math.sin(x * wl.freq + t * wl.spd) * wl.amp
+                       + Math.cos(x * wl.freq * 1.6 - t * wl.spd * 0.7) * (wl.amp * 0.35);
+      if (x === -step) ctx.moveTo(x, wy);
+      else ctx.lineTo(x, wy);
+    }
+    ctx.stroke();
+  });
 
-  // Water shimmer
-  ctx.lineWidth = 1;
-  const golden = 0.6180339887;
-  for (let i = 1; i <= 15; i++) {
-    const sx = ((i * golden) % 1.0) * w;
-    const sy = h * 0.05 + ((i * golden * 1.41) % 1.0) * (h * 0.55);
-    const sLen = 20 + (i % 6) * 15;
-    const sSpeed = 0.5 + (i % 4) * 0.2;
-    const offset = ((sx + t * 18 * sSpeed) % (w + sLen)) - sLen;
-    const alpha = 0.06 + 0.05 * Math.sin(t * 1.5 + i);
-    if (alpha > 0.01) {
-      ctx.strokeStyle = `rgba(230, 242, 255, ${alpha})`;
+  // Concentric circular water ripples
+  const ripplePositions = [
+    [0.16, 0.18, 0.0, 3.8],
+    [0.84, 0.15, 1.4, 4.2],
+    [0.50, 0.32, 2.7, 3.6],
+    [0.20, 0.52, 0.8, 4.0],
+    [0.80, 0.58, 2.1, 3.7],
+    [0.35, 0.74, 1.1, 4.4],
+    [0.72, 0.82, 3.2, 3.9],
+    [0.12, 0.88, 2.3, 4.1]
+  ];
+  const maxRadius = Math.min(w, h) * 0.14;
+  ripplePositions.forEach(([rxPct, ryPct, delay, cycle]) => {
+    const rx = w * rxPct;
+    const ry = h * ryPct;
+    const progress = ((t + delay) % cycle) / cycle;
+
+    // Splash droplet
+    if (progress < 0.12) {
+      const splashA = (1.0 - progress / 0.12) * 0.35;
+      const splashR = 2.0 + progress * 15.0;
+      ctx.fillStyle = `rgba(14, 165, 233, ${splashA})`;
       ctx.beginPath();
-      ctx.moveTo(offset, sy);
-      ctx.lineTo(offset + sLen, sy);
+      ctx.arc(rx, ry, splashR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Primary circle
+    const r1 = 4.0 + progress * maxRadius;
+    const fade1 = Math.sin(progress * Math.PI);
+    const a1 = fade1 * 0.32;
+    if (a1 > 0.01 && r1 > 2) {
+      ctx.strokeStyle = `rgba(2, 132, 199, ${a1})`;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(rx, ry, r1, 0, Math.PI * 2);
       ctx.stroke();
     }
-  }
 
-  // Elliptical ripples
-  ctx.lineWidth = 1.2;
-  for (let i = 1; i <= 10; i++) {
-    const rx = ((i * 0.73) % 1.0) * w;
-    const ry = h * 0.12 + ((i * 0.41) % 1.0) * (h * 0.55);
-    const cycle = 3.0 + (i % 5) * 0.5;
-    const prog = ((t + i * 1.7) % cycle) / cycle;
-    const radius = prog * (h * 0.6);
-    const alpha = (prog < 0.1 ? prog / 0.1 : 1.0 - prog) * 0.3;
-    if (alpha > 0.01) {
-      ctx.strokeStyle = `rgba(217, 242, 255, ${alpha})`;
-      ctx.beginPath();
-      ctx.ellipse(rx, ry, radius, radius * 0.3, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      if (radius > 10) {
-        ctx.strokeStyle = `rgba(217, 242, 255, ${alpha * 0.4})`;
+    // Secondary concentric circle
+    if (progress > 0.18) {
+      const prog2 = (progress - 0.18) / 0.82;
+      const r2 = 3.0 + prog2 * maxRadius * 0.70;
+      const fade2 = Math.sin(prog2 * Math.PI);
+      const a2 = fade2 * 0.22;
+      if (a2 > 0.01 && r2 > 2) {
+        ctx.strokeStyle = `rgba(14, 165, 233, ${a2})`;
+        ctx.lineWidth = 1.2;
         ctx.beginPath();
-        ctx.ellipse(rx, ry, radius - 6, (radius - 6) * 0.3, 0, 0, Math.PI * 2);
+        ctx.arc(rx, ry, r2, 0, Math.PI * 2);
         ctx.stroke();
       }
     }
-  }
+  });
 
-  // Sloshing waves
-  const waveLayers = [
-    { y: 0.55, h: 4, c: 'rgba(140, 199, 224, 0.35)' },
-    { y: 0.65, h: 6, c: 'rgba(115, 184, 217, 0.50)' },
-    { y: 0.75, h: 8, c: 'rgba(89, 166, 204, 0.70)' },
-    { y: 0.85, h: 10, c: 'rgba(64, 148, 191, 0.85)' }
-  ];
-  waveLayers.forEach((wl, idx) => {
-    ctx.fillStyle = wl.c;
-    ctx.beginPath();
-    ctx.moveTo(0, h);
-    const segs = 35;
-    const crestPoints = [];
-    for (let s = 0; s <= segs; s++) {
-      const px = (s / segs) * w;
-      const w1 = Math.sin(t * (0.4 + idx * 0.1) + s * 0.25 + idx * 1.8);
-      const w2 = Math.cos(t * (0.3 + idx * 0.05) + s * 0.15 + idx * 2.5) * 0.5;
-      const py = h * wl.y + (w1 + w2) * wl.h;
-      crestPoints.push({ x: px, y: py });
-      ctx.lineTo(px, py);
-    }
-    ctx.lineTo(w, h);
-    ctx.closePath();
-    ctx.fill();
-
-    // Wave crests
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+  // Rising bubbles and sparkles
+  const golden = 0.6180339887;
+  for (let i = 1; i <= 14; i++) {
+    const bx = ((i * golden) % 1.0) * w + Math.sin(t * 0.8 + i) * 12;
+    const by = (h + 20 - ((t * 14.0 + i * 41.3) % (h + 40)));
+    const pulse = 0.5 + 0.5 * Math.sin(t * 1.5 + i * 2.0);
+    const alpha = 0.24 * pulse;
+    const sz = 2.0 + (i % 3);
+    ctx.strokeStyle = `rgba(2, 132, 199, ${alpha})`;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    crestPoints.forEach((pt, pi) => {
-      if (pi === 0) ctx.moveTo(pt.x, pt.y);
-      else ctx.lineTo(pt.x, pt.y);
-    });
+    ctx.arc(bx, by, sz, 0, Math.PI * 2);
     ctx.stroke();
-  });
+    ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.75})`;
+    ctx.beginPath();
+    ctx.arc(bx, by, sz * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Drifting goose down feathers
+  for (let i = 1; i <= 5; i++) {
+    const baseX = (i * 127.3) % w;
+    const baseY = (i * 89.1) % h;
+    const fx = (baseX + t * 9.0) % (w + 40) - 20;
+    const fy = (baseY + Math.sin(t * 1.1 + i * 1.7) * 8) % (h + 40) - 20;
+    const fLen = 14 + (i % 3) * 3;
+    const rot = Math.sin(t * 0.9 + i) * 0.25;
+    ctx.save();
+    ctx.translate(fx, fy);
+    ctx.rotate(rot);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, fLen * 0.85, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(215, 235, 250, 0.55)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-fLen, 0);
+    ctx.lineTo(fLen, 0);
+    ctx.stroke();
+    ctx.restore();
+  }
 }
 
 // Nebula theme
@@ -7111,189 +6608,3 @@ loadTracks();
 </script>
 </body>
 </html>
-"""
-
-def generate_qr(url, output_path):
-    """Generates a QR code image using pure Python (zero external dependencies)."""
-    try:
-        try:
-            import qrcodegen
-        except ImportError:
-            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-            import qrcodegen
-
-        qr = qrcodegen.QrCode.encode_text(url, qrcodegen.QrCode.Ecc.MEDIUM)
-        size = qr.get_size()
-        scale = 8
-        border = 4
-        width = (size + border * 2) * scale
-        height = width
-        raw_data = bytearray()
-
-        white_row = b'\x00' + (b'\xff' * width)
-        for _ in range(border * scale):
-            raw_data.extend(white_row)
-
-        for r in range(size):
-            row = bytearray([0])
-            row.extend(b'\xff' * (border * scale))
-            for c in range(size):
-                val = b'\x00' if qr.get_module(c, r) else b'\xff'
-                row.extend(val * scale)
-            row.extend(b'\xff' * (border * scale))
-            for _ in range(scale):
-                raw_data.extend(row)
-
-        for _ in range(border * scale):
-            raw_data.extend(white_row)
-
-        import zlib, struct
-        def chunk(tag, data):
-            return struct.pack('>I', len(data)) + tag + data + struct.pack('>I', zlib.crc32(tag + data) & 0xffffffff)
-
-        ihdr = struct.pack('>IIBBBBB', width, height, 8, 0, 0, 0, 0)
-        idat = zlib.compress(bytes(raw_data), 9)
-        png = b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', ihdr) + chunk(b'IDAT', idat) + chunk(b'IEND', b'')
-
-        parent_dir = os.path.dirname(os.path.abspath(output_path))
-        if parent_dir:
-            os.makedirs(parent_dir, exist_ok=True)
-        tmp_output = output_path + ".tmp"
-        with open(tmp_output, 'wb') as f:
-            f.write(png)
-        os.replace(tmp_output, output_path)
-        try:
-            meta_path = output_path + ".url"
-            tmp_meta = meta_path + ".tmp"
-            with open(tmp_meta, 'w') as mf:
-                mf.write(url.strip())
-            os.replace(tmp_meta, meta_path)
-        except Exception:
-            pass
-        return True
-    except Exception as e:
-        sys.stderr.write(f"Pure python QR generation failed: {e}\n")
-
-    try:
-        import qrcode
-        img = qrcode.make(url)
-        tmp_output = output_path + ".tmp"
-        img.save(tmp_output)
-        os.replace(tmp_output, output_path)
-        try:
-            meta_path = output_path + ".url"
-            tmp_meta = meta_path + ".tmp"
-            with open(tmp_meta, 'w') as mf:
-                mf.write(url.strip())
-            os.replace(tmp_meta, meta_path)
-        except Exception:
-            pass
-        return True
-    except Exception:
-        return False
-
-def daemonize(log_file="/tmp/jukebox_server.log"):
-    """Standard UNIX double-fork daemonization so process survives independently."""
-    try:
-        pid = os.fork()
-        if pid > 0:
-            sys.exit(0)
-    except OSError as e:
-        sys.stderr.write(f"Fork #1 failed: {e}\n")
-        sys.exit(1)
-
-    os.setsid()
-    os.umask(0)
-
-    try:
-        pid = os.fork()
-        if pid > 0:
-            sys.exit(0)
-    except OSError as e:
-        sys.stderr.write(f"Fork #2 failed: {e}\n")
-        sys.exit(1)
-
-    sys.stdout.flush()
-    sys.stderr.flush()
-
-    try:
-        with open(os.devnull, "r") as devnull:
-            os.dup2(devnull.fileno(), sys.stdin.fileno())
-    except Exception:
-        pass
-
-    try:
-        log_fd = open(log_file, "a+", buffering=1)
-        os.dup2(log_fd.fileno(), sys.stdout.fileno())
-        os.dup2(log_fd.fileno(), sys.stderr.fileno())
-    except Exception:
-        pass
-
-def main():
-    parser = argparse.ArgumentParser(description="2048 Plus Jukebox Wireless Music Server")
-    parser.add_argument("--host", default="", help="Detected host IP for display and QR code")
-    parser.add_argument("--music-dir", default="assets/music", help="Path to assets/music folder")
-    parser.add_argument("--port", type=int, default=8048, help="Port to listen on (default 8048)")
-    parser.add_argument("--qr-path", default="", help="Path where to save web_qr.png")
-    parser.add_argument("--font-path", default="", help="Path to ClearSans-Bold.ttf font file")
-    parser.add_argument("--theme-file", default="", help="Path to theme_state.json")
-    parser.add_argument("--daemon", action="store_true", help="Run server as a detached background daemon")
-    args = parser.parse_args()
-
-    if args.daemon:
-        daemonize()
-
-    music_dir = os.path.abspath(args.music_dir)
-    os.makedirs(music_dir, exist_ok=True)
-    JukeboxHandler.music_dir = music_dir
-    JukeboxHandler.server_port = args.port
-    if args.theme_file:
-        JukeboxHandler.theme_file = os.path.abspath(args.theme_file)
-
-    font_path = find_font_file(args.font_path)
-    if font_path:
-        JukeboxHandler.font_path = font_path
-
-    host_ip = args.host.strip() if args.host else ""
-    if not is_valid_lan_ip(host_ip):
-        host_ip = get_local_ip()
-    JukeboxHandler.server_host = host_ip
-
-    ip = host_ip
-    url = f"http://{ip}:{args.port}"
-
-    if args.qr_path:
-        generate_qr(url, args.qr_path)
-
-    print(f"2048 Plus Jukebox Server running at: {url}")
-    print(f"Music Directory: {music_dir}")
-    if font_path:
-        print(f"ClearSans Font Loaded: {font_path}")
-    if JukeboxHandler.theme_file:
-        print(f"Theme Sync File: {JukeboxHandler.theme_file}")
-    sys.stdout.flush()
-
-    server = ThreadedHTTPServer(("", args.port), JukeboxHandler)
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt caught, shutting down", flush=True)
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-    finally:
-        print("server_close called!", flush=True)
-        server.server_close()
-        if args.qr_path and os.path.exists(args.qr_path):
-            try:
-                os.remove(args.qr_path)
-            except Exception:
-                pass
-        if args.qr_path and os.path.exists(args.qr_path + ".url"):
-            try:
-                os.remove(args.qr_path + ".url")
-            except Exception:
-                pass
-
-if __name__ == "__main__":
-    main()

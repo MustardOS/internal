@@ -133,7 +133,7 @@ function Grid:restoreState(state)
     end
 end
 
--- Iterate over all tiles (for rendering)
+-- Iterate over all tiles for rendering
 function Grid:eachCell(callback)
     for x = 1, self.sizeX do
         for y = 1, self.sizeY do

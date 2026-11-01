@@ -7,6 +7,7 @@ MUOS_STORAGE_LOADED=1
 
 SECONDARY_DEVICE() {
 	case "$(GET_VAR "device" "board/name"):$(GET_VAR "config" "danger/emmc")" in
+		rg-vita-pro:1) printf '%s\n' mmcblk0 ;;
 		tui-*:1) printf '%s\n' mmcblk2 ;;
 		*) GET_VAR "device" "storage/sdcard/dev" ;;
 	esac

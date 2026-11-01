@@ -50,6 +50,7 @@ esac
 FS_CAN_MAKE "$FSTYPE" || REFUSE "no_tooling" "$(printf "This device cannot create %s filesystems" "$FSTYPE")"
 
 DEV="$(GET_VAR "device" "storage/$STORAGE/dev")"
+[ "$STORAGE" = sdcard ] && DEV=$(SECONDARY_DEVICE)
 SEP="$(GET_VAR "device" "storage/$STORAGE/sep")"
 MOUNT="$(GET_VAR "device" "storage/$STORAGE/mount")"
 

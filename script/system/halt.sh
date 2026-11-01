@@ -319,15 +319,12 @@ RUN_WITH_TIMEOUT 5 1 sync || LOG_WARN "$0" 0 "HALT" "Final disk sync did not com
 # read only and synced the PMIC is told to switch off directly (SYS_CFG3, DEV_OFF bit)
 #
 # The AW87391 speaker amplifiers run straight from the battery and outlive the PMIC,
-# hissing until they drain it, so both are powered down first (SYSCTRL to zero)
+# hissing until they drain it, so both are powered down first.
 PMIC_POWER_OFF() {
 	[ "$ACTION" = poweroff ] || return 0
 	[ "$BOARD_NAME" = rg-vita-pro ] || return 0
 
-	for AMP_ADDRESS in 0x58 0x5b; do
-		[ -e "/sys/bus/i2c/devices/3-00${AMP_ADDRESS#0x}" ] || continue
-		i2cset -f -y 3 "$AMP_ADDRESS" 0x01 0x00 2>/dev/null
-	done
+	/opt/muos/script/device/rg-vita-pro/amp.sh stop
 
 	PMIC_BUS=1
 	PMIC_ADDRESS=0x23

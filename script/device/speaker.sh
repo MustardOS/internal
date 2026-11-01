@@ -7,6 +7,10 @@ AUDIO_SWAP="/opt/muos/config/settings/advanced/audio_swap"
 
 CHANNEL_SWITCH() {
 	case "$(GET_VAR "device" "board/name")" in
+		rg-vita-pro)
+			# ES8388 exposes no OutputL/OutputR mixer routing controls.
+			return 0
+			;;
 		rg*)
 			FV="off"
 			SV="off"

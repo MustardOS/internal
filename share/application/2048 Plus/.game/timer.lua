@@ -52,7 +52,7 @@ end
 
 function Timer:update(dt)
     -- timers may create new timers, which leads to undefined behavior
-    -- in pairs() - so we need to put them in a different table first
+    -- in pairs iteration - store keys in temporary table first
     local to_update = {}
     for handle in pairs(self.functions) do
         to_update[handle] = handle

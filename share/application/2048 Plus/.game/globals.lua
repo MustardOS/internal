@@ -1,11 +1,11 @@
--- 2048 Plus — Global constants and scaling helpers
+-- Global constants and scaling helpers
 
 _G.timer = require("timer")
 
 local sem_ver = {
-    major = 7,
+    major = 8,
     minor = 0,
-    patch = 1,
+    patch = 0,
     extra = ""
 }
 
@@ -24,8 +24,31 @@ _G.sx = 1
 _G.sy = 1
 _G.scale = 1
 
-function _G.update_ui_scale()
+-- Check if portrait android console is actively rendered
+function _G.is_console_active()
+    if not _G.android_console then
+        return false
+    end
+    if _G.android_console.isConsoleActive then
+        return _G.android_console.isConsoleActive()
+    end
     local w, h = love.graphics.getDimensions()
+    return h >= w
+end
+
+function _G.update_ui_scale()
+    if _G.is_console_active() then
+        _G.design_w = 640
+        _G.design_h = 480
+        _G.sx = 1.0
+        _G.sy = 1.0
+        _G.scale = 1.0
+        return
+    end
+
+    local w, h = love.graphics.getDimensions()
+    _G.design_w = 640
+    _G.design_h = 480
     _G.sx = w / _G.design_w
     _G.sy = h / _G.design_h
     _G.scale = math.min(_G.sx, _G.sy)
@@ -67,14 +90,14 @@ _G.achievements = {
     -- Custom tile achievements
     ach_2048 = false,        -- 2048 Master -> unlocks 'oled'
     ach_score_10k = false,   -- High Roller -> unlocks 'neon'
-    ach_demolition = false,  -- Demolition Expert (10 bombs used) -> unlocks 'retro'
-    ach_untouchable = false, -- Untouchable (1024 without powerups) -> unlocks 'peach'
+    ach_demolition = false,  -- Demolition Expert: 10 bombs used -> unlocks 'retro'
+    ach_untouchable = false, -- Untouchable: 1024 without powerups -> unlocks 'peach'
     ach_2048_plus = false,   -- Plus Mode Master -> unlocks 'cyberpunk'
     ach_4096 = false,        -- The One -> unlocks 'glitch'
     ach_score_25k = false,   -- Aesthetic -> unlocks 'vaporwave'
     ach_score_50k = false,   -- Vampire Lord -> unlocks 'dracula'
     ach_score_100k = false,  -- Midas Touch -> unlocks 'gold'
-    ach_untouchable_2048 = false, -- Zen Master (2048 without powerups) -> unlocks 'matcha'
+    ach_untouchable_2048 = false, -- Zen Master: 2048 without powerups -> unlocks 'matcha'
 
     -- Dark palette achievements
     ach_merge_1024 = false,  -- Almost There -> unlocks 'midnight'

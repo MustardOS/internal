@@ -2,6 +2,55 @@
 
 local save = {}
 
+local real_io = io
+
+local function smart_io_open(path, mode)
+    local f = real_io.open(path, mode)
+    if f then return f end
+
+    -- Fallback for sandboxed mobile platforms like Android using love.filesystem
+    if love and love.filesystem then
+        local basename = path:match("[^/\\]+$") or path
+        if mode == "r" or mode == "rb" then
+            local ok, content = pcall(love.filesystem.read, basename)
+            if ok and content then
+                local closed = false
+                return {
+                    read = function(self, fmt)
+                        if closed then return nil end
+                        return content
+                    end,
+                    close = function(self)
+                        closed = true
+                    end
+                }
+            end
+        elseif mode == "w" or mode == "wb" then
+            local buffer = {}
+            local closed = false
+            return {
+                write = function(self, data)
+                    if not closed then table.insert(buffer, tostring(data)) end
+                end,
+                close = function(self)
+                    if not closed then
+                        closed = true
+                        pcall(love.filesystem.write, basename, table.concat(buffer))
+                    end
+                end
+            }
+        end
+    end
+    return nil
+end
+
+local io = {
+    open = smart_io_open,
+    read = real_io.read,
+    write = real_io.write,
+    close = real_io.close,
+}
+
 local SAVE_DIR = ""
 local SAVE_FILE = "highscore.dat"
 local STATE_FILE = "gamestate.dat"
@@ -20,10 +69,23 @@ local function getFilePath(filename)
 end
 
 function save.init(dir)
-    SAVE_DIR = dir or ""
+    if not dir or dir == "" or (love.system and love.system.getOS() == "Android") or _G.android_console then
+        pcall(function()
+            if love.filesystem then
+                love.filesystem.setIdentity("2048plus")
+                love.filesystem.createDirectory("")
+            end
+        end)
+        SAVE_DIR = (love.filesystem and love.filesystem.getSaveDirectory and love.filesystem.getSaveDirectory()) or dir or ""
+    else
+        SAVE_DIR = dir
+    end
     -- Ensure save directory exists
     if SAVE_DIR ~= "" and SAVE_DIR ~= "/" and love.system.getOS() ~= "Web" then
-        os.execute('mkdir -p "' .. SAVE_DIR .. '"')
+        pcall(function() os.execute('mkdir -p "' .. SAVE_DIR .. '"') end)
+        if love.filesystem and love.filesystem.createDirectory then
+            pcall(function() love.filesystem.createDirectory("") end)
+        end
     end
 end
 
@@ -659,6 +721,52 @@ function save.hasLastActiveGame()
     if not state or not state.gridState then return false end
     local s = state.state or 0
     return s ~= 1 and s ~= 2
+end
+
+local ANDROID_VIEW_MODE_FILE = "android_view_mode.dat"
+
+function save.saveAndroidViewMode(mode)
+    local path = getFilePath(ANDROID_VIEW_MODE_FILE)
+    local file = io.open(path, "w")
+    if file then
+        file:write(mode)
+        file:close()
+    end
+end
+
+function save.loadAndroidViewMode()
+    local path = getFilePath(ANDROID_VIEW_MODE_FILE)
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        if content and content ~= "" then
+            return content
+        end
+    end
+    return nil
+end
+
+local FULLSCREEN_TUTORIAL_FILE = "fullscreen_tutorial_seen.dat"
+
+function save.saveFullscreenTutorialSeen()
+    local path = getFilePath(FULLSCREEN_TUTORIAL_FILE)
+    local file = io.open(path, "w")
+    if file then
+        file:write("1")
+        file:close()
+    end
+end
+
+function save.loadFullscreenTutorialSeen()
+    local path = getFilePath(FULLSCREEN_TUTORIAL_FILE)
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        return content == "1"
+    end
+    return false
 end
 
 return save

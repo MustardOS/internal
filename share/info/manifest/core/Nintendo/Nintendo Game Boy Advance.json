@@ -21,6 +21,11 @@
         }
     ],
     "libretro": {
+        "armgba": {
+            "name": "armGBA",
+            "core": "armgba_libretro.so",
+            "bios_required": 0
+        },
         "beetle gba": {
             "name": "Beetle GBA",
             "core": "mednafen_gba_libretro.so",

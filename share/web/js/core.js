@@ -18,7 +18,7 @@
         for (let node = walker.nextNode(); node; node = walker.nextNode()) {
             const text = node.nodeValue.trim();
             if (!text || node.parentElement.closest("script, style")) continue;
-            const translated = t(text);
+            const translated = t(text.replace(/\s+/g, " "));
             if (translated !== text) node.nodeValue = node.nodeValue.replace(text, translated);
         }
 

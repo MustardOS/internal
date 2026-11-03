@@ -122,7 +122,9 @@ STOP_SERVICES() {
 	STOP_DIR "$INIT_DIR" "normal"
 	[ "$HALT_MODE" = factory ] && return 0
 	STOP_DIR "$INIT_DIR/async" "async" "S06mount.sh"
-	RUN_WITH_TIMEOUT 8 3 /bin/sh "$INIT_DIR/async/S06mount.sh" stop
+	# Clean bind teardown and filesystem writeback may legitimately take longer
+	# than an ordinary service stop on slower or heavily used SD cards.
+	RUN_WITH_TIMEOUT 20 5 /bin/sh "$INIT_DIR/async/S06mount.sh" stop
 }
 
 if [ "$QUIET_HALT" -eq 0 ]; then
@@ -290,7 +292,7 @@ RUN_WITH_TIMEOUT 8 2 sync || LOG_WARN "$0" 0 "HALT" "Disk sync did not complete"
 # worse than not trying I suppose!
 REMOUNT_READ_ONLY() {
 	MOUNT_LIST=$(awk '
-		$1 ~ /^\/dev\// && $3 ~ /^(ext2|ext3|ext4|vfat|msdos)$/ && $4 !~ /^ro(,|$)/ {
+		$1 ~ /^\/dev\// && $3 ~ /^(ext2|ext3|ext4|vfat|msdos|exfat)$/ && $4 !~ /^ro(,|$)/ {
 			if (!($1 in target) || length($2) < length(target[$1])) target[$1] = $2
 		}
 		END {

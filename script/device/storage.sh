@@ -109,7 +109,7 @@ EOF
 UNMOUNT_DEVICE() {
 	sync
 
-	if umount "$MOUNT_POINT" 2>/dev/null || umount -l "$MOUNT_POINT" 2>/dev/null; then
+	if umount "$MOUNT_POINT" 2>/dev/null; then
 		SET_VAR "device" "storage/$TYPE/active" "0"
 		return 0
 	fi
@@ -150,11 +150,30 @@ DO_EJECT() {
 		exit 0
 	fi
 
+	REBIND_STORAGE=0
+	if [ "$DURING_BOOT" -eq 0 ]; then
+		case "$TYPE" in
+			rom | sdcard)
+				if ! /opt/muos/script/device/bind.sh down; then
+					/opt/muos/script/device/bind.sh >/dev/null 2>&1
+					TASK_ERROR "eject_failed" "Storage bind mounts could not be removed."
+					exit 1
+				fi
+				REBIND_STORAGE=1
+				;;
+		esac
+	fi
+
 	if UNMOUNT_DEVICE; then
-		[ "$DURING_BOOT" -eq 0 ] && /opt/muos/script/device/bind.sh
+		if [ "$REBIND_STORAGE" -eq 1 ] && ! /opt/muos/script/device/bind.sh; then
+			TASK_ERROR "bind_failed" "Storage was ejected but remaining paths could not be rebound."
+			exit 1
+		fi
 		TASK_STATUS "$(printf "%s ejected" "$TYPE")"
 		exit 0
 	fi
+
+	[ "$REBIND_STORAGE" -eq 1 ] && /opt/muos/script/device/bind.sh >/dev/null 2>&1
 
 	TASK_ERROR "eject_failed" "$(printf "%s could not be ejected: %s" "$TYPE" "$MOUNT_POINT")"
 	exit 1
@@ -173,7 +192,6 @@ DO_DOWN() {
 	fi
 
 	TASK_ERROR "unmount_failed" "$(printf "%s could not be unmounted: %s" "$TYPE" "$MOUNT_POINT")"
-	SET_VAR "device" "storage/$TYPE/active" "0"
 
 	exit 1
 }

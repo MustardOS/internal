@@ -13,13 +13,114 @@ ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 
 BINDMAP="$MUOS_STORE_DIR/bindmap"
 
-rm -f "$MUOS_STORE_DIR/mount_ready" "$MOUNT_FAILURE"
-mkdir -p "$MUOS_STORE_DIR"
-: >"$BINDMAP"
+DL_DIR="drastic-legacy"
+OB_DIR="openbor/userdata"
+PS_DIR="ppsspp/.config/ppsspp"
+
+EMU_BINDS="
+save/pico8|pico8/.lexaloffle/pico-8
+save/$DL_DIR/backup|$DL_DIR/backup
+save/$DL_DIR/savestates|$DL_DIR/savestates
+save/file/OpenBOR-Ext|$OB_DIR/saves/openbor
+screenshot|$OB_DIR/screenshots/openbor
+save/game/PPSSPP-Ext|$PS_DIR/PSP/GAME
+save/file/PPSSPP-Ext|$PS_DIR/PSP/SAVEDATA
+save/state/PPSSPP-Ext|$PS_DIR/PSP/PPSSPP_STATE
+"
 
 IS_MOUNTED() {
 	grep -q " $1 " /proc/self/mountinfo 2>/dev/null
 }
+
+SAME_BIND() {
+	BIND_SRC="$1"
+	BIND_TGT="$2"
+
+	SRC_INFO=$(findmnt -rn -T "$BIND_SRC" -o MAJ:MIN,TARGET,FSROOT 2>/dev/null) || return 1
+	SRC_DEVICE=
+	SRC_MOUNT=
+	SRC_ROOT=
+	SRC_EXTRA=
+	read -r SRC_DEVICE SRC_MOUNT SRC_ROOT SRC_EXTRA <<EOF
+$SRC_INFO
+EOF
+	[ -n "$SRC_DEVICE" ] && [ -n "$SRC_MOUNT" ] && [ -n "$SRC_ROOT" ] && [ -z "$SRC_EXTRA" ] || return 1
+
+	TGT_INFO=$(findmnt -rn -M "$BIND_TGT" -o MAJ:MIN,FSROOT 2>/dev/null) || return 1
+	TGT_DEVICE=
+	TGT_ROOT=
+	TGT_EXTRA=
+	read -r TGT_DEVICE TGT_ROOT TGT_EXTRA <<EOF
+$TGT_INFO
+EOF
+	[ -n "$TGT_DEVICE" ] && [ -n "$TGT_ROOT" ] && [ -z "$TGT_EXTRA" ] || return 1
+
+	SRC_RELATIVE=${BIND_SRC#"$SRC_MOUNT"}
+	[ "$SRC_RELATIVE" != "$BIND_SRC" ] || return 1
+	case "$SRC_RELATIVE" in
+		"") ;;
+		/*) ;;
+		*) SRC_RELATIVE="/$SRC_RELATIVE" ;;
+	esac
+
+	case "$SRC_ROOT" in
+		/) EXPECTED_ROOT="${SRC_RELATIVE:-/}" ;;
+		*) EXPECTED_ROOT="${SRC_ROOT%/}$SRC_RELATIVE" ;;
+	esac
+
+	[ "$SRC_DEVICE" = "$TGT_DEVICE" ] && [ "$EXPECTED_ROOT" = "$TGT_ROOT" ]
+}
+
+UNMOUNT_BIND() {
+	BIND_TARGET="$1"
+	IS_MOUNTED "$BIND_TARGET" || return 0
+
+	if umount "$BIND_TARGET" 2>/dev/null; then
+		LOG_INFO "$0" 0 "BIND MOUNT" "Unmounted $BIND_TARGET"
+		return 0
+	fi
+
+	LOG_ERROR "$0" 0 "BIND MOUNT" "Could not unmount $BIND_TARGET"
+	return 1
+}
+
+UNMOUNT_BINDINGS() {
+	UNMOUNT_STATUS=0
+
+	# Emulator mounts depend on storage bind mounts, so remove them first.
+	OLD_IFS=$IFS
+	IFS='
+'
+	for LINE in $EMU_BINDS; do
+		[ -n "$LINE" ] || continue
+		EMU_PATH="${LINE#*|}"
+		UNMOUNT_BIND "$MUOS_SHARE_DIR/emulator/$EMU_PATH" || UNMOUNT_STATUS=1
+	done
+	IFS=$OLD_IFS
+
+	for S_LOC in $STANDARD_LOCS $PRIORITY_LOCS; do
+		UNMOUNT_BIND "$MUOS_STORE_DIR/$S_LOC" || UNMOUNT_STATUS=1
+	done
+
+	rm -f "$MUOS_STORE_DIR/mount_ready"
+	return "$UNMOUNT_STATUS"
+}
+
+case "${1:-mount}" in
+	down)
+		UNMOUNT_BINDINGS
+		exit $?
+		;;
+	mount | up) ;;
+	*)
+		printf 'Usage: %s {mount|up|down}\n' "$0" >&2
+		exit 2
+		;;
+esac
+
+rm -f "$MUOS_STORE_DIR/mount_ready" "$MOUNT_FAILURE"
+mkdir -p "$MUOS_STORE_DIR"
+: >"$BINDMAP"
 
 SDCARD_MOUNTED=0
 if [ -n "$SDCARD_MOUNT" ] && IS_MOUNTED "$SDCARD_MOUNT"; then
@@ -86,10 +187,8 @@ SAFE_BIND() {
 	mkdir -p "$TGT"
 
 	if IS_MOUNTED "$TGT"; then
-		SAFE_SRC_ID=$(stat -c '%d:%i' "$SRC" 2>/dev/null)
-		SAFE_TGT_ID=$(stat -c '%d:%i' "$TGT" 2>/dev/null)
-		[ -n "$SAFE_SRC_ID" ] && [ "$SAFE_SRC_ID" = "$SAFE_TGT_ID" ] && return 0
-		umount "$TGT" 2>/dev/null || umount -l "$TGT" 2>/dev/null || return 1
+		SAME_BIND "$SRC" "$TGT" && return 0
+		umount "$TGT" 2>/dev/null || return 1
 	fi
 
 	mount -n --bind "$SRC" "$TGT"
@@ -186,7 +285,6 @@ if [ ! -s "$ASSIGN_FILE" ]; then
 fi
 
 FAIL_IF_ANY
-: >"$MUOS_STORE_DIR/mount_ready"
 
 LOG_INFO "$0" 0 "BIND MOUNT" "Mounting STANDARD paths"
 MOUNT_STORAGE "$STANDARD_LOCS" "STANDARD"
@@ -212,21 +310,6 @@ BIND_EMULATOR() {
 
 # Bind hardcoded paths of the appropriate locations under /run/muos/storage ($MUOS_STORE_DIR) bound above.
 LOG_INFO "$0" 0 "BIND MOUNT" "Binding emulator-specific paths"
-
-DL_DIR="drastic-legacy"
-OB_DIR="openbor/userdata"
-PS_DIR="ppsspp/.config/ppsspp"
-
-EMU_BINDS="
-save/pico8|pico8/.lexaloffle/pico-8
-save/$DL_DIR/backup|$DL_DIR/backup
-save/$DL_DIR/savestates|$DL_DIR/savestates
-save/file/OpenBOR-Ext|$OB_DIR/saves/openbor
-screenshot|$OB_DIR/screenshots/openbor
-save/game/PPSSPP-Ext|$PS_DIR/PSP/GAME
-save/file/PPSSPP-Ext|$PS_DIR/PSP/SAVEDATA
-save/state/PPSSPP-Ext|$PS_DIR/PSP/PPSSPP_STATE
-"
 
 IFS='
 '
@@ -272,6 +355,8 @@ ADD_INTERNAL "task"      "INTERNAL" "$MUOS_SHARE_DIR/task"
 
 LC_ALL=C awk -F'|' -v OFS='|' '$1 == "package" { sub(/\/package\/.*/, "/package", $3) } { print }' \
 	"$BINDMAP" | LC_ALL=C sort -t'|' -k1,1 >"$BINDMAP.tmp" && mv "$BINDMAP.tmp" "$BINDMAP"
+
+: >"$MUOS_STORE_DIR/mount_ready"
 
 USER_INIT="$(GET_VAR "config" "settings/advanced/user_init")"
 if [ "${USER_INIT:-0}" -eq 1 ]; then

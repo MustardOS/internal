@@ -139,14 +139,17 @@ if [ -n "$FACTORY_AUDIO_PID" ]; then
 	kill "$FACTORY_AUDIO_PID" 2>/dev/null || true
 fi
 
-if EXFAT_NATIVE_BUILTIN; then
-	LOG_INFO "$0" 0 "FACTORY RESET" "Built-in exFAT support active, removing FUSE helper"
-	# This seems crazy but it works!
+if [ -e /sbin/mount.exfat ] || [ -L /sbin/mount.exfat ] || [ -e /sbin/mount.exfat-fuse ]; then
+	LOG_INFO "$0" 0 "FACTORY RESET" "Removing unsupported FUSE exFAT helper"
 	rm -f /sbin/mount.exfat /sbin/mount.exfat-fuse
+fi
+
+if EXFAT_NATIVE_BUILTIN; then
+	LOG_INFO "$0" 0 "FACTORY RESET" "Built-in exFAT support active"
 elif EXFAT_NATIVE_READY; then
 	LOG_INFO "$0" 0 "FACTORY RESET" "Native exFAT module active"
 else
-	LOG_INFO "$0" 0 "FACTORY RESET" "Using FUSE exFAT fallback"
+	LOG_ERROR "$0" 0 "FACTORY RESET" "Native exFAT support unavailable; FUSE fallback is disabled"
 fi
 
 CREDITS_DIR="/tmp/mustardos"

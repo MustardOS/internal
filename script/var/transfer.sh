@@ -11,7 +11,10 @@ TRANSFER_PID=""
 TRANSFER_TOTAL=0
 
 TRANSFER_ABORT() {
-	[ -n "$TRANSFER_PID" ] && kill -0 "$TRANSFER_PID" 2>/dev/null && kill "$TRANSFER_PID" 2>/dev/null
+	if [ -n "$TRANSFER_PID" ] && kill -0 "$TRANSFER_PID" 2>/dev/null; then
+		kill "$TRANSFER_PID" 2>/dev/null
+		wait "$TRANSFER_PID" 2>/dev/null
+	fi
 	TRANSFER_PID=""
 }
 

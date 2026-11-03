@@ -77,7 +77,6 @@
     let current = null;
     let path = "";
     let items = [];
-    let uploading = false;
     let sortColumn = "name";
     let sortDescending = false;
     let crumbsFor = null;
@@ -85,7 +84,9 @@
     let imagePreviewUrl = "";
     let modeTarget = null;
     let actionMenuOwner = null;
+    let uploadQueue = Promise.resolve();
     const selected = new Set();
+    const uploadRelativePaths = new WeakMap();
     const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: "base"});
 
     try {
@@ -118,9 +119,13 @@
         return String(value || "").split("/").filter(Boolean).map(encodeURIComponent).join("/");
     }
 
-    function endpoint(action, value = path) {
+    function endpointFor(root, action, value = "") {
         const suffix = encoded(value);
-        return `api/files/${encodeURIComponent(current.id)}/${action}${suffix ? `/${suffix}` : ""}`;
+        return `api/files/${encodeURIComponent(root)}/${action}${suffix ? `/${suffix}` : ""}`;
+    }
+
+    function endpoint(action, value = path) {
+        return endpointFor(current.id, action, value);
     }
 
     function join(parent, name) {
@@ -132,12 +137,22 @@
         return at < 0 ? "" : value.slice(0, at);
     }
 
-    function protectedHeaders() {
-        return current && current.protected ? {"X-muOS-System-Write": "confirm"} : {};
+    function transferTarget() {
+        return current ? {
+            root: current.id,
+            label: current.label,
+            protected: Boolean(current.protected),
+            path,
+            items: [...items]
+        } : null;
     }
 
-    async function confirmProtected() {
-        if (!current || !current.protected) return true;
+    function protectedHeaders(target = current) {
+        return target && target.protected ? {"X-muOS-System-Write": "confirm"} : {};
+    }
+
+    async function confirmProtected(target = current) {
+        if (!target || !target.protected) return true;
         try {
             if (localStorage.getItem(systemWarningKey) === "off") return true;
         } catch (_) {
@@ -372,7 +387,7 @@
         toolbar.hidden = !current;
         paintCrumbs();
         paintRoots();
-        const manageable = current && MU.canManage() && !uploading;
+        const manageable = current && MU.canManage();
         newButton.hidden = !manageable;
         uploadFilesButton.hidden = !manageable;
         uploadFoldersButton.hidden = !manageable;
@@ -763,21 +778,29 @@
     }
 
     async function changePath(actionName, item, relative, initial, title, done) {
-        if (!await confirmProtected()) return;
+        const target = transferTarget();
+        if (!target || !await confirmProtected(target)) return;
         const destination = await ask({
             title: t(title),
-            message: actionName === "move" || actionName === "copy" ? t("Enter a path relative to %s.", current.label) : "",
+            message: actionName === "move" || actionName === "copy" ? t("Enter a path relative to %s.", target.label) : "",
             confirm: t(title),
             input: {value: initial}
         });
         if (!destination || destination === relative) return;
+        const row = transferRow(item, item.name, title);
+        const note = row.querySelector(".meter-foot");
+        const fill = row.querySelector(".bar span");
+        note.textContent = t("%s to %s", title, destination);
+        fill.classList.add("file-transfer-active");
         try {
-            await api(endpoint(actionName, relative), {
-                method: "POST", body: destination, type: "text/plain", headers: protectedHeaders()
+            await api(endpointFor(target.root, actionName, relative), {
+                method: "POST", body: destination, type: "text/plain", headers: protectedHeaders(target)
             });
+            completeTransfer(row, done);
             showToast(done, "good");
-            await openFolder(path);
+            await refreshVisibleRoot(target.root);
         } catch (error) {
+            failTransfer(row, error);
             showToast(error.message, "bad");
         }
     }
@@ -831,29 +854,48 @@
 
     async function transferSelected(actionName) {
         const chosen = selectedItems();
-        if (!chosen.length || !await confirmProtected()) return;
+        const target = transferTarget();
+        if (!target || !chosen.length || !await confirmProtected(target)) return;
         if (actionName === "copy" && chosen.some((item) => item.link)) return;
 
         const destination = await ask({
             title: t(actionName === "copy" ? "Copy" : "Move"),
-            message: t("Enter a path relative to %s.", current.label),
+            message: t("Enter a path relative to %s.", target.label),
             confirm: t(actionName === "copy" ? "Copy" : "Move"),
-            input: {value: path, placeholder: t("Destination folder")}
+            input: {value: target.path, placeholder: t("Destination folder")}
         });
         if (destination === null) return;
         const targetFolder = destination.trim().replace(/^\/+|\/+$/g, "");
-        if (targetFolder === path) {
+        if (targetFolder === target.path) {
             showToast(t("Choose another folder."), "bad");
             return;
         }
 
-        const sourceFolder = path;
-        await finishBulk(chosen.map((item) => () => api(endpoint(actionName, join(sourceFolder, item.name)), {
-            method: "POST",
-            body: join(targetFolder, item.name),
-            type: "text/plain",
-            headers: protectedHeaders()
-        })), actionName === "copy" ? "Copied" : "Moved");
+        selected.clear();
+        render();
+        let failure = null;
+        for (const item of chosen) {
+            const row = transferRow(item, item.name, actionName === "copy" ? "Copy" : "Move");
+            const note = row.querySelector(".meter-foot");
+            const fill = row.querySelector(".bar span");
+            note.textContent = t("%s to %s", actionName === "copy" ? "Copying" : "Moving", targetFolder);
+            fill.classList.add("file-transfer-active");
+            try {
+                await api(endpointFor(target.root, actionName, join(target.path, item.name)), {
+                    method: "POST",
+                    body: join(targetFolder, item.name),
+                    type: "text/plain",
+                    headers: protectedHeaders(target)
+                });
+                completeTransfer(row, actionName === "copy" ? "Copied" : "Moved");
+            } catch (error) {
+                if (!failure) failure = error;
+                failTransfer(row, error);
+            }
+        }
+        await refreshVisibleRoot(target.root);
+        if (failure) showToast(failure.message, "bad");
+        else showToast(actionName === "copy" ? "Copied" : "Moved", "good");
     }
 
     async function removeSelectedItems() {
@@ -873,14 +915,58 @@
         })), "Removed");
     }
 
-    function transferRow(file, label) {
+    function trimTransferHistory() {
+        const completed = [...queue.querySelectorAll(".file-transfer-complete")];
+        completed.slice(5).forEach((row) => row.remove());
+        if (!queue.childElementCount) queueBox.hidden = true;
+    }
+
+    function expireTransfer(row) {
+        window.clearTimeout(row._muosExpiry);
+        row._muosExpiry = window.setTimeout(() => {
+            row.classList.add("file-transfer-expiring");
+            window.setTimeout(() => {
+                row.remove();
+                if (!queue.childElementCount) queueBox.hidden = true;
+            }, 850);
+        }, 9000);
+    }
+
+    function completeTransfer(row, message = "Complete") {
+        const fill = row.querySelector(".bar span");
+        fill.classList.remove("file-transfer-active", "warn");
+        fill.style.width = "100%";
+        row.querySelector(".meter-foot").textContent = t(message);
+        row.classList.add("file-transfer-complete");
+        trimTransferHistory();
+        expireTransfer(row);
+    }
+
+    function failTransfer(row, error) {
+        const fill = row.querySelector(".bar span");
+        fill.classList.remove("file-transfer-active");
+        fill.classList.add("warn");
+        row.querySelector(".meter-foot").textContent = error.message;
+        row.classList.add("file-transfer-complete");
+        trimTransferHistory();
+        expireTransfer(row);
+    }
+
+    async function refreshVisibleRoot(root) {
+        if (!current || current.id !== root) return;
+        const visiblePath = path;
+        await openFolder(visiblePath);
+    }
+
+    function transferRow(file, label, kind = "") {
         const row = make("div", "file-transfer");
         const heading = make("div", "meter-head");
-        heading.append(make("b", null, label), make("span", null, bytes(file.size)));
+        const size = Number(file && (file.size !== undefined ? file.size : file.bytes)) || 0;
+        heading.append(make("b", null, label), make("span", null, size ? bytes(size) : t(kind)));
         const bar = make("div", "bar");
         bar.append(make("span"));
         row.append(heading, bar, make("p", "meter-foot", t("Waiting...")));
-        queue.append(row);
+        queue.prepend(row);
         queueBox.hidden = false;
         return row;
     }
@@ -897,16 +983,13 @@
 
     async function downloadSelectedItems() {
         const chosen = selectedItems();
-        if (!current || uploading || chosen.length < 2 || chosen.some((item) => item.link)) return;
+        if (!current || chosen.length < 2 || chosen.some((item) => item.link)) return;
         const root = current.id;
         const downloadName = archiveName();
         const archiveEndpoint = endpoint("archive");
         const jobEndpoint = (action, job) => `api/files/${encodeURIComponent(root)}/${action}/${encodeURIComponent(job)}`;
 
-        uploading = true;
-        render();
-        queue.replaceChildren();
-        const row = transferRow({size: 0}, downloadName);
+        const row = transferRow({size: 0}, downloadName, "Archive");
         const count = row.querySelector(".meter-head span");
         const note = row.querySelector(".meter-foot");
         const fill = row.querySelector(".bar span");
@@ -941,23 +1024,19 @@
             link.click();
             link.remove();
             selected.clear();
+            completeTransfer(row, "Download started");
         } catch (error) {
-            fill.classList.remove("file-transfer-active");
-            fill.classList.add("warn");
-            note.textContent = error.message;
+            failTransfer(row, error);
             showToast(error.message, "bad");
-        } finally {
-            uploading = false;
-            render();
         }
     }
 
     function uploadPath(file) {
-        return file.webkitRelativePath || file.name;
+        return uploadRelativePaths.get(file) || file.webkitRelativePath || file.name;
     }
 
-    async function ensureUploadFolders(files) {
-        const folders = new Set();
+    async function ensureUploadFolders(files, explicitFolders, target) {
+        const folders = new Set(explicitFolders || []);
         files.forEach((file) => {
             const parts = uploadPath(file).split("/");
             parts.pop();
@@ -972,14 +1051,14 @@
             return depth || left.localeCompare(right);
         });
         for (const folder of ordered) {
-            const response = await fetchAuthed(endpoint("mkdir", join(path, folder)), {
-                method: "POST", headers: protectedHeaders()
+            const response = await fetchAuthed(endpointFor(target.root, "mkdir", join(target.path, folder)), {
+                method: "POST", headers: protectedHeaders(target)
             });
             if (!response.ok && response.status !== 409) throw await responseError(response);
         }
     }
 
-    async function existingUploads(files) {
+    async function existingUploads(files, target) {
         const folders = new Map();
         files.forEach((file) => {
             const relative = uploadPath(file);
@@ -990,10 +1069,10 @@
 
         const existing = new Set();
         for (const [folder, relatives] of folders) {
-            let listed = items;
+            let listed = target.items;
             if (folder) {
                 try {
-                    listed = (await api(endpoint("browse", join(path, folder)))).items || [];
+                    listed = (await api(endpointFor(target.root, "browse", join(target.path, folder)))).items || [];
                 } catch (_) {
                     continue;
                 }
@@ -1006,8 +1085,8 @@
         return existing;
     }
 
-    async function chooseReplacements(files) {
-        const existing = await existingUploads(files);
+    async function chooseReplacements(files, target) {
+        const existing = await existingUploads(files, target);
         if (!existing.size) return files;
 
         const clashes = files.filter((file) => existing.has(uploadPath(file)));
@@ -1041,81 +1120,222 @@
         return files.filter((file) => !skipped.has(uploadPath(file)));
     }
 
-    async function upload(files) {
-        if (!current || uploading || !files.length || !await confirmProtected()) return;
-        uploading = true;
+    function retryableUpload(error, response) {
+        if (response) return response.status === 409 || response.status === 429 || response.status >= 500;
+        return error && error.message !== t("Upload cancelled");
+    }
+
+    async function uploadWithRetry(file, target, relative, progress, retrying) {
+        let lastError;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                const response = await uploadAuthed(
+                    endpointFor(target.root, "upload", join(target.path, relative)), file,
+                    protectedHeaders(target), progress
+                );
+                if (response.ok) return;
+                lastError = await responseError(response);
+                if (!retryableUpload(lastError, response)) {
+                    lastError.muosPermanent = true;
+                    throw lastError;
+                }
+            } catch (error) {
+                lastError = error;
+                if (error.muosPermanent || !retryableUpload(error, null)) throw error;
+            }
+            if (attempt < 3) {
+                retrying(attempt + 1);
+                await wait(attempt * 350);
+            }
+        }
+        throw lastError || new Error(t("Could not finish that upload"));
+    }
+
+    async function verifyUploads(uploaded, target) {
+        const groups = new Map();
+        uploaded.forEach((entry, relative) => {
+            const folder = parentOf(relative);
+            if (!groups.has(folder)) groups.set(folder, []);
+            groups.get(folder).push({relative, ...entry});
+        });
+        const failed = new Set();
+        for (const [folder, entries] of groups) {
+            try {
+                const listed = (await api(endpointFor(target.root, "browse", join(target.path, folder)))).items || [];
+                const byName = new Map(listed.filter((item) => !item.directory).map((item) => [item.name, item]));
+                entries.forEach(({relative, file}) => {
+                    const item = byName.get(relative.slice(relative.lastIndexOf("/") + 1));
+                    if (!item || Number(item.bytes) !== Number(file.size)) failed.add(relative);
+                });
+            } catch (_) {
+                entries.forEach(({relative}) => failed.add(relative));
+            }
+        }
+        return failed;
+    }
+
+    async function upload(files, folders = [], target = transferTarget()) {
+        if (!target || (!files.length && !folders.length) || !await confirmProtected(target)) return;
         let chosen;
         try {
-            chosen = await chooseReplacements(files);
+            chosen = await chooseReplacements(files, target);
         } catch (error) {
-            uploading = false;
             showToast(error.message, "bad");
             return;
         }
-        if (!chosen) {
-            uploading = false;
-            return;
-        }
-        if (!chosen.length) {
-            uploading = false;
+        if (!chosen) return;
+        if (!chosen.length && !folders.length) {
             showToast(t("No files were uploaded"), "good");
             return;
         }
         files = chosen;
-        render();
-        queue.replaceChildren();
         let completed = 0;
+        let failed = 0;
+        const uploaded = new Map();
         try {
-            await ensureUploadFolders(files);
+            await ensureUploadFolders(files, folders, target);
         } catch (error) {
-            uploading = false;
-            render();
             showToast(error.message, "bad");
             return;
         }
         for (const file of files) {
             const relative = uploadPath(file);
-            const row = transferRow(file, relative);
+            const row = transferRow(file, relative, "Upload");
             const note = row.querySelector(".meter-foot");
             const fill = row.querySelector(".bar span");
             note.textContent = t("Uploading...");
             fill.classList.add("file-transfer-active");
             try {
-                const response = await uploadAuthed(
-                    endpoint("upload", join(path, relative)), file, protectedHeaders(), (loaded, total) => {
-                        fill.classList.remove("file-transfer-active");
-                        fill.style.width = `${Math.round(loaded * 100 / total)}%`;
-                        note.textContent = t("Uploading... %s%", Math.round(loaded * 100 / total));
-                    }
-                );
-                if (!response.ok) throw await responseError(response);
+                await uploadWithRetry(file, target, relative, (loaded, total) => {
+                    const percent = total ? Math.round(loaded * 100 / total) : 100;
+                    fill.classList.remove("file-transfer-active");
+                    fill.style.width = `${percent}%`;
+                    note.textContent = t("Uploading... %s%", percent);
+                }, (attempt) => {
+                    fill.style.width = "0%";
+                    fill.classList.add("file-transfer-active");
+                    note.textContent = t("Retrying upload... attempt %s of 3", attempt);
+                });
                 fill.classList.remove("file-transfer-active");
                 fill.style.width = "100%";
-                note.textContent = t("Complete");
-                completed += 1;
+                note.textContent = t("Verifying...");
+                uploaded.set(relative, {file, row});
             } catch (error) {
-                fill.classList.remove("file-transfer-active");
-                fill.classList.add("warn");
-                note.textContent = error.message;
+                failTransfer(row, error);
+                failed += 1;
             }
         }
-        uploading = false;
-        render();
-        if (completed) {
+
+        const unverified = await verifyUploads(uploaded, target);
+        uploaded.forEach(({row}, relative) => {
+            if (unverified.has(relative)) {
+                failTransfer(row, new Error(t("Upload could not be verified")));
+                failed += 1;
+            } else {
+                completeTransfer(row);
+                completed += 1;
+            }
+        });
+
+        if (failed) {
+            showToast(t(failed === 1 ? "One file could not be uploaded" : "%s files could not be uploaded", failed), "bad");
+        } else if (completed) {
             showToast(t(completed === 1 ? "File uploaded" : "%s files uploaded", completed), "good");
-            await openFolder(path);
+        } else if (folders.length) {
+            showToast(t(folders.length === 1 ? "Folder created" : "%s folders created", folders.length), "good");
         }
+        if (completed || folders.length) {
+            await refreshVisibleRoot(target.root);
+        }
+    }
+
+    function queueUpload(files, folders = [], target = transferTarget()) {
+        const queuedFiles = [...files];
+        const queuedFolders = [...folders];
+        uploadQueue = uploadQueue
+            .then(() => upload(queuedFiles, queuedFolders, target))
+            .catch((error) => showToast(error.message, "bad"));
+        return uploadQueue;
+    }
+
+    function readDirectoryBatch(reader) {
+        return new Promise((resolve, reject) => reader.readEntries(resolve, reject));
+    }
+
+    async function readDirectoryEntries(entry) {
+        const reader = entry.createReader();
+        const entries = [];
+        for (;;) {
+            const batch = await readDirectoryBatch(reader);
+            if (!batch.length) return entries;
+            entries.push(...batch);
+        }
+    }
+
+    async function droppedContent(dataTransfer) {
+        const files = [];
+        const folders = [];
+        const items = [...(dataTransfer.items || [])].filter((item) => item.kind === "file");
+        /* Request every handle before awaiting; browsers revoke drag handles once the event yields. */
+        const handleRequests = items.map((item) => item.getAsFileSystemHandle
+            ? item.getAsFileSystemHandle().catch(() => null) : Promise.resolve(null));
+        const handles = await Promise.all(handleRequests);
+
+        const visitHandle = async (handle, parent = "") => {
+            const relative = join(parent, handle.name);
+            if (handle.kind === "file") {
+                const file = await handle.getFile();
+                uploadRelativePaths.set(file, relative);
+                files.push(file);
+                return;
+            }
+            if (handle.kind !== "directory") return;
+            folders.push(relative);
+            for await (const child of handle.values()) await visitHandle(child, relative);
+        };
+
+        const visit = async (entry, parent = "") => {
+            const relative = join(parent, entry.name);
+            if (entry.isFile) {
+                const file = await new Promise((resolve, reject) => entry.file(resolve, reject));
+                uploadRelativePaths.set(file, relative);
+                files.push(file);
+                return;
+            }
+            if (!entry.isDirectory) return;
+            folders.push(relative);
+            const children = await readDirectoryEntries(entry);
+            for (const child of children) await visit(child, relative);
+        };
+
+        for (let index = 0; index < items.length; index++) {
+            if (handles[index]) {
+                await visitHandle(handles[index]);
+                continue;
+            }
+            const item = items[index];
+            const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+            if (entry) {
+                await visit(entry);
+                continue;
+            }
+            const file = item.getAsFile();
+            if (file) files.push(file);
+        }
+
+        if (!items.length) files.push(...dataTransfer.files);
+        return {files, folders: [...new Set(folders)]};
     }
 
     newButton.addEventListener("click", createFolder);
     uploadFilesButton.addEventListener("click", () => filePicker.click());
     uploadFoldersButton.addEventListener("click", () => folderPicker.click());
     filePicker.addEventListener("change", () => {
-        upload([...filePicker.files]);
+        queueUpload(filePicker.files);
         filePicker.value = "";
     });
     folderPicker.addEventListener("change", () => {
-        upload([...folderPicker.files]);
+        queueUpload(folderPicker.files);
         folderPicker.value = "";
     });
     textEditorContent.addEventListener("input", () => {
@@ -1172,7 +1392,16 @@
         event.preventDefault();
         drop.hidden = true;
     }));
-    document.addEventListener("drop", (event) => upload([...event.dataTransfer.files]));
+    document.addEventListener("drop", async (event) => {
+        if (!current || !MU.canManage()) return;
+        const target = transferTarget();
+        try {
+            const dropped = await droppedContent(event.dataTransfer);
+            await queueUpload(dropped.files, dropped.folders, target);
+        } catch (error) {
+            showToast(error.message, "bad");
+        }
+    });
     document.addEventListener("click", (event) => {
         if (!actionMenu.hidden && !actionMenu.contains(event.target) && event.target !== actionMenuOwner)
             closeActionMenu();

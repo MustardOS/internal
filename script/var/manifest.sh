@@ -9,6 +9,7 @@ MUOS_MANIFEST_LOADED=1
 # user folder replaces that one system and takes the namespace of its own folder, and new system
 # keys add systems.
 CORE_MANIFEST_DIR="$MUOS_SHARE_DIR/info/manifest/core"
+CORE_MANIFEST_SYNC="$MUOS_STORE_DIR/info/manifest/coresync"
 CORE_MANIFEST_USER="$MUOS_STORE_DIR/info/manifest/core"
 
 CORE_MANIFEST_VALID() {
@@ -26,11 +27,19 @@ CORE_MANIFEST_FIND() {
 	return 1
 }
 
-# Prints the definition file used for one system, the user copy winning over the bundled one
+# Prints the downloaded definition for a system, falling back to the image snapshot
+CORE_MANIFEST_BASE_FILE() {
+	case "$1" in "" | .* | */*) return 1 ;; esac
+
+	CORE_MANIFEST_FIND "$CORE_MANIFEST_SYNC" "$1" || CORE_MANIFEST_FIND "$CORE_MANIFEST_DIR" "$1"
+}
+
+# Prints the definition used for one system. User definitions win over downloaded
+# definitions, with the image snapshot retained only for offline bootstrap.
 CORE_MANIFEST_FILE() {
 	case "$1" in "" | .* | */*) return 1 ;; esac
 
-	CORE_MANIFEST_FIND "$CORE_MANIFEST_USER" "$1" || CORE_MANIFEST_FIND "$CORE_MANIFEST_DIR" "$1"
+	CORE_MANIFEST_FIND "$CORE_MANIFEST_USER" "$1" || CORE_MANIFEST_BASE_FILE "$1"
 }
 
 # Prints every system as one object keyed by system key, with the namespace taken from its folder,
@@ -45,8 +54,24 @@ CORE_MANIFEST_MERGED() {
 
 		if CM_USER=$(CORE_MANIFEST_FIND "$CORE_MANIFEST_USER" "$CM_KEY"); then
 			set -- "$@" "$CM_USER"
+		elif CM_SYNC=$(CORE_MANIFEST_FIND "$CORE_MANIFEST_SYNC" "$CM_KEY"); then
+			set -- "$@" "$CM_SYNC"
 		else
 			set -- "$@" "$CM_FILE"
+		fi
+	done
+
+	for CM_SYNC in "$CORE_MANIFEST_SYNC"/*/*.json; do
+		CM_KEY=${CM_SYNC##*/}
+		CM_KEY=${CM_KEY%.json}
+
+		CORE_MANIFEST_FIND "$CORE_MANIFEST_DIR" "$CM_KEY" >/dev/null && continue
+		[ "$(CORE_MANIFEST_FIND "$CORE_MANIFEST_SYNC" "$CM_KEY")" = "$CM_SYNC" ] || continue
+
+		if CM_USER=$(CORE_MANIFEST_FIND "$CORE_MANIFEST_USER" "$CM_KEY"); then
+			set -- "$@" "$CM_USER"
+		else
+			set -- "$@" "$CM_SYNC"
 		fi
 	done
 
@@ -54,7 +79,7 @@ CORE_MANIFEST_MERGED() {
 		CM_KEY=${CM_USER##*/}
 		CM_KEY=${CM_KEY%.json}
 
-		CORE_MANIFEST_FIND "$CORE_MANIFEST_DIR" "$CM_KEY" >/dev/null && continue
+		CORE_MANIFEST_BASE_FILE "$CM_KEY" >/dev/null && continue
 		[ "$(CORE_MANIFEST_FIND "$CORE_MANIFEST_USER" "$CM_KEY")" = "$CM_USER" ] && set -- "$@" "$CM_USER"
 	done
 
@@ -75,7 +100,7 @@ CORE_MANIFEST_KEEP() {
 
 	CM_SYSTEM=$(printf '%s' "$CM_DATA" | jq '{catalogue: (.catalogue // .name)} + del(.name, .namespace, .catalogue)')
 
-	if CM_BUNDLED=$(CORE_MANIFEST_FIND "$CORE_MANIFEST_DIR" "$CM_KEY"); then
+	if CM_BUNDLED=$(CORE_MANIFEST_BASE_FILE "$CM_KEY"); then
 		CM_BUNDLED_NS=${CM_BUNDLED%/*}
 		CM_BUNDLED_NS=${CM_BUNDLED_NS##*/}
 

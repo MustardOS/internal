@@ -5,14 +5,10 @@
 . /opt/muos/script/var/ui.sh
 . /opt/muos/script/var/transfer.sh
 
-if [ "${MUOS_STORAGE_LOCKED:-0}" -eq 0 ]; then
-	MUOS_STORAGE_LOCKED=1 /usr/bin/flock -E 75 -w 60 "$MUOS_RUN_DIR/storage-write.lock" "$0" "$@"
-	LOCK_STATUS=$?
-	if [ "$LOCK_STATUS" -eq 75 ]; then
-		TASK_ERROR "storage_busy" "Storage is busy with another catalogue or migration operation."
-	fi
+LOCK_RUN storage-write "$@" || {
+	[ "$LOCK_STATUS" -eq 75 ] && TASK_ERROR "storage_busy" "Storage is busy with another catalogue or migration operation."
 	exit "$LOCK_STATUS"
-fi
+}
 
 LOG_INFO "$0" 0 "MIGRATE" "Storage migration started"
 

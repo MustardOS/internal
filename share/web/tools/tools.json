@@ -30,6 +30,12 @@
     "icon": "assets/icons/tour-assets-glyphs-muxmedia-folder.svg"
   },
   {
+    "slug": "library-check",
+    "title": "Library Check",
+    "description": "Find duplicate content, broken disc sheets and playlists, unused track files and multi-disc games without a playlist.",
+    "icon": "assets/icons/tour-assets-glyphs-muxretro-disc.svg"
+  },
+  {
     "slug": "activity-tracker",
     "title": "Activity Tracker Importer",
     "description": "Read and edit your play history, and save a Year in Review to share.",

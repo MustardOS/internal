@@ -4,6 +4,11 @@
 . /opt/muos/script/var/service.sh
 . /opt/muos/script/var/ui.sh
 
+LOCK_RUN storage-write "$@" || {
+	[ "$LOCK_STATUS" -eq 75 ] && TASK_ERROR "storage_busy" "Storage is busy with another catalogue or migration operation."
+	exit "$LOCK_STATUS"
+}
+
 LOG_INFO "$0" 0 "PURGE" "Storage purge started"
 
 TASK_IS_NATIVE || FRONTEND stop
@@ -96,7 +101,10 @@ fi
 TASK_STATUS "Rebinding Storage Paths"
 TASK_PROGRESS "$TOTAL" "$TOTAL"
 
-/opt/muos/script/device/bind.sh >/dev/null
+if ! /opt/muos/script/device/bind.sh >/dev/null; then
+	TASK_ERROR "bind_failed" "Purged storage paths could not be rebound."
+	SLEEP_AND_GO 1
+fi
 
 TASK_STATUS "Sync Filesystem"
 

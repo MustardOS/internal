@@ -263,7 +263,8 @@
 
     const actionGlyphs = {
         "Edit Text": "text", "Edit Image": "sliders", "Preview Text": "text", "Preview Image": "text",
-        "More Options": "more", Permissions: "lock", Rename: "edit", Move: "move", Copy: "copy", Remove: "trash"
+        "More Options": "more", Permissions: "lock", Rename: "edit", Move: "move", Copy: "copy", Remove: "trash",
+        Download: "download"
     };
 
     function action(label, handler, danger) {
@@ -452,7 +453,9 @@
                 toolSlots[0] = action(canEditImage ? "Edit Image" : "Preview Image",
                     () => openImage(item, relative, canEditImage));
             }
-            if (!item.link) {
+            if (!item.link && item.directory) {
+                toolSlots[1] = action("Download", () => downloadArchive([item], item.name));
+            } else if (!item.link) {
                 const text = t("Download");
                 const download = make("a", "link file-action");
                 download.dataset.glyph = "download";
@@ -460,7 +463,7 @@
                 download.title = text;
                 download.setAttribute("aria-label", text);
                 download.href = endpoint("download", relative);
-                download.download = item.directory ? `${item.name}.zip` : item.name;
+                download.download = item.name;
                 toolSlots[1] = download;
             }
             if (manageable) {
@@ -971,10 +974,37 @@
         return row;
     }
 
-    function archiveName() {
-        const leaf = path.split("/").filter(Boolean).pop() || (current && current.label) || "MustardOS";
-        const clean = leaf.replace(/[\\/:*?"<>|]+/g, "-").trim() || "MustardOS";
-        return `${clean}-Selection.zip`;
+    const archiveKey = "muos.files.archive";
+    const archiveFormats = [
+        {value: "zip", label: "ZIP (.zip)"},
+        {value: "tar.gz", label: "Gzip Tarball (.tar.gz)"},
+        {value: "tar.xz", label: "XZ Tarball (.tar.xz)"}
+    ];
+
+    function archiveName(leaf) {
+        return (leaf || "").replace(/[\\/:*?"<>|]+/g, "-").trim() || "MustardOS";
+    }
+
+    async function chooseArchiveFormat() {
+        let last = "zip";
+        try {
+            last = localStorage.getItem(archiveKey) || last;
+        } catch (_) {
+        }
+        const choices = archiveFormats.map((format) => ({value: format.value, label: t(format.label)}));
+        choices.sort((left, right) => (right.value === last) - (left.value === last));
+        const format = await ask({
+            title: t("Download Archive"),
+            message: t("Choose an archive format"),
+            confirm: t("Download"),
+            choices
+        });
+        if (!format) return null;
+        try {
+            localStorage.setItem(archiveKey, format);
+        } catch (_) {
+        }
+        return format;
     }
 
     function wait(milliseconds) {
@@ -984,8 +1014,16 @@
     async function downloadSelectedItems() {
         const chosen = selectedItems();
         if (!current || chosen.length < 2 || chosen.some((item) => item.link)) return;
+        const leaf = path.split("/").filter(Boolean).pop() || current.label;
+        if (await downloadArchive(chosen, `${archiveName(leaf)}-Selection`)) selected.clear();
+    }
+
+    async function downloadArchive(chosen, baseName) {
+        if (!current) return false;
+        const format = await chooseArchiveFormat();
+        if (!format) return false;
         const root = current.id;
-        const downloadName = archiveName();
+        const downloadName = `${archiveName(baseName)}.${format}`;
         const archiveEndpoint = endpoint("archive");
         const jobEndpoint = (action, job) => `api/files/${encodeURIComponent(root)}/${action}/${encodeURIComponent(job)}`;
 
@@ -999,7 +1037,8 @@
 
         try {
             const started = await api(archiveEndpoint, {
-                method: "POST", body: chosen.map((item) => item.name).join("\n"), type: "text/plain"
+                method: "POST", body: chosen.map((item) => item.name).join("\n"), type: "text/plain",
+                headers: {"X-muOS-Archive-Format": format}
             });
             let status;
             do {
@@ -1023,11 +1062,12 @@
             document.body.append(link);
             link.click();
             link.remove();
-            selected.clear();
             completeTransfer(row, "Download started");
+            return true;
         } catch (error) {
             failTransfer(row, error);
             showToast(error.message, "bad");
+            return false;
         }
     }
 

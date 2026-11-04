@@ -2,14 +2,10 @@
 
 . /opt/muos/script/var/base.sh
 
-if [ "${MUOS_STORAGE_LOCKED:-0}" -eq 0 ]; then
-	MUOS_STORAGE_LOCKED=1 /usr/bin/flock -E 75 -w 60 "$MUOS_RUN_DIR/storage-write.lock" "$0" "$@"
-	LOCK_STATUS=$?
-	if [ "$LOCK_STATUS" -eq 75 ]; then
-		printf '%s\n' "Core definition sync could not acquire the storage lock" >&2
-	fi
+LOCK_RUN storage-write "$@" || {
+	[ "$LOCK_STATUS" -eq 75 ] && printf '%s\n' "Core definition sync could not acquire the storage lock" >&2
 	exit "$LOCK_STATUS"
-fi
+}
 
 ARCHIVE=${1:-}
 MANIFEST_ROOT="$MUOS_STORE_DIR/info/manifest"
@@ -20,9 +16,7 @@ TARGET="$MANIFEST_ROOT/coresync"
 	exit 1
 }
 
-if [ ! -d "$MANIFEST_ROOT" ]; then
-	mkdir -p "$MANIFEST_ROOT" || exit 1
-fi
+mkdir -p "$MANIFEST_ROOT" || exit 1
 WORK=$(mktemp -d "$MANIFEST_ROOT/.coresync.XXXXXX") || exit 1
 STAGED=""
 BACKUP=""

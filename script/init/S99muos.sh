@@ -141,9 +141,10 @@ DO_START() {
 	WAIT_FOR_PRIORITY_STORAGE || exit 1
 
 	LOG_INFO "$0" 0 "BOOTING" "Preparing catalogue directories"
-	if ! ionice -c 3 /opt/muos/script/system/catalogue.sh; then
-		LOG_WARN "$0" 0 "BOOTING" "Catalogue directory preparation failed"
-	fi
+	{
+		ionice -c 3 nice -n 10 /opt/muos/script/system/catalogue.sh ||
+			LOG_WARN "$0" 0 "BOOTING" "Catalogue directory preparation failed"
+	} &
 
 	if [ "$FIRST_INIT" -eq 0 ]; then
 		LOG_INFO "$0" 0 "BOOTING" "Completing first-start maintenance"

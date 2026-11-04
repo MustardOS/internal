@@ -13,6 +13,8 @@ ROM_MOUNT="$(GET_VAR "device" "storage/rom/mount")"
 
 BINDMAP="$MUOS_STORE_DIR/bindmap"
 
+LOCK_RUN storage-bind "$@" || exit "$LOCK_STATUS"
+
 DL_DIR="drastic-legacy"
 OB_DIR="openbor/userdata"
 PS_DIR="ppsspp/.config/ppsspp"
@@ -32,11 +34,6 @@ IS_MOUNTED() {
 	findmnt -rn -M "$1" >/dev/null 2>&1
 }
 
-ENSURE_DIRECTORY() {
-	[ -d "$1" ] && return 0
-	mkdir -p "$1"
-}
-
 SAME_BIND() {
 	BIND_SRC="$1"
 	BIND_TGT="$2"
@@ -52,6 +49,8 @@ EOF
 	[ -n "$SRC_DEVICE" ] && [ -n "$SRC_MOUNT" ] && [ -n "$SRC_ROOT" ] && [ -z "$SRC_EXTRA" ] || return 1
 
 	TGT_INFO=$(findmnt -rn -M "$BIND_TGT" -o MAJ:MIN,FSROOT 2>/dev/null) || return 1
+	case "$TGT_INFO" in *"
+"*) return 1 ;; esac
 	TGT_DEVICE=
 	TGT_ROOT=
 	TGT_EXTRA=
@@ -133,7 +132,7 @@ case "${1:-mount}" in
 esac
 
 rm -f "$MUOS_STORE_DIR/mount_ready" "$MOUNT_FAILURE"
-ENSURE_DIRECTORY "$MUOS_STORE_DIR" || exit 1
+mkdir -p "$MUOS_STORE_DIR" || exit 1
 : >"$BINDMAP"
 
 SDCARD_MOUNTED=0
@@ -198,11 +197,11 @@ SAFE_BIND() {
 	SRC="$1"
 	TGT="$2"
 
-	ENSURE_DIRECTORY "$TGT" || return 1
+	mkdir -p "$TGT" || return 1
 
 	if IS_MOUNTED "$TGT"; then
 		SAME_BIND "$SRC" "$TGT" && return 0
-		umount "$TGT" 2>/dev/null || return 1
+		UNMOUNT_BIND "$TGT" || return 1
 	fi
 
 	mount -n --bind "$SRC" "$TGT"
@@ -312,7 +311,7 @@ BIND_EMULATOR() {
 	TARGET="$MUOS_STORE_DIR/$STORE_PATH"
 	MOUNT="$MUOS_SHARE_DIR/emulator/$EMU_PATH"
 
-	if ! ENSURE_DIRECTORY "$TARGET" || ! ENSURE_DIRECTORY "$MOUNT"; then
+	if ! mkdir -p "$TARGET" "$MOUNT"; then
 		LOG_INFO "$0" 0 "BIND MOUNT" "FAILED to prepare emulator path $TARGET -> $MOUNT"
 		echo "$STORE_PATH" >>"$MOUNT_FAILURE"
 		return 1

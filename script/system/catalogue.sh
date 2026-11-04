@@ -3,14 +3,10 @@
 . /opt/muos/script/var/base.sh
 . /opt/muos/script/var/manifest.sh
 
-if [ "${MUOS_STORAGE_LOCKED:-0}" -eq 0 ]; then
-	MUOS_STORAGE_LOCKED=1 /usr/bin/flock -E 75 -w 60 "$MUOS_RUN_DIR/storage-write.lock" "$0" "$@"
-	LOCK_STATUS=$?
-	if [ "$LOCK_STATUS" -eq 75 ]; then
-		printf '%s\n' "Catalogue generation could not acquire the storage lock" >&2
-	fi
+LOCK_RUN storage-write "$@" || {
+	[ "$LOCK_STATUS" -eq 75 ] && printf '%s\n' "Catalogue generation could not acquire the storage lock" >&2
 	exit "$LOCK_STATUS"
-fi
+}
 
 BASE_PATH="$MUOS_STORE_DIR/info/catalogue"
 TARGET_DIRS="box grid preview splash text manual overlay/base overlay/battery overlay/bright overlay/volume"

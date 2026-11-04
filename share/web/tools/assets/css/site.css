@@ -8684,27 +8684,27 @@ h1 strong {
 .tool .bios-toggle input {
   width: auto;
 }
-.tool .bios-summary {
+.tool .bios-summary, .tool .library-summary {
   margin-bottom: 0.75rem;
 }
-.tool .bios-results {
+.tool .bios-results, .tool .library-results {
   display: grid;
   gap: 0.75rem;
 }
-.tool .bios-files {
+.tool .bios-files, .tool .library-files {
   margin: 0.4rem 0 0;
   padding-left: 1.2rem;
 }
-.tool .bios-files li {
+.tool .bios-files li, .tool .library-files li {
   margin: 0.2rem 0;
 }
-.tool .bios-files .bios-good {
+.tool .bios-files .bios-good, .tool .library-files .bios-good {
   color: #41d693;
 }
-.tool .bios-files .bios-warn {
+.tool .bios-files .bios-warn, .tool .bios-files .library-warn, .tool .library-files .bios-warn, .tool .library-files .library-warn {
   color: #C7AF26;
 }
-.tool .bios-files .bios-bad, .tool .bios-files .bios-missing {
+.tool .bios-files .bios-bad, .tool .bios-files .bios-missing, .tool .bios-files .library-bad, .tool .library-files .bios-bad, .tool .library-files .bios-missing, .tool .library-files .library-bad {
   color: #f77e7e;
 }
 .tool .glyph-controls {

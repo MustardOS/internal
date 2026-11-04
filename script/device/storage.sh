@@ -42,11 +42,6 @@ MOUNTED() {
 	grep -qs " $MOUNT_POINT " /proc/mounts
 }
 
-ENSURE_DIRECTORY() {
-	[ -d "$1" ] && return 0
-	mkdir -p "$1"
-}
-
 MOUNT_DEVICE() {
 	FS_INFO="$(blkid -o export "/dev/$DEVICE" 2>/dev/null)"
 	FS_TYPE=
@@ -67,7 +62,7 @@ EOF
 		*) return 1 ;;
 	esac
 
-	ENSURE_DIRECTORY "$MOUNT_POINT" || return 1
+	mkdir -p "$MOUNT_POINT" || return 1
 
 	if MOUNT_FILESYSTEM "$FS_TYPE" "$FS_OPTS" "/dev/$DEVICE" "$MOUNT_POINT"; then
 		SET_VAR "device" "storage/$TYPE/active" "1"
@@ -87,9 +82,9 @@ EOF
 		KERNEL_TUNING "$DEV"
 
 		for STORAGE_DIR in ROMS ARCHIVE ports; do
-			if ! ENSURE_DIRECTORY "$MOUNT_POINT/$STORAGE_DIR"; then
+			if ! mkdir -p "$MOUNT_POINT/$STORAGE_DIR"; then
 				LOG_ERROR "$0" 0 "STORAGE" "Could not create $MOUNT_POINT/$STORAGE_DIR"
-				UNMOUNT_DEVICE >/dev/null 2>&1
+				UNMOUNT_DEVICE || LOG_ERROR "$0" 0 "STORAGE" "Could not unmount $MOUNT_POINT"
 				return 1
 			fi
 		done

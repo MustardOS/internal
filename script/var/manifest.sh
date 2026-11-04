@@ -13,7 +13,9 @@ CORE_MANIFEST_SYNC="$MUOS_STORE_DIR/info/manifest/coresync"
 CORE_MANIFEST_USER="$MUOS_STORE_DIR/info/manifest/core"
 
 CORE_MANIFEST_VALID() {
-	[ -r "$1" ] && jq -e 'type == "object"' "$1" >/dev/null 2>&1
+	[ -r "$1" ] || return 1
+	[ -n "${CM_TRUSTED-}" ] && return 0
+	jq -e 'type == "object"' "$1" >/dev/null 2>&1
 }
 
 # Prints the first valid definition file for a system key below a manifest folder
@@ -45,6 +47,15 @@ CORE_MANIFEST_FILE() {
 # Prints every system as one object keyed by system key, with the namespace taken from its folder,
 # so jq filters written for the old single file keep working when piped through this
 CORE_MANIFEST_MERGED() {
+	CM_TRUSTED=1
+	CM_JOINED=$(CORE_MANIFEST_JOIN 2>/dev/null)
+	CM_STATUS=$?
+	CM_TRUSTED=
+	[ "$CM_STATUS" -eq 0 ] || CM_JOINED=$(CORE_MANIFEST_JOIN) || return 1
+	printf '%s\n' "$CM_JOINED"
+}
+
+CORE_MANIFEST_JOIN() {
 	set --
 
 	for CM_FILE in "$CORE_MANIFEST_DIR"/*/*.json; do
@@ -86,6 +97,7 @@ CORE_MANIFEST_MERGED() {
 	[ "$#" -gt 0 ] || return 1
 
 	jq -n 'reduce inputs as $s ({}; (input_filename | split("/")) as $p
+		| if ($s | type) != "object" then error("not an object") else . end
 		| .[$p[-1] | rtrimstr(".json")] = ($s + {namespace: $p[-2]}))' "$@"
 }
 

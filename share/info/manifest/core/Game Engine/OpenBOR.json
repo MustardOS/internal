@@ -1,7 +1,7 @@
 {
     "catalogue": "OpenBOR",
     "lookup": 0,
-    "default": "openbor v7530 - standalone",
+    "default": "openbor v6412 - standalone",
     "runtime": "external",
     "friendly": [
         "openbeatsofrage",

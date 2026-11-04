@@ -29,7 +29,12 @@ save/state/PPSSPP-Ext|$PS_DIR/PSP/PPSSPP_STATE
 "
 
 IS_MOUNTED() {
-	grep -q " $1 " /proc/self/mountinfo 2>/dev/null
+	findmnt -rn -M "$1" >/dev/null 2>&1
+}
+
+ENSURE_DIRECTORY() {
+	[ -d "$1" ] && return 0
+	mkdir -p "$1"
 }
 
 SAME_BIND() {
@@ -75,13 +80,22 @@ UNMOUNT_BIND() {
 	BIND_TARGET="$1"
 	IS_MOUNTED "$BIND_TARGET" || return 0
 
-	if umount "$BIND_TARGET" 2>/dev/null; then
-		LOG_INFO "$0" 0 "BIND MOUNT" "Unmounted $BIND_TARGET"
-		return 0
-	fi
+	UNMOUNT_COUNT=0
+	while IS_MOUNTED "$BIND_TARGET"; do
+		if ! umount "$BIND_TARGET" 2>/dev/null; then
+			LOG_ERROR "$0" 0 "BIND MOUNT" "Could not unmount $BIND_TARGET"
+			return 1
+		fi
 
-	LOG_ERROR "$0" 0 "BIND MOUNT" "Could not unmount $BIND_TARGET"
-	return 1
+		UNMOUNT_COUNT=$((UNMOUNT_COUNT + 1))
+		if [ "$UNMOUNT_COUNT" -ge 8 ] && IS_MOUNTED "$BIND_TARGET"; then
+			LOG_ERROR "$0" 0 "BIND MOUNT" "Too many stacked mounts at $BIND_TARGET"
+			return 1
+		fi
+	done
+
+	LOG_INFO "$0" 0 "BIND MOUNT" "Unmounted $BIND_TARGET"
+	return 0
 }
 
 UNMOUNT_BINDINGS() {
@@ -119,7 +133,7 @@ case "${1:-mount}" in
 esac
 
 rm -f "$MUOS_STORE_DIR/mount_ready" "$MOUNT_FAILURE"
-mkdir -p "$MUOS_STORE_DIR"
+ENSURE_DIRECTORY "$MUOS_STORE_DIR" || exit 1
 : >"$BINDMAP"
 
 SDCARD_MOUNTED=0
@@ -184,7 +198,7 @@ SAFE_BIND() {
 	SRC="$1"
 	TGT="$2"
 
-	mkdir -p "$TGT"
+	ENSURE_DIRECTORY "$TGT" || return 1
 
 	if IS_MOUNTED "$TGT"; then
 		SAME_BIND "$SRC" "$TGT" && return 0
@@ -298,7 +312,11 @@ BIND_EMULATOR() {
 	TARGET="$MUOS_STORE_DIR/$STORE_PATH"
 	MOUNT="$MUOS_SHARE_DIR/emulator/$EMU_PATH"
 
-	mkdir -p "$TARGET" "$MOUNT"
+	if ! ENSURE_DIRECTORY "$TARGET" || ! ENSURE_DIRECTORY "$MOUNT"; then
+		LOG_INFO "$0" 0 "BIND MOUNT" "FAILED to prepare emulator path $TARGET -> $MOUNT"
+		echo "$STORE_PATH" >>"$MOUNT_FAILURE"
+		return 1
+	fi
 
 	if SAFE_BIND "$TARGET" "$MOUNT"; then
 		LOG_INFO "$0" 0 "BIND MOUNT" "Bound emulator path $TARGET -> $MOUNT"

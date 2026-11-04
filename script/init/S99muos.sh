@@ -50,11 +50,9 @@ RUN_BOOT_MAINTENANCE() {
 
 	/opt/muos/script/mux/sdl_map.sh &
 	BOOT_MAP=$!
-	ionice -c 3 /opt/muos/script/system/catalogue.sh &
-	BOOT_CATALOGUE=$!
 	LOG_CLEANER &
 	BOOT_LOGS=$!
-	for BOOT_PID in "$BOOT_MAP" "$BOOT_CATALOGUE" "$BOOT_LOGS"; do
+	for BOOT_PID in "$BOOT_MAP" "$BOOT_LOGS"; do
 		wait "$BOOT_PID" || BOOT_RESULT=1
 	done
 
@@ -141,6 +139,11 @@ DO_START() {
 	fi
 
 	WAIT_FOR_PRIORITY_STORAGE || exit 1
+
+	LOG_INFO "$0" 0 "BOOTING" "Preparing catalogue directories"
+	if ! ionice -c 3 /opt/muos/script/system/catalogue.sh; then
+		LOG_WARN "$0" 0 "BOOTING" "Catalogue directory preparation failed"
+	fi
 
 	if [ "$FIRST_INIT" -eq 0 ]; then
 		LOG_INFO "$0" 0 "BOOTING" "Completing first-start maintenance"

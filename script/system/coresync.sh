@@ -2,6 +2,15 @@
 
 . /opt/muos/script/var/base.sh
 
+if [ "${MUOS_STORAGE_LOCKED:-0}" -eq 0 ]; then
+	MUOS_STORAGE_LOCKED=1 /usr/bin/flock -E 75 -w 60 "$MUOS_RUN_DIR/storage-write.lock" "$0" "$@"
+	LOCK_STATUS=$?
+	if [ "$LOCK_STATUS" -eq 75 ]; then
+		printf '%s\n' "Core definition sync could not acquire the storage lock" >&2
+	fi
+	exit "$LOCK_STATUS"
+fi
+
 ARCHIVE=${1:-}
 MANIFEST_ROOT="$MUOS_STORE_DIR/info/manifest"
 TARGET="$MANIFEST_ROOT/coresync"
@@ -11,7 +20,9 @@ TARGET="$MANIFEST_ROOT/coresync"
 	exit 1
 }
 
-mkdir -p "$MANIFEST_ROOT" || exit 1
+if [ ! -d "$MANIFEST_ROOT" ]; then
+	mkdir -p "$MANIFEST_ROOT" || exit 1
+fi
 WORK=$(mktemp -d "$MANIFEST_ROOT/.coresync.XXXXXX") || exit 1
 STAGED=""
 BACKUP=""
@@ -102,7 +113,14 @@ fi
 STAGED=""
 INSTALLED=1
 
+SYNC_ERROR=""
 if ! /opt/muos/script/system/assign.sh >/dev/null 2>&1; then
+	SYNC_ERROR="Core assignments could not be regenerated"
+elif ! /opt/muos/script/system/catalogue.sh >/dev/null 2>&1; then
+	SYNC_ERROR="Catalogue directories could not be generated"
+fi
+
+if [ -n "$SYNC_ERROR" ]; then
 	FAILED="$MANIFEST_ROOT/.coresync.failed.$$"
 	mv "$TARGET" "$FAILED" || exit 1
 	if [ -n "$BACKUP" ]; then
@@ -112,7 +130,9 @@ if ! /opt/muos/script/system/assign.sh >/dev/null 2>&1; then
 	rm -rf "$FAILED"
 	FAILED=""
 	INSTALLED=0
-	printf 'Core assignments could not be regenerated; definitions were rolled back\n' >&2
+	/opt/muos/script/system/assign.sh >/dev/null 2>&1
+	/opt/muos/script/system/catalogue.sh >/dev/null 2>&1
+	printf '%s; definitions were rolled back\n' "$SYNC_ERROR" >&2
 	exit 1
 fi
 

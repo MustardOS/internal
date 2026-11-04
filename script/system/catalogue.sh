@@ -17,7 +17,7 @@ TARGET_DIRS="box grid preview splash text manual overlay/base overlay/battery ov
 EXTRA_DIRS="Application Archive Collection Folder Root Task Theme"
 
 MANIFEST_DATA=$(CORE_MANIFEST_MERGED) || {
-	printf "No core definitions found in %s\n" "$CORE_MANIFEST_DIR" >&2
+	printf 'No core definitions found in %s\n' "$CORE_MANIFEST_DIR" >&2
 	exit 1
 }
 
@@ -26,22 +26,28 @@ CATALOGUE_NAMES=$(printf '%s' "$MANIFEST_DATA" | jq -r '[to_entries[] | .value.c
 	exit 1
 }
 
-printf '%s\n' "$CATALOGUE_NAMES" | while IFS= read -r C_NAME; do
-	[ -n "$C_NAME" ] || continue
-	for T_DIR in $TARGET_DIRS; do
-		mkdir -p "$BASE_PATH/$C_NAME/$T_DIR" || exit 1
-	done
-done || {
-	printf '%s\n' "Could not create the catalogue directory hierarchy" >&2
-	exit 1
+CREATE_DIR() {
+	[ -d "$1" ] && return 0
+
+	mkdir -p "$1" || {
+		printf 'Could not create catalogue directory: %s\n' "$1" >&2
+		return 1
+	}
 }
 
-# Create additional directories specified in EXTRA_DIRS
-for EXTRA_DIR in $EXTRA_DIRS; do
-	for DIR in $TARGET_DIRS; do
-		mkdir -p "$BASE_PATH/$EXTRA_DIR/$DIR" || {
-			printf 'Could not create catalogue directory: %s\n' "$BASE_PATH/$EXTRA_DIR/$DIR" >&2
-			exit 1
-		}
+CREATE_TARGETS() {
+	for T_DIR in $TARGET_DIRS; do
+		CREATE_DIR "$BASE_PATH/$1/$T_DIR" || return 1
 	done
+}
+
+while IFS= read -r C_NAME; do
+	[ -n "$C_NAME" ] || continue
+	CREATE_TARGETS "$C_NAME" || exit 1
+done <<EOF_NAMES
+$CATALOGUE_NAMES
+EOF_NAMES
+
+for EXTRA_DIR in $EXTRA_DIRS; do
+	CREATE_TARGETS "$EXTRA_DIR" || exit 1
 done

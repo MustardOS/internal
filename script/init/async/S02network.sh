@@ -1,6 +1,7 @@
 #!/bin/sh
 
 [ -n "$MUOS_STORAGE_LOADED" ] || . /opt/muos/script/var/storage.sh
+. /opt/muos/script/var/wpa.sh
 
 ADDR=$(GET_VAR "config" "network/address")
 SUBN=$(GET_VAR "config" "network/subnet")
@@ -926,38 +927,7 @@ NORMALISE_PRIORITY() {
 }
 
 APPEND_WPA_PROFILE() {
-	NET_PROF_SSID="$1"
-	NET_PROF_PASS="$2"
-	NET_PROF_PRIORITY="$3"
-
-	NET_PROF_SSID_WPA=$(printf '%s' "$NET_PROF_SSID" | sed 's/\\/\\\\/g; s/"/\\"/g')
-
-	case ${#NET_PROF_PASS} in
-		64)
-			printf "network={\n\tssid=\"%s\"\n\tscan_ssid=1\n\tpsk=%s\n\tpriority=%s\n}\n" \
-				"$NET_PROF_SSID_WPA" "$NET_PROF_PASS" "$NET_PROF_PRIORITY" >>"$WPA_CONFIG"
-			;;
-		0)
-			printf "network={\n\tssid=\"%s\"\n\tscan_ssid=1\n\tkey_mgmt=NONE\n\tpriority=%s\n}\n" \
-				"$NET_PROF_SSID_WPA" "$NET_PROF_PRIORITY" >>"$WPA_CONFIG"
-			;;
-		*)
-			NET_PROF_TMP=$(mktemp) || return 1
-
-			wpa_passphrase "$NET_PROF_SSID" "$NET_PROF_PASS" >"$NET_PROF_TMP" || {
-				rm -f "$NET_PROF_TMP"
-				return 1
-			}
-
-			NET_PROF_PSK=$(sed -n '/^[[:space:]]*psk=/s/^[[:space:]]*psk=//p' "$NET_PROF_TMP")
-			rm -f "$NET_PROF_TMP"
-
-			[ -n "$NET_PROF_PSK" ] || return 1
-
-			printf "network={\n\tssid=\"%s\"\n\tscan_ssid=1\n\tpsk=%s\n\tpriority=%s\n}\n" \
-				"$NET_PROF_SSID_WPA" "$NET_PROF_PSK" "$NET_PROF_PRIORITY" >>"$WPA_CONFIG"
-			;;
-	esac
+	WPA_NETWORK "$1" "$2" "$3" >>"$WPA_CONFIG"
 }
 
 LOAD_PROFILE_BY_SSID() {

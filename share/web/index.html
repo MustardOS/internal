@@ -300,12 +300,13 @@
             </div>
             <div id="files-body"></div>
         </div>
-        <div class="file-drop" id="files-drop" hidden>Drop files here to upload</div>
-        <section class="box file-queue" id="files-queue-box" hidden>
-            <h2>Transfers</h2>
-            <div id="files-queue"></div>
-        </section>
+        <div class="file-drop" id="files-drop" hidden>Drop files or folders here to upload</div>
     </div>
+
+    <section class="box file-queue" id="files-queue-box" aria-live="polite" aria-label="Transfers" hidden>
+        <h2>Transfers</h2>
+        <div id="files-queue"></div>
+    </section>
 
     <div class="view" id="view-history" hidden>
         <h1><strong>History</strong></h1>

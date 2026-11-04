@@ -99,6 +99,15 @@ TBOX() {
 	/opt/muos/bin/toybox "$CMD" "$@"
 }
 
+LOCK_RUN() {
+	case " ${MUOS_LOCKS-} " in *" $1 "*) return 0 ;; esac
+	LOCK_NAME=$1
+	shift
+	MUOS_LOCKS="${MUOS_LOCKS:+$MUOS_LOCKS }$LOCK_NAME" /usr/bin/flock -E 75 -w 60 "$MUOS_RUN_DIR/$LOCK_NAME.lock" "$0" "$@"
+	LOCK_STATUS=$?
+	return 1
+}
+
 IS_ONE() {
 	[ "$1" = "1" ]
 }

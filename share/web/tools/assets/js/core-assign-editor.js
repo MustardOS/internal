@@ -34,7 +34,7 @@
   const FALLBACK_OPTIONS = {
     governor: [{ id: "automatic", name: "Automatic" }, { id: "powersave", name: "Powersave" }, { id: "efficient", name: "Efficient" }, { id: "balanced", name: "Balanced" }, { id: "responsive", name: "Responsive" }, { id: "turbo", name: "Turbo" }, { id: "extreme", name: "Extreme" }],
     control: [{ id: "system", name: "System" }, { id: "modern", name: "Modern" }, { id: "retro", name: "Retro" }],
-    arch: [{ id: "aarch64", name: "ARM 64-bit" }, { id: "arm32", name: "ARM 32-bit" }, { id: "x64", name: "x86 64-bit" }, { id: "x86", name: "x86 32-bit" }],
+    arch: [{ id: "aarch64", name: "ARM 64-bit" }, { id: "armhf", name: "ARM hard-float" }, { id: "x86_64", name: "x86 64-bit" }, { id: "x86", name: "x86 32-bit" }, { id: "riscv64", name: "RISC-V 64-bit" }],
     device: [],
     runtime: [{ id: "pickles", name: "Pickles" }, { id: "retroarch", name: "RetroArch" }, { id: "external", name: "External" }]
   };
@@ -806,7 +806,7 @@
         const { sources, text } = await device.core();
         if (!openDocument("the device", JSON.parse(text), sources)) return;
         const mine = Object.values(sources).filter(source => source === "user").length;
-        setStatus(mine ? `Opened from the device. ${mine} system${mine === 1 ? " uses your" : "s use your"} own file.` : "Opened the bundled systems. Saving a system creates your own copy of it.", "good");
+        setStatus(mine ? `Opened from the device. ${mine} system${mine === 1 ? " uses your" : "s use your"} own file.` : "Opened the standard systems. Saving a system creates your own copy of it.", "good");
       } catch (error) {
         setStatus(`Could not open the systems from the device: ${error.message}`, "bad");
       }
@@ -816,8 +816,8 @@
       ["Reset System", async () => {
         const key = state.systemKey;
         if (!state.doc || !key) return;
-        if (state.doc.sources[key] !== "user") { setStatus(`${key} already uses the bundled file.`, "good"); return; }
-        if (!confirm(`Remove your ${key}.json and go back to the bundled one? A backup is kept as ${key}.json.bak.`)) return;
+        if (state.doc.sources[key] !== "user") { setStatus(`${key} already uses the standard file.`, "good"); return; }
+        if (!confirm(`Remove your ${key}.json and go back to the standard one? A backup is kept as ${key}.json.bak.`)) return;
         try {
           await device.resetCore(key);
           await loadFromDevice();
@@ -827,11 +827,11 @@
         }
       }],
       ["Reset All", async () => {
-        if (!confirm("Remove every system file of your own and go back to the bundled ones? A backup of each is kept as .bak.")) return;
+        if (!confirm("Remove every system file of your own and go back to the standard ones? A backup of each is kept as .bak.")) return;
         try {
           await device.resetCore();
           await loadFromDevice();
-          setStatus("Your system files were removed. The bundled files are in use again.", "good");
+          setStatus("Your system files were removed. The standard files are in use again.", "good");
         } catch (error) {
           setStatus(error.message, "bad");
         }
@@ -842,8 +842,8 @@
         const removed = removedSystems();
         if (!keys.length && !removed.length) { setStatus("No systems have changed.", "good"); return; }
         if (!confirmErrors(keys, "Save them")) return;
-        const restored = removed.filter(key => state.doc.sources[key] === "bundled");
-        if (restored.length && !confirm(`Bundled systems cannot be removed from the device, so ${restored.join(", ")} will return. Save anyway?`)) return;
+        const restored = removed.filter(key => state.doc.sources[key] === "standard");
+        if (restored.length && !confirm(`Standard systems cannot be removed from the device, so ${restored.join(", ")} will return. Save anyway?`)) return;
         try {
           for (const key of keys) await device.saveCore(state.doc.data[key].namespace.trim(), key, fileText(state.doc.data[key]));
           for (const key of removed) await device.resetCore(key);
@@ -862,10 +862,10 @@
     $("#open-bundled").addEventListener("click", async () => {
       try {
         const data = await (await fetch("/assets/data/core-assign.json")).json();
-        if (!openDocument("the bundled systems", data)) return;
-        setStatus(`Opened ${Object.keys(data).length} bundled systems.`, "good");
+        if (!openDocument("the standard systems", data)) return;
+        setStatus(`Opened ${Object.keys(data).length} standard systems.`, "good");
       } catch (error) {
-        setStatus(`Could not open the bundled systems: ${error.message}`, "bad");
+        setStatus(`Could not open the standard systems: ${error.message}`, "bad");
       }
     });
   }

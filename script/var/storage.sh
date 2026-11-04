@@ -261,11 +261,18 @@ MOUNT_FILESYSTEM() {
 	MFS_DEVICE=$3
 	MFS_TARGET=$4
 
-	if [ "$MFS_TYPE" = exfat ] && EXFAT_NATIVE_READY; then
-		mount -i -t "$MFS_TYPE" -o "$MFS_OPTIONS" "$MFS_DEVICE" "$MFS_TARGET"
-	else
-		mount -t "$MFS_TYPE" -o "$MFS_OPTIONS" "$MFS_DEVICE" "$MFS_TARGET"
+	if [ "$MFS_TYPE" = exfat ]; then
+		if ! EXFAT_NATIVE_READY; then
+			printf '%s\n' "Native exFAT support is unavailable" >&2
+			return 1
+		fi
+
+		# Never let mount resolve /sbin/mount.exfat or mount.exfat-fuse.
+		mount -i -t exfat -o "$MFS_OPTIONS" "$MFS_DEVICE" "$MFS_TARGET"
+		return
 	fi
+
+	mount -t "$MFS_TYPE" -o "$MFS_OPTIONS" "$MFS_DEVICE" "$MFS_TARGET"
 }
 
 FS_HAS_CASEFOLD() {

@@ -7,6 +7,11 @@
 . /opt/muos/script/var/zip.sh
 . /opt/muos/script/var/ui.sh
 
+LOCK_RUN storage-write "$@" || {
+	[ "$LOCK_STATUS" -eq 75 ] && TASK_ERROR "storage_busy" "Storage is busy with another catalogue or migration operation."
+	exit "$LOCK_STATUS"
+}
+
 LOG_INFO "$0" 0 "EXTRACT" "Archive extraction started"
 
 TASK_IS_NATIVE || { [ -z "${THEME_INSTALLING:-}" ] && FRONTEND stop; }

@@ -62,7 +62,7 @@ EOF
 		*) return 1 ;;
 	esac
 
-	[ -d "$MOUNT_POINT" ] || mkdir -p "$MOUNT_POINT"
+	mkdir -p "$MOUNT_POINT" || return 1
 
 	if MOUNT_FILESYSTEM "$FS_TYPE" "$FS_OPTS" "/dev/$DEVICE" "$MOUNT_POINT"; then
 		SET_VAR "device" "storage/$TYPE/active" "1"
@@ -81,7 +81,13 @@ EOF
 
 		KERNEL_TUNING "$DEV"
 
-		mkdir -p "$MOUNT_POINT/ROMS" "$MOUNT_POINT/ARCHIVE" "$MOUNT_POINT/ports"
+		for STORAGE_DIR in ROMS ARCHIVE ports; do
+			if ! mkdir -p "$MOUNT_POINT/$STORAGE_DIR"; then
+				LOG_ERROR "$0" 0 "STORAGE" "Could not create $MOUNT_POINT/$STORAGE_DIR"
+				UNMOUNT_DEVICE || LOG_ERROR "$0" 0 "STORAGE" "Could not unmount $MOUNT_POINT"
+				return 1
+			fi
+		done
 
 		if [ -d "$MOUNT_POINT/MUOS/info/name" ]; then
 			SYNC_FILE "$ROM_MOUNT" "$MOUNT_POINT" "MUOS/info/name/tag.txt" size "atomic,verify"
@@ -109,7 +115,7 @@ EOF
 UNMOUNT_DEVICE() {
 	sync
 
-	if umount "$MOUNT_POINT" 2>/dev/null || umount -l "$MOUNT_POINT" 2>/dev/null; then
+	if umount "$MOUNT_POINT" 2>/dev/null; then
 		SET_VAR "device" "storage/$TYPE/active" "0"
 		return 0
 	fi
@@ -150,11 +156,30 @@ DO_EJECT() {
 		exit 0
 	fi
 
+	REBIND_STORAGE=0
+	if [ "$DURING_BOOT" -eq 0 ]; then
+		case "$TYPE" in
+			rom | sdcard)
+				if ! /opt/muos/script/device/bind.sh down; then
+					/opt/muos/script/device/bind.sh >/dev/null 2>&1
+					TASK_ERROR "eject_failed" "Storage bind mounts could not be removed."
+					exit 1
+				fi
+				REBIND_STORAGE=1
+				;;
+		esac
+	fi
+
 	if UNMOUNT_DEVICE; then
-		[ "$DURING_BOOT" -eq 0 ] && /opt/muos/script/device/bind.sh
+		if [ "$REBIND_STORAGE" -eq 1 ] && ! /opt/muos/script/device/bind.sh; then
+			TASK_ERROR "bind_failed" "Storage was ejected but remaining paths could not be rebound."
+			exit 1
+		fi
 		TASK_STATUS "$(printf "%s ejected" "$TYPE")"
 		exit 0
 	fi
+
+	[ "$REBIND_STORAGE" -eq 1 ] && /opt/muos/script/device/bind.sh >/dev/null 2>&1
 
 	TASK_ERROR "eject_failed" "$(printf "%s could not be ejected: %s" "$TYPE" "$MOUNT_POINT")"
 	exit 1
@@ -173,7 +198,6 @@ DO_DOWN() {
 	fi
 
 	TASK_ERROR "unmount_failed" "$(printf "%s could not be unmounted: %s" "$TYPE" "$MOUNT_POINT")"
-	SET_VAR "device" "storage/$TYPE/active" "0"
 
 	exit 1
 }

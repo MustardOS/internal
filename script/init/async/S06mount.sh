@@ -86,13 +86,23 @@ DO_START() {
 }
 
 DO_STOP() {
-	/opt/muos/script/device/storage.sh "sdcard" "down"
-	/opt/muos/script/device/storage.sh "rom" "down"
+	STOP_STATUS=0
+
+	# Bind mounts keep the backing filesystem active even after a lazy detach.
+	# Remove every bind view before unmounting either physical storage device.
+	if ! /opt/muos/script/device/bind.sh down; then
+		LOG_ERROR "$0" 0 "BOOTING" "Storage bind mounts could not be cleanly removed"
+		STOP_STATUS=1
+	fi
+
+	/opt/muos/script/device/storage.sh "sdcard" "down" || STOP_STATUS=1
+	/opt/muos/script/device/storage.sh "rom" "down" || STOP_STATUS=1
 
 	DEVICE="${BOOT_DEV}${BOOT_SEP}${BOOT_NUM}"
 	umount "$BOOT_MOUNT" 2>/dev/null || umount -l "$BOOT_MOUNT" 2>/dev/null
 
 	umount /sys/kernel/config 2>/dev/null
+	return "$STOP_STATUS"
 }
 
 case "$1" in

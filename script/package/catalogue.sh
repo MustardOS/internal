@@ -5,6 +5,11 @@
 . /opt/muos/script/var/zip.sh
 . /opt/muos/script/var/ui.sh
 
+LOCK_RUN storage-write "$@" || {
+	[ "$LOCK_STATUS" -eq 75 ] && TASK_ERROR "storage_busy" "Storage is busy with another catalogue or migration operation."
+	exit "$LOCK_STATUS"
+}
+
 TASK_IS_NATIVE || FRONTEND stop
 
 COMMAND=$(basename "$0")

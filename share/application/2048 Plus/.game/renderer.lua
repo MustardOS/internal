@@ -8263,12 +8263,6 @@ local function drawModeCardIcon(icon_key, cx, cy, sz, scale, select_factor, r_ac
 
     select_factor = select_factor or 0.0
 
-    -- Soft shadow under icon
-    love.graphics.setColor(0, 0, 0, 0.20 + 0.10 * select_factor)
-    local shadow_w = (sz * 0.45) * (1.0 + 0.08 * select_factor)
-    local shadow_h = shadow_w * 0.25
-    love.graphics.ellipse("fill", cx, cy + sz * 0.45, shadow_w, shadow_h)
-
     local alpha = 0.65 + 0.35 * select_factor
     local r = (ui_text and ui_text[1]) or 1
     local g = (ui_text and ui_text[2]) or 1

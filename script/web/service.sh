@@ -198,7 +198,7 @@ PREPARE_LANDING_ROOT() {
 	cp -f "$LANDING_SOURCE"/icon/*.png "$LANDING_SOURCE"/icon/*.svg "$LANDING_ROOT/icon"/ || return 1
 	cp -f "$LANDING_SOURCE"/css/dashboard.css "$LANDING_ROOT/css"/ || return 1
 
-	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists files snapshot remote controls sound player game crop video-editor catalogue pickles tools toolnav boot; do
+	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists files filelog snapshot remote controls sound player game crop video-editor catalogue pickles tools toolnav boot; do
 		cp -f "$LANDING_SOURCE/js/$LANDING_PART.js" "$LANDING_ROOT/js"/ || return 1
 	done
 

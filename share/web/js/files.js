@@ -11,6 +11,7 @@
     const filePicker = el("files-file-picker");
     const folderPicker = el("files-folder-picker");
     const newButton = el("files-new");
+    const logButton = el("files-log");
     const uploadFilesButton = el("files-upload-files");
     const uploadFoldersButton = el("files-upload-folders");
     const drop = el("files-drop");
@@ -388,6 +389,7 @@
         toolbar.hidden = !current;
         paintCrumbs();
         paintRoots();
+        logButton.hidden = !MU.canManage();
         const manageable = current && MU.canManage();
         newButton.hidden = !manageable;
         uploadFilesButton.hidden = !manageable;

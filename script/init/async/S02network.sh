@@ -1358,8 +1358,7 @@ DO_START() {
 	# Load the shared WiFi/BT module and unblock rfkill regardless of
 	# connect-on-boot, since Bluetooth uses the same hardware chip.
 	case "$BOARD_NAME" in
-		mgx* | rg-vita* | rk* | tui*) LOAD_MODULE ;;
-		rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && LOAD_MODULE ;;
+		mgx* | rg* | rk* | tui*) LOAD_MODULE ;;
 	esac
 
 	rfkill unblock all 2>/dev/null

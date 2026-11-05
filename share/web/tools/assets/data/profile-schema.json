@@ -16172,6 +16172,166 @@
       "module": "muxsaver"
     },
     {
+      "key": "settings/theme/colour_background",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Background",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_border",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Border",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_dialogue_background",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Dialogue Background",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_dialogue_text",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Dialogue Text",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_footer_background",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Footer Background",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_footer_text",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Footer Text",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_glyphs",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Glyphs",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_header_background",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Header Background",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_header_text",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Header Text",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_help_background",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Help Background",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_help_text",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Help Text",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_highlight",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Highlight",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_highlight_shadow",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Highlight Shadow",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_highlight_text",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Highlight Text",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_keyboard_background",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Keyboard Background",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_keyboard_text",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Keyboard Text",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_progress_bar",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Progress Bar",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_status_icons",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Status Icons",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_text",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Text",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
+      "key": "settings/theme/colour_text_shadow",
+      "group": "themeoverride",
+      "type": "text",
+      "default": "",
+      "label": "Colour Text Shadow",
+      "help": "Theme keeps the theme's colour. Custom uses the red, green and blue below. Automatic, where offered, picks black or white so the text stays easy to read.\n\nGradient fades from the colour at the top of the screen to the gradient colour at the bottom. None removes the background altogether."
+    },
+    {
       "key": "settings/theme/content_item_count",
       "group": "themeoverride",
       "type": "int",
@@ -17704,6 +17864,47 @@
         }
       ],
       "help": "Override the maximum width of the left side option label as a percentage of content width (Default uses the theme value)"
+    },
+    {
+      "key": "settings/theme/menu_style",
+      "group": "themeoverride",
+      "type": "int",
+      "default": "0",
+      "min": 0,
+      "max": 6,
+      "label": "Main Menu Style",
+      "module": "muxcustom",
+      "help": "How the Main Menu is laid out, whichever theme is in use.\n\nTheme Default keeps the layout the theme was made with.",
+      "options": [
+        {
+          "value": "0",
+          "label": "Theme Default"
+        },
+        {
+          "value": "1",
+          "label": "List"
+        },
+        {
+          "value": "2",
+          "label": "Grid"
+        },
+        {
+          "value": "3",
+          "label": "Carousel"
+        },
+        {
+          "value": "4",
+          "label": "Coverflow"
+        },
+        {
+          "value": "5",
+          "label": "Bubbles"
+        },
+        {
+          "value": "6",
+          "label": "Orbit"
+        }
+      ]
     },
     {
       "key": "visual/background_scale",

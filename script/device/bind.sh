@@ -4,7 +4,7 @@
 . /opt/muos/script/var/manifest.sh
 
 PRIORITY_LOCS="application bios init info/manifest info/track music pickles save theme wasabi"
-STANDARD_LOCS="info/catalogue info/name info/launch info/collection info/history info/override network profile screenshot syncthing package/catalogue package/config"
+STANDARD_LOCS="colour info/catalogue info/name info/launch info/collection info/history info/override network profile screenshot syncthing package/catalogue package/config"
 
 MOUNT_FAILURE="/tmp/muos/mount_failure"
 

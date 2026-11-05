@@ -70,8 +70,7 @@ FINISH_SCAN() {
 
 if [ "$WAS_ACTIVE" -eq 0 ]; then
 	case "$BOARD_NAME" in
-		mgx* | rg-vita* | rk* | tui*) /opt/muos/script/init/async/S02network.sh load ;;
-		rg*) [ ! -d "/sys/bus/mmc/devices/mmc2:0001" ] && /opt/muos/script/init/async/S02network.sh load ;;
+		mgx* | rg* | rk* | tui*) /opt/muos/script/init/async/S02network.sh load ;;
 		*) ;;
 	esac
 

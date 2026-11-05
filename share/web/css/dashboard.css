@@ -728,6 +728,18 @@ button.file-name::before { mask-image: url("../icon/folder.svg"); }
 .file-menu-item[data-glyph]::before { width: 15px; height: 15px; margin: 0; }
 .file-drop { position: fixed; z-index: 20; inset: 24px; display: grid; border: 2px dashed var(--accent); border-radius: 12px; background: color-mix(in srgb, var(--bg) 90%, transparent); color: var(--head); font-size: 1.4rem; font-weight: 600; place-items: center; pointer-events: none; }
 .file-drop[hidden] { display: none; }
+.file-log-filter { flex-wrap: wrap; margin-bottom: 10px; }
+.file-log-filter .search { flex: 1; max-width: none; }
+.file-log-table td { font-family: var(--mono); font-size: .76rem; font-variant-numeric: tabular-nums; }
+.file-log-table td:first-child, .file-log-table td:last-child { white-space: nowrap; }
+.file-log-item { overflow-wrap: anywhere; }
+.file-log-pill { --pill: var(--muted); display: inline-block; padding: 1px 8px; border: 1px solid var(--pill); border-radius: 999px; background: color-mix(in srgb, var(--pill) 16%, transparent); color: var(--pill); font-size: .68rem; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+.file-log-pill[data-action="mkdir"], .file-log-pill[data-action="upload"] { --pill: var(--good); }
+.file-log-pill[data-action="replace"], .file-log-pill[data-action="chmod"] { --pill: #6fa8dc; }
+.file-log-pill[data-action="rename"], .file-log-pill[data-action="move"], .file-log-pill[data-action="copy"] { --pill: var(--accent); }
+.file-log-pill[data-action="remove"] { --pill: var(--warn); }
+.file-log-done { color: var(--good); }
+.file-log-failed { color: var(--warn); }
 .file-queue { position: fixed; z-index: 45; right: 14px; bottom: 14px; width: min(380px, calc(100vw - 28px)); max-height: min(70vh, 520px); margin: 0; padding: 12px; overflow: auto; box-shadow: 0 12px 34px rgb(0 0 0 / 55%); }
 .file-queue h2 { margin: 0 0 8px; font-size: .86rem; }
 .file-transfer { transition: opacity .8s ease, transform .8s ease; }

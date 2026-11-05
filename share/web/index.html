@@ -269,6 +269,7 @@
         <div class="view-head">
             <h1><strong>File Management</strong></h1>
             <div class="file-head-actions">
+                <button class="link file-head-action" type="button" id="files-log" data-view="file-log" data-glyph="text" hidden>File Log</button>
                 <button class="link file-head-action" type="button" id="files-new" data-glyph="folder-plus" hidden>New Folder</button>
                 <button class="link file-head-action file-head-action-primary" type="button" id="files-upload-files" data-glyph="upload" hidden>Upload Files</button>
                 <button class="link file-head-action" type="button" id="files-upload-folders" data-glyph="folder-upload" hidden>Upload Folders</button>
@@ -301,6 +302,26 @@
             <div id="files-body"></div>
         </div>
         <div class="file-drop" id="files-drop" hidden>Drop files or folders here to upload</div>
+    </div>
+
+    <div class="view" id="view-file-log" hidden>
+        <div class="view-head">
+            <h1><strong>File Log</strong></h1>
+            <div class="file-head-actions">
+                <button class="link file-head-action" type="button" data-view="files" data-glyph="path">File Management</button>
+                <button class="link file-head-action" type="button" id="file-log-refresh" data-glyph="refresh">Refresh</button>
+                <button class="link file-head-action danger" type="button" id="file-log-clear" data-glyph="trash">Clear</button>
+            </div>
+        </div>
+        <p class="note">The last 256 changes made to files from the dashboard, newest first.</p>
+        <section class="box" aria-label="File Log">
+            <div class="head file-log-filter">
+                <input class="search" type="search" id="file-log-search" placeholder="Search" aria-label="Search">
+                <select class="sort" id="file-log-action" aria-label="Action"></select>
+                <select class="sort" id="file-log-result" aria-label="Result"></select>
+            </div>
+            <div id="file-log-body"></div>
+        </section>
     </div>
 
     <section class="box file-queue" id="files-queue-box" aria-live="polite" aria-label="Transfers" hidden>
@@ -752,6 +773,7 @@
     <script src="js/system.js" defer></script>
     <script src="js/lists.js" defer></script>
     <script src="js/files.js" defer></script>
+    <script src="js/filelog.js" defer></script>
     <script src="js/catalogue.js" defer></script>
     <script src="js/pickles.js" defer></script>
     <script src="js/snapshot.js" defer></script>

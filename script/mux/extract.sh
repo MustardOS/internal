@@ -267,7 +267,7 @@ EXTRACT_SECTIONS() {
 		ARC_UNSET
 	done
 
-	TASK_DETAIL "$(printf "Restored %s of %s Sections" "$EXTRACT_DONE" "$EXTRACT_TOTAL")"
+	TASK_DETAIL "$(printf "%s %s of %s %s" "${1:-Restored}" "$EXTRACT_DONE" "$EXTRACT_TOTAL" "${2:-Sections}")"
 
 	if [ -n "$EXTRACT_FAILED" ]; then
 		LOG_ERROR "$0" 0 "EXTRACT" "$(printf "Sections not restored:%s" "$EXTRACT_FAILED")"
@@ -466,16 +466,18 @@ case "$ARCHIVE_NAME" in
 		LOG_INFO "$0" 0 "EXTRACT" "Detected multi-section archive (.muxzip)"
 		SAFE_ARCHIVE "$ARCHIVE" || REJECT_UNSAFE_ARCHIVE "$ARCHIVE"
 
-		EXTRACT_SECTIONS
-
 		# Special case for core downloads - we run the control script
 		# to initialise any control based changes for emulators
 		if [ "$FRONTEND_START_PROGRAM" = "core" ]; then
+			EXTRACT_SECTIONS "Installed" "Core"
 			/opt/muos/script/device/control.sh || {
 				LOG_ERROR "$0" 0 "EXTRACT" "Failed to initialise control script after core download"
 				TASK_ERROR "control_failed" "Control initialisation failed after the core download."
 				ALL_DONE 1
 			}
+			rm -f "$ARCHIVE" || LOG_WARN "$0" 0 "EXTRACT" "$(printf "Could not remove core archive: '%s'" "$ARCHIVE_NAME")"
+		else
+			EXTRACT_SECTIONS
 		fi
 		;;
 	*)

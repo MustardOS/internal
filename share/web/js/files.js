@@ -1318,23 +1318,11 @@
         const files = [];
         const folders = [];
         const items = [...(dataTransfer.items || [])].filter((item) => item.kind === "file");
-        /* Request every handle before awaiting; browsers revoke drag handles once the event yields. */
-        const handleRequests = items.map((item) => item.getAsFileSystemHandle
-            ? item.getAsFileSystemHandle().catch(() => null) : Promise.resolve(null));
-        const handles = await Promise.all(handleRequests);
 
-        const visitHandle = async (handle, parent = "") => {
-            const relative = join(parent, handle.name);
-            if (handle.kind === "file") {
-                const file = await handle.getFile();
-                uploadRelativePaths.set(file, relative);
-                files.push(file);
-                return;
-            }
-            if (handle.kind !== "directory") return;
-            folders.push(relative);
-            for await (const child of handle.values()) await visitHandle(child, relative);
-        };
+        
+        const entries = items.map((item) => item.webkitGetAsEntry ? item.webkitGetAsEntry() : null);
+        const loose = items.map((item, index) => entries[index] ? null : item.getAsFile());
+        if (!items.length) loose.push(...dataTransfer.files);
 
         const visit = async (entry, parent = "") => {
             const relative = join(parent, entry.name);
@@ -1350,22 +1338,11 @@
             for (const child of children) await visit(child, relative);
         };
 
-        for (let index = 0; index < items.length; index++) {
-            if (handles[index]) {
-                await visitHandle(handles[index]);
-                continue;
-            }
-            const item = items[index];
-            const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
-            if (entry) {
-                await visit(entry);
-                continue;
-            }
-            const file = item.getAsFile();
-            if (file) files.push(file);
+        for (const entry of entries) {
+            if (entry) await visit(entry);
         }
 
-        if (!items.length) files.push(...dataTransfer.files);
+        files.push(...loose.filter(Boolean));
         return {files, folders: [...new Set(folders)]};
     }
 

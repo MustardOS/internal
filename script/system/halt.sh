@@ -225,6 +225,16 @@ if [ "$(GET_VAR "config" "settings/advanced/random_theme")" -eq 1 ] 2>/dev/null;
 	RUN_WITH_TIMEOUT 10 2 env MUOS_TASK_UI=halt /opt/muos/script/package/theme.sh install "?R"
 fi
 
+if [ "$(GET_VAR "config" "settings/theme/menu_random")" -eq 1 ] 2>/dev/null; then
+	LOG_INFO "$0" 0 "HALT" "Applying random main menu style"
+	MENU_STYLE=$(GET_VAR "config" "settings/theme/menu_style")
+	NEW_STYLE=$MENU_STYLE
+	while [ "$NEW_STYLE" = "$MENU_STYLE" ]; do
+		NEW_STYLE=$((2 + $(od -An -N2 -tu2 /dev/urandom) % 21))
+	done
+	SET_VAR "config" "settings/theme/menu_style" "$NEW_STYLE"
+fi
+
 LOG_INFO "$0" 0 "HALT" "Disabling swap"
 RUN_WITH_TIMEOUT 5 1 swapoff -a || LOG_WARN "$0" 0 "HALT" "Swap disable did not complete"
 

@@ -115,6 +115,7 @@ RANDOM() {
 	TASK_DETAIL "$relative"
 
 	SET_VAR "config" "theme/active" "$relative"
+	SET_VAR "config" "settings/theme/menu_style" "0"
 	UPDATE_BOOTLOGO
 	DONE_MESSAGE="Theme installed"
 	ALL_DONE 0
@@ -184,6 +185,7 @@ INSTALL() {
 		) &
 	fi
 
+	SET_VAR "config" "settings/theme/menu_style" "0"
 	UPDATE_BOOTLOGO
 	LED_CONTROL_CHANGE restore
 

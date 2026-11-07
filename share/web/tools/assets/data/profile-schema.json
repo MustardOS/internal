@@ -17866,6 +17866,27 @@
       "help": "Override the maximum width of the left side option label as a percentage of content width (Default uses the theme value)"
     },
     {
+      "key": "settings/theme/menu_glyph_zoom",
+      "group": "themeoverride",
+      "type": "int",
+      "default": "1",
+      "min": 0,
+      "max": 1,
+      "label": "Selection Glyph Zoom",
+      "module": "muxcustom",
+      "help": "Briefly zooms the glyph of the item you move to on the Main Menu.\n\nTurn it off for a calmer menu.",
+      "options": [
+        {
+          "value": "0",
+          "label": "Disabled"
+        },
+        {
+          "value": "1",
+          "label": "Enabled"
+        }
+      ]
+    },
+    {
       "key": "settings/theme/menu_label",
       "group": "themeoverride",
       "type": "int",
@@ -17902,7 +17923,7 @@
       "max": 1,
       "label": "Random Style on Boot",
       "module": "muxcustom",
-      "help": "Picks a different Main Menu Style each time the device starts, from Grid through to Blades.\n\nLeave it off if you would rather the style you chose stayed put.",
+      "help": "Picks a different Main Menu Style each time the device starts, from Grid through to Mascot.\n\nLeave it off if you would rather the style you chose stayed put.",
       "options": [
         {
           "value": "0",
@@ -17920,7 +17941,7 @@
       "type": "int",
       "default": "0",
       "min": 0,
-      "max": 22,
+      "max": 24,
       "label": "Main Menu Style",
       "module": "muxcustom",
       "help": "How the Main Menu is laid out, whichever theme is in use.\n\nTheme Default keeps the layout the theme was made with. Themes that draw their own Main Menu artwork always use Theme Default.",
@@ -18015,7 +18036,15 @@
         },
         {
           "value": "22",
-          "label": "Blades"
+          "label": "Paged Row"
+        },
+        {
+          "value": "23",
+          "label": "Slices"
+        },
+        {
+          "value": "24",
+          "label": "Mascot"
         }
       ]
     },

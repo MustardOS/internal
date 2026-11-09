@@ -5,7 +5,7 @@ _G.timer = require("timer")
 local sem_ver = {
     major = 8,
     minor = 0,
-    patch = 1,
+    patch = 2,
     extra = ""
 }
 
@@ -77,6 +77,7 @@ _G.screen_transitions = true
 _G.undo_mode = "classic"
 _G.time_attack_time = 60
 _G.vibration = true
+_G.button_vibration = true
 _G.merge_fx = "default"
 
 -- Achievements and Unlockables

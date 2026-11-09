@@ -50,6 +50,7 @@ local STATE_DEPTH = {
     THEME_SELECT  = 1,
     CHEATS_MENU   = 1,
     SETTINGS      = 1,
+    STORE         = 1,
     JUKEBOX       = 1,
     DINO          = 2,
 }
@@ -477,6 +478,8 @@ function love.load(args)
     _G.undo_mode = save.loadUndoMode() or "classic"
     _G.time_attack_time = save.loadTimeAttackTime() or 60
     _G.vibration = save.loadVibration()
+    _G.button_vibration = save.loadButtonVibration()
+    _G.console_haptics = _G.button_vibration
     _G.crt_filter = save.loadCrtFilter()
     _G.merge_fx = "default"
     _G.board_skin = save.loadBoardSkin() or "default"
@@ -603,6 +606,7 @@ function love.update(dt)
     if screen_transition_timer > 0 then
         screen_transition_timer = math.max(0, screen_transition_timer - dt)
     end
+    _G.screen_transition_active = screen_transition_timer > 0
 
     -- Global exit combo: MENU + START
     -- Require distinct MENU and BACK keys to avoid accidental exit
@@ -660,8 +664,9 @@ function love.update(dt)
     else
         if _G.achievements_scroll ~= _G.achievements_scroll_target then
             local diff = _G.achievements_scroll_target - _G.achievements_scroll
-            _G.achievements_scroll = _G.achievements_scroll + diff * 15 * dt
-            if math.abs(_G.achievements_scroll - _G.achievements_scroll_target) < 0.01 then
+            local factor = 1 - math.exp(-20 * dt)
+            _G.achievements_scroll = _G.achievements_scroll + diff * factor
+            if math.abs(_G.achievements_scroll - _G.achievements_scroll_target) < 0.1 then
                 _G.achievements_scroll = _G.achievements_scroll_target
             end
         end
@@ -675,8 +680,9 @@ function love.update(dt)
     else
         if _G.stats_scroll ~= _G.stats_scroll_target then
             local diff = _G.stats_scroll_target - _G.stats_scroll
-            _G.stats_scroll = _G.stats_scroll + diff * 15 * dt
-            if math.abs(_G.stats_scroll - _G.stats_scroll_target) < 0.01 then
+            local factor = 1 - math.exp(-20 * dt)
+            _G.stats_scroll = _G.stats_scroll + diff * factor
+            if math.abs(_G.stats_scroll - _G.stats_scroll_target) < 0.1 then
                 _G.stats_scroll = _G.stats_scroll_target
             end
         end
@@ -690,8 +696,9 @@ function love.update(dt)
     else
         if _G.about_scroll ~= _G.about_scroll_target then
             local diff = _G.about_scroll_target - _G.about_scroll
-            _G.about_scroll = _G.about_scroll + diff * 15 * dt
-            if math.abs(_G.about_scroll - _G.about_scroll_target) < 0.01 then
+            local factor = 1 - math.exp(-20 * dt)
+            _G.about_scroll = _G.about_scroll + diff * factor
+            if math.abs(_G.about_scroll - _G.about_scroll_target) < 0.1 then
                 _G.about_scroll = _G.about_scroll_target
             end
         end
@@ -814,7 +821,7 @@ function love.update(dt)
                             game = Game.new(mode)
                             _G.game = game
                             if renderer.triggerGameStartTransition then
-                                renderer.triggerGameStartTransition(mode, true)
+                                renderer.triggerGameStartTransition(mode, true, game)
                             end
                         end
                     elseif sel == "Play Game" then
@@ -1228,14 +1235,14 @@ function love.update(dt)
                         game = Game.new("classic")
                         _G.game = game
                         if renderer.triggerGameStartTransition then
-                            renderer.triggerGameStartTransition("classic", false)
+                            renderer.triggerGameStartTransition("classic", false, game)
                         end
                     elseif _G.play_select_selection == 2 then
                         _G.appState = "GAME"
                         game = Game.new("plus")
                         _G.game = game
                         if renderer.triggerGameStartTransition then
-                            renderer.triggerGameStartTransition("plus", false)
+                            renderer.triggerGameStartTransition("plus", false, game)
                         end
                     elseif _G.play_select_selection == 3 then
                         _G.appState = "ARCADE_MENU"
@@ -1280,7 +1287,7 @@ function love.update(dt)
                     game = Game.new(mode)
                     _G.game = game
                     if renderer.triggerGameStartTransition then
-                        renderer.triggerGameStartTransition(mode, false)
+                        renderer.triggerGameStartTransition(mode, false, game)
                     end
                 end)
             elseif event == input.events.BACK then
@@ -1694,6 +1701,14 @@ function love.update(dt)
                         save.saveVibration(_G.vibration)
                         sound.playMenuSelect()
                         sound.vibrate(0.1)
+                    elseif sel:match("^Button Vibration") or sel:match("^Console Haptics") then
+                        _G.button_vibration = not _G.button_vibration
+                        _G.console_haptics = _G.button_vibration
+                        save.saveButtonVibration(_G.button_vibration)
+                        sound.playMenuSelect()
+                        if _G.button_vibration and love.system and love.system.vibrate then
+                            love.system.vibrate(0.015)
+                        end
                     elseif sel == "Back" then
                         sound.playMenuBack()
                         if _G.screen_transitions then
@@ -1820,6 +1835,9 @@ function love.update(dt)
         if renderer.isGameStartTransitionActive and renderer.isGameStartTransitionActive() then
             return
         end
+        if renderer.isPauseClosing and renderer.isPauseClosing() then
+            return
+        end
 
         if game.state == Game.STATE_TARGETING_BOMB or game.state == Game.STATE_TARGETING_SWAP_1 or game.state == Game.STATE_TARGETING_SWAP_2 then
             if event == input.events.UP then
@@ -1910,6 +1928,9 @@ function love.update(dt)
             -- Pause menu hotkey
             elseif event == input.events.START then
                 queueTransitionAction(event, 0.08, function()
+                    if renderer.openPause then
+                        renderer.openPause()
+                    end
                     game:togglePause()
                 end)
             -- Coin notification hotkey
@@ -1919,23 +1940,39 @@ function love.update(dt)
                 end
             end
         elseif game.state == Game.STATE_PAUSED then
+            if renderer.isPauseClosing and renderer.isPauseClosing() then
+                return
+            end
             if event == input.events.START or event == input.events.BACK or event == input.events.SELECT then
                 queueTransitionAction(event, 0.08, function()
-                    game:cancelPause()
+                    if renderer.closePause then
+                        renderer.closePause(function()
+                            game:cancelPause()
+                        end)
+                    else
+                        game:cancelPause()
+                    end
                 end)
             elseif event == input.events.CONFIRM then
                 queueTransitionAction(event, 0.08, function()
+                    if renderer.resetPauseAnim then
+                        renderer.resetPauseAnim()
+                    end
                     game:restart()
                     if renderer.triggerGameStartTransition then
-                        renderer.triggerGameStartTransition(game.mode, false)
+                        renderer.triggerGameStartTransition(game.mode, false, game)
                     end
                 end)
             elseif event == input.events.L1 or event == input.events.R1 then
                 if sound.isBgmEnabled() then
+                    sound.playMenuSelect()
                     sound.playNextBgm()
                 end
             elseif event == input.events.X then
                 queueTransitionAction(event, 0.08, function()
+                    if renderer.resetPauseAnim then
+                        renderer.resetPauseAnim()
+                    end
                     local is_arcade = game and (game.mode == "timeattack" or game.mode == "huge" or game.mode == "nomercy" or game.mode == "goose")
                     local arcade_idx = 1
                     if game then
@@ -1978,7 +2015,7 @@ function love.update(dt)
                 queueTransitionAction(event, 0.08, function()
                     game:restart()
                     if renderer.triggerGameStartTransition then
-                        renderer.triggerGameStartTransition(game.mode, false)
+                        renderer.triggerGameStartTransition(game.mode, false, game)
                     end
                 end)
             elseif event == input.events.X then
@@ -2010,7 +2047,7 @@ function love.update(dt)
                 queueTransitionAction(event, 0.08, function()
                     game:restart()
                     if renderer.triggerGameStartTransition then
-                        renderer.triggerGameStartTransition(game.mode, false)
+                        renderer.triggerGameStartTransition(game.mode, false, game)
                     end
                 end)
             elseif event == input.events.BACK then
@@ -2179,6 +2216,7 @@ local function draw_internal()
     local w, h = sc_w, sc_h
 
     if screen_transition_timer > 0 then
+        _G.screen_transition_active = true
         -- Ease-out transition curve
         local t_progress = 1 - (screen_transition_timer / screen_transition_duration)
         local p = 1 - math.pow(1 - t_progress, 3)
@@ -2266,6 +2304,7 @@ local function draw_internal()
 
         love.graphics.setColor(1, 1, 1, 1)
     else
+        _G.screen_transition_active = false
         _G.screen_canvas_ready = false
         drawCurrentScreen()
     end
@@ -2492,7 +2531,11 @@ function love.quit()
         pcall(sound.stopWebServer)
     end
     if game then
-        pcall(function() game:saveGameState() end)
+        if game.flushSaveState then
+            pcall(function() game:flushSaveState() end)
+        elseif game.saveGameState then
+            pcall(function() game:saveGameState(true) end)
+        end
     end
     pcall(function() love.audio.stop() end)
     if love.joystick then
@@ -2510,16 +2553,38 @@ end
 
 function love.focus(f)
     if not f then
-        if game and game.saveGameState then
-            pcall(function() game:saveGameState() end)
+        if sound and sound.onPause then
+            pcall(sound.onPause)
+        end
+        if game then
+            if game.flushSaveState then
+                pcall(function() game:flushSaveState() end)
+            elseif game.saveGameState then
+                pcall(function() game:saveGameState(true) end)
+            end
+        end
+    else
+        if sound and sound.onResume then
+            pcall(sound.onResume)
         end
     end
 end
 
 function love.visible(v)
     if not v then
-        if game and game.saveGameState then
-            pcall(function() game:saveGameState() end)
+        if sound and sound.onPause then
+            pcall(sound.onPause)
+        end
+        if game then
+            if game.flushSaveState then
+                pcall(function() game:flushSaveState() end)
+            elseif game.saveGameState then
+                pcall(function() game:saveGameState(true) end)
+            end
+        end
+    else
+        if sound and sound.onResume then
+            pcall(sound.onResume)
         end
     end
 end

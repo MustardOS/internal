@@ -11,6 +11,14 @@ local menuSelectSource = nil
 local menuBackSource = nil
 local toastSource = nil
 
+local achSoundData = nil
+local victorySoundData = nil
+local gameOverSoundData = nil
+local menuMoveSoundData = nil
+local menuSelectSoundData = nil
+local menuBackSoundData = nil
+local toastSoundData = nil
+
 local bgmEnabled = true
 local bgmPlaylist = {}
 local currentBgmIdx = 0
@@ -51,6 +59,9 @@ local function triangle(phase)
 end
 
 function sound.init()
+    if love.audio and love.audio.setMixWithSystem then
+        pcall(love.audio.setMixWithSystem, true)
+    end
     enabled = save.loadSound()
     pcall(getJoystick)
 
@@ -61,7 +72,7 @@ function sound.init()
         -- Achievement sound
         local achDuration = 0.6
         local achLength = math.floor(sampleRate * achDuration)
-        local achSoundData = love.sound.newSoundData(achLength, sampleRate, 16, 1)
+        achSoundData = love.sound.newSoundData(achLength, sampleRate, 16, 1)
         local phase = 0
         for i = 0, achLength - 1 do
             local t = i / sampleRate
@@ -96,7 +107,7 @@ function sound.init()
         -- Victory sound
         local victoryDuration = 1.0
         local victoryLength = math.floor(sampleRate * victoryDuration)
-        local victorySoundData = love.sound.newSoundData(victoryLength, sampleRate, 16, 1)
+        victorySoundData = love.sound.newSoundData(victoryLength, sampleRate, 16, 1)
         local vPhase = 0
         for i = 0, victoryLength - 1 do
             local t = i / sampleRate
@@ -133,7 +144,7 @@ function sound.init()
         -- Game over sound
         local gameOverDuration = 0.8
         local gameOverLength = math.floor(sampleRate * gameOverDuration)
-        local gameOverSoundData = love.sound.newSoundData(gameOverLength, sampleRate, 16, 1)
+        gameOverSoundData = love.sound.newSoundData(gameOverLength, sampleRate, 16, 1)
         local goPhase = 0
         for i = 0, gameOverLength - 1 do
             local t = i / sampleRate
@@ -158,7 +169,7 @@ function sound.init()
         -- Menu hover sound
         local menuMoveDuration = 0.04
         local menuMoveLength = math.floor(sampleRate * menuMoveDuration)
-        local menuMoveSoundData = love.sound.newSoundData(menuMoveLength, sampleRate, 16, 1)
+        menuMoveSoundData = love.sound.newSoundData(menuMoveLength, sampleRate, 16, 1)
         local mmPhase = 0
         for i = 0, menuMoveLength - 1 do
             local t = i / sampleRate
@@ -174,7 +185,7 @@ function sound.init()
         -- Menu select sound
         local menuSelectDuration = 0.13
         local menuSelectLength = math.floor(sampleRate * menuSelectDuration)
-        local menuSelectSoundData = love.sound.newSoundData(menuSelectLength, sampleRate, 16, 1)
+        menuSelectSoundData = love.sound.newSoundData(menuSelectLength, sampleRate, 16, 1)
         local msPhase = 0
         for i = 0, menuSelectLength - 1 do
             local t = i / sampleRate
@@ -196,7 +207,7 @@ function sound.init()
         -- Menu back sound
         local menuBackDuration = 0.13
         local menuBackLength = math.floor(sampleRate * menuBackDuration)
-        local menuBackSoundData = love.sound.newSoundData(menuBackLength, sampleRate, 16, 1)
+        menuBackSoundData = love.sound.newSoundData(menuBackLength, sampleRate, 16, 1)
         local mbPhase = 0
         for i = 0, menuBackLength - 1 do
             local t = i / sampleRate
@@ -218,7 +229,7 @@ function sound.init()
         -- Toast chime sound
         local toastDuration = 0.15
         local toastLength = math.floor(sampleRate * toastDuration)
-        local toastSoundData = love.sound.newSoundData(toastLength, sampleRate, 16, 1)
+        toastSoundData = love.sound.newSoundData(toastLength, sampleRate, 16, 1)
         local toastPhase = 0
         for i = 0, toastLength - 1 do
             local t = i / sampleRate
@@ -242,6 +253,47 @@ function sound.init()
     bgmEnabled = save.loadMusic()
 
     sound.initPlaylist()
+end
+
+function sound.refreshSources()
+    if not love.sound or not love.audio then return end
+    pcall(function()
+        if achSoundData then
+            achSource = love.audio.newSource(achSoundData)
+            achSource:setVolume(0.60)
+        end
+        if not splashSource then
+            local success, src = pcall(love.audio.newSource, "assets/sfx/logo_pop.wav", "static")
+            if success and src then
+                splashSource = src
+                splashSource:setVolume(1.0)
+            end
+        end
+        if victorySoundData then
+            victorySource = love.audio.newSource(victorySoundData)
+            victorySource:setVolume(0.60)
+        end
+        if gameOverSoundData then
+            gameOverSource = love.audio.newSource(gameOverSoundData)
+            gameOverSource:setVolume(0.60)
+        end
+        if menuMoveSoundData then
+            menuMoveSource = love.audio.newSource(menuMoveSoundData)
+            menuMoveSource:setVolume(1.0)
+        end
+        if menuSelectSoundData then
+            menuSelectSource = love.audio.newSource(menuSelectSoundData)
+            menuSelectSource:setVolume(0.40)
+        end
+        if menuBackSoundData then
+            menuBackSource = love.audio.newSource(menuBackSoundData)
+            menuBackSource:setVolume(0.40)
+        end
+        if toastSoundData then
+            toastSource = love.audio.newSource(toastSoundData)
+            toastSource:setVolume(0.40)
+        end
+    end)
 end
 
 local BUILTIN_TRACKS = {
@@ -627,8 +679,9 @@ function sound.exitJukebox()
         sound.stopWebServer()
     end
     _G.jukebox_web_modal = false
-    if renderer and renderer.resetJukeboxModalAnim then
-        renderer.resetJukeboxModalAnim()
+    local rend = _G.renderer or package.loaded["renderer"]
+    if rend and rend.resetJukeboxModalAnim then
+        rend.resetJukeboxModalAnim()
     end
     sound.stopBgm()
     _G.jukebox_prev_track = nil
@@ -760,6 +813,120 @@ function sound.playPrevBgm()
     end
 end
 
+function sound.recoverBgmStream()
+    if #bgmPlaylist == 0 or currentBgmIdx < 1 or currentBgmIdx > #bgmPlaylist then
+        if _G.appState == "GAME" then
+            sound.startFreshGameBgm()
+        end
+        return
+    end
+
+    local track = bgmPlaylist[currentBgmIdx]
+    local savedPos = 0
+    if currentBgmSource then
+        pcall(function()
+            savedPos = currentBgmSource:tell("seconds") or 0
+        end)
+        pcall(function() currentBgmSource:stop() end)
+        currentBgmSource = nil
+    end
+
+    local success, source = pcall(love.audio.newSource, track.path, "stream")
+    if success and source then
+        currentBgmSource = source
+        currentBgmSource:setVolume(0.55)
+        if savedPos and savedPos > 0 then
+            pcall(function() currentBgmSource:seek(savedPos, "seconds") end)
+        end
+        local ok_play = pcall(function() currentBgmSource:play() end)
+        if not ok_play then
+            pcall(function()
+                currentBgmSource:seek(0, "seconds")
+                currentBgmSource:play()
+            end)
+        end
+        bgmStartDelay = 0
+        bgmStoppedBySystem = false
+    else
+        sound.playNextBgm()
+    end
+end
+
+function sound.stopVibration()
+    pcall(function()
+        if love.system and love.system.vibrate then
+            love.system.vibrate(0)
+        end
+    end)
+    if love.joystick then
+        pcall(function()
+            local joysticks = love.joystick.getJoysticks()
+            for _, j in ipairs(joysticks) do
+                if j:isConnected() and j:isVibrationSupported() then
+                    j:setVibration(0, 0)
+                end
+            end
+        end)
+    end
+end
+
+function sound.onPause()
+    if currentBgmSource then
+        local ok, playing = pcall(function() return currentBgmSource:isPlaying() end)
+        if ok and playing then
+            bgmStoppedBySystem = true
+            pcall(function() currentBgmSource:pause() end)
+        end
+    end
+    if love.audio and love.audio.pause then
+        pcall(love.audio.pause)
+    end
+    sound.stopVibration()
+end
+
+function sound.onResume()
+    if love.audio and love.audio.setMixWithSystem then
+        pcall(love.audio.setMixWithSystem, true)
+    end
+
+    sound.refreshSources()
+
+    local in_game = _G.appState == "GAME"
+    local in_jukebox = _G.appState == "JUKEBOX"
+    local allowed = sound.isBgmEnabled() and (in_game or in_jukebox)
+
+    if allowed and not bgmPausedByUser then
+        if bgmStoppedBySystem then
+            bgmStoppedBySystem = false
+            if currentBgmSource then
+                local ok_paused, is_paused = pcall(function() return currentBgmSource:isPaused() end)
+                if ok_paused and is_paused then
+                    local play_ok = pcall(function() currentBgmSource:play() end)
+                    if not play_ok then
+                        sound.recoverBgmStream()
+                    end
+                else
+                    local ok_playing, is_playing = pcall(function() return currentBgmSource:isPlaying() end)
+                    if not ok_playing or not is_playing then
+                        sound.recoverBgmStream()
+                    end
+                end
+            else
+                sound.startFreshGameBgm()
+            end
+        else
+            if currentBgmSource then
+                local ok, playing = pcall(function() return currentBgmSource:isPlaying() end)
+                if not ok or not playing then
+                    sound.playNextBgm()
+                end
+            elseif in_game and bgmStartDelay == 0 then
+                sound.startFreshGameBgm()
+            end
+        end
+    end
+end
+
 function sound.update(dt)
     local ok_jws, jws = pcall(require, "scripts.jukebox_web_server")
     if ok_jws and jws and jws.is_running and jws.is_running() then
@@ -778,6 +945,11 @@ function sound.update(dt)
             currentBgmIdx = 0
             bgmPausedByUser = false
         end
+        return
+    end
+
+    -- If paused by system or user do not process playback logic
+    if bgmStoppedBySystem or bgmPausedByUser then
         return
     end
 
@@ -917,70 +1089,169 @@ function sound.toggle()
 end
 
 function sound.playAchievement()
-    if enabled and achSource then
-        achSource:seek(0)
-        achSource:play()
+    if enabled then
+        local ok = false
+        if achSource then
+            ok = pcall(function()
+                achSource:seek(0)
+                achSource:play()
+            end)
+        end
+        if not ok and achSoundData and love.audio then
+            pcall(function()
+                achSource = love.audio.newSource(achSoundData)
+                achSource:setVolume(0.60)
+                achSource:play()
+            end)
+        end
         duckTimer = 1.5 -- Duck BGM for achievement sound
     end
     sound.vibrate(0.15)
 end
 
 function sound.playSplash()
-    if enabled and splashSource then
-        splashSource:seek(0)
-        splashSource:play()
+    if enabled then
+        local ok = false
+        if splashSource then
+            ok = pcall(function()
+                splashSource:seek(0)
+                splashSource:play()
+            end)
+        end
+        if not ok and love.audio then
+            pcall(function()
+                local s, src = pcall(love.audio.newSource, "assets/sfx/logo_pop.wav", "static")
+                if s and src then
+                    splashSource = src
+                    splashSource:setVolume(1.0)
+                    splashSource:play()
+                end
+            end)
+        end
     end
 end
 
 function sound.stopSplash()
     if splashSource then
-        splashSource:stop()
+        pcall(function() splashSource:stop() end)
     end
 end
 
 function sound.playVictory()
-    if enabled and victorySource then
-        victorySource:seek(0)
-        victorySource:play()
+    if enabled then
+        local ok = false
+        if victorySource then
+            ok = pcall(function()
+                victorySource:seek(0)
+                victorySource:play()
+            end)
+        end
+        if not ok and victorySoundData and love.audio then
+            pcall(function()
+                victorySource = love.audio.newSource(victorySoundData)
+                victorySource:setVolume(0.60)
+                victorySource:play()
+            end)
+        end
         duckTimer = 2.0 -- Duck BGM for victory sound
     end
     sound.vibrate(0.4)
 end
 
 function sound.playGameOver()
-    if enabled and gameOverSource then
-        gameOverSource:seek(0)
-        gameOverSource:play()
+    if enabled then
+        local ok = false
+        if gameOverSource then
+            ok = pcall(function()
+                gameOverSource:seek(0)
+                gameOverSource:play()
+            end)
+        end
+        if not ok and gameOverSoundData and love.audio then
+            pcall(function()
+                gameOverSource = love.audio.newSource(gameOverSoundData)
+                gameOverSource:setVolume(0.60)
+                gameOverSource:play()
+            end)
+        end
         duckTimer = 2.5 -- Duck BGM for game over sound
     end
     sound.vibrate(0.5)
 end
 
 function sound.playMenuMove()
-    if enabled and menuMoveSource then
-        menuMoveSource:seek(0)
-        menuMoveSource:play()
+    if enabled then
+        local ok = false
+        if menuMoveSource then
+            ok = pcall(function()
+                menuMoveSource:seek(0)
+                menuMoveSource:play()
+            end)
+        end
+        if not ok and menuMoveSoundData and love.audio then
+            pcall(function()
+                menuMoveSource = love.audio.newSource(menuMoveSoundData)
+                menuMoveSource:setVolume(1.0)
+                menuMoveSource:play()
+            end)
+        end
     end
 end
 
 function sound.playMenuSelect()
-    if enabled and menuSelectSource then
-        menuSelectSource:seek(0)
-        menuSelectSource:play()
+    if enabled then
+        local ok = false
+        if menuSelectSource then
+            ok = pcall(function()
+                menuSelectSource:seek(0)
+                menuSelectSource:play()
+            end)
+        end
+        if not ok and menuSelectSoundData and love.audio then
+            pcall(function()
+                menuSelectSource = love.audio.newSource(menuSelectSoundData)
+                menuSelectSource:setVolume(0.40)
+                menuSelectSource:play()
+            end)
+        end
     end
 end
 
 function sound.playMenuBack()
-    if enabled and menuBackSource then
-        menuBackSource:seek(0)
-        menuBackSource:play()
+    if enabled then
+        local ok = false
+        if menuBackSource then
+            ok = pcall(function()
+                menuBackSource:seek(0)
+                menuBackSource:play()
+            end)
+        end
+        if not ok and menuBackSoundData and love.audio then
+            pcall(function()
+                menuBackSource = love.audio.newSource(menuBackSoundData)
+                menuBackSource:setVolume(0.40)
+                menuBackSource:play()
+            end)
+        end
     end
 end
 
 function sound.playToast()
-    if enabled and toastSource then
-        toastSource:seek(0)
-        toastSource:play()
+    if enabled then
+        local ok = false
+        if toastSource then
+            ok = pcall(function()
+                toastSource:seek(0)
+                toastSource:play()
+            end)
+        end
+        if not ok and toastSoundData and love.audio then
+            pcall(function()
+                toastSource = love.audio.newSource(toastSoundData)
+                toastSource:setVolume(0.40)
+                toastSource:play()
+            end)
+        end
     end
 end
 

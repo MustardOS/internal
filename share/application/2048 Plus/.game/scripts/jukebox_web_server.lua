@@ -349,24 +349,70 @@ local function handle_client(client, sound_module)
     if path == "/api/status" then
         local playlist = sound_module and sound_module.getPlaylist and sound_module.getPlaylist() or {}
         local storage_info = { total_mb = 0, free_mb = 0 }
+        local save_dir = (love and love.filesystem and love.filesystem.getSaveDirectory and love.filesystem.getSaveDirectory()) or "."
         pcall(function()
-            local h = io.popen and io.popen("df -m . 2>/dev/null")
-            if h then
-                local res = h:read("*a")
-                h:close()
-                if res then
-                    local lines = {}
-                    for l in res:gmatch("[^\r\n]+") do table.insert(lines, l) end
-                    if #lines >= 2 then
-                        local t, u, f = lines[2]:match("%S+%s+(%d+)%s+(%d+)%s+(%d+)")
-                        if f then
-                            storage_info.total_mb = tonumber(t) or 0
-                            storage_info.free_mb = tonumber(f) or 0
-                        end
-                    end
+            local ffi = require("ffi")
+            if ffi.os == "Windows" then
+                ffi.cdef[[
+                    int GetDiskFreeSpaceExA(const char* lpDirectoryName, unsigned long long* lpFreeBytesAvailable, unsigned long long* lpTotalNumberOfBytes, unsigned long long* lpTotalNumberOfFreeBytes);
+                ]]
+                local free_avail = ffi.new("unsigned long long[1]")
+                local total_bytes = ffi.new("unsigned long long[1]")
+                local total_free = ffi.new("unsigned long long[1]")
+                if ffi.C.GetDiskFreeSpaceExA(save_dir, free_avail, total_bytes, total_free) ~= 0 then
+                    storage_info.total_mb = math.floor(tonumber(total_bytes[0]) / 1048576)
+                    storage_info.free_mb = math.floor(tonumber(free_avail[0]) / 1048576)
+                end
+            else
+                ffi.cdef[[
+                    struct statvfs {
+                        unsigned long f_bsize;
+                        unsigned long f_frsize;
+                        unsigned long f_blocks;
+                        unsigned long f_bfree;
+                        unsigned long f_bavail;
+                        unsigned long f_files;
+                        unsigned long f_ffree;
+                        unsigned long f_favail;
+                        unsigned long f_fsid;
+                        unsigned long f_flag;
+                        unsigned long f_namemax;
+                        unsigned int __f_spare[6];
+                    };
+                    int statvfs(const char *path, struct statvfs *buf);
+                ]]
+                local buf = ffi.new("struct statvfs")
+                local res = ffi.C.statvfs(save_dir, buf)
+                if res ~= 0 then
+                    res = ffi.C.statvfs(".", buf)
+                end
+                if res == 0 then
+                    local fr = tonumber(buf.f_frsize > 0 and buf.f_frsize or buf.f_bsize)
+                    storage_info.free_mb = math.floor(tonumber(buf.f_bavail) * fr / 1048576)
+                    storage_info.total_mb = math.floor(tonumber(buf.f_blocks) * fr / 1048576)
                 end
             end
         end)
+        if storage_info.free_mb <= 0 then
+            pcall(function()
+                local h = io.popen and (io.popen("df -m '" .. save_dir .. "' 2>/dev/null") or io.popen("df -m . 2>/dev/null"))
+                if h then
+                    local res = h:read("*a")
+                    h:close()
+                    if res then
+                        local lines = {}
+                        for l in res:gmatch("[^\r\n]+") do table.insert(lines, l) end
+                        if #lines >= 2 then
+                            local t, u, f = lines[2]:match("%S+%s+(%d+)%s+(%d+)%s+(%d+)")
+                            if f then
+                                storage_info.total_mb = tonumber(t) or 0
+                                storage_info.free_mb = tonumber(f) or 0
+                            end
+                        end
+                    end
+                end
+            end)
+        end
         local json = json_encode({
             success = true,
             status = "online",
@@ -388,17 +434,38 @@ local function handle_client(client, sound_module)
             for _, t in ipairs(pl) do
                 local lower = t.filename:lower()
                 local is_builtin = BUILTIN_TRACKS[lower] or false
+                local is_custom = not is_builtin
                 local size = 0
                 if love and love.filesystem then
                     local info = love.filesystem.getInfo(t.path)
                     if info and info.size then size = info.size end
+                end
+                if size == 0 and io and io.open then
+                    local f = io.open(t.path, "rb")
+                    if not f then f = io.open("assets/music/" .. t.filename, "rb") end
+                    if f then
+                        size = f:seek("end") or 0
+                        f:close()
+                    end
+                end
+                local size_formatted = ""
+                if size and size > 0 then
+                    if size >= 1048576 then
+                        size_formatted = string.format("%.1f MB", size / 1048576)
+                    elseif size >= 1024 then
+                        size_formatted = string.format("%.0f KB", size / 1024)
+                    else
+                        size_formatted = string.format("%d B", size)
+                    end
                 end
                 table.insert(tracks, {
                     filename = t.filename,
                     title = t.title or t.filename,
                     artist = t.artist or "Unknown",
                     is_builtin = is_builtin,
-                    size = size
+                    is_custom = is_custom,
+                    size = size,
+                    size_formatted = size_formatted
                 })
             end
         end

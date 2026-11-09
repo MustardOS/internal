@@ -250,6 +250,7 @@ header.jukebox-header.has-dynamic-anim {
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: jukeboxTitleShimmer 6s ease-in-out infinite;
   filter: var(--c-title-shadow, drop-shadow(0 0 10px rgba(0, 0, 0, 0.2)));
@@ -4482,7 +4483,18 @@ function loadTracks() {
   fetch("/api/tracks")
     .then(r => r.json())
     .then(data => {
-      allTracks = data.tracks || [];
+      allTracks = (data.tracks || []).map(t => {
+        let sf = t.size_formatted;
+        if (!sf && t.size && t.size > 0) {
+          const mb = t.size / (1024 * 1024);
+          sf = mb >= 1 ? mb.toFixed(1) + " MB" : Math.round(t.size / 1024) + " KB";
+        }
+        return {
+          ...t,
+          is_custom: t.is_custom !== undefined ? Boolean(t.is_custom) : !t.is_builtin,
+          size_formatted: sf || ""
+        };
+      });
       document.getElementById("trackCountBadge").textContent = allTracks.length;
       filterTracks();
       updateStorage();
@@ -4555,8 +4567,7 @@ function renderTrackList() {
           <div class="track-meta">
             <span class="format-tag format-${ext.toLowerCase()}">${ext}</span>
             <span>${escapeHtml(t.artist)}</span>
-            <span>•</span>
-            <span>${t.size_formatted}</span>
+            ${t.size_formatted ? `<span>•</span><span>${escapeHtml(t.size_formatted)}</span>` : ''}
           </div>
         </div>
       </div>
@@ -4738,9 +4749,12 @@ function updateStorage() {
     .then(data => {
       if (data && data.storage) {
         const freeMb = data.storage.free_mb;
-        const text = freeMb >= 1024 
-          ? `${(freeMb / 1024).toFixed(1)} GB Free` 
-          : `${freeMb} MB Free`;
+        let text = "Storage Available";
+        if (freeMb && freeMb > 0) {
+          text = freeMb >= 1024 
+            ? `${(freeMb / 1024).toFixed(1)} GB Free` 
+            : `${freeMb} MB Free`;
+        }
         document.getElementById("storageText").textContent = text;
       }
     })

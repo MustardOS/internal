@@ -5,6 +5,7 @@
 ]]
 
 local dino_game = {}
+local save = require("save")
 
 local SCREEN_W, SCREEN_H = 640, 480
 local GROUND_MARGIN_BOTTOM = 100
@@ -107,15 +108,33 @@ local function newQuad(x, y, w, h)
 end
 
 local function loadHiscore()
-    if love.filesystem.getInfo(HISCORE_FILE) then
-        local contents = love.filesystem.read(HISCORE_FILE)
-        return tonumber(contents) or 0
+    if save and save.loadHighScore then
+        local s = save.loadHighScore("dino")
+        if s and s > 0 then
+            return s
+        end
+    end
+    if love.filesystem and love.filesystem.getInfo and love.filesystem.getInfo(HISCORE_FILE) then
+        local ok, contents = pcall(love.filesystem.read, HISCORE_FILE)
+        if ok and contents then
+            local s = tonumber(contents) or 0
+            if s > 0 and save and save.saveHighScore then
+                save.saveHighScore(s, "dino")
+            end
+            return s
+        end
     end
     return 0
 end
 
 local function saveHiscore(score)
-    love.filesystem.write(HISCORE_FILE, tostring(math.floor(score)))
+    if save and save.saveHighScore then
+        save.saveHighScore(score, "dino")
+        return
+    end
+    if love.filesystem and love.filesystem.write then
+        love.filesystem.write(HISCORE_FILE, tostring(math.floor(score)))
+    end
 end
 
 local function buildQuads()
@@ -170,11 +189,14 @@ local function loadSounds()
 end
 
 local function playSound(source)
-    if source then
-        local cl = source:clone()
-        cl:setVolume(source:getVolume())
-        cl:play()
+    if not source then return end
+    local ok_snd, snd = pcall(require, "sound")
+    if ok_snd and snd and snd.isEnabled and not snd.isEnabled() then
+        return
     end
+    local cl = source:clone()
+    cl:setVolume(source:getVolume())
+    cl:play()
 end
 
 local function updateScreenSize()
@@ -437,6 +459,7 @@ local function resetGame()
     dino.jumpBufferTimer = 0
     dino.speedDrop = false
     dino.reachedMinHeight = false
+    dino.isJumpHeld = false
 
     game.ducking = false
     game.score = 0
@@ -472,6 +495,9 @@ local function jump()
     if dino.onGround and not game.ducking then
         dino.vy = JUMP_VELOCITY
         dino.onGround = false
+        dino.reachedMinHeight = false
+        dino.speedDrop = false
+        dino.isJumpHeld = true
         playSound(sounds.jump)
     elseif not game.ducking then
         dino.jumpBufferTimer = JUMP_BUFFER_TIME
@@ -480,13 +506,32 @@ end
 
 local function updateDino(dt)
     local Input = package.loaded["input"]
-    local allow_space = (not Input or not Input.events or Input.events.START ~= "space")
-    local is_up_held = love.keyboard.isDown("up", "w") or (allow_space and love.keyboard.isDown("space"))
-    if Input and Input.state then
-        if (allow_space and Input.state["space"]) or Input.state["up"] or Input.state["dpup"] or (Input.events and (Input.state[Input.events.CONFIRM] or Input.state[Input.events.UP])) then
+    local is_up_held = dino.isJumpHeld or false
+    if love.keyboard and love.keyboard.isDown then
+        if love.keyboard.isDown("up", "w", "space", "return", "a") then
             is_up_held = true
         end
     end
+    if Input and Input.state then
+        if Input.state["space"] or Input.state["up"] or Input.state["w"] or Input.state["return"] or Input.state["a"] or Input.state["dpup"] then
+            is_up_held = true
+        elseif Input.events and (Input.state[Input.events.CONFIRM] or Input.state[Input.events.UP] or Input.state[Input.events.START]) then
+            is_up_held = true
+        end
+    end
+    if love.joystick then
+        for _, js in ipairs(love.joystick.getJoysticks()) do
+            if js:isGamepad() and (js:isGamepadDown("a") or js:isGamepadDown("dpup") or js:isGamepadDown("start")) then
+                is_up_held = true
+                break
+            end
+        end
+    end
+    if love.mouse and love.mouse.isDown and love.mouse.isDown(1) then
+        is_up_held = true
+    end
+
+    dino.isJumpHeld = is_up_held
 
     if not dino.onGround then
         local rise = (GROUND_Y - DINO_H) - dino.y
@@ -515,10 +560,21 @@ local function updateDino(dt)
         dino.onGround = false
     end
 
-    local is_down_held = love.keyboard.isDown("down", "s", "v")
+    local is_down_held = false
+    if love.keyboard and love.keyboard.isDown and love.keyboard.isDown("down", "s", "v") then
+        is_down_held = true
+    end
     if Input and Input.state then
         if Input.state["down"] or Input.state["dpdown"] or Input.state["s"] or Input.state["v"] or (Input.events and Input.state[Input.events.DOWN]) then
             is_down_held = true
+        end
+    end
+    if love.joystick then
+        for _, js in ipairs(love.joystick.getJoysticks()) do
+            if js:isGamepad() and (js:isGamepadDown("dpdown") or js:isGamepadDown("b")) then
+                is_down_held = true
+                break
+            end
         end
     end
     game.ducking = dino.onGround and is_down_held
@@ -531,6 +587,9 @@ local function updateDino(dt)
         if dino.jumpBufferTimer > 0 then
             dino.vy = JUMP_VELOCITY
             dino.onGround = false
+            dino.reachedMinHeight = false
+            dino.speedDrop = false
+            dino.isJumpHeld = true
             dino.jumpBufferTimer = 0
             playSound(sounds.jump)
         end
@@ -812,6 +871,7 @@ function dino_game.start()
     game.currentType = "small"
     game.debugHitboxes = false
     game.overTimer = 0
+    dino_game.mouse_was_down = false
     resetGame()
 end
 
@@ -822,6 +882,19 @@ end
 function dino_game.update(dt)
     dt = math.min(dt, 1 / 30)
     updateScreenSize()
+
+    if love.mouse and love.mouse.isDown then
+        local m_down = love.mouse.isDown(1)
+        if m_down and not dino_game.mouse_was_down then
+            dino_game.handleEvent("return")
+        elseif not m_down and dino_game.mouse_was_down then
+            dino.isJumpHeld = false
+            if not dino.onGround then
+                endJump()
+            end
+        end
+        dino_game.mouse_was_down = m_down
+    end
 
     if game.state == "play" then
         updatePlay(dt)
@@ -834,17 +907,16 @@ end
 
 function dino_game.handleEvent(event)
     local Input = package.loaded["input"]
-    local allow_space = (not Input or not Input.events or Input.events.START ~= "space")
-    local is_confirm = (event == "return" or (allow_space and event == "space") or event == "a" or event == "up" or event == "w")
+    local is_confirm = (event == "return" or event == "space" or event == "a" or event == "up" or event == "w")
     if Input and Input.events then
-        if event == Input.events.CONFIRM or event == Input.events.UP then
+        if event == Input.events.CONFIRM or event == Input.events.UP or event == Input.events.START then
             is_confirm = true
         end
     end
 
-    local is_back = (event == "backspace" or event == "b")
+    local is_back = (event == "backspace" or event == "b" or event == "escape")
     if Input and Input.events then
-        if event == Input.events.BACK then
+        if event == Input.events.BACK or event == Input.events.MENU then
             is_back = true
         end
     end
@@ -891,8 +963,14 @@ end
 
 function dino_game.keyreleased(key)
     local Input = package.loaded["input"]
-    local allow_space = (not Input or not Input.events or Input.events.START ~= "space")
-    if key == "up" or (allow_space and key == "space") or key == "w" or key == "return" or key == "a" then
+    local is_jump_key = (key == "up" or key == "space" or key == "w" or key == "return" or key == "a")
+    if Input and Input.events then
+        if key == Input.events.CONFIRM or key == Input.events.UP or key == Input.events.START then
+            is_jump_key = true
+        end
+    end
+    if is_jump_key then
+        dino.isJumpHeld = false
         if not dino.onGround then
             endJump()
         end
@@ -900,7 +978,8 @@ function dino_game.keyreleased(key)
 end
 
 function dino_game.gamepadreleased(button)
-    if button == "a" or button == "dpup" then
+    if button == "a" or button == "dpup" or button == "start" then
+        dino.isJumpHeld = false
         if not dino.onGround then
             endJump()
         end

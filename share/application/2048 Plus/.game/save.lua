@@ -101,6 +101,8 @@ function save.getPath(mode)
         file = "highscore_nomercy.dat"
     elseif mode == "goose" then
         file = "highscore_goose.dat"
+    elseif mode == "dino" then
+        file = "dino_hiscore.dat"
     else
         file = SAVE_FILE  -- classic
     end
@@ -243,32 +245,6 @@ function save.loadDogBreed()
     return "roxy"
 end
 
-
-local DOG_BREED_FILE = "dog_breed.dat"
-
-function save.saveDogBreed(breed)
-    local path = getFilePath(DOG_BREED_FILE)
-    local file = io.open(path, "w")
-    if file then
-        file:write(breed or "roxy")
-        file:close()
-    end
-end
-
-function save.loadDogBreed()
-    local path = getFilePath(DOG_BREED_FILE)
-    local file = io.open(path, "r")
-    if file then
-        local content = file:read("*all")
-        file:close()
-        if content and content ~= "" then
-            return content
-        end
-    end
-    return "roxy"
-end
-
-
 function save.loadTextSize()
     local path = getFilePath(TEXT_SIZE_FILE)
     local file = io.open(path, "r")
@@ -407,12 +383,30 @@ function save.loadHighScore(mode)
 end
 
 function save.saveHighScore(score, mode)
+    local new_score = math.floor(tonumber(score) or 0)
+    if new_score <= 0 then
+        return
+    end
+
+    local current_score = save.loadHighScore(mode) or 0
+    if new_score <= current_score then
+        return
+    end
+
     local path = save.getPath(mode)
     local file = io.open(path, "w")
     if file then
-        file:write(tostring(math.floor(score)))
+        file:write(tostring(new_score))
         file:close()
     end
+end
+
+function save.loadDinoHighScore()
+    return save.loadHighScore("dino")
+end
+
+function save.saveDinoHighScore(score)
+    save.saveHighScore(score, "dino")
 end
 
 function save.loadAchievements()

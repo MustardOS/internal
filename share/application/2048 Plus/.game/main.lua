@@ -340,9 +340,13 @@ function love.load(args)
                 end
                 _G.stats = _G.stats or {}
                 _G.stats.coins = (_G.stats.coins or 0) + coin_reward
+                _G.stats.total_coins_earned = (_G.stats.total_coins_earned or 0) + coin_reward
                 _G.stats.claimed_achievements = _G.stats.claimed_achievements or {}
                 _G.stats.claimed_achievements[id] = true
                 save.saveStats(_G.stats)
+                if (_G.stats.total_coins_earned or 0) >= 10000 and _G.unlockAchievement then
+                    _G.unlockAchievement("ach_coin_hoarder")
+                end
             end
             renderer.showToast("Unlocked: " .. (names[id] or id) .. "!", 2.2, id)
             if coin_reward > 0 and renderer and renderer.queueHeaderLogoMorph then
@@ -491,14 +495,18 @@ function love.load(args)
         _G.stats.merge_coins = nil
     end
     _G.stats.coins = _G.stats.coins or 0
+    _G.stats.total_coins_earned = _G.stats.total_coins_earned or math.max(_G.stats.coins, (_G.stats.coins or 0) + (_G.stats.total_spent_coins or 0))
     _G.stats.purchased_items = _G.stats.purchased_items or {}
     _G.stats.claimed_achievements = _G.stats.claimed_achievements or {}
     _G.store_sort_mode = _G.stats.store_sort_mode or 0
     if _G.store_sort_mode > 9 then _G.store_sort_mode = 0 end
 
-    -- Check Coin Hoarder & Best Friend on startup
-    if _G.stats.coins >= 10000 and _G.unlockAchievement then
+    -- Check Coin Hoarder and Best Friend on startup
+    if (_G.stats.total_coins_earned or 0) >= 10000 and _G.unlockAchievement then
         _G.unlockAchievement("ach_coin_hoarder")
+    end
+    if (_G.stats.total_spent_coins or 0) >= 5000 and _G.unlockAchievement then
+        _G.unlockAchievement("ach_big_spender")
     end
     if _G.recordDogBreedPlayed then
         _G.recordDogBreedPlayed(_G.active_dog_breed)
@@ -510,13 +518,18 @@ function love.load(args)
         local awarded_retroactive = false
         for _, ach in ipairs(all_achievements) do
             if _G.achievements[ach.id] and not _G.stats.claimed_achievements[ach.id] then
-                _G.stats.coins = _G.stats.coins + (ach.coins or 0)
+                local rew = ach.coins or 0
+                _G.stats.coins = _G.stats.coins + rew
+                _G.stats.total_coins_earned = (_G.stats.total_coins_earned or 0) + rew
                 _G.stats.claimed_achievements[ach.id] = true
                 awarded_retroactive = true
             end
         end
         if awarded_retroactive then
             save.saveStats(_G.stats)
+            if (_G.stats.total_coins_earned or 0) >= 10000 and _G.unlockAchievement then
+                _G.unlockAchievement("ach_coin_hoarder")
+            end
         end
     end
 
@@ -979,6 +992,9 @@ function love.update(dt)
                             _G.stats.coins = _G.stats.coins - sel_item.cost
                             _G.stats.purchased_items["mascot_cat"] = 1
                             _G.stats.total_spent_coins = (_G.stats.total_spent_coins or 0) + sel_item.cost
+                            if _G.stats.total_spent_coins >= 5000 and _G.unlockAchievement then
+                                _G.unlockAchievement("ach_big_spender")
+                            end
                             save.saveStats(_G.stats)
                             _G.active_companion = "cat"
                             if save and save.saveCompanion then save.saveCompanion("cat") end
@@ -1005,6 +1021,9 @@ function love.update(dt)
                             _G.stats.coins = _G.stats.coins - sel_item.cost
                             _G.stats.purchased_items["mascot_dog"] = 1
                             _G.stats.total_spent_coins = (_G.stats.total_spent_coins or 0) + sel_item.cost
+                            if _G.stats.total_spent_coins >= 5000 and _G.unlockAchievement then
+                                _G.unlockAchievement("ach_big_spender")
+                            end
                             save.saveStats(_G.stats)
                             _G.active_companion = "dog"
                             if save and save.saveCompanion then save.saveCompanion("dog") end
@@ -1027,11 +1046,6 @@ function love.update(dt)
                             _G.stats.total_spent_coins = (_G.stats.total_spent_coins or 0) + sel_item.cost
                             if _G.stats.total_spent_coins >= 5000 and _G.unlockAchievement then
                                 _G.unlockAchievement("ach_big_spender")
-                            end
-                            if sel_item.id == "coin_rush" and game and not game.coin_rush_active then
-                                game.coin_rush_active = true
-                                _G.stats[stat_key] = math.max(0, (_G.stats[stat_key] or 1) - 1)
-                                if game.saveGameState then game:saveGameState() end
                             end
                             save.saveStats(_G.stats)
                             renderer.showToast("Purchased!")
@@ -1491,9 +1505,10 @@ function love.update(dt)
                 elseif _G.cheats_selection == 4 then
                     _G.stats = _G.stats or {}
                     _G.stats.coins = (_G.stats.coins or 0) + 9999
+                    _G.stats.total_coins_earned = (_G.stats.total_coins_earned or 0) + 9999
                     save.saveStats(_G.stats)
                     renderer.showToast("Added 9999 Coins! Total: " .. _G.stats.coins)
-                    if _G.stats.coins >= 10000 and _G.unlockAchievement then
+                    if (_G.stats.total_coins_earned or 0) >= 10000 and _G.unlockAchievement then
                         _G.unlockAchievement("ach_coin_hoarder")
                     end
                 elseif _G.cheats_selection == 5 then
@@ -2006,6 +2021,8 @@ function love.update(dt)
                     if game.mode == "nomercy" then modeName = "No Mercy"
                     elseif game.mode == "goose" then modeName = "Goose Mode" end
                     renderer.showToast("No Undo in " .. modeName .. "!")
+                elseif game.mode == "plus" and game.powerups.undo <= 0 then
+                    renderer.showToast("No Undo Powerup!")
                 else
                     queueTransitionAction(event, 0.08, function()
                         game:undo()
@@ -2056,6 +2073,8 @@ function love.update(dt)
                     if game.mode == "nomercy" then modeName = "No Mercy"
                     elseif game.mode == "goose" then modeName = "Goose Mode" end
                     renderer.showToast("No Undo in " .. modeName .. "!")
+                elseif game.mode == "plus" and game.powerups.undo <= 0 then
+                    renderer.showToast("No Undo Powerup!")
                 else
                     queueTransitionAction(event, 0.08, function()
                         game:undo()
@@ -2081,14 +2100,16 @@ function love.update(dt)
             elseif event == input.events.R1 or event == input.events.L1 then
                 if game and (game.timesUp or (game.mode == "timeattack" and game.timeLeft and game.timeLeft <= 0)) then
                     renderer.showToast("Cannot use Shield when time is up!")
+                elseif game and game.mode == "nomercy" then
+                    renderer.showToast("No Shield in No Mercy!")
                 else
-                    local shield_cnt = _G.stats and (_G.stats.second_chance_count or 0) or 0
+                    local shield_cnt = (game and game.second_chance_count) or 0
                     if shield_cnt > 0 then
                         queueTransitionAction(event, 0.08, function()
                             game:startShieldTargeting()
                         end)
                     else
-                        renderer.showToast("No Second Chance Shield! Buy in Store.")
+                        renderer.showToast("No Second Chance Shield for this game!")
                     end
                 end
             elseif event == input.events.X then
@@ -2434,7 +2455,7 @@ function love.mousereleased(x, y, button, istouch, presses)
             end
         end
         -- Achievements tab and shoulder button click
-        if _G.appState == "ACHIEVEMENTS" then
+        if _G.appState == "ACHIEVEMENTS" and not (_G.is_console_active and _G.is_console_active()) then
             if _G.achievements_l1_bounds then
                 local b = _G.achievements_l1_bounds
                 if x >= b.x and x <= (b.x + b.w) and y >= b.y and y <= (b.y + b.h) then

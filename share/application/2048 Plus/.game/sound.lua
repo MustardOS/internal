@@ -10,6 +10,9 @@ local menuMoveSource = nil
 local menuSelectSource = nil
 local menuBackSource = nil
 local toastSource = nil
+local countdown3Source = nil
+local countdown2Source = nil
+local countdown1Source = nil
 
 local achSoundData = nil
 local victorySoundData = nil
@@ -18,6 +21,9 @@ local menuMoveSoundData = nil
 local menuSelectSoundData = nil
 local menuBackSoundData = nil
 local toastSoundData = nil
+local countdown3SoundData = nil
+local countdown2SoundData = nil
+local countdown1SoundData = nil
 
 local bgmEnabled = true
 local bgmPlaylist = {}
@@ -247,6 +253,45 @@ function sound.init()
         end
         toastSource = love.audio.newSource(toastSoundData)
         toastSource:setVolume(0.40)
+
+        -- Countdown warning beeps
+        local cDuration = 0.08
+        local cLength = math.floor(sampleRate * cDuration)
+        countdown3SoundData = love.sound.newSoundData(cLength, sampleRate, 16, 1)
+        local cPhase3 = 0
+        for i = 0, cLength - 1 do
+            local t = i / sampleRate
+            cPhase3 = cPhase3 + 440.00 / sampleRate
+            local env = math.exp(-35 * t)
+            local val = triangle(cPhase3) * env * 0.90
+            countdown3SoundData:setSample(i, val)
+        end
+        countdown3Source = love.audio.newSource(countdown3SoundData)
+        countdown3Source:setVolume(0.55)
+
+        countdown2SoundData = love.sound.newSoundData(cLength, sampleRate, 16, 1)
+        local cPhase2 = 0
+        for i = 0, cLength - 1 do
+            local t = i / sampleRate
+            cPhase2 = cPhase2 + 554.37 / sampleRate
+            local env = math.exp(-35 * t)
+            local val = triangle(cPhase2) * env * 0.90
+            countdown2SoundData:setSample(i, val)
+        end
+        countdown2Source = love.audio.newSource(countdown2SoundData)
+        countdown2Source:setVolume(0.55)
+
+        countdown1SoundData = love.sound.newSoundData(cLength, sampleRate, 16, 1)
+        local cPhase1 = 0
+        for i = 0, cLength - 1 do
+            local t = i / sampleRate
+            cPhase1 = cPhase1 + 659.25 / sampleRate
+            local env = math.exp(-35 * t)
+            local val = triangle(cPhase1) * env * 0.90
+            countdown1SoundData:setSample(i, val)
+        end
+        countdown1Source = love.audio.newSource(countdown1SoundData)
+        countdown1Source:setVolume(0.60)
     end
 
     enabled = save.loadSound()
@@ -292,6 +337,18 @@ function sound.refreshSources()
         if toastSoundData then
             toastSource = love.audio.newSource(toastSoundData)
             toastSource:setVolume(0.40)
+        end
+        if countdown3SoundData then
+            countdown3Source = love.audio.newSource(countdown3SoundData)
+            countdown3Source:setVolume(0.55)
+        end
+        if countdown2SoundData then
+            countdown2Source = love.audio.newSource(countdown2SoundData)
+            countdown2Source:setVolume(0.55)
+        end
+        if countdown1SoundData then
+            countdown1Source = love.audio.newSource(countdown1SoundData)
+            countdown1Source:setVolume(0.60)
         end
     end)
 end
@@ -1251,6 +1308,49 @@ function sound.playToast()
                 toastSource:setVolume(0.40)
                 toastSource:play()
             end)
+        end
+    end
+end
+
+function sound.playCountdown(secondsLeft)
+    local src = nil
+    local dur = 0.045
+    local rumble = 0.40
+    if secondsLeft == 3 then
+        src = countdown3Source
+        dur = 0.045
+        rumble = 0.40
+    elseif secondsLeft == 2 then
+        src = countdown2Source
+        dur = 0.075
+        rumble = 0.65
+    elseif secondsLeft == 1 then
+        src = countdown1Source
+        dur = 0.120
+        rumble = 0.90
+    end
+
+    if enabled and src then
+        pcall(function()
+            src:seek(0)
+            src:play()
+        end)
+        duckTimer = 0.25
+    end
+
+    if _G.vibration then
+        pcall(function()
+            if love.system and love.system.vibrate then
+                love.system.vibrate(dur)
+            end
+        end)
+        if love.joystick then
+            local joysticks = love.joystick.getJoysticks()
+            for _, j in ipairs(joysticks) do
+                if j:isConnected() and j:isVibrationSupported() then
+                    j:setVibration(rumble, rumble, dur)
+                end
+            end
         end
     end
 end

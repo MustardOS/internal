@@ -59,6 +59,9 @@ function Game.new(mode)
     self.timeAttackBonus = 0  -- accumulated bonus time for this move
     self.timePopups = {}
     self.timerFlashTimer = 0
+    self.timerPopTimer = 0
+    self.lastCountdownSecond = nil
+    self.second_chance_count = (_G.stats and _G.stats.second_chance_count) or 0
 
     -- Plus Mode state
     local initial_powerups = _G.cheat_max_powerups and 99 or 0
@@ -169,7 +172,9 @@ function Game.new(mode)
         end
 
         self.coin_rush_active = savedState.coin_rush_active or false
+        self.second_chance_count = savedState.second_chance_count or 0
         self.start_booster_val = savedState.start_booster_val
+        self.used_booster_this_run = savedState.used_booster_this_run or ((savedState.start_booster_val or 0) > 0) or false
         self.runTime = savedState.runTime or 0
         self.powerups_used_this_run = savedState.powerups_used_this_run or 0
         if _G.achievements then
@@ -177,8 +182,18 @@ function Game.new(mode)
         end
     else
         -- Start a fresh game if no save state exists
-        self:addStartTiles()
+        self.powerups_used_this_run = 0
+        if _G.achievements then
+            _G.achievements.powerups_used_this_run = 0
+            save.saveAchievements(_G.achievements)
+        end
 
+        self.used_booster_this_run = false
+        self.runTime = 0
+        self.undo_used_this_run = 0
+        self.swap_used_this_run = 0
+
+        self:addStartTiles()
 
         if _G.stats then
             _G.stats.games_played = (_G.stats.games_played or 0) + 1
@@ -214,16 +229,6 @@ function Game.new(mode)
         if _G.active_companion == "dog" and _G.recordDogBreedPlayed and self.mode ~= "huge" then
             _G.recordDogBreedPlayed(_G.active_dog_breed)
         end
-
-        self.powerups_used_this_run = 0
-        if _G.achievements then
-            _G.achievements.powerups_used_this_run = 0
-            save.saveAchievements(_G.achievements)
-        end
-
-        self.runTime = 0
-        self.undo_used_this_run = 0
-        self.swap_used_this_run = 0
     end
 
     -- Clear lingering menu coin banners on new game
@@ -300,7 +305,9 @@ function Game:saveGameState(force)
         swap_used_this_run = self.swap_used_this_run,
         powerups_used_this_run = self.powerups_used_this_run,
         coin_rush_active = self.coin_rush_active or false,
-        start_booster_val = self.start_booster_val
+        second_chance_count = self.second_chance_count or 0,
+        start_booster_val = self.start_booster_val,
+        used_booster_this_run = self.used_booster_this_run
     }
 
     if self.mode == "timeattack" then
@@ -387,15 +394,17 @@ function Game:addStartTiles()
     local b128 = _G.stats and (_G.stats.start_128_count or 0) or 0
     local booster_val = 0
     local booster_key = nil
-    if b512 > 0 then
-        booster_val = 512
-        booster_key = "start_512_count"
-    elseif b256 > 0 then
-        booster_val = 256
-        booster_key = "start_256_count"
-    elseif b128 > 0 then
-        booster_val = 128
-        booster_key = "start_128_count"
+    if self.mode == "classic" then
+        if b512 > 0 then
+            booster_val = 512
+            booster_key = "start_512_count"
+        elseif b256 > 0 then
+            booster_val = 256
+            booster_key = "start_256_count"
+        elseif b128 > 0 then
+            booster_val = 128
+            booster_key = "start_128_count"
+        end
     end
 
     if booster_val > 0 and booster_key then
@@ -409,6 +418,12 @@ function Game:addStartTiles()
                 tile.booster_spawn_t = love.timer.getTime()
                 self.grid:insertTile(tile)
                 self.start_booster_val = booster_val
+                self.used_booster_this_run = true
+                self.powerups_used_this_run = (self.powerups_used_this_run or 0) + 1
+                if _G.achievements then
+                    _G.achievements.powerups_used_this_run = self.powerups_used_this_run
+                    save.saveAchievements(_G.achievements)
+                end
                 _G.stats[booster_key] = (_G.stats[booster_key] or 1) - 1
                 if save and save.saveStats then save.saveStats(_G.stats) end
             end
@@ -549,9 +564,10 @@ function Game:move(direction)
                                 coins_to_add = coins_to_add * 2
                             end
                             _G.stats.coins = (_G.stats.coins or 0) + coins_to_add
+                            _G.stats.total_coins_earned = (_G.stats.total_coins_earned or 0) + coins_to_add
                             self.statsDirty = true
-                            -- Coin Hoarder achievement: accumulate 10,000 coins
-                            if _G.stats.coins >= 10000 and _G.unlockAchievement then
+                            -- Coin Hoarder achievement unlocks at 10000 total lifetime coins
+                            if (_G.stats.total_coins_earned or 0) >= 10000 and _G.unlockAchievement then
                                 _G.unlockAchievement("ach_coin_hoarder")
                             end
                         end
@@ -623,7 +639,7 @@ function Game:move(direction)
                         _G.unlockAchievement("ach_4096")
                     end
 
-                    if merged.value >= 1024 and (self.powerups_used_this_run or 0) == 0 and _G.unlockAchievement and self.mode ~= "huge" then
+                    if merged.value >= 1024 and (self.powerups_used_this_run or 0) == 0 and not self.used_booster_this_run and (self.start_booster_val or 0) == 0 and _G.unlockAchievement and self.mode ~= "huge" then
                         _G.unlockAchievement("ach_untouchable")
                     end
 
@@ -631,7 +647,7 @@ function Game:move(direction)
                         _G.unlockAchievement("ach_2048_plus")
                     end
 
-                    if merged.value >= 2048 and (self.powerups_used_this_run or 0) == 0 and _G.unlockAchievement and self.mode ~= "huge" then
+                    if merged.value >= 2048 and (self.powerups_used_this_run or 0) == 0 and not self.used_booster_this_run and (self.start_booster_val or 0) == 0 and _G.unlockAchievement and self.mode ~= "huge" then
                         _G.unlockAchievement("ach_untouchable_2048")
                     end
 
@@ -654,7 +670,7 @@ function Game:move(direction)
                         _G.unlockAchievement("ach_merge_8192")
                     end
 
-                    if merged.value >= 2048 and self.runTime and self.runTime <= 300 and _G.unlockAchievement and self.mode ~= "huge" then
+                    if merged.value >= 2048 and self.runTime and self.runTime <= 420 and not self.used_booster_this_run and (self.start_booster_val or 0) == 0 and _G.unlockAchievement and self.mode ~= "huge" then
                         _G.unlockAchievement("ach_speedrun_2048")
                     end
 
@@ -719,6 +735,9 @@ function Game:move(direction)
             local merged_2048 = self.timeAttackBonus >= 50
             local bonus = merged_2048 and self.timeAttackBonus or math.min(self.timeAttackBonus, cap)
             self.timeLeft = math.min(self.totalTime, self.timeLeft + bonus)
+            if self.timeLeft > 3.0 then
+                self.lastCountdownSecond = nil
+            end
 
             -- Show floating bonus text and flash timer
             self.timePopups = self.timePopups or {}
@@ -731,12 +750,39 @@ function Game:move(direction)
 
             self.timeAttackBonus = 0
         end
+        local undoTransitions = {}
+        for x = 1, self.size do
+            for y = 1, self.size do
+                local c_tile = self.grid.cells[x][y]
+                if c_tile then
+                    if c_tile.mergedFrom and c_tile.mergedFrom[1] and c_tile.mergedFrom[2] then
+                        local t1 = c_tile.mergedFrom[1]
+                        local t2 = c_tile.mergedFrom[2]
+                        local p1 = t1.previousPosition or (t1.x and t1.y and {x = t1.x, y = t1.y})
+                        local p2 = t2.previousPosition or (t2.x and t2.y and {x = t2.x, y = t2.y})
+                        if p1 then
+                            table.insert(undoTransitions, {px = p1.x, py = p1.y, sx = x, sy = y})
+                        end
+                        if p2 then
+                            table.insert(undoTransitions, {px = p2.x, py = p2.y, sx = x, sy = y})
+                        end
+                    elseif not c_tile.isNew then
+                        local p = c_tile.previousPosition or (c_tile.x and c_tile.y and {x = c_tile.x, y = c_tile.y})
+                        if p and (p.x ~= x or p.y ~= y) then
+                            table.insert(undoTransitions, {px = p.x, py = p.y, sx = x, sy = y})
+                        end
+                    end
+                end
+            end
+        end
+
         local pending = {
             gridState = pendingUndoState,
             score = pendingUndoScore,
             rng = pendingUndoRNG,
             won = pendingUndoWon,
-            gameState = pendingUndoGameState
+            gameState = pendingUndoGameState,
+            undoTransitions = undoTransitions
         }
         if _G.undo_mode == "unlimited" or self.mode == "plus" then
             table.insert(self.undoHistory, pending)
@@ -888,7 +934,7 @@ function Game:movesAvailable()
 end
 
 function Game:undo()
-    if _G.undo_mode == "disabled" then return end
+    if _G.undo_mode == "disabled" and self.mode ~= "plus" then return end
     if not self.canUndo or #self.undoHistory == 0 then return end
 
     if self.mode == "plus" then
@@ -898,7 +944,7 @@ function Game:undo()
             _G.stats.powerup_undo_count = _G.stats.powerup_undo_count - 1
         end
         self.undo_used_this_run = (self.undo_used_this_run or 0) + 1
-        if self.undo_used_this_run >= 5 and self.swap_used_this_run >= 5 and _G.unlockAchievement then
+        if (self.undo_used_this_run or 0) >= 3 and (self.swap_used_this_run or 0) >= 3 and _G.unlockAchievement then
             _G.unlockAchievement("ach_tactician")
         end
     end
@@ -964,29 +1010,38 @@ function Game:undo()
         end
     end)
 
-    -- Apply reverse animation data using the restored tiles' history
-    for x = 1, self.size do
-        for y = 1, self.size do
-            local c_tile = current_cells[x][y]
-            if c_tile then
-                if c_tile.mergedFrom and c_tile.mergedFrom[1] and c_tile.mergedFrom[2] then
-                    local t1 = c_tile.mergedFrom[1]
-                    local t2 = c_tile.mergedFrom[2]
-                    local p1 = t1.previousPosition or (t1.x and t1.y and {x = t1.x, y = t1.y})
-                    local p2 = t2.previousPosition or (t2.x and t2.y and {x = t2.x, y = t2.y})
-                    if p1 then
-                        local r_t1 = self.grid:cellContent(p1.x, p1.y)
-                        if r_t1 then r_t1.undoSourcePosition = {x = x, y = y} end
-                    end
-                    if p2 then
-                        local r_t2 = self.grid:cellContent(p2.x, p2.y)
-                        if r_t2 then r_t2.undoSourcePosition = {x = x, y = y} end
-                    end
-                elseif not c_tile.isNew then
-                    local p = c_tile.previousPosition or (c_tile.x and c_tile.y and {x = c_tile.x, y = c_tile.y})
-                    if p then
-                        local r_t = self.grid:cellContent(p.x, p.y)
-                        if r_t then r_t.undoSourcePosition = {x = x, y = y} end
+    -- Apply reverse animation transitions
+    if state.undoTransitions and #state.undoTransitions > 0 then
+        for _, trans in ipairs(state.undoTransitions) do
+            local r_t = self.grid:cellContent(trans.px, trans.py)
+            if r_t then
+                r_t.undoSourcePosition = {x = trans.sx, y = trans.sy}
+            end
+        end
+    else
+        for x = 1, self.size do
+            for y = 1, self.size do
+                local c_tile = current_cells[x][y]
+                if c_tile then
+                    if c_tile.mergedFrom and c_tile.mergedFrom[1] and c_tile.mergedFrom[2] then
+                        local t1 = c_tile.mergedFrom[1]
+                        local t2 = c_tile.mergedFrom[2]
+                        local p1 = t1.previousPosition or (t1.x and t1.y and {x = t1.x, y = t1.y})
+                        local p2 = t2.previousPosition or (t2.x and t2.y and {x = t2.x, y = t2.y})
+                        if p1 then
+                            local r_t1 = self.grid:cellContent(p1.x, p1.y)
+                            if r_t1 then r_t1.undoSourcePosition = {x = x, y = y} end
+                        end
+                        if p2 then
+                            local r_t2 = self.grid:cellContent(p2.x, p2.y)
+                            if r_t2 then r_t2.undoSourcePosition = {x = x, y = y} end
+                        end
+                    elseif not c_tile.isNew then
+                        local p = c_tile.previousPosition or (c_tile.x and c_tile.y and {x = c_tile.x, y = c_tile.y})
+                        if p then
+                            local r_t = self.grid:cellContent(p.x, p.y)
+                            if r_t then r_t.undoSourcePosition = {x = x, y = y} end
+                        end
                     end
                 end
             end
@@ -1047,7 +1102,19 @@ function Game:restart()
         self.timesUp = false
         self.timePopups = {}
         self.timerFlashTimer = 0
+        self.timerPopTimer = 0
+        self.lastCountdownSecond = nil
     end
+    self.powerups_used_this_run = 0
+    if _G.achievements then
+        _G.achievements.powerups_used_this_run = 0
+        save.saveAchievements(_G.achievements)
+    end
+    self.used_booster_this_run = false
+    self.runTime = 0
+    self.undo_used_this_run = 0
+    self.swap_used_this_run = 0
+    self.second_chance_count = (_G.stats and _G.stats.second_chance_count) or 0
     self.start_booster_val = nil
     self:addStartTiles()
     -- Consume Coin Rush Ticket if owned
@@ -1082,14 +1149,6 @@ function Game:restart()
         end
         save.saveStats(_G.stats)
     end
-    self.powerups_used_this_run = 0
-    if _G.achievements then
-        _G.achievements.powerups_used_this_run = 0
-        save.saveAchievements(_G.achievements)
-    end
-    self.runTime = 0
-    self.undo_used_this_run = 0
-    self.swap_used_this_run = 0
     self:saveGameState()
 end
 
@@ -1213,7 +1272,11 @@ function Game:confirmTarget()
             local pending = {
                 gridState = self.grid:saveState(),
                 score = self.score,
-                rng = love.math.getRandomState()
+                rng = love.math.getRandomState(),
+                undoTransitions = {
+                    {px = self.swapTarget.x, py = self.swapTarget.y, sx = cx, sy = cy},
+                    {px = cx, py = cy, sx = self.swapTarget.x, sy = self.swapTarget.y}
+                }
             }
             if _G.undo_mode == "unlimited" or self.mode == "plus" then
                 table.insert(self.undoHistory, pending)
@@ -1254,7 +1317,7 @@ function Game:confirmTarget()
 
             self.powerups.swap = self.powerups.swap - 1
             self.swap_used_this_run = (self.swap_used_this_run or 0) + 1
-            if self.undo_used_this_run >= 5 and self.swap_used_this_run >= 5 and _G.unlockAchievement then
+            if (self.undo_used_this_run or 0) >= 3 and (self.swap_used_this_run or 0) >= 3 and _G.unlockAchievement then
                 _G.unlockAchievement("ach_tactician")
             end
             if _G.stats then
@@ -1311,10 +1374,22 @@ function Game:update(dt)
                 self.shownUrgentWarning = true
                 -- Toast is shown by renderer's pulse; no explicit toast here to avoid spam
             end
+            if self.timeLeft > 0 and self.timeLeft <= 3.0 then
+                local sec = math.ceil(self.timeLeft)
+                if sec >= 1 and sec <= 3 and sec ~= self.lastCountdownSecond then
+                    self.lastCountdownSecond = sec
+                    self.timerPopTimer = 0.25
+                    local snd = require("sound")
+                    if snd and snd.playCountdown then
+                        snd.playCountdown(sec)
+                    end
+                end
+            end
             if self.timeLeft <= 0 then
                 self.timeLeft = 0
                 self.state = Game.STATE_LOST
                 self.timesUp = true  -- flag for renderer to show "Time's Up!"
+                self.lastCountdownSecond = nil
                 local sound = require("sound")
                 sound.playGameOver()
                 self:saveGameState()  -- saves high score only, saveGameState returns early for timeattack
@@ -1341,9 +1416,10 @@ function Game:update(dt)
 
     -- Update floating time popups
     if self.timePopups then
+        local scale = _G.scale or 1
         for i = #self.timePopups, 1, -1 do
             local p = self.timePopups[i]
-            p.y_offset = p.y_offset - dt * 35 * _G.scale
+            p.y_offset = p.y_offset - dt * 35 * scale
             p.alpha = p.alpha - dt * 1.8
             if p.alpha <= 0 then
                 table.remove(self.timePopups, i)
@@ -1356,6 +1432,12 @@ function Game:update(dt)
         self.timerFlashTimer = self.timerFlashTimer - dt
         if self.timerFlashTimer < 0 then
             self.timerFlashTimer = 0
+        end
+    end
+    if self.timerPopTimer and self.timerPopTimer > 0 then
+        self.timerPopTimer = self.timerPopTimer - dt
+        if self.timerPopTimer < 0 then
+            self.timerPopTimer = 0
         end
     end
 
@@ -1385,6 +1467,13 @@ function Game:isAnimating()
 end
 
 function Game:startShieldTargeting()
+    if self.mode == "nomercy" then
+        local renderer = require("renderer")
+        if renderer and renderer.showToast then
+            renderer.showToast("No Shield in No Mercy!")
+        end
+        return
+    end
     if self.timesUp or (self.mode == "timeattack" and self.timeLeft and self.timeLeft <= 0) then
         local renderer = require("renderer")
         if renderer and renderer.showToast then
@@ -1392,12 +1481,12 @@ function Game:startShieldTargeting()
         end
         return
     end
-    local count = _G.stats and (_G.stats.second_chance_count or 0) or 0
+    local count = self.second_chance_count or 0
     if count <= 0 then
         local sound = require("sound")
         local renderer = require("renderer")
         if renderer and renderer.showToast then
-            renderer.showToast("No Second Chance Shield! Buy in Store.")
+            renderer.showToast("No Second Chance Shield for this game!")
         end
         return
     end
@@ -1446,7 +1535,7 @@ end
 
 function Game:confirmShieldTarget()
     if self.state ~= Game.STATE_TARGETING_SHIELD then return end
-    local count = _G.stats and (_G.stats.second_chance_count or 0) or 0
+    local count = self.second_chance_count or 0
     if count <= 0 then
         self:cancelShieldTargeting()
         return
@@ -1461,11 +1550,18 @@ function Game:confirmShieldTarget()
         score = self.score,
         rng = love.math.getRandomState()
     }
-    if _G.undo_mode == "unlimited" then
+    if _G.undo_mode == "unlimited" or self.mode == "plus" then
         table.insert(self.undoHistory, pending)
-        if #self.undoHistory > 100 then table.remove(self.undoHistory, 1) end
+        if #self.undoHistory > 100 then
+            table.remove(self.undoHistory, 1)
+        end
+        self.canUndo = true
+    elseif _G.undo_mode == "classic" then
+        self.undoHistory = { pending }
+        self.canUndo = true
     else
-        self.previousState = pending
+        self.undoHistory = {}
+        self.canUndo = false
     end
 
     -- Clear chosen row or column
@@ -1473,7 +1569,8 @@ function Game:confirmShieldTarget()
     if self.shield_mode == "row" then
         local y = self.shield_index
         for x = 1, self.size do
-            if self.grid.cells[x] and self.grid.cells[x][y] then
+            local cell = self.grid.cells[x] and self.grid.cells[x][y]
+            if cell and cell.value ~= "goose" then
                 self.grid.cells[x][y] = nil
                 cleared = cleared + 1
             end
@@ -1482,7 +1579,8 @@ function Game:confirmShieldTarget()
         local x = self.shield_index
         if self.grid.cells[x] then
             for y = 1, self.size do
-                if self.grid.cells[x][y] then
+                local cell = self.grid.cells[x][y]
+                if cell and cell.value ~= "goose" then
                     self.grid.cells[x][y] = nil
                     cleared = cleared + 1
                 end
@@ -1491,8 +1589,11 @@ function Game:confirmShieldTarget()
     end
 
     -- Deduct 1 charge
-    _G.stats.second_chance_count = math.max(0, count - 1)
-    if save and save.saveStats then save.saveStats(_G.stats) end
+    self.second_chance_count = math.max(0, count - 1)
+    if _G.stats then
+        _G.stats.second_chance_count = math.max(0, (_G.stats.second_chance_count or 0) - 1)
+        if save and save.saveStats then save.saveStats(_G.stats) end
+    end
 
     if _G.unlockAchievement then
         _G.unlockAchievement("ach_first_shield")

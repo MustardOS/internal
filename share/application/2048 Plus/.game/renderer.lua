@@ -387,13 +387,31 @@ function renderer.captureOldStoreScreen()
         store_sort_transition_timer = 0
         return
     end
-    local w, h = love.graphics.getDimensions()
+    local is_console = _G.is_console_active and _G.is_console_active() and not _G.android_fullscreen
+    local w = is_console and 640 or love.graphics.getWidth()
+    local h = is_console and 480 or love.graphics.getHeight()
     if not store_sort_old_canvas or store_sort_old_canvas:getWidth() ~= w or store_sort_old_canvas:getHeight() ~= h then
         store_sort_old_canvas = love.graphics.newCanvas(w, h)
     end
     love.graphics.setCanvas(store_sort_old_canvas)
     love.graphics.clear(0, 0, 0, 0)
-    renderer.drawStoreMenu(_G.store_selection or 1, true, true)
+    if is_console then
+        local real_getDims = love.graphics.getDimensions
+        local real_getW = love.graphics.getWidth
+        local real_getH = love.graphics.getHeight
+        love.graphics.getDimensions = function() return 640, 480 end
+        love.graphics.getWidth = function() return 640 end
+        love.graphics.getHeight = function() return 480 end
+        local prev_scale = _G.scale
+        _G.scale = 1.0
+        renderer.drawStoreMenu(_G.store_selection or 1, true, true)
+        _G.scale = prev_scale
+        love.graphics.getDimensions = real_getDims
+        love.graphics.getWidth = real_getW
+        love.graphics.getHeight = real_getH
+    else
+        renderer.drawStoreMenu(_G.store_selection or 1, true, true)
+    end
     love.graphics.setCanvas()
     store_sort_transition_timer = STORE_SORT_TRANSITION_DURATION
 end
@@ -1133,7 +1151,7 @@ local themes = {
     },
     matcha = {
         tile_colors = {
-            [0]    = {hex("#d7ccc8")},
+            [0]    = {hex("#dbe7d9")},
             [2]    = {hex("#fff8e1")},
             [4]    = {hex("#ffecb3")},
             [8]    = {hex("#dce775")},
@@ -1147,19 +1165,19 @@ local themes = {
             [2048] = {hex("#5d4037")},
         },
         super_tile_color = {hex("#5d4037")},
-        dark_text        = {hex("#1b3a1f")},   -- deep forest green
-        light_text       = {hex("#f9fbe7")},   -- pale lime white
-        ui_text          = {hex("#2e7d32")},   -- deep green
-        bg_color         = {hex("#efebe9")},
-        board_color      = {hex("#bcaaa4")},
-        score_bg_color   = {hex("#bcaaa4")},
-        score_label      = {hex("#4e342e")},   -- warm brown label
-        score_value      = {hex("#1b5e20")},   -- deep green value
-        overlay_win      = {hex("#558b2f")},
-        overlay_lose     = {hex("#bcaaa4")},
-        help_bg_color    = {hex("#bcaaa4")},
-        help_key_color   = {hex("#8bc34a")},
-        help_key_text    = {hex("#1b3a1f")},   -- consistent dark green
+        dark_text        = {hex("#1c3822")},
+        light_text       = {hex("#f4f9f2")},
+        ui_text          = {hex("#1c3822")},
+        bg_color         = {hex("#f4f7f2")},
+        board_color      = {hex("#7b9a78")},
+        score_bg_color   = {hex("#7b9a78")},
+        score_label      = {hex("#eef5ed")},
+        score_value      = {hex("#ffffff")},
+        overlay_win      = {hex("#4a7c59")},
+        overlay_lose     = {hex("#7b9a78")},
+        help_bg_color    = {hex("#7b9a78")},
+        help_key_color   = {hex("#4a7c59")},
+        help_key_text    = {hex("#ffffff")},
     },
     aurora = {
         -- Deep-space Northern Lights: pitch-black void, tiles shift from
@@ -1715,8 +1733,8 @@ local themes = {
     },
     pawprint = {
         tile_colors = {
-            [0]    = {hex("#e0d4cc")},
-            [2]    = {hex("#f7ede2")},
+            [0]    = {hex("#ebdcd0")},
+            [2]    = {hex("#fdf8f5")},
             [4]    = {hex("#f5cac3")},
             [8]    = {hex("#f28482")},
             [16]   = {hex("#e07a5f")},
@@ -1729,18 +1747,18 @@ local themes = {
             [2048] = {hex("#582f0e")},
         },
         super_tile_color = {hex("#3a1700")},
-        dark_text        = {hex("#582f0e")},
-        light_text       = {hex("#fdf8f5")},
-        ui_text          = {hex("#582f0e")},
-        bg_color         = {hex("#fdf8f5")},
-        board_color      = {hex("#8d5b4c")},
-        score_bg_color   = {hex("#8d5b4c")},
-        score_label      = {hex("#fdf8f5")},
+        dark_text        = {hex("#3d2314")},
+        light_text       = {hex("#fdfbf7")},
+        ui_text          = {hex("#3d2314")},
+        bg_color         = {hex("#faf6f0")},
+        board_color      = {hex("#5c3a28")},
+        score_bg_color   = {hex("#5c3a28")},
+        score_label      = {hex("#f5ece3")},
         score_value      = {hex("#ffffff")},
-        overlay_win      = {hex("#dda15e")},
-        overlay_lose     = {hex("#8d5b4c")},
-        help_bg_color    = {hex("#8d5b4c")},
-        help_key_color   = {hex("#d4a373")},
+        overlay_win      = {hex("#e08a42")},
+        overlay_lose     = {hex("#5c3a28")},
+        help_bg_color    = {hex("#5c3a28")},
+        help_key_color   = {hex("#e08a42")},
         help_key_text    = {hex("#ffffff")},
     },
     neko_night = {
@@ -5086,7 +5104,7 @@ function renderer.drawScores(game)
 
     if game.mode == "timeattack" and game.timeLeft ~= nil then
         -- Timer box replaces best score in Time Attack
-        local t = math.max(0, game.timeLeft)
+        local t = math.max(0, math.ceil(game.timeLeft))
         local mins = math.floor(t / 60)
         local secs = math.floor(t % 60)
         local timer_str = string.format("%d:%02d", mins, secs)
@@ -5154,20 +5172,48 @@ function renderer.drawScores(game)
         else
             love.graphics.setColor(score_value)
         end
-        love.graphics.printf(timer_str, best_x, score_y, box_w, "center")
+        if game.timerPopTimer and game.timerPopTimer > 0 then
+            local pop = 1.0 + 0.18 * (game.timerPopTimer / 0.25)
+            local cx = best_x + math.floor(box_w / 2)
+            local cy = score_y + math.floor(font_score:getHeight() / 2)
+            love.graphics.push()
+            love.graphics.translate(cx, cy)
+            love.graphics.scale(pop, pop)
+            love.graphics.translate(-cx, -cy)
+            love.graphics.printf(timer_str, best_x, score_y, box_w, "center")
+            love.graphics.pop()
+        else
+            love.graphics.printf(timer_str, best_x, score_y, box_w, "center")
+        end
 
         -- Draw floating time attack popups
         if game.timePopups then
+            local r_bg = (bg_color and bg_color[1]) or 1
+            local g_bg = (bg_color and bg_color[2]) or 1
+            local b_bg = (bg_color and bg_color[3]) or 1
+            local bg_lum = 0.299 * r_bg + 0.587 * g_bg + 0.114 * b_bg
+            local is_light_theme = is_light_bg or (bg_lum > 0.45)
+            local shadow_off = math.max(1, math.floor(1.2 * (scale or 1)))
+
             love.graphics.setFont(font_help_label)
             for _, p in ipairs(game.timePopups) do
                 local p_str = p.text
                 local p_w = font_help_label:getWidth(p_str)
                 local px = best_x + (box_w - p_w) / 2
                 local py = box_y + math.floor(box_h * 0.4) + p.y_offset
+                local p_alpha = p.alpha or 1.0
 
-                -- Main text
-                love.graphics.setColor(0.18, 0.85, 0.45, p.alpha)
-                love.graphics.print(p_str, px, py)
+                if is_light_theme then
+                    love.graphics.setColor(0, 0, 0, p_alpha * 0.35)
+                    love.graphics.print(p_str, px + shadow_off, py + shadow_off)
+                    love.graphics.setColor(0.04, 0.48, 0.20, p_alpha)
+                    love.graphics.print(p_str, px, py)
+                else
+                    love.graphics.setColor(0, 0, 0, p_alpha * 0.85)
+                    love.graphics.print(p_str, px + shadow_off, py + shadow_off)
+                    love.graphics.setColor(0.18, 0.92, 0.48, p_alpha)
+                    love.graphics.print(p_str, px, py)
+                end
             end
         end
     else
@@ -5439,7 +5485,7 @@ local function drawKeyBadge(text, x, y, w, h, alpha_override, font_override, old
     local badge_a = alpha_override or 1.0
     local key_font = font_override or ((h < math.floor(22 * scale)) and font_help_key_small) or font_help_key
     local is_small = (key_font == font_help_key_small) or (h < math.floor(22 * scale))
-    local visual_offset_y = is_small and -math.max(0, math.floor(0.5 * scale)) or -math.max(1, math.floor(scale))
+    local visual_offset_y = is_small and -0.5 * scale or -1.0 * scale
     local original_text = text
     text = renderer.getButtonPrompt(text)
     local letter_offset_y = visual_offset_y
@@ -5601,6 +5647,8 @@ local function drawKeyBadge(text, x, y, w, h, alpha_override, font_override, old
         if target_text == "A" or target_text == "B" or target_text == "X" or target_text == "Y" then
             local cx, cy = x + w/2, y + h/2
             local r = h * 0.45
+            local btn_offset_x = (target_text == "B") and (0.65 * scale) or (0.5 * scale)
+            local btn_offset_y = cur_offset_y + press_shift_y
 
             if _G.theme == "matrix" then
                 -- Black background circle
@@ -5617,7 +5665,7 @@ local function drawKeyBadge(text, x, y, w, h, alpha_override, font_override, old
                 love.graphics.setColor(help_key_text[1], help_key_text[2], help_key_text[3], (help_key_text[4] or 1.0) * cur_badge_a)
                 local tw = key_font:getWidth(target_text)
                 local th = key_font:getHeight()
-                love.graphics.print(target_text, cx - tw/2, cy - th/2 + cur_offset_y + press_shift_y)
+                love.graphics.print(target_text, cx - tw/2 + btn_offset_x, cy - th/2 + btn_offset_y)
                 return
             end
 
@@ -5640,7 +5688,7 @@ local function drawKeyBadge(text, x, y, w, h, alpha_override, font_override, old
             love.graphics.setColor(help_key_text[1], help_key_text[2], help_key_text[3], (help_key_text[4] or 1.0) * cur_badge_a)
             local tw = key_font:getWidth(target_text)
             local th = key_font:getHeight()
-            love.graphics.print(target_text, cx - tw/2, cy - th/2 + cur_offset_y + press_shift_y)
+            love.graphics.print(target_text, cx - tw/2 + btn_offset_x, cy - th/2 + btn_offset_y)
             return
         end
 
@@ -5870,7 +5918,7 @@ function renderer.drawHelp(game)
         if game.state == Game.STATE_PAUSED then
             act_key = act_key .. "_" .. (sound.isBgmEnabled() and "1" or "0")
         elseif game.state == Game.STATE_LOST then
-            local sc = _G.stats and _G.stats.second_chance_count or 0
+            local sc = (game and game.mode ~= "nomercy" and game.second_chance_count) or 0
             act_key = act_key .. "_" .. sc
         end
 
@@ -5891,8 +5939,8 @@ function renderer.drawHelp(game)
             elseif game.state == Game.STATE_LOST then
                 table.insert(actions, 1, {key = "A", label = "New Game"})
                 table.insert(actions, 1, {key = "X", label = "Quit"})
-                local shield_cnt = _G.stats and (_G.stats.second_chance_count or 0) or 0
-                if shield_cnt > 0 and not game.timesUp and not (game.mode == "timeattack" and game.timeLeft and game.timeLeft <= 0) then
+                local shield_cnt = (game and game.second_chance_count) or 0
+                if shield_cnt > 0 and game.mode ~= "nomercy" and not game.timesUp and not (game.mode == "timeattack" and game.timeLeft and game.timeLeft <= 0) then
                     table.insert(actions, 1, {key = "R1", label = "Shield:" .. shield_cnt})
                 end
                 if game.mode ~= "plus" then
@@ -5993,11 +6041,6 @@ function renderer.drawHelp(game)
             drawKeyBadge("DPAD", dpad_x, badge_y + (badge_h - dpad_size) / 2, dpad_size, dpad_size, p, nil, nil, pop, t_prog)
             love.graphics.setFont(font_help_label)
             love.graphics.setColor(ui_text[1], ui_text[2], ui_text[3], (ui_text[4] or 1.0) * p)
-            love.graphics.print("Move", dpad_x + dpad_size + math.floor(6 * scale), badge_y + (badge_h - font_help_label:getHeight()) / 2)
-        elseif not dpad_visible and prev_dpad then
-            drawKeyBadge("DPAD", dpad_x, badge_y + (badge_h - dpad_size) / 2, dpad_size, dpad_size, 1 - p)
-            love.graphics.setFont(font_help_label)
-            love.graphics.setColor(ui_text[1], ui_text[2], ui_text[3], (ui_text[4] or 1.0) * (1 - p))
             love.graphics.print("Move", dpad_x + dpad_size + math.floor(6 * scale), badge_y + (badge_h - font_help_label:getHeight()) / 2)
         end
     end
@@ -6362,7 +6405,7 @@ function renderer.drawOverlay(game)
             if game.start_booster_val and item_icons and item_icons[tostring(game.start_booster_val)] then
                 table.insert(active_perks, item_icons[tostring(game.start_booster_val)])
             end
-            local has_shield = (_G.stats and (_G.stats.second_chance_count or 0) > 0) or game.hasShield
+            local has_shield = ((game and (game.second_chance_count or 0) > 0 and game.mode ~= "nomercy") or game.hasShield)
             if not has_shield and game.grid then
                 game.grid:eachCell(function(gx, gy, tile)
                     if tile and tile.shielded then has_shield = true end
@@ -10841,7 +10884,7 @@ achievementsList = {
     -- Plus Mode
     { id = "ach_first_bomb",       name = "Boom!",             desc = "Use your first bomb in Plus Mode",                               reward = "Eclipse Theme",    coins = 20  },
     { id = "ach_demolition",       name = "Demolition Expert", desc = "Use 10 bombs in total in Plus Mode",                             reward = "Retro Theme",      coins = 75  },
-    { id = "ach_tactician",        name = "Tactician",         desc = "Use 5 Undos and 5 Swaps in a single Plus Mode game",             reward = "Steel Theme",      coins = 150 },
+    { id = "ach_tactician",        name = "Tactician",         desc = "Use 3 Undos and 3 Swaps in a single Plus Mode game",             reward = "Steel Theme",      coins = 150 },
     { id = "ach_2048_plus",        name = "Plus Mode Master",  desc = "Create a 2048 tile in Plus Mode",                                reward = "Cyberpunk Theme",  coins = 250 },
 
     -- Arcade Modes
@@ -10851,9 +10894,9 @@ achievementsList = {
     { id = "ach_goose_2048",       name = "Honk Honk!",        desc = "Create a 2048 tile in Goose Mode",                               reward = "Honk Theme",       coins = 250 },
 
     -- Challenges & Secrets
-    { id = "ach_untouchable",      name = "Untouchable",       desc = "Create a 1024 tile without using undos or powerups",             reward = "Peach Theme",      coins = 200 },
-    { id = "ach_untouchable_2048", name = "Zen Master",        desc = "Create a 2048 tile without using undos or powerups",             reward = "Matcha Theme",     coins = 400 },
-    { id = "ach_speedrun_2048",    name = "Speed Demon",       desc = "Create a 2048 tile in under 5 minutes",                          reward = "Retro Gold Theme", coins = 400 },
+    { id = "ach_untouchable",      name = "Untouchable",       desc = "Create a 1024 tile without undos, powerups, or boosters",         reward = "Peach Theme",      coins = 200 },
+    { id = "ach_untouchable_2048", name = "Zen Master",        desc = "Create a 2048 tile without undos, powerups, or boosters",         reward = "Matcha Theme",     coins = 400 },
+    { id = "ach_speedrun_2048",    name = "Speed Demon",       desc = "Create a 2048 tile in under 7 minutes without boosters",         reward = "Retro Gold Theme", coins = 400 },
     { id = "ach_hardcore_2048",    name = "Hardcore Gamer",    desc = "Create 2048 in Plus Mode without powerups or undos",             reward = "Spectrum Theme",   coins = 500 },
     { id = "ach_secret_menu",      name = "Secret Discovery",  desc = "Access the Secret Menu for the first time",                      reward = "Matrix Theme",     coins = 100 },
 
@@ -10863,7 +10906,7 @@ achievementsList = {
     { id = "ach_first_shield",     name = "Second Chance",     desc = "Use a Second Chance Shield to clear a row or column",            reward = "Sapphire Theme",   coins = 200 },
 
     -- Companions & Economy
-    { id = "ach_coin_hoarder",     name = "Coin Hoarder",      desc = "Accumulate 10,000 coins at once",                                reward = "Pastel Theme",     coins = 250 },
+    { id = "ach_coin_hoarder",     name = "Coin Hoarder",      desc = "Earn 10,000 total coins",                                        reward = "Pastel Theme",     coins = 250 },
     { id = "ach_best_friend",      name = "Best Friend",       desc = "Play with all 4 dog pals",                                       reward = "Pawprint Theme",   coins = 200 },
     { id = "ach_purrfect_run",     name = "Purrfect Run",      desc = "Create a 2048 tile with the cat companion active",               reward = "Neko Night Theme", coins = 250 }
 }
@@ -10918,7 +10961,7 @@ function renderer.getStatsMaxScroll()
     local sec_h = math.floor(26 * scale)
     local stat_step = card_h + card_gap
 
-    local total_stats_height = sec_h + (4 * (card_h + card_gap)) + math.floor(10 * scale)
+    local total_stats_height = sec_h + (5 * (card_h + card_gap)) + math.floor(10 * scale)
         + sec_h + (3 * (card_h + card_gap)) + math.floor(16 * scale)
 
     return math.max(0, math.ceil((total_stats_height - avail_h) / stat_step))
@@ -11289,35 +11332,6 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
                 -- Name & Desc
                 local text_x = icon_x + icon_s + math.floor(15 * scale)
                 local base_text_col = renderer.getContrastTextColor(board_color, ui_text, dark_text)
-                
-                if isUnlocked then
-                    love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 1.0)
-                else
-                    love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.92)
-                end
-                love.graphics.setFont(font_label)
-                love.graphics.print(ach.name, text_x, current_y + math.floor(12 * scale))
- 
-                love.graphics.setFont(font_help_label)
-                if isUnlocked then
-                    love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.88)
-                else
-                    love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.80)
-                end
-                love.graphics.print(ach.desc, text_x, current_y + math.floor(42 * scale))
-
-                -- Reward Tag
-                love.graphics.setFont(font_help_label)
-                local rew_text = (isUnlocked and "Unlocked: " or "Unlocks: ") .. ach.reward
-                local font_h = font_help_label:getHeight()
-                local c_str = (ach.coins and ach.coins > 0) and tostring(ach.coins) or nil
-                local std_pill_w = math.floor(95 * scale)
-                local c_icon_sz = math.floor(15 * scale)
-                local rw = font_help_label:getWidth(rew_text)
-                local font_h = font_help_label:getHeight()
-                local tag_h = font_h + math.floor(8 * scale)
-                local tag_box_y = current_y + math.floor(9 * scale)
-                local text_y = tag_box_y + math.floor((tag_h - font_h) / 2) - math.floor(1 * scale)
 
                 local tag_text_color = base_text_col
                 if isUnlocked then
@@ -11333,25 +11347,147 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
                     end
                 end
 
-                -- Calculate rightmost positioning
-                local rew_pill_w = math.max(std_pill_w, rw + math.floor(16 * scale))
-                local rew_box_x, coin_box_x
+                love.graphics.setFont(font_help_label)
+                local font_h = font_help_label:getHeight()
+                local c_icon_sz = math.floor(15 * scale)
 
-                if c_str then
-                    local c_str_w = font_help_label:getWidth(c_str)
-                    local c_content_w = c_str_w + (coin_icon and (c_icon_sz + 4 * scale) or 0)
-                    local coin_pill_w = math.max(std_pill_w, c_content_w + math.floor(16 * scale))
+                local has_reward = (ach.reward and ach.reward ~= "")
+                local rew_text = has_reward and ((isUnlocked and "Unlocked: " or "Unlocks: ") .. ach.reward) or nil
+                local rw = rew_text and font_help_label:getWidth(rew_text) or 0
 
-                    coin_box_x = w - padding - coin_pill_w - math.floor(15 * scale)
-                    rew_box_x = coin_box_x - rew_pill_w - math.floor(10 * scale)
+                local c_str = (ach.coins and ach.coins > 0) and tostring(ach.coins) or nil
+                local has_coins = (c_str ~= nil)
+                local c_str_w = c_str and font_help_label:getWidth(c_str) or 0
+                local c_content_w = c_str_w + (coin_icon and (c_icon_sz + math.floor(4 * scale)) or 0)
 
-                    -- Draw Coin Tag
+                local right_margin = w - padding - math.floor(14 * scale)
+                local rew_pill_w = rw + math.floor(16 * scale)
+                local coin_pill_w = math.max(math.floor(52 * scale), c_content_w + math.floor(14 * scale))
+
+                local rew_box_x = right_margin - rew_pill_w
+                local coin_box_x = right_margin - coin_pill_w
+
+                local rew_box_y, coin_box_y, tag_h
+                if has_reward and has_coins then
+                    tag_h = font_h + math.floor(5 * scale)
+                    local gap = math.floor(5 * scale)
+                    local total_stack_h = tag_h * 2 + gap
+                    local stack_y = current_y + math.floor((card_h - total_stack_h) / 2)
+                    rew_box_y = stack_y
+                    coin_box_y = stack_y + tag_h + gap
+                else
+                    tag_h = font_h + math.floor(7 * scale)
+                    local center_y = current_y + math.floor((card_h - tag_h) / 2)
+                    rew_box_y = center_y
+                    coin_box_y = center_y
+                end
+
+                local max_title_w = (has_reward and rew_box_x or right_margin) - text_x - math.floor(10 * scale)
+                local display_name = ach.name
+                love.graphics.setFont(font_label)
+                if max_title_w > 0 and font_label:getWidth(display_name) > max_title_w then
+                    while #display_name > 1 and font_label:getWidth(display_name .. "...") > max_title_w do
+                        local last = display_name:byte(#display_name)
+                        while #display_name > 1 and last >= 128 and last < 192 do
+                            display_name = display_name:sub(1, -2)
+                            last = display_name:byte(#display_name)
+                        end
+                        display_name = display_name:sub(1, -2)
+                    end
+                    display_name = display_name .. "..."
+                end
+
+                if isUnlocked then
+                    love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 1.0)
+                else
+                    love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.92)
+                end
+                love.graphics.print(display_name, text_x, current_y + math.floor(12 * scale))
+
+                local desc_limit_x = (has_coins and coin_box_x) or (has_reward and rew_box_x) or right_margin
+                local max_desc_w = desc_limit_x - text_x - math.floor(10 * scale)
+                local display_desc = ach.desc
+
+                love.graphics.setFont(font_help_label)
+                if isUnlocked then
+                    love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.88)
+                else
+                    love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.80)
+                end
+
+                local desc_w = font_help_label:getWidth(display_desc)
+                local desc_y = current_y + math.floor(41 * scale)
+
+                if max_desc_w > 0 and desc_w > max_desc_w then
+                    local overflow = desc_w - max_desc_w
+                    local speed = math.max(1, math.floor(30 * scale))
+                    local scroll_dur = overflow / speed
+                    local pause_dur = 1.6
+                    local return_dur = math.min(1.2, scroll_dur * 0.6)
+                    local cycle = pause_dur * 2 + scroll_dur + return_dur
+                    local ct = love.timer.getTime() % cycle
+
+                    local offset_x = 0
+                    if ct > pause_dur and ct <= pause_dur + scroll_dur then
+                        local p = (ct - pause_dur) / scroll_dur
+                        local ease_p = p * p * (3 - 2 * p)
+                        offset_x = math.floor(overflow * ease_p)
+                    elseif ct > pause_dur + scroll_dur and ct <= pause_dur * 2 + scroll_dur then
+                        offset_x = overflow
+                    elseif ct > pause_dur * 2 + scroll_dur then
+                        local p = (ct - (pause_dur * 2 + scroll_dur)) / return_dur
+                        local ease_p = p * p * (3 - 2 * p)
+                        offset_x = math.floor(overflow * (1 - ease_p))
+                    end
+
+                    local prev_sc_x, prev_sc_y, prev_sc_w, prev_sc_h = love.graphics.getScissor()
+                    local clip_x = math.floor(text_x)
+                    local clip_y = math.floor(desc_y - 2 * scale)
+                    local clip_w = math.floor(max_desc_w)
+                    local clip_h = math.floor(font_h + 4 * scale)
+
+                    if prev_sc_x then
+                        love.graphics.intersectScissor(clip_x, clip_y, clip_w, clip_h)
+                    else
+                        love.graphics.setScissor(clip_x, clip_y, clip_w, clip_h)
+                    end
+
+                    love.graphics.print(display_desc, text_x - offset_x, desc_y)
+
+                    if prev_sc_x then
+                        love.graphics.setScissor(prev_sc_x, prev_sc_y, prev_sc_w, prev_sc_h)
+                    else
+                        love.graphics.setScissor()
+                    end
+                else
+                    love.graphics.print(display_desc, text_x, desc_y)
+                end
+
+                if has_reward then
                     if isUnlocked then
                         love.graphics.setColor(tag_text_color[1], tag_text_color[2], tag_text_color[3], 0.25)
                     else
                         love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.22)
                     end
-                    roundedRect("fill", coin_box_x, tag_box_y, coin_pill_w, tag_h, math.floor(6 * scale))
+                    roundedRect("fill", rew_box_x, rew_box_y, rew_pill_w, tag_h, math.floor(5 * scale))
+
+                    if isUnlocked then
+                        love.graphics.setColor(tag_text_color[1], tag_text_color[2], tag_text_color[3], 1.0)
+                    else
+                        love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.88)
+                    end
+                    local rew_text_x = rew_box_x + math.floor((rew_pill_w - rw) / 2)
+                    local rew_text_y = rew_box_y + math.floor((tag_h - font_h) / 2) - math.floor(1 * scale)
+                    love.graphics.print(rew_text, rew_text_x, rew_text_y)
+                end
+
+                if has_coins then
+                    if isUnlocked then
+                        love.graphics.setColor(tag_text_color[1], tag_text_color[2], tag_text_color[3], 0.25)
+                    else
+                        love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.22)
+                    end
+                    roundedRect("fill", coin_box_x, coin_box_y, coin_pill_w, tag_h, math.floor(5 * scale))
 
                     if isUnlocked then
                         love.graphics.setColor(tag_text_color[1], tag_text_color[2], tag_text_color[3], 1.0)
@@ -11360,35 +11496,18 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
                     end
 
                     local c_content_x = coin_box_x + math.floor((coin_pill_w - c_content_w) / 2)
-                    local icon_y = tag_box_y + math.floor((tag_h - c_icon_sz) / 2)
-                    love.graphics.print(c_str, c_content_x, text_y)
+                    local coin_text_y = coin_box_y + math.floor((tag_h - font_h) / 2) - math.floor(1 * scale)
+                    local coin_icon_y = coin_box_y + math.floor((tag_h - c_icon_sz) / 2) + 0.5 * scale
+                    love.graphics.print(c_str, c_content_x, coin_text_y)
 
                     if coin_icon then
                         love.graphics.setShader(icon_shader)
                         local sw = c_icon_sz / coin_icon:getWidth()
                         local sh = c_icon_sz / coin_icon:getHeight()
-                        love.graphics.draw(coin_icon, c_content_x + c_str_w + 4 * scale, icon_y, 0, sw, sh)
+                        love.graphics.draw(coin_icon, c_content_x + c_str_w + math.floor(4 * scale), coin_icon_y, 0, sw, sh)
                         love.graphics.setShader()
                     end
-                else
-                    rew_box_x = w - padding - rew_pill_w - math.floor(15 * scale)
                 end
-
-                -- Draw Reward / Unlock Tag
-                if isUnlocked then
-                    love.graphics.setColor(tag_text_color[1], tag_text_color[2], tag_text_color[3], 0.25)
-                else
-                    love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.22)
-                end
-                roundedRect("fill", rew_box_x, tag_box_y, rew_pill_w, tag_h, math.floor(6 * scale))
-
-                if isUnlocked then
-                    love.graphics.setColor(tag_text_color[1], tag_text_color[2], tag_text_color[3], 1.0)
-                else
-                    love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.88)
-                end
-                local rew_text_x = rew_box_x + math.floor((rew_pill_w - rw) / 2)
-                love.graphics.print(rew_text, rew_text_x, text_y)
 
                 current_y = current_y + item_h
             end
@@ -11446,7 +11565,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
         local bombs = s.bombs_used or 0
         local swaps = s.swaps_used or 0
 
-        local total_stats_height = sec_h + (4 * (card_h + card_gap)) + math.floor(10 * scale)
+        local total_stats_height = sec_h + (5 * (card_h + card_gap)) + math.floor(10 * scale)
             + sec_h + (3 * (card_h + card_gap)) + math.floor(16 * scale)
 
         _G.stats_max_scroll = math.max(0, math.ceil((total_stats_height - avail_h) / stat_step))
@@ -11531,6 +11650,14 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
 
         drawStatCard(x1, cursor_y, col_w, card_h, "POWERUPS USED", powerups_val)
         drawStatCard(x2, cursor_y, col_w, card_h, "UNDOS TRIGGERED", formatNum(s.undos_used or 0))
+        cursor_y = cursor_y + card_h + card_gap
+
+        local cur_coins = s.coins or 0
+        local total_spent = s.total_spent_coins or 0
+        local total_earned = math.max(s.total_coins_earned or 0, cur_coins + total_spent)
+        local spent_sub = (total_spent > 0) and string.format("Spent: %s", formatNum(total_spent)) or nil
+        drawStatCard(x1, cursor_y, col_w, card_h, "CURRENT COINS", formatNum(cur_coins), spent_sub)
+        drawStatCard(x2, cursor_y, col_w, card_h, "TOTAL COINS EARNED", formatNum(total_earned))
         cursor_y = cursor_y + card_h + card_gap + math.floor(10 * scale)
 
         -- Mode High Scores Section
@@ -12200,14 +12327,14 @@ function renderer.getStoreItems()
         {id="coin_multiplier",category="upgrade",  cost=1200,name="2x Coin Multiplier",    desc="Permanently double all earned Coins"},
 
         -- Boosters & Powerups
-        {id="powerup_undo",  category="booster",   cost=40,   name="Purchase Undo (x" .. pu_undo .. " owned)",             desc="+1 Undo charge for Plus Mode", consumable=true, ckey="powerup_undo_count"},
-        {id="powerup_swap",  category="booster",   cost=50,   name="Purchase Swap (x" .. pu_swap .. " owned)",             desc="+1 Swap charge for Plus Mode", consumable=true, ckey="powerup_swap_count"},
-        {id="powerup_bomb",  category="booster",   cost=60,   name="Purchase Bomb (x" .. pu_bomb .. " owned)",             desc="+1 Bomb charge for Plus Mode", consumable=true, ckey="powerup_bomb_count"},
-        {id="start_128",     category="booster",   cost=60,   name="128 High-Tile Booster (x" .. booster_128 .. " owned)", desc="Next game starts with a 128 tile", consumable=true, ckey="start_128_count"},
-        {id="start_256",     category="booster",   cost=120,  name="256 High-Tile Booster (x" .. booster_256 .. " owned)", desc="Next game starts with a 256 tile", consumable=true, ckey="start_256_count"},
-        {id="start_512",     category="booster",   cost=250,  name="512 High-Tile Booster (x" .. booster_512 .. " owned)", desc="Next game starts with a 512 tile", consumable=true, ckey="start_512_count"},
+        {id="powerup_undo",  category="booster",   cost=40,   name="Purchase Undo (x" .. pu_undo .. " owned)",             desc="+1 Undo charge in your next Plus Mode game", consumable=true, ckey="powerup_undo_count"},
+        {id="powerup_swap",  category="booster",   cost=50,   name="Purchase Swap (x" .. pu_swap .. " owned)",             desc="+1 Swap charge in your next Plus Mode game", consumable=true, ckey="powerup_swap_count"},
+        {id="powerup_bomb",  category="booster",   cost=60,   name="Purchase Bomb (x" .. pu_bomb .. " owned)",             desc="+1 Bomb charge in your next Plus Mode game", consumable=true, ckey="powerup_bomb_count"},
+        {id="start_128",     category="booster",   cost=60,   name="128 High-Tile Booster (x" .. booster_128 .. " owned)", desc="Classic only. Next game starts with a 128 tile", consumable=true, ckey="start_128_count"},
+        {id="start_256",     category="booster",   cost=120,  name="256 High-Tile Booster (x" .. booster_256 .. " owned)", desc="Classic only. Next game starts with a 256 tile", consumable=true, ckey="start_256_count"},
+        {id="start_512",     category="booster",   cost=250,  name="512 High-Tile Booster (x" .. booster_512 .. " owned)", desc="Classic only. Next game starts with a 512 tile", consumable=true, ckey="start_512_count"},
         {id="coin_rush",     category="booster",   cost=100,  name="Coin Rush Ticket (x" .. coin_rush_count .. " owned)",  desc="Doubles all Coins earned in your next game", consumable=true, ckey="coin_rush_count"},
-        {id="second_chance", category="booster",   cost=200,  name="Second Chance Shield (x" .. shield_count .. " owned)", desc="Clear any row or col on demand", consumable=true, ckey="second_chance_count"},
+        {id="second_chance", category="booster",   cost=200,  name="Second Chance Shield (x" .. shield_count .. " owned)", desc="Clear any row or col in your next game", consumable=true, ckey="second_chance_count"},
 
         -- Board Grid Skins
         {id="skin_wood",     category="skin",      cost=100,  name="Wood Board",           desc="Classic arcade cabinet wooden grid texture"},
@@ -12296,8 +12423,10 @@ function renderer.getStoreItems()
 end
 
 function renderer.drawStoreMenu(selection, skip_transition, content_only)
-    local w, h = love.graphics.getDimensions()
-    local scale = _G.scale
+    local is_console = _G.is_console_active and _G.is_console_active() and not _G.android_fullscreen
+    local w = is_console and 640 or love.graphics.getWidth()
+    local h = is_console and 480 or love.graphics.getHeight()
+    local scale = is_console and 1.0 or (_G.scale or 1)
     local padding = math.floor(20 * scale)
     local title_y = math.floor(18 * scale)
     local coins = _G.stats and _G.stats.coins or 0
@@ -12460,12 +12589,18 @@ function renderer.drawStoreMenu(selection, skip_transition, content_only)
     love.graphics.setScissor(0, list_y - math.floor(4 * scale), w, avail_h + math.floor(8 * scale))
 
     if not content_only and not skip_transition and _G.screen_transitions and store_sort_transition_timer > 0 and store_sort_old_canvas then
-        local sort_prog = math.max(0, math.min(1, 1 - (store_sort_transition_timer / STORE_SORT_TRANSITION_DURATION)))
-        local old_alpha = math.max(0, 1 - sort_prog * 2.2)
-        if old_alpha > 0 then
-            local old_drift_y = -math.floor(14 * scale * sort_prog)
-            love.graphics.setColor(1, 1, 1, old_alpha)
-            love.graphics.draw(store_sort_old_canvas, 0, old_drift_y)
+        if store_sort_old_canvas:getWidth() ~= w or store_sort_old_canvas:getHeight() ~= h then
+            store_sort_transition_timer = 0
+        else
+            local sort_prog = math.max(0, math.min(1, 1 - (store_sort_transition_timer / STORE_SORT_TRANSITION_DURATION)))
+            local old_alpha = math.max(0, 1 - sort_prog * 2.2)
+            if old_alpha > 0.005 then
+                local old_drift_y = -math.floor(14 * scale * sort_prog)
+                love.graphics.setColor(old_alpha, old_alpha, old_alpha, old_alpha)
+                love.graphics.setBlendMode("alpha", "premultiplied")
+                love.graphics.draw(store_sort_old_canvas, 0, old_drift_y)
+                love.graphics.setBlendMode("alpha", "alphamultiply")
+            end
         end
     end
 
@@ -12474,7 +12609,8 @@ function renderer.drawStoreMenu(selection, skip_transition, content_only)
         local empty_alpha = 0.5
         if not content_only and not skip_transition and _G.screen_transitions and store_sort_transition_timer > 0 then
             local sort_prog = math.max(0, math.min(1, 1 - (store_sort_transition_timer / STORE_SORT_TRANSITION_DURATION)))
-            local ease = 1 - math.pow(1 - sort_prog, 3)
+            local inv = 1 - sort_prog
+            local ease = 1 - inv * inv * inv
             empty_alpha = 0.5 * ease
         end
         love.graphics.setColor(ui_text[1], ui_text[2], ui_text[3], empty_alpha)
@@ -12491,7 +12627,8 @@ function renderer.drawStoreMenu(selection, skip_transition, content_only)
             local card_delay = (i - 1) * 0.024
             local card_dur = 0.18
             local card_t = math.max(0, math.min(1, (t_elapsed - card_delay) / card_dur))
-            local card_ease = 1 - math.pow(1 - card_t, 3)
+            local inv = 1 - card_t
+            local card_ease = 1 - inv * inv * inv
             card_offset_y = math.floor((1 - card_ease) * 22 * scale)
             card_alpha = card_ease
         end
@@ -12707,7 +12844,7 @@ function renderer.drawStoreMenu(selection, skip_transition, content_only)
 
                     local content_x = box_x + math.floor((pill_w - content_w) / 2)
                     local text_y = box_y + math.floor((tag_h - font_h) / 2) - math.floor(1 * scale)
-                    local icon_y = box_y + math.floor((tag_h - c_icon_sz) / 2)
+                    local icon_y = box_y + math.floor((tag_h - c_icon_sz) / 2) + 0.5 * scale
 
                     local can_afford = (coins >= item.cost)
                     if can_afford then
@@ -12826,7 +12963,16 @@ function renderer.drawJukebox(selection, skip_transition)
     local is_actively_playing = sound_mod.isBgmPlaying and sound_mod.isBgmPlaying() or false
     local is_playing          = current_track ~= nil
 
-    local base_text_col = renderer.getContrastTextColor(board_color, ui_text, dark_text)
+    local row_bg_r = board_color[1] * 0.55 + bg_color[1] * 0.45
+    local row_bg_g = board_color[2] * 0.55 + bg_color[2] * 0.45
+    local row_bg_b = board_color[3] * 0.55 + bg_color[3] * 0.45
+    local row_bg_lum = 0.299 * row_bg_r + 0.587 * row_bg_g + 0.114 * row_bg_b
+    local base_text_col
+    if row_bg_lum > 0.48 then
+        base_text_col = dark_text or {0.14, 0.14, 0.16, 1}
+    else
+        base_text_col = light_text or {0.98, 0.98, 1.0, 1}
+    end
 
     -- Dynamic card layout
     local card_w  = w - math.floor(32 * scale)
@@ -13235,19 +13381,20 @@ function renderer.drawJukebox(selection, skip_transition)
         local ry = playlist_y + (track_idx - 1 - scroll_offset) * row_h
         local is_curr = (track_idx == curr_idx and curr_idx > 0)
 
+        -- Base card background for every row so density is consistent across all themes
+        love.graphics.setColor(board_color[1], board_color[2], board_color[3], 0.55)
+        roundedRect("fill", card_x, ry, card_w, row_inner_h, math.floor(6 * scale))
+
         if is_curr and not is_actively_playing then
-            -- PAUSED track row: Distinctive theme accent tint + outline stroke
+            -- Paused track row accent tint and outline
             love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], 0.15)
             roundedRect("fill", card_x, ry, card_w, row_inner_h, math.floor(6 * scale))
             love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], 0.45)
             love.graphics.setLineWidth(math.floor(1.5 * scale))
             roundedRect("line", card_x, ry, card_w, row_inner_h, math.floor(6 * scale))
         elseif is_curr and is_actively_playing then
-            -- Active track row fill
-            love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], 0.10)
-            roundedRect("fill", card_x, ry, card_w, row_inner_h, math.floor(6 * scale))
-        else
-            love.graphics.setColor(board_color[1], board_color[2], board_color[3], 0.55)
+            -- Active playing track row accent tint
+            love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], 0.15)
             roundedRect("fill", card_x, ry, card_w, row_inner_h, math.floor(6 * scale))
         end
     end
@@ -13447,7 +13594,7 @@ function renderer.drawJukebox(selection, skip_transition)
             local b_font = font_bgm or font_help_label
             local custom_w = b_font:getWidth("CUSTOM") + math.floor(10 * scale)
             local custom_h = math.floor(17 * scale)
-            local custom_y = ry + math.floor((row_inner_h - custom_h) / 2)
+            local custom_y = ry + math.floor((row_inner_h - custom_h) / 2) + 1 * scale
 
             local right_limit = card_x + card_w - math.floor(12 * scale)
             if badge_p > 0.005 then
@@ -13470,14 +13617,67 @@ function renderer.drawJukebox(selection, skip_transition)
             end
 
             love.graphics.setFont(font_help_label)
+
+            -- Compute actual visible background behind text for this track row
+            local cur_bg_lum = row_bg_lum
             if is_sel then
-                love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 1.0)
-            elseif is_curr then
-                local curr_text_col = renderer.getContrastTextColor(board_color, help_key_color, dark_text)
-                love.graphics.setColor(curr_text_col[1], curr_text_col[2], curr_text_col[3], 1.0)
-            else
-                love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.80)
+                local sel_r = row_bg_r * 0.78 + help_key_color[1] * 0.22
+                local sel_g = row_bg_g * 0.78 + help_key_color[2] * 0.22
+                local sel_b = row_bg_b * 0.78 + help_key_color[3] * 0.22
+                cur_bg_lum = 0.299 * sel_r + 0.587 * sel_g + 0.114 * sel_b
             end
+
+            local tx_r, tx_g, tx_b
+            if is_curr then
+                -- Playing track accent with guaranteed contrast against current row background
+                local ar, ag, ab = help_key_color[1], help_key_color[2], help_key_color[3]
+                local a_lum = 0.299 * ar + 0.587 * ag + 0.114 * ab
+                local contrast = math.abs(a_lum - cur_bg_lum)
+
+                if contrast >= 0.38 then
+                    tx_r, tx_g, tx_b = ar, ag, ab
+                elseif cur_bg_lum > 0.48 then
+                    -- Light background: darken accent while preserving hue
+                    local target = math.max(0.04, cur_bg_lum - 0.42)
+                    local factor = target / math.max(0.01, a_lum)
+                    local max_ch = math.max(ar, ag, ab, 0.001)
+                    tx_r = math.min(1.0, ar * factor)
+                    tx_g = math.min(1.0, ag * factor)
+                    tx_b = math.min(1.0, ab * factor)
+                    if math.abs(0.299 * tx_r + 0.587 * tx_g + 0.114 * tx_b - cur_bg_lum) < 0.35 then
+                        tx_r = (ar / max_ch) * target
+                        tx_g = (ag / max_ch) * target
+                        tx_b = (ab / max_ch) * target
+                    end
+                else
+                    -- Dark background: brighten accent while preserving hue
+                    local target = math.min(0.98, cur_bg_lum + 0.48)
+                    local factor = math.min(5.0, target / math.max(0.01, a_lum))
+                    tx_r = math.min(1.0, ar * factor)
+                    tx_g = math.min(1.0, ag * factor)
+                    tx_b = math.min(1.0, ab * factor)
+                    local cur_lum = 0.299 * tx_r + 0.587 * tx_g + 0.114 * tx_b
+                    if cur_lum < 0.55 then
+                        local boost = 0.55 - cur_lum
+                        tx_r = math.min(1.0, tx_r + boost)
+                        tx_g = math.min(1.0, tx_g + boost)
+                        tx_b = math.min(1.0, tx_b + boost)
+                    end
+                end
+            else
+                -- Non playing tracks use high contrast base text
+                tx_r, tx_g, tx_b = base_text_col[1], base_text_col[2], base_text_col[3]
+            end
+
+            -- Soft shadow for highlighted playing track to guarantee absolute legibility
+            if is_sel and is_curr then
+                local shadow_a = cur_bg_lum > 0.48 and 0.22 or 0.65
+                love.graphics.setColor(0, 0, 0, shadow_a)
+                love.graphics.print(display_label, text_x + 1, text_y + 1)
+            end
+
+            local text_alpha = (is_sel or is_curr) and 1.0 or 0.82
+            love.graphics.setColor(tx_r, tx_g, tx_b, text_alpha)
             love.graphics.print(display_label, text_x, text_y)
 
             -- Custom track badge positioned along with song name
@@ -13492,7 +13692,8 @@ function renderer.drawJukebox(selection, skip_transition)
                 love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], 0.85)
                 love.graphics.setLineWidth(math.floor(1 * scale))
                 roundedRect("line", custom_x, custom_y, custom_w, custom_h, math.floor(4 * scale))
-                love.graphics.setColor(base_text_col[1], base_text_col[2], base_text_col[3], 0.95)
+                local badge_txt_col = cur_bg_lum > 0.48 and dark_text or (light_text or {0.98, 0.98, 1.0})
+                love.graphics.setColor(badge_txt_col[1], badge_txt_col[2], badge_txt_col[3], 0.95)
                 local txt_y = custom_y + math.floor((custom_h - b_font:getHeight()) / 2)
                 love.graphics.printf(badge_txt, custom_x, txt_y, custom_w, "center")
                 love.graphics.setFont(font_help_label)
@@ -13502,13 +13703,7 @@ function renderer.drawJukebox(selection, skip_transition)
             if badge_p > 0.005 then
                 local badge_txt = "PAUSED"
                 local by2 = text_y - math.floor((1 - badge_p) * 4 * scale)
-                local badge_col = renderer.getContrastTextColor(board_color, help_key_color, dark_text)
-                love.graphics.setColor(
-                    badge_col[1],
-                    badge_col[2],
-                    badge_col[3],
-                    0.95 * badge_p
-                )
+                love.graphics.setColor(tx_r, tx_g, tx_b, 0.95 * badge_p)
                 love.graphics.print(badge_txt, pause_x, by2)
             end
         end

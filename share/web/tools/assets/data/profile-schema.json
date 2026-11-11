@@ -14882,6 +14882,10 @@
           "label": "Disabled"
         },
         {
+          "value": "-1",
+          "label": "Sleep Until Wake"
+        },
+        {
           "value": "2",
           "label": "Instant Shutdown"
         },
@@ -17858,27 +17862,6 @@
       "help": "Override the maximum width of the left side option label as a percentage of content width (Default uses the theme value)"
     },
     {
-      "key": "settings/theme/menu_glyph_zoom",
-      "group": "themeoverride",
-      "type": "int",
-      "default": "0",
-      "min": 0,
-      "max": 1,
-      "label": "Selection Glyph Zoom",
-      "module": "muxcustom",
-      "help": "Briefly zooms the glyph of the item you move to on the Main Menu.\n\nTurn it on for a livelier menu.",
-      "options": [
-        {
-          "value": "0",
-          "label": "Disabled"
-        },
-        {
-          "value": "1",
-          "label": "Enabled"
-        }
-      ]
-    },
-    {
       "key": "settings/theme/menu_label",
       "group": "themeoverride",
       "type": "int",
@@ -17934,9 +17917,7 @@
       "default": "0",
       "min": 0,
       "max": 24,
-      "label": "Main Menu Style",
-      "module": "muxcustom",
-      "help": "How the Main Menu is laid out, whichever theme is in use.\n\nOriginal uses the theme's own layout, or the style a newer theme picks for itself. Themes that draw their own Main Menu artwork always use Original.",
+      "label": "Menu Style",
       "options": [
         {
           "value": "0",
@@ -17948,15 +17929,15 @@
         },
         {
           "value": "2",
-          "label": "Grid"
+          "label": "Grid Rows"
         },
         {
           "value": "3",
-          "label": "Carousel"
+          "label": "Carousel Flat"
         },
         {
           "value": "4",
-          "label": "Coverflow"
+          "label": "Carousel Tilted"
         },
         {
           "value": "5",
@@ -17965,10 +17946,6 @@
         {
           "value": "6",
           "label": "Orbit"
-        },
-        {
-          "value": "7",
-          "label": "Dial"
         },
         {
           "value": "8",
@@ -17984,7 +17961,7 @@
         },
         {
           "value": "11",
-          "label": "Dock"
+          "label": "Dock Bottom"
         },
         {
           "value": "12",
@@ -17992,7 +17969,7 @@
         },
         {
           "value": "13",
-          "label": "Honeycomb"
+          "label": "Grid Staggered"
         },
         {
           "value": "14",
@@ -18000,15 +17977,15 @@
         },
         {
           "value": "15",
-          "label": "Sidebar"
+          "label": "Sidebar Side"
         },
         {
           "value": "16",
-          "label": "Fluent"
+          "label": "Fluent Blocks"
         },
         {
           "value": "17",
-          "label": "Spotlight"
+          "label": "Carousel Spotlight"
         },
         {
           "value": "18",
@@ -18016,7 +17993,7 @@
         },
         {
           "value": "19",
-          "label": "Cross Bar"
+          "label": "Dock Top"
         },
         {
           "value": "20",
@@ -18024,11 +18001,11 @@
         },
         {
           "value": "21",
-          "label": "Tab Bar"
+          "label": "Sidebar Top"
         },
         {
           "value": "22",
-          "label": "Paged Row"
+          "label": "Grid Pages"
         },
         {
           "value": "23",
@@ -18036,9 +18013,10 @@
         },
         {
           "value": "24",
-          "label": "Mascot"
+          "label": "Fluent Mascot"
         }
-      ]
+      ],
+      "help": "How the Main Menu is laid out, whichever theme is in use.\n\nOriginal uses the theme's own layout, or the style a newer theme picks for itself. Themes that draw their own Main Menu artwork always use Original."
     },
     {
       "key": "visual/background_scale",

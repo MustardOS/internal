@@ -38,7 +38,7 @@ DO_START() {
 	fi
 
 	case "$(GET_VAR "config" "settings/power/shutdown")" in
-		-1 | 3600) SET_VAR "config" "settings/power/shutdown" 1800 ;;
+		3600) SET_VAR "config" "settings/power/shutdown" 1800 ;;
 	esac
 
 	LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"

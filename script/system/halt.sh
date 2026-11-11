@@ -230,7 +230,9 @@ if [ "$(GET_VAR "config" "settings/theme/menu_random")" -eq 1 ] 2>/dev/null; the
 	MENU_STYLE=$(GET_VAR "config" "settings/theme/menu_style")
 	NEW_STYLE=$MENU_STYLE
 	while [ "$NEW_STYLE" = "$MENU_STYLE" ]; do
-		NEW_STYLE=$((2 + $(od -An -N2 -tu2 /dev/urandom) % 23))
+		set -- 2 3 4 5 6 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+		shift "$(($(od -An -N2 -tu2 /dev/urandom) % $#))"
+		NEW_STYLE=$1
 	done
 	SET_VAR "config" "settings/theme/menu_style" "$NEW_STYLE"
 fi

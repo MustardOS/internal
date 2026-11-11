@@ -9,6 +9,7 @@ JQ_BIN=/opt/muos/bin/jq
 STATUS_CR=$(printf '\r')
 
 LANDING_STATE="$MUOS_RUN_DIR/landing/state"
+DASHBOARD_ACTIVE="$MUOS_RUN_DIR/landing/active"
 STATUS_FILE="$LANDING_STATE/status.json"
 ACTIVITY_FILE="$LANDING_STATE/activity.json"
 TRACKER_FILE="$LANDING_STATE/tracker.json"
@@ -19,6 +20,7 @@ TRACK_DIR="$MUOS_STORE_DIR/info/track"
 
 FAST_SLEEP=5
 SLOW_EVERY=12
+IDLE_RESET=30
 ACTIVITY_TOP=5
 
 READ_FILE() {
@@ -375,7 +377,18 @@ case "${1:-watch}" in
 		;;
 	watch)
 		TICK=0
+		IDLE=0
 		while :; do
+			if [ ! -e "$DASHBOARD_ACTIVE" ]; then
+				IDLE=$((IDLE + 1))
+				sleep 1
+				continue
+			fi
+
+			rm -f "$DASHBOARD_ACTIVE"
+			[ "$IDLE" -ge "$IDLE_RESET" ] && TICK=0
+			IDLE=0
+
 			[ "$((TICK % SLOW_EVERY))" -eq 0 ] && REFRESH_SLOW
 			REFRESH_FAST
 			TICK=$((TICK + 1))

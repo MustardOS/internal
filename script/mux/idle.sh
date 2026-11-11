@@ -77,9 +77,9 @@ RUN() {
 		if [ "$INHIBIT" -ne "$LAST_INHIBIT" ]; then
 			LOG_DEBUG "$0" 0 "IDLE" "$(printf "Idle inhibit state changed: %s -> %s" "$LAST_INHIBIT" "$INHIBIT")"
 			LAST_INHIBIT="$INHIBIT"
+			SET_VAR "system" "idle_inhibit" "$INHIBIT"
 		fi
 
-		SET_VAR "system" "idle_inhibit" "$INHIBIT"
 		sleep 5
 	done
 }

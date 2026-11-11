@@ -67,18 +67,8 @@ RUN_CRITICAL_START() {
 	else
 		RUN_BOOT_SERVICE_AFTER_PAINT S75bluetooth.sh Bluetooth &
 	fi
-	BLUETOOTH_PID=$!
 	RUN_BOOT_SERVICE S80pipewire.sh PipeWire &
-	PIPEWIRE_PID=$!
-	RUN_BOOT_SERVICE S81mode.sh "Device mode" &
-	MODE_PID=$!
-
-	wait "$MODE_PID"
-
-	if IS_ONE "$AUDIO_WAIT"; then
-		wait "$PIPEWIRE_PID"
-		wait "$BLUETOOTH_PID"
-	fi
+	RUN_BOOT_SERVICE S81mode.sh "Device mode"
 
 	RUN_INIT_RECORDED start "$INIT_DIR/S99muos.sh"
 }
@@ -89,8 +79,10 @@ case "${1:-start}" in
 		RUN_DEVICE_SCRIPT led.sh boot &
 		BOOT_GUARD_ARM
 
-		timeout 10 "$MUOS_VAR_BIN" build ||
-			LOG_WARN "$0" 0 "BOOTING" "Config cache build failed or timed out, continuing without it"
+		{
+			timeout 10 "$MUOS_VAR_BIN" build ||
+				LOG_WARN "$0" 0 "BOOTING" "Config cache build failed or timed out, continuing without it"
+		} &
 
 		EARLY_GOVERNOR=$(GET_VAR "device" "cpu/governor")
 		[ -w "$EARLY_GOVERNOR" ] && printf '%s' performance >"$EARLY_GOVERNOR"

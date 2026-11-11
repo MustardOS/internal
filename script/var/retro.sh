@@ -233,8 +233,25 @@ KERNEL_TUNING() {
 	CHECK_EXIST "danger/time_slice" "/proc/sys/kernel/sched_rr_timeslice_ms"
 	CHECK_EXIST "danger/tune_scale" "/proc/sys/kernel/sched_tunable_scaling"
 
-	if [ -b "/dev/$1" ]; then
-		blockdev --setra "$(GET_VAR "config" "danger/read_ahead")" "/dev/$1"
+	if [ -e "$MUOS_RUN_DIR/first_paint" ]; then
+		READ_AHEAD_TUNING "$1"
+	else
+		printf '%s\n' "$1" >>"$MUOS_RUN_DIR/read_ahead_pending"
 	fi
+}
+
+READ_AHEAD_TUNING() {
+	[ -b "/dev/$1" ] || return 0
+	blockdev --setra "$(GET_VAR "config" "danger/read_ahead")" "/dev/$1"
+}
+
+APPLY_PENDING_READ_AHEAD() {
+	READ_AHEAD_LIST="$MUOS_RUN_DIR/read_ahead_pending"
+	[ -s "$READ_AHEAD_LIST" ] || return 0
+
+	sort -u "$READ_AHEAD_LIST" | while IFS= read -r READ_AHEAD_DEV; do
+		READ_AHEAD_TUNING "$READ_AHEAD_DEV"
+	done
+	rm -f "$READ_AHEAD_LIST"
 }
 

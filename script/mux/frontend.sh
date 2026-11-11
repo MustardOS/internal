@@ -12,10 +12,13 @@ DPAD_SWAP=$(GET_VAR "device" "board/swap")
 STARTUP=$(GET_VAR "config" "settings/general/startup")
 AUDIO_READY=$(GET_VAR "config" "settings/advanced/audio_ready")
 BOARD_STICK=$(GET_VAR "device" "board/stick")
+case "$BOARD_STICK" in
+	'' | 0) STICK_POLL=off ;;
+	*) STICK_POLL=on ;;
+esac
 
 AUDIO_WAIT_MAX=100
-AUDIO_RESTORE_ASYNC=0
-[ "$AUDIO_READY" = 0 ] && AUDIO_RESTORE_ASYNC=1
+AUDIO_RESTORE_ASYNC=1
 export AUDIO_RESTORE_ASYNC
 
 RUN_CONTENT_LOADER() {
@@ -48,22 +51,17 @@ SAFE_WRITE "$ACT" "$ACT_GO"
 SAFE_WRITE "root" "$EX_CARD"
 
 LOG_INFO "$0" 0 "FRONTEND" "Setting default CPU governor"
-if IS_ONE "$AUDIO_READY"; then
-	SET_DEFAULT_GOVERNOR
-else
-	(
-		WAIT_FOR_AUDIO_READY "$AUDIO_WAIT_MAX"
-		WAIT_FOR_FIRST_PAINT 200
-		SET_DEFAULT_GOVERNOR
-	) &
-fi
-
-if IS_ONE "$AUDIO_READY"; then
+(
 	WAIT_FOR_AUDIO_READY "$AUDIO_WAIT_MAX"
-fi
+	WAIT_FOR_FIRST_PAINT 200
+	SET_DEFAULT_GOVERNOR
+	APPLY_PENDING_READ_AHEAD
+) &
+BOOT_GOVERNOR_PID=$!
 
 case "$BOARD_NAME" in
 	rg-vita-pro | tui*)
+		IS_ONE "$AUDIO_READY" && WAIT_FOR_AUDIO_READY "$AUDIO_WAIT_MAX"
 		/opt/muos/script/init/S80pipewire.sh prime ||
 			LOG_WARN "$0" 0 "FRONTEND" "Audio output priming did not complete"
 		;;
@@ -121,6 +119,7 @@ while :; do
 
 	# Reset ANALOGUE<>DIGITAL switch for the DPAD
 	RESET_DPAD_MODE "$BOARD_STICK" "$BOARD_NAME" "$DPAD_SWAP"
+	/opt/muos/frontend/mustick "$STICK_POLL" >/dev/null 2>&1
 	RUN_CONTENT_LOADER
 
 	# The shutdown alarm is powering the device off, so the menu never comes back up
@@ -143,8 +142,12 @@ while :; do
 			LOG_INFO "$0" 0 "FRONTEND" "Clearing content and auto-assign flags"
 			RESET_LAUNCHER_FLAGS
 
-			LOG_INFO "$0" 0 "FRONTEND" "Resetting governor to default"
-			SET_DEFAULT_GOVERNOR
+			if [ -n "$BOOT_GOVERNOR_PID" ] && kill -0 "$BOOT_GOVERNOR_PID" 2>/dev/null; then
+				BOOT_GOVERNOR_PID=
+			else
+				LOG_INFO "$0" 0 "FRONTEND" "Resetting governor to default"
+				SET_DEFAULT_GOVERNOR
+			fi
 
 			touch "/tmp/pdi_go"
 			DEVICE_FRONTEND_EXEC "launcher" "muxfrontend"

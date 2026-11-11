@@ -51,6 +51,7 @@ USB_SINK_INDEX() {
 }
 
 LAST=""
+LAST_CARDS=""
 SWITCHED=0
 PENDING=0
 
@@ -59,6 +60,14 @@ while true; do
 		sleep 2
 		continue
 	fi
+
+	set -- /proc/asound/card[0-9]*
+	CARDS="$*"
+	if [ "$CARDS" = "$LAST_CARDS" ] && [ "$PENDING" -eq 0 ]; then
+		sleep 1
+		continue
+	fi
+	LAST_CARDS="$CARDS"
 
 	if USB_AUDIO_PRESENT; then
 		NOW=1

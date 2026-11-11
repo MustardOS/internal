@@ -323,12 +323,16 @@ RUN_INIT_DIR_BOUNDED() {
 		INIT_COUNT=$((INIT_COUNT + 1))
 
 		if [ "$INIT_COUNT" -ge "$INIT_LIMIT" ]; then
-			set -- $INIT_PIDS
-			wait "$1" || INIT_DIR_RESULT=1
-			shift
+			wait -n || INIT_DIR_RESULT=1
 
-			INIT_PIDS="$*"
-			INIT_COUNT=$((INIT_COUNT - 1))
+			INIT_RUNNING=
+			INIT_COUNT=0
+			for INIT_PID in $INIT_PIDS; do
+				kill -0 "$INIT_PID" 2>/dev/null || continue
+				INIT_RUNNING="$INIT_RUNNING $INIT_PID"
+				INIT_COUNT=$((INIT_COUNT + 1))
+			done
+			INIT_PIDS=$INIT_RUNNING
 		fi
 	done
 

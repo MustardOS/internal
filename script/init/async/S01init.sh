@@ -37,6 +37,10 @@ DO_START() {
 		ln -sf "$MUOS_SHARE_DIR/soundfont" /usr/share/soundfonts
 	fi
 
+	case "$(GET_VAR "config" "settings/power/shutdown")" in
+		-1 | 3600) SET_VAR "config" "settings/power/shutdown" 1800 ;;
+	esac
+
 	LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"
 	printf "performance" >"$GOVERNOR"
 

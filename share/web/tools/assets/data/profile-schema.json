@@ -14874,16 +14874,12 @@
       "type": "int",
       "default": "600",
       "min": -2,
-      "max": 3600,
+      "max": 1800,
       "label": "Shutdown",
       "options": [
         {
           "value": "-2",
           "label": "Disabled"
-        },
-        {
-          "value": "-1",
-          "label": "Sleep Until Wake"
         },
         {
           "value": "2",
@@ -14920,10 +14916,6 @@
         {
           "value": "1800",
           "label": "Sleep 30m + Shutdown"
-        },
-        {
-          "value": "3600",
-          "label": "Sleep 60m + Shutdown"
         }
       ],
       "help": "What a short press of the power button does, whether that is sleeping, shutting down, or nothing at all.\n\nHolding the button down shuts the device off regardless."

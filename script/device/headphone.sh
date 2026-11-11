@@ -82,16 +82,9 @@ case "$(GET_VAR "device" "board/name")" in
 		LAST=""
 
 		while true; do
-			LEVEL=""
-			while IFS= read -r LINE; do
-				case "$LINE" in
-					*"Headphone detection"*)
-						LINE="${LINE%"${LINE##*[! ]}"}"
-						LEVEL="${LINE##* }"
-						break
-						;;
-				esac
-			done </sys/kernel/debug/gpio 2>/dev/null
+			LINE=$(grep -m1 "Headphone detection" /sys/kernel/debug/gpio 2>/dev/null)
+			LINE="${LINE%"${LINE##*[! ]}"}"
+			LEVEL="${LINE##* }"
 
 			if [ -z "$LEVEL" ]; then
 				sleep 5

@@ -34,6 +34,16 @@ FRONTEND_RUNNING() {
 	[ -n "$PIDS" ]
 }
 
+START_FRONTEND_SESSION() {
+	if [ -c "${MUOS_FRONTEND_TTY:-}" ]; then
+		exec 3<>"$MUOS_FRONTEND_TTY"
+		setsid -f -c "$@" <&3 >&3 2>&1
+		exec 3>&-
+	else
+		setsid -f "$@" </dev/null >/dev/null 2>&1
+	fi
+}
+
 SIGNAL_FRONTEND() {
 	SIG="$1"
 	PIDS="$(GET_FRONTEND_PIDS)"
@@ -89,9 +99,9 @@ FRONTEND() {
 			rm -f "$SAFE_QUIT" 2>/dev/null
 
 			if [ -n "${2:-}" ]; then
-				setsid -f /opt/muos/script/mux/frontend.sh "$2" </dev/null >/dev/null 2>&1
+				START_FRONTEND_SESSION /opt/muos/script/mux/frontend.sh "$2"
 			else
-				setsid -f /opt/muos/script/mux/frontend.sh </dev/null >/dev/null 2>&1
+				START_FRONTEND_SESSION /opt/muos/script/mux/frontend.sh
 			fi
 			;;
 		restart)

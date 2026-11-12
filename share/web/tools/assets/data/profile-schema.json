@@ -9043,7 +9043,7 @@
       "type": "int",
       "default": "0",
       "min": 0,
-      "max": 7,
+      "max": 9,
       "label": "Theme Resolution",
       "options": [
         {
@@ -9077,6 +9077,14 @@
         {
           "value": "7",
           "label": "1920x1080"
+        },
+        {
+          "value": "8",
+          "label": "1366x768"
+        },
+        {
+          "value": "9",
+          "label": "320x240"
         }
       ],
       "help": "Draws the theme as though the screen were a different size.\n\nUseful for trying a theme built for other hardware."

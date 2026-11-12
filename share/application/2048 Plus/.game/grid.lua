@@ -50,7 +50,14 @@ function Grid:randomAvailableCell(rng)
 end
 
 function Grid:cellsAvailable()
-    return #self:getAvailableCells() > 0
+    for x = 1, self.sizeX do
+        for y = 1, self.sizeY do
+            if self.cells[x][y] == nil then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 function Grid:cellAvailable(x, y)
@@ -92,12 +99,15 @@ function Grid:saveState()
                     value = tile.value,
                     isNew = tile.isNew,
                     isMerged = tile.isMerged,
-                    previousPosition = tile.previousPosition and {x = tile.previousPosition.x, y = tile.previousPosition.y} or nil
+                    previousPosition = tile.previousPosition and {x = tile.previousPosition.x, y = tile.previousPosition.y} or nil,
+                    undoSourcePosition = tile.undoSourcePosition and {x = tile.undoSourcePosition.x, y = tile.undoSourcePosition.y} or nil
                 }
-                if tile.mergedFrom then
+                if tile.mergedFrom and tile.mergedFrom[1] and tile.mergedFrom[2] then
+                    local p1 = tile.mergedFrom[1].previousPosition or (tile.mergedFrom[1].x and tile.mergedFrom[1].y and {x = tile.mergedFrom[1].x, y = tile.mergedFrom[1].y})
+                    local p2 = tile.mergedFrom[2].previousPosition or (tile.mergedFrom[2].x and tile.mergedFrom[2].y and {x = tile.mergedFrom[2].x, y = tile.mergedFrom[2].y})
                     saved_tile.mergedFrom = {
-                        { previousPosition = tile.mergedFrom[1].previousPosition and {x = tile.mergedFrom[1].previousPosition.x, y = tile.mergedFrom[1].previousPosition.y} or nil },
-                        { previousPosition = tile.mergedFrom[2].previousPosition and {x = tile.mergedFrom[2].previousPosition.x, y = tile.mergedFrom[2].previousPosition.y} or nil }
+                        { previousPosition = p1 and {x = p1.x, y = p1.y} or nil },
+                        { previousPosition = p2 and {x = p2.x, y = p2.y} or nil }
                     }
                 end
                 state[x][y] = saved_tile
@@ -118,11 +128,14 @@ function Grid:restoreState(state)
                 local tile = Tile.new(x, y, s_tile.value)
                 tile.isNew = s_tile.isNew or false
                 tile.isMerged = s_tile.isMerged or false
-                tile.previousPosition = s_tile.previousPosition
-                if s_tile.mergedFrom then
+                tile.previousPosition = s_tile.previousPosition and {x = s_tile.previousPosition.x, y = s_tile.previousPosition.y} or nil
+                tile.undoSourcePosition = s_tile.undoSourcePosition and {x = s_tile.undoSourcePosition.x, y = s_tile.undoSourcePosition.y} or nil
+                if s_tile.mergedFrom and s_tile.mergedFrom[1] and s_tile.mergedFrom[2] then
+                    local p1 = s_tile.mergedFrom[1].previousPosition
+                    local p2 = s_tile.mergedFrom[2].previousPosition
                     tile.mergedFrom = {
-                        { previousPosition = s_tile.mergedFrom[1].previousPosition },
-                        { previousPosition = s_tile.mergedFrom[2].previousPosition }
+                        { previousPosition = p1 and {x = p1.x, y = p1.y} or nil },
+                        { previousPosition = p2 and {x = p2.x, y = p2.y} or nil }
                     }
                 end
                 self.cells[x][y] = tile

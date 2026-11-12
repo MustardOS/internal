@@ -101,6 +101,8 @@ function save.getPath(mode)
         file = "highscore_nomercy.dat"
     elseif mode == "goose" then
         file = "highscore_goose.dat"
+    elseif mode == "dino" then
+        file = "dino_hiscore.dat"
     else
         file = SAVE_FILE  -- classic
     end
@@ -243,32 +245,6 @@ function save.loadDogBreed()
     return "roxy"
 end
 
-
-local DOG_BREED_FILE = "dog_breed.dat"
-
-function save.saveDogBreed(breed)
-    local path = getFilePath(DOG_BREED_FILE)
-    local file = io.open(path, "w")
-    if file then
-        file:write(breed or "roxy")
-        file:close()
-    end
-end
-
-function save.loadDogBreed()
-    local path = getFilePath(DOG_BREED_FILE)
-    local file = io.open(path, "r")
-    if file then
-        local content = file:read("*all")
-        file:close()
-        if content and content ~= "" then
-            return content
-        end
-    end
-    return "roxy"
-end
-
-
 function save.loadTextSize()
     local path = getFilePath(TEXT_SIZE_FILE)
     local file = io.open(path, "r")
@@ -407,12 +383,30 @@ function save.loadHighScore(mode)
 end
 
 function save.saveHighScore(score, mode)
+    local new_score = math.floor(tonumber(score) or 0)
+    if new_score <= 0 then
+        return
+    end
+
+    local current_score = save.loadHighScore(mode) or 0
+    if new_score <= current_score then
+        return
+    end
+
     local path = save.getPath(mode)
     local file = io.open(path, "w")
     if file then
-        file:write(tostring(math.floor(score)))
+        file:write(tostring(new_score))
         file:close()
     end
+end
+
+function save.loadDinoHighScore()
+    return save.loadHighScore("dino")
+end
+
+function save.saveDinoHighScore(score)
+    save.saveHighScore(score, "dino")
 end
 
 function save.loadAchievements()
@@ -433,56 +427,58 @@ function save.loadAchievements()
     return nil
 end
 
+local function serializeToParts(o, parts)
+    local t = type(o)
+    if t == "number" then
+        parts[#parts + 1] = tostring(o)
+    elseif t == "string" then
+        parts[#parts + 1] = string.format("%q", o)
+    elseif t == "boolean" then
+        parts[#parts + 1] = tostring(o)
+    elseif t == "table" then
+        parts[#parts + 1] = "{"
+        for k, v in pairs(o) do
+            if type(k) == "string" then
+                parts[#parts + 1] = "["
+                parts[#parts + 1] = string.format("%q", k)
+                parts[#parts + 1] = "]="
+            else
+                parts[#parts + 1] = "["
+                parts[#parts + 1] = tostring(k)
+                parts[#parts + 1] = "]="
+            end
+            serializeToParts(v, parts)
+            parts[#parts + 1] = ","
+        end
+        parts[#parts + 1] = "}"
+    else
+        parts[#parts + 1] = "nil"
+    end
+end
+
+local function serializeTable(o)
+    local parts = {"return "}
+    serializeToParts(o, parts)
+    return table.concat(parts)
+end
+
 function save.saveAchievements(achievements)
     local path = save.getAchievementsPath()
     local file = io.open(path, "w")
     if file then
-        local function serialize(o)
-            if type(o) == "number" then
-                return tostring(o)
-            elseif type(o) == "string" then
-                return string.format("%q", o)
-            elseif type(o) == "boolean" then
-                return tostring(o)
-            elseif type(o) == "table" then
-                local s = "{"
-                for k, v in pairs(o) do
-                    local key = type(k) == "string" and string.format("[%q]", k) or "[" .. tostring(k) .. "]"
-                    s = s .. key .. "=" .. serialize(v) .. ","
-                end
-                return s .. "}"
-            end
-            return "nil"
-        end
-        file:write("return " .. serialize(achievements))
+        file:write(serializeTable(achievements))
         file:close()
     end
 end
 
+local cached_has_last_active_game = nil
+
 function save.saveState(state, mode)
+    cached_has_last_active_game = nil
     local path = save.getStatePath(mode)
     local file = io.open(path, "w")
     if file then
-        local function serialize(o)
-            if type(o) == "number" then
-                return tostring(o)
-            elseif type(o) == "string" then
-                return string.format("%q", o)
-            elseif type(o) == "boolean" then
-                return tostring(o)
-            elseif type(o) == "table" then
-                local s = "{"
-                for k, v in pairs(o) do
-                    -- Skip mixed tables or complex keys for simplicity, assume string or number keys
-                    local key = type(k) == "string" and string.format("[%q]", k) or "[" .. tostring(k) .. "]"
-                    s = s .. key .. "=" .. serialize(v) .. ","
-                end
-                return s .. "}"
-            end
-            return "nil"
-        end
-
-        file:write("return " .. serialize(state))
+        file:write(serializeTable(state))
         file:close()
     end
 end
@@ -507,6 +503,7 @@ function save.loadState(mode)
 end
 
 function save.clearState(mode)
+    cached_has_last_active_game = nil
     local path = save.getStatePath(mode)
     os.remove(path)
 end
@@ -623,6 +620,34 @@ function save.loadVibration()
     return true
 end
 
+local BUTTON_VIBRATION_FILE = "button_vibration.dat"
+local CONSOLE_HAPTICS_FILE = "console_haptics.dat"
+function save.saveButtonVibration(enabled)
+    local path = getFilePath(BUTTON_VIBRATION_FILE)
+    local file = io.open(path, "w")
+    if file then
+        file:write(enabled and "1" or "0")
+        file:close()
+    end
+end
+save.saveConsoleHaptics = save.saveButtonVibration
+
+function save.loadButtonVibration()
+    local path = getFilePath(BUTTON_VIBRATION_FILE)
+    local file = io.open(path, "r")
+    if not file then
+        path = getFilePath(CONSOLE_HAPTICS_FILE)
+        file = io.open(path, "r")
+    end
+    if file then
+        local content = file:read("*all")
+        file:close()
+        return content ~= "0"
+    end
+    return true
+end
+save.loadConsoleHaptics = save.loadButtonVibration
+
 local CRT_FILE = "crt_filter.dat"
 function save.saveCrtFilter(enabled)
     local path = getFilePath(CRT_FILE)
@@ -651,24 +676,7 @@ function save.saveStats(stats)
     local path = getFilePath(STATS_FILE)
     local file = io.open(path, "w")
     if file then
-        local function serialize(o)
-            if type(o) == "number" then
-                return tostring(o)
-            elseif type(o) == "string" then
-                return string.format("%q", o)
-            elseif type(o) == "boolean" then
-                return tostring(o)
-            elseif type(o) == "table" then
-                local s = "{"
-                for k, v in pairs(o) do
-                    local key = type(k) == "string" and string.format("[%q]", k) or "[" .. tostring(k) .. "]"
-                    s = s .. key .. "=" .. serialize(v) .. ","
-                end
-                return s .. "}"
-            end
-            return "nil"
-        end
-        file:write("return " .. serialize(stats))
+        file:write(serializeTable(stats))
         file:close()
     end
 end
@@ -693,6 +701,7 @@ end
 local LAST_MODE_FILE = "last_mode.dat"
 
 function save.saveLastMode(mode)
+    cached_has_last_active_game = nil
     local path = getFilePath(LAST_MODE_FILE)
     local file = io.open(path, "w")
     if file then
@@ -715,12 +724,23 @@ function save.loadLastMode()
 end
 
 function save.hasLastActiveGame()
+    if cached_has_last_active_game ~= nil then
+        return cached_has_last_active_game
+    end
     local mode = save.loadLastMode()
-    if not mode then return false end
+    if not mode then
+        cached_has_last_active_game = false
+        return false
+    end
     local state = save.loadState(mode)
-    if not state or not state.gridState then return false end
+    if not state or not state.gridState then
+        cached_has_last_active_game = false
+        return false
+    end
     local s = state.state or 0
-    return s ~= 1 and s ~= 2
+    local has_game = (s ~= 1 and s ~= 2)
+    cached_has_last_active_game = has_game
+    return has_game
 end
 
 local ANDROID_VIEW_MODE_FILE = "android_view_mode.dat"

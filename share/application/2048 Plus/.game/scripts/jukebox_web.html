@@ -250,6 +250,7 @@ header.jukebox-header.has-dynamic-anim {
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: jukeboxTitleShimmer 6s ease-in-out infinite;
   filter: var(--c-title-shadow, drop-shadow(0 0 10px rgba(0, 0, 0, 0.2)));
@@ -2811,35 +2812,35 @@ const THEMES_CATALOG = [
   {
     "id": "matcha",
     "name": "Zen Matcha",
-    "bg": "#efebe9",
-    "board": "#bcaaa4",
-    "accent": "#558b2f",
-    "text": "#2e7d32",
+    "bg": "#f4f7f2",
+    "board": "#7b9a78",
+    "accent": "#4a7c59",
+    "text": "#1c3822",
     "is_dark": false,
     "tiles": {
       "2": {
         "bg": "#fff8e1",
-        "color": "#1b3a1f"
+        "color": "#1c3822"
       },
       "4": {
         "bg": "#ffecb3",
-        "color": "#1b3a1f"
+        "color": "#1c3822"
       },
       "8": {
         "bg": "#dce775",
-        "color": "#1b3a1f"
+        "color": "#1c3822"
       },
       "16": {
         "bg": "#cddc39",
-        "color": "#1b3a1f"
+        "color": "#1c3822"
       },
       "32": {
         "bg": "#aed581",
-        "color": "#1b3a1f"
+        "color": "#1c3822"
       },
       "64": {
         "bg": "#8bc34a",
-        "color": "#1b3a1f"
+        "color": "#1c3822"
       },
       "128": {
         "bg": "#689f38",
@@ -3856,55 +3857,55 @@ const THEMES_CATALOG = [
   {
     "id": "pawprint",
     "name": "Paw Print",
-    "bg": "#fdf8f5",
-    "board": "#8d5b4c",
-    "accent": "#dda15e",
-    "text": "#582f0e",
+    "bg": "#faf6f0",
+    "board": "#5c3a28",
+    "accent": "#e08a42",
+    "text": "#3d2314",
     "is_dark": false,
     "tiles": {
       "2": {
-        "bg": "#f7ede2",
-        "color": "#582f0e"
+        "bg": "#fdf8f5",
+        "color": "#3d2314"
       },
       "4": {
         "bg": "#f5cac3",
-        "color": "#582f0e"
+        "color": "#3d2314"
       },
       "8": {
         "bg": "#f28482",
-        "color": "#582f0e"
+        "color": "#3d2314"
       },
       "16": {
         "bg": "#e07a5f",
-        "color": "#582f0e"
+        "color": "#3d2314"
       },
       "32": {
         "bg": "#d4a373",
-        "color": "#582f0e"
+        "color": "#3d2314"
       },
       "64": {
         "bg": "#bc6c25",
-        "color": "#fdf8f5"
+        "color": "#fdfbf7"
       },
       "128": {
         "bg": "#dda15e",
-        "color": "#582f0e"
+        "color": "#3d2314"
       },
       "256": {
         "bg": "#c68b59",
-        "color": "#582f0e"
+        "color": "#3d2314"
       },
       "512": {
         "bg": "#a0522d",
-        "color": "#fdf8f5"
+        "color": "#fdfbf7"
       },
       "1024": {
         "bg": "#7f4f24",
-        "color": "#fdf8f5"
+        "color": "#fdfbf7"
       },
       "2048": {
         "bg": "#582f0e",
-        "color": "#fdf8f5"
+        "color": "#fdfbf7"
       }
     }
   },
@@ -4482,7 +4483,18 @@ function loadTracks() {
   fetch("/api/tracks")
     .then(r => r.json())
     .then(data => {
-      allTracks = data.tracks || [];
+      allTracks = (data.tracks || []).map(t => {
+        let sf = t.size_formatted;
+        if (!sf && t.size && t.size > 0) {
+          const mb = t.size / (1024 * 1024);
+          sf = mb >= 1 ? mb.toFixed(1) + " MB" : Math.round(t.size / 1024) + " KB";
+        }
+        return {
+          ...t,
+          is_custom: t.is_custom !== undefined ? Boolean(t.is_custom) : !t.is_builtin,
+          size_formatted: sf || ""
+        };
+      });
       document.getElementById("trackCountBadge").textContent = allTracks.length;
       filterTracks();
       updateStorage();
@@ -4555,8 +4567,7 @@ function renderTrackList() {
           <div class="track-meta">
             <span class="format-tag format-${ext.toLowerCase()}">${ext}</span>
             <span>${escapeHtml(t.artist)}</span>
-            <span>•</span>
-            <span>${t.size_formatted}</span>
+            ${t.size_formatted ? `<span>•</span><span>${escapeHtml(t.size_formatted)}</span>` : ''}
           </div>
         </div>
       </div>
@@ -4738,9 +4749,12 @@ function updateStorage() {
     .then(data => {
       if (data && data.storage) {
         const freeMb = data.storage.free_mb;
-        const text = freeMb >= 1024 
-          ? `${(freeMb / 1024).toFixed(1)} GB Free` 
-          : `${freeMb} MB Free`;
+        let text = "Storage Available";
+        if (freeMb && freeMb > 0) {
+          text = freeMb >= 1024 
+            ? `${(freeMb / 1024).toFixed(1)} GB Free` 
+            : `${freeMb} MB Free`;
+        }
         document.getElementById("storageText").textContent = text;
       }
     })

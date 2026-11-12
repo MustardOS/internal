@@ -50,6 +50,7 @@ local STATE_DEPTH = {
     THEME_SELECT  = 1,
     CHEATS_MENU   = 1,
     SETTINGS      = 1,
+    STORE         = 1,
     JUKEBOX       = 1,
     DINO          = 2,
 }
@@ -339,9 +340,13 @@ function love.load(args)
                 end
                 _G.stats = _G.stats or {}
                 _G.stats.coins = (_G.stats.coins or 0) + coin_reward
+                _G.stats.total_coins_earned = (_G.stats.total_coins_earned or 0) + coin_reward
                 _G.stats.claimed_achievements = _G.stats.claimed_achievements or {}
                 _G.stats.claimed_achievements[id] = true
                 save.saveStats(_G.stats)
+                if (_G.stats.total_coins_earned or 0) >= 10000 and _G.unlockAchievement then
+                    _G.unlockAchievement("ach_coin_hoarder")
+                end
             end
             renderer.showToast("Unlocked: " .. (names[id] or id) .. "!", 2.2, id)
             if coin_reward > 0 and renderer and renderer.queueHeaderLogoMorph then
@@ -477,6 +482,8 @@ function love.load(args)
     _G.undo_mode = save.loadUndoMode() or "classic"
     _G.time_attack_time = save.loadTimeAttackTime() or 60
     _G.vibration = save.loadVibration()
+    _G.button_vibration = save.loadButtonVibration()
+    _G.console_haptics = _G.button_vibration
     _G.crt_filter = save.loadCrtFilter()
     _G.merge_fx = "default"
     _G.board_skin = save.loadBoardSkin() or "default"
@@ -488,14 +495,18 @@ function love.load(args)
         _G.stats.merge_coins = nil
     end
     _G.stats.coins = _G.stats.coins or 0
+    _G.stats.total_coins_earned = _G.stats.total_coins_earned or math.max(_G.stats.coins, (_G.stats.coins or 0) + (_G.stats.total_spent_coins or 0))
     _G.stats.purchased_items = _G.stats.purchased_items or {}
     _G.stats.claimed_achievements = _G.stats.claimed_achievements or {}
     _G.store_sort_mode = _G.stats.store_sort_mode or 0
     if _G.store_sort_mode > 9 then _G.store_sort_mode = 0 end
 
-    -- Check Coin Hoarder & Best Friend on startup
-    if _G.stats.coins >= 10000 and _G.unlockAchievement then
+    -- Check Coin Hoarder and Best Friend on startup
+    if (_G.stats.total_coins_earned or 0) >= 10000 and _G.unlockAchievement then
         _G.unlockAchievement("ach_coin_hoarder")
+    end
+    if (_G.stats.total_spent_coins or 0) >= 5000 and _G.unlockAchievement then
+        _G.unlockAchievement("ach_big_spender")
     end
     if _G.recordDogBreedPlayed then
         _G.recordDogBreedPlayed(_G.active_dog_breed)
@@ -507,13 +518,18 @@ function love.load(args)
         local awarded_retroactive = false
         for _, ach in ipairs(all_achievements) do
             if _G.achievements[ach.id] and not _G.stats.claimed_achievements[ach.id] then
-                _G.stats.coins = _G.stats.coins + (ach.coins or 0)
+                local rew = ach.coins or 0
+                _G.stats.coins = _G.stats.coins + rew
+                _G.stats.total_coins_earned = (_G.stats.total_coins_earned or 0) + rew
                 _G.stats.claimed_achievements[ach.id] = true
                 awarded_retroactive = true
             end
         end
         if awarded_retroactive then
             save.saveStats(_G.stats)
+            if (_G.stats.total_coins_earned or 0) >= 10000 and _G.unlockAchievement then
+                _G.unlockAchievement("ach_coin_hoarder")
+            end
         end
     end
 
@@ -603,6 +619,7 @@ function love.update(dt)
     if screen_transition_timer > 0 then
         screen_transition_timer = math.max(0, screen_transition_timer - dt)
     end
+    _G.screen_transition_active = screen_transition_timer > 0
 
     -- Global exit combo: MENU + START
     -- Require distinct MENU and BACK keys to avoid accidental exit
@@ -660,8 +677,9 @@ function love.update(dt)
     else
         if _G.achievements_scroll ~= _G.achievements_scroll_target then
             local diff = _G.achievements_scroll_target - _G.achievements_scroll
-            _G.achievements_scroll = _G.achievements_scroll + diff * 15 * dt
-            if math.abs(_G.achievements_scroll - _G.achievements_scroll_target) < 0.01 then
+            local factor = 1 - math.exp(-20 * dt)
+            _G.achievements_scroll = _G.achievements_scroll + diff * factor
+            if math.abs(_G.achievements_scroll - _G.achievements_scroll_target) < 0.1 then
                 _G.achievements_scroll = _G.achievements_scroll_target
             end
         end
@@ -675,8 +693,9 @@ function love.update(dt)
     else
         if _G.stats_scroll ~= _G.stats_scroll_target then
             local diff = _G.stats_scroll_target - _G.stats_scroll
-            _G.stats_scroll = _G.stats_scroll + diff * 15 * dt
-            if math.abs(_G.stats_scroll - _G.stats_scroll_target) < 0.01 then
+            local factor = 1 - math.exp(-20 * dt)
+            _G.stats_scroll = _G.stats_scroll + diff * factor
+            if math.abs(_G.stats_scroll - _G.stats_scroll_target) < 0.1 then
                 _G.stats_scroll = _G.stats_scroll_target
             end
         end
@@ -690,8 +709,9 @@ function love.update(dt)
     else
         if _G.about_scroll ~= _G.about_scroll_target then
             local diff = _G.about_scroll_target - _G.about_scroll
-            _G.about_scroll = _G.about_scroll + diff * 15 * dt
-            if math.abs(_G.about_scroll - _G.about_scroll_target) < 0.01 then
+            local factor = 1 - math.exp(-20 * dt)
+            _G.about_scroll = _G.about_scroll + diff * factor
+            if math.abs(_G.about_scroll - _G.about_scroll_target) < 0.1 then
                 _G.about_scroll = _G.about_scroll_target
             end
         end
@@ -814,7 +834,7 @@ function love.update(dt)
                             game = Game.new(mode)
                             _G.game = game
                             if renderer.triggerGameStartTransition then
-                                renderer.triggerGameStartTransition(mode, true)
+                                renderer.triggerGameStartTransition(mode, true, game)
                             end
                         end
                     elseif sel == "Play Game" then
@@ -972,6 +992,9 @@ function love.update(dt)
                             _G.stats.coins = _G.stats.coins - sel_item.cost
                             _G.stats.purchased_items["mascot_cat"] = 1
                             _G.stats.total_spent_coins = (_G.stats.total_spent_coins or 0) + sel_item.cost
+                            if _G.stats.total_spent_coins >= 5000 and _G.unlockAchievement then
+                                _G.unlockAchievement("ach_big_spender")
+                            end
                             save.saveStats(_G.stats)
                             _G.active_companion = "cat"
                             if save and save.saveCompanion then save.saveCompanion("cat") end
@@ -998,6 +1021,9 @@ function love.update(dt)
                             _G.stats.coins = _G.stats.coins - sel_item.cost
                             _G.stats.purchased_items["mascot_dog"] = 1
                             _G.stats.total_spent_coins = (_G.stats.total_spent_coins or 0) + sel_item.cost
+                            if _G.stats.total_spent_coins >= 5000 and _G.unlockAchievement then
+                                _G.unlockAchievement("ach_big_spender")
+                            end
                             save.saveStats(_G.stats)
                             _G.active_companion = "dog"
                             if save and save.saveCompanion then save.saveCompanion("dog") end
@@ -1020,11 +1046,6 @@ function love.update(dt)
                             _G.stats.total_spent_coins = (_G.stats.total_spent_coins or 0) + sel_item.cost
                             if _G.stats.total_spent_coins >= 5000 and _G.unlockAchievement then
                                 _G.unlockAchievement("ach_big_spender")
-                            end
-                            if sel_item.id == "coin_rush" and game and not game.coin_rush_active then
-                                game.coin_rush_active = true
-                                _G.stats[stat_key] = math.max(0, (_G.stats[stat_key] or 1) - 1)
-                                if game.saveGameState then game:saveGameState() end
                             end
                             save.saveStats(_G.stats)
                             renderer.showToast("Purchased!")
@@ -1228,14 +1249,14 @@ function love.update(dt)
                         game = Game.new("classic")
                         _G.game = game
                         if renderer.triggerGameStartTransition then
-                            renderer.triggerGameStartTransition("classic", false)
+                            renderer.triggerGameStartTransition("classic", false, game)
                         end
                     elseif _G.play_select_selection == 2 then
                         _G.appState = "GAME"
                         game = Game.new("plus")
                         _G.game = game
                         if renderer.triggerGameStartTransition then
-                            renderer.triggerGameStartTransition("plus", false)
+                            renderer.triggerGameStartTransition("plus", false, game)
                         end
                     elseif _G.play_select_selection == 3 then
                         _G.appState = "ARCADE_MENU"
@@ -1280,7 +1301,7 @@ function love.update(dt)
                     game = Game.new(mode)
                     _G.game = game
                     if renderer.triggerGameStartTransition then
-                        renderer.triggerGameStartTransition(mode, false)
+                        renderer.triggerGameStartTransition(mode, false, game)
                     end
                 end)
             elseif event == input.events.BACK then
@@ -1484,9 +1505,10 @@ function love.update(dt)
                 elseif _G.cheats_selection == 4 then
                     _G.stats = _G.stats or {}
                     _G.stats.coins = (_G.stats.coins or 0) + 9999
+                    _G.stats.total_coins_earned = (_G.stats.total_coins_earned or 0) + 9999
                     save.saveStats(_G.stats)
                     renderer.showToast("Added 9999 Coins! Total: " .. _G.stats.coins)
-                    if _G.stats.coins >= 10000 and _G.unlockAchievement then
+                    if (_G.stats.total_coins_earned or 0) >= 10000 and _G.unlockAchievement then
                         _G.unlockAchievement("ach_coin_hoarder")
                     end
                 elseif _G.cheats_selection == 5 then
@@ -1694,6 +1716,14 @@ function love.update(dt)
                         save.saveVibration(_G.vibration)
                         sound.playMenuSelect()
                         sound.vibrate(0.1)
+                    elseif sel:match("^Button Vibration") or sel:match("^Console Haptics") then
+                        _G.button_vibration = not _G.button_vibration
+                        _G.console_haptics = _G.button_vibration
+                        save.saveButtonVibration(_G.button_vibration)
+                        sound.playMenuSelect()
+                        if _G.button_vibration and love.system and love.system.vibrate then
+                            love.system.vibrate(0.015)
+                        end
                     elseif sel == "Back" then
                         sound.playMenuBack()
                         if _G.screen_transitions then
@@ -1820,6 +1850,9 @@ function love.update(dt)
         if renderer.isGameStartTransitionActive and renderer.isGameStartTransitionActive() then
             return
         end
+        if renderer.isPauseClosing and renderer.isPauseClosing() then
+            return
+        end
 
         if game.state == Game.STATE_TARGETING_BOMB or game.state == Game.STATE_TARGETING_SWAP_1 or game.state == Game.STATE_TARGETING_SWAP_2 then
             if event == input.events.UP then
@@ -1910,6 +1943,9 @@ function love.update(dt)
             -- Pause menu hotkey
             elseif event == input.events.START then
                 queueTransitionAction(event, 0.08, function()
+                    if renderer.openPause then
+                        renderer.openPause()
+                    end
                     game:togglePause()
                 end)
             -- Coin notification hotkey
@@ -1919,23 +1955,39 @@ function love.update(dt)
                 end
             end
         elseif game.state == Game.STATE_PAUSED then
+            if renderer.isPauseClosing and renderer.isPauseClosing() then
+                return
+            end
             if event == input.events.START or event == input.events.BACK or event == input.events.SELECT then
                 queueTransitionAction(event, 0.08, function()
-                    game:cancelPause()
+                    if renderer.closePause then
+                        renderer.closePause(function()
+                            game:cancelPause()
+                        end)
+                    else
+                        game:cancelPause()
+                    end
                 end)
             elseif event == input.events.CONFIRM then
                 queueTransitionAction(event, 0.08, function()
+                    if renderer.resetPauseAnim then
+                        renderer.resetPauseAnim()
+                    end
                     game:restart()
                     if renderer.triggerGameStartTransition then
-                        renderer.triggerGameStartTransition(game.mode, false)
+                        renderer.triggerGameStartTransition(game.mode, false, game)
                     end
                 end)
             elseif event == input.events.L1 or event == input.events.R1 then
                 if sound.isBgmEnabled() then
+                    sound.playMenuSelect()
                     sound.playNextBgm()
                 end
             elseif event == input.events.X then
                 queueTransitionAction(event, 0.08, function()
+                    if renderer.resetPauseAnim then
+                        renderer.resetPauseAnim()
+                    end
                     local is_arcade = game and (game.mode == "timeattack" or game.mode == "huge" or game.mode == "nomercy" or game.mode == "goose")
                     local arcade_idx = 1
                     if game then
@@ -1969,6 +2021,8 @@ function love.update(dt)
                     if game.mode == "nomercy" then modeName = "No Mercy"
                     elseif game.mode == "goose" then modeName = "Goose Mode" end
                     renderer.showToast("No Undo in " .. modeName .. "!")
+                elseif game.mode == "plus" and game.powerups.undo <= 0 then
+                    renderer.showToast("No Undo Powerup!")
                 else
                     queueTransitionAction(event, 0.08, function()
                         game:undo()
@@ -1978,7 +2032,7 @@ function love.update(dt)
                 queueTransitionAction(event, 0.08, function()
                     game:restart()
                     if renderer.triggerGameStartTransition then
-                        renderer.triggerGameStartTransition(game.mode, false)
+                        renderer.triggerGameStartTransition(game.mode, false, game)
                     end
                 end)
             elseif event == input.events.X then
@@ -2010,7 +2064,7 @@ function love.update(dt)
                 queueTransitionAction(event, 0.08, function()
                     game:restart()
                     if renderer.triggerGameStartTransition then
-                        renderer.triggerGameStartTransition(game.mode, false)
+                        renderer.triggerGameStartTransition(game.mode, false, game)
                     end
                 end)
             elseif event == input.events.BACK then
@@ -2019,6 +2073,8 @@ function love.update(dt)
                     if game.mode == "nomercy" then modeName = "No Mercy"
                     elseif game.mode == "goose" then modeName = "Goose Mode" end
                     renderer.showToast("No Undo in " .. modeName .. "!")
+                elseif game.mode == "plus" and game.powerups.undo <= 0 then
+                    renderer.showToast("No Undo Powerup!")
                 else
                     queueTransitionAction(event, 0.08, function()
                         game:undo()
@@ -2044,14 +2100,16 @@ function love.update(dt)
             elseif event == input.events.R1 or event == input.events.L1 then
                 if game and (game.timesUp or (game.mode == "timeattack" and game.timeLeft and game.timeLeft <= 0)) then
                     renderer.showToast("Cannot use Shield when time is up!")
+                elseif game and game.mode == "nomercy" then
+                    renderer.showToast("No Shield in No Mercy!")
                 else
-                    local shield_cnt = _G.stats and (_G.stats.second_chance_count or 0) or 0
+                    local shield_cnt = (game and game.second_chance_count) or 0
                     if shield_cnt > 0 then
                         queueTransitionAction(event, 0.08, function()
                             game:startShieldTargeting()
                         end)
                     else
-                        renderer.showToast("No Second Chance Shield! Buy in Store.")
+                        renderer.showToast("No Second Chance Shield for this game!")
                     end
                 end
             elseif event == input.events.X then
@@ -2179,6 +2237,7 @@ local function draw_internal()
     local w, h = sc_w, sc_h
 
     if screen_transition_timer > 0 then
+        _G.screen_transition_active = true
         -- Ease-out transition curve
         local t_progress = 1 - (screen_transition_timer / screen_transition_duration)
         local p = 1 - math.pow(1 - t_progress, 3)
@@ -2266,6 +2325,7 @@ local function draw_internal()
 
         love.graphics.setColor(1, 1, 1, 1)
     else
+        _G.screen_transition_active = false
         _G.screen_canvas_ready = false
         drawCurrentScreen()
     end
@@ -2395,7 +2455,7 @@ function love.mousereleased(x, y, button, istouch, presses)
             end
         end
         -- Achievements tab and shoulder button click
-        if _G.appState == "ACHIEVEMENTS" then
+        if _G.appState == "ACHIEVEMENTS" and not (_G.is_console_active and _G.is_console_active()) then
             if _G.achievements_l1_bounds then
                 local b = _G.achievements_l1_bounds
                 if x >= b.x and x <= (b.x + b.w) and y >= b.y and y <= (b.y + b.h) then
@@ -2492,7 +2552,11 @@ function love.quit()
         pcall(sound.stopWebServer)
     end
     if game then
-        pcall(function() game:saveGameState() end)
+        if game.flushSaveState then
+            pcall(function() game:flushSaveState() end)
+        elseif game.saveGameState then
+            pcall(function() game:saveGameState(true) end)
+        end
     end
     pcall(function() love.audio.stop() end)
     if love.joystick then
@@ -2510,16 +2574,38 @@ end
 
 function love.focus(f)
     if not f then
-        if game and game.saveGameState then
-            pcall(function() game:saveGameState() end)
+        if sound and sound.onPause then
+            pcall(sound.onPause)
+        end
+        if game then
+            if game.flushSaveState then
+                pcall(function() game:flushSaveState() end)
+            elseif game.saveGameState then
+                pcall(function() game:saveGameState(true) end)
+            end
+        end
+    else
+        if sound and sound.onResume then
+            pcall(sound.onResume)
         end
     end
 end
 
 function love.visible(v)
     if not v then
-        if game and game.saveGameState then
-            pcall(function() game:saveGameState() end)
+        if sound and sound.onPause then
+            pcall(sound.onPause)
+        end
+        if game then
+            if game.flushSaveState then
+                pcall(function() game:flushSaveState() end)
+            elseif game.saveGameState then
+                pcall(function() game:saveGameState(true) end)
+            end
+        end
+    else
+        if sound and sound.onResume then
+            pcall(sound.onResume)
         end
     end
 end

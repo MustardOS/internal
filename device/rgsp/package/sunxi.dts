@@ -3840,14 +3840,14 @@
 			lcd_y = <0x1e0>;
 			lcd_width = <0x96>;
 			lcd_height = <0x5e>;
-			lcd_dclk_freq = <0x1b>;
+			lcd_dclk_freq = <0x36>;
 			lcd_pwm_used = <0x01>;
 			lcd_pwm_ch = <0x00>;
 			lcd_pwm_freq = <0xc350>;
 			lcd_pwm_pol = <0x01>;
 			lcd_pwm_max_limit = <0xff>;
 			lcd_hbp = <0x2e>;
-			lcd_ht = <0x348>;
+			lcd_ht = <0x68f>;
 			lcd_hspw = <0x02>;
 			lcd_vbp = <0x14>;
 			lcd_vt = <0x218>;

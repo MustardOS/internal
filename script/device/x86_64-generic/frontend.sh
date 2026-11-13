@@ -56,6 +56,18 @@ X86_RESOLUTION_APPLY() {
 DEVICE_FRONTEND_START() {
 	X86_RESOLUTION_DISCOVER
 	X86_RESOLUTION_APPLY 1
+	RUN_DEVICE_SCRIPT display.sh recover -w &
+	X86_SPLASH_PID=$!
+	(
+		X86_SPLASH_WAIT=0
+		while [ ! -e "$MUOS_RUN_DIR/first_paint" ] && kill -0 "$X86_SPLASH_PID" 2>/dev/null && [ "$X86_SPLASH_WAIT" -lt 300 ]; do
+			sleep 0.05
+			X86_SPLASH_WAIT=$((X86_SPLASH_WAIT + 1))
+		done
+		if kill -0 "$X86_SPLASH_PID" 2>/dev/null; then
+			kill -TERM "$X86_SPLASH_PID" 2>/dev/null
+		fi
+	) &
 }
 
 DEVICE_FRONTEND_EXEC() {

@@ -184,20 +184,24 @@ SET_RUNTIME() {
 	CORE_GROUP="$3"
 }
 
-case "$LAUNCH" in
-	mu-*)
-		SET_RUNTIME "pickles" "mu-" "libretro"
-		CORE_ID=${LAUNCH#mu-}
-		;;
-	ext-*)
-		SET_RUNTIME "external" "ext-" "external"
-		CORE_ID=${LAUNCH#ext-}
-		;;
-	*)
-		SET_RUNTIME "retroarch" "lr-" "libretro"
-		CORE_ID=$LAUNCH
-		;;
-esac
+LAUNCH_RUNTIME() {
+	case "$LAUNCH" in
+		mu-*)
+			SET_RUNTIME "pickles" "mu-" "libretro"
+			CORE_ID=${LAUNCH#mu-}
+			;;
+		ext-*)
+			SET_RUNTIME "external" "ext-" "external"
+			CORE_ID=${LAUNCH#ext-}
+			;;
+		*)
+			SET_RUNTIME "retroarch" "lr-" "libretro"
+			CORE_ID=$LAUNCH
+			;;
+	esac
+}
+
+LAUNCH_RUNTIME
 
 # Only swap runtimes when the manifest can be read, otherwise a missing system file would turn every
 # External assignment into RetroArch and every Libretro one into an External launcher.
@@ -214,6 +218,10 @@ elif ! CORE_HAS "$CORE_ID"; then
 		*" - standalone")
 			CORE_ID=${CORE_ID% - standalone}
 			SET_RUNTIME "external" "ext-" "external"
+			;;
+		*)
+			LAUNCH_RUNTIME
+			LOG_WARN "$0" 0 "LAUNCH" "$(printf "Core '%s' is missing from '%s', using the assigned core '%s'" "$CORE_ID" "$CORE_JSON" "$CORE")"
 			;;
 	esac
 fi

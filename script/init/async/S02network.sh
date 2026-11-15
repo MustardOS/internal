@@ -99,6 +99,7 @@ WRITE_RESOLV() {
 	{
 		printf "nameserver %s\n" "$DNSA"
 		[ -n "$DNSA2" ] && printf "nameserver %s\n" "$DNSA2"
+		printf "options single-request-reopen timeout:2 attempts:2\n"
 	} >"$RESOLV_CONF"
 }
 

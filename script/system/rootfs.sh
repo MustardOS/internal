@@ -101,6 +101,7 @@ RESULT=0
 
 INSTALL_FILE etc/issue 0644 0 || RESULT=1
 INSTALL_FILE etc/hostname 0644 1 || RESULT=1
+INSTALL_FILE etc/resolv.conf.head 0644 0 || RESULT=1
 INSTALL_FILE etc/wpa_supplicant.conf 0600 1 || RESULT=1
 ENSURE_LINK etc/nsswitch.conf /opt/muos/share/conf/rootfs/nsswitch.conf || RESULT=1
 ENSURE_LINK etc/profile.d/50-muos.sh /opt/muos/share/conf/rootfs/muos-profile.sh || RESULT=1

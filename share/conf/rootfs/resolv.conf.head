@@ -1,0 +1,1 @@
+options single-request-reopen timeout:2 attempts:2

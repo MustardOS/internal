@@ -285,7 +285,7 @@ else
 	fi
 
 	LOG_INFO "$0" 0 "LAUNCH" "$(printf "Executing launcher '%s' for '%s'" "$LAUNCH_EXEC" "$NAME")"
-	"$LAUNCH_EXEC" "$NAME" "$CORE" "$ROM"
+	PICKLES_SYSTEM="$ASSIGN" "$LAUNCH_EXEC" "$NAME" "$CORE" "$ROM"
 	LAUNCH_RC=$?
 
 	if [ "$LAUNCH_RC" -eq 0 ]; then

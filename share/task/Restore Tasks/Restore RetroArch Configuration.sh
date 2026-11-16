@@ -18,7 +18,6 @@ rm -f "$MUOS_SHARE_DIR/info/config/retroarch.autoload.cfg"
 rm -f "$MUOS_SHARE_DIR/info/config/retroarch.cheevos.cfg"
 
 /opt/muos/script/control/retroarch.sh
-SET_VAR "config" "settings/advanced/retrofree" "0"
 
 TASK_STATUS "Sync Filesystem"
 sync

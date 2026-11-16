@@ -1,5 +1,8 @@
 {
-  "This is the File Name without extension": "This is what you want it to be renamed to!",
-  "This file overrides the internal lookup table": "So use it wisely! Examples are below...",
+  "each key is the file name without its extension": "Each value is the name shown in the content list",
+  "write every key in lowercase": "Use smsmemtest for SMSmemtest.sms",
+  "use 'folder name.json' for names in one folder": "ROMS/GBA uses GBA.json in this same directory",
+  "a folder file replaces this file for that folder": "Copy any global names you still want into it",
+  "this file overrides the internal lookup table": "So use it wisely! Examples are below.",
   "tmnt22p": "TMNT"
 }

@@ -815,23 +815,6 @@ button.file-name::before { mask-image: url("../icon/folder.svg"); }
     .browser-table { --row-content: 40px; }
 }
 
-.tool-list { display: grid; gap: 8px; margin-top: 18px; }
-.tool-row {
-    display: flex;
-    align-items: center;
-    padding: 12px 14px;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--box);
-    color: var(--text);
-    gap: 14px;
-}
-.tool-row:hover, .tool-row:focus-visible { border-color: var(--accent); background: var(--box-alt); }
-.tool-row img { flex: none; width: 40px; height: 40px; filter: invert(100%); }
-.tool-row-text { display: grid; gap: 2px; min-width: 0; }
-.tool-row-title { color: var(--head); font-weight: 700; }
-.tool-row-desc { color: var(--muted); }
-
 a[href^="http://"]::after, a[href^="https://"]::after {
     display: inline-block;
     width: .8em;
@@ -949,9 +932,7 @@ body.remote-has-pad .remote-screen-toggle { display: inline-flex; }
 body.remote-mobile #view-remote .list-tools { display: flex; gap: 8px; }
 body.remote-mobile #view-remote.screen-off .pad-centre { grid-area: screen; align-self: center; z-index: 1; }
 body.remote-mobile #view-remote.screen-off .remote-screen:not([hidden]) { display: block; visibility: hidden; }
-@media (orientation: portrait) {
 
-}
 .remote-pad.paused .pad-button { opacity: .35; cursor: default; }
 .glyph { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .glyph[hidden] { display: none; }
@@ -980,3 +961,11 @@ body.remote-mobile #view-remote.screen-off .remote-screen:not([hidden]) { displa
 .game-box .game-state { color: var(--text); }
 .game-box .game-state[hidden] { display: none; }
 .game-box .link[hidden] { display: none; }
+
+.bridge { display: grid; place-items: center; min-height: 100vh; margin: 0; padding: 16px; box-sizing: border-box; }
+.bridge-box { width: min(440px, 100%); display: grid; gap: 10px; }
+.bridge-head { display: flex; align-items: center; gap: 12px; }
+.bridge-head h1 { margin: 0; font-size: 1.3rem; color: var(--head); }
+.bridge-box form { display: grid; gap: 8px; }
+.bridge-box input { padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--head); font: inherit; letter-spacing: .3em; }
+.bridge-actions { display: flex; flex-wrap: wrap; gap: 8px; }

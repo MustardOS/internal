@@ -141,51 +141,27 @@ WEB_SETTING() {
 }
 
 # The dashboard should look like the device it is showing, so the active theme's palette
-# is read out of its scheme and handed to the page. Only the handful of colours the page
-# actually needs are taken; everything else it derives from them.
-#
-# A theme has a default scheme and, when active.txt names one, an alternate that overrides
-# part of it. The alternate is rarely complete: muOS.ini restyles the background and the
-# accent but says nothing about the list text, which still comes from the default. So both
-# are read, in that order, and the later value wins key by key.
+# is read from the colours the frontend works out and handed to the page. Only the handful
+# of colours the page actually needs are taken; everything else it derives from them.
 THEME_PALETTE() {
-	TP_ACTIVE=$(GET_VAR "config" "theme/active")
-	[ -n "$TP_ACTIVE" ] || TP_ACTIVE="MustardOS"
-	TP_DIR="$MUOS_STORE_DIR/theme/$TP_ACTIVE"
+	TP_COLOURS="$MUOS_RUN_DIR/theme_colours"
+	[ -r "$TP_COLOURS" ] || return 1
 
-	# A theme keeps a palette at its root and one per screen size; either will do, since
-	# the colours are the same and only the metrics differ.
-	TP_INI="$TP_DIR/scheme/global.ini"
-	[ -r "$TP_INI" ] || TP_INI=$(find "$TP_DIR" -name global.ini -path '*/scheme/*' 2>/dev/null | head -n 1)
-	[ -n "$TP_INI" ] && [ -r "$TP_INI" ] || return 1
-
-	TP_ALT=""
-	if [ -r "$TP_DIR/active.txt" ]; then
-		IFS= read -r TP_NAME <"$TP_DIR/active.txt"
-		TP_NAME=${TP_NAME%"$(printf '\r')"}
-		[ -n "$TP_NAME" ] &&
-			TP_ALT=$(find "$TP_DIR/alternate" -maxdepth 1 -iname "$TP_NAME.ini" 2>/dev/null | head -n 1)
-	fi
-	set -- "$TP_INI"
-	[ -z "$TP_ALT" ] || set -- "$@" "$TP_ALT"
-
-	awk -F' *= *' '
-		FNR == 1 { section = "" }
-		/^\[/ { section = $0; next }
-		$2 ~ /^[0-9A-Fa-f]{6}$/ { colour[section "|" $1] = $2 }
+	awk -F'=' '
+		$2 ~ /^[0-9A-Fa-f]{6}$/ { colour[$1] = $2 }
 		END {
-			want["[background]|BACKGROUND"] = "background"
-			want["[background]|BACKGROUND_GRADIENT_COLOR"] = "shade"
-			want["[grid]|CELL_DEFAULT_TEXT"] = "text"
-			want["[grid]|CELL_FOCUS_BACKGROUND"] = "accent"
-			want["[header]|HEADER_TEXT"] = "heading"
-			want["[battery]|BATTERY_LOW"] = "warn"
-			want["[battery]|BATTERY_ACTIVE"] = "good"
+			want["background"] = "background"
+			want["background_bottom"] = "shade"
+			want["text"] = "text"
+			want["highlight"] = "accent"
+			want["header_text"] = "heading"
+			want["battery_low"] = "warn"
+			want["battery_active"] = "good"
 
 			for (key in want)
 				if (key in colour) printf "        %s: \"#%s\",\n", want[key], colour[key]
 		}
-	' "$@"
+	' "$TP_COLOURS"
 }
 
 PREPARE_LANDING_ROOT() {
@@ -194,18 +170,13 @@ PREPARE_LANDING_ROOT() {
 	[ -d "$LANDING_SOURCE" ] || return 1
 	mkdir -p "$LANDING_ROOT/js" "$LANDING_ROOT/css" "$LANDING_ROOT/icon" || return 1
 
-	cp -f "$LANDING_SOURCE"/index.html "$LANDING_SOURCE"/logo.svg "$LANDING_SOURCE"/manifest.json "$LANDING_ROOT"/ || return 1
+	cp -f "$LANDING_SOURCE"/index.html "$LANDING_SOURCE"/bridge.html "$LANDING_SOURCE"/logo.svg "$LANDING_SOURCE"/manifest.json "$LANDING_ROOT"/ || return 1
 	cp -f "$LANDING_SOURCE"/icon/*.png "$LANDING_SOURCE"/icon/*.svg "$LANDING_ROOT/icon"/ || return 1
 	cp -f "$LANDING_SOURCE"/css/dashboard.css "$LANDING_ROOT/css"/ || return 1
 
-	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists files filelog snapshot remote controls sound player game crop video-editor catalogue pickles tools toolnav boot; do
+	for LANDING_PART in core theme dialog session view dashboard activity tracker system lists files filelog snapshot remote controls sound player game crop video-editor catalogue pickles bridge boot; do
 		cp -f "$LANDING_SOURCE/js/$LANDING_PART.js" "$LANDING_ROOT/js"/ || return 1
 	done
-
-	if [ -d "$LANDING_SOURCE/tools" ]; then
-		mkdir -p "$LANDING_ROOT/tools" || return 1
-		cp -rf "$LANDING_SOURCE/tools/." "$LANDING_ROOT/tools/" || return 1
-	fi
 
 	mkdir -p "$LANDING_ROOT/state" || return 1
 	"$LANDING_STATUS" once || LOG_WARN "$0" 0 "WEB" "Web Dashboard could not gather its first reading"

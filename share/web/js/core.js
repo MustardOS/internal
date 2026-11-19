@@ -367,8 +367,53 @@
     MU.mediaUrl = (root, path) => `media/${root}/${path.split("/").map(encodeURIComponent).join("/")}`;
     MU.apiPath = (...parts) => parts.map(encodeURIComponent).join("/");
 
+    async function readMultipart(response, onPart) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let pending = new Uint8Array(0);
+
+        const headerEnd = (bytes) => {
+            for (let i = 0; i + 3 < bytes.length; i++) {
+                if (bytes[i] === 13 && bytes[i + 1] === 10 && bytes[i + 2] === 13 && bytes[i + 3] === 10) return i;
+            }
+            return -1;
+        };
+
+        for (;;) {
+            const {value, done} = await reader.read();
+            if (done) return;
+
+            const merged = new Uint8Array(pending.length + value.length);
+            merged.set(pending);
+            merged.set(value, pending.length);
+            pending = merged;
+
+            for (;;) {
+                const end = headerEnd(pending);
+                if (end < 0) break;
+
+                const head = decoder.decode(pending.subarray(0, end));
+                const size = /Content-Length:\s*(\d+)/i.exec(head);
+                const type = /Content-Type:\s*([^\r\n;]+)/i.exec(head);
+                const start = end + 4;
+                if (!size) {
+                    pending = pending.slice(start);
+                    continue;
+                }
+
+                const length = Number(size[1]);
+                if (pending.length < start + length + 2) break;
+
+                const body = pending.slice(start, start + length);
+                pending = pending.slice(start + length + 2);
+                onPart(type ? type[1].trim() : "", body);
+            }
+        }
+    }
+
     Object.assign(MU, {
         el,
+        readMultipart,
         t,
         loadLanguage,
         make,

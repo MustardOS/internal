@@ -1,0 +1,20 @@
+{
+  "scheme": {
+    "dialogue": {
+      "background": "#050505",
+      "background_alpha": 255,
+      "border": "#B3B3B3",
+      "border_alpha": 255,
+      "title": "#B3B3B3",
+      "content": "#B3B3B3",
+      "option": "#000000",
+      "selection": "#AD1035",
+      "selection_alpha": 255
+    },
+    "misc": {
+      "menu": {
+        "style_name": "list"
+      }
+    }
+  }
+}

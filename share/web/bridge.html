@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>MustardOS Device Link</title>
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="bridge">
+<main class="box bridge-box">
+    <div class="bridge-head">
+        <img src="logo.svg" alt="" width="40" height="40">
+        <h1>Device Link</h1>
+    </div>
+    <p class="note" id="bridge-status">Waiting for the MustardOS website...</p>
+    <div id="bridge-ask" hidden>
+        <p id="bridge-ask-text"></p>
+        <div class="bridge-actions">
+            <button class="dialog-button dialog-button-primary" type="button" id="bridge-allow">Allow</button>
+            <button class="dialog-button" type="button" id="bridge-deny">Not Now</button>
+        </div>
+    </div>
+    <form id="bridge-code" hidden>
+        <p>Enter the six digit code from Configuration &gt; Connectivity &gt; Web Dashboard Code on the device.</p>
+        <input id="bridge-code-input" type="text" inputmode="numeric" autocomplete="off" pattern="[0-9]{6}"
+               aria-label="Web Dashboard Code">
+        <p class="note danger" id="bridge-code-note"></p>
+        <button class="dialog-button dialog-button-primary" type="submit">Unlock</button>
+    </form>
+    <p class="note">Keep this window open while you use the website. Close it to disconnect.</p>
+</main>
+<script src="js/runtime.js"></script>
+<script src="js/core.js"></script>
+<script src="js/bridge.js"></script>
+</body>
+</html>

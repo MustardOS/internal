@@ -214,20 +214,6 @@
         live = null;
     }
 
-    function joined(a, b) {
-        const out = new Uint8Array(a.length + b.length);
-        out.set(a);
-        out.set(b, a.length);
-        return out;
-    }
-
-    function headerEnd(bytes) {
-        for (let i = 0; i + 3 < bytes.length; i++) {
-            if (bytes[i] === 13 && bytes[i + 1] === 10 && bytes[i + 2] === 13 && bytes[i + 3] === 10) return i;
-        }
-        return -1;
-    }
-
     async function startLive(rotate) {
         if (live) return;
         const controller = new AbortController();
@@ -266,45 +252,19 @@
                 liveEmpty = 2;
                 controller.abort();
             }, FIRST_FRAME_WAIT);
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let pending = new Uint8Array(0);
-
-            for (;;) {
-                const {value, done} = await reader.read();
-                if (done) break;
-                pending = joined(pending, value);
-
-                for (;;) {
-                    const end = headerEnd(pending);
-                    if (end < 0) break;
-                    const head = decoder.decode(pending.subarray(0, end));
-                    const size = /Content-Length:\s*(\d+)/i.exec(head);
-                    const type = /Content-Type:\s*([^\r\n;]+)/i.exec(head);
-                    const start = end + 4;
-                    if (!size) {
-                        pending = pending.slice(start);
-                        continue;
-                    }
-                    const length = Number(size[1]);
-                    if (pending.length < start + length + 2) break;
-
-                    const body = pending.slice(start, start + length);
-                    pending = pending.slice(start + length + 2);
-
-                    if (!framed) clearTimeout(firstFrame);
-                    framed = true;
-                    liveEmpty = 0;
-                    if (type && type[1].trim() === "image/jpeg") {
-                        note.textContent = "";
-                        latest = new Blob([body], {type: "image/jpeg"});
-                        show();
-                    } else {
-                        canvas.hidden = true;
-                        note.textContent = t("A private screen is open on the device, so it is not shown.");
-                    }
+            await MU.readMultipart(response, (type, body) => {
+                if (!framed) clearTimeout(firstFrame);
+                framed = true;
+                liveEmpty = 0;
+                if (type === "image/jpeg") {
+                    note.textContent = "";
+                    latest = new Blob([body], {type: "image/jpeg"});
+                    show();
+                } else {
+                    canvas.hidden = true;
+                    note.textContent = t("A private screen is open on the device, so it is not shown.");
                 }
-            }
+            });
         } catch (_) {
         }
 

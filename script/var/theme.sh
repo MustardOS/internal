@@ -13,6 +13,13 @@ SCREEN_CAPTURE_ROTATION() {
 	esac
 }
 
+THEME_DIR_FOR() {
+	case "$1" in
+		MustardOS) printf '%s/theme/MustardOS\n' "$MUOS_SHARE_DIR" ;;
+		*) printf '%s/theme/%s\n' "$MUOS_STORE_DIR" "$1" ;;
+	esac
+}
+
 DEVICE_THEME_FIX() {
 	ROLE="$1"
 	IMAGE="$2"
@@ -237,7 +244,7 @@ UPDATE_BOOTLOGO() {
 	[ -n "$DEVICE_H" ] || return 1
 
 	ACTIVE=$(GET_VAR "config" "theme/active")
-	THEME_DIR="$MUOS_STORE_DIR/theme/$ACTIVE"
+	THEME_DIR=$(THEME_DIR_FOR "$ACTIVE")
 	RES_DIR="${DEVICE_W}x${DEVICE_H}"
 
 	DEFAULT_LOGO="$MUOS_SHARE_DIR/bootlogo/${DEVICE_W}x${DEVICE_H}/bootlogo.bmp"
@@ -290,7 +297,7 @@ SHOW_SPLASH() {
 	[ -n "$DEVICE_H" ] || return 1
 
 	ACTIVE=$(GET_VAR "config" "theme/active")
-	THEME_DIR="$MUOS_STORE_DIR/theme/$ACTIVE"
+	THEME_DIR=$(THEME_DIR_FOR "$ACTIVE")
 	RES_DIR="${DEVICE_W}x${DEVICE_H}"
 
 	# TODO: Add splash scale to advanced options

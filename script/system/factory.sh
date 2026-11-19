@@ -112,7 +112,7 @@ printf 0 >"/tmp/msg_progress"
 LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
 HOTKEY start
 
-/opt/muos/frontend/muxmessage 0 "$MUOS_SHARE_DIR/message.txt" -d 5
+/opt/muos/frontend/muxmessage 0 "$MUOS_SHARE_DIR/media/message.json" -d 5
 
 FACTORY_AUDIO_PID=
 if command -v mpv >/dev/null 2>&1; then

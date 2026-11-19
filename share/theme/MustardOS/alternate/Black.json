@@ -1,0 +1,89 @@
+{
+  "scheme": {
+    "background": {
+      "background": "#222222",
+      "gradient": {
+        "color": "#111111"
+      }
+    },
+    "footer": {
+      "background": "#222222"
+    },
+    "header": {
+      "background": "#222222"
+    },
+    "help": {
+      "background": "#222222",
+      "border": "#555555",
+      "title": "#555555"
+    },
+    "dialogue": {
+      "background": "#222222",
+      "border": "#555555",
+      "title": "#555555",
+      "content": "#E8E8E8",
+      "option": "#222222",
+      "selection": "#555555",
+      "selection_alpha": 255
+    },
+    "grid": {
+      "cell": {
+        "focus": {
+          "background": "#555555",
+          "background_gradient_color": "#000000"
+        }
+      }
+    },
+    "list": {
+      "default": {
+        "background": "#222222"
+      },
+      "focus": {
+        "indicator": "#222222",
+        "text": "#222222",
+        "glyph": {
+          "recolour": "#222222"
+        }
+      }
+    },
+    "charging": {
+      "background": "#222222"
+    },
+    "verbose": {
+      "boot": {
+        "background": "#222222"
+      }
+    },
+    "keyboard": {
+      "background": "#111111",
+      "item": {
+        "background": "#333333",
+        "background_focus": "#333333"
+      }
+    },
+    "notification": {
+      "background": "#222222",
+      "border": "#555555",
+      "level": {
+        "success": "#4D9E4D",
+        "warning": "#D9A33A",
+        "error": "#C24B4B"
+      }
+    },
+    "bar": {
+      "background": "#222222",
+      "progress": {
+        "background": "#444444"
+      }
+    },
+    "roll": {
+      "background": "#222222",
+      "select": {
+        "background": "#222222"
+      }
+    },
+    "counter": {
+      "text": "#222222"
+    }
+  }
+}

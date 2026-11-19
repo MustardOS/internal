@@ -86,9 +86,11 @@ info/catalogue
 info/collection
 info/history
 info/launch
+info/layout
 info/name
 info/track
 init
+lab
 log/boot
 log/profile
 log/dmesg

@@ -61,16 +61,11 @@
             </li>
         </ul>
 
-        <div class="nav-category">Editors and Tools</div>
-        <ul class="nav-list" id="nav-tools">
-            <li class="nav-list-item">
-                <button class="nav-list-link" type="button" data-view="tools">All Editors and Tools</button>
-            </li>
-        </ul>
-
-        <div class="nav-category">Documentation</div>
+        <div class="nav-category">On the Website</div>
         <ul class="nav-list">
-            <li class="nav-list-item"><a class="nav-list-link" href="tools/api">Dashboard API</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/lab">Theme Lab</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/tools">Editors and Tools</a></li>
+            <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/web/dashboard/api">Dashboard API</a></li>
             <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/tour">Grand Tour</a></li>
             <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/hotkeys">Hotkeys</a></li>
             <li class="nav-list-item"><a class="nav-list-link external" href="https://muos.dev/systems">Systems</a></li>
@@ -254,15 +249,6 @@
         <p class="box offline" id="system-offline" hidden>No data from the device.</p>
 
         <div class="grid grid-2 system-grid" id="system-sections"></div>
-    </div>
-
-    <div class="view" id="view-tools" hidden>
-        <h1><strong>Editors and Tools</strong></h1>
-        <p class="note">The editors and tools from the MustardOS website, set up to open and save files on this device
-            directly, so they work without an internet connection. Saving needs the dashboard unlocked, and the
-            previous copy of a file is kept beside it as a .bak file.</p>
-        <div class="tool-list" id="tools-list"></div>
-        <p class="note" id="tools-empty" hidden>The tools are not installed on this device.</p>
     </div>
 
     <div class="view" id="view-files" hidden>
@@ -782,7 +768,6 @@
     <script src="js/sound.js" defer></script>
     <script src="js/player.js" defer></script>
     <script src="js/game.js" defer></script>
-    <script src="js/tools.js" defer></script>
     <script src="js/boot.js" defer></script>
 </body>
 </html>

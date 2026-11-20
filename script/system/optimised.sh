@@ -58,5 +58,5 @@ fi
 
 mkdir -p "$OPT_DIR" &&
 	mv -f "$OPT_TMP/optimised.json" "$OPT_FILE.tmp" &&
-	mv -f "$OPT_FILE.tmp" "$OPT_FILE" &&
+	/opt/muos/script/system/replace.sh "$OPT_FILE.tmp" "$OPT_FILE" &&
 	LOG_INFO "$0" 0 "OPTIMISED" "Optimised profiles updated ($(jq '.content | length' "$OPT_FILE") entries)"

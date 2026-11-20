@@ -144,7 +144,7 @@ EOF
 	magick "$TMP_BG" "$TMP_FG" -gravity center -compose Over -composite -alpha off -type TrueColor BMP3:"$TMP_OUT"
 	case "$OUT" in
 		*.bmp | *.BMP) magick "$TMP_OUT" BMP3:"$OUT" ;;
-		*) mv -f "$TMP_OUT" "$OUT" ;;
+		*) /opt/muos/script/system/replace.sh "$TMP_OUT" "$OUT" ;;
 	esac
 
 	rm -f "$TMP_BG" "$TMP_FG" "$TMP_OUT"

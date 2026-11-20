@@ -24,11 +24,15 @@ export AUDIO_RESTORE_ASYNC
 RUN_CONTENT_LOADER() {
 	[ -s "$ROM_GO" ] || return 0
 
+	/opt/muos/frontend/muidle game
+
 	while [ -s "$ROM_GO" ]; do
 		LOG_INFO "$0" 0 "FRONTEND" "Content loader triggered"
 		/opt/muos/script/mux/launch.sh
 		SET_DEFAULT_GOVERNOR
 	done
+
+	/opt/muos/frontend/muidle menu
 
 	[ -s "$ACT_GO" ] || SAFE_WRITE "launcher" "$ACT_GO"
 }
@@ -164,7 +168,9 @@ while :; do
 
 				if [ -n "$RUN_APP" ] && [ -x "$RUN_APP/mux_launch.sh" ]; then
 					SETUP_APP
+					/opt/muos/frontend/muidle game
 					"$RUN_APP"/mux_launch.sh "$RUN_APP"
+					/opt/muos/frontend/muidle menu
 					CONTENT_UNSET
 				else
 					LOG_WARN "$0" 0 "FRONTEND" "Invalid app launcher: $RUN_APP"

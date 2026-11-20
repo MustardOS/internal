@@ -175,7 +175,7 @@ UPDATE_HIGHWATER() {
 	READ_HIGHWATER
 	[ "$NOW" -le "$HW_WALL" ] && return 0
 	TMP_FILE="$HIGHWATER_FILE.tmp.$$"
-	if printf '%s %s %s\n' "$NOW" "$UPTIME_NOW" "$BOOT_ID" >"$TMP_FILE" && mv -f "$TMP_FILE" "$HIGHWATER_FILE"; then
+	if printf '%s %s %s\n' "$NOW" "$UPTIME_NOW" "$BOOT_ID" >"$TMP_FILE" && /opt/muos/script/system/replace.sh "$TMP_FILE" "$HIGHWATER_FILE"; then
 		TMP_FILE=""
 		return 0
 	fi
@@ -238,7 +238,7 @@ RECORD_PATH() {
 
 WRITE_ATOMIC() {
 	TMP_FILE="$1.tmp.$$"
-	if printf '%s\n' "$2" >"$TMP_FILE" && mv -f "$TMP_FILE" "$1"; then
+	if printf '%s\n' "$2" >"$TMP_FILE" && /opt/muos/script/system/replace.sh "$TMP_FILE" "$1"; then
 		TMP_FILE=""
 		return 0
 	fi
@@ -255,7 +255,7 @@ ATOMIC_RECORD() {
 
 	if jq "$@" "$AR_FILTER" "$AR_RECORD" >"$TMP_FILE" 2>/dev/null && \
 	   [ -s "$TMP_FILE" ] && jq empty "$TMP_FILE" 2>/dev/null; then
-		if mv -f "$TMP_FILE" "$AR_RECORD"; then
+		if /opt/muos/script/system/replace.sh "$TMP_FILE" "$AR_RECORD"; then
 			TMP_FILE=""
 			return 0
 		fi
@@ -291,7 +291,7 @@ ENSURE_RECORD() {
 
 WRITE_CURRENT() {
 	TMP_FILE="$CURRENT_FILE.tmp.$$"
-	if printf '%s\n%s\n%s\n%s\n' "$NAME" "$CORE" "$FILE" "$1" >"$TMP_FILE" && mv -f "$TMP_FILE" "$CURRENT_FILE"; then
+	if printf '%s\n%s\n%s\n%s\n' "$NAME" "$CORE" "$FILE" "$1" >"$TMP_FILE" && /opt/muos/script/system/replace.sh "$TMP_FILE" "$CURRENT_FILE"; then
 		TMP_FILE=""
 		return 0
 	fi
@@ -589,7 +589,7 @@ MIGRATE_LEGACY() {
 	[ -e "$LEGACY_JSON" ] || return 0
 
 	if ! jq empty "$LEGACY_JSON" 2>/dev/null; then
-		mv -f "$LEGACY_JSON" "$LEGACY_JSON.corrupt" 2>/dev/null || :
+		/opt/muos/script/system/replace.sh "$LEGACY_JSON" "$LEGACY_JSON.corrupt" 2>/dev/null || :
 		LOG_FILE ERROR "Invalid legacy playtime data preserved as '$LEGACY_JSON.corrupt' and not migrated"
 		return 1
 	fi
@@ -677,7 +677,7 @@ MIGRATE_LEGACY() {
 	done <"$MG_OUT"
 
 	rm -f "$MG_MAP" "$MG_SEEN" "$MG_OUT"
-	mv -f "$LEGACY_JSON" "$LEGACY_JSON.migrated" || return 1
+	/opt/muos/script/system/replace.sh "$LEGACY_JSON" "$LEGACY_JSON.migrated" || return 1
 	rm -f "$TRACK_DIR/.union_path_migration_v2" 2>/dev/null || :
 	LOG_FILE INFO "Migrated legacy playtime data into $MG_COUNT tracker records"
 }

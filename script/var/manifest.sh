@@ -122,7 +122,7 @@ CORE_MANIFEST_KEEP() {
 
 	CM_USER="$CORE_MANIFEST_USER/$CM_NS/$CM_KEY.json"
 	mkdir -p "$CORE_MANIFEST_USER/$CM_NS" &&
-		printf '%s\n' "$CM_SYSTEM" | jq --indent 4 . >"$CM_USER.tmp" && mv -f "$CM_USER.tmp" "$CM_USER"
+		printf '%s\n' "$CM_SYSTEM" | jq --indent 4 . >"$CM_USER.tmp" && /opt/muos/script/system/replace.sh "$CM_USER.tmp" "$CM_USER"
 }
 
 # Moves user system files from older layouts into namespace folders: a single core.json, which is
@@ -140,7 +140,7 @@ CORE_MANIFEST_MIGRATE() {
 			done
 		fi
 
-		mv -f "$CM_OLD" "$CM_OLD.old"
+		/opt/muos/script/system/replace.sh "$CM_OLD" "$CM_OLD.old"
 	fi
 
 	for CM_FLAT in "$CORE_MANIFEST_USER"/*.json; do
@@ -152,6 +152,6 @@ CORE_MANIFEST_MIGRATE() {
 			CORE_MANIFEST_KEEP "$(cat "$CM_FLAT")" "$CM_KEY"
 		fi
 
-		mv -f "$CM_FLAT" "$CM_FLAT.old"
+		/opt/muos/script/system/replace.sh "$CM_FLAT" "$CM_FLAT.old"
 	done
 }

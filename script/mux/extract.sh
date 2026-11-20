@@ -348,7 +348,7 @@ case "$ARCHIVE_NAME" in
 		LOG_INFO "$0" 0 "EXTRACT" "Detected catalogue package - moving to staging"
 		TASK_STATUS "Detected Catalogue Package"
 		TASK_DETAIL "Moving archive to 'MUOS/package/catalogue'"
-		if ! mkdir -p "$MUOS_STORE_DIR/package/catalogue" || ! mv "$ARCHIVE" "$MUOS_STORE_DIR/package/catalogue/"; then
+		if ! mkdir -p "$MUOS_STORE_DIR/package/catalogue" || ! /opt/muos/script/system/replace.sh "$ARCHIVE" "$MUOS_STORE_DIR/package/catalogue/${ARCHIVE##*/}"; then
 			LOG_ERROR "$0" 0 "EXTRACT" "Failed to move catalogue package to staging"
 			TASK_ERROR "move_failed" "The catalogue package could not be moved into place."
 			ALL_DONE 1
@@ -358,7 +358,7 @@ case "$ARCHIVE_NAME" in
 		LOG_INFO "$0" 0 "EXTRACT" "Detected RetroArch config package - moving to staging"
 		TASK_STATUS "Detected RetroArch Configuration Package"
 		TASK_DETAIL "Moving archive to 'MUOS/package/config'"
-		if ! mkdir -p "$MUOS_STORE_DIR/package/config" || ! mv "$ARCHIVE" "$MUOS_STORE_DIR/package/config/"; then
+		if ! mkdir -p "$MUOS_STORE_DIR/package/config" || ! /opt/muos/script/system/replace.sh "$ARCHIVE" "$MUOS_STORE_DIR/package/config/${ARCHIVE##*/}"; then
 			LOG_ERROR "$0" 0 "EXTRACT" "Failed to move RetroArch configuration package to staging"
 			TASK_ERROR "move_failed" "The configuration package could not be moved into place."
 			ALL_DONE 1

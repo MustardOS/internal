@@ -366,7 +366,7 @@ REPAIR_AFTER_RESUME() {
 READ_UDC_STATE() {
 	# Typical values: "not attached", "powered", "attached", "configured"
 	if RESOLVE_UDC && [ -r "/sys/class/udc/$UDC/state" ]; then
-		ST=$(tr -d "\r" <"/sys/class/udc/$UDC/state" 2>/dev/null)
+		IFS= read -r ST <"/sys/class/udc/$UDC/state"
 		printf '%s' "$ST"
 	else
 		printf '%s' "unknown"
@@ -440,6 +440,7 @@ WATCHDOG_LOOP() {
 	ACQUIRE_PIDFILE || exit 0
 
 	INTERVAL="1"
+	STEADY_INTERVAL="5"
 	STALL_REBIND_SECS="10"
 	STALL_COUNT=0
 
@@ -465,13 +466,16 @@ WATCHDOG_LOOP() {
 		ENSURE_RESULT=$?
 		[ "$ENSURE_RESULT" -ne 2 ] || exit 1
 		STATE="$(READ_UDC_STATE)"
+		WAIT="$INTERVAL"
 
 		case "$STATE" in
 			configured | "configured with interfaces")
 				STALL_COUNT=0
+				WAIT="$STEADY_INTERVAL"
 				;;
 			"not attached")
 				STALL_COUNT=0
+				WAIT="$STEADY_INTERVAL"
 				[ -n "$(cat "$GADGET/UDC" 2>/dev/null)" ] || BIND_UDC
 				;;
 			powered | attached | "configured with no interfaces")
@@ -486,7 +490,7 @@ WATCHDOG_LOOP() {
 				;;
 		esac
 
-		sleep "$INTERVAL"
+		sleep "$WAIT"
 	done
 }
 

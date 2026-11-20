@@ -84,7 +84,7 @@ jq -n --args \
 OUTPUT_TMP="$ASSIGN_WORK/assign.json"
 OUTPUT_STAGE="$USER_MANIFEST_DIR/.assign.json.$$"
 if ! jq -S -s '.[0] * .[1]' "$TMP_BASE" "$TMP_JSON" >"$OUTPUT_TMP" ||
-	! cp -f "$OUTPUT_TMP" "$OUTPUT_STAGE" || ! mv -f "$OUTPUT_STAGE" "$OUTPUT_FILE"; then
+	! cp -f "$OUTPUT_TMP" "$OUTPUT_STAGE" || ! /opt/muos/script/system/replace.sh "$OUTPUT_STAGE" "$OUTPUT_FILE"; then
 	exit 1
 fi
 OUTPUT_TMP=""

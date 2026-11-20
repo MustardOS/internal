@@ -233,13 +233,18 @@ DEADLINE_REACHED() {
 	[ "$DEADLINE_NOW" -ge "$WAKE_EPOCH" ] 2>/dev/null
 }
 
-# Woken by the shutdown alarm, so the display and power LED stay dark all the way down
-QUIET_HALT_PREPARE() {
-	: >"$QUIET_HALT"
+DISPLAY_OFF() {
 	DISPLAY_WRITE disp0 setbl 0
 	echo 4 >/sys/class/graphics/fb0/blank
 	echo 4 >/tmp/fb_blank
 	touch /tmp/mux_blank
+	DISPLAY_WRITE lcd0 disable 0
+}
+
+# Woken by the shutdown alarm, so the display and power LED stay dark all the way down
+QUIET_HALT_PREPARE() {
+	: >"$QUIET_HALT"
+	DISPLAY_OFF
 
 	LED_CONTROL_CHANGE off
 	case "$BOARD_NAME" in
@@ -249,6 +254,10 @@ QUIET_HALT_PREPARE() {
 
 RUN_SUSPEND_BACKEND() {
 	SUSPEND_HELPER=/opt/muos/frontend/mususpend
+	QUIESCE=
+	for NAME in muxfrontend muxretro retroarch muxmedia muhotkey mubattery muaudio haveged idle.sh usb_gadget.sh pipewire wireplumber; do
+		QUIESCE="$QUIESCE --quiesce $NAME"
+	done
 	if [ ! -x "$SUSPEND_HELPER" ]; then
 		G350_LOG_SUSPEND suspend-helper-unavailable
 		return 1
@@ -285,8 +294,7 @@ RUN_SUSPEND_BACKEND() {
 		LOG_INFO "$0" 0 "SUSPEND" "External power connected, entering userspace sleep"
 
 		set -- --state userspace --charger "$CHARGER_PATH" --optimise \
-			--quiesce muxfrontend --quiesce muxretro --quiesce retroarch \
-			--quiesce muxmedia --quiesce muhotkey --quiesce pipewire --quiesce wireplumber
+			$QUIESCE
 		[ -n "$POWER_DEVICE" ] && set -- "$@" --power-device "$POWER_DEVICE"
 		[ "$LID_WAKE" -eq 1 ] && set -- "$@" --lid-wake
 		[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
@@ -311,8 +319,7 @@ RUN_SUSPEND_BACKEND() {
 		# a PC is connected in ADB mode), so fall back to the power key wait
 		if [ "$SUSPEND_RESULT" -eq 1 ]; then
 			set -- --state userspace --power-device "$POWER_DEVICE" --optimise \
-				--quiesce muxfrontend --quiesce muxretro --quiesce retroarch \
-				--quiesce muxmedia --quiesce muhotkey --quiesce pipewire --quiesce wireplumber
+				$QUIESCE
 			[ "$LID_WAKE" -eq 1 ] && set -- "$@" --lid-wake
 			[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
 			"$SUSPEND_HELPER" "$@"
@@ -322,8 +329,7 @@ RUN_SUSPEND_BACKEND() {
 		G350_LOG_SUSPEND userspace-wait
 
 		set -- --state userspace --power-device "$POWER_DEVICE" --optimise \
-			--quiesce muxfrontend --quiesce muxretro --quiesce retroarch \
-			--quiesce muxmedia --quiesce muhotkey --quiesce pipewire --quiesce wireplumber
+			$QUIESCE
 		[ "$LID_WAKE" -eq 1 ] && set -- "$@" --lid-wake
 		[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
 		"$SUSPEND_HELPER" "$@"
@@ -641,7 +647,7 @@ SLEEP() {
 	CHECK_RA_AND_SAVE "SAVE_STATE"
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
-	DISPLAY_WRITE disp0 setbl 0
+	DISPLAY_OFF
 	MIRROR_STOP
 	PIXEL2_DISPLAY off
 	VOLUME_RAMP down
@@ -681,6 +687,8 @@ SLEEP() {
 	G350_PREPARE_WAKE
 	G350_LOG_SUSPEND entering
 
+	/opt/muos/frontend/muidle sleep
+
 	QUIET_WAKE_SOURCES
 	SNAPSHOT_WAKE_SOURCES
 	CAPTURE_SUSPEND_METRICS
@@ -706,6 +714,8 @@ SLEEP() {
 }
 
 RESUME() {
+	/opt/muos/frontend/muidle wake
+
 	# Normally already back on after mususpend, this covers SLEEP returning early
 	PIXEL2_DISPLAY on
 
@@ -776,6 +786,8 @@ RESUME() {
 
 	amixer set "Master" unmute >/dev/null 2>&1
 	[ -n "$SPEAKER_AMP_STATE" ] || VOLUME_RAMP up "$SUSPEND_AUDIO_VOLUME"
+
+	DISPLAY_WRITE lcd0 enable 0
 
 	E_BRIGHT="$DEFAULT_BRIGHTNESS"
 

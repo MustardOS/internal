@@ -25,7 +25,7 @@ EXPORT() {
 		exit 1
 	fi
 
-	mv -f "$OUT.part" "$OUT"
+	/opt/muos/script/system/replace.sh "$OUT.part" "$OUT"
 }
 
 IMPORT() {

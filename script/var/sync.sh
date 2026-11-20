@@ -56,7 +56,7 @@ DO_COPY() {
 	fi
 
 	if HAS_OPT "backup" "$OPTS" && [ -f "$DST" ]; then
-		mv -f "$DST" "$DST.bak" 2>/dev/null || return 3
+		/opt/muos/script/system/replace.sh "$DST" "$DST.bak" 2>/dev/null || return 3
 	fi
 
 	if HAS_OPT "dryrun" "$OPTS"; then
@@ -69,7 +69,7 @@ DO_COPY() {
 			rm -f "$TMP"
 			return 3
 		}
-		mv -f "$TMP" "$DST" 2>/dev/null || {
+		/opt/muos/script/system/replace.sh "$TMP" "$DST" 2>/dev/null || {
 			rm -f "$TMP"
 			return 3
 		}

@@ -64,6 +64,18 @@ EOF
 
 	mkdir -p "$MOUNT_POINT" || return 1
 
+	RECLAIM_FLAG="$MUOS_CONF_SYSTEM/reclaim/$TYPE"
+	if [ -e "$RECLAIM_FLAG" ]; then
+		if [ "$FS_TYPE" = exfat ]; then
+			if RECLAIM_OUT=$(/opt/muos/frontend/muexfat reclaim "/dev/$DEVICE" 2>&1); then
+				LOG_INFO "$0" 0 "STORAGE" "$(printf "Reclaimed unused space on %s: %s" "$DEVICE" "$RECLAIM_OUT")"
+			else
+				LOG_WARN "$0" 0 "STORAGE" "$(printf "Could not reclaim unused space on %s: %s" "$DEVICE" "$RECLAIM_OUT")"
+			fi
+		fi
+		rm -f "$RECLAIM_FLAG"
+	fi
+
 	if MOUNT_FILESYSTEM "$FS_TYPE" "$FS_OPTS" "/dev/$DEVICE" "$MOUNT_POINT"; then
 		SET_VAR "device" "storage/$TYPE/active" "1"
 		SET_VAR "device" "storage/$TYPE/label" "${FS_LABEL:-}"

@@ -141,6 +141,8 @@ DO_START() {
 	# Set up indicator LEDs for devices that drive bare GPIOs
 	RUN_DEVICE_SCRIPT led.sh &
 
+	/opt/muos/frontend/muidle boot
+
 	# Adjust headphone output for certain devices
 	/opt/muos/script/device/headphone.sh watch &
 

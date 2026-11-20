@@ -307,7 +307,7 @@ PROFILE_WRITE_CURRENT() {
 		printf 'description=%s\n' "$PWC_DESC"
 		printf 'type=%s\n' "$PWC_TYPE"
 		PROFILE_CURRENT "$PWC_CHANGED"
-	} >"$PWC_TEMP" && mv -f "$PWC_TEMP" "$PWC_TARGET" && return 0
+	} >"$PWC_TEMP" && /opt/muos/script/system/replace.sh "$PWC_TEMP" "$PWC_TARGET" && return 0
 
 	rm -f "$PWC_TEMP"
 	return 1
@@ -418,7 +418,7 @@ PROFILE_UNDO() {
 	PROFILE_WRITE_CURRENT "$PU_HELD" "Previous Settings" "Settings from before the last profile was applied" "snapshot" || return 1
 
 	PROFILE_KNOWN "$PROFILE_PREVIOUS" | PROFILE_APPLY_LINES
-	mv -f "$PU_HELD" "$PROFILE_PREVIOUS"
+	/opt/muos/script/system/replace.sh "$PU_HELD" "$PROFILE_PREVIOUS"
 	rm -f "$PROFILE_ACTIVE"
 
 	LOG_INFO "$0" 0 "PROFILE" "Restored the previous settings"
@@ -495,7 +495,7 @@ PROFILE_IMPORT_OEM() {
 		printf 'description=%s\n' "$PIO_DESC"
 		printf 'type=oem\n'
 		cat "$PIO_LINES"
-	} >"$PIO_TEMP" && mv -f "$PIO_TEMP" "$PIO_TARGET"
+	} >"$PIO_TEMP" && /opt/muos/script/system/replace.sh "$PIO_TEMP" "$PIO_TARGET"
 	rm -f "$PIO_LINES"
 
 	LOG_INFO "$0" 0 "PROFILE" "$(printf "Imported OEM profile '%s'" "$PIO_NAME")"
@@ -709,7 +709,7 @@ PROFILE_WIFI_PROFILE() {
 			printf 'autoconnect=1\n'
 			printf 'priority=5\n'
 		} >"$PWP_TEMP"
-	) && mv -f "$PWP_TEMP" "$PWP_TARGET" || {
+	) && /opt/muos/script/system/replace.sh "$PWP_TEMP" "$PWP_TARGET" || {
 		rm -f "$PWP_TEMP"
 		return 1
 	}

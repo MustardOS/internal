@@ -359,6 +359,6 @@ fi
 } >"$JSON_OUT"
 
 # descent into madness
-mv "$JSON_OUT" "$RESULTS_JSON"
+/opt/muos/script/system/replace.sh "$JSON_OUT" "$RESULTS_JSON"
 
 LOG_SUCCESS "$0" 0 "FIND" "$(printf "Search results written to '%s'" "$RESULTS_JSON")"

@@ -279,9 +279,11 @@ else
 		"$LAUNCH_PREP" "$NAME" "$CORE" "$ROM"
 	fi
 
+	TRACK_PID=
 	if IS_ONE "$USE_ACTIVITY"; then
 		LOG_INFO "$0" 0 "LAUNCH" "$(printf "Activity tracker start for '%s'" "$NAME")"
-		TRACK_SYSTEM="$ASSIGN" TRACK_RUNTIME="$CORE_RUNTIME" /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" start
+		TRACK_SYSTEM="$ASSIGN" TRACK_RUNTIME="$CORE_RUNTIME" /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" start &
+		TRACK_PID=$!
 	fi
 
 	LOG_INFO "$0" 0 "LAUNCH" "$(printf "Executing launcher '%s' for '%s'" "$LAUNCH_EXEC" "$NAME")"
@@ -293,6 +295,8 @@ else
 	else
 		LOG_WARN "$0" 0 "LAUNCH" "$(printf "Launcher exited with code %s for '%s'" "$LAUNCH_RC" "$NAME")"
 	fi
+
+	[ -n "$TRACK_PID" ] && wait "$TRACK_PID"
 
 	if IS_ONE "$USE_ACTIVITY"; then
 		LOG_INFO "$0" 0 "LAUNCH" "$(printf "Activity tracker stop for '%s'" "$NAME")"

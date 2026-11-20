@@ -142,10 +142,10 @@ DO_START() {
 	RUN_DEVICE_SCRIPT led.sh &
 
 	# Adjust headphone output for certain devices
-	/opt/muos/script/device/headphone.sh &
+	/opt/muos/script/device/headphone.sh watch &
 
-	# Follow USB-C headphones and earbuds as they come and go
-	/opt/muos/script/var/process.sh start usbaudio /opt/muos/script/device/usbaudio.sh
+	# Follow headphone jacks and USB-C headphones and earbuds as they come and go
+	/opt/muos/script/var/process.sh start muaudio /opt/muos/frontend/muaudio "$(GET_VAR "device" "board/name")"
 
 	# Swap the speaker audio if set
 	/opt/muos/script/device/speaker.sh &
@@ -187,23 +187,7 @@ case "$1" in
 		;;
 	stop)
 		/opt/muos/script/var/process.sh stop-group device-maintenance >/dev/null 2>&1
-		/opt/muos/script/var/process.sh stop usbaudio >/dev/null 2>&1
-		if [ -r "$MUOS_RUN_DIR/usbaudio.pid" ]; then
-			IFS= read -r USB_AUDIO_PID <"$MUOS_RUN_DIR/usbaudio.pid"
-			case "$USB_AUDIO_PID" in
-				'' | *[!0-9]*) ;;
-				*)
-					kill -TERM "$USB_AUDIO_PID" 2>/dev/null
-					USB_AUDIO_WAIT=0
-					while kill -0 "$USB_AUDIO_PID" 2>/dev/null && [ "$USB_AUDIO_WAIT" -lt 10 ]; do
-						sleep 0.1
-						USB_AUDIO_WAIT=$((USB_AUDIO_WAIT + 1))
-					done
-					kill -KILL "$USB_AUDIO_PID" 2>/dev/null
-					;;
-			esac
-			rm -f "$MUOS_RUN_DIR/usbaudio.pid"
-		fi
+		/opt/muos/script/var/process.sh stop muaudio >/dev/null 2>&1
 		;;
 	restart)
 		DO_START

@@ -4,33 +4,8 @@
 
 export XDG_RUNTIME_DIR=/run
 
-LOCK="$MUOS_RUN_DIR/usbaudio.pid"
-
-if [ -r "$LOCK" ]; then
-	OLD_PID=$(cat "$LOCK" 2>/dev/null)
-	if [ -n "$OLD_PID" ] && [ -d "/proc/$OLD_PID" ]; then
-		LOG_INFO "$0" 0 "USBAUDIO" "$(printf "Already running as %s" "$OLD_PID")"
-		exit 0
-	fi
-fi
-
-printf "%s" "$$" >"$LOCK"
-
 SINK_SCRIPT="/opt/muos/script/mux/audio_sink.sh"
 AUDIO_SINKS="$MUOS_RUN_DIR/audio_sinks"
-
-USB_AUDIO_PRESENT() {
-	# The ALSA card list names the USB Audio driver for most devices
-	grep -qi "usb" /proc/asound/cards 2>/dev/null && return 0
-
-	# Some report nothing useful there, so fall back to the USB audio interface class
-	for CLASS in /sys/bus/usb/devices/*/bInterfaceClass; do
-		[ -r "$CLASS" ] || continue
-		[ "$(cat "$CLASS" 2>/dev/null)" = "01" ] && return 0
-	done
-
-	return 1
-}
 
 # The card list names the device, and PipeWire labels its sink with that name plus a
 # profile suffix, so the card name is what ties the two together
@@ -50,78 +25,43 @@ USB_SINK_INDEX() {
 	awk 'tolower($0) ~ /usb|headset|earbud|earphone/ { print NR - 1; exit }' "$AUDIO_SINKS" 2>/dev/null
 }
 
-LAST=""
-LAST_CARDS=""
-SWITCHED=0
-PENDING=0
+[ "$(GET_VAR "config" "boot/device_mode")" = "1" ] && exit 76
 
-while true; do
-	if [ "$(GET_VAR "config" "boot/device_mode")" = "1" ]; then
-		sleep 2
-		continue
-	fi
+case "$1" in
+	1)
+		[ "$2" = "1" ] || SAVE_SINK_VOLUME
 
-	set -- /proc/asound/card[0-9]*
-	CARDS="$*"
-	if [ "$CARDS" = "$LAST_CARDS" ] && [ "$PENDING" -eq 0 ]; then
-		sleep 1
-		continue
-	fi
-	LAST_CARDS="$CARDS"
+		IDX=""
+		TRIES=0
 
-	if USB_AUDIO_PRESENT; then
-		NOW=1
-	else
-		NOW=0
-	fi
-
-	if [ "$NOW" != "$LAST" ]; then
-		if [ "$NOW" = "1" ]; then
-			[ -n "$LAST" ] && SAVE_SINK_VOLUME
-
-			# PipeWire needs a moment to register the card...
-			IDX=""
-			TRIES=0
-
-			while [ "$TRIES" -lt 8 ]; do
-				"$SINK_SCRIPT" list >/dev/null 2>&1
-
-				IDX=$(USB_SINK_INDEX)
-				[ -n "$IDX" ] && break
-
-				TRIES=$((TRIES + 1))
-				sleep 0.25
-			done
-
-			if [ -n "$IDX" ]; then
-				"$SINK_SCRIPT" set "$IDX" >/dev/null 2>&1
-
-				sleep 0.2
-				SET_VAR "config" "settings/general/audiosink" "$IDX"
-
-				SWITCHED=1
-				LOG_SUCCESS "$0" 0 "USBAUDIO" "$(printf "Switched to USB audio sink %s" "$IDX")"
-			elif [ "$PENDING" -lt 10 ]; then
-				PENDING=$((PENDING + 1))
-				LOG_WARN "$0" 0 "USBAUDIO" "$(printf "USB audio present but no sink yet, retry %s" "$PENDING")"
-				sleep 2
-				continue
-			else
-				LOG_WARN "$0" 0 "USBAUDIO" "USB audio card present but no matching sink, giving up"
-			fi
-		elif [ "$SWITCHED" = "1" ]; then
-			SAVE_SINK_VOLUME
-
-			"$SINK_SCRIPT" set-builtin >/dev/null 2>&1
+		while [ "$TRIES" -lt 8 ]; do
 			"$SINK_SCRIPT" list >/dev/null 2>&1
 
-			SWITCHED=0
-			LOG_SUCCESS "$0" 0 "USBAUDIO" "USB audio removed, back to built-in"
+			IDX=$(USB_SINK_INDEX)
+			[ -n "$IDX" ] && break
+
+			TRIES=$((TRIES + 1))
+			sleep 0.25
+		done
+
+		if [ -z "$IDX" ]; then
+			LOG_WARN "$0" 0 "USBAUDIO" "USB audio present but no sink yet"
+			exit 75
 		fi
 
-		PENDING=0
-		LAST="$NOW"
-	fi
+		"$SINK_SCRIPT" set "$IDX" >/dev/null 2>&1
 
-	sleep 0.3
-done
+		sleep 0.2
+		SET_VAR "config" "settings/general/audiosink" "$IDX"
+
+		LOG_SUCCESS "$0" 0 "USBAUDIO" "$(printf "Switched to USB audio sink %s" "$IDX")"
+		;;
+	0)
+		SAVE_SINK_VOLUME
+
+		"$SINK_SCRIPT" set-builtin >/dev/null 2>&1
+		"$SINK_SCRIPT" list >/dev/null 2>&1
+
+		LOG_SUCCESS "$0" 0 "USBAUDIO" "USB audio removed, back to built-in"
+		;;
+esac

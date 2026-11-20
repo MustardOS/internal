@@ -55,89 +55,12 @@ SET_G350_PATH() {
 	amixer -q -c 0 sset 'Playback Path' "$OUTPUT" >/dev/null 2>&1 || return 1
 }
 
-case "$(GET_VAR "device" "board/name")" in
-	rk-pixel-2)
-		echo 86 > /sys/class/gpio/export 2>/dev/null
-		LAST=""
+BOARD=$(GET_VAR "device" "board/name")
 
-		while true; do
-			VAL=$(cat /sys/class/gpio/gpio86/value 2>/dev/null)
-			if [ "$VAL" != "$LAST" ]; then
-				FIRST=0
-				[ -z "$LAST" ] && FIRST=1
-				if [ "$VAL" = "1" ]; then
-					SWITCH_OUTPUT_VOLUME 1 "$FIRST"
-					amixer -c 0 sset 'Playback Path' HP_NO_MIC
-				else
-					SWITCH_OUTPUT_VOLUME 0 "$FIRST"
-					amixer -c 0 sset 'Playback Path' SPK
-				fi
-				LAST="$VAL"
-			fi
-			sleep 0.3
-		done
-		;;
-	rg28xx-h | rg34xx-h | rg34xx-sp | rg35xx-2024 | rg35xx-h | rg35xx-plus | rg35xx-pro | rg35xx-sp | rg40xx-h | rg40xx-v | rgcubexx-h | rgsp)
-		HP_PLUGGED_LEVEL=hi
-		LAST=""
+case "$1" in
+	watch)
+		[ "$BOARD" = "rk-g350-v" ] || exit 0
 
-		while true; do
-			LINE=$(grep -m1 "Headphone detection" /sys/kernel/debug/gpio 2>/dev/null)
-			LINE="${LINE%"${LINE##*[! ]}"}"
-			LEVEL="${LINE##* }"
-
-			if [ -z "$LEVEL" ]; then
-				sleep 5
-				continue
-			fi
-
-			if [ "$LEVEL" != "$LAST" ]; then
-				FIRST=0
-				[ -z "$LAST" ] && FIRST=1
-
-				HP_IN=0
-				[ "$LEVEL" = "$HP_PLUGGED_LEVEL" ] && HP_IN=1
-				SWITCH_OUTPUT_VOLUME "$HP_IN" "$FIRST"
-
-				LAST="$LEVEL"
-			fi
-
-			sleep 0.5
-		done
-		;;
-	tui*)
-		LAST=""
-
-		while true; do
-			JACK_DEV=$(awk '
-				/^N:/ { jack = /Audio Jack/ }
-				jack && /^H:/ {
-					for (i = 1; i <= NF; i++) if ($i ~ /^event/) { print "/dev/input/" $i; exit }
-				}
-			' /proc/bus/input/devices 2>/dev/null)
-
-			if [ -z "$JACK_DEV" ] || ! command -v evtest >/dev/null 2>&1; then
-				sleep 5
-				continue
-			fi
-
-			evtest --query "$JACK_DEV" EV_SW SW_HEADPHONE_INSERT >/dev/null 2>&1
-			JACK_STATE=$?
-			HP_IN=0
-			[ "$JACK_STATE" -eq 10 ] && HP_IN=1
-
-			if [ "$HP_IN" != "$LAST" ]; then
-				FIRST=0
-				[ -z "$LAST" ] && FIRST=1
-
-				SWITCH_OUTPUT_VOLUME "$HP_IN" "$FIRST"
-				LAST="$HP_IN"
-			fi
-
-			sleep 0.5
-		done
-		;;
-	rk-g350-v)
 		while true; do
 			while ! SET_G350_PATH; do
 				sleep 0.2
@@ -153,5 +76,16 @@ case "$(GET_VAR "device" "board/name")" in
 			done
 			sleep 1
 		done
+		;;
+	0 | 1)
+		SWITCH_OUTPUT_VOLUME "$1" "${2:-0}"
+
+		[ "$BOARD" = "rk-pixel-2" ] || exit 0
+
+		if [ "$1" -eq 1 ]; then
+			amixer -q -c 0 sset 'Playback Path' HP_NO_MIC
+		else
+			amixer -q -c 0 sset 'Playback Path' SPK
+		fi
 		;;
 esac

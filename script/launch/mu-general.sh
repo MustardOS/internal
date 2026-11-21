@@ -27,4 +27,4 @@ fi
 FRESH_ARG=""
 [ -e "/tmp/ra_no_load" ] && FRESH_ARG="--fresh"
 
-/opt/muos/frontend/muxretro "$MUOS_SHARE_DIR/core/$CORE" "$FILE" $FRESH_ARG
+/opt/muos/frontend/module/muxretro "$MUOS_SHARE_DIR/core/$CORE" "$FILE" $FRESH_ARG

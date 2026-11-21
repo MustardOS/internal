@@ -67,7 +67,7 @@ EOF
 	RECLAIM_FLAG="$MUOS_CONF_SYSTEM/reclaim/$TYPE"
 	if [ -e "$RECLAIM_FLAG" ]; then
 		if [ "$FS_TYPE" = exfat ]; then
-			if RECLAIM_OUT=$(/opt/muos/frontend/muexfat reclaim "/dev/$DEVICE" 2>&1); then
+			if RECLAIM_OUT=$(/opt/muos/frontend/tool/muexfat reclaim "/dev/$DEVICE" 2>&1); then
 				LOG_INFO "$0" 0 "STORAGE" "$(printf "Reclaimed unused space on %s: %s" "$DEVICE" "$RECLAIM_OUT")"
 			else
 				LOG_WARN "$0" 0 "STORAGE" "$(printf "Could not reclaim unused space on %s: %s" "$DEVICE" "$RECLAIM_OUT")"

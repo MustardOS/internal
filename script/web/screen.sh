@@ -50,7 +50,7 @@ else
 	set -- nice -n 19
 fi
 
-if "$@" /opt/muos/frontend/mufbset -g "$SCREEN_TEMP" >/dev/null 2>&1 && [ -s "$SCREEN_TEMP" ]; then
+if "$@" /opt/muos/frontend/tool/mufbset -g "$SCREEN_TEMP" >/dev/null 2>&1 && [ -s "$SCREEN_TEMP" ]; then
 	# A private screen may have opened while the picture was being taken, so check again before keeping it.
 	if PRIVATE_OPEN; then
 		WRITE_STATE hidden

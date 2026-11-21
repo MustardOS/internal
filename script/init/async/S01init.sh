@@ -54,7 +54,7 @@ DO_START() {
 	/opt/muos/script/device/module.sh load
 
 	DEVICE_DISPLAY_START() { :; }
-	DEVICE_FACTORY_WARNING_START() { /opt/muos/frontend/muwarn & }
+	DEVICE_FACTORY_WARNING_START() { /opt/muos/frontend/module/muwarn & }
 	# shellcheck source=/dev/null
 	DEVICE_FRONTEND_SCRIPT=$(DEVICE_SCRIPT frontend.sh) && . "$DEVICE_FRONTEND_SCRIPT"
 	DEVICE_DISPLAY_START
@@ -66,7 +66,6 @@ DO_START() {
 	IFS= read -r MU_UPTIME _ </proc/uptime
 
 	SET_VAR "system" "resume_uptime" "$MU_UPTIME"
-	SET_VAR "system" "idle_inhibit" "0"
 
 	LOG_INFO "$0" 0 "BOOTING" "Setting OS Release"
 	/opt/muos/script/system/os_release.sh &

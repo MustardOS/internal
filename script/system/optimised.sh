@@ -10,7 +10,7 @@ OPT_DIR="$MUOS_STORE_DIR/info/manifest"
 OPT_FILE="$OPT_DIR/optimised.json"
 OPT_STAMP="$MUOS_RUN_DIR/optimised_checked"
 OPT_LOCK="$MUOS_RUN_DIR/optimised.lock"
-OPT_VERIFIER="/opt/muos/frontend/muverify"
+OPT_VERIFIER="/opt/muos/frontend/tool/muverify"
 OPT_AGE=720
 
 OPT_URL=${OPT_URL:-https://github.com/MustardOS/extra/releases/latest/download/optimised.json}

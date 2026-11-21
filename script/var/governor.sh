@@ -154,7 +154,7 @@ SYNC_CPU_CORES() {
 }
 
 APPLY_PERFORMANCE() {
-	MUCPU_BIN=/opt/muos/frontend/mucpu
+	MUCPU_BIN=/opt/muos/frontend/tool/mucpu
 	[ -x "$MUCPU_BIN" ] || return 1
 
 	PERF_GOV=$("$MUCPU_BIN" apply "${1:-default}" 2>/dev/null)
@@ -173,7 +173,7 @@ APPLY_PERFORMANCE() {
 }
 
 REAPPLY_PERFORMANCE() {
-	MUCPU_BIN=/opt/muos/frontend/mucpu
+	MUCPU_BIN=/opt/muos/frontend/tool/mucpu
 	[ -x "$MUCPU_BIN" ] || return 1
 
 	PERF_GOV=$("$MUCPU_BIN" reapply 2>/dev/null)

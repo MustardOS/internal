@@ -141,13 +141,13 @@ DO_START() {
 	# Set up indicator LEDs for devices that drive bare GPIOs
 	RUN_DEVICE_SCRIPT led.sh &
 
-	/opt/muos/frontend/muidle boot
+	/opt/muos/frontend/tool/muidle boot
 
 	# Adjust headphone output for certain devices
 	/opt/muos/script/device/headphone.sh watch &
 
 	# Follow headphone jacks and USB-C headphones and earbuds as they come and go
-	/opt/muos/script/var/process.sh start muaudio /opt/muos/frontend/muaudio "$(GET_VAR "device" "board/name")"
+	/opt/muos/script/var/process.sh start muaudio /opt/muos/frontend/daemon/muaudio "$(GET_VAR "device" "board/name")"
 
 	# Swap the speaker audio if set
 	/opt/muos/script/device/speaker.sh &

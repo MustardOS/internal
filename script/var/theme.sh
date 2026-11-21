@@ -278,7 +278,7 @@ SHOW_SPLASH() {
 	CONTENT_SECONDS="${6:-0}"
 	CONTENT_FADE="${7:-1}"
 
-	SPLASH_BIN="/opt/muos/frontend/musplash"
+	SPLASH_BIN="/opt/muos/frontend/module/musplash"
 	[ -x "$SPLASH_BIN" ] || return 1
 
 	case "$ROLE" in

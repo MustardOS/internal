@@ -66,7 +66,7 @@ CRITICAL_FAILURE() {
 		*) MESSAGE=$(printf "Critical Failure\n\nAn unknown error occurred!") ;;
 	esac
 
-	/opt/muos/frontend/muxmessage 0 "$MESSAGE"
+	/opt/muos/frontend/module/muxmessage 0 "$MESSAGE"
 	sleep 10
 	/opt/muos/script/system/halt.sh poweroff
 }

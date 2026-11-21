@@ -413,7 +413,7 @@ DEVICE_FACTORY_WARNING_START() {
 	# muwarn otherwise falls back to SDL's software renderer. Its imported KMS
 	# buffers are then assigned address zero on this VOP and appear as coloured
 	# noise. Native GLES follows the same working path as the installer frontend.
-	SDL_RENDER_DRIVER=opengles2 /opt/muos/frontend/muwarn &
+	SDL_RENDER_DRIVER=opengles2 /opt/muos/frontend/module/muwarn &
 }
 
 DEVICE_FRONTEND_EXEC() (

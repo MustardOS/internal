@@ -13,6 +13,7 @@ DASHBOARD_ACTIVE="$MUOS_RUN_DIR/landing/active"
 STATUS_FILE="$LANDING_STATE/status.json"
 ACTIVITY_FILE="$LANDING_STATE/activity.json"
 TRACKER_FILE="$LANDING_STATE/tracker.json"
+DAILY_FILE="$LANDING_STATE/daily.json"
 LANGUAGE_FILE="$LANDING_STATE/lang.json"
 LANGUAGE_CACHED=""
 BATTERY_DIR="$MUOS_RUN_DIR/battery"
@@ -150,14 +151,30 @@ WRITE_ACTIVITY() {
 	return 1
 }
 
+WRITE_DAILY() {
+	[ -s "$TRACK_DIR/daily.json" ] || {
+		rm -f "$DAILY_FILE"
+		return 0
+	}
+
+	WD_TMP=$(mktemp "$LANDING_STATE/.daily.XXXXXX") || return 1
+
+	if cp "$TRACK_DIR/daily.json" "$WD_TMP" && chmod 0644 "$WD_TMP" && mv -f "$WD_TMP" "$DAILY_FILE"; then
+		return 0
+	fi
+
+	rm -f "$WD_TMP"
+	return 1
+}
+
 WRITE_TRACKER() {
-	if [ -e "$TRACK_DIR/playtime_data.json" ] || [ ! -e "$TRACK_DIR/.runtime_backfill_v1" ]; then
-		/opt/muos/script/mux/track.sh migrate
+	if [ -e "$TRACK_DIR/playtime_data.json" ] || [ ! -e "$TRACK_DIR/.runtime_backfill_v1" ] || [ ! -e "$TRACK_DIR/daily.json" ]; then
+		"$MUOS_TRACK_BIN" migrate
 	fi
 
 	set -- "$TRACK_DIR"/[0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F][0-9A-F].json
 	[ -e "$1" ] || {
-		rm -f "$TRACKER_FILE"
+		rm -f "$TRACKER_FILE" "$DAILY_FILE"
 		return 0
 	}
 
@@ -169,7 +186,7 @@ WRITE_TRACKER() {
 		[inputs | select(type == "object" and (.key // "") != "") | del(.active, .migrated)]
 	' >"$WT_TMP" 2>/dev/null; then
 		chmod 0644 "$WT_TMP"
-		mv -f "$WT_TMP" "$TRACKER_FILE" && return 0
+		mv -f "$WT_TMP" "$TRACKER_FILE" && WRITE_DAILY && return 0
 	fi
 
 	rm -f "$WT_TMP"
@@ -238,7 +255,7 @@ DEVICE_TITLE() {
 FRONTEND_MODULE() {
 	[ "$1" = "muxfrontend" ] || return 0
 
-	FM_PID=$(pgrep -f "^/opt/muos/frontend/muxfrontend" 2>/dev/null | head -n 1)
+	FM_PID=$(pgrep -f "^/opt/muos/frontend/module/muxfrontend" 2>/dev/null | head -n 1)
 	[ -n "$FM_PID" ] && [ -r "/proc/$FM_PID/comm" ] || return 0
 
 	IFS= read -r FM_NAME <"/proc/$FM_PID/comm"

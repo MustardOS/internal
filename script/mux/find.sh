@@ -17,7 +17,7 @@ RESULTS_JSON="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/search.json"
 LOOKUP_DIR="/opt/muos/share/lookup"
 if [ ! -s "$LOOKUP_DIR/internal.txt" ]; then
 	LOG_INFO "$0" 0 "FIND" "Lookup tables missing - generating via mulookup"
-	/opt/muos/frontend/mulookup --gen-all
+	/opt/muos/frontend/tool/mulookup --gen-all
 fi
 
 TMP_DIR=$(mktemp -d)

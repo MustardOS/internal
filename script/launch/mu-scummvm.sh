@@ -18,4 +18,4 @@ F_PATH=$(dirname "$FILE")
 SCVM="$F_PATH/$SUBFOLDER/$NAME.scummvm"
 cp "$F_PATH/$NAME.scummvm" "$SCVM"
 
-/opt/muos/frontend/muxretro "$MUOS_SHARE_DIR/core/scummvm_libretro.so" "$SCVM" $FRESH_ARG
+/opt/muos/frontend/module/muxretro "$MUOS_SHARE_DIR/core/scummvm_libretro.so" "$SCVM" $FRESH_ARG

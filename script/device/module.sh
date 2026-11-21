@@ -71,7 +71,7 @@ case "$1" in
 				GCS_GPU_STACK
 
 				if ! pidof muinput >/dev/null 2>&1; then
-					/opt/muos/frontend/muinput &
+					/opt/muos/frontend/daemon/muinput &
 				fi
 				;;
 			rg*)
@@ -97,7 +97,7 @@ case "$1" in
 				case "$BOARD_NAME" in
 					rg-vita-pro|rg28xx-h|rg34xx-h|rg34xx-sp|rg35xx-2024|rg35xx-h|rg35xx-plus|rg35xx-pro|rg35xx-sp|rg40xx-h|rg40xx-v|rgcubexx-h|rgsp)
 					if ! pidof muinput >/dev/null 2>&1; then
-						/opt/muos/frontend/muinput &
+						/opt/muos/frontend/daemon/muinput &
 					fi
 
 					(
@@ -126,7 +126,7 @@ case "$1" in
 				case "$BOARD_NAME" in
 					tui-spoon|tui-brick|tui-brick-pro|tui-smpro-s)
 						if ! pidof muinput >/dev/null 2>&1; then
-							/opt/muos/frontend/muinput &
+							/opt/muos/frontend/daemon/muinput &
 						fi
 						;;
 				esac
@@ -136,14 +136,14 @@ case "$1" in
 				modprobe -q simplepad
 				modprobe -q dc_sunxi
 				if ! pidof muinput >/dev/null 2>&1; then
-					/opt/muos/frontend/muinput &
+					/opt/muos/frontend/daemon/muinput &
 				fi
 				;;
 			rk-g350-v)
 				G350_SET_RUMBLE_GPIO_OFF
 
 				if ! pidof muinput >/dev/null 2>&1; then
-					/opt/muos/frontend/muinput &
+					/opt/muos/frontend/daemon/muinput &
 				fi
 				;;
 			rk*)
@@ -167,7 +167,7 @@ case "$1" in
 				fi
 
 				if ! pidof muinput >/dev/null 2>&1; then
-					/opt/muos/frontend/muinput &
+					/opt/muos/frontend/daemon/muinput &
 				fi
 				;;
 		esac

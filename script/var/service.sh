@@ -4,7 +4,7 @@
 MUOS_SERVICE_LOADED=1
 [ -n "${MUOS_CONFIG_LOADED-}" ] || . "${MUOS_VAR_DIR:-/opt/muos/script/var}/config.sh"
 
-MESSAGE_EXEC="/opt/muos/frontend/muxmessage"
+MESSAGE_EXEC="/opt/muos/frontend/module/muxmessage"
 MESSAGE_TEXT="/tmp/msg_livetext"
 MESSAGE_PROG="/tmp/msg_progress"
 SAFE_QUIT="$MUOS_RUN_DIR/safe_quit"
@@ -26,7 +26,7 @@ ENSURE_REMOVED() {
 }
 
 GET_FRONTEND_PIDS() {
-	pgrep -f '^/opt/muos/frontend/muxfrontend( |$)|^/bin/sh /opt/muos/script/mux/frontend\.sh( |$)' 2>/dev/null
+	pgrep -f '^/opt/muos/frontend/module/muxfrontend( |$)|^/bin/sh /opt/muos/script/mux/frontend\.sh( |$)' 2>/dev/null
 }
 
 FRONTEND_RUNNING() {
@@ -147,7 +147,7 @@ BATTERY() {
 			BATTERY_CAPACITY=$(GET_VAR "device" "battery/capacity")
 			BATTERY_VOLTAGE=$(GET_VAR "device" "battery/voltage")
 			[ -n "$BATTERY_CAPACITY" ] || [ -n "$BATTERY_VOLTAGE" ] || return 0
-			/opt/muos/script/var/process.sh start battery /opt/muos/frontend/mubattery
+			/opt/muos/script/var/process.sh start battery /opt/muos/frontend/daemon/mubattery
 			;;
 		restart)
 			BATTERY stop
@@ -167,7 +167,7 @@ DIRECTLINK() {
 			rm -f "$MUOS_RUN_DIR/network/link"
 			;;
 		start)
-			/opt/muos/script/var/process.sh start directlink /opt/muos/frontend/mulink
+			/opt/muos/script/var/process.sh start directlink /opt/muos/frontend/daemon/mulink
 			;;
 		restart)
 			DIRECTLINK stop

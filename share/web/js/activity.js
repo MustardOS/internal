@@ -274,7 +274,8 @@
         {key: "pickles", label: "Pickles"},
         {key: "wasabi", label: "Wasabi"},
         {key: "retroarch", label: "RetroArch"},
-        {key: "external", label: "External"}
+        {key: "external", label: "External"},
+        {key: "app", label: "Applications"}
     ];
 
     function runtimeOf(runtime, core) {
@@ -616,7 +617,7 @@
     const CORE_COLUMNS = ["core", "sessionCore"];
 
     function hasCores(group) {
-        return group !== "wasabi";
+        return group !== "wasabi" && group !== "app";
     }
 
     function summaryRows(stats, group) {
@@ -705,6 +706,23 @@
         });
     }
 
+    function dateKey(epoch) {
+        const when = new Date(epoch * 1000);
+        const pad = (value) => String(value).padStart(2, "0");
+        return `${when.getFullYear()}-${pad(when.getMonth() + 1)}-${pad(when.getDate())}`;
+    }
+
+    function sessionDays(items) {
+        const days = {};
+        items.forEach((item) => item.sessions.forEach((session) => {
+            if (!session.start) return;
+            const day = days[dateKey(session.start)] ||= {time: 0, launches: 0};
+            day.time += session.length;
+            day.launches += 1;
+        }));
+        return days;
+    }
+
     window.MUOS_ACTIVITY = {
         parse,
         combine,
@@ -722,6 +740,8 @@
         modeName,
         duration,
         stamp,
+        dateKey,
+        sessionDays,
         columns: COLUMNS,
         sessionColumns: SESSION_COLUMNS
     };

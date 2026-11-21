@@ -41,7 +41,7 @@ for PID_FILE in /run/muos/process/*.pid; do
 	else
 		DIAG_KV "$NAME" "finished or stopped (was ${PID:-unknown})"
 		case "$NAME" in
-			battery | hotkey | lowpower) DIAG_FINDING "SERVICE" "The $NAME service is not running, but it should run all the time." ;;
+			battery | hotkey) DIAG_FINDING "SERVICE" "The $NAME service is not running, but it should run all the time." ;;
 		esac
 	fi
 done

@@ -2,7 +2,7 @@
 
 . /opt/muos/script/var/display.sh
 
-MUDISP=/opt/muos/frontend/mudisp
+MUDISP=/opt/muos/frontend/tool/mudisp
 
 HDMI_RESOLUTION=$(GET_VAR "config" "settings/hdmi/resolution")
 HDMI_SPACE=$(GET_VAR "config" "settings/hdmi/space")

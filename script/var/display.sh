@@ -86,7 +86,7 @@ FB_SWITCH() {
 	FB_EXPECTED_VIRTUAL="${FB_ACTUAL_WIDTH},$((FB_ACTUAL_HEIGHT * FB_BUFFERS))"
 
 	if [ "$FB_CURRENT_VIRTUAL" != "$FB_EXPECTED_VIRTUAL" ] || [ "$FB_CURRENT_DEPTH" != "$FB_DEPTH" ]; then
-		/opt/muos/frontend/mufbset -w "${FB_ACTUAL_WIDTH}" -h "${FB_ACTUAL_HEIGHT}" -d "${FB_DEPTH}" -b "${FB_BUFFERS}" || return 1
+		/opt/muos/frontend/tool/mufbset -w "${FB_ACTUAL_WIDTH}" -h "${FB_ACTUAL_HEIGHT}" -d "${FB_DEPTH}" -b "${FB_BUFFERS}" || return 1
 		MIRROR_REFRESH
 	fi
 
@@ -149,9 +149,9 @@ MIRROR_PID_FILE="$MUOS_RUN_DIR/mirror.pid"
 
 # Starts only the mudisp mirror process, the device display must already be on
 MIRROR_DAEMON_START() {
-	[ -x /opt/muos/frontend/mudisp ] || return 1
+	[ -x /opt/muos/frontend/tool/mudisp ] || return 1
 
-	/opt/muos/frontend/mudisp mirror 1 >/dev/null 2>&1 &
+	/opt/muos/frontend/tool/mudisp mirror 1 >/dev/null 2>&1 &
 	printf "%s" "$!" >"$MIRROR_PID_FILE"
 }
 

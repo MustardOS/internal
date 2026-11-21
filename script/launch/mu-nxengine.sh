@@ -25,5 +25,5 @@ fi
 if [ "$GREENLIGHT" -eq 1 ]; then
 	printf "Launching Cave Story\n" >>"$LOGPATH"
 
-	/opt/muos/frontend/muxretro "$MUOS_SHARE_DIR/core/nxengine_libretro.so" "$DOUK_BIOS" $FRESH_ARG
+	/opt/muos/frontend/module/muxretro "$MUOS_SHARE_DIR/core/nxengine_libretro.so" "$DOUK_BIOS" $FRESH_ARG
 fi

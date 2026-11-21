@@ -25,7 +25,7 @@ NET_NAME=$(GET_VAR "device" "network/name")
 CPU_GOV_PATH="$(GET_VAR "device" "cpu/governor")"
 LED_NORMAL="$(GET_VAR "device" "led/normal")"
 RUMBLE_DEVICE="$(GET_VAR "device" "board/rumble")"
-RTC_WAKE_PATH="$(GET_VAR "device" "board/rtc_wake")"
+RTC_WAKE_PATH="$(RTC_WAKE)"
 MAX_BRIGHT=$(GET_VAR "device" "screen/bright")
 CHARGER_PATH="$(GET_VAR "device" "battery/charger")"
 BATTERY_CAPACITY_PATH="$(GET_VAR "device" "battery/capacity")"
@@ -253,9 +253,9 @@ QUIET_HALT_PREPARE() {
 }
 
 RUN_SUSPEND_BACKEND() {
-	SUSPEND_HELPER=/opt/muos/frontend/mususpend
+	SUSPEND_HELPER=/opt/muos/frontend/tool/mususpend
 	QUIESCE=
-	for NAME in muxfrontend muxretro retroarch muxmedia muhotkey mubattery muaudio haveged idle.sh usb_gadget.sh pipewire wireplumber; do
+	for NAME in muxfrontend muxretro retroarch muxmedia muhotkey mubattery muaudio haveged usb_gadget.sh pipewire wireplumber; do
 		QUIESCE="$QUIESCE --quiesce $NAME"
 	done
 	if [ ! -x "$SUSPEND_HELPER" ]; then
@@ -438,18 +438,7 @@ RECENT_WAKE_CLEAR_LATER() {
 ACTIVITY_TRACKER() {
 	[ "${USE_ACTIVITY:-0}" -eq 1 ] || return 0
 
-	TRACK_CURRENT="$MUOS_STORE_DIR/info/track/.current_session"
-	[ -r "$TRACK_CURRENT" ] || return 0
-
-	{
-		read -r T_NAME
-		read -r T_CORE
-		read -r T_ROM
-	} <"$TRACK_CURRENT"
-
-	[ -n "$T_ROM" ] || return 0
-
-	TRACK_END=${2-} /opt/muos/script/mux/track.sh "$T_NAME" "$T_CORE" "$T_ROM" "$1"
+	TRACK_END=${2-} "$MUOS_TRACK_BIN" "$1"
 }
 
 CHECK_RA_AND_SAVE() {
@@ -687,7 +676,7 @@ SLEEP() {
 	G350_PREPARE_WAKE
 	G350_LOG_SUSPEND entering
 
-	/opt/muos/frontend/muidle sleep
+	/opt/muos/frontend/tool/muidle sleep
 
 	QUIET_WAKE_SOURCES
 	SNAPSHOT_WAKE_SOURCES
@@ -714,7 +703,7 @@ SLEEP() {
 }
 
 RESUME() {
-	/opt/muos/frontend/muidle wake
+	/opt/muos/frontend/tool/muidle wake
 
 	# Normally already back on after mususpend, this covers SLEEP returning early
 	PIXEL2_DISPLAY on

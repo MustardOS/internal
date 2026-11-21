@@ -140,7 +140,7 @@ SHOW_SUMMARY() {
 	read -r UP_NOW _ </proc/uptime 2>/dev/null || UP_NOW="?"
 	printf '  uptime now          %ss\n' "$UP_NOW"
 
-	FRONTEND_PID=$(pgrep -f '/opt/muos/frontend/muxfrontend' 2>/dev/null | head -n 1)
+	FRONTEND_PID=$(pgrep -f '/opt/muos/frontend/module/muxfrontend' 2>/dev/null | head -n 1)
 	if [ -n "$FRONTEND_PID" ] && [ -r "/proc/$FRONTEND_PID/stat" ]; then
 		FRONTEND_TICKS=$(awk '{ print $22 }' "/proc/$FRONTEND_PID/stat")
 		printf '  frontend started at %ss\n' "$(awk -v t="$FRONTEND_TICKS" -v hz="$HZ" 'BEGIN { printf "%.2f", t / hz }')"

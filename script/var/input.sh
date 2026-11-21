@@ -4,7 +4,7 @@
 MUOS_INPUT_LOADED=1
 [ -n "${MUOS_CONFIG_LOADED-}" ] || . "${MUOS_VAR_DIR:-/opt/muos/script/var}/config.sh"
 
-MUOS_INPUT_BIN="/opt/muos/frontend/muinput"
+MUOS_INPUT_BIN="/opt/muos/frontend/daemon/muinput"
 MUOS_INPUT_KEYS="/run/muinput/remote.keys"
 MUOS_INPUT_SOCKET="/run/muinput/remote.sock"
 

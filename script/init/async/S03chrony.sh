@@ -15,7 +15,10 @@ PID_FILE="/run/chronyd.pid"
 # For the H700 make sure we use "sunxi-rtc" which is on "rtc1"
 # You can confirm correct RTC connection with: chronyc rtcdata
 case "$(GET_VAR "device" "board/name")" in
-	rg*) ln -sf "rtc1" "/dev/rtc" ;;
+	rg*)
+		RTC_WAKE_PATH=$(RTC_WAKE)
+		[ -n "$RTC_WAKE_PATH" ] && ln -sf "${RTC_WAKE_PATH##*/}" "/dev/rtc"
+		;;
 esac
 
 IS_RUNNING() {

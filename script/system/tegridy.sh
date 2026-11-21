@@ -5,7 +5,7 @@ set -u
 INTEGRITY_DIR="/opt/muos/share/info/integrity"
 MANIFEST="$INTEGRITY_DIR/manifest"
 SIGNATURE="$INTEGRITY_DIR/manifest.sig"
-VERIFIER="/opt/muos/frontend/muverify"
+VERIFIER="/opt/muos/frontend/tool/muverify"
 RESULT_DIR="/run/muos/integrity"
 LOCK_DIR="/run/muos/integrity.lock"
 

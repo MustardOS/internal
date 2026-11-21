@@ -28,4 +28,4 @@ fi
 
 MESSAGE stop
 
-/opt/muos/frontend/muxretro "$MUOS_SHARE_DIR/core/ecwolf_libretro.so" "$WOLF_EXE" $FRESH_ARG
+/opt/muos/frontend/module/muxretro "$MUOS_SHARE_DIR/core/ecwolf_libretro.so" "$WOLF_EXE" $FRESH_ARG

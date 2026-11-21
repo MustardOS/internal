@@ -82,9 +82,9 @@ fi
 
 if [ "$SS_CAPTURED" -eq 0 ]; then
 	case "$(GET_VAR "device" "board/name")" in
-		mgx*) /opt/muos/frontend/mufbset -g "$SS_FILE" && convert "$SS_FILE" -rotate 270 "$SS_FILE" ;;
-		rg-vita* | rg28xx-h | rk-pixel-2) /opt/muos/frontend/mufbset -g "$SS_FILE" && convert "$SS_FILE" -rotate 90 "$SS_FILE" ;;
-		*) /opt/muos/frontend/mufbset -g "$SS_FILE" ;;
+		mgx*) /opt/muos/frontend/tool/mufbset -g "$SS_FILE" && convert "$SS_FILE" -rotate 270 "$SS_FILE" ;;
+		rg-vita* | rg28xx-h | rk-pixel-2) /opt/muos/frontend/tool/mufbset -g "$SS_FILE" && convert "$SS_FILE" -rotate 90 "$SS_FILE" ;;
+		*) /opt/muos/frontend/tool/mufbset -g "$SS_FILE" ;;
 	esac
 fi || {
 	LOG_ERROR "$0" 0 "SCREENSHOT" "Screenshot capture failed"

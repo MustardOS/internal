@@ -5,8 +5,6 @@
 
 LOG_INFO "$0" 0 "HOTKEY" "Hotkey daemon starting"
 
-IS_NORMAL_MODE && IS_HANDHELD_MODE && /opt/muos/script/mux/idle.sh start
-
 HOTKEY_FIFO="$MUOS_RUN_DIR/hotkey"
 
 if [ ! -p "$HOTKEY_FIFO" ]; then
@@ -102,7 +100,7 @@ START_MUHOTKEY() {
 		*) set -- -L ;;
 	esac
 
-	/opt/muos/frontend/muhotkey "$@" >&3 &
+	/opt/muos/frontend/daemon/muhotkey "$@" >&3 &
 	MU_PID=$!
 }
 
@@ -141,10 +139,6 @@ while :; do
 			CHARGE_ACTIVE=0
 		fi
 		CHARGE_CHECK=0
-	fi
-
-	if [ "$CHARGE_CHECK" -eq 0 ]; then
-		IS_NORMAL_MODE && IS_HANDHELD_MODE && /opt/muos/script/mux/idle.sh start
 	fi
 
 	if [ "$CHARGE_ACTIVE" -eq 1 ]; then

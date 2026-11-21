@@ -24,7 +24,7 @@ export AUDIO_RESTORE_ASYNC
 RUN_CONTENT_LOADER() {
 	[ -s "$ROM_GO" ] || return 0
 
-	/opt/muos/frontend/muidle game
+	/opt/muos/frontend/tool/muidle game
 
 	while [ -s "$ROM_GO" ]; do
 		LOG_INFO "$0" 0 "FRONTEND" "Content loader triggered"
@@ -32,7 +32,7 @@ RUN_CONTENT_LOADER() {
 		SET_DEFAULT_GOVERNOR
 	done
 
-	/opt/muos/frontend/muidle menu
+	/opt/muos/frontend/tool/muidle menu
 
 	[ -s "$ACT_GO" ] || SAFE_WRITE "launcher" "$ACT_GO"
 }
@@ -89,9 +89,10 @@ if [ "$(GET_DEBUG)" -gt 0 ]; then
 	cp "$MUOS_LOG_DIR"/*.log "$BL_PATH"/. 2>/dev/null
 fi
 
-if [ -e "$MUOS_STORE_DIR/info/track/playtime_data.json" ] || [ ! -e "$MUOS_STORE_DIR/info/track/.runtime_backfill_v1" ]; then
+if [ -e "$MUOS_STORE_DIR/info/track/playtime_data.json" ] || [ ! -e "$MUOS_STORE_DIR/info/track/.runtime_backfill_v1" ] ||
+	[ ! -e "$MUOS_STORE_DIR/info/track/daily.json" ]; then
 	LOG_INFO "$0" 0 "FRONTEND" "Migrating legacy activity data"
-	ionice -c 3 /opt/muos/script/mux/track.sh migrate &
+	ionice -c 3 "$MUOS_TRACK_BIN" migrate &
 fi
 
 LOG_INFO "$0" 0 "FRONTEND" "Starting Frontend Launcher"
@@ -123,7 +124,7 @@ while :; do
 
 	# Reset ANALOGUE<>DIGITAL switch for the DPAD
 	RESET_DPAD_MODE "$BOARD_STICK" "$BOARD_NAME" "$DPAD_SWAP"
-	/opt/muos/frontend/mustick "$STICK_POLL" >/dev/null 2>&1
+	/opt/muos/frontend/tool/mustick "$STICK_POLL" >/dev/null 2>&1
 	RUN_CONTENT_LOADER
 
 	# The shutdown alarm is powering the device off, so the menu never comes back up
@@ -168,9 +169,16 @@ while :; do
 
 				if [ -n "$RUN_APP" ] && [ -x "$RUN_APP/mux_launch.sh" ]; then
 					SETUP_APP
-					/opt/muos/frontend/muidle game
+					APP_NAME=${RUN_APP%/}
+					APP_NAME=${APP_NAME##*/}
+					TRACK_APP=0
+					IS_ONE "$(GET_VAR "config" "settings/advanced/activity")" && TRACK_APP=1
+					[ "$TRACK_APP" -eq 1 ] && TRACK_RUNTIME=app "$MUOS_TRACK_BIN" "$APP_NAME" "app" "application/$APP_NAME" start
+					/opt/muos/frontend/tool/muidle game
 					"$RUN_APP"/mux_launch.sh "$RUN_APP"
-					/opt/muos/frontend/muidle menu
+					APP_RC=$?
+					/opt/muos/frontend/tool/muidle menu
+					[ "$TRACK_APP" -eq 1 ] && TRACK_EXIT="$APP_RC" "$MUOS_TRACK_BIN" "$APP_NAME" "app" "application/$APP_NAME" stop
 					CONTENT_UNSET
 				else
 					LOG_WARN "$0" 0 "FRONTEND" "Invalid app launcher: $RUN_APP"
@@ -204,9 +212,9 @@ while :; do
 		history) DEVICE_FRONTEND_EXEC "history" "muxfrontend" ;;
 		info) DEVICE_FRONTEND_EXEC "info" "muxfrontend" ;;
 
-		credits) /opt/muos/frontend/mucredits ;;
+		credits) /opt/muos/frontend/module/mucredits ;;
 		terminal)
-			/opt/muos/frontend/muxterm
+			/opt/muos/frontend/module/muxterm
 			SAFE_WRITE "appmenu" "$ACT_GO"
 			;;
 		reboot) exec /opt/muos/script/mux/quit.sh reboot frontend ;;

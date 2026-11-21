@@ -209,6 +209,35 @@
             <p class="box offline" id="tracker-group-empty" hidden></p>
 
             <div class="stack" id="tracker-group-report">
+                <section class="box tracker-calendar-box" aria-labelledby="tracker-calendar-title">
+                    <div class="head">
+                        <h2 id="tracker-calendar-title">Play calendar</h2>
+                        <div class="chips calendar-measure" role="group" aria-label="Calendar measure">
+                            <button class="chip-toggle on" type="button" id="tracker-measure-time" aria-pressed="true">Play time</button>
+                            <button class="chip-toggle" type="button" id="tracker-measure-launches" aria-pressed="false">Launches</button>
+                        </div>
+                    </div>
+                    <p class="note calendar-scope"><span class="calendar-total" id="tracker-calendar-total"></span> · <span id="tracker-scope"></span> <button class="link" type="button" id="tracker-scope-clear" hidden>Show all</button></p>
+                    <div class="calendar-scroll">
+                        <svg class="calendar" id="tracker-calendar" role="group" aria-label="Play calendar"></svg>
+                        <div class="calendar-tip" id="tracker-tip" role="tooltip" hidden>
+                            <strong id="tracker-tip-value"></strong>
+                            <span id="tracker-tip-detail"></span>
+                        </div>
+                    </div>
+                    <div class="calendar-foot">
+                        <p class="note" id="tracker-calendar-hint">Select a day to see what was played.</p>
+                        <div class="calendar-legend" aria-hidden="true">
+                            <span>Less</span><i class="lv0"></i><i class="lv1"></i><i class="lv2"></i><i class="lv3"></i><i class="lv4"></i><span>More</span>
+                        </div>
+                    </div>
+                    <div class="calendar-day" id="tracker-day" hidden>
+                        <h3 id="tracker-day-title"></h3>
+                        <ol class="rank" id="tracker-day-list"></ol>
+                        <p class="note" id="tracker-day-empty" hidden></p>
+                    </div>
+                </section>
+
                 <section class="box" aria-label="Content statistics">
                     <div class="head">
                         <h2>Content <span class="note" id="tracker-count"></span></h2>

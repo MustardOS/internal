@@ -5,7 +5,7 @@
 
 PROCESS_HELPER="/opt/muos/script/var/process.sh"
 LANDING_STATUS="/opt/muos/script/web/status.sh"
-LANDING_BIN="/opt/muos/frontend/muweb"
+LANDING_BIN="/opt/muos/frontend/daemon/muweb"
 LANDING_SECRET="$MUOS_CONF_SYSTEM/landing_secret"
 MDNS_NAME_FILE="$MUOS_RUN_DIR/mdns_name"
 MDNS_DISCOVERY_FILE="$MUOS_RUN_DIR/landing/state/devices.json"
@@ -101,7 +101,7 @@ REMOTE_SOUND_ON() {
 	esac
 	[ "$(GET_VAR "config" "web/remote_view")" = "6" ] &&
 		[ -n "$(REMOTE_VIEW_SECONDS)" ] &&
-		[ -x /opt/muos/frontend/muscreen ] &&
+		[ -x /opt/muos/frontend/tool/muscreen ] &&
 		command -v pw-record >/dev/null 2>&1
 }
 
@@ -241,7 +241,7 @@ PREPARE_LANDING_ROOT() {
 }
 
 START_MDNS() {
-	MUDNS_BIN=/opt/muos/frontend/mudns
+	MUDNS_BIN=/opt/muos/frontend/daemon/mudns
 	[ -x "$MUDNS_BIN" ] || {
 		LOG_ERROR "$0" 0 "WEB" "Local DNS helper is unavailable"
 		return 1
@@ -364,7 +364,7 @@ MANAGE_WEBSERV() {
 
 						# Live streams the screen through muscreen instead of a picture every interval,
 						# which stays as the fallback when the stream cannot start.
-						LANDING_LIVE=/opt/muos/frontend/muscreen
+						LANDING_LIVE=/opt/muos/frontend/tool/muscreen
 						if [ "$(GET_VAR "config" "web/remote_view")" = "6" ] && [ -x "$LANDING_LIVE" ]; then
 							set -- "$@" --screen-live "$LANDING_LIVE"
 							set -- "$@" --live-fps "$(GET_VAR "config" "web/live_fps")" \
@@ -422,7 +422,7 @@ MANAGE_WEBSERV() {
 							return 1
 							;;
 					esac
-					SFTP_JAIL=/opt/muos/frontend/musftpjail
+					SFTP_JAIL=/opt/muos/frontend/tool/musftpjail
 					if [ ! -x "$SFTP_SERVER" ] || [ ! -x "$SFTP_JAIL" ]; then
 						LOG_ERROR "$0" 0 "WEB" "Secure File Transfer service files are unavailable"
 						return 1

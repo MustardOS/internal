@@ -23,4 +23,4 @@ else
 	LAUNCH_PATH="$F_PATH/$SUB_FOLDER/$ERPC"
 fi
 
-/opt/muos/frontend/muxretro "$MUOS_SHARE_DIR/core/easyrpg_libretro.so" "$LAUNCH_PATH" $FRESH_ARG
+/opt/muos/frontend/module/muxretro "$MUOS_SHARE_DIR/core/easyrpg_libretro.so" "$LAUNCH_PATH" $FRESH_ARG

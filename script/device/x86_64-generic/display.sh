@@ -11,8 +11,8 @@ case "${1:-}" in
 		X86_BOOT_LOGO="/opt/muos/share/bootlogo/${X86_BOOT_WIDTH}x${X86_BOOT_HEIGHT}/bootlogo.bmp"
 		[ -f "$X86_BOOT_LOGO" ] || X86_BOOT_LOGO=/opt/muos/share/bootlogo/640x480/bootlogo.bmp
 
-		if [ -c /dev/fb0 ] && [ -x /opt/muos/frontend/musplash ] && [ -f "$X86_BOOT_LOGO" ]; then
-			exec /opt/muos/frontend/musplash -i "$X86_BOOT_LOGO" -f /dev/fb0 -s stretch "$@"
+		if [ -c /dev/fb0 ] && [ -x /opt/muos/frontend/module/musplash ] && [ -f "$X86_BOOT_LOGO" ]; then
+			exec /opt/muos/frontend/module/musplash -i "$X86_BOOT_LOGO" -f /dev/fb0 -s stretch "$@"
 		fi
 		;;
 esac

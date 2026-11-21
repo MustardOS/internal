@@ -85,7 +85,7 @@ SAFE_MODE_FLAG="$MUOS_RUN_DIR/safe_mode"
 BOOT_CONFIRMED_FLAG="$MUOS_RUN_DIR/boot_confirmed"
 SAFE_MODE_THRESHOLD=3
 BOOT_CONFIRM_GRACE=8
-FRONTEND_BIN="/opt/muos/frontend/muxfrontend"
+FRONTEND_BIN="/opt/muos/frontend/module/muxfrontend"
 LAUNCH_SCRIPT="/opt/muos/script/mux/launch.sh"
 
 export SAFE_MODE_FLAG BOOT_CONFIRMED_FLAG FRONTEND_BIN LAUNCH_SCRIPT

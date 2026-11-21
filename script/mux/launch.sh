@@ -279,11 +279,9 @@ else
 		"$LAUNCH_PREP" "$NAME" "$CORE" "$ROM"
 	fi
 
-	TRACK_PID=
 	if IS_ONE "$USE_ACTIVITY"; then
 		LOG_INFO "$0" 0 "LAUNCH" "$(printf "Activity tracker start for '%s'" "$NAME")"
-		TRACK_SYSTEM="$ASSIGN" TRACK_RUNTIME="$CORE_RUNTIME" /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" start &
-		TRACK_PID=$!
+		TRACK_SYSTEM="$ASSIGN" TRACK_RUNTIME="$CORE_RUNTIME" "$MUOS_TRACK_BIN" "$NAME" "$CORE" "$ROM" start
 	fi
 
 	LOG_INFO "$0" 0 "LAUNCH" "$(printf "Executing launcher '%s' for '%s'" "$LAUNCH_EXEC" "$NAME")"
@@ -296,11 +294,9 @@ else
 		LOG_WARN "$0" 0 "LAUNCH" "$(printf "Launcher exited with code %s for '%s'" "$LAUNCH_RC" "$NAME")"
 	fi
 
-	[ -n "$TRACK_PID" ] && wait "$TRACK_PID"
-
 	if IS_ONE "$USE_ACTIVITY"; then
 		LOG_INFO "$0" 0 "LAUNCH" "$(printf "Activity tracker stop for '%s'" "$NAME")"
-		TRACK_EXIT="$LAUNCH_RC" /opt/muos/script/mux/track.sh "$NAME" "$CORE" "$ROM" stop
+		TRACK_EXIT="$LAUNCH_RC" "$MUOS_TRACK_BIN" "$NAME" "$CORE" "$ROM" stop
 	fi
 
 	if [ -n "$LAUNCH_DONE" ]; then
@@ -314,7 +310,7 @@ CLEANUP_AFTER_LAUNCH
 if [ "$LAUNCH_RC" -eq 64 ] && [ -s "$SWITCH_GO" ]; then
 	IFS= read -r SWITCH_PATH <"$SWITCH_GO"
 	ENSURE_REMOVED_SYNC "$SWITCH_GO"
-	if [ -n "$SWITCH_PATH" ] && /opt/muos/frontend/muswitch "$SWITCH_PATH"; then
+	if [ -n "$SWITCH_PATH" ] && /opt/muos/frontend/tool/muswitch "$SWITCH_PATH"; then
 		: >"$SWITCH_PENDING"
 		LOG_INFO "$0" 0 "LAUNCH" "Content switch prepared"
 	else

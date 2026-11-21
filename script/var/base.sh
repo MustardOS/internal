@@ -18,9 +18,10 @@ ALSA_CONFIG="/usr/share/alsa/alsa.conf"
 WPA_CONFIG="/etc/wpa_supplicant.conf"
 DEVICE_CONTROL_DIR="/opt/muos/device/control"
 MUOS_LOG_DIR="/opt/muos/log"
-MUOS_LOG_BIN="/opt/muos/frontend/mulog"
-MUOS_RGB_BIN="/opt/muos/frontend/murgb"
-MUOS_VAR_BIN="/opt/muos/frontend/muvarctl"
+MUOS_LOG_BIN="/opt/muos/frontend/tool/mulog"
+MUOS_RGB_BIN="/opt/muos/frontend/tool/murgb"
+MUOS_TRACK_BIN="/opt/muos/frontend/tool/mutrack"
+MUOS_VAR_BIN="/opt/muos/frontend/tool/muvarctl"
 MUOS_RUN_DIR="/run/muos"
 MUOS_SHARE_DIR="/opt/muos/share"
 MUOS_STORE_DIR="$MUOS_RUN_DIR/storage"
@@ -38,7 +39,7 @@ IDLE_STATE="$MUOS_RUN_DIR/idle_state"
 
 export HOME XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
 	ALSA_CONFIG WPA_CONFIG DEVICE_CONTROL_DIR MUOS_LOG_DIR MUOS_LOG_BIN \
-	MUOS_RGB_BIN MUOS_VAR_BIN MUOS_RUN_DIR MUOS_SHARE_DIR MUOS_STORE_DIR OVERLAY_NOP \
+	MUOS_RGB_BIN MUOS_TRACK_BIN MUOS_VAR_BIN MUOS_RUN_DIR MUOS_SHARE_DIR MUOS_STORE_DIR OVERLAY_NOP \
 	IS_IDLE IDLE_STATE
 
 MUOS_CONF_GLOBAL="/opt/muos/config"
@@ -110,4 +111,31 @@ LOCK_RUN() {
 
 IS_ONE() {
 	[ "$1" = "1" ]
+}
+
+RTC_CLOCK() {
+	for RTC_DIR in /sys/class/rtc/rtc*; do
+		IFS= read -r RTC_VALUE <"$RTC_DIR/hctosys" 2>/dev/null || continue
+		[ "$RTC_VALUE" = 1 ] && {
+			printf '/dev/%s' "${RTC_DIR##*/}"
+			return 0
+		}
+	done
+
+	[ -e /dev/rtc0 ] && printf '/dev/rtc0'
+}
+
+RTC_WAKE() {
+	for RTC_DIR in /sys/class/rtc/rtc*; do
+		[ -e "$RTC_DIR/wakealarm" ] || continue
+		IFS= read -r RTC_VALUE <"$RTC_DIR/device/power/wakeup" 2>/dev/null || continue
+		[ "$RTC_VALUE" = enabled ] && {
+			printf '%s' "$RTC_DIR"
+			return 0
+		}
+	done
+
+	RTC_DIR=$(RTC_CLOCK)
+	RTC_DIR="/sys/class/rtc/${RTC_DIR##*/}"
+	[ -e "$RTC_DIR/wakealarm" ] && printf '%s' "$RTC_DIR"
 }

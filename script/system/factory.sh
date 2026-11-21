@@ -5,9 +5,9 @@
 
 LOG_INFO "$0" 0 "FACTORY RESET" "Setting date time to default"
 date 010100002026
-RTC_CLOCK=$(GET_VAR "device" "board/rtc_clock")
-if command -v hwclock >/dev/null 2>&1 && [ -n "$RTC_CLOCK" ] && [ -e "$RTC_CLOCK" ]; then
-	hwclock -f "$RTC_CLOCK" -w || LOG_WARN "$0" 0 "FACTORY RESET" "Unable to update the hardware clock"
+RTC_CLOCK_DEV=$(RTC_CLOCK)
+if command -v hwclock >/dev/null 2>&1 && [ -n "$RTC_CLOCK_DEV" ] && [ -e "$RTC_CLOCK_DEV" ]; then
+	hwclock -f "$RTC_CLOCK_DEV" -w || LOG_WARN "$0" 0 "FACTORY RESET" "Unable to update the hardware clock"
 fi
 
 while pgrep "muwarn" >/dev/null 2>&1; do sleep 0.25; done
@@ -112,7 +112,7 @@ printf 0 >"/tmp/msg_progress"
 LOG_INFO "$0" 0 "FACTORY RESET" "Starting Hotkey Daemon"
 HOTKEY start
 
-/opt/muos/frontend/muxmessage 0 "$MUOS_SHARE_DIR/media/message.json" -d 5
+/opt/muos/frontend/module/muxmessage 0 "$MUOS_SHARE_DIR/media/message.json" -d 5
 
 FACTORY_AUDIO_PID=
 if command -v mpv >/dev/null 2>&1; then
@@ -157,7 +157,7 @@ CREDITS_COMPLETE="$CREDITS_DIR/mucredits.complete"
 mkdir -p "$CREDITS_DIR"
 rm -f "$CREDITS_COMPLETE"
 
-/opt/muos/frontend/mucredits &
+/opt/muos/frontend/module/mucredits &
 CREDITS_PID=$!
 CREDITS_GRACE=0
 

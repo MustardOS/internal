@@ -19,8 +19,8 @@ LINK_FFS="$FFS_ROOT/mulink"
 UDC="$(GET_VAR "device" "board/udc")"
 
 PID_FILE="$MUOS_RUN_DIR/usb_gadget.pid"
-MUADB_BIN=${MUADB_BIN:-"/opt/muos/frontend/muadb"}
-MUMTP_BIN=${MUMTP_BIN:-"/opt/muos/frontend/mumtp"}
+MUADB_BIN=${MUADB_BIN:-"/opt/muos/frontend/daemon/muadb"}
+MUMTP_BIN=${MUMTP_BIN:-"/opt/muos/frontend/daemon/mumtp"}
 MUADB_ENV=${MUADB_ENV:-"$MUOS_SHARE_DIR/conf/adb-env.sh"}
 MUMTP_CONF_SOURCE=${MUMTP_CONF_SOURCE:-"$MUOS_SHARE_DIR/conf/mumtp.conf"}
 MUMTP_CONF_TARGET=${MUMTP_CONF_TARGET:-"$MUOS_RUN_DIR/mumtp.conf"}

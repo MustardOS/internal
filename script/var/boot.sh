@@ -260,7 +260,7 @@ EXEC_MUX() {
 	fi
 
 	SET_VAR "system" "foreground_process" "$MODULE"
-	"/opt/muos/frontend/$MODULE" "$@"
+	"/opt/muos/frontend/module/$MODULE" "$@"
 
 	while [ ! -f "$SAFE_QUIT" ]; do sleep 0.05; done
 }

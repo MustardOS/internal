@@ -163,9 +163,6 @@ DO_START() {
 	LOG_INFO "$0" 0 "BOOTING" "Starting deferred init scripts"
 	/opt/muos/script/var/process.sh start init-deferred "$INIT_SELF" deferred-init "/opt/muos/script/init/async"
 
-	LOG_INFO "$0" 0 "BOOTING" "Starting Low Power Indicator"
-	/opt/muos/script/var/process.sh start lowpower /opt/muos/script/system/lowpower.sh
-
 	if [ "$USB_FUNCTION" -ne 0 ]; then
 		LOG_INFO "$0" 0 "BOOTING" "Starting USB Function"
 		/opt/muos/script/system/usb_gadget.sh start &
@@ -181,7 +178,6 @@ DO_START() {
 DO_STOP() {
 	/opt/muos/script/var/process.sh stop-group init-deferred >/dev/null 2>&1
 	/opt/muos/script/var/process.sh stop-group boot-maintenance >/dev/null 2>&1
-	/opt/muos/script/var/process.sh stop lowpower >/dev/null 2>&1
 
 	LOG_INFO "$0" 0 "SHUTDOWN" "Stopping USB Function"
 	/opt/muos/script/system/usb_gadget.sh stop

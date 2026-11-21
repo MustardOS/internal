@@ -14,8 +14,8 @@ DIAG_CONFIG "$MUOS_CONF_DEVICE/cpu"
 DIAG_KV "Default governor" "$(GET_VAR "device" "cpu/default" 2>/dev/null)"
 
 DIAG_SECTION "Performance levels"
-DIAG_CMD "Status" /opt/muos/frontend/mucpu status
-DIAG_CMD "Levels on this device" /opt/muos/frontend/mucpu list
+DIAG_CMD "Status" /opt/muos/frontend/tool/mucpu status
+DIAG_CMD "Levels on this device" /opt/muos/frontend/tool/mucpu list
 PERF_SESSION=$(DIAG_READ /run/muos/cpu_profile)
 
 DIAG_SECTION "CPU cores"

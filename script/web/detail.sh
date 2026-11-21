@@ -77,7 +77,7 @@ DETAIL_GPU_MODEL() {
 }
 
 DETAIL_CONNECTED() {
-	DC_STATE=$(GET_VAR "device" "network/state")
+	DC_STATE=$(NET_STATE_FILE)
 	[ -n "$DC_STATE" ] && [ "$(READ_FILE "$DC_STATE")" = "up" ] && [ -n "$(DEVICE_ADDRESS)" ]
 }
 

@@ -4,7 +4,7 @@
 
 OPT_URL=$(GET_VAR "config" "extra/optimised/data")
 OPT_ENABLED=$(GET_VAR "config" "settings/advanced/optimised")
-OPT_NET_STATE=$(GET_VAR "device" "network/state")
+OPT_NET_STATE=$(NET_STATE_FILE)
 
 OPT_DIR="$MUOS_STORE_DIR/info/manifest"
 OPT_FILE="$OPT_DIR/optimised.json"

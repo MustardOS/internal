@@ -7,13 +7,8 @@ FORCE_COPY=0
 
 GCDB_STORE="$MUOS_SHARE_DIR/info/gamecontrollerdb"
 GCDB_FULL="$MUOS_SHARE_DIR/conf/gamecontrollerdb.txt"
-BOARD_NAME=$(GET_VAR "device" "board/name")
-
-case "$BOARD_NAME" in
-	tui-brick) PORTMASTER_NAME="TRIMUI Brick Controller" ;;
-	tui-spoon) PORTMASTER_NAME="TRIMUI Smart Pro Controller" ;;
-	*) PORTMASTER_NAME="Deeplay-keys" ;;
-esac
+PORTMASTER_NAME=$(GET_VAR "device" "board/controller_name")
+[ -n "$PORTMASTER_NAME" ] || PORTMASTER_NAME="Deeplay-keys"
 
 mkdir -p "$GCDB_STORE"
 

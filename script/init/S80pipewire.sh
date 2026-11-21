@@ -6,10 +6,7 @@ PF_INTERNAL=$(GET_VAR "device" "audio/pf_internal")
 PF_EXTERNAL=$(GET_VAR "device" "audio/pf_external")
 BOARD_NAME=$(GET_VAR "device" "board/name")
 
-SPEAKER_GPIO=
-case "$BOARD_NAME" in
-	tui-brick | tui-brick-pro | tui-spoon) SPEAKER_GPIO=230 ;;
-esac
+SPEAKER_GPIO=$(GET_VAR "device" "audio/speaker_gpio")
 
 SPEAKER_GPIO_PATH="/sys/class/gpio/gpio${SPEAKER_GPIO}"
 

@@ -4,7 +4,7 @@
 . /opt/muos/script/var/theme.sh
 . /opt/muos/script/var/storage.sh
 
-NET_STATE=$(GET_VAR "device" "network/state")
+NET_STATE=$(NET_STATE_FILE)
 RETROWAIT=$(GET_VAR "config" "settings/advanced/retrowait")
 
 NET_START="$MUOS_RUN_DIR/net_start"

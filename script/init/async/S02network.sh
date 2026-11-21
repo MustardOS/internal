@@ -20,6 +20,10 @@ BOARD_NAME=$(GET_VAR "device" "board/name")
 
 HAS_NETWORK=$(GET_VAR "device" "board/network")
 NET_MODULE=$(GET_VAR "device" "network/module")
+case "$NET_MODULE" in
+	/*) ;;
+	*.ko) NET_MODULE="/lib/modules/$(uname -r)/$NET_MODULE" ;;
+esac
 NET_IFACE=$(GET_VAR "device" "network/iface")
 NET_NAME=$(GET_VAR "device" "network/name")
 
@@ -47,7 +51,6 @@ if [ "$NET_DRIVER_TYPE" = "wext" ] && [ -x "$WPA_WEXT_BIN" ]; then
 fi
 
 CUS_HOST="MUOS/info/hostname"
-DEV_HOST=$(GET_VAR "device" "network/hostname")
 SD1_HOST="$(GET_VAR "device" "storage/rom/mount")/$CUS_HOST"
 SD2_HOST="$(GET_VAR "device" "storage/sdcard/mount")/$CUS_HOST"
 
@@ -310,17 +313,6 @@ WAIT_FOR_IFACE_SCAN() {
 LOAD_MODULE() {
 	[ "${HAS_NETWORK:-0}" -eq 0 ] && return 0
 
-	if MODULE_LOADED "$NET_NAME"; then
-		case "$BOARD_NAME" in
-			rg-vita*)
-				# PCIe WiFi - autoloaded by kernel, no SDIO reload cycle needed
-				;;
-			rg*)
-				FORCE_SDIO_AWAKE
-				;;
-		esac
-	fi
-
 	FORCE_SDIO_AWAKE
 
 	case "$BOARD_NAME" in
@@ -481,8 +473,7 @@ DESTROY_DHCPCD() {
 
 RESTORE_HOSTNAME() {
 	HOSTFILE=""
-	[ -e "$DEV_HOST" ] && HOSTFILE="$DEV_HOST"
-	[ -z "$HOSTFILE" ] && [ -e "$SD2_HOST" ] && HOSTFILE="$SD2_HOST"
+	[ -e "$SD2_HOST" ] && HOSTFILE="$SD2_HOST"
 	[ -z "$HOSTFILE" ] && [ -e "$SD1_HOST" ] && HOSTFILE="$SD1_HOST"
 	[ -z "$HOSTFILE" ] && return 0
 

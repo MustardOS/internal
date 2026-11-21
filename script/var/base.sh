@@ -113,6 +113,10 @@ IS_ONE() {
 	[ "$1" = "1" ]
 }
 
+NET_STATE_FILE() {
+	printf '/sys/class/net/%s/operstate' "$(GET_VAR "device" "network/iface")"
+}
+
 RTC_CLOCK() {
 	for RTC_DIR in /sys/class/rtc/rtc*; do
 		IFS= read -r RTC_VALUE <"$RTC_DIR/hctosys" 2>/dev/null || continue

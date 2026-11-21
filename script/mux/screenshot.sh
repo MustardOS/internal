@@ -81,11 +81,9 @@ if [ -e "$MUOS_RUN_DIR/hdmi_mode" ]; then
 fi
 
 if [ "$SS_CAPTURED" -eq 0 ]; then
-	case "$(GET_VAR "device" "board/name")" in
-		mgx*) /opt/muos/frontend/tool/mufbset -g "$SS_FILE" && convert "$SS_FILE" -rotate 270 "$SS_FILE" ;;
-		rg-vita* | rg28xx-h | rk-pixel-2) /opt/muos/frontend/tool/mufbset -g "$SS_FILE" && convert "$SS_FILE" -rotate 90 "$SS_FILE" ;;
-		*) /opt/muos/frontend/tool/mufbset -g "$SS_FILE" ;;
-	esac
+	SS_ROTATE=$(GET_VAR "device" "screen/orientation")
+	/opt/muos/frontend/tool/mufbset -g "$SS_FILE" &&
+		{ [ "${SS_ROTATE:-0}" -eq 0 ] || convert "$SS_FILE" -rotate "$SS_ROTATE" "$SS_FILE"; }
 fi || {
 	LOG_ERROR "$0" 0 "SCREENSHOT" "Screenshot capture failed"
 	exit 1

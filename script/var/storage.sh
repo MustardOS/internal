@@ -109,6 +109,7 @@ RESET_DPAD_MODE() {
 	DPAD_SWAP_PATH=${3:-$(GET_VAR "device" "board/swap")}
 
 	IS_ONE "$BOARD_STICK_VALUE" && return 0
+	[ -n "$DPAD_SWAP_PATH" ] || return 0
 
 	case "$BOARD_NAME_VALUE" in
 		rg*) printf "0" >"$DPAD_SWAP_PATH" ;;
@@ -168,12 +169,12 @@ RESTORE_DPAD_AND_LEDS() {
 	case "$RESTORE_BOARD_NAME" in
 		rg*)
 			LOG_DEBUG "$0" 0 "LAUNCH" "Resetting DPAD swap and LED state for rg* board"
-			printf "0" >"$RESTORE_DPAD_SWAP"
+			[ -n "$RESTORE_DPAD_SWAP" ] && printf "0" >"$RESTORE_DPAD_SWAP"
 			[ -e "$MUOS_RUN_DIR/quiet_halt" ] || printf "1" >"$RESTORE_LED_NORMAL"
 			printf "1" >"$RESTORE_LED_STATE"
 			;;
 		rk-pixel-2 | tui*)
-			ENSURE_REMOVED_SYNC "$RESTORE_DPAD_SWAP"
+			[ -n "$RESTORE_DPAD_SWAP" ] && ENSURE_REMOVED_SYNC "$RESTORE_DPAD_SWAP"
 			;;
 		*) ;;
 	esac
@@ -205,7 +206,7 @@ RESTORE_FRAMEBUFFER_MODE() {
 RUN_SYNCTHING_SCAN() {
 	USE_SYNCTHING_VALUE=${1:-$(GET_VAR "config" "web/syncthing")}
 	AUTO_SCAN_VALUE=${2:-$(GET_VAR "config" "syncthing/auto_scan")}
-	NET_STATE_PATH=${3:-$(GET_VAR "device" "network/state")}
+	NET_STATE_PATH=${3:-$(NET_STATE_FILE)}
 
 	IS_ONE "$USE_SYNCTHING_VALUE" || return 0
 	IS_ONE "$AUTO_SCAN_VALUE" || return 0

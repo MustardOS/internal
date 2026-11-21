@@ -8,12 +8,9 @@ LOG_INFO "$0" 0 "TWEAK" "Applying device tweaks"
 HK_COMBO() {
 	[ -z "$1" ] && return 0
 
-	case "$(GET_VAR "device" "board/name")" in
-		rg*) COMBO_FILE="$MUOS_SHARE_DIR/hotkey/rg.ini" ;;
-		rk*) COMBO_FILE="$MUOS_SHARE_DIR/hotkey/rk.ini" ;;
-		tui*) COMBO_FILE="$MUOS_SHARE_DIR/hotkey/tui.ini" ;;
-		*) return 0 ;;
-	esac
+	HK_SET=$(GET_VAR "device" "board/hotkey")
+	[ -n "$HK_SET" ] || return 0
+	COMBO_FILE="$MUOS_SHARE_DIR/hotkey/$HK_SET.ini"
 
 	[ ! -r "$COMBO_FILE" ] && return 0
 

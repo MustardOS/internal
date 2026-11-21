@@ -30,14 +30,11 @@ TRANSIENT=0
 
 # This is the most stupidest thing yet, some devices actually invert
 # their brightness method, so now we have to invert our calculations
-INVERT_BRIGHT=0
-case "$BOARD_NAME" in
-	mgx*) INVERT_BRIGHT=1 ;;
-esac
+INVERT_BRIGHT=$(GET_VAR "device" "screen/bright_invert")
 
 MAP_BRIGHT() {
 	V=$1
-	[ "$INVERT_BRIGHT" -eq 0 ] && {
+	[ "${INVERT_BRIGHT:-0}" -eq 0 ] && {
 		printf "%s" "$V"
 		return
 	}

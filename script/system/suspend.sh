@@ -40,11 +40,6 @@ CONNECT_ON_WAKE=$(GET_VAR "config" "settings/network/wake")
 USE_ACTIVITY="$(GET_VAR "config" "settings/advanced/activity")"
 USB_FUNCTION="$(GET_VAR "config" "settings/advanced/usb_function")"
 
-H700_DEVICE=0
-case "$BOARD_NAME" in
-	rg28xx-h | rg34xx-h | rg34xx-sp | rg35xx-* | rg40xx-* | rgcubexx-h | rgsp) H700_DEVICE=1 ;;
-esac
-
 # We'll keep the suspend state for the G350 at freeze for now, not that it even works!
 if [ "$BOARD_NAME" = rk-g350-v ] && [ "$SUSPEND_STATE" = mem ]; then
 	SUSPEND_STATE=freeze
@@ -275,12 +270,7 @@ RUN_SUSPEND_BACKEND() {
 		[ "$REMAINING" -lt 0 ] && REMAINING=0
 	fi
 
-	POWER_DEVICE=
-	case "$BOARD_NAME" in
-		rk-g350-v) POWER_DEVICE=rk8xx_pwrkey ;;
-		rg-vita-pro | rk-pixel-2) POWER_DEVICE="rk805 pwrkey" ;;
-	esac
-	[ "$H700_DEVICE" -eq 1 ] && POWER_DEVICE=axp2202-pek
+	POWER_DEVICE=$(GET_VAR "device" "board/power_key")
 
 	LID_WAKE=0
 	if [ "$(GET_VAR "device" "board/lid")" -eq 1 ] 2>/dev/null && \

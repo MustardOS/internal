@@ -81,7 +81,7 @@ DPAD_SWAP=$(GET_VAR "device" "board/swap")
 
 # Switch analogue<>dpad for stickless devices
 [ "$(GET_VAR "device" "board/stick")" -eq 0 ] && STICK_ROT=2 || STICK_ROT=0
-case "$(GET_VAR "device" "board/name")" in
+[ -n "$DPAD_SWAP" ] && case "$(GET_VAR "device" "board/name")" in
 	rg*) printf "%s" "$STICK_ROT" >"$DPAD_SWAP" ;;
 	rk-pixel-2 | tui*) [ ! -f "$DPAD_SWAP" ] && touch "$DPAD_SWAP" ;;
 	*) ;;

@@ -273,6 +273,7 @@
         {key: "all", label: "All Media"},
         {key: "pickles", label: "Pickles"},
         {key: "wasabi", label: "Wasabi"},
+        {key: "chutney", label: "Chutney"},
         {key: "retroarch", label: "RetroArch"},
         {key: "external", label: "External"},
         {key: "app", label: "Applications"}
@@ -281,6 +282,7 @@
     function runtimeOf(runtime, core) {
         if (runtime !== "all" && GROUPS.some((group) => group.key === runtime)) return runtime;
         if (core === "ext-video") return "wasabi";
+        if (core === "ext-reader") return "chutney";
         if (core.startsWith("ext-")) return "external";
         return "retroarch";
     }
@@ -558,6 +560,7 @@
     function coreName(core) {
         if (!core) return t("Unknown");
         if (core === "ext-video") return "Wasabi";
+        if (core === "ext-reader") return "Chutney";
         if (core === "external") return t("%s (External)", EXTERNAL_CORES.external);
         if (core.startsWith("ext-") && own(EXTERNAL_CORES, core.slice(4)))
             return t("%s (External)", EXTERNAL_CORES[core.slice(4)]);
@@ -617,7 +620,7 @@
     const CORE_COLUMNS = ["core", "sessionCore"];
 
     function hasCores(group) {
-        return group !== "wasabi" && group !== "app";
+        return group !== "wasabi" && group !== "chutney" && group !== "app";
     }
 
     function summaryRows(stats, group) {

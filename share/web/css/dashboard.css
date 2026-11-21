@@ -268,7 +268,7 @@ h1 { margin: 18px 0 9px; color: var(--head); font-size: 36px; font-weight: 700; 
 .tracker-group[aria-pressed="true"] h2 { color: var(--accent); }
 .tracker-group:first-child { grid-column: 1 / -1; }
 .tracker-group .bar { margin-top: 10px; }
-#tracker-groups { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+#tracker-groups { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 .tracker-calendar-box .head { flex-wrap: wrap; justify-content: space-between; }
 .calendar-scope { margin-bottom: 10px; }
@@ -822,6 +822,7 @@ button.file-name::before { mask-image: url("../icon/folder.svg"); }
 
 @media (max-width: 560px) {
     .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    #tracker-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
     .search { width: 11rem; }
     .card-count { font-size: 1.2rem; }

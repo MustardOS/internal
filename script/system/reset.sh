@@ -82,6 +82,7 @@ esac
 LOG_INFO "$0" 0 "FACTORY RESET" "Generating Filesystem Paths"
 DIRS='
 application
+chutney
 info/catalogue
 info/collection
 info/history

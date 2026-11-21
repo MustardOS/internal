@@ -3,7 +3,7 @@
 . /opt/muos/script/var/log.sh
 . /opt/muos/script/var/manifest.sh
 
-PRIORITY_LOCS="application bios init info/manifest info/track music pickles save theme wasabi"
+PRIORITY_LOCS="application bios chutney init info/manifest info/track music pickles save theme wasabi"
 STANDARD_LOCS="colour info/catalogue info/name info/launch info/collection info/history info/layout info/override lab network profile screenshot syncthing package/catalogue package/config"
 
 MOUNT_FAILURE="/tmp/muos/mount_failure"
@@ -287,6 +287,17 @@ for CM_OLD in "$MUOS_STORE_DIR/info/manifest/core.json" "$CORE_MANIFEST_USER"/*.
 	CORE_MANIFEST_MIGRATE
 	break
 done
+
+CONTENT_INFO="$MUOS_SHARE_DIR/info/content"
+CHUTNEY_MARK="$CONTENT_INFO/.chutney_migrated"
+if [ -d "$CONTENT_INFO" ] && [ ! -f "$CHUTNEY_MARK" ]; then
+	LOG_INFO "$0" 0 "BIND MOUNT" "Moving mReader assignments to Chutney"
+	grep -rl -e "^ext-mreader" "$CONTENT_INFO" 2>/dev/null | while IFS= read -r MR_CFG; do
+		sed -i -e 's/^ext-mreader-landscape$/ext-reader/' -e 's/^ext-mreader-portrait$/ext-reader/' \
+			-e 's/^ext-mreader landscape$/ext-chutney/' -e 's/^ext-mreader portrait$/ext-chutney/' "$MR_CFG"
+	done
+	: >"$CHUTNEY_MARK"
+fi
 
 ASSIGN_FILE="$MUOS_STORE_DIR/info/manifest/assign.json"
 if [ ! -s "$ASSIGN_FILE" ]; then

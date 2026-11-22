@@ -219,7 +219,8 @@ function renderer.startTextSizeTransition(old_size, new_size)
     text_size_pill_from_h = menu_anim_h or old_layout.target_oh
 
     -- Capture old settings text without pill into transparent canvas
-    love.graphics.setCanvas(text_size_old_canvas)
+    local prev_canvas = love.graphics.getCanvas()
+    love.graphics.setCanvas({text_size_old_canvas, stencil = true})
     love.graphics.clear(0, 0, 0, 0)
     if is_console then
         local real_getDims = love.graphics.getDimensions
@@ -240,7 +241,11 @@ function renderer.startTextSizeTransition(old_size, new_size)
     else
         renderer.drawSettingsElements(sel, w, h, scale, old_layout)
     end
-    love.graphics.setCanvas()
+    if prev_canvas then
+        love.graphics.setCanvas({prev_canvas, stencil = true})
+    else
+        love.graphics.setCanvas()
+    end
 
     text_size_transition_timer = TEXT_SIZE_TRANSITION_DURATION
     text_size_new_canvas_ready = false
@@ -276,7 +281,8 @@ function renderer.finishTextSizeTransition()
     text_size_pill_to_w = new_layout.target_ow
     text_size_pill_to_h = new_layout.target_oh
 
-    love.graphics.setCanvas(text_size_new_canvas)
+    local prev_canvas = love.graphics.getCanvas()
+    love.graphics.setCanvas({text_size_new_canvas, stencil = true})
     love.graphics.clear(0, 0, 0, 0)
     if is_console then
         local real_getDims = love.graphics.getDimensions
@@ -297,7 +303,11 @@ function renderer.finishTextSizeTransition()
     else
         renderer.drawSettingsElements(sel, w, h, scale, new_layout)
     end
-    love.graphics.setCanvas()
+    if prev_canvas then
+        love.graphics.setCanvas({prev_canvas, stencil = true})
+    else
+        love.graphics.setCanvas()
+    end
 
     text_size_new_canvas_ready = true
 
@@ -399,7 +409,8 @@ function renderer.captureOldStoreScreen()
     if not store_sort_old_canvas or store_sort_old_canvas:getWidth() ~= w or store_sort_old_canvas:getHeight() ~= h then
         store_sort_old_canvas = love.graphics.newCanvas(w, h)
     end
-    love.graphics.setCanvas(store_sort_old_canvas)
+    local prev_canvas = love.graphics.getCanvas()
+    love.graphics.setCanvas({store_sort_old_canvas, stencil = true})
     love.graphics.clear(0, 0, 0, 0)
     if is_console then
         local real_getDims = love.graphics.getDimensions
@@ -418,7 +429,11 @@ function renderer.captureOldStoreScreen()
     else
         renderer.drawStoreMenu(_G.store_selection or 1, true, true)
     end
-    love.graphics.setCanvas()
+    if prev_canvas then
+        love.graphics.setCanvas({prev_canvas, stencil = true})
+    else
+        love.graphics.setCanvas()
+    end
     store_sort_transition_timer = STORE_SORT_TRANSITION_DURATION
 end
 
@@ -7092,6 +7107,7 @@ function renderer.startThemeTransition(drawTarget, direction)
     elseif not (_G.is_console_active and _G.is_console_active()) then
         w, h = love.graphics.getDimensions()
     end
+    local prev_canvas = love.graphics.getCanvas()
     if not transition_canvas or transition_canvas:getWidth() ~= w or transition_canvas:getHeight() ~= h then
         transition_canvas = love.graphics.newCanvas(w, h)
     end
@@ -7179,7 +7195,11 @@ function renderer.startThemeTransition(drawTarget, direction)
             renderer.draw(drawTarget, true)
         end
     end
-    love.graphics.setCanvas()
+    if prev_canvas then
+        love.graphics.setCanvas({prev_canvas, stencil = true})
+    else
+        love.graphics.setCanvas()
+    end
 
     transition_timer = transition_duration
     local dir = direction or 1
@@ -8631,10 +8651,15 @@ function renderer.drawTutorial(page, skip_transition, static_only)
             if not tutorial_new_canvas then
                 tutorial_new_canvas = love.graphics.newCanvas(w, h)
             end
+            local prev_canvas = love.graphics.getCanvas()
             love.graphics.setCanvas({tutorial_new_canvas, stencil = true})
             love.graphics.clear()
-            renderer.drawTutorial(page, true, true) -- skip_transition=true, static_only=true
-            love.graphics.setCanvas()
+            renderer.drawTutorial(page, true, true)
+            if prev_canvas then
+                love.graphics.setCanvas({prev_canvas, stencil = true})
+            else
+                love.graphics.setCanvas()
+            end
             _G.tutorial_slide_ready = true
         end
 
@@ -9018,10 +9043,15 @@ function renderer.drawSettings(selection, skip_transition)
                 text_size_pill_to_w = layout.target_ow
                 text_size_pill_to_h = layout.target_oh
 
-                love.graphics.setCanvas(text_size_new_canvas)
+                local prev_canvas = love.graphics.getCanvas()
+                love.graphics.setCanvas({text_size_new_canvas, stencil = true})
                 love.graphics.clear(0, 0, 0, 0)
                 renderer.drawSettingsElements(selection, w, h, scale, layout)
-                love.graphics.setCanvas()
+                if prev_canvas then
+                    love.graphics.setCanvas({prev_canvas, stencil = true})
+                else
+                    love.graphics.setCanvas()
+                end
                 text_size_new_canvas_ready = true
             end
             in_text_size_transition = true
@@ -10466,7 +10496,11 @@ local function renderBoardPreviewToCanvas(target_canvas, skin_id, bs)
     end
 
     love.graphics.pop()
-    love.graphics.setCanvas(prev_canvas)
+    if prev_canvas then
+        love.graphics.setCanvas({prev_canvas, stencil = true})
+    else
+        love.graphics.setCanvas()
+    end
 end
 
 function renderer.prepareBoardTransition(prev_idx, cur_idx, bs)
@@ -12476,6 +12510,7 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
     -- Middle content panel
     if is_tab_transitioning and _G.achievements_tab_prev and _G.achievements_tab_prev ~= active_tab then
         if not _G.achievements_tab_ready then
+            local prev_canvas = love.graphics.getCanvas()
             if not achievements_old_canvas or achievements_old_canvas:getWidth() ~= w or achievements_old_canvas:getHeight() ~= h then
                 achievements_old_canvas = love.graphics.newCanvas(w, h)
             end
@@ -12488,15 +12523,19 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
             local from_s = (from_tab == 2) and (_G.stats_scroll or 0) or (_G.achievements_scroll or 0)
             local to_s = (to_tab == 2) and (_G.stats_scroll or 0) or (_G.achievements_scroll or 0)
 
-            love.graphics.setCanvas(achievements_old_canvas)
+            love.graphics.setCanvas({achievements_old_canvas, stencil = true})
             love.graphics.clear(0, 0, 0, 0)
             renderer.drawAchievementsTabContent(from_tab, from_s)
 
-            love.graphics.setCanvas(achievements_new_canvas)
+            love.graphics.setCanvas({achievements_new_canvas, stencil = true})
             love.graphics.clear(0, 0, 0, 0)
             renderer.drawAchievementsTabContent(to_tab, to_s)
 
-            love.graphics.setCanvas()
+            if prev_canvas then
+                love.graphics.setCanvas({prev_canvas, stencil = true})
+            else
+                love.graphics.setCanvas()
+            end
             _G.achievements_tab_ready = true
         end
 

@@ -5,6 +5,38 @@ local input = {}
 
 local joystick
 
+-- Analog stick deadzone and release thresholds
+local AXIS_DEADZONE = 0.5
+local AXIS_RELEASE  = 0.3
+local AXIS_DEADZONE_SQ = AXIS_DEADZONE * AXIS_DEADZONE
+local AXIS_RELEASE_SQ  = AXIS_RELEASE * AXIS_RELEASE
+local stick_states = setmetatable({}, { __mode = "k" })
+
+local function get_stick_state(js)
+    local st = stick_states[js]
+    if not st then
+        st = { x = 0, y = 0, dir = nil }
+        stick_states[js] = st
+    end
+    return st
+end
+
+local function is_dpad_held(js, dir_event)
+    if not (js and js.isGamepad and js:isGamepad() and js.isGamepadDown) then
+        return false
+    end
+    if dir_event == input.events.LEFT then
+        return js:isGamepadDown("dpleft")
+    elseif dir_event == input.events.RIGHT then
+        return js:isGamepadDown("dpright")
+    elseif dir_event == input.events.UP then
+        return js:isGamepadDown("dpup")
+    elseif dir_event == input.events.DOWN then
+        return js:isGamepadDown("dpdown")
+    end
+    return false
+end
+
 -- Hold-to-repeat configuration
 local repeat_delay = 0.3    -- initial delay before auto-repeat
 local repeat_rate  = 0.15   -- repeat interval while holding
@@ -79,10 +111,25 @@ end
 input.emit = emit
 
 function input.load()
-    local joysticks = love.joystick.getJoysticks()
-    if #joysticks > 0 then
-        joystick = joysticks[1]
+    if love.joystick then
+        local joysticks = love.joystick.getJoysticks()
+        if #joysticks > 0 then
+            joystick = joysticks[1]
+        else
+            joystick = nil
+        end
     end
+end
+
+function input.getJoystick()
+    return joystick
+end
+
+function input.getJoysticks()
+    if love.joystick then
+        return love.joystick.getJoysticks()
+    end
+    return {}
 end
 
 function input.update(dt)
@@ -233,10 +280,18 @@ end
 function love.gamepadreleased(js, button)
     local event = input.joystick_mapping[button]
     if event then
-        input.state[event] = false
+        local still_held = false
+        if stick_states[js] and stick_states[js].dir == event then
+            still_held = true
+        end
+        if not still_held then
+            input.state[event] = false
+        end
         if event == holding.dir then
-            holding.dir = nil
-            holding.started = false
+            if not still_held then
+                holding.dir = nil
+                holding.started = false
+            end
         end
     end
 
@@ -244,6 +299,168 @@ function love.gamepadreleased(js, button)
         local dg = package.loaded["dino_game"]
         if dg and dg.gamepadreleased then
             dg.gamepadreleased(button)
+        end
+    end
+end
+
+-- Analog stick navigation and hold to repeat
+function love.gamepadaxis(js, axis, value)
+    if not js then return end
+    if axis ~= "leftx" and axis ~= "lefty" then return end
+
+    local st = get_stick_state(js)
+    if axis == "leftx" then
+        st.x = value
+    elseif axis == "lefty" then
+        st.y = value
+    end
+
+    local x = st.x
+    local y = st.y
+    local mag_sq = x * x + y * y
+
+    if mag_sq >= AXIS_DEADZONE_SQ then
+        if _G.controls_help == "auto" then
+            _G.input_mode = "gamepad"
+            if renderer and renderer.checkControlModeChange then
+                renderer.checkControlModeChange()
+            end
+        end
+
+        local new_dir
+        if math.abs(x) >= math.abs(y) then
+            if x > 0 then
+                new_dir = input.events.RIGHT
+            else
+                new_dir = input.events.LEFT
+            end
+        else
+            if y < 0 then
+                new_dir = input.events.UP
+            else
+                new_dir = input.events.DOWN
+            end
+        end
+
+        if st.dir ~= new_dir then
+            if st.dir then
+                local old_dir = st.dir
+                st.dir = nil
+                if not is_dpad_held(js, old_dir) then
+                    input.state[old_dir] = false
+                    if holding.dir == old_dir then
+                        holding.dir = nil
+                        holding.started = false
+                    end
+                end
+                if _G.appState == "DINO" then
+                    local dg = package.loaded["dino_game"]
+                    if dg and dg.keyreleased then
+                        dg.keyreleased(old_dir)
+                    end
+                end
+            end
+
+            st.dir = new_dir
+            input.state[new_dir] = true
+            emit(new_dir, false)
+
+            if is_directional(new_dir) then
+                holding.dir = new_dir
+                holding.start_time = love.timer.getTime()
+                holding.started = false
+                holding.last_fire = holding.start_time
+            end
+        end
+    elseif mag_sq <= AXIS_RELEASE_SQ then
+        if st.dir then
+            local old_dir = st.dir
+            st.dir = nil
+            if not is_dpad_held(js, old_dir) then
+                input.state[old_dir] = false
+                if holding.dir == old_dir then
+                    holding.dir = nil
+                    holding.started = false
+                end
+            end
+            if _G.appState == "DINO" then
+                local dg = package.loaded["dino_game"]
+                if dg and dg.keyreleased then
+                    dg.keyreleased(old_dir)
+                end
+            end
+        end
+    end
+end
+
+-- Controller connection and disconnection callbacks
+function love.joystickadded(js)
+    input.load()
+    if js then
+        stick_states[js] = { x = 0, y = 0, dir = nil }
+    end
+
+    if _G.controls_help == "auto" then
+        _G.input_mode = "gamepad"
+        if renderer and renderer.checkControlModeChange then
+            renderer.checkControlModeChange()
+        end
+    end
+
+    if renderer and renderer.showToast and love.timer and (love.timer.getTime() > 2.0) then
+        local name = js and js.getName and js:getName()
+        if name and #name > 0 then
+            renderer.showToast("Controller Connected: " .. name)
+        else
+            renderer.showToast("Controller Connected")
+        end
+    end
+end
+
+function love.joystickremoved(js)
+    if js and js.isVibrationSupported and js:isVibrationSupported() then
+        pcall(function() js:setVibration(0, 0) end)
+    end
+
+    if stick_states[js] then
+        local old_dir = stick_states[js].dir
+        if old_dir then
+            input.state[old_dir] = false
+            if holding.dir == old_dir then
+                holding.dir = nil
+                holding.started = false
+            end
+            if _G.appState == "DINO" then
+                local dg = package.loaded["dino_game"]
+                if dg and dg.keyreleased then
+                    dg.keyreleased(old_dir)
+                end
+            end
+        end
+        stick_states[js] = nil
+    end
+
+    input.load()
+
+    local joysticks = love.joystick and love.joystick.getJoysticks() or {}
+    if #joysticks == 0 and _G.controls_help == "auto" then
+        _G.input_mode = "keyboard"
+        if renderer and renderer.checkControlModeChange then
+            renderer.checkControlModeChange()
+        end
+    end
+
+    if renderer and renderer.showToast and love.timer and (love.timer.getTime() > 2.0) then
+        renderer.showToast("Controller Disconnected")
+    end
+
+    if #joysticks == 0 and _G.appState == "GAME" and _G.game then
+        local g = _G.game
+        if g.state == 0 or g.state == 3 then
+            if renderer and renderer.openPause then
+                renderer.openPause()
+            end
+            g:togglePause()
         end
     end
 end
@@ -298,8 +515,11 @@ function love.touchreleased(id, x, y, dx, dy, pressure)
     local abs_x = math.abs(diff_x)
     local abs_y = math.abs(diff_y)
 
-    local swipe_threshold = 30 -- pixels
-    local tap_threshold = 15
+    local w, h = love.graphics.getDimensions()
+    local min_dim = math.min(w, h)
+    local scale = math.max(1.0, min_dim / 390)
+    local swipe_threshold = math.max(48, math.floor(42 * scale))
+    local tap_threshold = math.floor(swipe_threshold * 0.45)
 
     if abs_x > swipe_threshold or abs_y > swipe_threshold then
         -- D-Pad swipe gesture

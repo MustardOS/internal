@@ -247,6 +247,26 @@ QUIET_HALT_PREPARE() {
 	esac
 }
 
+# Kernel sleep never comes back on the G350 and Vita Pro for whatever fuck reason
+USERSPACE_SLEEP_ONLY() {
+	[ "$(GET_VAR "config" "settings/power/sleep_mode")" -eq 1 ] 2>/dev/null && return 0
+
+	case "$BOARD_NAME" in
+		rk-g350-v | rg-vita-pro) return 0 ;;
+		*) return 1 ;;
+	esac
+}
+
+# Waits for the power key (or the lid, or the shutdown deadline) with the CPU kept
+# low; without a named power key device mususpend uses the first one it finds
+USERSPACE_SLEEP() {
+	set -- --state userspace --optimise $QUIESCE
+	[ -n "$POWER_DEVICE" ] && set -- "$@" --power-device "$POWER_DEVICE"
+	[ "$LID_WAKE" -eq 1 ] && set -- "$@" --lid-wake
+	[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
+	"$SUSPEND_HELPER" "$@"
+}
+
 RUN_SUSPEND_BACKEND() {
 	SUSPEND_HELPER=/opt/muos/frontend/tool/mususpend
 	QUIESCE=
@@ -293,44 +313,35 @@ RUN_SUSPEND_BACKEND() {
 		SUSPEND_RESULT=$?
 
 		[ "$SUSPEND_RESULT" -eq 3 ] && LOG_INFO "$0" 0 "SUSPEND" "External power removed, waking from userspace sleep"
-	# Pixel 2 kernel suspend, tested on the shipped kernel build only. The power
-	# key or the shutdown deadline (RTC) wakes it; other builds keep userspace sleep
-	elif [ "$BOARD_NAME" = rk-pixel-2 ] && [ "$(uname -v)" = "#4 SMP Sun Jun 7 23:27:50 EDT 2026" ]; then
+	# Boards whose kernels do not come back from kernel sleep wait for the power key instead
+	elif USERSPACE_SLEEP_ONLY; then
+		G350_LOG_SUSPEND userspace-wait
+		LOG_INFO "$0" 0 "SUSPEND" "Userspace sleep selected or required on $BOARD_NAME"
+
+		USERSPACE_SLEEP
+		SUSPEND_RESULT=$?
+	# Everything else uses kernel sleep, which is far lower power than the userspace wait.
+	# The power key, the lid on boards that route it through the PMIC, or the shutdown
+	# deadline (RTC) wakes it
+	else
 		PIXEL2_USB off
 
-		if [ -n "$REMAINING" ]; then
-			"$SUSPEND_HELPER" --state mem --timeout "$REMAINING"
-		else
-			"$SUSPEND_HELPER" --state mem
-		fi
-		SUSPEND_RESULT=$?
-
-		# mem is refused while a wakeup source is held (the phy holds one while
-		# a PC is connected in ADB mode), so fall back to the power key wait
-		if [ "$SUSPEND_RESULT" -eq 1 ]; then
-			set -- --state userspace --power-device "$POWER_DEVICE" --optimise \
-				$QUIESCE
-			[ "$LID_WAKE" -eq 1 ] && set -- "$@" --lid-wake
-			[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
-			"$SUSPEND_HELPER" "$@"
-			SUSPEND_RESULT=$?
-		fi
-	elif [ -n "$POWER_DEVICE" ]; then
-		G350_LOG_SUSPEND userspace-wait
-
-		set -- --state userspace --power-device "$POWER_DEVICE" --optimise \
-			$QUIESCE
-		[ "$LID_WAKE" -eq 1 ] && set -- "$@" --lid-wake
-		[ -n "$REMAINING" ] && set -- "$@" --timeout "$REMAINING"
-		"$SUSPEND_HELPER" "$@"
-		SUSPEND_RESULT=$?
-	else
 		if [ -n "$REMAINING" ]; then
 			"$SUSPEND_HELPER" --state "$SUSPEND_STATE" --timeout "$REMAINING"
 		else
 			"$SUSPEND_HELPER" --state "$SUSPEND_STATE"
 		fi
 		SUSPEND_RESULT=$?
+
+		# The kernel refuses to sleep while a wakeup source is held (the Pixel 2 phy holds
+		# one while a PC is connected in ADB mode) or if the state is unsupported, so
+		# fall back to the power key wait rather than not sleeping at all
+		if [ "$SUSPEND_RESULT" -eq 1 ]; then
+			LOG_WARN "$0" 0 "SUSPEND" "Kernel sleep ($SUSPEND_STATE) refused, entering userspace sleep"
+
+			USERSPACE_SLEEP
+			SUSPEND_RESULT=$?
+		fi
 	fi
 	QUIET_WAKE=0
 	if [ "$SUSPEND_RESULT" -eq 2 ] || DEADLINE_REACHED; then

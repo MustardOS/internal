@@ -22,6 +22,8 @@ OEM_WIFI_STASH="$MUOS_RUN_DIR/oem_wifi.conf"
 SET_VAR_DURABLE "config" "settings/advanced/rumble" "0"
 SET_VAR_DURABLE "config" "settings/power/saver_type" "1"
 
+APPLY_BOARD_DEFAULTS
+
 IMPORT_OEM_PROFILE() {
 	OEM_PROFILE_IMPORTED=0
 	OEM_WIFI_IMPORTED=0

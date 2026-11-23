@@ -41,6 +41,8 @@ DO_START() {
 		3600) SET_VAR "config" "settings/power/shutdown" 1800 ;;
 	esac
 
+	SEED_BOARD_DEFAULTS
+
 	LOG_INFO "$0" 0 "BOOTING" "Setting 'performance' Governor"
 	printf "performance" >"$GOVERNOR"
 

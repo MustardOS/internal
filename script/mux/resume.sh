@@ -14,6 +14,10 @@ NET_WAIT_MAX=60
 PING_WAIT_MAX=6
 GO_LAST_BOOT=1
 
+ONLINE() {
+	curl -s -o /dev/null -m 5 https://retroachievements.org 2>/dev/null || ping -c 1 -W 5 8.8.8.8 >/dev/null 2>&1
+}
+
 HANDLE_NET_START_CHOICE() {
 	[ -r "$NET_START" ] || return 1
 
@@ -52,7 +56,7 @@ WAIT_FOR_NETWORK() {
 			SHOW_MESSAGE 35 "Network connected"
 
 			PIP=0
-			while ! ping -c 1 -W 5 8.8.8.8 >/dev/null 2>&1; do
+			while ! ONLINE; do
 				PIP=$((PIP + 1))
 
 				LOG_INFO "$0" 0 "FRONTEND" "Verifying connectivity"

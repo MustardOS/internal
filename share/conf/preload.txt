@@ -6,9 +6,18 @@
 /lib/libresolv.so.2
 /lib/librt.so.1
 /lib/libudev.so.1
+/opt/muos/frontend/lib/libmuxcom.so
+/opt/muos/frontend/lib/libmuxmod.so
+/opt/muos/frontend/lib/libplutosvg.so
+/opt/muos/frontend/lib/libui.so
+/opt/muos/frontend/module/muxretro
 /usr/bin/retroarch
+/usr/lib/alsa-lib/libasound_module_pcm_pipewire.so
 /usr/lib/libFLAC.so.12
 /usr/lib/libSDL2-2.0.so.0
+/usr/lib/libSDL2_image-2.0.so.0
+/usr/lib/libSDL2_mixer-2.0.so.0
+/usr/lib/libSDL2_ttf-2.0.so.0
 /usr/lib/libXau.so.6
 /usr/lib/libXdmcp.so.6
 /usr/lib/libapparmor.so.1
@@ -23,6 +32,7 @@
 /usr/lib/libbsd.so.0
 /usr/lib/libbz2.so.1.0
 /usr/lib/libcrypto.so.3
+/usr/lib/libcurl.so.4
 /usr/lib/libdbus-1.so.3
 /usr/lib/libexpat.so.1
 /usr/lib/libfontconfig.so.1
@@ -32,6 +42,7 @@
 /usr/lib/libglib-2.0.so.0
 /usr/lib/libgpg-error.so.0
 /usr/lib/libharfbuzz.so.0
+/usr/lib/libjpeg.so.8
 /usr/lib/liblz4.so.1
 /usr/lib/liblzma.so.5
 /usr/lib/libmd.so.0
@@ -41,6 +52,7 @@
 /usr/lib/libogg.so.0
 /usr/lib/libopus.so.0
 /usr/lib/libpcre2-8.so.0
+/usr/lib/libpipewire-0.3.so.0
 /usr/lib/libpng16.so.16
 /usr/lib/libpulse.so.0
 /usr/lib/libpulsecommon-13.99.so
@@ -60,4 +72,5 @@
 /usr/lib/libwrap.so.0
 /usr/lib/libxcb.so.1
 /usr/lib/libz.so.1
+/usr/lib/libzstd.so.1
 /usr/lib64/libGLESv2.so.2

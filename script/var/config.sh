@@ -182,15 +182,11 @@ DROP_VAR() {
 	"$MUOS_VAR_BIN" del "$NS" "$2" 2>/dev/null || return 0
 }
 
-
-# Settings whose default depends on the board. Used by a factory reset, a profile reset,
-# and at boot when the setting is new so existing installs get the right value too
 BOARD_DEFAULT_KEYS="settings/power/sleep_mode"
 
 BOARD_DEFAULT() {
 	case "$1" in
 		settings/power/sleep_mode)
-			# Lid devices keep userspace sleep so opening the lid still wakes them
 			case "$(GET_VAR "device" "board/name")" in
 				rg34xx-sp | rg35xx-sp | rgsp) printf '1' ;;
 				*) printf '0' ;;
@@ -205,7 +201,6 @@ APPLY_BOARD_DEFAULTS() {
 	done
 }
 
-# Only fills in board defaults that have never been set, for installs that predate them
 SEED_BOARD_DEFAULTS() {
 	for BD_KEY in $BOARD_DEFAULT_KEYS; do
 		[ -n "$(GET_VAR "config" "$BD_KEY")" ] || SET_VAR "config" "$BD_KEY" "$(BOARD_DEFAULT "$BD_KEY")"

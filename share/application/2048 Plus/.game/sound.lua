@@ -1341,7 +1341,7 @@ function sound.playCountdown(secondsLeft)
     if _G.vibration then
         pcall(function()
             if love.system and love.system.vibrate then
-                love.system.vibrate(dur)
+                love.system.vibrate(math.max(0.035, dur))
             end
         end)
         if love.joystick then
@@ -1357,7 +1357,7 @@ end
 
 function sound.vibrate(duration)
     if not _G.vibration then return end
-    local dur = duration or 0.1
+    local dur = math.max(0.035, duration or 0.1)
     pcall(function()
         if love.system and love.system.vibrate then
             love.system.vibrate(dur)

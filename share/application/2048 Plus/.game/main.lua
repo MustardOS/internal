@@ -68,6 +68,7 @@ local function captureOldScreen()
     if not old_screen_canvas or old_screen_canvas:getWidth() ~= w or old_screen_canvas:getHeight() ~= h then
         old_screen_canvas = love.graphics.newCanvas(w, h)
     end
+    local prev_canvas = love.graphics.getCanvas()
     love.graphics.setCanvas({old_screen_canvas, stencil = true})
     love.graphics.clear()
     if (_G.is_console_active and _G.is_console_active()) and not _G.android_fullscreen then
@@ -87,7 +88,11 @@ local function captureOldScreen()
     else
         drawCurrentScreen()
     end
-    love.graphics.setCanvas()
+    if prev_canvas then
+        love.graphics.setCanvas({prev_canvas, stencil = true})
+    else
+        love.graphics.setCanvas()
+    end
 end
 
 local function queueTransitionAction(key, delay, action, direction)
@@ -207,8 +212,17 @@ function love.load(args)
         if _G.achievements.ach_best_friend then table.insert(_G.unlocked_themes, "pawprint") end
         if _G.achievements.ach_purrfect_run then table.insert(_G.unlocked_themes, "neko_night") end
         if _G.stats and _G.stats.purchased_items then
+            if _G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true then
+                for _, c_id in ipairs({"custom_1", "custom_2", "custom_3"}) do
+                    local found = false
+                    for _, existing in ipairs(_G.unlocked_themes) do
+                        if existing == c_id then found = true break end
+                    end
+                    if not found then table.insert(_G.unlocked_themes, c_id) end
+                end
+            end
             for item_id, purchased in pairs(_G.stats.purchased_items) do
-                if purchased and purchased ~= 0 and item_id:match("^theme_") then
+                if purchased and purchased ~= 0 and item_id:match("^theme_") and item_id ~= "theme_studio" then
                     local t_name = item_id:gsub("^theme_", "")
                     if t_name == "cherry_blossom" then t_name = "cherry" end
                     local found = false
@@ -460,6 +474,11 @@ function love.load(args)
         end
     end
 
+    -- Initialize custom studio themes
+    if renderer and renderer.initCustomThemes then
+        renderer.initCustomThemes()
+    end
+
     -- Load theme from dedicated file
     local savedTheme = save.loadTheme()
     if savedTheme then
@@ -601,7 +620,11 @@ function love.update(dt)
                 -- Determine direction from hierarchy depth
                 local old_depth = STATE_DEPTH[last_app_state] or 0
                 local new_depth = STATE_DEPTH[_G.appState] or 0
-                if new_depth > old_depth then
+                if last_app_state == "MENU" and _G.appState == "JUKEBOX" then
+                    transition_direction = 2
+                elseif last_app_state == "JUKEBOX" and _G.appState == "MENU" then
+                    transition_direction = -2
+                elseif new_depth > old_depth then
                     transition_direction = 1   -- deeper = slide from right
                 elseif new_depth < old_depth then
                     transition_direction = -1  -- back = slide from left
@@ -884,6 +907,8 @@ function love.update(dt)
                         _G.achievements_scroll_target = 0
                         _G.stats_scroll = 0
                         _G.stats_scroll_target = 0
+                        _G.achievements_tab_timer = 0
+                        _G.achievements_tab_prev = nil
                     elseif sel == "Tutorial" then
                         _G.appState = "TUTORIAL"
                         _G.tutorial_page = 1
@@ -911,11 +936,12 @@ function love.update(dt)
                         if sound.enterJukebox then
                             sound.enterJukebox()
                         end
-                    end)
+                    end, 2)
                 end
             elseif event == input.events.R1 then
                 sound.playMenuSelect()
                 queueTransitionAction(event, 0.08, function()
+                    _G.store_prev_state = "MENU"
                     _G.appState = "STORE"
                     _G.store_selection = 1
                     _G.store_scroll = 0  -- always open at top
@@ -968,7 +994,8 @@ function love.update(dt)
             elseif event == input.events.BACK then
                 sound.playMenuSelect()
                 queueTransitionAction(event, 0.08, function()
-                    _G.appState = "MENU"
+                    _G.appState = _G.store_prev_state or "MENU"
+                    _G.store_prev_state = nil
                 end)
             elseif event == input.events.CONFIRM then
                 sound.playMenuSelect()
@@ -1091,7 +1118,9 @@ function love.update(dt)
                         else
                             renderer.showToast("Purchased " .. sel_item.name .. "!")
                         end
-                        if sel_item.id:match("^theme_") then
+                        if sel_item.id == "theme_studio" then
+                            if _G.rebuildUnlockedThemes then _G.rebuildUnlockedThemes() end
+                        elseif sel_item.id:match("^theme_") then
                             local t_name = sel_item.id:gsub("^theme_", "")
                             if _G.rebuildUnlockedThemes then _G.rebuildUnlockedThemes() end
                             if renderer and renderer.startThemeTransition then
@@ -1230,7 +1259,7 @@ function love.update(dt)
                     if sound.exitJukebox then
                         sound.exitJukebox()
                     end
-                end)
+                end, -2)
             end
             return
         elseif _G.appState == "PLAY_SELECT" then
@@ -1381,36 +1410,29 @@ function love.update(dt)
                     _G.achievements_scroll_target = 0
                     _G.stats_scroll = 0
                     _G.stats_scroll_target = 0
+                    _G.achievements_tab_timer = 0
                 end)
             elseif event == input.events.L1 then
                 local cur_t = _G.achievements_tab or 1
                 local next_tab = (cur_t > 1) and (cur_t - 1) or 2
                 if next_tab ~= cur_t then
                     sound.playMenuMove()
-                    queueTransitionAction(event, 0.08, function()
-                        if _G.screen_transitions then
-                            renderer.captureOldAchievementsSlide(cur_t)
-                            _G.achievements_slide_dir = -1
-                            _G.achievements_slide_timer = 0.20
-                            _G.achievements_slide_ready = false
-                        end
+                    if _G.screen_transitions and renderer.startAchievementsTabTransition then
+                        renderer.startAchievementsTabTransition(cur_t, next_tab, -1)
+                    else
                         _G.achievements_tab = next_tab
-                    end)
+                    end
                 end
             elseif event == input.events.R1 then
                 local cur_t = _G.achievements_tab or 1
                 local next_tab = (cur_t < 2) and (cur_t + 1) or 1
                 if next_tab ~= cur_t then
                     sound.playMenuMove()
-                    queueTransitionAction(event, 0.08, function()
-                        if _G.screen_transitions then
-                            renderer.captureOldAchievementsSlide(cur_t)
-                            _G.achievements_slide_dir = 1
-                            _G.achievements_slide_timer = 0.20
-                            _G.achievements_slide_ready = false
-                        end
+                    if _G.screen_transitions and renderer.startAchievementsTabTransition then
+                        renderer.startAchievementsTabTransition(cur_t, next_tab, 1)
+                    else
                         _G.achievements_tab = next_tab
-                    end)
+                    end
                 end
             elseif event == input.events.UP then
                 if (_G.achievements_tab or 1) == 1 then
@@ -1538,7 +1560,7 @@ function love.update(dt)
         elseif _G.appState == "THEME_SELECT" then
             local tab = _G.customization_tab or 1
             if event == input.events.L1 then
-                local next_tab = (tab > 1) and (tab - 1) or 3
+                local next_tab = (tab > 1) and (tab - 1) or 4
                 if next_tab ~= tab then
                     sound.playMenuMove()
                     if tab == 1 then
@@ -1555,7 +1577,7 @@ function love.update(dt)
                     end
                 end
             elseif event == input.events.R1 then
-                local next_tab = (tab < 3) and (tab + 1) or 1
+                local next_tab = (tab < 4) and (tab + 1) or 1
                 if next_tab ~= tab then
                     sound.playMenuMove()
                     if tab == 1 then
@@ -1579,17 +1601,58 @@ function love.update(dt)
                     _G.appState = _G.themeSelectPrevState or "MENU"
                 end)
             elseif event == input.events.CONFIRM then
+                local function openStoreForTarget(target_id)
+                    sound.playMenuSelect()
+                    queueTransitionAction(event, 0.08, function()
+                        _G.store_prev_state = "THEME_SELECT"
+                        _G.appState = "STORE"
+                        _G.store_sort_mode = 0
+                        if _G.stats then
+                            _G.stats.store_sort_mode = 0
+                            if save and save.saveStats then save.saveStats(_G.stats) end
+                        end
+                        local target_idx = 1
+                        if target_id and renderer.getStoreItems then
+                            local s_items = renderer.getStoreItems()
+                            for idx, itm in ipairs(s_items) do
+                                if itm.id == target_id then
+                                    target_idx = idx
+                                    break
+                                end
+                            end
+                        end
+                        _G.store_selection = target_idx
+                        _G.store_scroll = nil
+                        _G.store_snap_scroll = true
+                    end)
+                end
+
                 if tab == 1 then
                     -- Theme tab: save theme and stay on screen
                     local is_unlocked = renderer.isThemeUnlocked and renderer.isThemeUnlocked(_G.theme)
                     if not is_unlocked then
-                        sound.playMenuBack()
                         local entry = renderer.getSelectedThemeEntry and renderer.getSelectedThemeEntry()
-                        if entry and entry.unlock_type == "store" then
-                            renderer.showToast("Available from Store")
+                        if entry and entry.unlock_type == "studio" then
+                            local slot = tonumber(entry.id:match("^custom_(%d+)")) or 1
+                            _G.studio_slot = slot
+                            _G.theme = _G.themeSelectInitialTheme or "light"
+                            if renderer.applyTheme then renderer.applyTheme(true) end
+                            sound.playMenuSelect()
+                            local from_tab = 1
+                            local to_tab = 4
+                            if _G.screen_transitions and renderer.startCustomizationTabTransition then
+                                renderer.startCustomizationTabTransition(from_tab, to_tab, 1)
+                            else
+                                _G.customization_tab = 4
+                            end
+                        elseif entry and entry.unlock_type == "store" then
+                            local target_id = entry.store_id or ("theme_" .. entry.id)
+                            openStoreForTarget(target_id)
                         elseif entry and entry.ach_name then
+                            sound.playMenuBack()
                             renderer.showToast("Unlock " .. entry.ach_name .. " to equip")
                         else
+                            sound.playMenuBack()
                             renderer.showToast("Theme is locked")
                         end
                     else
@@ -1620,8 +1683,7 @@ function love.update(dt)
                                 renderer.showToast("Equipped " .. skin.name)
                             end
                         else
-                            sound.playMenuBack()
-                            renderer.showToast("Available from Store")
+                            openStoreForTarget("skin_" .. skin.id)
                         end
                     end
                 elseif tab == 3 then
@@ -1656,21 +1718,61 @@ function love.update(dt)
                                 end
                             end
                         else
-                            sound.playMenuBack()
-                            renderer.showToast("Available from Store")
+                            local target_id = (pet.type == "cat") and "mascot_cat" or "mascot_dog"
+                            openStoreForTarget(target_id)
                         end
+                    end
+                elseif tab == 4 then
+                    -- Theme Studio tab: equip when unlocked or open store
+                    local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
+                    if not is_unlocked then
+                        openStoreForTarget("theme_studio")
+                    else
+                        sound.playMenuSelect()
+                        local slot = _G.studio_slot or 1
+                        renderer.saveAndEquipCustomTheme(slot)
+                        _G.themeSelectInitialTheme = _G.theme
+                        save.saveTheme(_G.theme)
+                        if game then game:saveGameState() end
+                        renderer.showToast("Equipped Custom " .. slot .. "!")
+                    end
+                end
+            elseif event == input.events.X then
+                if tab == 4 then
+                    local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
+                    if is_unlocked then
+                        sound.playMenuMove()
+                        renderer.randomizeStudioSlot()
                     end
                 end
             elseif event == input.events.Y then
-                if tab == 2 or tab == 3 then
+                if tab == 4 then
+                    local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
+                    if is_unlocked then
+                        sound.playMenuMove()
+                        renderer.scrambleStudioPreview()
+                    else
+                        if sound and sound.playMenuMove then sound.playMenuMove() end
+                        if _G.cycleTheme then _G.cycleTheme(1) end
+                        _G.themeSelectInitialTheme = _G.theme
+                        save.saveTheme(_G.theme)
+                        if game then game:saveGameState() end
+                    end
+                elseif tab == 2 or tab == 3 then
                     if sound and sound.playMenuMove then sound.playMenuMove() end
                     if _G.cycleTheme then _G.cycleTheme(1) end
                     _G.themeSelectInitialTheme = _G.theme
                     save.saveTheme(_G.theme)
                     if game then game:saveGameState() end
                 end
-            elseif event == input.events.LEFT or event == input.events.UP then
-                if tab == 1 then
+            elseif event == input.events.UP then
+                if tab == 4 then
+                    local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
+                    if is_unlocked then
+                        sound.playMenuMove()
+                        _G.studio_cursor = ((_G.studio_cursor or 1) - 2) % 7 + 1
+                    end
+                elseif tab == 1 then
                     if sound and sound.playMenuMove then sound.playMenuMove() end
                     if renderer.cycleCustomTheme then renderer.cycleCustomTheme(-1) end
                 elseif tab == 2 then
@@ -1680,8 +1782,48 @@ function love.update(dt)
                     if sound and sound.playMenuMove then sound.playMenuMove() end
                     if renderer.cyclePet then renderer.cyclePet(-1) end
                 end
-            elseif event == input.events.RIGHT or event == input.events.DOWN then
-                if tab == 1 then
+            elseif event == input.events.DOWN then
+                if tab == 4 then
+                    local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
+                    if is_unlocked then
+                        sound.playMenuMove()
+                        _G.studio_cursor = ((_G.studio_cursor or 1) % 7) + 1
+                    end
+                elseif tab == 1 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if renderer.cycleCustomTheme then renderer.cycleCustomTheme(1) end
+                elseif tab == 2 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if renderer.cycleBoardSkin then renderer.cycleBoardSkin(1) end
+                elseif tab == 3 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if renderer.cyclePet then renderer.cyclePet(1) end
+                end
+            elseif event == input.events.LEFT then
+                if tab == 4 then
+                    local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
+                    if is_unlocked then
+                        sound.playMenuMove()
+                        renderer.adjustStudioParameter(-1)
+                    end
+                elseif tab == 1 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if renderer.cycleCustomTheme then renderer.cycleCustomTheme(-1) end
+                elseif tab == 2 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if renderer.cycleBoardSkin then renderer.cycleBoardSkin(-1) end
+                elseif tab == 3 then
+                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                    if renderer.cyclePet then renderer.cyclePet(-1) end
+                end
+            elseif event == input.events.RIGHT then
+                if tab == 4 then
+                    local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
+                    if is_unlocked then
+                        sound.playMenuMove()
+                        renderer.adjustStudioParameter(1)
+                    end
+                elseif tab == 1 then
                     if sound and sound.playMenuMove then sound.playMenuMove() end
                     if renderer.cycleCustomTheme then renderer.cycleCustomTheme(1) end
                 elseif tab == 2 then
@@ -1722,7 +1864,7 @@ function love.update(dt)
                         save.saveButtonVibration(_G.button_vibration)
                         sound.playMenuSelect()
                         if _G.button_vibration and love.system and love.system.vibrate then
-                            love.system.vibrate(0.015)
+                            love.system.vibrate(0.035)
                         end
                     elseif sel == "Back" then
                         sound.playMenuBack()
@@ -2248,10 +2390,15 @@ local function draw_internal()
 
         -- Only render the new screen to the canvas ONCE at the start of the transition
         if not _G.screen_canvas_ready then
+            local prev_canvas = love.graphics.getCanvas()
             love.graphics.setCanvas({screen_canvas, stencil = true})
             love.graphics.clear()
             drawCurrentScreen()
-            love.graphics.setCanvas()
+            if prev_canvas then
+                love.graphics.setCanvas({prev_canvas, stencil = true})
+            else
+                love.graphics.setCanvas()
+            end
             _G.screen_canvas_ready = true
         end
 
@@ -2291,6 +2438,64 @@ local function draw_internal()
             love.graphics.setBlendMode("replace", "premultiplied")
             love.graphics.draw(screen_canvas, new_x, 0)
             love.graphics.setBlendMode("alpha", "alphamultiply")
+        elseif dir == 2 then
+            -- Left side forward screen slide
+            local old_x = math.floor(0.3 * w * p)
+            local new_x = math.floor(-w * (1 - p))
+
+            -- Draw old screen
+            if old_screen_canvas then
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.setBlendMode("replace", "premultiplied")
+                love.graphics.draw(old_screen_canvas, old_x, 0)
+                love.graphics.setBlendMode("alpha", "alphamultiply")
+
+                -- Dim old screen overlay
+                love.graphics.setColor(0, 0, 0, 0.5 * p)
+                love.graphics.rectangle("fill", old_x, 0, w, h)
+            end
+
+            -- Draw shadow to the right of the new screen
+            for i = 0, shadow_w - 1 do
+                local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
+                love.graphics.setColor(0, 0, 0, alpha)
+                love.graphics.rectangle("fill", new_x + w + i, 0, 1, h)
+            end
+
+            -- Draw new screen
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setBlendMode("replace", "premultiplied")
+            love.graphics.draw(screen_canvas, new_x, 0)
+            love.graphics.setBlendMode("alpha", "alphamultiply")
+        elseif dir == -2 then
+            -- Left side backward screen slide
+            local new_x = math.floor(0.3 * w * (1 - p))
+            local old_x = math.floor(-w * p)
+
+            -- Draw new screen
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setBlendMode("replace", "premultiplied")
+            love.graphics.draw(screen_canvas, new_x, 0)
+            love.graphics.setBlendMode("alpha", "alphamultiply")
+
+            -- Dim overlay
+            love.graphics.setColor(0, 0, 0, 0.5 * (1 - p))
+            love.graphics.rectangle("fill", new_x, 0, w, h)
+
+            if old_screen_canvas then
+                -- Draw edge shadow
+                for i = 0, shadow_w - 1 do
+                    local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
+                    love.graphics.setColor(0, 0, 0, alpha)
+                    love.graphics.rectangle("fill", old_x + w + i, 0, 1, h)
+                end
+
+                -- Draw old screen
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.setBlendMode("replace", "premultiplied")
+                love.graphics.draw(old_screen_canvas, old_x, 0)
+                love.graphics.setBlendMode("alpha", "alphamultiply")
+            end
         else
             -- Backward screen slide
             -- Parallax shift for new screen
@@ -2483,13 +2688,12 @@ function love.mousereleased(x, y, button, istouch, presses)
                         if idx ~= cur_tab then
                             local sound = require("sound")
                             if sound and sound.playMenuMove then sound.playMenuMove() end
-                            if _G.screen_transitions then
-                                renderer.captureOldAchievementsSlide(cur_tab)
-                                _G.achievements_slide_dir = (idx > cur_tab) and 1 or -1
-                                _G.achievements_slide_timer = 0.20
-                                _G.achievements_slide_ready = false
+                            local dir = (idx > cur_tab) and 1 or -1
+                            if _G.screen_transitions and renderer.startAchievementsTabTransition then
+                                renderer.startAchievementsTabTransition(cur_tab, idx, dir)
+                            else
+                                _G.achievements_tab = idx
                             end
-                            _G.achievements_tab = idx
                         end
                         return
                     end
@@ -2526,6 +2730,148 @@ function love.wheelmoved(x, y)
                 local max_scroll = _G.stats_max_scroll or 0
                 local old_target = _G.stats_scroll_target or 0
                 _G.stats_scroll_target = math.min(max_scroll, old_target + 1)
+            end
+        end
+    elseif _G.appState == "STORE" then
+        local items = renderer.getStoreItems and renderer.getStoreItems() or {}
+        local items_count = math.max(1, #items)
+        local cur = _G.store_selection or 1
+        if y > 0 then
+            if cur > 1 then
+                _G.store_selection = cur - 1
+                sound.playMenuMove()
+            end
+        elseif y < 0 then
+            if cur < items_count then
+                _G.store_selection = cur + 1
+                sound.playMenuMove()
+            end
+        end
+    elseif _G.appState == "TUTORIAL" then
+        local cur_page = _G.tutorial_page or 1
+        local max_p = renderer.getTutorialPageCount and renderer.getTutorialPageCount() or 11
+        if y > 0 or x < 0 then
+            if cur_page > 1 then
+                sound.playMenuMove()
+                if _G.screen_transitions and renderer.captureOldTutorialSlide then
+                    renderer.captureOldTutorialSlide(cur_page)
+                    _G.tutorial_slide_dir = -1
+                    _G.tutorial_slide_timer = 0.20
+                    _G.tutorial_slide_ready = false
+                end
+                _G.tutorial_page = cur_page - 1
+            end
+        elseif y < 0 or x > 0 then
+            if cur_page < max_p then
+                sound.playMenuMove()
+                if _G.screen_transitions and renderer.captureOldTutorialSlide then
+                    renderer.captureOldTutorialSlide(cur_page)
+                    _G.tutorial_slide_dir = 1
+                    _G.tutorial_slide_timer = 0.20
+                    _G.tutorial_slide_ready = false
+                end
+                _G.tutorial_page = cur_page + 1
+            end
+        end
+    elseif _G.appState == "SETTINGS" then
+        local options = renderer.getSettingsOptions and renderer.getSettingsOptions() or {}
+        local max_sel = #options
+        local cur = _G.settings_selection or 1
+        if y > 0 then
+            if cur > 1 then
+                _G.settings_selection = cur - 1
+                sound.playMenuMove()
+            end
+        elseif y < 0 then
+            if cur < max_sel then
+                _G.settings_selection = cur + 1
+                sound.playMenuMove()
+            end
+        end
+    elseif _G.appState == "ABOUT" then
+        local max_scroll = _G.about_max_scroll or 0
+        local step = math.floor(35 * (_G.scale or 1))
+        local cur = _G.about_scroll_target or 0
+        if y > 0 then
+            if cur > 0 then
+                _G.about_scroll_target = math.max(0, cur - step)
+            end
+        elseif y < 0 then
+            if cur < max_scroll then
+                _G.about_scroll_target = math.min(max_scroll, cur + step)
+            end
+        end
+    elseif _G.appState == "THEME_SELECT" then
+        local tab = _G.customization_tab or 1
+        if y > 0 then
+            if tab == 1 then
+                sound.playMenuMove()
+                if renderer.cycleCustomTheme then renderer.cycleCustomTheme(-1) end
+            elseif tab == 2 then
+                sound.playMenuMove()
+                if renderer.cycleBoardSkin then renderer.cycleBoardSkin(-1) end
+            elseif tab == 3 then
+                sound.playMenuMove()
+                if renderer.cyclePet then renderer.cyclePet(-1) end
+            end
+        elseif y < 0 then
+            if tab == 1 then
+                sound.playMenuMove()
+                if renderer.cycleCustomTheme then renderer.cycleCustomTheme(1) end
+            elseif tab == 2 then
+                sound.playMenuMove()
+                if renderer.cycleBoardSkin then renderer.cycleBoardSkin(1) end
+            elseif tab == 3 then
+                sound.playMenuMove()
+                if renderer.cyclePet then renderer.cyclePet(1) end
+            end
+        end
+    elseif _G.appState == "JUKEBOX" then
+        if not (_G.jukebox_web_modal or (renderer.isJukeboxModalClosing and renderer.isJukeboxModalClosing())) then
+            local playlist = sound.getBgmPlaylist and sound.getBgmPlaylist() or {}
+            local total_tracks = math.max(1, #playlist)
+            local cur = _G.jukebox_selection or 1
+            if y > 0 then
+                if cur > 1 then
+                    _G.jukebox_selection = cur - 1
+                    sound.playMenuMove()
+                end
+            elseif y < 0 then
+                if cur < total_tracks then
+                    _G.jukebox_selection = cur + 1
+                    sound.playMenuMove()
+                end
+            end
+        end
+    elseif _G.appState == "MENU" then
+        local options = renderer.getMainMenuOptions and renderer.getMainMenuOptions() or {}
+        local max_menu = #options
+        if max_menu > 0 then
+            menuSelection = math.max(1, math.min(max_menu, menuSelection))
+            if y > 0 then
+                if menuSelection > 1 then
+                    menuSelection = menuSelection - 1
+                    sound.playMenuMove()
+                end
+            elseif y < 0 then
+                if menuSelection < max_menu then
+                    menuSelection = menuSelection + 1
+                    sound.playMenuMove()
+                end
+            end
+        end
+    elseif _G.appState == "CHEATS_MENU" then
+        local max_sel = 7
+        local cur = _G.cheats_selection or 1
+        if y > 0 then
+            if cur > 1 then
+                _G.cheats_selection = cur - 1
+                sound.playMenuMove()
+            end
+        elseif y < 0 then
+            if cur < max_sel then
+                _G.cheats_selection = cur + 1
+                sound.playMenuMove()
             end
         end
     end

@@ -1,6 +1,17 @@
 #!/bin/sh
 # shellcheck source=/dev/null
 
+[ -w /sys/kernel/rcu_expedited ] && printf '1\n' >/sys/kernel/rcu_expedited
+
+LIBPACK_IMAGE=
+for LIBPACK_FILE in /opt/muos/device/pack/*.sqfs; do
+	[ -s "$LIBPACK_FILE" ] && LIBPACK_IMAGE=$LIBPACK_FILE && break
+done
+if [ -n "$LIBPACK_IMAGE" ] && /opt/muos/frontend/tool/mulibpack mount "$LIBPACK_IMAGE" /run/libpack /run/libpack-lib >/dev/null 2>&1; then
+	LD_LIBRARY_PATH="/run/libpack-lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+	export LD_LIBRARY_PATH
+fi
+
 G350_INITIALISE_RUMBLE_GPIO() {
 	[ "$(cat /opt/muos/device/config/board/name 2>/dev/null)" = rk-g350-v ] || return 0
 

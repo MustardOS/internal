@@ -18,8 +18,6 @@ case "$BOARD_STICK" in
 esac
 
 AUDIO_WAIT_MAX=100
-AUDIO_RESTORE_ASYNC=1
-export AUDIO_RESTORE_ASYNC
 
 RUN_CONTENT_LOADER() {
 	[ -s "$ROM_GO" ] || return 0

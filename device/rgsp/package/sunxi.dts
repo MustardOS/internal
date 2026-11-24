@@ -2679,7 +2679,7 @@
 			pinctrl-names = "default\0sleep";
 			pinctrl-0 = <0x41>;
 			pinctrl-1 = <0x42>;
-			status = "okay";
+			status = "disabled";
 			linux,phandle = <0x13d>;
 			phandle = <0x13d>;
 		};
@@ -2709,7 +2709,7 @@
 			reg = <0x00 0x7081400 0x00 0x400>;
 			interrupts = <0x00 0x69 0x04>;
 			clocks = <0x46>;
-			clock-frequency = <0x30d40>;
+			clock-frequency = <0x61a80>;
 			pinctrl-names = "default\0sleep";
 			pinctrl-0 = <0x47>;
 			pinctrl-1 = <0x48>;
@@ -3262,7 +3262,7 @@
 			usb_host_init_state = <0x01>;
 			usb_regulator_io = "nocare";
 			usb_wakeup_suspend = <0x00>;
-			status = "okay";
+			status = "disabled";
 			linux,phandle = <0x14c>;
 			phandle = <0x14c>;
 		};
@@ -3273,7 +3273,7 @@
 			interrupts = <0x00 0x1e 0x04>;
 			clocks = <0x6c 0x6d>;
 			hci_ctrl_no = <0x02>;
-			status = "okay";
+			status = "disabled";
 			linux,phandle = <0x14d>;
 			phandle = <0x14d>;
 		};
@@ -3284,7 +3284,7 @@
 			interrupts = <0x00 0x1f 0x04>;
 			clocks = <0x6c 0x6e 0x6f 0x67 0x09 0x1e>;
 			hci_ctrl_no = <0x02>;
-			status = "okay";
+			status = "disabled";
 			linux,phandle = <0x14e>;
 			phandle = <0x14e>;
 		};
@@ -3295,7 +3295,7 @@
 			usb_host_init_state = <0x01>;
 			usb_regulator_io = "nocare";
 			usb_wakeup_suspend = <0x00>;
-			status = "okay";
+			status = "disabled";
 			linux,phandle = <0x14f>;
 			phandle = <0x14f>;
 		};
@@ -3306,7 +3306,7 @@
 			interrupts = <0x00 0x20 0x04>;
 			clocks = <0x70 0x71>;
 			hci_ctrl_no = <0x03>;
-			status = "okay";
+			status = "disabled";
 			linux,phandle = <0x150>;
 			phandle = <0x150>;
 		};
@@ -3317,7 +3317,7 @@
 			interrupts = <0x00 0x21 0x04>;
 			clocks = <0x70 0x72 0x73 0x67 0x09 0x1e>;
 			hci_ctrl_no = <0x03>;
-			status = "okay";
+			status = "disabled";
 			linux,phandle = <0x151>;
 			phandle = <0x151>;
 		};
@@ -4025,7 +4025,7 @@
 			pinctrl-1 = <0xb4>;
 			pinctrl-2 = <0xb5>;
 			pinctrl-3 = <0xb6>;
-			status = "okay";
+			status = "disabled";
 			linux,phandle = <0x16b>;
 			phandle = <0x16b>;
 

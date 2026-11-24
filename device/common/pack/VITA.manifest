@@ -1,0 +1,91 @@
+F 167256 1778659583 /lib/libudev.so.1.6.3
+F 318360 1778659582 /usr/lib/libFLAC.so.12.1.0
+F 1368488 1778659583 /usr/lib/libSDL2-2.0.so.0.3200.8
+F 166296 1778659581 /usr/lib/libSDL2_image-2.0.so.0.800.5
+F 311680 1778659583 /usr/lib/libSDL2_mixer-2.0.so.0.800.1
+F 59720 1778659582 /usr/lib/libSDL2_ttf-2.0.so.0.2400.0
+F 1139328 1778659581 /usr/lib/libasound.so.2.0.0
+F 70776 1778659582 /usr/lib/libbz2.so.1.0.8
+F 358120 1778659582 /usr/lib/libdbus-1.so.3.32.4
+F 431360 1778659582 /usr/lib/libfluidsynth.so.3.3.0
+F 707608 1778659582 /usr/lib/libfreetype.so.6.20.2
+F 1357072 1778659582 /usr/lib/libglib-2.0.so.0.7600.1
+F 294184 1778659581 /usr/lib/libgomp.so.1.0.0
+F 5712 1778659582 /usr/lib/libgthread-2.0.so.0.7600.1
+F 1230720 1778659582 /usr/lib/libharfbuzz.so.0.61001.0
+F 59855128 1791265247 /usr/lib/libmali.so.1
+F 34808 1778659582 /usr/lib/libogg.so.0.8.5
+F 342272 1778659582 /usr/lib/libopus.so.0.9.0
+F 358408 1778659582 /usr/lib/libpcre2-8.so.0.12.0
+F 1152536 1778659581 /usr/lib/libpipewire-0.3.so.0.1406.0
+F 207864 1778659581 /usr/lib/libpng16.so.16.47.0
+F 18256 1778659582 /usr/lib/libsharpyuv.so.0.1.0
+F 524672 1778659582 /usr/lib/libsndfile.so.1.0.37
+F 2362360 1778659581 /usr/lib/libstdc++.so.6.0.32
+F 166392 1778659583 /usr/lib/libvorbis.so.0.4.9
+F 661416 1778659582 /usr/lib/libvorbisenc.so.2.0.12
+F 334248 1778659582 /usr/lib/libwebp.so.7.1.9
+F 84208 1778659581 /usr/lib/libz.so.1.3.1
+L /lib/libudev.so.1 /lib/libudev.so.1.6.3
+L /usr/lib/libEGL.so /usr/lib/libmali.so.1
+L /usr/lib/libEGL.so.1 /usr/lib/libmali.so.1
+L /usr/lib/libFLAC.so /usr/lib/libFLAC.so.12.1.0
+L /usr/lib/libFLAC.so.12 /usr/lib/libFLAC.so.12.1.0
+L /usr/lib/libGLESv1_CM.so /usr/lib/libmali.so.1
+L /usr/lib/libGLESv1_CM.so.1 /usr/lib/libmali.so.1
+L /usr/lib/libGLESv2.so /usr/lib/libmali.so.1
+L /usr/lib/libGLESv2.so.2 /usr/lib/libmali.so.1
+L /usr/lib/libSDL2-2.0.so.0 /usr/lib/libSDL2-2.0.so.0.3200.8
+L /usr/lib/libSDL2.so /usr/lib/libSDL2-2.0.so.0.3200.8
+L /usr/lib/libSDL2_image-2.0.so.0 /usr/lib/libSDL2_image-2.0.so.0.800.5
+L /usr/lib/libSDL2_image.so /usr/lib/libSDL2_image-2.0.so.0.800.5
+L /usr/lib/libSDL2_mixer-2.0.so.0 /usr/lib/libSDL2_mixer-2.0.so.0.800.1
+L /usr/lib/libSDL2_mixer.so /usr/lib/libSDL2_mixer-2.0.so.0.800.1
+L /usr/lib/libSDL2_ttf-2.0.so.0 /usr/lib/libSDL2_ttf-2.0.so.0.2400.0
+L /usr/lib/libSDL2_ttf.so /usr/lib/libSDL2_ttf-2.0.so.0.2400.0
+L /usr/lib/libasound.so /usr/lib/libasound.so.2.0.0
+L /usr/lib/libasound.so.2 /usr/lib/libasound.so.2.0.0
+L /usr/lib/libbz2.so /usr/lib/libbz2.so.1.0.8
+L /usr/lib/libbz2.so.1.0 /usr/lib/libbz2.so.1.0.8
+L /usr/lib/libdbus-1.so /usr/lib/libdbus-1.so.3.32.4
+L /usr/lib/libdbus-1.so.3 /usr/lib/libdbus-1.so.3.32.4
+L /usr/lib/libfluidsynth.so /usr/lib/libfluidsynth.so.3.3.0
+L /usr/lib/libfluidsynth.so.3 /usr/lib/libfluidsynth.so.3.3.0
+L /usr/lib/libfreetype.so /usr/lib/libfreetype.so.6.20.2
+L /usr/lib/libfreetype.so.6 /usr/lib/libfreetype.so.6.20.2
+L /usr/lib/libgbm.so /usr/lib/libmali.so.1
+L /usr/lib/libgbm.so.1 /usr/lib/libmali.so.1
+L /usr/lib/libglib-2.0.so /usr/lib/libglib-2.0.so.0.7600.1
+L /usr/lib/libglib-2.0.so.0 /usr/lib/libglib-2.0.so.0.7600.1
+L /usr/lib/libgomp.so.1 /usr/lib/libgomp.so.1.0.0
+L /usr/lib/libgthread-2.0.so /usr/lib/libgthread-2.0.so.0.7600.1
+L /usr/lib/libgthread-2.0.so.0 /usr/lib/libgthread-2.0.so.0.7600.1
+L /usr/lib/libharfbuzz.so /usr/lib/libharfbuzz.so.0.61001.0
+L /usr/lib/libharfbuzz.so.0 /usr/lib/libharfbuzz.so.0.61001.0
+L /usr/lib/libmali.so /usr/lib/libmali.so.1
+L /usr/lib/libmali.so.0 /usr/lib/libmali.so.1
+L /usr/lib/libogg.so /usr/lib/libogg.so.0.8.5
+L /usr/lib/libogg.so.0 /usr/lib/libogg.so.0.8.5
+L /usr/lib/libopus.so /usr/lib/libopus.so.0.9.0
+L /usr/lib/libopus.so.0 /usr/lib/libopus.so.0.9.0
+L /usr/lib/libpcre2-8.so /usr/lib/libpcre2-8.so.0.12.0
+L /usr/lib/libpcre2-8.so.0 /usr/lib/libpcre2-8.so.0.12.0
+L /usr/lib/libpipewire-0.3.so /usr/lib/libpipewire-0.3.so.0.1406.0
+L /usr/lib/libpipewire-0.3.so.0 /usr/lib/libpipewire-0.3.so.0.1406.0
+L /usr/lib/libpng.so /usr/lib/libpng16.so.16.47.0
+L /usr/lib/libpng16.so /usr/lib/libpng16.so.16.47.0
+L /usr/lib/libpng16.so.16 /usr/lib/libpng16.so.16.47.0
+L /usr/lib/libsharpyuv.so /usr/lib/libsharpyuv.so.0.1.0
+L /usr/lib/libsharpyuv.so.0 /usr/lib/libsharpyuv.so.0.1.0
+L /usr/lib/libsndfile.so /usr/lib/libsndfile.so.1.0.37
+L /usr/lib/libsndfile.so.1 /usr/lib/libsndfile.so.1.0.37
+L /usr/lib/libstdc++.so.6 /usr/lib/libstdc++.so.6.0.32
+L /usr/lib/libudev.so /lib/libudev.so.1.6.3
+L /usr/lib/libvorbis.so /usr/lib/libvorbis.so.0.4.9
+L /usr/lib/libvorbis.so.0 /usr/lib/libvorbis.so.0.4.9
+L /usr/lib/libvorbisenc.so /usr/lib/libvorbisenc.so.2.0.12
+L /usr/lib/libvorbisenc.so.2 /usr/lib/libvorbisenc.so.2.0.12
+L /usr/lib/libwebp.so /usr/lib/libwebp.so.7.1.9
+L /usr/lib/libwebp.so.7 /usr/lib/libwebp.so.7.1.9
+L /usr/lib/libz.so /usr/lib/libz.so.1.3.1
+L /usr/lib/libz.so.1 /usr/lib/libz.so.1.3.1

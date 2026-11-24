@@ -62,7 +62,7 @@ RUN_BOOT_MAINTENANCE() {
 	else
 		BOOT_CACHE=
 	fi
-	ionice -c 3 sh -c 'dmesg >"$1"' sh "$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
+	ionice -c 3 sh -c 'dmesg >"$1"; ls -1r "${1%/*}"/dmesg__*.log | tail -n +21 | while IFS= read -r OLD_LOG; do rm -f "$OLD_LOG"; done' sh "$ROM_MOUNT/MUOS/log/dmesg/dmesg__$(date +"%Y_%m_%d__%H_%M_%S").log" &
 	BOOT_DMESG=$!
 	[ -z "$BOOT_CACHE" ] || wait "$BOOT_CACHE" || BOOT_RESULT=1
 	wait "$BOOT_DMESG" || BOOT_RESULT=1
@@ -132,6 +132,7 @@ DO_START() {
 	LOG_INFO "$0" 0 "BOOTING" "Removing Existing Update Scripts"
 	rm -rf "/opt/update.sh"
 
+	[ -d /opt/device/common/pack ] && /opt/muos/script/system/libpack.sh after-paint </dev/null >/dev/null 2>&1 &
 	LOG_INFO "$0" 0 "BOOTING" "Removing Temporary Downloads"
 	rm -rf "/opt/muos/temp_dl"
 

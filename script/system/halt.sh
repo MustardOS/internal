@@ -48,12 +48,12 @@ RUN_WITH_TIMEOUT() {
 	setsid "$@" &
 	CMD_PID=$!
 	CMD_POLL=0
-	CMD_POLL_MAX=$((TERM_SEC * 10))
+	CMD_POLL_MAX=$((TERM_SEC * 50))
 
 	while [ -r "/proc/$CMD_PID/stat" ] && [ "$CMD_POLL" -lt "$CMD_POLL_MAX" ]; do
 		read -r _ _ CMD_STATE _ <"/proc/$CMD_PID/stat" 2>/dev/null || break
 		[ "$CMD_STATE" = Z ] && break
-		sleep 0.1
+		sleep 0.02
 		CMD_POLL=$((CMD_POLL + 1))
 	done
 
@@ -63,11 +63,11 @@ RUN_WITH_TIMEOUT() {
 	fi
 
 	CMD_POLL=0
-	CMD_POLL_MAX=$((KILL_SEC * 10))
+	CMD_POLL_MAX=$((KILL_SEC * 50))
 	while [ -r "/proc/$CMD_PID/stat" ] && [ "$CMD_POLL" -lt "$CMD_POLL_MAX" ]; do
 		read -r _ _ CMD_STATE _ <"/proc/$CMD_PID/stat" 2>/dev/null || break
 		[ "$CMD_STATE" = Z ] && break
-		sleep 0.1
+		sleep 0.02
 		CMD_POLL=$((CMD_POLL + 1))
 	done
 
@@ -244,7 +244,8 @@ RUN_WITH_TIMEOUT 5 1 swapoff -a || LOG_WARN "$0" 0 "HALT" "Swap disable did not 
 RTC_CLOCK_DEV=$(RTC_CLOCK)
 if command -v hwclock >/dev/null 2>&1 && [ -n "$RTC_CLOCK_DEV" ] && [ -e "$RTC_CLOCK_DEV" ]; then
 	LOG_INFO "$0" 0 "HALT" "Syncing RTC to hardware"
-	RUN_WITH_TIMEOUT 5 2 hwclock -f "$RTC_CLOCK_DEV" --systohc --utc
+	RUN_WITH_TIMEOUT 5 2 hwclock -f "$RTC_CLOCK_DEV" --systohc --utc &
+	HWCLOCK_PID=$!
 fi
 
 LOG_INFO "$0" 0 "HALT" "Resetting used_reset variable"
@@ -276,6 +277,8 @@ esac
 # Sync filesystems before handing off. If the user hard resets, or anything
 # below cannot finish, syncing here reduces the likelihood of corrupting any
 # configs, RetroArch autosaves, etc...
+[ -z "${HWCLOCK_PID:-}" ] || wait "$HWCLOCK_PID"
+
 LOG_INFO "$0" 0 "HALT" "Syncing writes to disk"
 RUN_WITH_TIMEOUT 8 2 sync || LOG_WARN "$0" 0 "HALT" "Disk sync did not complete"
 

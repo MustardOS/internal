@@ -25,6 +25,8 @@ DO_START() {
 
 	LOG_INFO "$0" 0 "BOOTING" "$(printf "Setting kernel log level to %d" "$PRINTK")"
 	printf "%d\t7\t1\t%d\n" "$PRINTK" "$PRINTK" >/proc/sys/kernel/printk
+	printf "10\n" >/proc/sys/kernel/panic
+	printf "1000\n" >/proc/sys/vm/dirty_expire_centisecs
 
 	grep -qE "defaults\.(ctl|pcm)\.card [1-9]" /usr/share/alsa/alsa.conf 2>/dev/null && \
 		sed -i -E "s/(defaults\.(ctl|pcm)\.card) [0-9]+/\1 0/g" /usr/share/alsa/alsa.conf

@@ -97,8 +97,21 @@ UNMOUNT_BIND() {
 	return 0
 }
 
+MOUNTED_TARGETS() {
+	awk -v LIST="$1" '
+		{
+			gsub(/\\040/, " ", $2)
+			MOUNTED[$2] = 1
+		}
+		END {
+			COUNT = split(LIST, ITEM, "\n")
+			for (N = 1; N <= COUNT; N++) if (ITEM[N] != "" && ITEM[N] in MOUNTED) print ITEM[N]
+		}
+	' /proc/self/mounts
+}
+
 UNMOUNT_BINDINGS() {
-	UNMOUNT_STATUS=0
+	UNMOUNT_LIST=
 
 	# Emulator mounts depend on storage bind mounts, so remove them first.
 	OLD_IFS=$IFS
@@ -106,17 +119,39 @@ UNMOUNT_BINDINGS() {
 '
 	for LINE in $EMU_BINDS; do
 		[ -n "$LINE" ] || continue
-		EMU_PATH="${LINE#*|}"
-		UNMOUNT_BIND "$MUOS_SHARE_DIR/emulator/$EMU_PATH" || UNMOUNT_STATUS=1
+		UNMOUNT_LIST="$UNMOUNT_LIST$MUOS_SHARE_DIR/emulator/${LINE#*|}
+"
 	done
 	IFS=$OLD_IFS
 
 	for S_LOC in $STANDARD_LOCS $PRIORITY_LOCS; do
-		UNMOUNT_BIND "$MUOS_STORE_DIR/$S_LOC" || UNMOUNT_STATUS=1
+		UNMOUNT_LIST="$UNMOUNT_LIST$MUOS_STORE_DIR/$S_LOC
+"
+	done
+
+	UNMOUNT_PASS=0
+	REMAINING=$(MOUNTED_TARGETS "$UNMOUNT_LIST")
+	while [ -n "$REMAINING" ] && [ "$UNMOUNT_PASS" -lt 8 ]; do
+		IFS='
+'
+		# shellcheck disable=SC2086
+		umount $REMAINING 2>/dev/null
+		IFS=$OLD_IFS
+		UNMOUNT_PASS=$((UNMOUNT_PASS + 1))
+		REMAINING=$(MOUNTED_TARGETS "$UNMOUNT_LIST")
 	done
 
 	rm -f "$MUOS_STORE_DIR/mount_ready"
-	return "$UNMOUNT_STATUS"
+
+	[ -z "$REMAINING" ] && return 0
+
+	IFS='
+'
+	for BIND_TARGET in $REMAINING; do
+		LOG_ERROR "$0" 0 "BIND MOUNT" "Could not unmount $BIND_TARGET"
+	done
+	IFS=$OLD_IFS
+	return 1
 }
 
 case "${1:-mount}" in
@@ -263,9 +298,25 @@ MOUNT_ONE() {
 	fi
 }
 
+MUBIND="/opt/muos/frontend/tool/mubind"
+
+LOG_BIND() {
+	while IFS= read -r BIND_LINE; do
+		LOG_INFO "$0" 0 "BIND MOUNT" "$BIND_LINE"
+	done
+}
+
 MOUNT_STORAGE() {
 	LIST="$1"
 	GROUP="$2"
+
+	if [ -x "$MUBIND" ]; then
+		MUBIND_SD=
+		[ "$SDCARD_MOUNTED" -eq 1 ] && MUBIND_SD="$SD_ROOT"
+		# shellcheck disable=SC2086
+		"$MUBIND" locs "$MUOS_STORE_DIR" "$ROM_ROOT" "$MUBIND_SD" "$BINDMAP" "$MOUNT_FAILURE" "$GROUP" $LIST | LOG_BIND
+		return
+	fi
 
 	for S_LOC in $LIST; do
 		SPAWN_JOB MOUNT_ONE "$S_LOC" "$GROUP"
@@ -341,15 +392,20 @@ LOG_INFO "$0" 0 "BIND MOUNT" "Binding emulator-specific paths"
 
 IFS='
 '
-for LINE in $EMU_BINDS; do
-	[ -n "$LINE" ] || continue
+if [ -x "$MUBIND" ]; then
+	# shellcheck disable=SC2086
+	"$MUBIND" emulator "$MUOS_STORE_DIR" "$MUOS_SHARE_DIR/emulator" "$MOUNT_FAILURE" $EMU_BINDS | LOG_BIND
+else
+	for LINE in $EMU_BINDS; do
+		[ -n "$LINE" ] || continue
 
-	STORE_PATH="${LINE%%|*}"
-	EMU_PATH="${LINE#*|}"
+		STORE_PATH="${LINE%%|*}"
+		EMU_PATH="${LINE#*|}"
 
-	[ -n "$STORE_PATH" ] || continue
-	SPAWN_JOB BIND_EMULATOR "$STORE_PATH" "$EMU_PATH"
-done
+		[ -n "$STORE_PATH" ] || continue
+		SPAWN_JOB BIND_EMULATOR "$STORE_PATH" "$EMU_PATH"
+	done
+fi
 unset IFS
 
 WAIT_JOBS

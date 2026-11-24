@@ -62,18 +62,18 @@ FRONTEND() {
 
 			SIGNAL_FRONTEND USR1
 
-			I=25
+			I=100
 			while FRONTEND_RUNNING && [ "$I" -gt 0 ]; do
-				sleep 0.2
+				sleep 0.05
 				I=$((I - 1))
 			done
 
 			if FRONTEND_RUNNING; then
 				SIGNAL_FRONTEND TERM
 
-				J=15
+				J=60
 				while FRONTEND_RUNNING && [ "$J" -gt 0 ]; do
-					sleep 0.2
+					sleep 0.05
 					J=$((J - 1))
 				done
 			fi
@@ -81,9 +81,9 @@ FRONTEND() {
 			if FRONTEND_RUNNING; then
 				SIGNAL_FRONTEND KILL
 
-				K=20
+				K=40
 				while FRONTEND_RUNNING && [ "$K" -gt 0 ]; do
-					sleep 0.1
+					sleep 0.05
 					K=$((K - 1))
 				done
 			fi

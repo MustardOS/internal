@@ -252,8 +252,7 @@ EXEC_MUX() {
 
 	[ -n "$GOBACK" ] && echo "$GOBACK" >"$ACT_GO"
 
-	if [ "$MODULE" = "muxfrontend" ] && [ "${AUDIO_RESTORE_ASYNC:-0}" -eq 1 ]; then
-		AUDIO_RESTORE_ASYNC=0
+	if [ "$MODULE" = "muxfrontend" ]; then
 		RESTORE_AUDIO_VOLUME &
 	else
 		RESTORE_AUDIO_VOLUME

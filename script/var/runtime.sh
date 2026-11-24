@@ -190,7 +190,7 @@ WATCHDOG_START() {
 	) &
 }
 
-MUOS_INIT_DEFERRED=""
+MUOS_INIT_DEFERRED="S02network.sh"
 export MUOS_INIT_DEFERRED
 
 RUN_INIT_DEFERRED() {
@@ -323,6 +323,7 @@ RUN_INIT_DIR_BOUNDED() {
 		INIT_COUNT=$((INIT_COUNT + 1))
 
 		if [ "$INIT_COUNT" -ge "$INIT_LIMIT" ]; then
+			# shellcheck disable=SC3045
 			wait -n || INIT_DIR_RESULT=1
 
 			INIT_RUNNING=

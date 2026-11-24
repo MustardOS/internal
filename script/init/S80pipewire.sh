@@ -72,8 +72,8 @@ WAIT_PROC_GONE() {
 
 	while PROC_RUNNING "$NAME"; do
 		[ "$ELAPSED" -ge "$TIMEOUT" ] && return 1
-		sleep 0.1
-		ELAPSED=$((ELAPSED + INTERVAL))
+		sleep 0.02
+		ELAPSED=$((ELAPSED + 20))
 	done
 
 	return 0
@@ -591,7 +591,11 @@ DO_STOP() {
 	sleep 0.1
 
 	STOP_PROC wireplumber
-	STOP_PROC pipewire
+	if [ "${MUOS_HALT:-0}" -eq 1 ]; then
+		pkill -15 -x pipewire 2>/dev/null
+	else
+		STOP_PROC pipewire
+	fi
 
 	SET_VAR "device" "audio/ready" "0"
 	LOG_SUCCESS "$0" 0 "PIPEWIRE" "Audio shutdown complete"

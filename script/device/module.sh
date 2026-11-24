@@ -64,8 +64,6 @@ fi
 
 case "$1" in
 	load)
-		[ "$HAS_NETWORK" -eq 1 ] && modprobe -q "$NET_NAME"
-
 		case "$BOARD_NAME" in
 			gcs-h36s)
 				GCS_GPU_STACK

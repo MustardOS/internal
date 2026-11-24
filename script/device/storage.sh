@@ -42,7 +42,51 @@ MOUNTED() {
 	grep -qs " $MOUNT_POINT " /proc/mounts
 }
 
-MOUNT_DEVICE() {
+MOUNT_READY() {
+	SET_VAR "device" "storage/$TYPE/active" "1"
+
+	# Apply scheduler tuning if supported
+	if [ -e "/sys/block/$DEV/queue/scheduler" ]; then
+		if [ "$CARD_MODE" = "noop" ]; then
+			echo "noop" >"/sys/block/$DEV/queue/scheduler" 2>/dev/null
+			echo "write back" >"/sys/block/$DEV/queue/write_cache" 2>/dev/null
+		else
+			echo "deadline" >"/sys/block/$DEV/queue/scheduler" 2>/dev/null
+			echo "write through" >"/sys/block/$DEV/queue/write_cache" 2>/dev/null
+		fi
+	fi
+
+	KERNEL_TUNING "$DEV"
+
+	for STORAGE_DIR in ROMS ARCHIVE ports; do
+		if ! mkdir -p "$MOUNT_POINT/$STORAGE_DIR"; then
+			LOG_ERROR "$0" 0 "STORAGE" "Could not create $MOUNT_POINT/$STORAGE_DIR"
+			UNMOUNT_DEVICE || LOG_ERROR "$0" 0 "STORAGE" "Could not unmount $MOUNT_POINT"
+			return 1
+		fi
+	done
+
+	if [ -d "$MOUNT_POINT/MUOS/info/name" ]; then
+		SYNC_FILE "$ROM_MOUNT" "$MOUNT_POINT" "MUOS/info/name/tag.txt" size "atomic,verify"
+		SYNC_FILE "$ROM_MOUNT" "$MOUNT_POINT" "MUOS/info/name/folder.json" size "atomic,verify"
+		SYNC_FILE "$ROM_MOUNT" "$MOUNT_POINT" "MUOS/info/name/global.json" size "atomic,verify"
+	fi
+
+	if [ "$FIRST_INIT" -eq 0 ]; then
+		DELETE_CRUFT "$MOUNT_POINT"
+
+		if [ "$TYPE" = "sdcard" ] && [ -d "$MOUNT_POINT/MUOS/theme/MustardOS" ]; then
+			LOG_INFO "$0" 0 "STORAGE" "Refreshing default MustardOS theme on SD2"
+			rm -rf "$MOUNT_POINT/MUOS/theme/MustardOS"
+			mkdir -p "$MOUNT_POINT/MUOS/theme/MustardOS"
+			cp -a "$MUOS_SHARE_DIR/theme/MustardOS/." "$MOUNT_POINT/MUOS/theme/MustardOS/"
+		fi
+	fi
+
+	return 0
+}
+
+PROBE_DEVICE() {
 	FS_INFO="$(blkid -o export "/dev/$DEVICE" 2>/dev/null)"
 	FS_TYPE=
 	FS_LABEL=
@@ -54,15 +98,40 @@ MOUNT_DEVICE() {
 	done <<EOF
 $FS_INFO
 EOF
+}
 
-	case "$FS_TYPE" in
+FS_OPTIONS() {
+	case "$1" in
 		exfat) FS_OPTS="rw,noatime,nofail" ;;
 		vfat) FS_OPTS="rw,utf8,noatime,nofail" ;;
 		ext4) FS_OPTS="rw,noatime,nofail" ;;
 		*) return 1 ;;
 	esac
+}
 
+REFRESH_LABEL() {
+	(
+		WAIT_FOR_FIRST_PAINT 300
+		FRESH_LABEL="$(blkid -o value -s LABEL "/dev/$DEVICE" 2>/dev/null)"
+		[ "$FRESH_LABEL" = "$FS_LABEL" ] || SET_VAR "device" "storage/$TYPE/label" "$FRESH_LABEL"
+	) </dev/null >/dev/null 2>&1 &
+}
+
+MOUNT_DEVICE() {
 	mkdir -p "$MOUNT_POINT" || return 1
+
+	FS_TYPE="$(GET_VAR "device" "storage/$TYPE/type")"
+	FS_LABEL="$(GET_VAR "device" "storage/$TYPE/label")"
+
+	if [ ! -e "$MUOS_CONF_SYSTEM/reclaim/$TYPE" ] && [ -b "/dev/$DEVICE" ] && FS_OPTIONS "$FS_TYPE" &&
+		MOUNT_FILESYSTEM "$FS_TYPE" "$FS_OPTS" "/dev/$DEVICE" "$MOUNT_POINT" 2>/dev/null; then
+		REFRESH_LABEL
+		MOUNT_READY
+		return
+	fi
+
+	PROBE_DEVICE
+	FS_OPTIONS "$FS_TYPE" || return 1
 
 	RECLAIM_FLAG="$MUOS_CONF_SYSTEM/reclaim/$TYPE"
 	if [ -e "$RECLAIM_FLAG" ]; then
@@ -76,52 +145,11 @@ EOF
 		rm -f "$RECLAIM_FLAG"
 	fi
 
-	if MOUNT_FILESYSTEM "$FS_TYPE" "$FS_OPTS" "/dev/$DEVICE" "$MOUNT_POINT"; then
-		SET_VAR "device" "storage/$TYPE/active" "1"
-		SET_VAR "device" "storage/$TYPE/label" "${FS_LABEL:-}"
+	MOUNT_FILESYSTEM "$FS_TYPE" "$FS_OPTS" "/dev/$DEVICE" "$MOUNT_POINT" || return 1
 
-		# Apply scheduler tuning if supported
-		if [ -e "/sys/block/$DEV/queue/scheduler" ]; then
-			if [ "$CARD_MODE" = "noop" ]; then
-				echo "noop" >"/sys/block/$DEV/queue/scheduler" 2>/dev/null
-				echo "write back" >"/sys/block/$DEV/queue/write_cache" 2>/dev/null
-			else
-				echo "deadline" >"/sys/block/$DEV/queue/scheduler" 2>/dev/null
-				echo "write through" >"/sys/block/$DEV/queue/write_cache" 2>/dev/null
-			fi
-		fi
-
-		KERNEL_TUNING "$DEV"
-
-		for STORAGE_DIR in ROMS ARCHIVE ports; do
-			if ! mkdir -p "$MOUNT_POINT/$STORAGE_DIR"; then
-				LOG_ERROR "$0" 0 "STORAGE" "Could not create $MOUNT_POINT/$STORAGE_DIR"
-				UNMOUNT_DEVICE || LOG_ERROR "$0" 0 "STORAGE" "Could not unmount $MOUNT_POINT"
-				return 1
-			fi
-		done
-
-		if [ -d "$MOUNT_POINT/MUOS/info/name" ]; then
-			SYNC_FILE "$ROM_MOUNT" "$MOUNT_POINT" "MUOS/info/name/tag.txt" size "atomic,verify"
-			SYNC_FILE "$ROM_MOUNT" "$MOUNT_POINT" "MUOS/info/name/folder.json" size "atomic,verify"
-			SYNC_FILE "$ROM_MOUNT" "$MOUNT_POINT" "MUOS/info/name/global.json" size "atomic,verify"
-		fi
-
-		if [ "$FIRST_INIT" -eq 0 ]; then
-			DELETE_CRUFT "$MOUNT_POINT"
-
-			if [ "$TYPE" = "sdcard" ] && [ -d "$MOUNT_POINT/MUOS/theme/MustardOS" ]; then
-				LOG_INFO "$0" 0 "STORAGE" "Refreshing default MustardOS theme on SD2"
-				rm -rf "$MOUNT_POINT/MUOS/theme/MustardOS"
-				mkdir -p "$MOUNT_POINT/MUOS/theme/MustardOS"
-				cp -a "$MUOS_SHARE_DIR/theme/MustardOS/." "$MOUNT_POINT/MUOS/theme/MustardOS/"
-			fi
-		fi
-
-		return 0
-	fi
-
-	return 1
+	SET_VAR "device" "storage/$TYPE/type" "$FS_TYPE"
+	SET_VAR "device" "storage/$TYPE/label" "${FS_LABEL:-}"
+	MOUNT_READY
 }
 
 UNMOUNT_DEVICE() {

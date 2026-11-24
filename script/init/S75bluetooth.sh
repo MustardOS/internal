@@ -64,7 +64,11 @@ STOP_PROC() {
 		if [ -n "$PID" ] && kill -0 "$PID" 2>/dev/null; then
 			LOG_DEBUG "$0" 0 "BLUETOOTH" "$(printf "Stopping '%s' (PID: %s)" "$NAME" "$PID")"
 			kill -15 "$PID" 2>/dev/null
-			sleep 0.5
+			STOP_WAIT=0
+			while kill -0 "$PID" 2>/dev/null && [ "$STOP_WAIT" -lt 10 ]; do
+				sleep 0.05
+				STOP_WAIT=$((STOP_WAIT + 1))
+			done
 			kill -0 "$PID" 2>/dev/null && kill -9 "$PID" 2>/dev/null
 		fi
 		rm -f "$PIDFILE"
@@ -216,8 +220,14 @@ DO_STOP() {
 
 	/opt/muos/script/mux/bt_monitor.sh stop
 
-	STOP_PROC "bluetoothd" "$BT_PID"
-	STOP_PROC "rtk_hciattach" "$HCI_PID"
+	if [ "${MUOS_HALT:-0}" -eq 1 ]; then
+		STOP_PROC "bluetoothd" "$BT_PID" &
+		STOP_PROC "rtk_hciattach" "$HCI_PID" &
+		wait
+	else
+		STOP_PROC "bluetoothd" "$BT_PID"
+		STOP_PROC "rtk_hciattach" "$HCI_PID"
+	fi
 	rfkill block bluetooth 2>/dev/null
 	case "$BOARD_NAME" in
 		rg*) modprobe -qr rtl_btlpm 2>/dev/null ;;

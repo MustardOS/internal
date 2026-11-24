@@ -58,6 +58,8 @@ SCN_PATH="/sys/class/net"
 RESOLV_CONF="/etc/resolv.conf"
 DHCP_CONF_SRC="${MUOS_SHARE_DIR}/conf/dhcpcd.conf"
 DHCP_CONF_RUN="$MUOS_RUN_DIR/dhcpcd.conf"
+LAST_FREQ_FILE="$MUOS_CONF_SYSTEM/network_freq"
+NET_CONNECTING="$MUOS_RUN_DIR/network_connecting"
 DHCPCD_LOG="$MUOS_RUN_DIR/dhcpcd.log"
 
 # Per profile network states!
@@ -301,10 +303,10 @@ WAIT_FOR_IFACE_SCAN() {
 	W_IFACE=$1
 	I=0
 
-	while [ "$I" -lt "${MAX_WAIT:-5}" ]; do
+	while [ "$I" -lt "$((${MAX_WAIT:-5} * 10))" ]; do
 		SELECT_STATION_INTERFACE "$W_IFACE" && return 0
 		I=$((I + 1))
-		sleep 1
+		sleep 0.1
 	done
 
 	return 1
@@ -346,8 +348,6 @@ LOAD_MODULE() {
 			fi
 			;;
 	esac
-
-	sleep 1
 
 	if [ "${NET_COMPAT:-0}" -eq 1 ]; then
 		case "$BOARD_NAME" in
@@ -433,10 +433,10 @@ WAIT_FOR_IFACE() {
 	IFACE="$1"
 	TIMEOUT="${2:-5}"
 	I=0
-	while [ "$I" -lt "$TIMEOUT" ]; do
+	while [ "$I" -lt "$((TIMEOUT * 10))" ]; do
 		[ -d "/sys/class/net/$IFACE" ] && return 0
 		I=$((I + 1))
-		sleep 1
+		sleep 0.1
 	done
 	return 1
 }
@@ -445,10 +445,10 @@ WAIT_FOR_IFACE_READY() {
 	IFACE="$1"
 	TIMEOUT="${2:-5}"
 	I=0
-	while [ "$I" -lt "$TIMEOUT" ]; do
-		ip link set "$IFACE" up && return 0
+	while [ "$I" -lt "$((TIMEOUT * 10))" ]; do
+		ip link set "$IFACE" up 2>/dev/null && return 0
 		I=$((I + 1))
-		sleep 1
+		sleep 0.1
 	done
 	return 1
 }
@@ -585,13 +585,13 @@ KILL_WPA() {
 }
 
 WAIT_NETWORK_DAEMONS_GONE() {
-	WAIT_LIMIT=$((${1:-5} * 10))
+	WAIT_LIMIT=$((${1:-5} * 50))
 	WAIT_COUNT=0
 
 	while [ "$WAIT_COUNT" -lt "$WAIT_LIMIT" ]; do
 		NETWORK_DAEMONS_RUNNING || return 0
 		WAIT_COUNT=$((WAIT_COUNT + 1))
-		sleep 0.1
+		sleep 0.02
 	done
 
 	return 1
@@ -666,15 +666,45 @@ WAIT_CARRIER() {
 	[ "$IFCE" = "eth0" ] && return 0
 
 	I=0
-	while [ "$I" -lt 5 ]; do
+	while [ "$I" -lt 25 ]; do
 		IFS= read -r CARRIER_VAL <"/sys/class/net/$IFCE/carrier" 2>/dev/null
 		[ "${CARRIER_VAL:-}" = "1" ] && return 0
 		I=$((I + 1))
-		sleep 1
+		sleep 0.2
 	done
 
 	LOG_ERROR "$0" 0 "NETWORK" "Link carrier timeout"
 	FAIL_WITH "LINK_TIMEOUT" "$RC_LINK_TIMEOUT"
+}
+
+SAVE_LAST_FREQ() {
+	[ "$IFCE" = "eth0" ] && return 0
+
+	SAVE_FREQ=$(iw dev "$IFCE" link 2>/dev/null | awk '/^[[:space:]]*freq:/ { print int($2); exit }')
+	[ -n "$SAVE_FREQ" ] || return 0
+	printf '%s\n' "$SAVE_FREQ" >"$LAST_FREQ_FILE"
+}
+
+WPA_FREQ_HINT() {
+	[ -n "${SCAN_RAW:-}" ] && [ -f "$WPA_CONFIG" ] || return 0
+
+	HINT_FREQS=$(printf '%s\n' "$SCAN_RAW" | awk -v ssid="$1" '
+		/^BSS / { freq = "" }
+		/^[[:space:]]*freq:/ { freq = int($2) }
+		/^[[:space:]]*SSID: / {
+			name = $0
+			sub(/^[[:space:]]*SSID: /, "", name)
+			if (name == ssid && freq != "" && !(freq in seen)) {
+				seen[freq] = 1
+				list = list (list == "" ? "" : " ") freq
+			}
+		}
+		END { print list }
+	')
+	[ -n "$HINT_FREQS" ] || return 0
+
+	LOG_INFO "$0" 0 "NETWORK" "$(printf "Limiting the first association scan to %s MHz" "$HINT_FREQS")"
+	sed -i "s/^\tscan_ssid=1\$/\tscan_ssid=1\n\tscan_freq=$HINT_FREQS/" "$WPA_CONFIG"
 }
 
 WAIT_NETWORK_ASSOC() {
@@ -682,7 +712,7 @@ WAIT_NETWORK_ASSOC() {
 
 	[ "$NET_DRIVER_TYPE" = "wext" ] && iwconfig "$IFCE" retry off
 
-	WAIT=20
+	WAIT=100
 	while [ "$WAIT" -gt 0 ]; do
 		case "$NET_DRIVER_TYPE" in
 			wext)
@@ -714,9 +744,9 @@ WAIT_NETWORK_ASSOC() {
 			fi
 		fi
 
-		LOG_WARN "$0" 0 "NETWORK" "$(printf "Waiting for WiFi Association... (%ds)" "$WAIT")"
+		[ "$((WAIT % 5))" -eq 0 ] && LOG_WARN "$0" 0 "NETWORK" "$(printf "Waiting for WiFi Association... (%ds)" "$((WAIT / 5))")"
 		WAIT=$((WAIT - 1))
-		sleep 1
+		sleep 0.2
 	done
 
 	LOG_ERROR "$0" 0 "NETWORK" "Association timeout"
@@ -737,6 +767,7 @@ WIFI_CONFIG() {
 	if [ -n "$PASS" ]; then
 		NET_STATUS "AUTHENTICATING"
 		/opt/muos/script/web/password.sh
+		[ "${RETRY_CURR:-0}" -eq 0 ] && WPA_FREQ_HINT "$SSID"
 		WPA_CONFIG_HEADER || {
 			LOG_ERROR "$0" 0 "NETWORK" "Failed to prepare WPA control interface"
 			FAIL_WITH "WPA_START_FAILED" "$RC_WPA_START_FAILED"
@@ -811,7 +842,7 @@ IP_DHCP() {
 	fi
 
 	I=0
-	while [ "$I" -lt 20 ]; do
+	while [ "$I" -lt 100 ]; do
 		IP=$(ip -4 -o addr show dev "$IFCE" | awk '{split($4, a, "/"); print a[1]; exit}')
 		[ -n "$IP" ] && return 0
 
@@ -826,7 +857,7 @@ IP_DHCP() {
 		fi
 
 		I=$((I + 1))
-		sleep 1
+		sleep 0.2
 	done
 
 	LOG_ERROR "$0" 0 "NETWORK" "DHCP failed"
@@ -1018,12 +1049,30 @@ SCAN_SETTLE() {
 
 	[ "$IFCE" = "eth0" ] && return 0
 
+	if [ -s "$LAST_FREQ_FILE" ]; then
+		IFS= read -r LAST_FREQ <"$LAST_FREQ_FILE"
+		case "$LAST_FREQ" in
+			"" | *[!0-9\ ]*) ;;
+			*)
+				# shellcheck disable=SC2086
+				if SCAN_RAW=$(iw dev "$IFCE" scan freq $LAST_FREQ 2>/dev/null); then
+					SCAN_RESULT=$(printf '%s\n' "$SCAN_RAW" | sed -n 's/^[[:space:]]*SSID: //p')
+					SELECT_BEST_PROFILE >/dev/null && return 0
+				fi
+				;;
+		esac
+		SCAN_RESULT=
+	fi
+
 	I=0
 	while [ "$I" -lt "${SCAN_SETTLE_TRIES:-8}" ]; do
 		if SCAN_RAW=$(iw dev "$IFCE" scan 2>/dev/null); then
 			SCAN_RESULT=$(printf '%s\n' "$SCAN_RAW" | sed -n 's/^[[:space:]]*SSID: //p')
 			return 0
 		fi
+		SCAN_RAW=$(iw dev "$IFCE" scan dump 2>/dev/null)
+		SCAN_RESULT=$(printf '%s\n' "$SCAN_RAW" | sed -n 's/^[[:space:]]*SSID: //p')
+		[ -n "$SCAN_RESULT" ] && return 0
 		I=$((I + 1))
 		sleep 1
 	done
@@ -1360,6 +1409,8 @@ DO_START() {
 
 	[ "${CONNECT_ON_BOOT:-0}" -eq 0 ] && [ "$CONNECT_MODE" != "connect" ] && return 0
 
+	: >"$NET_CONNECTING"
+
 	if [ "$CONNECT_MODE" != "connect" ]; then
 		WAIT_FOR_IFACE "$IFCE" 5
 		WAIT_FOR_IFACE_READY "$IFCE" 5
@@ -1421,6 +1472,7 @@ DO_START() {
 			LOG_SUCCESS "$0" 0 "NETWORK" "Network Connected Successfully"
 			[ -n "$CURRENT_PROFILE" ] && SET_ACTIVE "$CURRENT_PROFILE"
 			NET_STATUS "CONNECTED"
+			SAVE_LAST_FREQ
 			ON_CONNECTED
 			return 0
 		fi
@@ -1548,14 +1600,27 @@ ifconfig lo up &
 
 [ "${FACTORY_RESET:-0}" -eq 1 ] && exit 0
 
+RUN_CONNECT() {
+	DO_START "$@"
+	CONNECT_RC=$?
+	rm -f "$NET_CONNECTING"
+	return "$CONNECT_RC"
+}
+
 case "$1" in
-	start) DO_START start ;;
-	connect) DO_START connect "$2" ;;
-	stop) DO_STOP full ;;
-	disconnect) DO_STOP session ;;
+	start) RUN_CONNECT start ;;
+	connect) RUN_CONNECT connect "$2" ;;
+	stop)
+		rm -f "$NET_CONNECTING"
+		DO_STOP full
+		;;
+	disconnect)
+		rm -f "$NET_CONNECTING"
+		DO_STOP session
+		;;
 	restart)
 		DO_STOP session
-		DO_START start
+		RUN_CONNECT start
 		;;
 	load) LOAD_MODULE ;;
 	unload) UNLOAD_MODULE ;;

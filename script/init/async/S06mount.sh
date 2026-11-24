@@ -56,6 +56,8 @@ DO_START() {
 	(
 		DEVICE="${BOOT_DEV}${BOOT_SEP}${BOOT_NUM}"
 
+		[ "$BOOT_TYPE" = vfat ] && fsck.fat -a -w "/dev/$DEVICE" >/dev/null 2>&1
+
 		if mount -t "$BOOT_TYPE" -o rw,utf8,noatime,nofail "/dev/$DEVICE" "$BOOT_MOUNT"; then
 			if [ ! -f "$BOOT_MOUNT/bootlogo.bmp" ]; then
 				BOOT_W=$(GET_VAR "device" "screen/internal/width")

@@ -120,15 +120,15 @@ PROCESS_STOP() {
 	if [ "$PSTOP_GROUP" -eq 1 ]; then
 		if ! kill -TERM -- "-$PSTOP_PID" 2>/dev/null; then :; fi
 		PSTOP_WAIT=0
-		while kill -0 -- "-$PSTOP_PID" 2>/dev/null && [ "$PSTOP_WAIT" -lt 25 ]; do
-			sleep 0.2
+		while kill -0 -- "-$PSTOP_PID" 2>/dev/null && [ "$PSTOP_WAIT" -lt 100 ]; do
+			sleep 0.05
 			PSTOP_WAIT=$((PSTOP_WAIT + 1))
 		done
 		if kill -0 -- "-$PSTOP_PID" 2>/dev/null; then
 			if ! kill -KILL -- "-$PSTOP_PID" 2>/dev/null; then :; fi
 			PSTOP_WAIT=0
-			while kill -0 -- "-$PSTOP_PID" 2>/dev/null && [ "$PSTOP_WAIT" -lt 5 ]; do
-				sleep 0.2
+			while kill -0 -- "-$PSTOP_PID" 2>/dev/null && [ "$PSTOP_WAIT" -lt 20 ]; do
+				sleep 0.05
 				PSTOP_WAIT=$((PSTOP_WAIT + 1))
 			done
 		fi
@@ -139,17 +139,17 @@ PROCESS_STOP() {
 		if ! kill -TERM "$PSTOP_PID" 2>/dev/null; then :; fi
 	fi
 	PSTOP_WAIT=0
-	while [ "$PSTOP_WAIT" -lt 25 ]; do
+	while [ "$PSTOP_WAIT" -lt 100 ]; do
 		PROCESS_READ "$PSTOP_NAME" || return 0
-		sleep 0.2
+		sleep 0.05
 		PSTOP_WAIT=$((PSTOP_WAIT + 1))
 	done
 	PROCESS_READ "$PSTOP_NAME" || return 0
 	if ! kill -KILL "$PR_PID" 2>/dev/null; then :; fi
 	PSTOP_WAIT=0
-	while [ "$PSTOP_WAIT" -lt 5 ]; do
+	while [ "$PSTOP_WAIT" -lt 20 ]; do
 		PROCESS_READ "$PSTOP_NAME" || return 0
-		sleep 0.2
+		sleep 0.05
 		PSTOP_WAIT=$((PSTOP_WAIT + 1))
 	done
 	return 1

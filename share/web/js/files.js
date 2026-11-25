@@ -325,6 +325,28 @@
         if (first) first.focus();
     }
 
+    function picklesOverride(item, relative) {
+        if (!current || current.protected || item.link || !MU.editPicklesOverride) return null;
+        const match = /^ROMS(?:\/(.*))?$/i.exec(relative);
+        if (!match) return null;
+
+        const inside = match[1] || "";
+        if (item.directory) {
+            return {
+                path: inside ? `directory/${inside}/directory.ini` : "directory/directory.ini",
+                title: t("Directory Override: %s", inside || item.name)
+            };
+        }
+
+        if (!inside) return null;
+        const folder = parentOf(inside);
+        const stem = item.name.includes(".") ? item.name.replace(/\.[^.]*$/, "") : item.name;
+        return {
+            path: folder ? `content/${folder}/${stem}.ini` : `content/${stem}.ini`,
+            title: t("Content Override: %s", item.name)
+        };
+    }
+
     function extension(name) {
         const dot = String(name || "").lastIndexOf(".");
         return dot < 0 ? "" : name.slice(dot + 1).toLocaleLowerCase();
@@ -475,6 +497,8 @@
                 menuEntries.push({label: "Rename", handler: () => renameItem(item, relative)});
                 menuEntries.push({label: "Move", handler: () => moveItem(item, relative)});
                 if (!item.link) menuEntries.push({label: "Copy", handler: () => copyItem(item, relative)});
+                const override = picklesOverride(item, relative);
+                if (override) menuEntries.push({label: "Pickles Override", handler: () => MU.editPicklesOverride(override.path, override.title)});
                 menuEntries.push({label: "Remove", handler: () => removeItem(item, relative), danger: true});
                 toolSlots[2] = action("More Options", (button) => openActionMenu(button, menuEntries));
             }

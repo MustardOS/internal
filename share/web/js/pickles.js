@@ -15,13 +15,17 @@
     const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: "base"});
     const SECTIONS = {
         state: {name: "Save States", singular: "game", plural: "games"},
-        sram: {name: "Save Games", singular: "save", plural: "saves"}
+        sram: {name: "Save Games", singular: "save", plural: "saves"},
+        overrides: {name: "Overrides", singular: "override", plural: "overrides"}
     };
+    const OVERRIDE_KINDS = {core: "Core", directory: "Directory", content: "Content"};
+    const OVERRIDE_TEMPLATE = "[settings]\n";
 
     let states = [];
     let saves = [];
     let stateGroups = [];
     let saveGroups = [];
+    let overrides = [];
     let activity = {};
     let section = null;
     let opened = null;
@@ -73,7 +77,103 @@
     }
 
     function groupsFor(kind) {
+        if (kind === "overrides") return overrides;
         return kind === "state" ? stateGroups : saveGroups;
+    }
+
+    function overrideName(item) {
+        const parts = item.path.split("/").slice(1);
+        const leaf = (parts.pop() || "").replace(/\.ini$/, "");
+        if (item.kind === "directory") return parts.join("/") || t("All content");
+        return parts.length ? `${leaf} (${parts.join("/")})` : leaf;
+    }
+
+    async function editOverride(relative, heading) {
+        let text = OVERRIDE_TEMPLATE;
+        try {
+            text = (await api(`api/pickles/override/${apiPath(...relative.split("/"))}`)).text || OVERRIDE_TEMPLATE;
+        } catch (_) {
+        }
+        MU.editTextDocument({
+            title: heading,
+            content: text,
+            readOnly: !canManage(),
+            save: async (updated) => {
+                await api(`api/pickles/override/${apiPath(...relative.split("/"))}`,
+                    {method: "PUT", type: "text/plain", body: updated});
+                showToast("Override saved", "good");
+                await load();
+                return true;
+            }
+        });
+    }
+
+    async function discardOverride(item, button) {
+        const sure = await ask({
+            title: t("Remove override"),
+            message: t("Pickles will use the wider settings for %s again.", overrideName(item)),
+            confirm: t("Remove"),
+            danger: true
+        });
+        if (!sure) return;
+        try {
+            await busy(button, "", () => api(`api/pickles/override/${apiPath(...item.path.split("/"))}`, {method: "DELETE"}));
+            showToast("Override removed", "good");
+            await load();
+        } catch (error) {
+            showToast(error.message, "bad");
+        }
+    }
+
+    function renderOverrides() {
+        const needle = search.value.trim().toLocaleLowerCase();
+        const matches = overrides.filter((item) => !needle
+            || `${overrideName(item)} ${item.kind}`.toLocaleLowerCase().includes(needle));
+        const page = sorted(matches.map((item) => ({...item, name: overrideName(item)})), (item) => item.name)
+            .slice(0, shown);
+
+        body.replaceChildren();
+        const bar = make("div", "filters");
+        bar.append(make("span", "note", t("%s shown", matches.length)));
+        body.append(bar);
+
+        if (!matches.length) {
+            body.append(make("p", "note", t(needle ? "Nothing matches that."
+                : "No overrides yet. Use More Options on content or a folder in File Management to add one.")));
+            return;
+        }
+
+        const rows = page.map((item) => {
+            const row = make("tr");
+            const nameCell = make("td", "content-name-cell");
+            const heading = t("%s Override: %s", t(OVERRIDE_KINDS[item.kind]), item.name);
+            nameCell.append(openName(item.name, () => editOverride(item.path, heading)));
+            row.append(nameCell,
+                make("td", "table-core", t(OVERRIDE_KINDS[item.kind])),
+                make("td", "number table-date", stamp(item.modified)),
+                toolsCell([
+                    action("Open", () => editOverride(item.path, heading)),
+                    canManage() && action("Remove", (button) => discardOverride(item, button), true)
+                ]));
+            return row;
+        });
+
+        body.append(table([
+            {key: "name", label: "Name"},
+            {label: "Type", className: "table-core"},
+            {label: "Date", className: "table-date"},
+            {label: "Options", className: "table-options"}
+        ], rows));
+
+        if (matches.length > page.length) {
+            const more = make("button", "link more", t("Show more (%s left)", matches.length - page.length));
+            more.type = "button";
+            more.addEventListener("click", () => {
+                shown += PAGE;
+                renderOverrides();
+            });
+            body.append(more);
+        }
     }
 
     function setSort(column, descending) {
@@ -208,8 +308,8 @@
         opened = null;
         chrome(null, false);
 
-        const holdings = {state: stateGroups, sram: saveGroups};
-        const sections = ["sram", "state"].map((key) => ({
+        const holdings = {state: stateGroups, sram: saveGroups, overrides};
+        const sections = ["sram", "state", "overrides"].map((key) => ({
             key,
             name: SECTIONS[key].name,
             count: holdings[key].length
@@ -220,7 +320,9 @@
             card.type = "button";
             card.append(
                 make("span", "pickles-section-name", t(item.name)),
-                make("span", "pickles-section-count", t("%s content", item.count.toLocaleString()))
+                make("span", "pickles-section-count", item.key === "overrides"
+                    ? t("%s overrides", item.count.toLocaleString())
+                    : t("%s content", item.count.toLocaleString()))
             );
             card.addEventListener("click", () => go(item.key, null));
             grid.append(card);
@@ -229,6 +331,7 @@
     }
 
     function renderSection() {
+        if (section === "overrides") return renderOverrides();
         const source = groupsFor(section);
         const needle = search.value.trim().toLocaleLowerCase();
         const matches = source.filter((group) => !needle
@@ -524,6 +627,11 @@
             stateGroups = groupContent(states, "state");
             saveGroups = groupContent(saves, "sram");
             try {
+                overrides = (await api("api/pickles/overrides")).overrides || [];
+            } catch (_) {
+                overrides = [];
+            }
+            try {
                 activity = await (await fetch("state/activity.json", {cache: "no-store"})).json();
             } catch (_) {
                 activity = {};
@@ -551,6 +659,8 @@
         else if (opened && section === "sram") showSave(opened);
         else if (section) renderSection();
     });
+
+    MU.editPicklesOverride = editOverride;
 
     register("pickles", {load, restore});
 }());

@@ -237,6 +237,9 @@ if [ "$(GET_VAR "config" "settings/theme/menu_random")" -eq 1 ] 2>/dev/null; the
 	SET_VAR "config" "settings/theme/menu_style" "$NEW_STYLE"
 fi
 
+LOG_INFO "$0" 0 "HALT" "Running User Shutdown Hooks"
+RUN_WITH_TIMEOUT 30 2 /opt/muos/script/system/hook.sh shutdown "$ACTION" || LOG_WARN "$0" 0 "HALT" "User shutdown hooks did not complete"
+
 LOG_INFO "$0" 0 "HALT" "Disabling swap"
 RUN_WITH_TIMEOUT 5 1 swapoff -a || LOG_WARN "$0" 0 "HALT" "Swap disable did not complete"
 

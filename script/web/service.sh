@@ -12,7 +12,7 @@ MDNS_DISCOVERY_FILE="$MUOS_RUN_DIR/landing/state/devices.json"
 
 SERVICE_PROCESS_NAME() {
 	case "$1" in
-		mdns | landing | sshd | sftp | ttyd | syncthing) printf 'web-%s\n' "$1" ;;
+		mdns | landing | sshd | sftp | ttyd) printf 'web-%s\n' "$1" ;;
 		*) return 1 ;;
 	esac
 }
@@ -222,8 +222,6 @@ PREPARE_LANDING_ROOT() {
 		THEME_PALETTE
 		printf '    },\n'
 		printf '    services: {\n'
-		printf '        syncthing: {enabled: %s, port: %s},\n' \
-			"$(BOOL_WEB_SETTING syncthing)" "$(GET_WEB_PORT "syncthing_port" 7070)"
 		printf '        ttyd: {enabled: %s, port: %s},\n' \
 			"$(BOOL_WEB_SETTING ttyd)" "$(GET_WEB_PORT "ttyd_port" 8080)"
 		printf '        sshd: {enabled: %s, port: %s},\n' \
@@ -260,10 +258,6 @@ START_MDNS() {
 
 	if [ "$(WEB_SETTING ttyd)" = "1" ]; then
 		set -- "$@" --service "_http._tcp:$(GET_WEB_PORT "ttyd_port" 8080):MustardOS Terminal"
-	fi
-
-	if [ "$(WEB_SETTING syncthing)" = "1" ]; then
-		set -- "$@" --service "_http._tcp:$(GET_WEB_PORT "syncthing_port" 7070):MustardOS Syncthing"
 	fi
 
 	if [ "$(WEB_SETTING sshd)" = "1" ]; then
@@ -507,16 +501,6 @@ MANAGE_WEBSERV() {
 							/bin/sh -l
 					fi
 					;;
-				syncthing)
-					SYNCTHING_PORT=$(GET_WEB_PORT "syncthing_port" 7070)
-					[ ! -s /opt/muos/bin/syncthing ] && cp "/opt/muos/bin/syncthing.backup" "/opt/muos/bin/syncthing"
-					"$PROCESS_HELPER" start "$PROCESS_NAME" /opt/muos/bin/syncthing serve \
-						--home="$MUOS_STORE_DIR/syncthing" \
-						--no-port-probing \
-						--gui-address="0.0.0.0:$SYNCTHING_PORT" \
-						--no-browser \
-						--no-upgrade
-					;;
 			esac
 			;;
 		stop)
@@ -529,10 +513,6 @@ MANAGE_WEBSERV() {
 					"$PROCESS_HELPER" stop-group web-landstat
 					"$PROCESS_HELPER" stop-group "$PROCESS_NAME"
 					;;
-				syncthing)
-					TERMINATE_SYNCTHING
-					"$PROCESS_HELPER" stop-group "$PROCESS_NAME"
-					;;
 				*) "$PROCESS_HELPER" stop-group "$PROCESS_NAME" ;;
 			esac
 			;;
@@ -543,7 +523,7 @@ MANAGE_WEBSERV() {
 	esac
 }
 
-SERVICE_LIST="mdns landing sshd sftp ttyd syncthing"
+SERVICE_LIST="mdns landing sshd sftp ttyd"
 case "$1" in
 	apply)
 		SERVICE_PROCESS_NAME "$2" >/dev/null || exit 1

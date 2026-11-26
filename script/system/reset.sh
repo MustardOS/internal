@@ -83,6 +83,14 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Generating Filesystem Paths"
 DIRS='
 application
 chutney
+hook/awake
+hook/content_finish
+hook/content_start
+hook/network_connect
+hook/network_disconnect
+hook/shutdown
+hook/sleep
+hook/startup
 info/catalogue
 info/collection
 info/history
@@ -90,7 +98,6 @@ info/launch
 info/layout
 info/name
 info/track
-init
 lab
 log/boot
 log/profile
@@ -115,7 +122,6 @@ save/pico8/desktop
 save/state/PPSSPP-Ext
 save/state/YabaSanshiro-Ext
 screenshot
-syncthing
 wasabi
 '
 
@@ -151,9 +157,6 @@ LOG_INFO "$0" 0 "FACTORY RESET" "Copying Default MustardOS Themes"
 SRC_DIR="$MUOS_SHARE_DIR/theme"
 DST_DIR="$MUOS_DIR/theme"
 cp -a "$SRC_DIR"/. "$DST_DIR/"
-
-LOG_INFO "$0" 0 "FACTORY RESET" "Generating Blank Syncthing API File"
-: >"$MUOS_DIR/syncthing/api.txt"
 
 PM_DIR="/mnt/mmc/MUOS/PortMaster"
 PM_ZIP="$MUOS_SHARE_DIR/archive/muos.portmaster.zip"

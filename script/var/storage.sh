@@ -203,40 +203,6 @@ RESTORE_FRAMEBUFFER_MODE() {
 	fi
 }
 
-RUN_SYNCTHING_SCAN() {
-	USE_SYNCTHING_VALUE=${1:-$(GET_VAR "config" "web/syncthing")}
-	AUTO_SCAN_VALUE=${2:-$(GET_VAR "config" "syncthing/auto_scan")}
-	NET_STATE_PATH=${3:-$(NET_STATE_FILE)}
-
-	IS_ONE "$USE_SYNCTHING_VALUE" || return 0
-	IS_ONE "$AUTO_SCAN_VALUE" || return 0
-	[ -r "$NET_STATE_PATH" ] || return 0
-	[ "$(READ_FIRST_LINE "$NET_STATE_PATH")" = "up" ] || return 0
-
-	SYNCTHING_CONFIG="$MUOS_STORE_DIR/syncthing/config.xml"
-	[ -r "$SYNCTHING_CONFIG" ] || {
-		LOG_WARN "$0" 0 "LAUNCH" "Syncthing config not readable; skipping folder rescan"
-		return 0
-	}
-
-	SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' "$SYNCTHING_CONFIG")
-	[ -n "$SYNCTHING_API" ] || {
-		LOG_WARN "$0" 0 "LAUNCH" "Syncthing API key missing; skipping folder rescan"
-		return 0
-	}
-
-	LOG_INFO "$0" 0 "LAUNCH" "Triggering Syncthing folder rescan"
-	SYNCTHING_PORT=$(GET_WEB_PORT "syncthing_port" 7070)
-
-	if command -v curl >/dev/null 2>&1; then
-		curl --silent --show-error --max-time 5 \
-			-X POST \
-			-H "X-API-Key: $SYNCTHING_API" \
-			"http://localhost:$SYNCTHING_PORT/rest/db/scan" >/dev/null 2>&1 ||
-			LOG_WARN "$0" 0 "LAUNCH" "Syncthing folder rescan failed"
-	fi
-}
-
 MUOS_MKE2FS="/opt/muos/bin/mke2fs"
 MUOS_MKE2FS_CONF="/opt/muos/share/conf/mke2fs.conf"
 

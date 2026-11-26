@@ -19,20 +19,6 @@ GPTOKEYB() {
 	fi
 }
 
-TERMINATE_SYNCTHING() {
-	if [ "$(GET_VAR "config" "web/syncthing")" -eq 1 ]; then
-		LOG_INFO "$0" 0 "HALT" "Shutdown Syncthing gracefully"
-		SYNCTHING_API=$(sed -n 's:.*<apikey>\([^<]*\)</apikey>.*:\1:p' "$MUOS_STORE_DIR/syncthing/config.xml")
-		SYNCTHING_PORT=$(GET_WEB_PORT "syncthing_port" 7070)
-		CURL_OUTPUT=$(
-			curl -s --connect-timeout 1 --max-time 2 -o /dev/null -w "%{http_code}" \
-				-X POST -H "X-API-Key: $SYNCTHING_API" \
-				"http://localhost:$SYNCTHING_PORT/rest/system/shutdown"
-		)
-		[ "$CURL_OUTPUT" -eq 200 ] && LOG_INFO "$0" 0 "HALT" "Syncthing shutdown request sent successfully"
-	fi
-}
-
 GET_WEB_PORT() {
 	WEB_PORT_VALUE=$(GET_VAR "config" "web/$1")
 	case "$WEB_PORT_VALUE" in

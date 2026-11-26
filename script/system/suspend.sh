@@ -637,6 +637,8 @@ SLEEP() {
 	CHECK_RA_AND_SAVE "SAVE_STATE"
 	CHECK_RA_AND_SAVE "MENU_TOGGLE"
 
+	/opt/muos/script/system/hook.sh sleep
+
 	DISPLAY_OFF
 	MIRROR_STOP
 	PIXEL2_DISPLAY off
@@ -811,6 +813,8 @@ RESUME() {
 		fi
 		B=$((B + 1))
 	done
+
+	/opt/muos/script/system/hook.sh awake
 }
 
 FAKE_SLEEP=0

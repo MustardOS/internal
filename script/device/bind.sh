@@ -3,8 +3,8 @@
 . /opt/muos/script/var/log.sh
 . /opt/muos/script/var/manifest.sh
 
-PRIORITY_LOCS="application bios chutney init info/manifest info/track music pickles save theme wasabi"
-STANDARD_LOCS="colour info/catalogue info/name info/launch info/collection info/history info/layout info/override lab network profile screenshot syncthing package/catalogue package/config"
+PRIORITY_LOCS="application bios chutney hook info/manifest info/track music pickles save theme wasabi"
+STANDARD_LOCS="colour info/catalogue info/name info/launch info/collection info/history info/layout info/override lab network profile screenshot package/catalogue package/config"
 
 MOUNT_FAILURE="/tmp/muos/mount_failure"
 
@@ -442,8 +442,5 @@ LC_ALL=C awk -F'|' -v OFS='|' '$1 == "package" { sub(/\/package\/.*/, "/package"
 
 : >"$MUOS_STORE_DIR/mount_ready"
 
-USER_INIT="$(GET_VAR "config" "settings/advanced/user_init")"
-if [ "${USER_INIT:-0}" -eq 1 ]; then
-	LOG_INFO "$0" 0 "BOOTING" "Starting User Initialisation Scripts"
-	/opt/muos/script/system/user_init.sh &
-fi
+LOG_INFO "$0" 0 "BOOTING" "Running User Startup Hooks"
+/opt/muos/script/system/hook.sh startup &

@@ -11,13 +11,10 @@ ROM_MOUNT=$(GET_VAR "device" "storage/rom/mount")
 BOARD_NAME=$(GET_VAR "device" "board/name")
 LED_NORMAL=$(GET_VAR "device" "led/normal")
 RUMBLE_PATH=$(GET_VAR "device" "board/rumble")
-NET_STATE=$(NET_STATE_FILE)
 DPAD_SWAP=$(GET_VAR "device" "board/swap")
 USE_ACTIVITY=$(GET_VAR "config" "settings/advanced/activity")
 USE_LEDS=$(GET_VAR "config" "settings/advanced/led")
 DEV_MODE=$(GET_VAR "config" "boot/device_mode")
-USE_SYNCTHING=$(GET_VAR "config" "web/syncthing")
-SYNCTHING_AUTOSCAN=$(GET_VAR "config" "syncthing/auto_scan")
 SCREEN_INT_W=$(GET_VAR "device" "screen/internal/width")
 SCREEN_INT_H=$(GET_VAR "device" "screen/internal/height")
 SCREEN_EXT_W=$(GET_VAR "device" "screen/external/width")
@@ -77,7 +74,6 @@ CLEANUP_AFTER_LAUNCH() {
 		RESTORE_DPAD_AND_LEDS "$BOARD_NAME" "$DPAD_SWAP" "$LED_NORMAL" "$LED_STATE"
 	fi
 	RESTORE_FRAMEBUFFER_MODE "$DEV_MODE" "$SCREEN_INT_W" "$SCREEN_INT_H" "$SCREEN_EXT_W" "$SCREEN_EXT_H"
-	RUN_SYNCTHING_SCAN "$USE_SYNCTHING" "$SYNCTHING_AUTOSCAN" "$NET_STATE"
 	RUN_DISCORD_PRESENCE clear
 	nice -n 19 /opt/muos/script/system/optimised.sh >/dev/null 2>&1 &
 }
@@ -284,6 +280,8 @@ else
 		TRACK_SYSTEM="$ASSIGN" TRACK_RUNTIME="$CORE_RUNTIME" "$MUOS_TRACK_BIN" "$NAME" "$CORE" "$ROM" start
 	fi
 
+	/opt/muos/script/system/hook.sh content_start "$NAME" "$CORE" "$ROM"
+
 	LOG_INFO "$0" 0 "LAUNCH" "$(printf "Executing launcher '%s' for '%s'" "$LAUNCH_EXEC" "$NAME")"
 	PICKLES_SYSTEM="$ASSIGN" "$LAUNCH_EXEC" "$NAME" "$CORE" "$ROM"
 	LAUNCH_RC=$?
@@ -303,6 +301,8 @@ else
 		LOG_INFO "$0" 0 "LAUNCH" "$(printf "Running done script '%s'" "$LAUNCH_DONE")"
 		"$LAUNCH_DONE" "$NAME" "$CORE" "$ROM"
 	fi
+
+	/opt/muos/script/system/hook.sh content_finish "$NAME" "$CORE" "$ROM" "$LAUNCH_RC"
 fi
 
 CLEANUP_AFTER_LAUNCH

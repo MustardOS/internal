@@ -2,7 +2,7 @@
 # shellcheck disable=SC2034
 
 ARC_DIR="$MUOS_STORE_DIR"
-ARC_LABEL="Syncthing Configuration"
+ARC_LABEL="Hook Scripts"
 
 ARC_EXTRACT() {
 	DEST="$ARC_DIR"

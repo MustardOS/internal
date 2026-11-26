@@ -9,8 +9,10 @@ ARC_EXTRACT() {
 	LABEL="$ARC_LABEL"
 }
 
-ARC_CREATE() {
-	SRC="$ARC_DIR"
-	LABEL="$ARC_LABEL"
-	COMP=0
+ARC_EXTRACT_POST() {
+	[ -d "$ARC_DIR/init" ] || return 0
+	printf "Moving init scripts to hook/startup...\n"
+	mkdir -p "$ARC_DIR/hook/startup"
+	find "$ARC_DIR/init" -mindepth 1 -maxdepth 1 -exec mv -f {} "$ARC_DIR/hook/startup/" \;
+	rmdir "$ARC_DIR/init" 2>/dev/null || :
 }

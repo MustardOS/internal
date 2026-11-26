@@ -10,7 +10,6 @@ window.MUOS_RUNTIME = {
         good: "#2eb774"
     },
     services: {
-        syncthing: {enabled: false, port: 7070},
         ttyd: {enabled: false, port: 8080},
         sshd: {enabled: false, port: 22},
         sftp: {enabled: false, port: 2022}

@@ -1359,6 +1359,8 @@ CLEAR_PROXY() {
 ON_CONNECTED() {
 	SETUP_PROXY
 
+	/opt/muos/script/system/hook.sh network_connect
+
 	LOG_INFO "$0" 0 "NETWORK" "Starting Keepalive Script"
 	/opt/muos/script/web/keepalive.sh &
 
@@ -1530,6 +1532,8 @@ DO_STOP() {
 	[ "${HAS_NETWORK:-0}" -eq 0 ] && return 0
 
 	LOG_INFO "$0" 0 "NETWORK" "Stopping Network Service"
+	/opt/muos/script/system/hook.sh network_disconnect
+
 	/opt/muos/script/var/process.sh signal web-mdns TERM 2>/dev/null || true
 
 	CLEAR_PROXY

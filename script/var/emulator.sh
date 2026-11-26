@@ -10,7 +10,7 @@ EMULATOR_VARIANT() {
 	case "$(GET_VAR "device" "board/name")" in
 		rg-vita*) printf 'vita' ;;
 		rg*) printf 'rg' ;;
-		mgx* | tui*) printf 'tui' ;;
+		gcs* | mgx* | tui*) printf 'tui' ;;
 		rk*) printf 'rk' ;;
 	esac
 }

@@ -66,6 +66,15 @@ local function url_decode(str)
     end))
 end
 
+local function json_escape_str(str)
+    local s = tostring(str or "")
+    s = s:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\b', '\\b'):gsub('\f', '\\f'):gsub('\n', '\\n'):gsub('\r', '\\r'):gsub('\t', '\\t')
+    s = s:gsub("[%z\1-\31]", function(c)
+        return string.format("\\u%04x", string.byte(c))
+    end)
+    return '"' .. s .. '"'
+end
+
 local function json_encode(val)
     local t = type(val)
     if t == "table" then
@@ -82,13 +91,12 @@ local function json_encode(val)
         else
             local parts = {}
             for k, v in pairs(val) do
-                table.insert(parts, string.format("%q:%s", tostring(k), json_encode(v)))
+                table.insert(parts, json_escape_str(k) .. ":" .. json_encode(v))
             end
             return "{" .. table.concat(parts, ",") .. "}"
         end
     elseif t == "string" then
-        local escaped = val:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n'):gsub('\r', '\\r'):gsub('\t', '\\t')
-        return '"' .. escaped .. '"'
+        return json_escape_str(val)
     elseif t == "number" or t == "boolean" then
         return tostring(val)
     else
@@ -98,18 +106,87 @@ end
 
 local function json_decode_simple(str)
     local obj = {}
-    if not str then return obj end
-    for k, v in str:gmatch('"([%w_%-]+)"%s*:%s*"([^"]*)"') do
-        obj[k] = v
+    if not str or str == "" then return obj end
+    local i = 1
+    local len = #str
+
+    local function skip_ws()
+        local _, e = str:find("^[ \t\r\n]+", i)
+        if e then i = e + 1 end
     end
-    for k, v in str:gmatch('"([%w_%-]+)"%s*:%s*([%d%.]+)') do
-        obj[k] = tonumber(v)
+
+    local function parse_str()
+        if str:sub(i, i) ~= '"' then return nil end
+        i = i + 1
+        local out = {}
+        while i <= len do
+            local ch = str:sub(i, i)
+            if ch == '"' then
+                i = i + 1
+                return table.concat(out)
+            elseif ch == "\\" then
+                local nxt = str:sub(i + 1, i + 1)
+                if nxt == '"' or nxt == "\\" or nxt == "/" then
+                    table.insert(out, nxt); i = i + 2
+                elseif nxt == "n" then
+                    table.insert(out, "\n"); i = i + 2
+                elseif nxt == "r" then
+                    table.insert(out, "\r"); i = i + 2
+                elseif nxt == "t" then
+                    table.insert(out, "\t"); i = i + 2
+                elseif nxt == "b" then
+                    table.insert(out, "\b"); i = i + 2
+                elseif nxt == "f" then
+                    table.insert(out, "\f"); i = i + 2
+                elseif nxt == "u" then
+                    local hex = str:sub(i + 2, i + 5)
+                    local code = tonumber(hex, 16)
+                    if code and code < 128 then
+                        table.insert(out, string.char(code))
+                    end
+                    i = i + 6
+                else
+                    table.insert(out, nxt); i = i + 2
+                end
+            else
+                table.insert(out, ch)
+                i = i + 1
+            end
+        end
+        return table.concat(out)
     end
-    for k, v in str:gmatch('"([%w_%-]+)"%s*:%s*(true)') do
-        obj[k] = true
-    end
-    for k, v in str:gmatch('"([%w_%-]+)"%s*:%s*(false)') do
-        obj[k] = false
+
+    skip_ws()
+    if str:sub(i, i) ~= "{" then return obj end
+    i = i + 1
+    while i <= len do
+        skip_ws()
+        if str:sub(i, i) == "}" then break end
+        if str:sub(i, i) == "," then i = i + 1; skip_ws() end
+        local key = parse_str()
+        if not key then break end
+        skip_ws()
+        if str:sub(i, i) ~= ":" then break end
+        i = i + 1
+        skip_ws()
+        local ch = str:sub(i, i)
+        if ch == '"' then
+            obj[key] = parse_str()
+        elseif str:sub(i, i + 3) == "true" then
+            obj[key] = true; i = i + 4
+        elseif str:sub(i, i + 4) == "false" then
+            obj[key] = false; i = i + 5
+        elseif str:sub(i, i + 3) == "null" then
+            obj[key] = nil; i = i + 4
+        else
+            local num_s = str:match("^%-?%d+%.?%d*", i)
+            if num_s then
+                obj[key] = tonumber(num_s)
+                i = i + #num_s
+            else
+                break
+            end
+        end
     end
     return obj
 end
@@ -174,8 +251,15 @@ function jukebox_web_server.is_running()
 end
 
 function jukebox_web_server.start(ip, port)
+    port = tonumber(port) or 8048
     if server then
-        return true, server_ip, server_port
+        if server_port == port then
+            if ip and ip ~= "" then
+                server_ip = ip
+            end
+            return true, server_ip, server_port
+        end
+        jukebox_web_server.stop()
     end
 
     if not socket then
@@ -183,7 +267,7 @@ function jukebox_web_server.start(ip, port)
         if ok and s then socket = s else return false, "LuaSocket not available" end
     end
 
-    port = port or 8048
+    port = tonumber(port) or 8048
     local s = socket.bind("*", port)
     if not s then
         s = socket.bind("*", 0) -- fallback to any available port
@@ -211,30 +295,110 @@ function jukebox_web_server.stop()
     qr_cached_image = nil
 end
 
+local disk_ffi_init = false
+local disk_ffi = nil
+
+local function query_disk_space_ffi(save_dir)
+    local ok_ffi, ffi_mod = pcall(require, "ffi")
+    if not ok_ffi or not ffi_mod then return nil end
+    if not disk_ffi_init then
+        disk_ffi_init = true
+        pcall(function()
+            if ffi_mod.os == "Windows" then
+                ffi_mod.cdef[[
+                    int GetDiskFreeSpaceExA(const char* lpDirectoryName, unsigned long long* lpFreeBytesAvailable, unsigned long long* lpTotalNumberOfBytes, unsigned long long* lpTotalNumberOfFreeBytes);
+                ]]
+            else
+                ffi_mod.cdef[[
+                    struct statvfs {
+                        unsigned long f_bsize;
+                        unsigned long f_frsize;
+                        unsigned long f_blocks;
+                        unsigned long f_bfree;
+                        unsigned long f_bavail;
+                        unsigned long f_files;
+                        unsigned long f_ffree;
+                        unsigned long f_favail;
+                        unsigned long f_fsid;
+                        unsigned long f_flag;
+                        unsigned long f_namemax;
+                        unsigned int __f_spare[6];
+                    };
+                    int statvfs(const char *path, struct statvfs *buf);
+                ]]
+            end
+            disk_ffi = ffi_mod
+        end)
+    end
+    if not disk_ffi then return nil end
+    local info = { total_mb = 0, free_mb = 0 }
+    pcall(function()
+        if disk_ffi.os == "Windows" then
+            local free_avail = disk_ffi.new("unsigned long long[1]")
+            local total_bytes = disk_ffi.new("unsigned long long[1]")
+            local total_free = disk_ffi.new("unsigned long long[1]")
+            if disk_ffi.C.GetDiskFreeSpaceExA(save_dir, free_avail, total_bytes, total_free) ~= 0 then
+                info.total_mb = math.floor(tonumber(total_bytes[0]) / 1048576)
+                info.free_mb = math.floor(tonumber(free_avail[0]) / 1048576)
+            end
+        else
+            local buf = disk_ffi.new("struct statvfs")
+            local res = disk_ffi.C.statvfs(save_dir, buf)
+            if res ~= 0 then
+                res = disk_ffi.C.statvfs(".", buf)
+            end
+            if res == 0 then
+                local fr = tonumber(buf.f_frsize > 0 and buf.f_frsize or buf.f_bsize)
+                info.free_mb = math.floor(tonumber(buf.f_bavail) * fr / 1048576)
+                info.total_mb = math.floor(tonumber(buf.f_blocks) * fr / 1048576)
+            end
+        end
+    end)
+    return info
+end
+
 local function read_exact_bytes(client, count)
+    if count <= 0 then return "" end
     local chunks = {}
-    local remaining = count
-    while remaining > 0 do
-        local chunk_size = math.min(remaining, 65536)
+    local received = 0
+    while received < count do
+        local chunk_size = math.min(count - received, 65536)
         local data, err, partial = client:receive(chunk_size)
-        if data then
+        if data and #data > 0 then
             table.insert(chunks, data)
-            remaining = remaining - #data
+            received = received + #data
         elseif partial and #partial > 0 then
             table.insert(chunks, partial)
-            remaining = remaining - #partial
+            received = received + #partial
         else
-            break
+            return nil, err or "incomplete body"
         end
     end
     return table.concat(chunks)
 end
 
-local function send_response(client, status_code, content_type, body, extra_headers)
+local function send_all(client, data)
+    local total = #data
+    local sent = 0
+    while sent < total do
+        local end_pos = math.min(total, sent + 65536)
+        local ok_i, err, partial_i = client:send(data, sent + 1, end_pos)
+        local next_pos = ok_i or partial_i
+        if not next_pos or next_pos <= sent then
+            return false, err
+        end
+        sent = next_pos
+    end
+    return true
+end
+
+local function send_response(client, status_code, content_type, body, extra_headers, skip_body)
     local status_text = "OK"
     if status_code == 206 then status_text = "Partial Content"
     elseif status_code == 400 then status_text = "Bad Request"
+    elseif status_code == 403 then status_text = "Forbidden"
     elseif status_code == 404 then status_text = "Not Found"
+    elseif status_code == 416 then status_text = "Range Not Satisfiable"
     elseif status_code == 500 then status_text = "Internal Server Error"
     end
 
@@ -256,15 +420,11 @@ local function send_response(client, status_code, content_type, body, extra_head
 
     table.insert(headers, "\r\n")
     pcall(function()
-        client:send(table.concat(headers, "\r\n"))
-        if body and #body > 0 then
-            -- Send body in chunks of 64KB
-            local sent = 0
-            while sent < #body do
-                local chunk = body:sub(sent + 1, sent + 65536)
-                client:send(chunk)
-                sent = sent + #chunk
-            end
+        if not send_all(client, table.concat(headers, "\r\n")) then
+            return
+        end
+        if not skip_body and body and #body > 0 then
+            send_all(client, body)
         end
     end)
 end
@@ -319,10 +479,17 @@ local function handle_client(client, sound_module)
 
         if html then
             local t_theme = _G.theme or "light"
-            local t_name = (renderer and renderer.getThemeDisplayName) and renderer.getThemeDisplayName(t_theme, false) or t_theme
-            html = html:gsub("__DEVICE_IP__", string.format("%s:%d", server_ip, server_port))
-            html = html:gsub("__INITIAL_THEME__", t_theme)
-            html = html:gsub("__INITIAL_THEME_NAME__", t_name)
+            local payload = (renderer and renderer.getWebThemePayload) and renderer.getWebThemePayload(t_theme) or {
+                theme = t_theme,
+                name = (renderer and renderer.getThemeDisplayName) and renderer.getThemeDisplayName(t_theme, false) or t_theme,
+            }
+            payload.timestamp = os.time()
+            local t_name = payload.name or t_theme
+            local payload_json = json_encode(payload)
+            html = html:gsub("__DEVICE_IP__", function() return string.format("%s:%d", server_ip, server_port) end)
+            html = html:gsub("__INITIAL_THEME__", function() return t_theme end)
+            html = html:gsub("__INITIAL_THEME_NAME__", function() return t_name end)
+            html = html:gsub("__INITIAL_THEME_DATA__", function() return payload_json end)
             send_response(client, 200, "text/html; charset=utf-8", html)
         else
             send_response(client, 404, "text/plain", "Jukebox dashboard HTML not found")
@@ -334,12 +501,12 @@ local function handle_client(client, sound_module)
     -- 2. Theme info: GET /api/theme
     if path == "/api/theme" then
         local t_theme = _G.theme or "light"
-        local t_name = (renderer and renderer.getThemeDisplayName) and renderer.getThemeDisplayName(t_theme, false) or t_theme
-        local json = json_encode({
+        local payload = (renderer and renderer.getWebThemePayload) and renderer.getWebThemePayload(t_theme) or {
             theme = t_theme,
-            name = t_name,
-            timestamp = os.time()
-        })
+            name = (renderer and renderer.getThemeDisplayName) and renderer.getThemeDisplayName(t_theme, false) or t_theme,
+        }
+        payload.timestamp = os.time()
+        local json = json_encode(payload)
         send_response(client, 200, "application/json; charset=utf-8", json)
         client:close()
         return
@@ -348,51 +515,8 @@ local function handle_client(client, sound_module)
     -- 3. Status info: GET /api/status
     if path == "/api/status" then
         local playlist = sound_module and sound_module.getPlaylist and sound_module.getPlaylist() or {}
-        local storage_info = { total_mb = 0, free_mb = 0 }
         local save_dir = (love and love.filesystem and love.filesystem.getSaveDirectory and love.filesystem.getSaveDirectory()) or "."
-        pcall(function()
-            local ffi = require("ffi")
-            if ffi.os == "Windows" then
-                ffi.cdef[[
-                    int GetDiskFreeSpaceExA(const char* lpDirectoryName, unsigned long long* lpFreeBytesAvailable, unsigned long long* lpTotalNumberOfBytes, unsigned long long* lpTotalNumberOfFreeBytes);
-                ]]
-                local free_avail = ffi.new("unsigned long long[1]")
-                local total_bytes = ffi.new("unsigned long long[1]")
-                local total_free = ffi.new("unsigned long long[1]")
-                if ffi.C.GetDiskFreeSpaceExA(save_dir, free_avail, total_bytes, total_free) ~= 0 then
-                    storage_info.total_mb = math.floor(tonumber(total_bytes[0]) / 1048576)
-                    storage_info.free_mb = math.floor(tonumber(free_avail[0]) / 1048576)
-                end
-            else
-                ffi.cdef[[
-                    struct statvfs {
-                        unsigned long f_bsize;
-                        unsigned long f_frsize;
-                        unsigned long f_blocks;
-                        unsigned long f_bfree;
-                        unsigned long f_bavail;
-                        unsigned long f_files;
-                        unsigned long f_ffree;
-                        unsigned long f_favail;
-                        unsigned long f_fsid;
-                        unsigned long f_flag;
-                        unsigned long f_namemax;
-                        unsigned int __f_spare[6];
-                    };
-                    int statvfs(const char *path, struct statvfs *buf);
-                ]]
-                local buf = ffi.new("struct statvfs")
-                local res = ffi.C.statvfs(save_dir, buf)
-                if res ~= 0 then
-                    res = ffi.C.statvfs(".", buf)
-                end
-                if res == 0 then
-                    local fr = tonumber(buf.f_frsize > 0 and buf.f_frsize or buf.f_bsize)
-                    storage_info.free_mb = math.floor(tonumber(buf.f_bavail) * fr / 1048576)
-                    storage_info.total_mb = math.floor(tonumber(buf.f_blocks) * fr / 1048576)
-                end
-            end
-        end)
+        local storage_info = query_disk_space_ffi(save_dir) or { total_mb = 0, free_mb = 0 }
         if storage_info.free_mb <= 0 then
             pcall(function()
                 local h = io.popen and (io.popen("df -m '" .. save_dir .. "' 2>/dev/null") or io.popen("df -m . 2>/dev/null"))
@@ -529,17 +653,40 @@ local function handle_client(client, sound_module)
             table.insert(extra, string.format('Content-Disposition: attachment; filename="%s"', safe_name))
         end
 
+        local is_head = (method == "HEAD")
         if range_hdr and not is_dl then
-            local s_start, s_end = range_hdr:match("bytes=(%d+)%-(%d*)")
-            local start_b = tonumber(s_start) or 0
-            local end_b = tonumber(s_end) or (total_size - 1)
+            if total_size == 0 then
+                send_response(client, 416, "text/plain", "", {"Content-Range: bytes */0"}, is_head)
+                client:close()
+                return
+            end
+            local start_b, end_b
+            local suffix_len = range_hdr:match("bytes=%-(%d+)")
+            if suffix_len then
+                local n = tonumber(suffix_len) or 0
+                if n <= 0 then
+                    send_response(client, 416, "text/plain", "", {string.format("Content-Range: bytes */%d", total_size)}, is_head)
+                    client:close()
+                    return
+                end
+                start_b = math.max(0, total_size - n)
+                end_b = total_size - 1
+            else
+                local s_start, s_end = range_hdr:match("bytes=(%d+)%-(%d*)")
+                start_b = tonumber(s_start)
+                end_b = tonumber(s_end) or (total_size - 1)
+            end
+            if not start_b or start_b >= total_size or end_b < start_b then
+                send_response(client, 416, "text/plain", "", {string.format("Content-Range: bytes */%d", total_size)}, is_head)
+                client:close()
+                return
+            end
             if end_b >= total_size then end_b = total_size - 1 end
-            local slice_len = end_b - start_b + 1
             local slice = file_data:sub(start_b + 1, end_b + 1)
             table.insert(extra, string.format("Content-Range: bytes %d-%d/%d", start_b, end_b, total_size))
-            send_response(client, 206, mime, slice, extra)
+            send_response(client, 206, mime, slice, extra, is_head)
         else
-            send_response(client, 200, mime, file_data, extra)
+            send_response(client, 200, mime, file_data, extra, is_head)
         end
         client:close()
         return
@@ -588,7 +735,7 @@ local function handle_client(client, sound_module)
     -- 8. File Upload: POST /api/upload
     if method == "POST" and path == "/api/upload" then
         local ct = headers["content-type"] or ""
-        local boundary = ct:match("boundary=([^;%s]+)")
+        local boundary = ct:match('boundary="([^"]+)"') or ct:match("boundary=([^;%s]+)")
         local cl = tonumber(headers["content-length"]) or 0
 
         if not boundary or cl <= 0 or cl > 50 * 1024 * 1024 then
@@ -597,7 +744,12 @@ local function handle_client(client, sound_module)
             return
         end
 
-        local body = read_exact_bytes(client, cl)
+        local body, read_err = read_exact_bytes(client, cl)
+        if not body then
+            send_response(client, 400, "application/json; charset=utf-8", json_encode({success = false, error = "Upload connection interrupted: " .. tostring(read_err)}))
+            client:close()
+            return
+        end
         local saved_files = {}
 
         local delim = "--" .. boundary
@@ -619,18 +771,25 @@ local function handle_client(client, sound_module)
 
                 local fn = part_hdr:match('filename="([^"]+)"')
                 if fn and fn ~= "" and #file_data > 0 then
-                    fn = sanitize_filename(url_decode(fn))
+                    fn = sanitize_filename(fn)
                     local ext = fn:match("%.([^.]+)$")
                     ext = ext and ext:lower() or ""
                     if ext == "mp3" or ext == "ogg" or ext == "wav" then
+                        local write_ok = false
                         if love and love.filesystem then
                             love.filesystem.createDirectory("assets/music")
-                            love.filesystem.write("assets/music/" .. fn, file_data)
+                            write_ok = love.filesystem.write("assets/music/" .. fn, file_data) == true
                         else
                             local f = io.open("assets/music/" .. fn, "wb")
-                            if f then f:write(file_data); f:close() end
+                            if f then
+                                local ok_w = f:write(file_data)
+                                f:close()
+                                write_ok = (ok_w ~= nil)
+                            end
                         end
-                        table.insert(saved_files, fn)
+                        if write_ok then
+                            table.insert(saved_files, fn)
+                        end
                     end
                 end
             end
@@ -660,6 +819,11 @@ local function handle_client(client, sound_module)
     if method == "POST" and path == "/api/delete" then
         local cl = tonumber(headers["content-length"]) or 0
         local body = read_exact_bytes(client, cl)
+        if not body then
+            send_response(client, 400, "application/json", json_encode({success = false, error = "Invalid request body"}))
+            client:close()
+            return
+        end
         local data = json_decode_simple(body)
         local fn = data.filename
 
@@ -681,7 +845,7 @@ local function handle_client(client, sound_module)
             removed = love.filesystem.remove("assets/music/" .. safe_name)
         end
         if not removed then
-            os.remove("assets/music/" .. safe_name)
+            removed = os.remove("assets/music/" .. safe_name) ~= nil
         end
 
         if sound_module and sound_module.reloadPlaylist then
@@ -700,10 +864,16 @@ local function handle_client(client, sound_module)
     if method == "POST" and path == "/api/edit_track" then
         local cl = tonumber(headers["content-length"]) or 0
         local body = read_exact_bytes(client, cl)
+        if not body then
+            send_response(client, 400, "application/json", json_encode({success = false, error = "Invalid request body"}))
+            client:close()
+            return
+        end
         local data = json_decode_simple(body)
         local old_fn = data.old_filename
         local title = data.title or ""
         local artist = data.artist or ""
+        local explicit_new = data.new_filename or ""
 
         if not old_fn or old_fn == "" then
             send_response(client, 400, "application/json", json_encode({success = false, error = "Original filename required"}))
@@ -719,13 +889,54 @@ local function handle_client(client, sound_module)
         end
 
         local ext = safe_old:match("%.([^.]+)$") or "mp3"
-        local safe_new = sanitize_filename(string.format("%s - %s.%s", title, artist, ext))
+        local raw_new
+        if explicit_new ~= "" then
+            raw_new = explicit_new
+            if not raw_new:match("%.([^.]+)$") then
+                raw_new = raw_new .. "." .. ext
+            end
+        elseif artist ~= "" then
+            raw_new = string.format("%s - %s.%s", title, artist, ext)
+        else
+            raw_new = string.format("%s.%s", title, ext)
+        end
+        local safe_new = sanitize_filename(raw_new)
+        local new_ext = (safe_new:match("%.([^.]+)$") or ""):lower()
+        if new_ext ~= "mp3" and new_ext ~= "ogg" and new_ext ~= "wav" then
+            safe_new = safe_new .. "." .. ext
+        end
 
+        if safe_new == safe_old then
+            send_response(client, 200, "application/json; charset=utf-8", json_encode({
+                success = true,
+                old_filename = safe_old,
+                new_filename = safe_new,
+                message = string.format("Track '%s' unchanged", safe_new)
+            }))
+            client:close()
+            return
+        end
+
+        if BUILTIN_TRACKS[safe_new:lower()] then
+            send_response(client, 403, "application/json", json_encode({success = false, error = "Cannot overwrite a built-in track"}))
+            client:close()
+            return
+        end
+
+        local ok_io = false
+        local err_msg = "Original track not found"
         if love and love.filesystem then
             local old_content = love.filesystem.read("assets/music/" .. safe_old)
             if old_content then
-                love.filesystem.write("assets/music/" .. safe_new, old_content)
-                love.filesystem.remove("assets/music/" .. safe_old)
+                local wrote = love.filesystem.write("assets/music/" .. safe_new, old_content)
+                if wrote then
+                    if safe_new:lower() ~= safe_old:lower() then
+                        love.filesystem.remove("assets/music/" .. safe_old)
+                    end
+                    ok_io = true
+                else
+                    err_msg = "Failed to write renamed track"
+                end
             end
         else
             local f = io.open("assets/music/" .. safe_old, "rb")
@@ -733,9 +944,27 @@ local function handle_client(client, sound_module)
                 local content = f:read("*a")
                 f:close()
                 local f2 = io.open("assets/music/" .. safe_new, "wb")
-                if f2 then f2:write(content); f2:close() end
-                os.remove("assets/music/" .. safe_old)
+                if f2 then
+                    local wrote = f2:write(content)
+                    f2:close()
+                    if wrote then
+                        if safe_new:lower() ~= safe_old:lower() then
+                            os.remove("assets/music/" .. safe_old)
+                        end
+                        ok_io = true
+                    else
+                        err_msg = "Failed to write renamed track"
+                    end
+                else
+                    err_msg = "Failed to open destination file"
+                end
             end
+        end
+
+        if not ok_io then
+            send_response(client, 404, "application/json; charset=utf-8", json_encode({success = false, error = err_msg}))
+            client:close()
+            return
         end
 
         if sound_module and sound_module.reloadPlaylist then

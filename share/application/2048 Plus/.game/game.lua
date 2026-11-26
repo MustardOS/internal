@@ -114,6 +114,11 @@ function Game.new(mode)
         self.max_score_for_coins = savedState.max_score_for_coins or self.score
         self.state = savedState.state or Game.STATE_PLAYING
         self.prevShieldState = savedState.prevShieldState
+        self.cursorX = savedState.cursorX
+        self.cursorY = savedState.cursorY
+        self.swapTarget = savedState.swapTarget
+        self.shield_mode = savedState.shield_mode
+        self.shield_index = savedState.shield_index
         self.won = savedState.won or false
         self.canUndo = savedState.canUndo or false
         self.grid:restoreState(savedState.gridState)
@@ -153,6 +158,41 @@ function Game.new(mode)
             self.timesUp = true
         elseif self.state == Game.STATE_PAUSED then
             self.state = self.won and Game.STATE_ENDLESS or (self:movesAvailable() and Game.STATE_PLAYING or Game.STATE_LOST)
+        elseif self.state == Game.STATE_TARGETING_BOMB then
+            if (self.powerups and self.powerups.bomb or 0) <= 0 then
+                self.state = self.won and Game.STATE_ENDLESS or (self:movesAvailable() and Game.STATE_PLAYING or Game.STATE_LOST)
+            else
+                self.cursorX = math.max(1, math.min(self.size, self.cursorX or 2))
+                self.cursorY = math.max(1, math.min(self.size, self.cursorY or 2))
+            end
+        elseif self.state == Game.STATE_TARGETING_SWAP_1 then
+            if (self.powerups and self.powerups.swap or 0) <= 0 then
+                self.state = self.won and Game.STATE_ENDLESS or (self:movesAvailable() and Game.STATE_PLAYING or Game.STATE_LOST)
+            else
+                self.cursorX = math.max(1, math.min(self.size, self.cursorX or 2))
+                self.cursorY = math.max(1, math.min(self.size, self.cursorY or 2))
+            end
+        elseif self.state == Game.STATE_TARGETING_SWAP_2 then
+            if (self.powerups and self.powerups.swap or 0) <= 0 then
+                self.swapTarget = nil
+                self.state = self.won and Game.STATE_ENDLESS or (self:movesAvailable() and Game.STATE_PLAYING or Game.STATE_LOST)
+            else
+                self.cursorX = math.max(1, math.min(self.size, self.cursorX or 2))
+                self.cursorY = math.max(1, math.min(self.size, self.cursorY or 2))
+                if not self.swapTarget or not self.swapTarget.x or not self.swapTarget.y then
+                    self.swapTarget = nil
+                    self.state = Game.STATE_TARGETING_SWAP_1
+                end
+            end
+        elseif self.state == Game.STATE_TARGETING_SHIELD then
+            if (self.second_chance_count or 0) <= 0 then
+                self.state = self.prevShieldState or (self.won and Game.STATE_ENDLESS or (self:movesAvailable() and Game.STATE_PLAYING or Game.STATE_LOST))
+            else
+                if self.shield_mode ~= "row" and self.shield_mode ~= "col" then
+                    self.shield_mode = "row"
+                end
+                self.shield_index = math.max(1, math.min(self.size, self.shield_index or 1))
+            end
         elseif self.state == Game.STATE_PLAYING and not self.won and not self:movesAvailable() then
             self.state = Game.STATE_LOST
         end
@@ -293,6 +333,11 @@ function Game:saveGameState(force)
         max_score_for_coins = self.max_score_for_coins,
         state = self.state,
         prevShieldState = self.prevShieldState,
+        cursorX = self.cursorX,
+        cursorY = self.cursorY,
+        swapTarget = self.swapTarget,
+        shield_mode = self.shield_mode,
+        shield_index = self.shield_index,
         won = self.won,
         canUndo = self.canUndo,
         gridState = self.grid:saveState(),
@@ -836,7 +881,7 @@ function Game:move(direction)
             if self.score >= 100000 then _G.unlockAchievement("ach_score_100k") end
             if self.score >= 250000 then _G.unlockAchievement("ach_score_250k") end
         end
-        if not self:movesAvailable() then
+        if not self:movesAvailable() and self.state ~= Game.STATE_WON then
             self.state = Game.STATE_LOST
             local sound = require("sound")
             sound.playGameOver()
@@ -1214,7 +1259,9 @@ function Game:confirmTarget()
             local pending = {
                 gridState = self.grid:saveState(),
                 score = self.score,
-                rng = love.math.getRandomState()
+                rng = (self.rng and self.rng:getState()) or love.math.getRandomState(),
+                won = self.won,
+                gameState = self.state
             }
             if _G.undo_mode == "unlimited" or self.mode == "plus" then
                 table.insert(self.undoHistory, pending)
@@ -1272,7 +1319,9 @@ function Game:confirmTarget()
             local pending = {
                 gridState = self.grid:saveState(),
                 score = self.score,
-                rng = love.math.getRandomState(),
+                rng = (self.rng and self.rng:getState()) or love.math.getRandomState(),
+                won = self.won,
+                gameState = self.state,
                 undoTransitions = {
                     {px = self.swapTarget.x, py = self.swapTarget.y, sx = cx, sy = cy},
                     {px = cx, py = cy, sx = self.swapTarget.x, sy = self.swapTarget.y}
@@ -1548,7 +1597,9 @@ function Game:confirmShieldTarget()
     local pending = {
         gridState = self.grid:saveState(),
         score = self.score,
-        rng = love.math.getRandomState()
+        rng = (self.rng and self.rng:getState()) or love.math.getRandomState(),
+        won = self.won,
+        gameState = self.prevShieldState or self.state
     }
     if _G.undo_mode == "unlimited" or self.mode == "plus" then
         table.insert(self.undoHistory, pending)

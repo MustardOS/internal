@@ -41,6 +41,14 @@ local colors = {
 -- Animation state
 -- ============================================================================
 local logo
+local timer_handles = {}
+
+local function trackTimer(handle)
+    if handle then
+        table.insert(timer_handles, handle)
+    end
+    return handle
+end
 
 local anim = {
     tiles_progress = 0,
@@ -130,40 +138,42 @@ function splash.load()
         end
     end
 
+    timer_handles = {}
+
     for _, tile in ipairs(anim.tile_data) do
-        timer.after(tile.delay, function()
-            timer.tween(0.4, tile, {scale = 1}, 'out-back')
-        end)
+        trackTimer(timer.after(tile.delay, function()
+            trackTimer(timer.tween(0.4, tile, {scale = 1}, 'out-back'))
+        end))
     end
 
-    timer.after(0.6, function()
+    trackTimer(timer.after(0.6, function()
         local sound = require("sound")
         sound.playSplash()
-        timer.tween(0.1, anim, {logo_alpha = 1}, 'linear')
-        timer.tween(0.7, anim, {logo_scale = 1.0}, 'out-elastic')
-    end)
+        trackTimer(timer.tween(0.1, anim, {logo_alpha = 1}, 'linear'))
+        trackTimer(timer.tween(0.7, anim, {logo_scale = 1.0}, 'out-elastic'))
+    end))
 
-    timer.after(2.3, function()
+    trackTimer(timer.after(2.3, function()
         splash.is_revealing = true
         local max_delay = 0
         for _, tile in ipairs(anim.tile_data) do
             local grid_dist = math.sqrt((tile.col - CENTER_COL)^2 + (tile.row - CENTER_ROW)^2)
             local delay = grid_dist * 0.045
             if delay > max_delay then max_delay = delay end
-            timer.after(delay, function()
-                timer.tween(0.3, tile, { scale = 0 }, 'in-back')
-            end)
+            trackTimer(timer.after(delay, function()
+                trackTimer(timer.tween(0.3, tile, { scale = 0 }, 'in-back'))
+            end))
         end
 
-        timer.after(max_delay + 0.1, function()
-            timer.tween(0.3, anim, { logo_scale = 0 }, 'in-back')
-        end)
+        trackTimer(timer.after(max_delay + 0.1, function()
+            trackTimer(timer.tween(0.3, anim, { logo_scale = 0 }, 'in-back'))
+        end))
 
-        timer.after(max_delay + 0.45, function()
+        trackTimer(timer.after(max_delay + 0.45, function()
             splash.finished = true
             splash.is_revealing = false
-        end)
-    end)
+        end))
+    end))
 end
 
 local function roundedRect(mode, x, y, w, h, r)
@@ -297,7 +307,10 @@ function splash.skip()
         sound.stopSplash()
         splash.finished = true
         splash.is_revealing = false
-        timer.clear()
+        for _, handle in ipairs(timer_handles) do
+            timer.cancel(handle)
+        end
+        timer_handles = {}
     end
 end
 

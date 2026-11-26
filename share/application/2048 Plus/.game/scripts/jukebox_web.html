@@ -3978,6 +3978,9 @@ let isRepeat = false;
 let isMuted = false;
 let previousVolume = 0.75;
 let currentThemeId = document.documentElement.getAttribute("data-theme") || "light";
+const INITIAL_THEME_DATA = __INITIAL_THEME_DATA__;
+let currentThemeData = INITIAL_THEME_DATA || null;
+let currentThemeHash = (INITIAL_THEME_DATA && INITIAL_THEME_DATA.hash) || "";
 
 const audio = document.getElementById("audioEngine");
 const vinylDisc = document.getElementById("vinylDisc");
@@ -4163,18 +4166,38 @@ function getSafeContrastColor(bgHex, preferredColor, minRatio = 3.5) {
 }
 
 function applyTheme(themeId, themeName, showToastNotice = false, colorData = null) {
-  let t = THEMES_MAP[themeId] || (colorData ? {
-    id: themeId,
-    name: themeName || themeId,
-    bg: colorData.bg || "#121212",
-    board: colorData.board || "#2d2d2d",
-    accent: colorData.accent || "#edc22e",
-    text: colorData.text || "#eee4da",
-    is_dark: colorData.is_dark !== undefined ? colorData.is_dark : true,
-    tiles: colorData.tiles || null
-  } : null);
+  let t = null;
+  if (themeId && themeId.startsWith("custom_") && colorData && colorData.bg) {
+    t = {
+      id: themeId,
+      name: colorData.name || themeName || themeId,
+      bg: colorData.bg || "#121212",
+      board: colorData.board || "#2d2d2d",
+      accent: colorData.accent || "#edc22e",
+      text: colorData.text || "#eee4da",
+      is_dark: colorData.is_dark !== undefined ? colorData.is_dark : isColorDark(colorData.bg || "#121212"),
+      tiles: colorData.tiles || null,
+      backdrop_fx: colorData.backdrop_fx || 1,
+      start_hue: colorData.start_hue !== undefined ? colorData.start_hue : 200,
+      end_hue: colorData.end_hue !== undefined ? colorData.end_hue : 330,
+      sat: colorData.sat !== undefined ? colorData.sat : 80,
+      base_tone: colorData.base_tone || 1
+    };
+  } else {
+    t = THEMES_MAP[themeId] || (colorData && colorData.bg ? {
+      id: themeId,
+      name: colorData.name || themeName || themeId,
+      bg: colorData.bg || "#121212",
+      board: colorData.board || "#2d2d2d",
+      accent: colorData.accent || "#edc22e",
+      text: colorData.text || "#eee4da",
+      is_dark: colorData.is_dark !== undefined ? colorData.is_dark : true,
+      tiles: colorData.tiles || null
+    } : null);
+  }
 
   if (!t) return;
+  currentThemeData = t;
   currentThemeId = themeId;
   document.documentElement.setAttribute("data-theme", t.id);
 
@@ -4283,8 +4306,13 @@ async function pollGameTheme() {
     const res = await fetch("/api/theme?t=" + Date.now());
     if (res.ok) {
       const data = await res.json();
-      if (data && data.theme && data.theme !== currentThemeId) {
-        applyTheme(data.theme, data.name, true, data);
+      if (data && data.theme) {
+        const themeChanged = data.theme !== currentThemeId;
+        const hashChanged = data.hash && data.hash !== currentThemeHash;
+        if (themeChanged || hashChanged) {
+          currentThemeHash = data.hash || "";
+          applyTheme(data.theme, data.name, themeChanged, data);
+        }
       }
     }
   } catch (err) {
@@ -4384,7 +4412,7 @@ function togglePlayPause() {
     audioCtx.resume();
   }
   if (audio.paused) {
-    audio.play().then(() => updatePlayState(true));
+    audio.play().then(() => updatePlayState(true)).catch(() => updatePlayState(false));
   } else {
     audio.pause();
     updatePlayState(false);
@@ -4428,19 +4456,26 @@ function toggleRepeat() {
 }
 
 function changeVolume(val) {
-  audio.volume = val;
-  if (val > 0) isMuted = false;
-  volBtn.innerHTML = (val == 0) ? renderM3Icon('volume_off', 'm3-icon-sm') : renderM3Icon('volume_up', 'm3-icon-sm');
+  const numVal = parseFloat(val);
+  audio.volume = numVal;
+  if (numVal > 0) {
+    isMuted = false;
+    previousVolume = numVal;
+  } else {
+    isMuted = true;
+  }
+  volBtn.innerHTML = (numVal === 0) ? renderM3Icon('volume_off', 'm3-icon-sm') : renderM3Icon('volume_up', 'm3-icon-sm');
 }
 
 function toggleMute() {
   if (isMuted) {
-    audio.volume = previousVolume;
-    volSlider.value = previousVolume;
+    const restoreVol = previousVolume > 0 ? previousVolume : 0.75;
+    audio.volume = restoreVol;
+    volSlider.value = restoreVol;
     isMuted = false;
     volBtn.innerHTML = renderM3Icon('volume_up', 'm3-icon-sm');
   } else {
-    previousVolume = audio.volume;
+    if (audio.volume > 0) previousVolume = audio.volume;
     audio.volume = 0;
     volSlider.value = 0;
     isMuted = true;
@@ -4461,10 +4496,13 @@ audio.addEventListener("loadedmetadata", () => {
   timeDuration.textContent = formatTime(audio.duration);
 });
 
+audio.addEventListener("play", () => updatePlayState(true));
+audio.addEventListener("pause", () => updatePlayState(false));
+
 audio.addEventListener("ended", () => {
   if (isRepeat) {
     audio.currentTime = 0;
-    audio.play();
+    audio.play().catch(() => {});
   } else {
     playNextTrack();
   }
@@ -4480,6 +4518,7 @@ scrubberBar.addEventListener("click", (e) => {
 
 // ─── Playlist & Storage Management ───────────────────────────────
 function loadTracks() {
+  const activeFilename = (currentIndex >= 0 && allTracks[currentIndex]) ? allTracks[currentIndex].filename : null;
   fetch("/api/tracks")
     .then(r => r.json())
     .then(data => {
@@ -4495,6 +4534,11 @@ function loadTracks() {
           size_formatted: sf || ""
         };
       });
+      if (activeFilename) {
+        currentIndex = allTracks.findIndex(t => t.filename === activeFilename);
+      } else {
+        currentIndex = -1;
+      }
       document.getElementById("trackCountBadge").textContent = allTracks.length;
       filterTracks();
       updateStorage();
@@ -4540,7 +4584,7 @@ function renderTrackList() {
   }
 
   const tileNumbers = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
-  const activeTheme = THEMES_MAP[currentThemeId] || THEMES_MAP["light"];
+  const activeTheme = (currentThemeData && currentThemeData.id === currentThemeId ? currentThemeData : null) || THEMES_MAP[currentThemeId] || THEMES_MAP["light"];
   const themeTiles = (activeTheme && activeTheme.tiles) || (THEMES_MAP["light"] && THEMES_MAP["light"].tiles) || {};
 
   container.innerHTML = "";
@@ -4691,12 +4735,16 @@ function submitEditTrack(e) {
     btn.textContent = "Save Changes";
     if (data.success) {
       showToast(data.message || "Track updated successfully!");
-      closeEditModal();
-      
-      if (allTracks[editingTrackIndex] && allTracks[editingTrackIndex].filename === old_filename) {
-        deckTitle.textContent = title || data.new_filename;
-        deckArtist.textContent = artist || "Custom Track";
+      const editedIdx = editingTrackIndex;
+      const updatedFilename = data.new_filename || new_filename || old_filename;
+      if (editedIdx >= 0 && allTracks[editedIdx] && allTracks[editedIdx].filename === old_filename) {
+        allTracks[editedIdx].filename = updatedFilename;
+        if (editedIdx === currentIndex) {
+          deckTitle.textContent = title || updatedFilename;
+          deckArtist.textContent = artist || "Custom Track";
+        }
       }
+      closeEditModal();
       loadTracks();
     } else {
       showToast(data.error || "Failed to update track");
@@ -4769,7 +4817,7 @@ function showToast(msg) {
 }
 
 function escapeHtml(str) {
-  return (str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return (str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
 // ─── Drag & Drop Upload Engine ────────────────────────────────────
@@ -6525,6 +6573,248 @@ const DYNAMIC_THEMES = new Set([
   'synthwave'
 ]);
 
+function studioHslToRgb(h, s, l) {
+  h = ((h % 360) + 360) % 360 / 360;
+  s = Math.max(0, Math.min(1, s));
+  l = Math.max(0, Math.min(1, l));
+  if (s === 0) {
+    const v = Math.round(l * 255);
+    return [v, v, v];
+  }
+  const hue2rgb = (p, q, t) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return p + (q - p) * 6 * t;
+    if (t < 1 / 2) return q;
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+    return p;
+  };
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+  return [
+    Math.round(hue2rgb(p, q, h + 1 / 3) * 255),
+    Math.round(hue2rgb(p, q, h) * 255),
+    Math.round(hue2rgb(p, q, h - 1 / 3) * 255)
+  ];
+}
+
+function drawCustomStudioHeaderFx(ctx, w, h, t, cfg) {
+  const fx = (cfg && cfg.backdrop_fx) || 1;
+  if (fx <= 1) return;
+
+  const sat = ((cfg.sat !== undefined ? cfg.sat : 80) / 100);
+  const isLight = (cfg.base_tone === 2);
+  const c1 = studioHslToRgb(cfg.start_hue !== undefined ? cfg.start_hue : 200, sat, isLight ? 0.56 : 0.64);
+  const c2 = studioHslToRgb(cfg.end_hue !== undefined ? cfg.end_hue : 330, sat, isLight ? 0.52 : 0.68);
+  const golden = 0.6180339887;
+  const rgb = (c, a) => `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${a})`;
+
+  ctx.save();
+  if (fx === 2) {
+    for (let i = 1; i <= 16; i++) {
+      const seed = i * golden * 3.7;
+      const speed = 22 + (i % 5) * 6;
+      const drift = Math.sin(t * 0.8 + i * 1.3) * 18;
+      const py = ((t * speed + seed * h) % (h + 24)) - 12;
+      const px = (((seed * w * 1.5 + drift) % w) + w) % w;
+      const rot = (t * 0.5 + i) % (Math.PI * 2);
+      const sz = 4.0 + (i % 4) * 1.2;
+      const col = (i % 2 === 0) ? c1 : c2;
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(rot);
+      ctx.fillStyle = rgb(col, 0.42 + Math.sin(t + i) * 0.14);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, sz, sz * 0.55, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  } else if (fx === 3) {
+    for (let i = 1; i <= 32; i++) {
+      const sx = ((i * golden * 1.2) % 1.0) * w;
+      const sy = ((i * golden * 1.7) % 1.0) * h;
+      const twinkle = Math.sin(t * (0.8 + (i % 6) * 0.35) + i * 2.5) * 0.5 + 0.5;
+      const sz = 0.9 + (i % 3) * 0.45;
+      const col = (i % 3 === 0) ? c2 : ((i % 3 === 1) ? c1 : (isLight ? c1 : [255, 255, 255]));
+      ctx.fillStyle = rgb(col, 0.20 + twinkle * 0.52);
+      ctx.beginPath();
+      ctx.arc(sx, sy, sz, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (fx === 4) {
+    for (let i = 1; i <= 4; i++) {
+      const cx = w * ((i * golden * 0.9 + 0.1) % 0.8 + 0.1) + Math.sin(t * 0.25 + i * 1.7) * 55;
+      const cy = h * ((i * golden * 1.3 + 0.1) % 0.8 + 0.1) + Math.cos(t * 0.21 + i * 2.1) * 20;
+      const pulse = 0.75 + 0.25 * Math.sin(t * 0.9 + i * 1.3);
+      const rad = 55 + i * 18;
+      const col = (i % 2 === 0) ? c2 : c1;
+      ctx.fillStyle = rgb(col, (isLight ? 0.15 : 0.13) * pulse);
+      ctx.beginPath();
+      ctx.arc(cx, cy, rad * 1.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = rgb(col, (isLight ? 0.22 : 0.18) * pulse);
+      ctx.beginPath();
+      ctx.arc(cx, cy, rad * 0.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (fx === 5) {
+    for (let i = 1; i <= 24; i++) {
+      const startX = w * ((i * golden + 0.1) % 1.0);
+      const speed = 16 + (i % 7) * 5;
+      const relY = h + 15 - ((t * speed + i * 53.7) % (h + 30));
+      const px = startX + Math.sin(t * (0.8 + (i % 4) * 0.3) + i * 2.3) * 14;
+      const life = Math.max(0, Math.min(1, 1.0 - relY / Math.max(1, h)));
+      const sz = (1.6 + (i % 3) * 0.5) * (1.0 - life * 0.45);
+      const col = [
+        Math.round(c1[0] + (c2[0] - c1[0]) * life),
+        Math.round(c1[1] + (c2[1] - c1[1]) * life),
+        Math.round(c1[2] + (c2[2] - c1[2]) * life)
+      ];
+      const ea = (0.6 + 0.4 * Math.sin(t * 4.5 + i * 3.7)) * (0.55 - life * 0.32);
+      if (ea > 0.01) {
+        ctx.fillStyle = rgb(col, ea);
+        ctx.beginPath();
+        ctx.arc(px, relY, sz, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  } else if (fx === 6) {
+    const segCount = 36;
+    const segW = (w / segCount) + 1;
+    for (let band = 1; band <= 3; band++) {
+      const bf = (band - 1) / 2;
+      const col = [
+        Math.round(c1[0] + (c2[0] - c1[0]) * bf),
+        Math.round(c1[1] + (c2[1] - c1[1]) * bf),
+        Math.round(c1[2] + (c2[2] - c1[2]) * bf)
+      ];
+      const swayFreq = 0.22 + band * 0.06;
+      const swayAmp = h * 0.20 + band * 6;
+      const baseH = h * (0.45 + band * 0.14);
+      for (let seg = 0; seg < segCount; seg++) {
+        const frac = seg / segCount;
+        const wave = Math.sin(frac * Math.PI * 2.4 + t * swayFreq + band * 1.4) * swayAmp;
+        const bright = 0.45 + 0.55 * Math.sin(frac * Math.PI * 3.0 + t * 0.3 + band);
+        ctx.fillStyle = rgb(col, 0.05 + bright * (isLight ? 0.12 : 0.10));
+        ctx.fillRect(w * frac, 0, segW, Math.max(4, baseH + wave));
+      }
+    }
+  } else if (fx === 7) {
+    ctx.lineWidth = 1.5;
+    const maxR = Math.min(w, h) * 0.65;
+    for (let i = 1; i <= 5; i++) {
+      const rx = w * ((i * golden * 0.85 + 0.12) % 0.76 + 0.12);
+      const ry = h * ((i * golden * 1.35 + 0.14) % 0.72 + 0.14);
+      const cycle = 3.2 + (i % 3) * 0.8;
+      const prog = ((t + i * 0.75) % cycle) / cycle;
+      const fade = Math.sin(prog * Math.PI);
+      const col = (i % 2 === 0) ? c2 : c1;
+      ctx.strokeStyle = rgb(col, fade * 0.34);
+      ctx.beginPath();
+      ctx.arc(rx, ry, 3 + prog * maxR, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  } else if (fx === 8) {
+    ctx.lineWidth = 1;
+    const gridS = 32;
+    const offY = (t * 20) % gridS;
+    const offX = (t * 8) % gridS;
+    for (let py = Math.floor(offY); py < h; py += gridS) {
+      ctx.strokeStyle = rgb(c1, isLight ? 0.14 : 0.10);
+      ctx.beginPath();
+      ctx.moveTo(0, py);
+      ctx.lineTo(w, py);
+      ctx.stroke();
+    }
+    for (let px = Math.floor(offX); px < w; px += gridS) {
+      ctx.strokeStyle = rgb(c2, isLight ? 0.12 : 0.08);
+      ctx.beginPath();
+      ctx.moveTo(px, 0);
+      ctx.lineTo(px, h);
+      ctx.stroke();
+    }
+  } else if (fx === 9) {
+    for (let i = 1; i <= 18; i++) {
+      const bx = (i * golden * 0.91 + 0.08) % 0.84 + 0.08;
+      const by = (i * golden * 1.43 + 0.08) % 0.84 + 0.08;
+      const px = w * bx + Math.sin(t * (0.45 + (i % 4) * 0.15) + i * 2.1) * 32;
+      const py = h * by + Math.cos(t * (0.38 + (i % 5) * 0.12) + i * 1.7) * 16;
+      const pulse = Math.sin(t * (1.6 + (i % 3) * 0.5) + i * 2.7) * 0.5 + 0.5;
+      const sz = 2.0 * (0.7 + pulse * 0.5);
+      const col = (i % 2 === 0) ? c2 : c1;
+      ctx.fillStyle = rgb(col, 0.08 + pulse * 0.14);
+      ctx.beginPath();
+      ctx.arc(px, py, sz * 3.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = rgb(col, 0.25 + pulse * 0.45);
+      ctx.beginPath();
+      ctx.arc(px, py, sz, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (fx === 10) {
+    ctx.lineWidth = 1.8;
+    const step = Math.max(10, Math.floor(w / 32));
+    for (let layer = 1; layer <= 4; layer++) {
+      const baseY = h * (0.20 + layer * 0.18);
+      const amp = 6 + layer * 2.5;
+      const freq = 0.015 + layer * 0.003;
+      const spd = (0.9 + layer * 0.3) * (layer % 2 === 0 ? -1 : 1);
+      const lf = (layer - 1) / 3;
+      const col = [
+        Math.round(c1[0] + (c2[0] - c1[0]) * lf),
+        Math.round(c1[1] + (c2[1] - c1[1]) * lf),
+        Math.round(c1[2] + (c2[2] - c1[2]) * lf)
+      ];
+      ctx.strokeStyle = rgb(col, 0.24);
+      ctx.beginPath();
+      for (let lx = 0; lx <= w; lx += step) {
+        const wy = baseY + Math.sin(lx * freq + t * spd) * amp + Math.cos(lx * freq * 1.7 - t * spd * 0.6) * (amp * 0.35);
+        if (lx === 0) ctx.moveTo(lx, wy);
+        else ctx.lineTo(lx, wy);
+      }
+      ctx.stroke();
+    }
+  } else if (fx === 11) {
+    for (let i = 1; i <= 28; i++) {
+      const seed = i * golden * 2.9;
+      const speed = 18 + (i % 6) * 4;
+      const drift = Math.sin(t * 0.6 + i * 1.9) * 14;
+      const px = (((seed * w * 1.4 + drift) % w) + w) % w;
+      const py = ((t * speed + seed * h) % (h + 20)) - 10;
+      const sz = 1.6 + (i % 4) * 0.7;
+      const col = (i % 2 === 0) ? c1 : c2;
+      ctx.fillStyle = rgb(col, 0.22 + (i % 4) * 0.08);
+      ctx.beginPath();
+      ctx.arc(px, py, sz, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (fx === 12) {
+    ctx.lineWidth = 1.2;
+    for (let i = 1; i <= 16; i++) {
+      const seed = i * golden * 3.1;
+      const speed = 15 + (i % 5) * 4;
+      const wobble = Math.sin(t * (0.75 + (i % 3) * 0.25) + i * 2.2) * 12;
+      const bx = (((seed * w * 1.4 + wobble) % w) + w) % w;
+      const by = h + 15 - ((t * speed + seed * h) % (h + 30));
+      const sz = 4.0 + (i % 4) * 1.8;
+      const col = (i % 2 === 0) ? c2 : c1;
+      ctx.fillStyle = rgb(col, 0.07);
+      ctx.beginPath();
+      ctx.arc(bx, by, sz, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = rgb(col, 0.28);
+      ctx.beginPath();
+      ctx.arc(bx, by, sz, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = `rgba(255, 255, 255, ${isLight ? 0.45 : 0.32})`;
+      ctx.beginPath();
+      ctx.arc(bx - sz * 0.32, by - sz * 0.32, Math.max(0.8, sz * 0.22), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
 function renderTitleAnimation() {
   if (!headerCtx || !headerCanvas) return;
 
@@ -6533,7 +6823,8 @@ function renderTitleAnimation() {
   lastHeaderFrameTime = now;
 
   const tid = currentThemeId;
-  const isDynamic = DYNAMIC_THEMES.has(tid);
+  const isCustomFx = tid && tid.startsWith("custom_") && currentThemeData && currentThemeData.backdrop_fx > 1;
+  const isDynamic = DYNAMIC_THEMES.has(tid) || isCustomFx;
 
   if (headerCanvas.width === 0 || headerCanvas.height === 0) {
     resizeHeaderCanvas();
@@ -6609,6 +6900,8 @@ function renderTitleAnimation() {
     drawRetro(headerCtx, w, h, now);
   } else if (tid === 'spectrum') {
     drawSpectrum(headerCtx, w, h, now);
+  } else if (isCustomFx) {
+    drawCustomStudioHeaderFx(headerCtx, w, h, now, currentThemeData);
   }
 
   requestAnimationFrame(renderTitleAnimation);
@@ -6617,7 +6910,7 @@ resizeHeaderCanvas();
 requestAnimationFrame(renderTitleAnimation);
 
 // Initial Boot: Apply theme on startup
-applyTheme(currentThemeId, "__INITIAL_THEME_NAME__", false);
+applyTheme(currentThemeId, "__INITIAL_THEME_NAME__", false, INITIAL_THEME_DATA);
 loadTracks();
 </script>
 </body>

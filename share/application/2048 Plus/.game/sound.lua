@@ -33,6 +33,7 @@ local bgmStartDelay = 0
 local duckTimer = 0
 local bgmStoppedBySystem = false
 local bgmPausedByUser = false
+local bgmLoadRetryTimer = 0
 
 local activeJoystick = nil
 
@@ -712,6 +713,7 @@ function sound.stopBgm()
     bgmStartDelay = 0
     bgmStoppedBySystem = false
     bgmPausedByUser = false
+    bgmLoadRetryTimer = 0
 end
 
 function sound.enterJukebox()
@@ -758,18 +760,20 @@ function sound.startFreshGameBgm()
     if #bgmPlaylist > 1 and new_idx == currentBgmIdx then
         new_idx = (new_idx % #bgmPlaylist) + 1
     end
-    currentBgmIdx = new_idx
 
-    local track = bgmPlaylist[currentBgmIdx]
+    local track = bgmPlaylist[new_idx]
 
     local success, source = pcall(love.audio.newSource, track.path, "stream")
     if success and source then
+        currentBgmIdx = new_idx
         currentBgmSource = source
         currentBgmSource:setVolume(0.55)
         bgmStartDelay = 2.0
         bgmStoppedBySystem = false
         bgmPausedByUser = false
+        bgmLoadRetryTimer = 0
     else
+        bgmLoadRetryTimer = 0.75
         print("Failed to load music track: " .. tostring(track.path))
     end
 end
@@ -973,11 +977,13 @@ function sound.onResume()
             end
         else
             if currentBgmSource then
-                local ok, playing = pcall(function() return currentBgmSource:isPlaying() end)
-                if not ok or not playing then
-                    sound.playNextBgm()
+                if bgmStartDelay == 0 then
+                    local ok, playing = pcall(function() return currentBgmSource:isPlaying() end)
+                    if not ok or not playing then
+                        sound.playNextBgm()
+                    end
                 end
-            elseif in_game and bgmStartDelay == 0 then
+            elseif in_game and bgmStartDelay == 0 and bgmLoadRetryTimer == 0 then
                 sound.startFreshGameBgm()
             end
         end
@@ -1008,6 +1014,10 @@ function sound.update(dt)
     -- If paused by system or user do not process playback logic
     if bgmStoppedBySystem or bgmPausedByUser then
         return
+    end
+
+    if bgmLoadRetryTimer > 0 then
+        bgmLoadRetryTimer = math.max(0, bgmLoadRetryTimer - dt)
     end
 
     -- Handle start delay
@@ -1049,7 +1059,7 @@ function sound.update(dt)
                 _G.jukebox_selection = currentBgmIdx
             end
         end
-    elseif in_game and bgmStartDelay == 0 and not bgmPausedByUser and not bgmStoppedBySystem then
+    elseif in_game and bgmStartDelay == 0 and bgmLoadRetryTimer == 0 and not bgmPausedByUser and not bgmStoppedBySystem then
         sound.startFreshGameBgm()
     end
 end
@@ -1093,11 +1103,13 @@ end
 function sound.playBgmIndex(idx)
     if #bgmPlaylist == 0 then return end
     idx = math.max(1, math.min(#bgmPlaylist, idx))
+    local actual_prev = (currentBgmIdx > 0 and currentBgmIdx <= #bgmPlaylist) and bgmPlaylist[currentBgmIdx] or _G.jukebox_prev_track
     currentBgmIdx = idx - 1
     bgmEnabled = true
     save.saveMusic(true)
     _G.jukebox_card_change_time = love.timer.getTime()
     sound.playNextBgm()
+    _G.jukebox_prev_track = actual_prev
 end
 
 function sound.getBgmProgress()

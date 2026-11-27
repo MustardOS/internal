@@ -38,8 +38,8 @@ local function is_dpad_held(js, dir_event)
 end
 
 -- Hold-to-repeat configuration
-local repeat_delay = 0.3    -- initial delay before auto-repeat
-local repeat_rate  = 0.15   -- repeat interval while holding
+local repeat_delay = 0.24   -- initial delay before auto-repeat
+local repeat_rate  = 0.12   -- repeat interval while holding
 local holding = {
     dir = nil,
     start_time = 0,
@@ -89,8 +89,8 @@ input.joystick_mapping = {
     ["rightshoulder"] = input.events.R1,
 }
 
--- Cooldown to prevent accidental double-inputs
-local cooldown_duration = 0.12
+-- Cooldown to prevent switch bounce while keeping rapid inputs responsive
+local cooldown_duration = 0.045
 local last_trigger_time = -cooldown_duration
 
 local function can_trigger()
@@ -572,6 +572,19 @@ function love.touchreleased(id, x, y, dx, dy, pressure)
                 emit(input.events.CONFIRM, false)
             end
         end
+    end
+end
+
+function input.resetTouch()
+    active_touch_id = nil
+end
+
+function love.touchcancelled(id, x, y, dx, dy, pressure)
+    if _G.android_console and _G.android_console.touchcancelled then
+        _G.android_console.touchcancelled(id)
+    end
+    if active_touch_id == id then
+        active_touch_id = nil
     end
 end
 

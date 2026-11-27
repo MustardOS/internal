@@ -34,6 +34,24 @@ local konami_progress = 1
 local transition_delay_timer = 0
 local transition_delay_action = nil
 local transition_delay_key = nil
+local transition_capture_frame = false
+local shadow_grad_img = nil
+
+local function drawTransitionEdgeShadow(edge_x, h, shadow_w, to_left)
+    if not shadow_grad_img then
+        local gw = 32
+        local img_data = love.image.newImageData(gw, 1)
+        for i = 0, gw - 1 do
+            local alpha = 0.35 * math.pow((gw - i) / gw, 2)
+            img_data:setPixel(i, 0, 0, 0, 0, alpha)
+        end
+        shadow_grad_img = love.graphics.newImage(img_data)
+        shadow_grad_img:setFilter("linear", "linear")
+    end
+    love.graphics.setColor(1, 1, 1, 1)
+    local sx = (to_left and -shadow_w or shadow_w) / shadow_grad_img:getWidth()
+    love.graphics.draw(shadow_grad_img, edge_x, 0, 0, sx, h)
+end
 -- Direction hint set before queueing a transition: +1 forward, -1 backward
 local transition_next_direction = 1
 local arcade_menu_closing_action = nil
@@ -67,7 +85,9 @@ local function captureOldScreen()
     end
     if not old_screen_canvas or old_screen_canvas:getWidth() ~= w or old_screen_canvas:getHeight() ~= h then
         old_screen_canvas = love.graphics.newCanvas(w, h)
+        old_screen_canvas:setFilter("linear", "linear")
     end
+    transition_capture_frame = true
     local prev_canvas = love.graphics.getCanvas()
     love.graphics.setCanvas({old_screen_canvas, stencil = true})
     love.graphics.clear()
@@ -99,13 +119,13 @@ local function queueTransitionAction(key, delay, action, direction)
     if not _G.screen_transitions then
         transition_next_direction = direction or 1
         transition_delay_key = key
-        transition_delay_timer = 0.08 -- short delay to let the button tactile animation render
+        transition_delay_timer = 0.04
         transition_delay_action = action
         return
     end
     transition_next_direction = direction or 1
     transition_delay_key = key
-    transition_delay_timer = 0.12 -- Extended visual hold duration for a satisfying physical button click
+    transition_delay_timer = 0.05
     transition_delay_action = action
 end
 
@@ -593,6 +613,9 @@ function love.load(args)
         w, h = love.graphics.getDimensions()
     end
     screen_canvas = love.graphics.newCanvas(w, h)
+    screen_canvas:setFilter("linear", "linear")
+    old_screen_canvas = love.graphics.newCanvas(w, h)
+    old_screen_canvas:setFilter("linear", "linear")
 
     -- Initialize dino game
     if dino_game and dino_game.init then
@@ -604,8 +627,13 @@ function love.load(args)
 end
 
 function love.update(dt)
-    -- Cap dt to prevent animation glitches on frame drops
-    dt = math.min(dt, 0.05)
+    -- Clamp first frame after canvas capture to avoid jumping past slide start
+    if transition_capture_frame then
+        dt = math.min(dt, 1 / 60)
+        transition_capture_frame = false
+    else
+        dt = math.min(dt, 0.05)
+    end
 
     -- Screen slide transitions
     if _G.appState ~= last_app_state then
@@ -1125,16 +1153,14 @@ function love.update(dt)
                             if _G.rebuildUnlockedThemes then _G.rebuildUnlockedThemes() end
                             if renderer and renderer.startThemeTransition then
                                 renderer.startThemeTransition(function()
-                                    _G.theme = t_name
-                                    if renderer and renderer.applyTheme then renderer.applyTheme() end
-                                    if save and save.saveTheme then save.saveTheme(_G.theme) end
-                                    return function() renderer.drawStoreMenu(_G.store_selection or 1, true) end
+                                    renderer.drawStoreMenu(_G.store_selection or 1, true)
                                 end)
-                            else
-                                _G.theme = t_name
-                                if renderer and renderer.applyTheme then renderer.applyTheme() end
-                                if save and save.saveTheme then save.saveTheme(_G.theme) end
                             end
+                            _G.theme = t_name
+                            _G.themeSelectInitialTheme = t_name
+                            if renderer and renderer.syncCustomThemeIndex then renderer.syncCustomThemeIndex() end
+                            if renderer and renderer.applyTheme then renderer.applyTheme() end
+                            if save and save.saveTheme then save.saveTheme(_G.theme) end
                         end
                     else
                         renderer.showToast("Not enough Coins!")
@@ -1770,7 +1796,8 @@ function love.update(dt)
                     local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
                     if is_unlocked then
                         sound.playMenuMove()
-                        _G.studio_cursor = ((_G.studio_cursor or 1) - 2) % 7 + 1
+                        local max_rows = (renderer.getStudioRowCount and renderer.getStudioRowCount()) or 11
+                        _G.studio_cursor = ((_G.studio_cursor or 1) - 2) % max_rows + 1
                     end
                 elseif tab == 1 then
                     if sound and sound.playMenuMove then sound.playMenuMove() end
@@ -1787,7 +1814,8 @@ function love.update(dt)
                     local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
                     if is_unlocked then
                         sound.playMenuMove()
-                        _G.studio_cursor = ((_G.studio_cursor or 1) % 7) + 1
+                        local max_rows = (renderer.getStudioRowCount and renderer.getStudioRowCount()) or 11
+                        _G.studio_cursor = ((_G.studio_cursor or 1) % max_rows) + 1
                     end
                 elseif tab == 1 then
                     if sound and sound.playMenuMove then sound.playMenuMove() end
@@ -1803,8 +1831,9 @@ function love.update(dt)
                 if tab == 4 then
                     local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
                     if is_unlocked then
-                        sound.playMenuMove()
-                        renderer.adjustStudioParameter(-1)
+                        if renderer.adjustStudioParameter and renderer.adjustStudioParameter(-1) then
+                            sound.playMenuMove()
+                        end
                     end
                 elseif tab == 1 then
                     if sound and sound.playMenuMove then sound.playMenuMove() end
@@ -1820,8 +1849,9 @@ function love.update(dt)
                 if tab == 4 then
                     local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
                     if is_unlocked then
-                        sound.playMenuMove()
-                        renderer.adjustStudioParameter(1)
+                        if renderer.adjustStudioParameter and renderer.adjustStudioParameter(1) then
+                            sound.playMenuMove()
+                        end
                     end
                 elseif tab == 1 then
                     if sound and sound.playMenuMove then sound.playMenuMove() end
@@ -2061,12 +2091,14 @@ function love.update(dt)
                     end
                     local next_idx = (cur_idx % #un_themes) + 1
                     local next_theme = un_themes[next_idx]
-                    renderer.startThemeTransition(function()
-                        _G.theme = next_theme
-                        if renderer.applyTheme then renderer.applyTheme(true) end
-                        if save and save.saveTheme then save.saveTheme(_G.theme) end
-                        return function() if game then renderer.draw(game) end end
-                    end)
+                    if renderer and renderer.startThemeTransition then
+                        renderer.startThemeTransition(function()
+                            if game then renderer.draw(game) end
+                        end)
+                    end
+                    _G.theme = next_theme
+                    if renderer.applyTheme then renderer.applyTheme(true) end
+                    if save and save.saveTheme then save.saveTheme(_G.theme) end
                 end
             -- Undo
             elseif event == input.events.BACK then
@@ -2232,12 +2264,14 @@ function love.update(dt)
                     end
                     local next_idx = (cur_idx % #un_themes) + 1
                     local next_theme = un_themes[next_idx]
-                    renderer.startThemeTransition(function()
-                        _G.theme = next_theme
-                        if renderer.applyTheme then renderer.applyTheme(true) end
-                        if save and save.saveTheme then save.saveTheme(_G.theme) end
-                        return function() if game then renderer.draw(game) end end
-                    end)
+                    if renderer and renderer.startThemeTransition then
+                        renderer.startThemeTransition(function()
+                            if game then renderer.draw(game) end
+                        end)
+                    end
+                    _G.theme = next_theme
+                    if renderer.applyTheme then renderer.applyTheme(true) end
+                    if save and save.saveTheme then save.saveTheme(_G.theme) end
                 end
             elseif event == input.events.R1 or event == input.events.L1 then
                 if game and (game.timesUp or (game.mode == "timeattack" and game.timeLeft and game.timeLeft <= 0)) then
@@ -2386,6 +2420,7 @@ local function draw_internal()
 
         if not screen_canvas or screen_canvas:getWidth() ~= sc_w or screen_canvas:getHeight() ~= sc_h then
             screen_canvas = love.graphics.newCanvas(sc_w, sc_h)
+            screen_canvas:setFilter("linear", "linear")
         end
 
         -- Only render the new screen to the canvas ONCE at the start of the transition
@@ -2400,6 +2435,7 @@ local function draw_internal()
                 love.graphics.setCanvas()
             end
             _G.screen_canvas_ready = true
+            transition_capture_frame = true
         end
 
         -- Draw background fill to avoid any gaps
@@ -2410,87 +2446,62 @@ local function draw_internal()
 
         if dir == 1 then
             -- Forward screen slide
-            -- Parallax shift for old screen
-            local old_x = math.floor(-0.3 * w * p)
-            local new_x = math.floor(w * (1 - p))
+            local old_x = -0.3 * w * p
+            local new_x = w * (1 - p)
 
-            -- Draw old screen
             if old_screen_canvas then
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
                 love.graphics.draw(old_screen_canvas, old_x, 0)
                 love.graphics.setBlendMode("alpha", "alphamultiply")
 
-                -- Dim old screen overlay
                 love.graphics.setColor(0, 0, 0, 0.5 * p)
                 love.graphics.rectangle("fill", old_x, 0, w, h)
             end
 
-            -- 2. Draw shadow to the left of the new screen
-            for i = 0, shadow_w - 1 do
-                local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
-                love.graphics.setColor(0, 0, 0, alpha)
-                love.graphics.rectangle("fill", new_x - shadow_w + i, 0, 1, h)
-            end
+            drawTransitionEdgeShadow(new_x, h, shadow_w, true)
 
-            -- Draw new screen
             love.graphics.setColor(1, 1, 1, 1)
             love.graphics.setBlendMode("replace", "premultiplied")
             love.graphics.draw(screen_canvas, new_x, 0)
             love.graphics.setBlendMode("alpha", "alphamultiply")
         elseif dir == 2 then
             -- Left side forward screen slide
-            local old_x = math.floor(0.3 * w * p)
-            local new_x = math.floor(-w * (1 - p))
+            local old_x = 0.3 * w * p
+            local new_x = -w * (1 - p)
 
-            -- Draw old screen
             if old_screen_canvas then
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
                 love.graphics.draw(old_screen_canvas, old_x, 0)
                 love.graphics.setBlendMode("alpha", "alphamultiply")
 
-                -- Dim old screen overlay
                 love.graphics.setColor(0, 0, 0, 0.5 * p)
                 love.graphics.rectangle("fill", old_x, 0, w, h)
             end
 
-            -- Draw shadow to the right of the new screen
-            for i = 0, shadow_w - 1 do
-                local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
-                love.graphics.setColor(0, 0, 0, alpha)
-                love.graphics.rectangle("fill", new_x + w + i, 0, 1, h)
-            end
+            drawTransitionEdgeShadow(new_x + w, h, shadow_w, false)
 
-            -- Draw new screen
             love.graphics.setColor(1, 1, 1, 1)
             love.graphics.setBlendMode("replace", "premultiplied")
             love.graphics.draw(screen_canvas, new_x, 0)
             love.graphics.setBlendMode("alpha", "alphamultiply")
         elseif dir == -2 then
             -- Left side backward screen slide
-            local new_x = math.floor(0.3 * w * (1 - p))
-            local old_x = math.floor(-w * p)
+            local new_x = 0.3 * w * (1 - p)
+            local old_x = -w * p
 
-            -- Draw new screen
             love.graphics.setColor(1, 1, 1, 1)
             love.graphics.setBlendMode("replace", "premultiplied")
             love.graphics.draw(screen_canvas, new_x, 0)
             love.graphics.setBlendMode("alpha", "alphamultiply")
 
-            -- Dim overlay
             love.graphics.setColor(0, 0, 0, 0.5 * (1 - p))
             love.graphics.rectangle("fill", new_x, 0, w, h)
 
             if old_screen_canvas then
-                -- Draw edge shadow
-                for i = 0, shadow_w - 1 do
-                    local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
-                    love.graphics.setColor(0, 0, 0, alpha)
-                    love.graphics.rectangle("fill", old_x + w + i, 0, 1, h)
-                end
+                drawTransitionEdgeShadow(old_x + w, h, shadow_w, false)
 
-                -- Draw old screen
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
                 love.graphics.draw(old_screen_canvas, old_x, 0)
@@ -2498,29 +2509,20 @@ local function draw_internal()
             end
         else
             -- Backward screen slide
-            -- Parallax shift for new screen
-            local new_x = math.floor(-0.3 * w * (1 - p))
-            local old_x = math.floor(w * p)
+            local new_x = -0.3 * w * (1 - p)
+            local old_x = w * p
 
-            -- Draw new screen
             love.graphics.setColor(1, 1, 1, 1)
             love.graphics.setBlendMode("replace", "premultiplied")
             love.graphics.draw(screen_canvas, new_x, 0)
             love.graphics.setBlendMode("alpha", "alphamultiply")
 
-            -- Dim overlay
             love.graphics.setColor(0, 0, 0, 0.5 * (1 - p))
             love.graphics.rectangle("fill", new_x, 0, w, h)
 
             if old_screen_canvas then
-                -- Draw edge shadow
-                for i = 0, shadow_w - 1 do
-                    local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
-                    love.graphics.setColor(0, 0, 0, alpha)
-                    love.graphics.rectangle("fill", old_x - shadow_w + i, 0, 1, h)
-                end
+                drawTransitionEdgeShadow(old_x, h, shadow_w, true)
 
-                -- Draw old screen
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
                 love.graphics.draw(old_screen_canvas, old_x, 0)
@@ -2602,7 +2604,7 @@ function love.draw()
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
-    if button == 1 then
+    if button == 1 and not istouch and not (_G.is_console_active and _G.is_console_active()) then
         -- Customization tab click
         if _G.appState == "THEME_SELECT" then
             if _G.customization_tab_bounds then
@@ -2658,6 +2660,26 @@ function love.mousereleased(x, y, button, istouch, presses)
                 end
                 return
             end
+            if (_G.customization_tab or 1) == 4 and _G.studio_row_bounds then
+                local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
+                if is_unlocked then
+                    for _, b in ipairs(_G.studio_row_bounds) do
+                        if x >= b.x and x <= (b.x + b.w) and y >= b.y and y <= (b.y + b.h) then
+                            local sound = require("sound")
+                            if (_G.studio_cursor or 1) == b.idx then
+                                local delta = (x < (b.split_x or (b.x + b.w * 0.72))) and -1 or 1
+                                if renderer.adjustStudioParameter and renderer.adjustStudioParameter(delta) then
+                                    if sound and sound.playMenuMove then sound.playMenuMove() end
+                                end
+                            else
+                                if sound and sound.playMenuMove then sound.playMenuMove() end
+                                _G.studio_cursor = b.idx
+                            end
+                            return
+                        end
+                    end
+                end
+            end
         end
         -- Achievements tab and shoulder button click
         if _G.appState == "ACHIEVEMENTS" and not (_G.is_console_active and _G.is_console_active()) then
@@ -2665,8 +2687,8 @@ function love.mousereleased(x, y, button, istouch, presses)
                 local b = _G.achievements_l1_bounds
                 if x >= b.x and x <= (b.x + b.w) and y >= b.y and y <= (b.y + b.h) then
                     local input_mod = require("input")
-                    if input_mod and input_mod.handleInput then
-                        input_mod.handleInput(input_mod.events.L1)
+                    if input_mod and input_mod.emit then
+                        input_mod.emit(input_mod.events.L1, false)
                     end
                     return
                 end
@@ -2675,8 +2697,8 @@ function love.mousereleased(x, y, button, istouch, presses)
                 local b = _G.achievements_r1_bounds
                 if x >= b.x and x <= (b.x + b.w) and y >= b.y and y <= (b.y + b.h) then
                     local input_mod = require("input")
-                    if input_mod and input_mod.handleInput then
-                        input_mod.handleInput(input_mod.events.R1)
+                    if input_mod and input_mod.emit then
+                        input_mod.emit(input_mod.events.R1, false)
                     end
                     return
                 end
@@ -2804,7 +2826,16 @@ function love.wheelmoved(x, y)
     elseif _G.appState == "THEME_SELECT" then
         local tab = _G.customization_tab or 1
         if y > 0 then
-            if tab == 1 then
+            if tab == 4 then
+                local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
+                if is_unlocked then
+                    local cur = _G.studio_cursor or 1
+                    if cur > 1 then
+                        _G.studio_cursor = cur - 1
+                        sound.playMenuMove()
+                    end
+                end
+            elseif tab == 1 then
                 sound.playMenuMove()
                 if renderer.cycleCustomTheme then renderer.cycleCustomTheme(-1) end
             elseif tab == 2 then
@@ -2815,7 +2846,17 @@ function love.wheelmoved(x, y)
                 if renderer.cyclePet then renderer.cyclePet(-1) end
             end
         elseif y < 0 then
-            if tab == 1 then
+            if tab == 4 then
+                local is_unlocked = _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true)
+                if is_unlocked then
+                    local max_rows = (renderer.getStudioRowCount and renderer.getStudioRowCount()) or 11
+                    local cur = _G.studio_cursor or 1
+                    if cur < max_rows then
+                        _G.studio_cursor = cur + 1
+                        sound.playMenuMove()
+                    end
+                end
+            elseif tab == 1 then
                 sound.playMenuMove()
                 if renderer.cycleCustomTheme then renderer.cycleCustomTheme(1) end
             elseif tab == 2 then
@@ -2879,11 +2920,17 @@ end
 
 -- Resize handler for orientation changes
 function love.resize(w, h)
+    if input and input.resetTouch then
+        input.resetTouch()
+    end
     if _G.android_console and _G.android_console.updateLayout then
         _G.android_console.updateLayout()
     end
     if _G.update_ui_scale then
         _G.update_ui_scale()
+    end
+    if dino_game and dino_game.resize then
+        dino_game.resize(w, h)
     end
     if renderer and renderer.init then
         renderer.init()

@@ -200,7 +200,7 @@ local function playSound(source)
 end
 
 local function updateScreenSize()
-    if _G.android_console then
+    if _G.is_console_active and _G.is_console_active() then
         SCREEN_W = 640
         SCREEN_H = 480
     else
@@ -506,7 +506,7 @@ end
 
 local function updateDino(dt)
     local Input = package.loaded["input"]
-    local is_up_held = dino.isJumpHeld or false
+    local is_up_held = false
     if love.keyboard and love.keyboard.isDown then
         if love.keyboard.isDown("up", "w", "space", "return", "a") then
             is_up_held = true

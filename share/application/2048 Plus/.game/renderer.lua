@@ -164,15 +164,18 @@ local play_select_sel_current = nil
 local arcade_sel_col_current = nil
 local arcade_sel_row_current = nil
 
-function renderer.setArcadeMenuOpen(open)
-    local scale = _G.scale or 1
-    local card_h = math.floor((_G.text_size == "large" and 124 or 120) * scale)
-    local card_gap = math.floor(12 * scale)
-    local panel_pad_y = math.floor(16 * scale)
-    local header_h = math.floor(74 * scale)
-    local footer_h = math.floor(44 * scale)
+local function getArcadePanelHeight(scale)
+    local card_h = math.floor((_G.text_size == "large" and 138 or 132) * (scale or 1))
+    local card_gap = math.floor(12 * (scale or 1))
+    local panel_pad_y = math.floor(16 * (scale or 1))
+    local header_h = math.floor(74 * (scale or 1))
+    local footer_h = math.floor(44 * (scale or 1))
     local num_rows = 2
-    local panel_h = header_h + panel_pad_y + num_rows * card_h + (num_rows - 1) * card_gap + panel_pad_y + footer_h
+    return header_h + panel_pad_y + num_rows * card_h + (num_rows - 1) * card_gap + panel_pad_y + footer_h
+end
+
+function renderer.setArcadeMenuOpen(open)
+    local panel_h = getArcadePanelHeight(_G.scale or 1)
 
     if open then
         arcade_panel_target = 0
@@ -369,6 +372,8 @@ function renderer.resetMenuAnimation()
     help_trans.old_actions = nil
     _G.studio_anim_y = nil
     _G.studio_anim_target_y = nil
+    _G.studio_scroll_y = nil
+    _G.studio_scroll_target = nil
     help_trans.last_actions = nil
     help_trans.old_dpad = nil
     help_trans.last_dpad = nil
@@ -376,14 +381,38 @@ function renderer.resetMenuAnimation()
 end
 
 function renderer.captureOldTutorialSlide(page)
-    local w, h = love.graphics.getDimensions()
-    if not tutorial_old_canvas then
+    local is_console = _G.is_console_active and _G.is_console_active() and not _G.android_fullscreen
+    local w = is_console and 640 or love.graphics.getWidth()
+    local h = is_console and 480 or love.graphics.getHeight()
+    if not tutorial_old_canvas or tutorial_old_canvas:getWidth() ~= w or tutorial_old_canvas:getHeight() ~= h then
         tutorial_old_canvas = love.graphics.newCanvas(w, h)
+        tutorial_old_canvas:setFilter("linear", "linear")
     end
+    local prev_canvas = love.graphics.getCanvas()
     love.graphics.setCanvas({tutorial_old_canvas, stencil = true})
     love.graphics.clear()
-    renderer.drawTutorial(page, true, true)
-    love.graphics.setCanvas()
+    if is_console then
+        local real_getDims = love.graphics.getDimensions
+        local real_getW = love.graphics.getWidth
+        local real_getH = love.graphics.getHeight
+        love.graphics.getDimensions = function() return 640, 480 end
+        love.graphics.getWidth = function() return 640 end
+        love.graphics.getHeight = function() return 480 end
+        local prev_scale = _G.scale
+        _G.scale = 1.0
+        renderer.drawTutorial(page, true, true)
+        _G.scale = prev_scale
+        love.graphics.getDimensions = real_getDims
+        love.graphics.getWidth = real_getW
+        love.graphics.getHeight = real_getH
+    else
+        renderer.drawTutorial(page, true, true)
+    end
+    if prev_canvas then
+        love.graphics.setCanvas({prev_canvas, stencil = true})
+    else
+        love.graphics.setCanvas()
+    end
 end
 
 function renderer.captureOldAchievementsSlide(tab)
@@ -408,6 +437,7 @@ function renderer.captureOldStoreScreen()
     local h = is_console and 480 or love.graphics.getHeight()
     if not store_sort_old_canvas or store_sort_old_canvas:getWidth() ~= w or store_sort_old_canvas:getHeight() ~= h then
         store_sort_old_canvas = love.graphics.newCanvas(w, h)
+        store_sort_old_canvas:setFilter("linear", "linear")
     end
     local prev_canvas = love.graphics.getCanvas()
     love.graphics.setCanvas({store_sort_old_canvas, stencil = true})
@@ -1887,12 +1917,17 @@ themes.cherry_blossom = themes.cherry
 
 -- Custom theme slots and generation
 renderer._studio = {}
+renderer._studio.ROW_COUNT = 11
 renderer._studio.default_slots = {
-    { slot = 1, base_tone = 1, style = 1, start_hue = 215, end_hue = 260, sat = 85, board_tone = 2 },
-    { slot = 2, base_tone = 2, style = 1, start_hue = 35, end_hue = 15, sat = 80, board_tone = 2 },
-    { slot = 3, base_tone = 3, style = 3, start_hue = 155, end_hue = 195, sat = 90, board_tone = 1 }
+    { slot = 1, base_tone = 1, style = 1, start_hue = 215, end_hue = 260, sat = 85, board_tone = 2, grid_slots = 1, backdrop_fx = 1, tile_contrast = 1, ui_accent = 1 },
+    { slot = 2, base_tone = 2, style = 1, start_hue = 35, end_hue = 15, sat = 80, board_tone = 2, grid_slots = 1, backdrop_fx = 1, tile_contrast = 1, ui_accent = 1 },
+    { slot = 3, base_tone = 3, style = 3, start_hue = 155, end_hue = 195, sat = 90, board_tone = 1, grid_slots = 1, backdrop_fx = 1, tile_contrast = 1, ui_accent = 1 }
 }
 renderer._studio.slots = nil
+
+function renderer.getStudioRowCount()
+    return renderer._studio.ROW_COUNT
+end
 
 function renderer._studio.hslToRgb(h, s, l)
     h = (h % 360) / 360
@@ -1940,20 +1975,65 @@ function renderer._studio.buildTheme(cfg)
     local end_hue = cfg.end_hue or 330
     local sat = (cfg.sat or 80) / 100
     local board_tone = cfg.board_tone or 1
+    local grid_slots = cfg.grid_slots or 1
+    local tile_contrast = cfg.tile_contrast or 1
+    local ui_accent = cfg.ui_accent or 1
 
     local ranks = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048}
     local tc = {}
+    local dark_txt = {0.14, 0.12, 0.10, 1.0}
+    local light_txt = {0.98, 0.98, 0.98, 1.0}
 
-    -- Empty cell
+    local bg_r, bg_g, bg_b
+    local bd_r, bd_g, bd_b
+    local ui_txt
+
     if base_tone == 2 then
-        local r, g, b = renderer._studio.hslToRgb(start_hue, 0.10, 0.82)
-        tc[0] = {r, g, b, 1.0}
+        local bg_s = (board_tone == 1) and 0.03 or ((board_tone == 2) and 0.16 or 0.08)
+        local bd_l = (board_tone == 3) and 0.68 or 0.76
+        bg_r, bg_g, bg_b = renderer._studio.hslToRgb(start_hue, bg_s, 0.96)
+        bd_r, bd_g, bd_b = renderer._studio.hslToRgb(start_hue, bg_s * 1.2, bd_l)
+        ui_txt = {0.22, 0.20, 0.18, 1.0}
     elseif base_tone == 3 then
-        local r, g, b = renderer._studio.hslToRgb(start_hue, 0.05, 0.10)
-        tc[0] = {r, g, b, 1.0}
+        bg_r, bg_g, bg_b = 0.0, 0.0, 0.0
+        local bd_s = (board_tone == 2) and 0.14 or 0.04
+        local bd_l = (board_tone == 3) and 0.05 or 0.08
+        bd_r, bd_g, bd_b = renderer._studio.hslToRgb(start_hue, bd_s, bd_l)
+        ui_txt = {0.95, 0.95, 0.95, 1.0}
     else
-        local r, g, b = renderer._studio.hslToRgb(start_hue, 0.08, 0.22)
-        tc[0] = {r, g, b, 1.0}
+        local bg_s = (board_tone == 1) and 0.03 or ((board_tone == 2) and 0.16 or 0.08)
+        local bg_l = (board_tone == 3) and 0.04 or 0.08
+        bg_r, bg_g, bg_b = renderer._studio.hslToRgb(start_hue, bg_s, bg_l)
+        bd_r, bd_g, bd_b = renderer._studio.hslToRgb(start_hue, bg_s * 1.2, bg_l + 0.08)
+        ui_txt = {0.92, 0.92, 0.92, 1.0}
+    end
+
+    -- Empty cell appearance
+    if grid_slots == 3 then
+        tc[0] = {bd_r, bd_g, bd_b, 1.0}
+    elseif grid_slots == 2 then
+        if base_tone == 2 then
+            local r, g, b = renderer._studio.hslToRgb(start_hue, 0.08, (board_tone == 3) and 0.72 or 0.80)
+            tc[0] = {r, g, b, 1.0}
+        elseif base_tone == 3 then
+            local r, g, b = renderer._studio.hslToRgb(start_hue, 0.04, (board_tone == 3) and 0.065 or 0.095)
+            tc[0] = {r, g, b, 1.0}
+        else
+            local base_l = (board_tone == 3) and 0.04 or 0.08
+            local r, g, b = renderer._studio.hslToRgb(start_hue, 0.06, base_l + 0.11)
+            tc[0] = {r, g, b, 1.0}
+        end
+    else
+        if base_tone == 2 then
+            local r, g, b = renderer._studio.hslToRgb(start_hue, 0.10, 0.82)
+            tc[0] = {r, g, b, 1.0}
+        elseif base_tone == 3 then
+            local r, g, b = renderer._studio.hslToRgb(start_hue, 0.05, 0.10)
+            tc[0] = {r, g, b, 1.0}
+        else
+            local r, g, b = renderer._studio.hslToRgb(start_hue, 0.08, 0.22)
+            tc[0] = {r, g, b, 1.0}
+        end
     end
 
     local diff_hue = end_hue - start_hue
@@ -1964,7 +2044,6 @@ function renderer._studio.buildTheme(cfg)
         local t = (idx - 1) / (#ranks - 1)
         local h = (start_hue + diff_hue * t) % 360
         local s = sat
-        local l = 0.50
 
         if style == 2 then
             h = (t < 0.5) and start_hue or end_hue
@@ -1972,21 +2051,33 @@ function renderer._studio.buildTheme(cfg)
             s = math.min(1.0, sat * 1.15)
         elseif style == 4 then
             s = sat * 0.60
+        elseif style == 5 then
+            h = start_hue
+            s = math.min(1.0, sat * (0.65 + 0.35 * t))
+        elseif style == 6 then
+            h = (start_hue + 300 * t) % 360
         end
 
+        local t_l = (style == 7) and (1 - t) or t
+        local l
         if base_tone == 2 then
-            -- Light theme ramp
             if style == 4 then
-                l = 0.90 - 0.25 * t
+                l = 0.90 - 0.25 * t_l
             else
-                l = 0.88 - 0.32 * t
+                l = 0.88 - 0.32 * t_l
             end
         elseif base_tone == 3 then
-            -- OLED theme ramp
-            l = 0.30 + 0.36 * t
+            l = 0.30 + 0.36 * t_l
         else
-            -- Dark theme ramp
-            l = 0.34 + 0.32 * t
+            l = 0.34 + 0.32 * t_l
+        end
+
+        if tile_contrast == 2 then
+            s = s * 0.72
+            l = l + (0.52 - l) * 0.20
+        elseif tile_contrast == 3 then
+            s = math.min(1.0, s * 1.22)
+            l = math.max(0.18, math.min(0.88, l + (t_l - 0.5) * 0.16))
         end
 
         local r, g, b = renderer._studio.hslToRgb(h, s, l)
@@ -1994,32 +2085,17 @@ function renderer._studio.buildTheme(cfg)
     end
 
     local sup_r, sup_g, sup_b = renderer._studio.hslToRgb(end_hue, sat, base_tone == 2 and 0.22 or 0.88)
-    local dark_txt = {0.14, 0.12, 0.10, 1.0}
-    local light_txt = {0.98, 0.98, 0.98, 1.0}
-
-    local bg_r, bg_g, bg_b
-    local bd_r, bd_g, bd_b
-    local ui_txt
-
-    if base_tone == 2 then
-        local bg_s = (board_tone == 1) and 0.03 or ((board_tone == 2) and 0.16 or 0.08)
-        bg_r, bg_g, bg_b = renderer._studio.hslToRgb(start_hue, bg_s, 0.96)
-        bd_r, bd_g, bd_b = renderer._studio.hslToRgb(start_hue, bg_s * 1.2, 0.76)
-        ui_txt = {0.22, 0.20, 0.18, 1.0}
-    elseif base_tone == 3 then
-        bg_r, bg_g, bg_b = 0.0, 0.0, 0.0
-        bd_r, bd_g, bd_b = renderer._studio.hslToRgb(start_hue, 0.04, 0.08)
-        ui_txt = {0.95, 0.95, 0.95, 1.0}
-    else
-        local bg_s = (board_tone == 1) and 0.03 or ((board_tone == 2) and 0.16 or 0.08)
-        local bg_l = (board_tone == 3) and 0.04 or 0.08
-        bg_r, bg_g, bg_b = renderer._studio.hslToRgb(start_hue, bg_s, bg_l)
-        bd_r, bd_g, bd_b = renderer._studio.hslToRgb(start_hue, bg_s * 1.2, bg_l + 0.08)
-        ui_txt = {0.92, 0.92, 0.92, 1.0}
-    end
-
     local score_val = (base_tone == 2) and dark_txt or light_txt
-    local crown_col = tc[2048] or {1.0, 0.8, 0.2, 1.0}
+
+    local crown_col
+    if ui_accent == 2 then
+        local ar, ag, ab = renderer._studio.hslToRgb(start_hue, math.min(1.0, sat * 0.95), base_tone == 2 and 0.48 or 0.62)
+        crown_col = {ar, ag, ab, 1.0}
+    elseif ui_accent == 3 then
+        crown_col = (base_tone == 2) and {0.26, 0.25, 0.24, 1.0} or {0.88, 0.88, 0.90, 1.0}
+    else
+        crown_col = tc[2048] or {1.0, 0.8, 0.2, 1.0}
+    end
     local crown_lum = renderer._studio.getLuminance(crown_col[1], crown_col[2], crown_col[3])
     local crown_txt = (crown_lum > 0.55) and dark_txt or light_txt
 
@@ -2049,6 +2125,9 @@ function renderer.initCustomThemes()
     for i = 1, 3 do
         local def = renderer._studio.default_slots[i]
         local src = (loaded and loaded[i]) or def
+        local fx_val = src.backdrop_fx or def.backdrop_fx or 1
+        if fx_val == 13 then fx_val = 12 end
+        fx_val = math.max(1, math.min(12, fx_val))
         renderer._studio.slots[i] = {
             slot = i,
             base_tone = src.base_tone or def.base_tone,
@@ -2056,7 +2135,11 @@ function renderer.initCustomThemes()
             start_hue = src.start_hue or def.start_hue,
             end_hue = src.end_hue or def.end_hue,
             sat = src.sat or def.sat,
-            board_tone = src.board_tone or def.board_tone
+            board_tone = src.board_tone or def.board_tone,
+            grid_slots = src.grid_slots or def.grid_slots or 1,
+            backdrop_fx = fx_val,
+            tile_contrast = src.tile_contrast or def.tile_contrast or 1,
+            ui_accent = src.ui_accent or def.ui_accent or 1,
         }
         themes["custom_" .. i] = renderer._studio.buildTheme(renderer._studio.slots[i])
     end
@@ -2091,26 +2174,32 @@ function renderer.adjustStudioParameter(delta)
         _G.studio_slot = ((slot - 1 + delta) % 3) + 1
     elseif cur == 2 then
         s_data.base_tone = ((s_data.base_tone - 1 + delta) % 3) + 1
-        themes["custom_" .. slot] = renderer._studio.buildTheme(s_data)
-        if _G.theme == "custom_" .. slot then renderer.applyTheme(false) end
     elseif cur == 3 then
-        s_data.style = ((s_data.style - 1 + delta) % 4) + 1
-        themes["custom_" .. slot] = renderer._studio.buildTheme(s_data)
-        if _G.theme == "custom_" .. slot then renderer.applyTheme(false) end
+        s_data.style = (((s_data.style or 1) - 1 + delta) % 7) + 1
     elseif cur == 4 then
         s_data.start_hue = (s_data.start_hue + delta * 15) % 360
-        themes["custom_" .. slot] = renderer._studio.buildTheme(s_data)
-        if _G.theme == "custom_" .. slot then renderer.applyTheme(false) end
     elseif cur == 5 then
         s_data.end_hue = (s_data.end_hue + delta * 15) % 360
-        themes["custom_" .. slot] = renderer._studio.buildTheme(s_data)
-        if _G.theme == "custom_" .. slot then renderer.applyTheme(false) end
     elseif cur == 6 then
-        s_data.sat = math.max(40, math.min(100, (s_data.sat or 80) + delta * 5))
-        themes["custom_" .. slot] = renderer._studio.buildTheme(s_data)
-        if _G.theme == "custom_" .. slot then renderer.applyTheme(false) end
+        local old_sat = s_data.sat or 80
+        local new_sat = math.max(0, math.min(100, old_sat + delta * 5))
+        if new_sat == old_sat then
+            return false
+        end
+        s_data.sat = new_sat
     elseif cur == 7 then
-        s_data.board_tone = ((s_data.board_tone - 1 + delta) % 3) + 1
+        s_data.board_tone = (((s_data.board_tone or 1) - 1 + delta) % 3) + 1
+    elseif cur == 8 then
+        s_data.grid_slots = (((s_data.grid_slots or 1) - 1 + delta) % 3) + 1
+    elseif cur == 9 then
+        s_data.backdrop_fx = (((s_data.backdrop_fx or 1) - 1 + delta) % 12) + 1
+    elseif cur == 10 then
+        s_data.tile_contrast = (((s_data.tile_contrast or 1) - 1 + delta) % 3) + 1
+    elseif cur == 11 then
+        s_data.ui_accent = (((s_data.ui_accent or 1) - 1 + delta) % 3) + 1
+    end
+
+    if cur >= 2 then
         themes["custom_" .. slot] = renderer._studio.buildTheme(s_data)
         if _G.theme == "custom_" .. slot then renderer.applyTheme(false) end
     end
@@ -2119,6 +2208,7 @@ function renderer.adjustStudioParameter(delta)
     if save_mod.saveCustomThemes then
         save_mod.saveCustomThemes(renderer._studio.slots)
     end
+    return true
 end
 
 function renderer.randomizeStudioSlot()
@@ -2129,10 +2219,14 @@ function renderer.randomizeStudioSlot()
 
     s_data.base_tone = love.math.random(1, 3)
     s_data.start_hue = love.math.random(0, 23) * 15
-    s_data.end_hue = (s_data.start_hue + love.math.random(4, 16) * 15) % 360
-    s_data.style = love.math.random(1, 4)
-    s_data.sat = love.math.random(14, 20) * 5
+    s_data.end_hue = love.math.random(0, 23) * 15
+    s_data.style = love.math.random(1, 7)
+    s_data.sat = love.math.random(0, 20) * 5
     s_data.board_tone = love.math.random(1, 3)
+    s_data.grid_slots = love.math.random(1, 3)
+    s_data.backdrop_fx = love.math.random(1, 12)
+    s_data.tile_contrast = love.math.random(1, 3)
+    s_data.ui_accent = love.math.random(1, 3)
 
     themes["custom_" .. slot] = renderer._studio.buildTheme(s_data)
     if _G.theme == "custom_" .. slot then renderer.applyTheme(false) end
@@ -2407,6 +2501,73 @@ function renderer.applyTheme(show_morph)
     end
 end
 
+function renderer.getWebThemePayload(theme_id)
+    local id = theme_id or _G.theme or "light"
+    local t = themes[id] or themes.light
+    local function toHex(c)
+        if not c then return nil end
+        local r = math.max(0, math.min(255, math.floor((c[1] or 0) * 255 + 0.5)))
+        local g = math.max(0, math.min(255, math.floor((c[2] or 0) * 255 + 0.5)))
+        local b = math.max(0, math.min(255, math.floor((c[3] or 0) * 255 + 0.5)))
+        return string.format("#%02x%02x%02x", r, g, b)
+    end
+
+    local bg_hex = toHex(t.bg_color) or "#121212"
+    local board_hex = toHex(t.board_color) or "#2c2621"
+    local accent_hex = toHex(t.overlay_win or t.help_key_color or (t.tile_colors and t.tile_colors[2048])) or "#edc22e"
+    local text_hex = toHex(t.ui_text or t.dark_text) or "#ffffff"
+    local r = (t.bg_color and t.bg_color[1] or 0)
+    local g = (t.bg_color and t.bg_color[2] or 0)
+    local b = (t.bg_color and t.bg_color[3] or 0)
+    local is_dark = (0.299 * r + 0.587 * g + 0.114 * b) < 0.55
+
+    local tiles_map = {}
+    local ranks = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048}
+    local dark_txt_hex = toHex(t.dark_text) or "#141008"
+    local light_txt_hex = toHex(t.light_text) or "#ffffff"
+    if t.tile_colors then
+        for _, rank in ipairs(ranks) do
+            local tc = t.tile_colors[rank]
+            if tc then
+                local lum = 0.299 * (tc[1] or 0) + 0.587 * (tc[2] or 0) + 0.114 * (tc[3] or 0)
+                tiles_map[tostring(rank)] = {
+                    bg = toHex(tc),
+                    color = (lum > 0.50) and dark_txt_hex or light_txt_hex
+                }
+            end
+        end
+    end
+
+    local t_name = renderer.getThemeDisplayName and renderer.getThemeDisplayName(id, false) or id
+    local payload = {
+        theme = id,
+        name = t_name,
+        bg = bg_hex,
+        board = board_hex,
+        accent = accent_hex,
+        text = text_hex,
+        is_dark = is_dark,
+        tiles = next(tiles_map) ~= nil and tiles_map or nil,
+    }
+
+    local hash = id .. "|" .. bg_hex .. "|" .. board_hex .. "|" .. accent_hex
+    if type(id) == "string" and id:match("^custom_%d+$") then
+        local slot_idx = tonumber(id:match("^custom_(%d+)$"))
+        if not renderer._studio.slots then renderer.initCustomThemes() end
+        local cfg = slot_idx and renderer._studio.slots and renderer._studio.slots[slot_idx]
+        if cfg then
+            payload.backdrop_fx = cfg.backdrop_fx or 1
+            payload.start_hue = cfg.start_hue or 200
+            payload.end_hue = cfg.end_hue or 330
+            payload.sat = cfg.sat or 80
+            payload.base_tone = cfg.base_tone or 1
+            hash = hash .. "|" .. tostring(payload.backdrop_fx) .. "|" .. tostring(payload.start_hue) .. "|" .. tostring(payload.end_hue) .. "|" .. tostring(payload.sat) .. "|" .. tostring(cfg.style or 1) .. "|" .. tostring(cfg.tile_contrast or 1) .. "|" .. tostring(cfg.board_tone or 1) .. "|" .. tostring(cfg.ui_accent or 1) .. "|" .. tostring(payload.base_tone)
+        end
+    end
+    payload.hash = hash
+    return payload
+end
+
 -- Initialize theme immediately skipping morph
 renderer.applyTheme(true)
 local matrix_cols = nil
@@ -2502,9 +2663,301 @@ renderer._bg = {
     bamboo_node_offsets = { 0.15, 0.45, 0.25, 0.70, 0.35, 0.60, 0.20, 0.80, 0.40 }
 }
 
+function renderer.drawStudioBackdropFX(cfg, ox, oy, w, h, scale, alpha_mult, is_preview)
+    local fx = cfg and cfg.backdrop_fx or 1
+    if fx <= 1 then return end
+
+    local t = love.timer.getTime()
+    local sat = (cfg.sat or 80) / 100
+    local is_light = (cfg.base_tone == 2)
+    local a_mult = alpha_mult or 1.0
+    local sh = cfg.start_hue or 200
+    local eh = cfg.end_hue or 330
+
+    local r1, g1, b1 = renderer._studio.hslToRgb(sh, sat, is_light and 0.56 or 0.64)
+    local r2, g2, b2 = renderer._studio.hslToRgb(eh, sat, is_light and 0.52 or 0.68)
+    local golden = 0.6180339887
+
+    love.graphics.push("all")
+
+    if fx == 2 then
+        local aura_a = (is_light and 0.16 or 0.12) * a_mult
+        love.graphics.setColor(r1, g1, b1, aura_a)
+        love.graphics.circle("fill", ox + w * 0.22, oy + h * 0.25, (is_preview and 75 or 230) * scale)
+        love.graphics.setColor(r2, g2, b2, aura_a * 0.85)
+        love.graphics.circle("fill", ox + w * 0.78, oy + h * 0.75, (is_preview and 85 or 260) * scale)
+
+        local count = is_preview and 12 or 26
+        for i = 1, count do
+            local seed = i * golden * 3.7
+            local speed = (is_preview and 18 or 26) * scale + ((i % 5) * 6 * scale)
+            local drift = math.sin(t * 0.8 + i * 1.3) * ((is_preview and 10 or 20) * scale)
+            local py = oy + (((t * speed + seed * h) % (h + 30 * scale)) - 15 * scale)
+            local px = ox + ((seed * w * 1.5 + drift) % w)
+            local rot = (t * 0.5 + i) % (math.pi * 2)
+            local p_sz = (is_preview and (3.2 + (i % 3) * 1.1) or (4.5 + (i % 4) * 1.4)) * scale
+            local cr = (i % 2 == 0) and r1 or r2
+            local cg = (i % 2 == 0) and g1 or g2
+            local cb = (i % 2 == 0) and b1 or b2
+
+            love.graphics.push()
+            love.graphics.translate(px, py)
+            love.graphics.rotate(rot)
+            love.graphics.setColor(cr, cg, cb, (0.42 + math.sin(t + i) * 0.14) * a_mult)
+            love.graphics.ellipse("fill", 0, 0, p_sz, p_sz * 0.55)
+            love.graphics.pop()
+        end
+
+    elseif fx == 3 then
+        local count = is_preview and 22 or 45
+        local pad = is_preview and (6 * scale) or math.max(8 * scale, 8)
+        local max_y = is_preview and (h - pad) or (h - math.floor(70 * scale))
+        for i = 1, count do
+            local sx_pos = ox + pad + (((i * golden * 1.2) % 1.0) * math.max(1, w - pad * 2))
+            local sy_pos = oy + pad + (((i * golden * 1.7) % 1.0) * math.max(1, max_y - pad))
+            local speed = 0.8 + (i % 6) * 0.35
+            local twinkle = math.sin(t * speed + i * 2.5) * 0.5 + 0.5
+            local sz = (is_preview and (0.9 + (i % 3) * 0.45) or (0.8 + (i % 3) * 0.45)) * scale
+            local cr = (i % 3 == 0) and r2 or ((i % 3 == 1) and r1 or (is_light and r1 or 1.0))
+            local cg = (i % 3 == 0) and g2 or ((i % 3 == 1) and g1 or (is_light and g1 or 1.0))
+            local cb = (i % 3 == 0) and b2 or ((i % 3 == 1) and b1 or (is_light and b1 or 1.0))
+
+            love.graphics.setColor(cr, cg, cb, (0.18 + twinkle * 0.52) * a_mult)
+            love.graphics.circle("fill", sx_pos, sy_pos, sz)
+            if twinkle > 0.72 and i % 3 == 0 then
+                love.graphics.setColor(cr, cg, cb, (twinkle - 0.72) * 0.55 * a_mult)
+                love.graphics.circle("fill", sx_pos, sy_pos, sz * 3.0)
+            end
+        end
+
+    elseif fx == 4 then
+        local orbs = is_preview and 4 or 5
+        for i = 1, orbs do
+            local cx = ox + w * ((i * golden * 0.9 + 0.12) % 0.8 + 0.1) + math.sin(t * 0.25 + i * 1.7) * (is_preview and 18 or 70) * scale
+            local cy = oy + h * ((i * golden * 1.3 + 0.08) % 0.8 + 0.1) + math.cos(t * 0.21 + i * 2.1) * (is_preview and 16 or 55) * scale
+            local pulse = 0.75 + 0.25 * math.sin(t * 0.9 + i * 1.3)
+            local rad = (is_preview and (48 + i * 10) or (135 + i * 28)) * scale
+            local cr = (i % 2 == 0) and r2 or r1
+            local cg = (i % 2 == 0) and g2 or g1
+            local cb = (i % 2 == 0) and b2 or b1
+
+            love.graphics.setColor(cr, cg, cb, (is_light and 0.14 or 0.11) * pulse * a_mult)
+            love.graphics.circle("fill", cx, cy, rad * 1.35)
+            love.graphics.setColor(cr, cg, cb, (is_light and 0.20 or 0.16) * pulse * a_mult)
+            love.graphics.circle("fill", cx, cy, rad * 0.8)
+        end
+
+    elseif fx == 5 then
+        local count = is_preview and 18 or 36
+        local y_cycle = h + 30 * scale
+        for i = 1, count do
+            local start_x = w * ((i * golden + 0.1) % 1.0)
+            local rise_speed = (is_preview and 12 or 18) + (i % 7) * (is_preview and 4 or 7)
+            local sway_amp = (is_preview and 8 or 18) + (i % 5) * 4
+            local sway_spd = 0.8 + (i % 4) * 0.3
+            local rel_y = h + 15 * scale - ((t * rise_speed * scale + i * 53.7) % y_cycle)
+            local px = ox + start_x + math.sin(t * sway_spd + i * 2.3) * sway_amp * scale
+            local py = oy + rel_y
+            local life = math.max(0, math.min(1, 1.0 - (rel_y / math.max(1, h))))
+            local sz = (is_preview and 1.4 or 1.8) + (i % 3) * 0.5
+            sz = sz * scale * (1.0 - life * 0.45)
+            local flicker = 0.6 + 0.4 * math.sin(t * 4.5 + i * 3.7)
+            local cr = r1 + (r2 - r1) * life
+            local cg = g1 + (g2 - g1) * life
+            local cb = b1 + (b2 - b1) * life
+            local ea = flicker * (0.55 - life * 0.35) * a_mult
+
+            if ea > 0.01 then
+                love.graphics.setColor(cr, cg, cb, ea * 0.35)
+                love.graphics.circle("fill", px, py, sz * 2.6)
+                love.graphics.setColor(cr, cg, cb, ea)
+                love.graphics.circle("fill", px, py, sz)
+            end
+        end
+
+    elseif fx == 6 then
+        local seg_count = is_preview and 22 or 48
+        local seg_w = (w / seg_count) + 1
+        for band = 1, 3 do
+            local bf = (band - 1) / 2
+            local cr = r1 + (r2 - r1) * bf
+            local cg = g1 + (g2 - g1) * bf
+            local cb = b1 + (b2 - b1) * bf
+            local sway_freq = 0.22 + band * 0.06
+            local sway_amp = (is_preview and 18 or 48) * scale + band * (is_preview and 5 or 14) * scale
+            local base_h = h * (0.40 + band * 0.14)
+            for seg = 0, seg_count - 1 do
+                local frac = seg / seg_count
+                local sx = ox + w * frac
+                local wave = math.sin(frac * math.pi * 2.4 + t * sway_freq + band * 1.4) * sway_amp
+                           + math.sin(frac * math.pi * 4.0 + t * sway_freq * 1.6 - band * 0.7) * (sway_amp * 0.45)
+                local brightness = 0.45 + 0.55 * math.sin(frac * math.pi * 3.0 + t * 0.3 + band)
+                local alpha = (0.05 + brightness * (is_light and 0.11 or 0.09)) * a_mult
+                love.graphics.setColor(cr, cg, cb, alpha)
+                love.graphics.rectangle("fill", sx, oy, seg_w, math.max(4, base_h + wave))
+            end
+        end
+
+    elseif fx == 7 then
+        love.graphics.setLineWidth(math.max(1, math.floor(1.5 * scale)))
+        local max_r = (is_preview and 34 or 72) * scale
+        for i = 1, 5 do
+            local rx = ox + w * ((i * golden * 0.85 + 0.12) % 0.76 + 0.12)
+            local ry = oy + h * ((i * golden * 1.35 + 0.14) % 0.72 + 0.14)
+            local cycle = 3.2 + (i % 3) * 0.8
+            local prog = ((t + i * 0.75) % cycle) / cycle
+            local fade = math.sin(prog * math.pi)
+            local cr = (i % 2 == 0) and r2 or r1
+            local cg = (i % 2 == 0) and g2 or g1
+            local cb = (i % 2 == 0) and b2 or b1
+            local rad1 = (3 + prog * max_r)
+            local a1 = fade * (is_light and 0.34 or 0.30) * a_mult
+            if a1 > 0.01 then
+                love.graphics.setColor(cr, cg, cb, a1)
+                love.graphics.circle("line", rx, ry, rad1)
+            end
+            if prog > 0.22 then
+                local prog2 = (prog - 0.22) / 0.78
+                local rad2 = (2 + prog2 * max_r * 0.72)
+                local a2 = math.sin(prog2 * math.pi) * (is_light and 0.24 or 0.20) * a_mult
+                if a2 > 0.01 then
+                    love.graphics.setColor(cr, cg, cb, a2)
+                    love.graphics.circle("line", rx, ry, rad2)
+                end
+            end
+        end
+
+    elseif fx == 8 then
+        love.graphics.setLineWidth(math.max(1, math.floor(scale)))
+        local grid_s = (is_preview and 24 or 42) * scale
+        local off_y = (t * (is_preview and 14 or 24) * scale) % grid_s
+        local off_x = (t * (is_preview and 6 or 10) * scale) % grid_s
+        local y_start = math.floor(off_y)
+        for py = y_start, h, grid_s do
+            local alpha = ((is_light and 0.12 or 0.08) + 0.04 * math.sin(t * 2.0 + py * 0.02)) * a_mult
+            love.graphics.setColor(r1, g1, b1, alpha)
+            love.graphics.line(ox, oy + py, ox + w, oy + py)
+        end
+        for px = math.floor(off_x), w, grid_s do
+            love.graphics.setColor(r2, g2, b2, (is_light and 0.10 or 0.06) * a_mult)
+            love.graphics.line(ox + px, oy, ox + px, oy + h)
+        end
+
+    elseif fx == 9 then
+        local count = is_preview and 12 or 26
+        for i = 1, count do
+            local bx = ((i * golden * 0.91 + 0.08) % 0.84 + 0.08)
+            local by = ((i * golden * 1.43 + 0.08) % 0.84 + 0.08)
+            local wx = math.sin(t * (0.45 + (i % 4) * 0.15) + i * 2.1) * (is_preview and 18 or 48) * scale
+            local wy = math.cos(t * (0.38 + (i % 5) * 0.12) + i * 1.7) * (is_preview and 14 or 38) * scale
+            local px = ox + w * bx + wx
+            local py = oy + h * by + wy
+            local pulse = math.sin(t * (1.6 + (i % 3) * 0.5) + i * 2.7) * 0.5 + 0.5
+            local sz = (is_preview and 1.6 or 2.2) * scale * (0.7 + pulse * 0.5)
+            local cr = (i % 2 == 0) and r2 or r1
+            local cg = (i % 2 == 0) and g2 or g1
+            local cb = (i % 2 == 0) and b2 or b1
+
+            love.graphics.setColor(cr, cg, cb, (0.06 + pulse * 0.14) * a_mult)
+            love.graphics.circle("fill", px, py, sz * 3.4)
+            love.graphics.setColor(cr, cg, cb, (0.24 + pulse * 0.48) * a_mult)
+            love.graphics.circle("fill", px, py, sz)
+        end
+
+    elseif fx == 10 then
+        love.graphics.setLineWidth(math.max(1, math.floor((is_preview and 1.5 or 2.0) * scale)))
+        local step = math.max(8, math.floor(w / (is_preview and 20 or 32)))
+        local pts_buf = renderer._bg.pts_buffer
+        for layer = 1, 4 do
+            local base_y = oy + h * (0.22 + layer * 0.16)
+            local amp = (is_preview and 7 or 16) * scale + layer * (is_preview and 2 or 4) * scale
+            local freq = (is_preview and 0.032 or 0.012) / math.max(0.5, scale) + layer * 0.002
+            local spd = (0.9 + layer * 0.3) * ((layer % 2 == 0) and -1 or 1)
+            local lf = (layer - 1) / 3
+            local cr = r1 + (r2 - r1) * lf
+            local cg = g1 + (g2 - g1) * lf
+            local cb = b1 + (b2 - b1) * lf
+            love.graphics.setColor(cr, cg, cb, (is_light and 0.24 or 0.20) * a_mult)
+
+            local pt_idx = 0
+            for lx = 0, w, step do
+                local wy = base_y + math.sin(lx * freq + t * spd) * amp + math.cos(lx * freq * 1.7 - t * spd * 0.6) * (amp * 0.35)
+                pt_idx = pt_idx + 1
+                pts_buf[pt_idx] = ox + lx
+                pt_idx = pt_idx + 1
+                pts_buf[pt_idx] = wy
+            end
+            if pts_buf[pt_idx - 1] ~= ox + w then
+                local wy = base_y + math.sin(w * freq + t * spd) * amp + math.cos(w * freq * 1.7 - t * spd * 0.6) * (amp * 0.35)
+                pt_idx = pt_idx + 1
+                pts_buf[pt_idx] = ox + w
+                pt_idx = pt_idx + 1
+                pts_buf[pt_idx] = wy
+            end
+            for k = pt_idx + 1, #pts_buf do pts_buf[k] = nil end
+            if pt_idx >= 4 then
+                love.graphics.line(pts_buf)
+            end
+        end
+
+    elseif fx == 11 then
+        local count = is_preview and 20 or 42
+        local y_cycle = h + 24 * scale
+        for i = 1, count do
+            local seed = i * golden * 2.9
+            local speed = (is_preview and 14 or 22) * scale + (i % 6) * (is_preview and 3 or 5) * scale
+            local drift = math.sin(t * 0.6 + i * 1.9) * ((is_preview and 7 or 16) * scale)
+            local px = ox + ((seed * w * 1.4 + drift) % w)
+            local py = oy + (((t * speed + seed * h) % y_cycle) - 12 * scale)
+            local sz = (is_preview and (1.4 + (i % 4) * 0.6) or (1.8 + (i % 4) * 0.9)) * scale
+            local cr = (i % 2 == 0) and (r1 + (is_light and 0 or 0.25)) or (r2 + (is_light and 0 or 0.25))
+            local cg = (i % 2 == 0) and (g1 + (is_light and 0 or 0.25)) or (g2 + (is_light and 0 or 0.25))
+            local cb = (i % 2 == 0) and (b1 + (is_light and 0 or 0.25)) or (b2 + (is_light and 0 or 0.25))
+            local alpha = (0.18 + (i % 4) * 0.08) * a_mult
+            love.graphics.setColor(math.min(1, cr), math.min(1, cg), math.min(1, cb), alpha)
+            love.graphics.circle("fill", px, py, sz)
+        end
+
+    elseif fx == 12 then
+        local count = is_preview and 12 or 24
+        local y_cycle = h + 40 * scale
+        love.graphics.setLineWidth(math.max(1, math.floor(1.3 * scale)))
+        for i = 1, count do
+            local seed = i * golden * 3.1
+            local speed = (is_preview and 12 or 18) * scale + (i % 5) * (is_preview and 3 or 5) * scale
+            local wobble = math.sin(t * (0.75 + (i % 3) * 0.25) + i * 2.2) * ((is_preview and 8 or 16) * scale)
+            local bx = ox + ((seed * w * 1.4 + wobble) % w)
+            local by = oy + h + 20 * scale - ((t * speed + seed * h) % y_cycle)
+            local sz = (is_preview and (3.2 + (i % 4) * 1.5) or (5.0 + (i % 5) * 2.6)) * scale
+            local cr = (i % 2 == 0) and r2 or r1
+            local cg = (i % 2 == 0) and g2 or g1
+            local cb = (i % 2 == 0) and b2 or b1
+
+            love.graphics.setColor(cr, cg, cb, (is_light and 0.08 or 0.06) * a_mult)
+            love.graphics.circle("fill", bx, by, sz)
+            love.graphics.setColor(cr, cg, cb, (is_light and 0.30 or 0.26) * a_mult)
+            love.graphics.circle("line", bx, by, sz)
+            love.graphics.setColor(1.0, 1.0, 1.0, (is_light and 0.45 or 0.32) * a_mult)
+            love.graphics.circle("fill", bx - sz * 0.32, by - sz * 0.32, math.max(0.8, sz * 0.22))
+        end
+    end
+
+    love.graphics.pop()
+end
+
 function renderer.drawDynamicBackground(themeName)
     local w, h = love.graphics.getDimensions()
     local scale = _G.scale
+
+    if type(themeName) == "string" and themeName:match("^custom_%d+$") then
+        local slot_idx = tonumber(themeName:match("^custom_(%d+)$"))
+        if not renderer._studio.slots then renderer.initCustomThemes() end
+        local cfg = slot_idx and renderer._studio.slots and renderer._studio.slots[slot_idx]
+        if cfg and cfg.backdrop_fx and cfg.backdrop_fx > 1 then
+            renderer.drawStudioBackdropFX(cfg, 0, 0, w, h, scale, 1.0, false)
+        end
+        return
+    end
 
     if themeName == "cosmic" then
         local t = love.timer.getTime()
@@ -3017,7 +3470,7 @@ function renderer.drawDynamicBackground(themeName)
         -- Layer 2: RGB channel-split bars
         local num_splits = rng_slow:random(1, 2)
         for i = 1, num_splits do
-            local sy = rng_slow:random(0, h - 30)
+            local sy = rng_slow:random(0, math.max(0, h - 30))
             local sh = rng_slow:random(3, 14) * scale
             local drift = rng_slow:random(4, 14) * scale
             love.graphics.setColor(1.0, 0.0, 0.0, 0.05)
@@ -4412,16 +4865,15 @@ function renderer.init()
 
     renderer.loadTextures()
 
-    -- Set arcade panel to start fully closed
-    local card_h = math.floor((_G.text_size == "large" and 124 or 120) * scale)
-    local card_gap = math.floor(12 * scale)
-    local panel_pad_y = math.floor(16 * scale)
-    local header_h = math.floor(74 * scale)
-    local footer_h = math.floor(44 * scale)
-    local num_rows = 2
-    local panel_h = header_h + panel_pad_y + num_rows * card_h + (num_rows - 1) * card_gap + panel_pad_y + footer_h
-    arcade_panel_y_offset = panel_h
-    arcade_panel_target = panel_h
+    -- Keep active arcade panel visible across window resize
+    local panel_h = getArcadePanelHeight(scale)
+    if _G.appState == "PLAY_SELECT" or _G.appState == "ARCADE_MENU" then
+        arcade_panel_y_offset = 0
+        arcade_panel_target = 0
+    else
+        arcade_panel_y_offset = panel_h
+        arcade_panel_target = panel_h
+    end
 end
 
 -- ============================================================================
@@ -5222,11 +5674,12 @@ function renderer.drawTiles(game)
     else
         local p = game:getAnimationProgress()
         if _G.screen_transitions then
-            local ease_p = p * (2 - p)
+            local inv = 1 - p
+            local ease_p = 1 - inv * inv * inv
             slideProgress = ease_p
             gooseProgress = ease_p
             spawnProgress = ease_p
-            mergePopProgress = p
+            mergePopProgress = 1 - inv * inv
         else
             slideProgress = p
             gooseProgress = p
@@ -5284,6 +5737,10 @@ function renderer.drawTiles(game)
 
     if game.swapAnimation then
         local p = 1 - (game.swapAnimation.timer / game.swapAnimation.duration)
+        if _G.screen_transitions then
+            local inv = 1 - p
+            p = 1 - inv * inv * inv
+        end
         local s_dummy = renderer._anim.swap_dummy
         local s_prev = renderer._anim.swap_prev_pos
 
@@ -6022,7 +6479,7 @@ local function drawKeyBadge(text, x, y, w, h, alpha_override, font_override, old
     local cur_kb = renderer.isKeyboardMode and renderer.isKeyboardMode() or false
     local old_prompt = is_transitioning and (
         (old_text and renderer.getButtonPrompt(old_text, cur_kb)) or
-        (footer_prompt_prev_kb_mode and renderer.getButtonPrompt(original_text, footer_prompt_prev_kb_mode)) or
+        (footer_prompt_prev_kb_mode ~= nil and renderer.getButtonPrompt(original_text, footer_prompt_prev_kb_mode)) or
         text
     ) or text
     local new_prompt = is_transitioning and renderer.getButtonPrompt(original_text, cur_kb) or text
@@ -6071,15 +6528,15 @@ local function drawKeyBadge(text, x, y, w, h, alpha_override, font_override, old
             love.graphics.rectangle("fill", x + (w - aw) / 2, y + sh, aw, h, cr)
 
             -- D-Pad body shifted by press_shift_y
-            love.graphics.setColor(help_key_color)
+            love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], (help_key_color[4] or 1.0) * cur_badge_a)
             love.graphics.rectangle("fill", x, y + (h - aw) / 2 + press_shift_y, w, aw, cr)
             love.graphics.rectangle("fill", x + (w - aw) / 2, y + press_shift_y, aw, h, cr)
 
             -- Center core circle to blend the intersection
-            love.graphics.circle("fill", x + w/2, y + h/2 + press_shift_y, aw * 0.7)
+            love.graphics.circle("fill", x + w/2, y + h/2 + press_shift_y, aw * 0.7, 32)
 
             -- Draw four small direction dots inside in help_key_text
-            love.graphics.setColor(help_key_text)
+            love.graphics.setColor(help_key_text[1], help_key_text[2], help_key_text[3], (help_key_text[4] or 1.0) * cur_badge_a)
             local dot_r = math.max(1.2 * scale, 1)
             local offset = w * 0.35
 
@@ -6088,10 +6545,10 @@ local function drawKeyBadge(text, x, y, w, h, alpha_override, font_override, old
             local dot_u = is_up and math.max(2.5 * scale, 2) or dot_r
             local dot_d = is_down and math.max(2.5 * scale, 2) or dot_r
 
-            love.graphics.circle("fill", x + w/2 - offset, y + h/2 + press_shift_y, dot_l)
-            love.graphics.circle("fill", x + w/2 + offset, y + h/2 + press_shift_y, dot_r_active)
-            love.graphics.circle("fill", x + w/2, y + h/2 - offset + press_shift_y, dot_u)
-            love.graphics.circle("fill", x + w/2, y + h/2 + offset + press_shift_y, dot_d)
+            love.graphics.circle("fill", x + w/2 - offset, y + h/2 + press_shift_y, dot_l, 20)
+            love.graphics.circle("fill", x + w/2 + offset, y + h/2 + press_shift_y, dot_r_active, 20)
+            love.graphics.circle("fill", x + w/2, y + h/2 - offset + press_shift_y, dot_u, 20)
+            love.graphics.circle("fill", x + w/2, y + h/2 + offset + press_shift_y, dot_d, 20)
             return
         end
 
@@ -6106,12 +6563,12 @@ local function drawKeyBadge(text, x, y, w, h, alpha_override, font_override, old
             if _G.theme == "matrix" then
                 -- Black background circle
                 love.graphics.setColor(0, 0, 0, cur_badge_a)
-                love.graphics.circle("fill", cx, cy + press_shift_y, r)
+                love.graphics.circle("fill", cx, cy + press_shift_y, r, 48)
 
                 -- Green outline circle
                 love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], (help_key_color[4] or 1.0) * cur_badge_a)
                 love.graphics.setLineWidth(math.max(1, math.floor(1 * scale)))
-                love.graphics.circle("line", cx, cy + press_shift_y, r)
+                love.graphics.circle("line", cx, cy + press_shift_y, r, 48)
 
                 -- Text letter
                 love.graphics.setFont(key_font)
@@ -6123,16 +6580,16 @@ local function drawKeyBadge(text, x, y, w, h, alpha_override, font_override, old
             -- Button shadow shrinks when pressed
             love.graphics.setColor(0, 0, 0, 0.25 * cur_badge_a)
             local sh = math.max(1, math.floor(1.5 * scale)) * shadow_shrink
-            love.graphics.circle("fill", cx, cy + sh, r)
+            love.graphics.circle("fill", cx, cy + sh, r, 48)
 
             -- Button body shifted by press_shift_y
             love.graphics.setColor(help_key_color[1], help_key_color[2], help_key_color[3], (help_key_color[4] or 1.0) * cur_badge_a)
-            love.graphics.circle("fill", cx, cy + press_shift_y, r)
+            love.graphics.circle("fill", cx, cy + press_shift_y, r, 48)
 
             -- Button border
             love.graphics.setColor(1, 1, 1, 0.15 * cur_badge_a)
             love.graphics.setLineWidth(math.max(1, math.floor(1 * scale)))
-            love.graphics.circle("line", cx, cy + press_shift_y, r)
+            love.graphics.circle("line", cx, cy + press_shift_y, r, 48)
 
             -- Text letter
             love.graphics.setFont(key_font)
@@ -6229,11 +6686,6 @@ local function drawKeyBadge(text, x, y, w, h, alpha_override, font_override, old
         else
             drawBadgeContent(text, badge_a)
         end
-    end
-
-    if not is_transitioning then
-        drawBadgeContent(text, badge_a)
-        return
     end
 
     -- Canvas supersampling wrapper
@@ -7562,7 +8014,7 @@ function renderer.updateTransition(dt)
                 end
                 local lerp_factor = 1 - math.exp(-25 * dt)
                 menu_anim_y = menu_anim_y + (menu_anim_target_y - menu_anim_y) * lerp_factor
-                if math.abs(menu_anim_y - menu_anim_target_y) < 0.5 then
+                if math.abs(menu_anim_y - menu_anim_target_y) < 0.1 then
                     menu_anim_y = menu_anim_target_y
                 end
             end
@@ -7577,7 +8029,7 @@ function renderer.updateTransition(dt)
                 end
                 local lerp_factor = 1 - math.exp(-25 * dt)
                 menu_anim_x = menu_anim_x + (menu_anim_target_x - menu_anim_x) * lerp_factor
-                if math.abs(menu_anim_x - menu_anim_target_x) < 0.5 then
+                if math.abs(menu_anim_x - menu_anim_target_x) < 0.1 then
                     menu_anim_x = menu_anim_target_x
                 end
             end
@@ -7592,7 +8044,7 @@ function renderer.updateTransition(dt)
                 end
                 local lerp_factor = 1 - math.exp(-25 * dt)
                 menu_anim_w = menu_anim_w + (menu_anim_target_w - menu_anim_w) * lerp_factor
-                if math.abs(menu_anim_w - menu_anim_target_w) < 0.5 then
+                if math.abs(menu_anim_w - menu_anim_target_w) < 0.1 then
                     menu_anim_w = menu_anim_target_w
                 end
             end
@@ -7607,7 +8059,7 @@ function renderer.updateTransition(dt)
                 end
                 local lerp_factor = 1 - math.exp(-25 * dt)
                 menu_anim_h = menu_anim_h + (menu_anim_target_h - menu_anim_h) * lerp_factor
-                if math.abs(menu_anim_h - menu_anim_target_h) < 0.5 then
+                if math.abs(menu_anim_h - menu_anim_target_h) < 0.1 then
                     menu_anim_h = menu_anim_target_h
                 end
             end
@@ -7623,8 +8075,23 @@ function renderer.updateTransition(dt)
             end
             local lerp_factor = 1 - math.exp(-25 * dt)
             _G.studio_anim_y = _G.studio_anim_y + (_G.studio_anim_target_y - _G.studio_anim_y) * lerp_factor
-            if math.abs(_G.studio_anim_y - _G.studio_anim_target_y) < 0.5 then
+            if math.abs(_G.studio_anim_y - _G.studio_anim_target_y) < 0.1 then
                 _G.studio_anim_y = _G.studio_anim_target_y
+            end
+        end
+    end
+
+    if _G.studio_scroll_target then
+        if not _G.screen_transitions then
+            _G.studio_scroll_y = _G.studio_scroll_target
+        else
+            if not _G.studio_scroll_y then
+                _G.studio_scroll_y = _G.studio_scroll_target
+            end
+            local lerp_factor = 1 - math.exp(-25 * dt)
+            _G.studio_scroll_y = _G.studio_scroll_y + (_G.studio_scroll_target - _G.studio_scroll_y) * lerp_factor
+            if math.abs(_G.studio_scroll_y - _G.studio_scroll_target) < 0.1 then
+                _G.studio_scroll_y = _G.studio_scroll_target
             end
         end
     end
@@ -7635,7 +8102,7 @@ function renderer.updateTransition(dt)
     else
         local panel_lerp = 1 - math.exp(-20 * dt)
         arcade_panel_y_offset = arcade_panel_y_offset + (arcade_panel_target - arcade_panel_y_offset) * panel_lerp
-        if math.abs(arcade_panel_y_offset - arcade_panel_target) < 0.5 then
+        if math.abs(arcade_panel_y_offset - arcade_panel_target) < 0.1 then
             arcade_panel_y_offset = arcade_panel_target
         end
     end
@@ -8650,6 +9117,7 @@ function renderer.drawTutorial(page, skip_transition, static_only)
         if not _G.tutorial_slide_ready then
             if not tutorial_new_canvas then
                 tutorial_new_canvas = love.graphics.newCanvas(w, h)
+                tutorial_new_canvas:setFilter("linear", "linear")
             end
             local prev_canvas = love.graphics.getCanvas()
             love.graphics.setCanvas({tutorial_new_canvas, stencil = true})
@@ -8664,31 +9132,25 @@ function renderer.drawTutorial(page, skip_transition, static_only)
         end
 
         if dir == 1 then
-            -- Forward page slide
-            -- Parallax shift for old page
-            local old_x = math.floor(-0.3 * w * p)
-            local new_x = math.floor(w * (1 - p))
+            local old_x = -0.3 * w * p
+            local new_x = w * (1 - p)
 
-            -- Draw old page
             if tutorial_old_canvas then
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
                 love.graphics.draw(tutorial_old_canvas, old_x, 0)
                 love.graphics.setBlendMode("alpha", "alphamultiply")
 
-                -- Dim the old page
                 love.graphics.setColor(0, 0, 0, 0.5 * p)
                 love.graphics.rectangle("fill", old_x, 0, w, h)
             end
 
-            -- 2. Draw shadow to the left of the new page
             for i = 0, shadow_w - 1 do
                 local alpha = 0.35 * math.pow((shadow_w - i) / shadow_w, 2)
                 love.graphics.setColor(0, 0, 0, alpha)
                 love.graphics.rectangle("fill", new_x - shadow_w + i, 0, 1, h)
             end
 
-            -- Draw new page
             if tutorial_new_canvas then
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.setBlendMode("replace", "premultiplied")
@@ -8696,10 +9158,8 @@ function renderer.drawTutorial(page, skip_transition, static_only)
                 love.graphics.setBlendMode("alpha", "alphamultiply")
             end
         else
-            -- Backward page slide
-            -- Parallax shift for new page
-            local new_x = math.floor(-0.3 * w * (1 - p))
-            local old_x = math.floor(w * p)
+            local new_x = -0.3 * w * (1 - p)
+            local old_x = w * p
 
             -- Draw new page
             if tutorial_new_canvas then
@@ -8903,6 +9363,12 @@ function renderer.calculateSettingsLayout(selection, w, h, scale)
     local header_h = f_title and f_title:getHeight() or math.floor(36 * scale)
     local start_y = math.floor(renderer.MENU_TITLE_Y * scale)
     local menu_start_y = start_y + header_h + math.floor(renderer.TITLE_CONTENT_GAP * scale)
+    if #options > 1 then
+        local max_gap = math.floor((badge_y - math.floor(6 * scale) - font_message:getHeight() - menu_start_y) / (#options - 1))
+        if max_gap < gap then
+            gap = math.max(math.floor(22 * scale), max_gap)
+        end
+    end
 
     local margin = math.floor(20 * scale)
     local max_options = {
@@ -9147,6 +9613,7 @@ function renderer.drawMainMenu(selection, skip_transition)
     local scale = _G.scale
 
     local options = renderer.getMainMenuOptions()
+    selection = math.max(1, math.min(#options, selection or 1))
     love.graphics.setFont(font_message)
     local gap = (_G.text_size == "large" and 35 or 31) * scale
     local menu_h = (#options - 1) * gap + font_message:getHeight()
@@ -10556,6 +11023,8 @@ end
 function renderer.startCustomizationTabTransition(from_tab, to_tab, dir)
     _G.studio_anim_y = nil
     _G.studio_anim_target_y = nil
+    _G.studio_scroll_y = nil
+    _G.studio_scroll_target = nil
     if to_tab == 3 then
         _G.custom_pet_start_time = love.timer.getTime()
     end
@@ -10819,6 +11288,7 @@ function renderer.drawCustomizationTabContent(tab, off_x, alpha_val, skip_transi
             love.graphics.print(cur_subtitle, (w - cur_sw) / 2 + off + b_dir * text_slide * (1 - bp), subtitle_y)
 
             -- Outgoing board canvas
+            love.graphics.setBlendMode("alpha", "premultiplied")
             if board_preview_canvas_prev then
                 love.graphics.setColor(1, 1, 1, (1 - bp) * a)
                 love.graphics.draw(board_preview_canvas_prev, board_x - b_dir * b_slide * bp, board_y)
@@ -10829,6 +11299,7 @@ function renderer.drawCustomizationTabContent(tab, off_x, alpha_val, skip_transi
                 love.graphics.setColor(1, 1, 1, bp * a)
                 love.graphics.draw(board_preview_canvas_curr, board_x + b_dir * b_slide * (1 - bp), board_y)
             end
+            love.graphics.setBlendMode("alpha", "alphamultiply")
 
             -- Outgoing status badge
             local prev_is_owned = (prev_skin.id == "default") or (_G.stats and _G.stats.purchased_items and _G.stats.purchased_items["skin_" .. prev_skin.id])
@@ -10864,8 +11335,10 @@ function renderer.drawCustomizationTabContent(tab, off_x, alpha_val, skip_transi
                 board_preview_rendered_theme = _G.theme
             end
 
+            love.graphics.setBlendMode("alpha", "premultiplied")
             love.graphics.setColor(1, 1, 1, a)
             love.graphics.draw(board_preview_canvas_curr, board_x, board_y)
+            love.graphics.setBlendMode("alpha", "alphamultiply")
 
             local is_owned = (skin.id == "default") or (_G.stats and _G.stats.purchased_items and _G.stats.purchased_items["skin_" .. skin.id])
             local is_equipped = ((_G.board_skin or "default") == skin.id)
@@ -11184,15 +11657,20 @@ function renderer.drawCustomizationTabContent(tab, off_x, alpha_val, skip_transi
             local badge_center_x = board_px + math.floor(actual_board_sz / 2)
             drawStatusBadge(is_slot_equipped, true, 0, 1.0, "ACTIVE", "PRESS A TO EQUIP", badge_py, badge_center_x)
 
-            -- Right Column: Studio Control Deck
+            -- Right Column: Scrollable Studio Control Deck
             local right_x = left_x + left_w + col_gap
             local row_h = math.floor(34 * scale)
             local row_gap = math.floor(6 * scale)
+            local row_step = row_h + row_gap
             local deck_py = top_y + math.floor(2 * scale)
 
             local tone_names = {"Dark", "Light", "OLED"}
-            local style_names = {"Gradient Ramp", "Duotone", "Neon Cyber", "Pastel Soft"}
+            local style_names = {"Gradient Ramp", "Duotone", "Neon Cyber", "Pastel Soft", "Monochrome", "Spectrum", "Inverted Ramp"}
             local board_tone_names = {"Neutral", "Tinted", "Deep Contrast"}
+            local grid_slot_names = {"Standard", "Subtle", "Seamless"}
+            local fx_names = {"None", "Petals", "Stars", "Glow", "Embers", "Aurora", "Ripples", "Cyber Grid", "Fireflies", "Waves", "Snowfall", "Bubbles"}
+            local contrast_names = {"Balanced", "Soft", "Punchy"}
+            local accent_names = {"End Hue", "Start Hue", "Neutral"}
 
             local rows_data = {
                 { label = "Slot", val = "◄ Custom " .. slot .. " ►" },
@@ -11201,80 +11679,154 @@ function renderer.drawCustomizationTabContent(tab, off_x, alpha_val, skip_transi
                 { label = "Start Hue", hue = (s_data.start_hue or 200) },
                 { label = "End Hue", hue = (s_data.end_hue or 330) },
                 { label = "Vibrancy", val = "◄ " .. (s_data.sat or 80) .. "% ►" },
-                { label = "Board Tint", val = "◄ " .. (board_tone_names[s_data.board_tone or 1] or "Neutral") .. " ►" }
+                { label = "Board Tint", val = "◄ " .. (board_tone_names[s_data.board_tone or 1] or "Neutral") .. " ►" },
+                { label = "Grid Slots", val = "◄ " .. (grid_slot_names[s_data.grid_slots or 1] or "Standard") .. " ►" },
+                { label = "Backdrop FX", val = "◄ " .. (fx_names[s_data.backdrop_fx or 1] or "None") .. " ►" },
+                { label = "Tile Contrast", val = "◄ " .. (contrast_names[s_data.tile_contrast or 1] or "Balanced") .. " ►" },
+                { label = "UI Accent", val = "◄ " .. (accent_names[s_data.ui_accent or 1] or "End Hue") .. " ►" }
             }
 
-            local r_cr = math.floor(7 * scale)
-            for r_idx = 1, #rows_data do
-                local ry = deck_py + (r_idx - 1) * (row_h + row_gap)
-                love.graphics.setColor(0, 0, 0, 0.14 * cur_a)
-                roundedRect("fill", right_x, ry, right_w, row_h, r_cr)
-            end
+            local visible_rows = 7
+            local deck_view_h = visible_rows * row_h + (visible_rows - 1) * row_gap
+            local total_deck_h = #rows_data * row_h + (#rows_data - 1) * row_gap
+            local max_scroll = math.max(0, total_deck_h - deck_view_h)
 
-            local target_ry = deck_py + (cur - 1) * (row_h + row_gap)
-            _G.studio_anim_target_y = target_ry
+            local sel_top = (cur - 1) * row_step
+            local sel_bot = sel_top + row_h
+            local target_scroll = _G.studio_scroll_target or 0
+            if sel_top < target_scroll then
+                target_scroll = sel_top
+            elseif sel_bot > target_scroll + deck_view_h then
+                target_scroll = sel_bot - deck_view_h
+            end
+            target_scroll = math.max(0, math.min(max_scroll, target_scroll))
+            _G.studio_scroll_target = target_scroll
+            if not _G.screen_transitions or not _G.studio_scroll_y then
+                _G.studio_scroll_y = target_scroll
+            end
+            local scroll_y = math.max(0, math.min(max_scroll, _G.studio_scroll_y or 0))
+
+            local target_rel_y = (cur - 1) * row_step
+            _G.studio_anim_target_y = target_rel_y
             if not _G.screen_transitions or not _G.studio_anim_y then
-                _G.studio_anim_y = target_ry
+                _G.studio_anim_y = target_rel_y
             end
-            local pill_y = _G.studio_anim_y
+            local pill_y = deck_py + (_G.studio_anim_y or target_rel_y) - scroll_y
 
-            local acc = help_key_color or {0.93, 0.76, 0.18, 1.0}
-            love.graphics.setColor(acc[1], acc[2], acc[3], 0.18 * cur_a)
-            roundedRect("fill", right_x, pill_y, right_w, row_h, r_cr)
-            love.graphics.setColor(acc[1], acc[2], acc[3], 0.85 * cur_a)
-            love.graphics.setLineWidth(math.max(1, math.floor(1.5 * scale)))
-            roundedRect("line", right_x, pill_y, right_w, row_h, r_cr)
+            local acc = (c_theme and c_theme.help_key_color) or help_key_color or {0.93, 0.76, 0.18, 1.0}
+            local r_cr = math.floor(7 * scale)
 
-            for r_idx, r_item in ipairs(rows_data) do
-                local ry = deck_py + (r_idx - 1) * (row_h + row_gap)
-                local is_sel = (cur == r_idx)
+            local osx, osy, osw, osh = love.graphics.getScissor()
+            local clip_x1 = math.max(0, math.floor(right_x - 2 * scale))
+            local clip_y1 = math.max(0, math.floor(deck_py - 2 * scale))
+            local clip_x2 = math.min(w, math.ceil(right_x + right_w + 2 * scale))
+            local clip_y2 = math.min(h, math.ceil(deck_py + deck_view_h + 2 * scale))
+            local can_draw_deck = (clip_x2 > clip_x1 and clip_y2 > clip_y1)
+            if can_draw_deck then
+                love.graphics.intersectScissor(clip_x1, clip_y1, clip_x2 - clip_x1, clip_y2 - clip_y1)
 
-                love.graphics.setFont(font_help_label)
-                local lbl_col = is_sel and ui_text or {ui_text[1], ui_text[2], ui_text[3], 0.70}
-                love.graphics.setColor(lbl_col[1], lbl_col[2], lbl_col[3], cur_a)
-                love.graphics.print(r_item.label, right_x + math.floor(14 * scale), ry + math.floor((row_h - font_help_label:getHeight()) / 2))
-
-                local val_col = is_sel and ui_text or {ui_text[1], ui_text[2], ui_text[3], 0.85}
-                if r_item.hue then
-                    -- Color pill placed between navigation arrows
-                    local arrow_left = "◄"
-                    local arrow_right = "►"
-                    local al_w = font_help_label:getWidth(arrow_left)
-                    local ar_w = font_help_label:getWidth(arrow_right)
-                    local arrow_h = font_help_label:getHeight()
-
-                    local gap = math.floor(8 * scale)
-                    local pill_w = math.floor(48 * scale)
-                    local pill_h = math.floor(16 * scale)
-                    local pill_cr = math.floor(pill_h / 2)
-
-                    local right_edge = right_x + right_w - math.floor(14 * scale)
-                    local ar_x = right_edge - ar_w
-                    local pill_x = ar_x - gap - pill_w
-                    local al_x = pill_x - gap - al_w
-
-                    local arrow_y = ry + math.floor((row_h - arrow_h) / 2)
-                    local arrow_center_y = arrow_y + arrow_h * 0.54
-                    local cpill_y = math.floor(arrow_center_y - pill_h / 2)
-
-                    love.graphics.setColor(val_col[1], val_col[2], val_col[3], cur_a)
-                    love.graphics.print(arrow_left, al_x, arrow_y)
-                    love.graphics.print(arrow_right, ar_x, arrow_y)
-
-                    local sat = (s_data.sat or 80) / 100
-                    local hr, hg, hb = renderer._studio.hslToRgb(r_item.hue, sat, 0.50)
-                    love.graphics.setColor(hr, hg, hb, cur_a)
-                    roundedRect("fill", pill_x, cpill_y, pill_w, pill_h, pill_cr)
-
-                    local sw_lum = 0.299 * hr + 0.587 * hg + 0.114 * hb
-                    local bc = (sw_lum > 0.6) and {0, 0, 0, 0.25 * cur_a} or {1, 1, 1, 0.35 * cur_a}
-                    love.graphics.setColor(bc)
-                    love.graphics.setLineWidth(math.max(1, math.floor(1 * scale)))
-                    roundedRect("line", pill_x, cpill_y, pill_w, pill_h, pill_cr)
-                else
-                    love.graphics.setColor(val_col[1], val_col[2], val_col[3], cur_a)
-                    love.graphics.printf(r_item.val, right_x, ry + math.floor((row_h - font_help_label:getHeight()) / 2), right_w - math.floor(14 * scale), "right")
+                for r_idx = 1, #rows_data do
+                    local ry = deck_py + (r_idx - 1) * row_step - scroll_y
+                    if ry + row_h >= deck_py - row_h and ry <= deck_py + deck_view_h + row_h then
+                        love.graphics.setColor(0, 0, 0, 0.14 * cur_a)
+                        roundedRect("fill", right_x, ry, right_w, row_h, r_cr)
+                    end
                 end
+
+                love.graphics.setColor(acc[1], acc[2], acc[3], 0.18 * cur_a)
+                roundedRect("fill", right_x, pill_y, right_w, row_h, r_cr)
+                love.graphics.setColor(acc[1], acc[2], acc[3], 0.85 * cur_a)
+                love.graphics.setLineWidth(math.max(1, math.floor(1.5 * scale)))
+                roundedRect("line", right_x, pill_y, right_w, row_h, r_cr)
+
+                _G.studio_row_bounds = {}
+                for r_idx, r_item in ipairs(rows_data) do
+                    local ry = deck_py + (r_idx - 1) * row_step - scroll_y
+                    if ry + row_h >= deck_py - 2 * scale and ry <= deck_py + deck_view_h + 2 * scale then
+                        local is_sel = (cur == r_idx)
+                        love.graphics.setFont(font_help_label)
+                        local lbl_col = is_sel and ui_text or {ui_text[1], ui_text[2], ui_text[3], 0.70}
+                        love.graphics.setColor(lbl_col[1], lbl_col[2], lbl_col[3], cur_a)
+                        love.graphics.print(r_item.label, right_x + math.floor(14 * scale), ry + math.floor((row_h - font_help_label:getHeight()) / 2))
+
+                        local val_col = is_sel and ui_text or {ui_text[1], ui_text[2], ui_text[3], 0.85}
+                        local row_split_x = right_x + right_w * 0.78
+                        if r_item.hue then
+                            -- Color pill placed between navigation arrows
+                            local arrow_left = "◄"
+                            local arrow_right = "►"
+                            local al_w = font_help_label:getWidth(arrow_left)
+                            local ar_w = font_help_label:getWidth(arrow_right)
+                            local arrow_h = font_help_label:getHeight()
+
+                            local gap = math.floor(8 * scale)
+                            local pill_w = math.floor(48 * scale)
+                            local pill_h = math.floor(16 * scale)
+                            local pill_cr = math.floor(pill_h / 2)
+
+                            local right_edge = right_x + right_w - math.floor(14 * scale)
+                            local ar_x = right_edge - ar_w
+                            local pill_x = ar_x - gap - pill_w
+                            local al_x = pill_x - gap - al_w
+                            row_split_x = (al_x + right_edge) / 2
+
+                            local arrow_y = ry + math.floor((row_h - arrow_h) / 2)
+                            local arrow_center_y = arrow_y + arrow_h * 0.54
+                            local cpill_y = math.floor(arrow_center_y - pill_h / 2)
+
+                            love.graphics.setColor(val_col[1], val_col[2], val_col[3], cur_a)
+                            love.graphics.print(arrow_left, al_x, arrow_y)
+                            love.graphics.print(arrow_right, ar_x, arrow_y)
+
+                            local sat = (s_data.sat or 80) / 100
+                            local hr, hg, hb = renderer._studio.hslToRgb(r_item.hue, sat, 0.50)
+                            love.graphics.setColor(hr, hg, hb, cur_a)
+                            roundedRect("fill", pill_x, cpill_y, pill_w, pill_h, pill_cr)
+
+                            local sw_lum = 0.299 * hr + 0.587 * hg + 0.114 * hb
+                            local bc = (sw_lum > 0.6) and {0, 0, 0, 0.25 * cur_a} or {1, 1, 1, 0.35 * cur_a}
+                            love.graphics.setColor(bc)
+                            love.graphics.setLineWidth(math.max(1, math.floor(1 * scale)))
+                            roundedRect("line", pill_x, cpill_y, pill_w, pill_h, pill_cr)
+                        else
+                            local right_edge = right_x + right_w - math.floor(14 * scale)
+                            local val_w = font_help_label:getWidth(r_item.val)
+                            row_split_x = right_edge - val_w / 2
+                            love.graphics.setColor(val_col[1], val_col[2], val_col[3], cur_a)
+                            love.graphics.printf(r_item.val, right_x, ry + math.floor((row_h - font_help_label:getHeight()) / 2), right_w - math.floor(14 * scale), "right")
+                        end
+
+                        local vis_top = math.max(ry, deck_py)
+                        local vis_bot = math.min(ry + row_h, deck_py + deck_view_h)
+                        if vis_bot > vis_top + 4 * scale then
+                            table.insert(_G.studio_row_bounds, {
+                                idx = r_idx,
+                                x = right_x,
+                                y = vis_top,
+                                w = right_w,
+                                h = vis_bot - vis_top,
+                                split_x = row_split_x
+                            })
+                        end
+                    end
+                end
+            end
+
+            if osx then
+                love.graphics.setScissor(osx, osy, osw, osh)
+            else
+                love.graphics.setScissor()
+            end
+
+            if max_scroll > 0 then
+                local sb_w = math.max(2, math.floor(3 * scale))
+                local sb_x = right_x + right_w + math.floor(6 * scale)
+                love.graphics.setColor(ui_text[1], ui_text[2], ui_text[3], 0.15 * cur_a)
+                roundedRect("fill", sb_x, deck_py, sb_w, deck_view_h, sb_w / 2)
+                local thumb_h = math.max(math.floor(24 * scale), deck_view_h * (deck_view_h / total_deck_h))
+                local thumb_y = deck_py + (deck_view_h - thumb_h) * (scroll_y / max_scroll)
+                love.graphics.setColor(acc[1], acc[2], acc[3], 0.75 * cur_a)
+                roundedRect("fill", sb_x, thumb_y, sb_w, thumb_h, sb_w / 2)
             end
         end
     end
@@ -11284,13 +11836,28 @@ end
 -- Customization Hub Screen
 -- ============================================================================
 function renderer.drawThemeSelect(skip_transition, explicit_tab)
-    renderer.clearBackground()
-
     local is_console = _G.is_console_active and _G.is_console_active()
     local w = is_console and 640 or love.graphics.getWidth()
     local h = is_console and 480 or love.graphics.getHeight()
     local scale = is_console and 1.0 or _G.scale or 1
     local tab = explicit_tab or _G.customization_tab or 1
+
+    local studio_preview_fx = nil
+    if tab == 4 and _G.stats and _G.stats.purchased_items and (_G.stats.purchased_items["theme_studio"] == 1 or _G.stats.purchased_items["theme_studio"] == true) then
+        if not renderer._studio.slots then renderer.initCustomThemes() end
+        local cfg = renderer._studio.slots[_G.studio_slot or 1]
+        if cfg and cfg.backdrop_fx and cfg.backdrop_fx > 1 then
+            studio_preview_fx = cfg
+        end
+    end
+
+    if studio_preview_fx then
+        love.graphics.setColor(bg_color)
+        love.graphics.rectangle("fill", 0, 0, love.graphics.getDimensions())
+        renderer.drawStudioBackdropFX(studio_preview_fx, 0, 0, w, h, scale, 1.0, false)
+    else
+        renderer.clearBackground()
+    end
 
     -- Header Title
     love.graphics.setFont(font_cheats_title)
@@ -11856,6 +12423,9 @@ function renderer.drawAchievementsTabContent(tab, scroll)
     local item_h = math.floor(85 * scale)
     local total_items = #achievementsList
     _G.achievements_max_scroll = math.max(0, math.ceil((total_items * item_h - avail_h) / item_h))
+    if _G.achievements_scroll_target and _G.achievements_scroll_target > _G.achievements_max_scroll then
+        _G.achievements_scroll_target = _G.achievements_max_scroll
+    end
     -- Helper to format numbers with commas
     local function formatNum(n)
         local formatted = tostring(math.floor(n or 0))
@@ -12513,9 +13083,11 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
             local prev_canvas = love.graphics.getCanvas()
             if not achievements_old_canvas or achievements_old_canvas:getWidth() ~= w or achievements_old_canvas:getHeight() ~= h then
                 achievements_old_canvas = love.graphics.newCanvas(w, h)
+                achievements_old_canvas:setFilter("linear", "linear")
             end
             if not achievements_new_canvas or achievements_new_canvas:getWidth() ~= w or achievements_new_canvas:getHeight() ~= h then
                 achievements_new_canvas = love.graphics.newCanvas(w, h)
+                achievements_new_canvas:setFilter("linear", "linear")
             end
 
             local from_tab = _G.achievements_tab_prev
@@ -12540,13 +13112,13 @@ function renderer.drawAchievements(scroll, skip_transition, static_only, overrid
         end
 
         local t = 1 - (_G.achievements_tab_timer / 0.24)
-        local tp = t * t * (3 - 2 * t)
+        local tp = 1 - math.pow(1 - t, 3)
         local from_tab = _G.achievements_tab_prev
         local to_tab = active_tab
         local t_dir = _G.achievements_tab_dir or (to_tab > from_tab and 1 or -1)
         local slide_dist = w
-        local old_x = math.floor(-t_dir * slide_dist * tp)
-        local new_x = math.floor(t_dir * slide_dist * (1 - tp))
+        local old_x = -t_dir * slide_dist * tp
+        local new_x = t_dir * slide_dist * (1 - tp)
 
         love.graphics.setScissor(0, list_y - math.floor(5 * scale), w, avail_h + math.floor(10 * scale))
 
@@ -12788,6 +13360,10 @@ function renderer.drawAbout(skip_transition)
     -- Calculate total content height & max scroll
     local total_content_height = (cur_y + scroll) - viewport_top
     _G.about_max_scroll = math.max(0, total_content_height - viewport_h)
+    if _G.about_scroll_target and _G.about_scroll_target > _G.about_max_scroll then
+        _G.about_scroll_target = _G.about_max_scroll
+    end
+    local clamped_scroll = math.min(scroll, _G.about_max_scroll)
 
     -- Reset Scissor
     love.graphics.setScissor()
@@ -12798,7 +13374,7 @@ function renderer.drawAbout(skip_transition)
         local bar_x = w - bar_w - math.floor(5 * scale)
         local bar_ratio = viewport_h / total_content_height
         local thumb_h = math.max(math.floor(16 * scale), math.floor(viewport_h * bar_ratio))
-        local thumb_y = viewport_top + (scroll / _G.about_max_scroll) * (viewport_h - thumb_h)
+        local thumb_y = viewport_top + (clamped_scroll / _G.about_max_scroll) * (viewport_h - thumb_h)
 
         -- Track background
         love.graphics.setColor(ui_text[1], ui_text[2], ui_text[3], 0.1)
@@ -12861,14 +13437,7 @@ function renderer.drawAbout(skip_transition)
 end
 
 function renderer.isArcadeMenuClosed()
-    local scale = _G.scale or 1
-    local card_h = math.floor((_G.text_size == "large" and 124 or 120) * scale)
-    local card_gap = math.floor(12 * scale)
-    local panel_pad_y = math.floor(16 * scale)
-    local header_h = math.floor(74 * scale)
-    local footer_h = math.floor(44 * scale)
-    local num_rows = 2
-    local panel_h = header_h + panel_pad_y + num_rows * card_h + (num_rows - 1) * card_gap + panel_pad_y + footer_h
+    local panel_h = getArcadePanelHeight(_G.scale or 1)
 
     return (arcade_panel_target == panel_h) and (arcade_panel_y_offset >= panel_h - 1)
 end
@@ -13546,7 +14115,7 @@ function renderer.drawStoreMenu(selection, skip_transition, content_only)
             local sort_prog = math.max(0, math.min(1, 1 - (store_sort_transition_timer / STORE_SORT_TRANSITION_DURATION)))
             local old_alpha = math.max(0, 1 - sort_prog * 2.2)
             if old_alpha > 0.005 then
-                local old_drift_y = -math.floor(14 * scale * sort_prog)
+                local old_drift_y = -14 * scale * sort_prog
                 love.graphics.setColor(old_alpha, old_alpha, old_alpha, old_alpha)
                 love.graphics.setBlendMode("alpha", "premultiplied")
                 love.graphics.draw(store_sort_old_canvas, 0, old_drift_y)
@@ -14294,15 +14863,15 @@ function renderer.drawJukebox(selection, skip_transition)
         _G.jukebox_scroll_offset = _G.jukebox_scroll_offset or target_scroll
         _G.jukebox_anim_sel_idx  = _G.jukebox_anim_sel_idx or selection
 
-        local lerp_spd = 24
+        local juke_lerp = 1 - math.exp(-24 * dt)
         if math.abs(_G.jukebox_scroll_offset - target_scroll) > 0.0005 then
-            _G.jukebox_scroll_offset = _G.jukebox_scroll_offset + (target_scroll - _G.jukebox_scroll_offset) * dt * lerp_spd
+            _G.jukebox_scroll_offset = _G.jukebox_scroll_offset + (target_scroll - _G.jukebox_scroll_offset) * juke_lerp
         else
             _G.jukebox_scroll_offset = target_scroll
         end
 
         if math.abs(_G.jukebox_anim_sel_idx - selection) > 0.0005 then
-            _G.jukebox_anim_sel_idx = _G.jukebox_anim_sel_idx + (selection - _G.jukebox_anim_sel_idx) * dt * lerp_spd
+            _G.jukebox_anim_sel_idx = _G.jukebox_anim_sel_idx + (selection - _G.jukebox_anim_sel_idx) * juke_lerp
         else
             _G.jukebox_anim_sel_idx = selection
         end
@@ -14473,8 +15042,8 @@ function renderer.drawJukebox(selection, skip_transition)
                     end
                 end
 
-                -- Clip to row so bars don't bleed outside
-                love.graphics.setScissor(card_x, ry, card_w, row_inner_h + math.floor(2 * scale))
+                -- Clip to row inside playlist viewport
+                love.graphics.intersectScissor(card_x, ry, card_w, row_inner_h + math.floor(2 * scale))
 
                 for mb = 1, bar_count do
                     local phase
@@ -14908,7 +15477,7 @@ function renderer.drawJukebox(selection, skip_transition)
                 local pw = prompt_font:getWidth(pref)
                 local sw = prompt_font:getWidth(suff)
                 local badge_h = math.floor(26 * scale)
-                local key_w = badge_h
+                local key_w = renderer.getHelpBadgeWidth("A", prompt_font)
                 local total_w = pw + key_w + math.floor(8 * scale) + sw
                 local start_x = qr_x + math.floor((qr_box_size - total_w) / 2)
                 local badge_y = qr_y + math.floor(96 * scale)

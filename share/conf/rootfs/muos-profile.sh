@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for _muos_path in /opt/muos/bin /opt/muos/share/emulator/zulu/bin; do
+for _muos_path in /opt/muos/share/emulator/zulu/bin; do
 	[ -d "$_muos_path" ] || continue
 	case ":${PATH:-}:" in
 		*:"$_muos_path":*) ;;

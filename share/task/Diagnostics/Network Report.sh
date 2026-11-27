@@ -84,7 +84,7 @@ DIAG_KV "Date" "$(date)"
 DIAG_KV "Hardware clock" "$(hwclock -r 2>/dev/null)"
 YEAR=$(date +%Y)
 [ "$YEAR" -lt 2025 ] && DIAG_FINDING "CLOCK" "The clock reads $YEAR. Secure downloads fail when the date is this far off."
-[ -x /opt/muos/bin/chronyc ] && DIAG_CMD "Time sync" /opt/muos/bin/chronyc -n tracking
+[ -x /usr/bin/chronyc ] && DIAG_CMD "Time sync" /usr/bin/chronyc -n tracking
 
 DIAG_SECTION "Listening services"
 DIAG_CMD "netstat" netstat -tln

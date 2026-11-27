@@ -87,13 +87,55 @@ done
 SKIP_FILE="$(GET_VAR "device" "storage/sdcard/mount")/MUOS/info/skip.ini"
 [ ! -s "$SKIP_FILE" ] && SKIP_FILE="$(GET_VAR "device" "storage/rom/mount")/MUOS/info/skip.ini"
 
-# Walk the directory and list all files via ripgrep.  Then for each path
+LIST_FILES() {
+	find "$1" -type f 2>/dev/null | awk -v ROOT="$1/" -v SKIP="$2" '
+		function glob(p,  i, c, r) {
+			r = ""
+			for (i = 1; i <= length(p); i++) {
+				c = substr(p, i, 1)
+				if (c == "*") r = r "[^/]*"
+				else if (c == "?") r = r "[^/]"
+				else if (index(".+^$(){}|[]\\", c)) r = r "\\" c
+				else r = r c
+			}
+			return "^" r "$"
+		}
+		BEGIN {
+			count = 0
+			while (SKIP != "" && (getline line < SKIP) > 0) {
+				sub(/\r$/, "", line)
+				if (line == "" || substr(line, 1, 1) == "#") continue
+				count++
+				anchored[count] = (substr(line, 1, 1) == "/") || index(substr(line, 2), "/") > 0
+				sub(/^\//, "", line)
+				sub(/\/$/, "", line)
+				pattern[count] = glob(line)
+			}
+		}
+		{
+			rel = substr($0, length(ROOT) + 1)
+			n = split(rel, parts, "/")
+			skip = 0
+			prefix = ""
+			for (i = 1; i <= n && !skip; i++) {
+				if (substr(parts[i], 1, 1) == ".") skip = 1
+				prefix = (i == 1 ? parts[i] : prefix "/" parts[i])
+				for (k = 1; k <= count && !skip; k++) {
+					if (anchored[k]) { if (prefix ~ pattern[k]) skip = 1 }
+					else if (parts[i] ~ pattern[k]) skip = 1
+				}
+			}
+			if (!skip) print
+		}'
+}
+
+# Walk the directory and list all files.  Then for each path
 # we'll go into chuck in full absolute path, relative directory, filename,
 # and filename without extension.  The four fields (with a fancy pipe) to
 # $TMP_ALL_FILES for later indexing.  This is as fast as we can possibly go.
-LOG_DEBUG "$0" 0 "FIND" "Walking directories with ripgrep"
+LOG_DEBUG "$0" 0 "FIND" "Walking directories"
 for S_DIR in "$@"; do
-	/opt/muos/bin/rg --files "$S_DIR" --ignore-file "$SKIP_FILE" 2>/dev/null |
+	LIST_FILES "$S_DIR" "$SKIP_FILE" |
 		awk -v ROOT="$S_DIR/" -F/ '
         {
             fullpath = $0
@@ -117,7 +159,7 @@ done
 cut -d'|' -f4 "$TMP_ALL_FILES" >"$TMP_ALL_BASE_IDS"
 
 # Extract friendly-name entries matching the search term
-/opt/muos/bin/rg -i "$S_TERM" "$LOOKUP_DIR"/*.txt | sed 's|^[^:]*:||' >"$TMP_LISTS_FILTERED"
+grep -i -E -h -e "$S_TERM" "$LOOKUP_DIR"/*.txt >"$TMP_LISTS_FILTERED"
 [ ! -s "$TMP_LISTS_FILTERED" ] && touch "$TMP_PREFIXES"
 
 # Extract lookup base_ids from friendly lists
@@ -135,21 +177,21 @@ sort -u "$TMP_ALL_BASE_IDS" >"$TMP_ALL_BASE_IDS_SORTED"
 sort -u "$TMP_ALL_LOOKUP_IDS" >"$TMP_ALL_LOOKUP_IDS_SORTED"
 comm -12 "$TMP_ALL_BASE_IDS_SORTED" "$TMP_ALL_LOOKUP_IDS_SORTED" >"$TMP_PREFIXES_RAW"
 
-# Build final literal prefix patterns for ripgrep
+# Build final literal prefix patterns
 awk '{print $0 "|"}' "$TMP_PREFIXES_RAW" >"$TMP_PREFIXES"
 
 # Perform folder/global/internal friendly name lookups...
 for FOLDER_FILE in "$LOOKUP_DIR"/*.txt; do
 	BASENAME=$(basename "$FOLDER_FILE" .txt)
-	/opt/muos/bin/rg -i -F -f "$TMP_PREFIXES" "$FOLDER_FILE" | sed "s/^/[FOLDER:$BASENAME] /" >>"$TMP_MATCHES"
+	grep -i -F -f "$TMP_PREFIXES" "$FOLDER_FILE" | sed "s/^/[FOLDER:$BASENAME] /" >>"$TMP_MATCHES"
 done
 
-/opt/muos/bin/rg -i -F -f "$TMP_PREFIXES" "$LOOKUP_DIR/global.txt" | sed 's/^/[GLOBAL] /' >>"$TMP_MATCHES"
-/opt/muos/bin/rg -i -F -f "$TMP_PREFIXES" "$LOOKUP_DIR/internal.txt" | sed 's/^/[INTERNAL] /' >>"$TMP_MATCHES"
+grep -i -F -f "$TMP_PREFIXES" "$LOOKUP_DIR/global.txt" | sed 's/^/[GLOBAL] /' >>"$TMP_MATCHES"
+grep -i -F -f "$TMP_PREFIXES" "$LOOKUP_DIR/internal.txt" | sed 's/^/[INTERNAL] /' >>"$TMP_MATCHES"
 
 for S_DIR in "$@"; do
-	/opt/muos/bin/rg --files "$S_DIR" --ignore-file "$SKIP_FILE" 2>/dev/null |
-		/opt/muos/bin/rg -F -i "$S_TERM" |
+	LIST_FILES "$S_DIR" "$SKIP_FILE" |
+		grep -F -i -e "$S_TERM" |
 		while IFS= read -r FPATH; do
 			rel="${FPATH#"$S_DIR/"}"
 			DIR=$(dirname "$rel")

@@ -57,7 +57,7 @@ RUN_BOOT_MAINTENANCE() {
 	done
 
 	if [ "$RA_CACHE" -eq 1 ]; then
-		ionice -c 3 /opt/muos/bin/vmtouch -tfb "$MUOS_SHARE_DIR/conf/preload.txt" &
+		ionice -c 3 /usr/bin/vmtouch -tfb "$MUOS_SHARE_DIR/conf/preload.txt" &
 		BOOT_CACHE=$!
 	else
 		BOOT_CACHE=
@@ -120,6 +120,7 @@ DO_START() {
 	LOG_INFO "$0" 0 "BOOTING" "Copying Root Home Files"
 	ROOT_HOME_SOURCE=/opt/muos/share/conf/rootfs/root
 	(
+		rm -rf /root/.config/fish /root/.config/micro
 		if [ ! -f /root/.profile ] || find "$ROOT_HOME_SOURCE" -type f -newer /root/.profile -print -quit 2>/dev/null | grep -q .; then
 			cp -rf "$ROOT_HOME_SOURCE/." /root/
 		fi

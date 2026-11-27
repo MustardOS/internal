@@ -521,7 +521,7 @@ PROFILE_INSTALL_VALUE() {
 
 PROFILE_MKFS_READY() {
 	case "$1" in
-		ext4) [ -x /opt/muos/bin/mke2fs ] && return 0 ;;
+		ext4) [ -x /usr/sbin/mke2fs ] && return 0 ;;
 	esac
 	for PMR_DIR in /sbin /usr/sbin /bin /usr/bin; do
 		[ -x "$PMR_DIR/mkfs.$1" ] && return 0

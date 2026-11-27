@@ -8,7 +8,7 @@ esac
 
 INIT_SELF="/opt/muos/script/init/async/S03chrony.sh"
 
-DAEMON="/opt/muos/bin/chronyd"
+DAEMON="/usr/sbin/chronyd"
 CONF="/opt/muos/share/conf/chrony.conf"
 PID_FILE="/run/chronyd.pid"
 

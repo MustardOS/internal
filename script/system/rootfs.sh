@@ -106,6 +106,7 @@ INSTALL_FILE etc/wpa_supplicant.conf 0600 1 || RESULT=1
 ENSURE_LINK etc/nsswitch.conf /opt/muos/share/conf/rootfs/nsswitch.conf || RESULT=1
 ENSURE_LINK etc/profile.d/50-muos.sh /opt/muos/share/conf/rootfs/muos-profile.sh || RESULT=1
 ENSURE_LINK etc/profile.d/umask.sh /opt/muos/share/conf/rootfs/umask.sh || RESULT=1
+ENSURE_LINK sbin/shutdown /opt/muos/script/system/shutdown.sh || RESULT=1
 
 [ ! -d "$(ROOT_PATH opt/muos/share/emulator/zulu)" ] || ENSURE_LINK opt/zulu /opt/muos/share/emulator/zulu || RESULT=1
 

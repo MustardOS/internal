@@ -2,8 +2,7 @@
 
 JOYCAL_JSON="/opt/muos/share/conf/joycal.json"
 EVDEV_BIN="/usr/bin/evdev-joystick"
-JQ_BIN="/opt/muos/bin/jq"
-[ -x "$JQ_BIN" ] || JQ_BIN="/usr/bin/jq"
+JQ_BIN="/usr/bin/jq"
 
 [ -x "$EVDEV_BIN" ] || exit 0
 [ -x "$JQ_BIN" ] || exit 0

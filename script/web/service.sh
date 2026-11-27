@@ -20,11 +20,7 @@ SERVICE_PROCESS_NAME() {
 FIND_DROPBEAR() {
 	DROPBEAR_BIN=
 	DROPBEAR_APPLET=
-	case "$(uname -m)" in
-		aarch64) DROPBEAR_CANDIDATES="/opt/muos/bin/aarch64/dropbearmulti /usr/sbin/dropbear /usr/bin/dropbear" ;;
-		x86_64) DROPBEAR_CANDIDATES="/usr/sbin/dropbear /usr/bin/dropbear" ;;
-		*) DROPBEAR_CANDIDATES="/usr/sbin/dropbear /usr/bin/dropbear" ;;
-	esac
+	DROPBEAR_CANDIDATES="/usr/sbin/dropbear /usr/bin/dropbear"
 
 	for DROPBEAR_CANDIDATE in $DROPBEAR_CANDIDATES; do
 		[ -x "$DROPBEAR_CANDIDATE" ] || continue
@@ -402,20 +398,7 @@ MANAGE_WEBSERV() {
 						LOG_ERROR "$0" 0 "WEB" "Dropbear is unavailable or incompatible"
 						return 1
 					}
-					case "$(uname -m)" in
-						aarch64)
-							SFTP_SERVER=/opt/muos/bin/aarch64/sftp-server
-							;;
-						x86_64)
-							SFTP_SERVER=/usr/lib/openssh/sftp-server
-							[ -x "$SFTP_SERVER" ] || SFTP_SERVER=/usr/lib/ssh/sftp-server
-							[ -x "$SFTP_SERVER" ] || SFTP_SERVER=/usr/libexec/sftp-server
-							;;
-						*)
-							LOG_ERROR "$0" 0 "WEB" "Secure File Transfer is unavailable on this architecture"
-							return 1
-							;;
-					esac
+					SFTP_SERVER=/usr/libexec/sftp-server
 					SFTP_JAIL=/opt/muos/frontend/tool/musftpjail
 					if [ ! -x "$SFTP_SERVER" ] || [ ! -x "$SFTP_JAIL" ]; then
 						LOG_ERROR "$0" 0 "WEB" "Secure File Transfer service files are unavailable"
@@ -485,7 +468,7 @@ MANAGE_WEBSERV() {
 					}
 
 					if [ -n "$TTYD_USER" ]; then
-						"$PROCESS_HELPER" start "$PROCESS_NAME" /opt/muos/bin/ttyd \
+						"$PROCESS_HELPER" start "$PROCESS_NAME" /usr/bin/ttyd \
 							--interface "$TTYD_BIND" \
 							--port "$TTYD_PORT" \
 							--credential "$TTYD_USER:$TTYD_PASS" \
@@ -493,7 +476,7 @@ MANAGE_WEBSERV() {
 							--writable \
 							/bin/sh -l
 					else
-						"$PROCESS_HELPER" start "$PROCESS_NAME" /opt/muos/bin/ttyd \
+						"$PROCESS_HELPER" start "$PROCESS_NAME" /usr/bin/ttyd \
 							--interface "$TTYD_BIND" \
 							--port "$TTYD_PORT" \
 							--url-arg \

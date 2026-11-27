@@ -17,7 +17,7 @@ START() {
 	seedrng -d "$SEED_DIR" >/dev/null 2>&1 || SEED_CREDITED=0
 	[ "$SEED_CREDITED" -eq 1 ] && return 0
 	ENTROPY_OK && return 0
-	nice -n 19 /opt/muos/bin/haveged -w 1024 -T 4 &
+	nice -n 19 /usr/sbin/haveged -w 1024 -T 4 &
 	(
 		sleep 30
 		seedrng -d "$SEED_DIR" >/dev/null 2>&1

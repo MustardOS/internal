@@ -28,13 +28,6 @@ MUOS_STORE_DIR="$MUOS_RUN_DIR/storage"
 OVERLAY_NOP="$MUOS_RUN_DIR/overlay.disable"
 IS_IDLE="$MUOS_RUN_DIR/is_idle"
 
-jq() {
-	if [ -x /opt/muos/bin/jq ]; then
-		/opt/muos/bin/jq "$@"
-	else
-		/usr/bin/jq "$@"
-	fi
-}
 IDLE_STATE="$MUOS_RUN_DIR/idle_state"
 
 export HOME XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS PIPEWIRE_RUNTIME_DIR \
@@ -93,12 +86,6 @@ CAPITALISE() {
 	printf "%s" "$CAP_OUT"
 }
 
-TBOX() {
-	CMD=$1
-	shift
-
-	/opt/muos/bin/toybox "$CMD" "$@"
-}
 
 LOCK_RUN() {
 	case " ${MUOS_LOCKS-} " in *" $1 "*) return 0 ;; esac

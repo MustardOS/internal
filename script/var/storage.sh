@@ -203,7 +203,7 @@ RESTORE_FRAMEBUFFER_MODE() {
 	fi
 }
 
-MUOS_MKE2FS="/opt/muos/bin/mke2fs"
+MUOS_MKE2FS="/usr/sbin/mke2fs"
 MUOS_MKE2FS_CONF="/opt/muos/share/conf/mke2fs.conf"
 
 EXFAT_NATIVE_BUILTIN() {

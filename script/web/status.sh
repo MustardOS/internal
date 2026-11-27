@@ -4,8 +4,7 @@
 
 . /opt/muos/script/var/runtime.sh
 
-JQ_BIN=/opt/muos/bin/jq
-[ -x "$JQ_BIN" ] || JQ_BIN=/usr/bin/jq
+JQ_BIN=/usr/bin/jq
 STATUS_CR=$(printf '\r')
 
 LANDING_STATE="$MUOS_RUN_DIR/landing/state"

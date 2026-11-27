@@ -6,7 +6,7 @@ export LANG=UTF-8
 . /opt/muos/script/var/service.sh
 
 printf "\033[1mWelcome to MustardOS %s\033[0m\n" "$(cat /opt/muos/config/system/version | head -n1 | tr '_' ' ')"
-/opt/muos/bin/fastfetch -c /opt/muos/bin/fastfetch.cfg
+/usr/bin/fastfetch -c /opt/muos/share/conf/fastfetch/fastfetch.cfg
 
 CMD="\033[1;33m"
 DESC="\033[0;33m"

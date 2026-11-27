@@ -34,21 +34,7 @@ RETRY_DELAY="${RETRY_DELAY:-2}"
 
 CONNECT_ON_BOOT=$(GET_VAR "config" "settings/network/boot")
 NET_DRIVER_TYPE=$(GET_VAR "device" "network/type")
-WPA_SUPPLICANT=$(command -v wpa_supplicant)
-[ -n "$WPA_SUPPLICANT" ] || WPA_SUPPLICANT="wpa_supplicant"
-
-WPA_ARCH=$(uname -m)
-case "$WPA_ARCH" in
-	arm64) WPA_ARCH="aarch64" ;;
-	amd64) WPA_ARCH="x86_64" ;;
-	armv7*) WPA_ARCH="armv7" ;;
-esac
-
-WPA_WEXT_BIN="/opt/muos/bin/$WPA_ARCH/wpa_supplicant/wext"
-
-if [ "$NET_DRIVER_TYPE" = "wext" ] && [ -x "$WPA_WEXT_BIN" ]; then
-	WPA_SUPPLICANT="$WPA_WEXT_BIN"
-fi
+WPA_SUPPLICANT="/usr/sbin/wpa_supplicant"
 
 CUS_HOST="MUOS/info/hostname"
 SD1_HOST="$(GET_VAR "device" "storage/rom/mount")/$CUS_HOST"
@@ -1372,7 +1358,7 @@ ON_CONNECTED() {
 
 	LOG_INFO "$0" 0 "NETWORK" "Running Chrony Time Sync"
 	CHRONY_ATTEMPT=0
-	while ! /opt/muos/bin/chronyc -a online >/dev/null 2>&1; do
+	while ! /usr/bin/chronyc -a online >/dev/null 2>&1; do
 		CHRONY_ATTEMPT=$((CHRONY_ATTEMPT + 1))
 		if [ "$CHRONY_ATTEMPT" -ge 5 ]; then
 			LOG_WARN "$0" 0 "NETWORK" "Chrony did not become ready after network connection"
@@ -1381,9 +1367,9 @@ ON_CONNECTED() {
 		sleep 1
 	done
 
-	if /opt/muos/bin/chronyc -a burst 4/4 >/dev/null 2>&1; then
+	if /usr/bin/chronyc -a burst 4/4 >/dev/null 2>&1; then
 		sleep 2
-		/opt/muos/bin/chronyc -a makestep >/dev/null 2>&1 ||
+		/usr/bin/chronyc -a makestep >/dev/null 2>&1 ||
 			LOG_WARN "$0" 0 "NETWORK" "Chrony could not step the system clock"
 	else
 		LOG_WARN "$0" 0 "NETWORK" "Chrony could not start its initial measurement burst"

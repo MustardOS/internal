@@ -118,7 +118,7 @@ HEADPHONE_FLAG="$MUOS_RUN_DIR/headphones"
 
 AUDIO_SINK_SLOT() {
 	[ -e "$1" ] && return 1
-	/opt/muos/bin/fnv1a "$1"
+	/usr/bin/fnv1a "$1"
 }
 
 OUTPUT_VOLUME_NAME() {

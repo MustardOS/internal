@@ -43,7 +43,7 @@ mkdir -p "$CONTROLS_DIR"
 
 # 1) Sample.ini generation
 if [ ! -f "$SAMPLE_INI" ]; then
-	CONTROLLERNAME="$(/opt/muos/bin/sdl2-jstest --list 2>/dev/null |
+	CONTROLLERNAME="$(/usr/bin/sdl2-jstest --list 2>/dev/null |
 		sed -n "s/^Joystick Name:[[:space:]]*'\(.*\)'.*$/\1/p" |
 		head -n1)"
 	if [ -n "$CONTROLLERNAME" ] && [ -f "$TEMPLATE_INI" ]; then

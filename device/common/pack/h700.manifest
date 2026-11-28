@@ -1,105 +1,93 @@
-F 159032 1720851549 /lib/libudev.so.1.6.3
-F 314256 1720851553 /usr/lib/libFLAC.so.12.1.0
-F 202616 1720851553 /usr/lib/libFLAC.so.8
-F 1272976 1791532691 /usr/lib/libSDL2-2.0.so.0.2800.5
-F 170416 1720851553 /usr/lib/libSDL2_image-2.0.so.0.800.2
-F 307840 1720851553 /usr/lib/libSDL2_mixer-2.0.so.0.600.3
-F 55608 1720851553 /usr/lib/libSDL2_ttf-2.0.so.0.2200.0
-F 1090000 1720851553 /usr/lib/libasound.so.2.0.0
-F 137048 1720851553 /usr/lib/libbrotlicommon.so.1.1.0
-F 42808 1720851553 /usr/lib/libbrotlidec.so.1.1.0
-F 70768 1720851553 /usr/lib/libbz2.so.1.0.8
-F 345824 1720851553 /usr/lib/libdbus-1.so.3.32.4
-F 435832 1720851553 /usr/lib/libfluidsynth.so.3.2.2
-F 703512 1720851553 /usr/lib/libfreetype.so.6.20.1
-F 1332448 1720851553 /usr/lib/libglib-2.0.so.0.7600.1
-F 294176 1720851553 /usr/lib/libgomp.so.1.0.0
-F 5712 1720851553 /usr/lib/libgthread-2.0.so.0.7600.1
-F 1185616 1720851553 /usr/lib/libharfbuzz.so.0.60831.0
+F 1596568 1795866483 /usr/lib/libSDL2-2.0.so.0.2800.5
+F 1929152 1795866483 /usr/lib/libSDL2-2.0.so.0.3200.10
+F 133704 1795866483 /usr/lib/libSDL2_image-2.0.so.0.800.12
+F 463128 1795866483 /usr/lib/libSDL2_mixer-2.0.so.0.800.2
+F 133456 1795866483 /usr/lib/libSDL2_ttf-2.0.so.0.2400.0
+F 1059328 1795866467 /usr/lib/libasound.so.2.0.0
+F 136480 1795866483 /usr/lib/libbz2.so.1.0.8
+F 399280 1795866468 /usr/lib/libdbus-1.so.3.38.5
+F 724152 1795866481 /usr/lib/libfreetype.so.6.20.7
+F 1447312 1795866464 /usr/lib/libglib-2.0.so.0.8800.4
+F 331280 1795866461 /usr/lib/libgomp.so.1.0.0
+F 67328 1795866464 /usr/lib/libgthread-2.0.so.0.8800.4
+F 1972520 1795866481 /usr/lib/libharfbuzz.so.0.61520.0
 F 44542232 1720851553 /usr/lib/libmali.so
-F 34800 1720851553 /usr/lib/libogg.so.0.8.5
-F 334072 1720851553 /usr/lib/libopus.so.0.9.0
-F 358392 1720851553 /usr/lib/libpcre2-8.so.0.12.0
-F 992752 1720851553 /usr/lib/libpipewire-0.3.so.0.1004.0
-F 203656 1720851553 /usr/lib/libpng16.so.16.43.0
-F 130672 1720851553 /usr/lib/libportaudio.so.2.0.0
-F 14120 1720851553 /usr/lib/libsharpyuv.so.0.0.1
-F 508272 1720851553 /usr/lib/libsndfile.so.1.0.37
-F 2366480 1720851553 /usr/lib/libstdc++.so.6.0.32
-F 166384 1720851553 /usr/lib/libvorbis.so.0.4.9
-F 661416 1720851553 /usr/lib/libvorbisenc.so.2.0.12
-F 326048 1720851553 /usr/lib/libwebp.so.7.1.8
-F 18336 1720851553 /usr/lib/libwebpdemux.so.2.0.14
-F 84200 1720851553 /usr/lib/libz.so.1.3.1
-L /lib/libudev.so.1 /lib/libudev.so.1.6.3
+F 67736 1795866503 /usr/lib/libogg.so.0.8.6
+F 526712 1795866471 /usr/lib/libopus.so.0.11.1
+F 657968 1795866462 /usr/lib/libpcre2-8.so.0.16.1
+F 988832 1795866476 /usr/lib/libpipewire-0.3.so.0.1612.0
+F 265368 1795866481 /usr/lib/libpng16.so.16.59.0
+F 67568 1795866504 /usr/lib/libsharpyuv.so.0.1.2
+F 462400 1795866471 /usr/lib/libsndfile.so.1.0.37
+F 2436080 1795866460 /usr/lib/libstdc++.so.6.0.33
+F 332016 1795866469 /usr/lib/libudev.so.1.7.15
+F 264904 1795866503 /usr/lib/libvorbis.so.0.4.9
+F 723032 1795866503 /usr/lib/libvorbisenc.so.2.0.12
+F 526928 1795866504 /usr/lib/libwebp.so.7.2.0
+F 67664 1795866504 /usr/lib/libwebpdemux.so.2.0.17
+F 133576 1795866461 /usr/lib/libz.so.1.4
 L /usr/lib/libEGL.so /usr/lib/libmali.so
 L /usr/lib/libEGL.so.1 /usr/lib/libmali.so
-L /usr/lib/libFLAC.so /usr/lib/libFLAC.so.12.1.0
-L /usr/lib/libFLAC.so.12 /usr/lib/libFLAC.so.12.1.0
 L /usr/lib/libGLESv1_CM.so /usr/lib/libmali.so
 L /usr/lib/libGLESv1_CM.so.1 /usr/lib/libmali.so
 L /usr/lib/libGLESv2.so /usr/lib/libmali.so
 L /usr/lib/libGLESv2.so.2 /usr/lib/libmali.so
 L /usr/lib/libMali.so /usr/lib/libmali.so
+L /usr/lib/libSDL2-2.0.so /usr/lib/libSDL2-2.0.so.0.2800.5
 L /usr/lib/libSDL2-2.0.so.0 /usr/lib/libSDL2-2.0.so.0.2800.5
 L /usr/lib/libSDL2.so /usr/lib/libSDL2-2.0.so.0.2800.5
-L /usr/lib/libSDL2_image-2.0.so.0 /usr/lib/libSDL2_image-2.0.so.0.800.2
-L /usr/lib/libSDL2_image.so /usr/lib/libSDL2_image-2.0.so.0.800.2
-L /usr/lib/libSDL2_mixer-2.0.so.0 /usr/lib/libSDL2_mixer-2.0.so.0.600.3
-L /usr/lib/libSDL2_mixer.so /usr/lib/libSDL2_mixer-2.0.so.0.600.3
-L /usr/lib/libSDL2_ttf-2.0.so.0 /usr/lib/libSDL2_ttf-2.0.so.0.2200.0
-L /usr/lib/libSDL2_ttf.so /usr/lib/libSDL2_ttf-2.0.so.0.2200.0
+L /usr/lib/libSDL2_image-2.0.so /usr/lib/libSDL2_image-2.0.so.0.800.12
+L /usr/lib/libSDL2_image-2.0.so.0 /usr/lib/libSDL2_image-2.0.so.0.800.12
+L /usr/lib/libSDL2_image.so /usr/lib/libSDL2_image-2.0.so.0.800.12
+L /usr/lib/libSDL2_mixer-2.0.so /usr/lib/libSDL2_mixer-2.0.so.0.800.2
+L /usr/lib/libSDL2_mixer-2.0.so.0 /usr/lib/libSDL2_mixer-2.0.so.0.800.2
+L /usr/lib/libSDL2_mixer.so /usr/lib/libSDL2_mixer-2.0.so.0.800.2
+L /usr/lib/libSDL2_ttf-2.0.so /usr/lib/libSDL2_ttf-2.0.so.0.2400.0
+L /usr/lib/libSDL2_ttf-2.0.so.0 /usr/lib/libSDL2_ttf-2.0.so.0.2400.0
+L /usr/lib/libSDL2_ttf.so /usr/lib/libSDL2_ttf-2.0.so.0.2400.0
 L /usr/lib/libasound.so /usr/lib/libasound.so.2.0.0
 L /usr/lib/libasound.so.2 /usr/lib/libasound.so.2.0.0
-L /usr/lib/libbrotlicommon.so /usr/lib/libbrotlicommon.so.1.1.0
-L /usr/lib/libbrotlicommon.so.1 /usr/lib/libbrotlicommon.so.1.1.0
-L /usr/lib/libbrotlidec.so /usr/lib/libbrotlidec.so.1.1.0
-L /usr/lib/libbrotlidec.so.1 /usr/lib/libbrotlidec.so.1.1.0
 L /usr/lib/libbz2.so /usr/lib/libbz2.so.1.0.8
+L /usr/lib/libbz2.so.1 /usr/lib/libbz2.so.1.0.8
 L /usr/lib/libbz2.so.1.0 /usr/lib/libbz2.so.1.0.8
-L /usr/lib/libdbus-1.so /usr/lib/libdbus-1.so.3.32.4
-L /usr/lib/libdbus-1.so.3 /usr/lib/libdbus-1.so.3.32.4
-L /usr/lib/libfluidsynth.so /usr/lib/libfluidsynth.so.3.2.2
-L /usr/lib/libfluidsynth.so.3 /usr/lib/libfluidsynth.so.3.2.2
-L /usr/lib/libfreetype.so /usr/lib/libfreetype.so.6.20.1
-L /usr/lib/libfreetype.so.6 /usr/lib/libfreetype.so.6.20.1
-L /usr/lib/libglib-2.0.so /usr/lib/libglib-2.0.so.0.7600.1
-L /usr/lib/libglib-2.0.so.0 /usr/lib/libglib-2.0.so.0.7600.1
-L /usr/lib/libgomp.so /usr/lib/libgomp.so.1.0.0
+L /usr/lib/libdbus-1.so /usr/lib/libdbus-1.so.3.38.5
+L /usr/lib/libdbus-1.so.3 /usr/lib/libdbus-1.so.3.38.5
+L /usr/lib/libfreetype.so /usr/lib/libfreetype.so.6.20.7
+L /usr/lib/libfreetype.so.6 /usr/lib/libfreetype.so.6.20.7
+L /usr/lib/libglib-2.0.so /usr/lib/libglib-2.0.so.0.8800.4
+L /usr/lib/libglib-2.0.so.0 /usr/lib/libglib-2.0.so.0.8800.4
 L /usr/lib/libgomp.so.1 /usr/lib/libgomp.so.1.0.0
-L /usr/lib/libgthread-2.0.so /usr/lib/libgthread-2.0.so.0.7600.1
-L /usr/lib/libgthread-2.0.so.0 /usr/lib/libgthread-2.0.so.0.7600.1
-L /usr/lib/libharfbuzz.so /usr/lib/libharfbuzz.so.0.60831.0
-L /usr/lib/libharfbuzz.so.0 /usr/lib/libharfbuzz.so.0.60831.0
+L /usr/lib/libgthread-2.0.so /usr/lib/libgthread-2.0.so.0.8800.4
+L /usr/lib/libgthread-2.0.so.0 /usr/lib/libgthread-2.0.so.0.8800.4
+L /usr/lib/libharfbuzz.so /usr/lib/libharfbuzz.so.0.61520.0
+L /usr/lib/libharfbuzz.so.0 /usr/lib/libharfbuzz.so.0.61520.0
 L /usr/lib/libmali.so.0 /usr/lib/libmali.so
 L /usr/lib/libmali.so.1 /usr/lib/libmali.so
-L /usr/lib/libogg.so /usr/lib/libogg.so.0.8.5
-L /usr/lib/libogg.so.0 /usr/lib/libogg.so.0.8.5
-L /usr/lib/libopus.so /usr/lib/libopus.so.0.9.0
-L /usr/lib/libopus.so.0 /usr/lib/libopus.so.0.9.0
-L /usr/lib/libpcre2-8.so /usr/lib/libpcre2-8.so.0.12.0
-L /usr/lib/libpcre2-8.so.0 /usr/lib/libpcre2-8.so.0.12.0
-L /usr/lib/libpipewire-0.3.so /usr/lib/libpipewire-0.3.so.0.1004.0
-L /usr/lib/libpipewire-0.3.so.0 /usr/lib/libpipewire-0.3.so.0.1004.0
-L /usr/lib/libpng.so /usr/lib/libpng16.so.16.43.0
-L /usr/lib/libpng16.so /usr/lib/libpng16.so.16.43.0
-L /usr/lib/libpng16.so.16 /usr/lib/libpng16.so.16.43.0
-L /usr/lib/libportaudio.so /usr/lib/libportaudio.so.2.0.0
-L /usr/lib/libportaudio.so.2 /usr/lib/libportaudio.so.2.0.0
-L /usr/lib/libsharpyuv.so /usr/lib/libsharpyuv.so.0.0.1
-L /usr/lib/libsharpyuv.so.0 /usr/lib/libsharpyuv.so.0.0.1
+L /usr/lib/libogg.so /usr/lib/libogg.so.0.8.6
+L /usr/lib/libogg.so.0 /usr/lib/libogg.so.0.8.6
+L /usr/lib/libopus.so /usr/lib/libopus.so.0.11.1
+L /usr/lib/libopus.so.0 /usr/lib/libopus.so.0.11.1
+L /usr/lib/libpcre2-8.so /usr/lib/libpcre2-8.so.0.16.1
+L /usr/lib/libpcre2-8.so.0 /usr/lib/libpcre2-8.so.0.16.1
+L /usr/lib/libpipewire-0.3.so /usr/lib/libpipewire-0.3.so.0.1612.0
+L /usr/lib/libpipewire-0.3.so.0 /usr/lib/libpipewire-0.3.so.0.1612.0
+L /usr/lib/libpng.so /usr/lib/libpng16.so.16.59.0
+L /usr/lib/libpng16.so /usr/lib/libpng16.so.16.59.0
+L /usr/lib/libpng16.so.16 /usr/lib/libpng16.so.16.59.0
+L /usr/lib/libsharpyuv.so /usr/lib/libsharpyuv.so.0.1.2
+L /usr/lib/libsharpyuv.so.0 /usr/lib/libsharpyuv.so.0.1.2
 L /usr/lib/libsndfile.so /usr/lib/libsndfile.so.1.0.37
 L /usr/lib/libsndfile.so.1 /usr/lib/libsndfile.so.1.0.37
-L /usr/lib/libstdc++.so /usr/lib/libstdc++.so.6.0.32
-L /usr/lib/libstdc++.so.6 /usr/lib/libstdc++.so.6.0.32
-L /usr/lib/libudev.so /lib/libudev.so.1.6.3
+L /usr/lib/libstdc++.so.6 /usr/lib/libstdc++.so.6.0.33
+L /usr/lib/libudev.so /usr/lib/libudev.so.1.7.15
+L /usr/lib/libudev.so.1 /usr/lib/libudev.so.1.7.15
 L /usr/lib/libvorbis.so /usr/lib/libvorbis.so.0.4.9
 L /usr/lib/libvorbis.so.0 /usr/lib/libvorbis.so.0.4.9
 L /usr/lib/libvorbisenc.so /usr/lib/libvorbisenc.so.2.0.12
 L /usr/lib/libvorbisenc.so.2 /usr/lib/libvorbisenc.so.2.0.12
-L /usr/lib/libwebp.so /usr/lib/libwebp.so.7.1.8
-L /usr/lib/libwebp.so.7 /usr/lib/libwebp.so.7.1.8
-L /usr/lib/libwebpdemux.so /usr/lib/libwebpdemux.so.2.0.14
-L /usr/lib/libwebpdemux.so.2 /usr/lib/libwebpdemux.so.2.0.14
-L /usr/lib/libz.so /usr/lib/libz.so.1.3.1
-L /usr/lib/libz.so.1 /usr/lib/libz.so.1.3.1
+L /usr/lib/libwebp.so /usr/lib/libwebp.so.7.2.0
+L /usr/lib/libwebp.so.7 /usr/lib/libwebp.so.7.2.0
+L /usr/lib/libwebpdemux.so /usr/lib/libwebpdemux.so.2.0.17
+L /usr/lib/libwebpdemux.so.2 /usr/lib/libwebpdemux.so.2.0.17
+L /usr/lib/libz.so /usr/lib/libz.so.1.4
+L /usr/lib/libz.so.1 /usr/lib/libz.so.1.4
